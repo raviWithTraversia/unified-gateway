@@ -1,11 +1,12 @@
 const Company = require('../models/Company'); 
 const User = require("../models/User");
+const Role = require("../models/Role"); // Import the Role model
 const bcrypt = require('bcryptjs');
 
 const companies = [
   {
     companyName: "Host",
-    parent: null,
+    parent: "1",
     type: "Host",
     companyStatus: "Active",
     modifiedBy: "Host",
@@ -39,10 +40,17 @@ const seedCompanies = async () => {
     
     if (existingCompanies.length === 0) {
       // Only create companies if none exist
-      await Company.create(companies); // Create the company records in the database
+      const createdCompanies = await Company.create(companies); // Create the company records in the database
       console.log('Companies table seeded successfully.');
+
+      // After creating companies, create users with the stored company_ID
+      const companyID = createdCompanies[0]._id;
+      await seedUsers(companyID); // Pass the company's _id to the seedUsers function
+
+      // Create role documents for users
+      await seedRoles(companyID);
     } else {
-      console.log('Companies table already exist. Skipping seeding.');
+      console.log('Companies table already exists. Skipping seeding.');
     }
   } catch (err) {
     console.error('Error seeding companies table:', err);
@@ -50,9 +58,8 @@ const seedCompanies = async () => {
 };
 
 const users = [
-  {    
-    company_ID: 1,
-    userType: "SuperAdmin",
+  {
+    roleId: "1",
     login_Id: "SuperAdmin",
     email: "admin@traversia.net",
     title: "Mr.",
@@ -87,29 +94,47 @@ const users = [
   }
 ];
 
-const seedUsers = async () => {
+const seedUsers = async (companyID) => {
   try {
-    // Check if any users already exist
-    const existingUsers = await User.find();
-    
-    if (existingUsers.length === 0) {
-      const saltRounds = 10; 
-      for (const user of users) {    
-        const hashedPassword = await bcrypt.hash(user.password, saltRounds);    
-        user.password = hashedPassword;
-      }
-      // Only create users if none exist
-      await User.create(users);
-      console.log('Users table seeded successfully.');
-    } else {
-      console.log('Users table already exist. Skipping seeding.');
+    const saltRounds = 10; 
+    for (const user of users) {
+      user.companyId = companyID; // Set the company_ID for the user
+      const hashedPassword = await bcrypt.hash(user.password, saltRounds);    
+      user.password = hashedPassword;
     }
+    // Only create users if none exist
+    await User.create(users);
+    console.log('Users table seeded successfully.');
   } catch (err) {
     console.error('Error seeding User table:', err);
   }
 };
 
+const seedRoles = async (companyID) => {
+  try {
+    // Define role data
+    const roles = [
+      {
+        name: "Tmc",
+        guardName: "web",
+        companyId: companyID // Set the user ID to the company ID
+      }
+     
+    ];
+
+    // Only create roles if none exist
+    const existingRoles = await Role.find();
+    if (existingRoles.length === 0) {
+      await Role.create(roles);
+      console.log('Roles table seeded successfully.');
+    } else {
+      console.log('Roles table already exists. Skipping seeding.');
+    }
+  } catch (err) {
+    console.error('Error seeding Roles table:', err);
+  }
+};
+
 module.exports = {
-  seedCompanies,
-  seedUsers
+  seedCompanies
 };

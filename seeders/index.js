@@ -1,10 +1,11 @@
 
-const { seedCompanies, seedUsers } = require('../seeders/seeder');
+const { seedCompanies } = require('../seeders/seeder');
+const { seedPermissions } = require('../seeders/parmissionSeeder');
 
 async function runSeeders() {
   try {
     await seedCompanies();
-    await seedUsers();   
+    await seedPermissions();   
     console.log('All seeders completed.');
   } catch (err) {
     console.error('Error running seeders:', err);

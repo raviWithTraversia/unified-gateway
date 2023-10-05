@@ -5,9 +5,10 @@ user_route.use(bodyParser.json());
 user_route.use(bodyParser.urlencoded({extended:true}));
 const userController = require("../controllers/userController");
 const auth = require("../middleware/auth");
+const { loginValidation } = require("../utils/validation/validation");
 
 user_route.post('/register', userController.registerUser );
-user_route.post('/login', userController.loginUser );
+user_route.post('/login', loginValidation, userController.loginUser );
 user_route.post('/userInsert', auth, userController.userInsert );
 
 

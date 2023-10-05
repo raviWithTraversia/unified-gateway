@@ -1,8 +1,10 @@
+
 const User = require("../models/User");
 const Company = require("../models/Company");
 const bcryptjs = require("bcryptjs");
 const { Config } = require("../configs/config");
 const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
  const createToken = async (id) => {
     try {
        const token = await jwt.sign({_id:id},Config.SECRET_JWT);
@@ -21,7 +23,7 @@ const securePassword = async (password) => {
 }
 
 const registerUser = async (req, res) => {
-    try {
+    try {        
         // Validate the request body
         const { name, email, password, mobile } = req.body;
 
@@ -65,6 +67,10 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
+        const errors = validationResult(req);
+        if(!errors.isEmpty()){
+            return res.status(400).json({ success: false, msg: errors.array(), data: null });
+        }
         const { email, password } = req.body;
         
         // Find the user by email

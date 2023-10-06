@@ -8,23 +8,6 @@ const { response } = require("../../routes/userRoute");
 const {apiSucessRes , apiErrorres} = require('../../utils/commonResponse');
 const {ServerStatusCode, errorResponse, ADMIN_USER_TYPE, CrudMessage}  = require('../../utils/constants');
 
- const createToken = async (id) => {
-    try {
-       const token = await jwt.sign({_id:id},Config.SECRET_JWT);
-       return token;
-    } catch (error) {
-        return error.message;
-    }
- }
-
-const securePassword = async (password) => {
-    try {
-        const passwordhash = await bcryptjs.hash(password, 10);
-        return passwordhash;
-    } catch (error) {
-        return error.message;
-    }
-}
 
 const registerUser = async (req, res) => {
    try {
@@ -46,8 +29,8 @@ const registerUser = async (req, res) => {
        console.log(error);
        apiErrorres(
         res,
-        errorResponse.INVALID_REQ,
-        ServerStatusCode.BAD_REQUEST,
+        errorResponse.SOMETHING_WRONG,
+        ServerStatusCode.SERVER_ERROR,
         true )
     }
 }
@@ -82,8 +65,8 @@ const loginUser = async (req, res) => {
     catch (error) {
         apiErrorres(
             res,
-            errorResponse.INVALID_REQ,
-            ServerStatusCode.BAD_REQUEST,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
             true )
     }
 }
@@ -108,11 +91,11 @@ const userInsert = async (req, res) => {
     }
    }
     catch (error) {
-      apiErrorres(
-        res,
-        errorResponse.USER_NOT_INSERT,
-        ServerStatusCode.BAD_REQUEST,
-        true )
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true )
     } 
   };
 

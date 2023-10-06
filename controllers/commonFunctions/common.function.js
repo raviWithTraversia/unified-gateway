@@ -26,18 +26,18 @@ const securePassword = async (password) => {
 const sendPasswordResetEmail = async (recipientEmail, resetToken) => {
     // Create a Nodemailer transporter using your email service provider's SMTP settings
     const transporter = nodemailer.createTransport({
-      host: 'smtp.hostinger.com', // SMTP server hostname or IP address
+      host: Config.HOST , // SMTP server hostname or IP address
       port: 587, // Port number for SMTP with STARTTLS
       secure: false, // Set to false when using STARTTLS
       auth: {
-        user: 'developer@traversia.tech',
-        pass: 'Ttpl@2023', // Verify the password for leading/trailing spaces
+        user: Config.USER,
+        pass: Config.PASS, // Verify the password for leading/trailing spaces
       },
     });
   
     // Email content
     const mailOptions = {
-      from: 'developer@traversia.tech',
+      from: Config.USER,
       to: recipientEmail,
       subject: 'Password Reset Request',
       text: `Click the following link to reset your password: 

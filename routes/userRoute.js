@@ -3,13 +3,41 @@ const user_route = express();
 const bodyParser = require("body-parser");
 user_route.use(bodyParser.json());
 user_route.use(bodyParser.urlencoded({extended:true}));
-const userController = require("../controllers/userController");
+const userController = require("../controllers/users/user.controller");
 const auth = require("../middleware/auth");
-const { loginValidation } = require("../utils/validation/validation");
+const userValidatior = require('../validation/user.validation');
 
-user_route.post('/register', userController.registerUser );
-user_route.post('/login', loginValidation, userController.loginUser );
-user_route.post('/userInsert', auth, userController.userInsert );
+user_route.post(
+    '/register',
+    userValidatior.userRegistration,
+    userController.registerUser 
+    );
+
+user_route.post(
+    '/login',
+    userValidatior.userLogin,
+     userController.loginUser 
+     );
+user_route.post(
+    '/userInsert', 
+    auth, 
+    userValidatior.userInsert,
+    userController.userInsert 
+    );
+
+    // route for forget password 
+user_route.post(
+    '/forgot-password',
+    userValidatior.userForgetPassword,
+    userController.forgotPassword
+)
+
+// route for reset password
+user_route.post(
+    '/reset-password',
+    //userValidatior.userResetPassword,
+    userController.resetPassword
+)
 
 
 

@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({       
-    companyId: {
+    company_ID: {
         type: String,
         required: true,
     },
-    roleId: {
+    userType: {
         type: String,
         required: true,
     },
@@ -46,6 +46,7 @@ const userSchema = new mongoose.Schema({
     sales_In_Charge: Boolean,
     personalPanCardUpload: String,
     isNewUser: Boolean,
+    resetToken: String,
     
 }, {
     timestamps: true // Adds created_at and updated_at fields

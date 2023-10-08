@@ -3,7 +3,7 @@ const Company = require("../../models/Company");
 const bcryptjs = require("bcryptjs");
 const { Config } = require("../../configs/config");
 const jwt = require("jsonwebtoken");
-const commonResponse = require('../../utils/commonResponse');
+const commonResponse = require('../../utils/commonResponce');
 const commonFunction = require('../commonFunctions/common.function')
 
 

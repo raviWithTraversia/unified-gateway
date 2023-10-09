@@ -41,7 +41,6 @@ user_route.post(
 )
 
 
-
 user_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

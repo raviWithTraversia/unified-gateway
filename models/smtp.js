@@ -11,7 +11,7 @@ const smtpConfigSchema = new mongoose.Schema({
     },
 
     port : {
-        type : String,
+        type : Number,
         required : true
     },
 

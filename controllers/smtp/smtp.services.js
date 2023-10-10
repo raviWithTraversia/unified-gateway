@@ -48,15 +48,17 @@ const removeSmtpConfig = async (req , res) => {
     }
 }
 
-const updateSmtpConfig = async (req,res) => {
-    const { companyId } = req.params;
-    try{
-        await SmtpConfig.findOneAndUpdate({companyId})
+// const updateSmtpConfig = async (req,res) => {
+//     const { companyId } = req.params;
+//     try{
+//         await SmtpConfig.findOneAndUpdate({companyId})
 
-    }catch(error){
+//     }catch(error){
 
-    }
-}
+//     }
+// }
+
+
 module.exports = {
     smtpConfig,
     addSmtpConfig,

@@ -22,10 +22,14 @@ smtp_route.delete(
       
 );
 
-smtp_route.patch(
-    '/update/smtpConfig/:companyId',
-    smtpController.updateSmtpConfig
-)
+// smtp_route.patch(
+//     '/update/smtpConfig/:companyId',
+//     smtpController.updateSmtpConfig
+// )
 
-smtp_route.patch()
+smtp_route.get('/test',auth, function(req, res){
+    res.status(200).json({status:"success",msg:"this is test responce"});
+});
+
+module.exports = smtp_route;
 

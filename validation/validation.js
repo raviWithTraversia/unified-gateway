@@ -1,7 +1,9 @@
-const { check } = require("express-validator");
+const { check, oneOf } = require("express-validator");
 
 exports.loginValidation = [
-    check('email', 'Email is required').notEmpty().isEmail(),
+    oneOf([
+        check('email').notEmpty().isEmail(),
+        check('phoneNumber').notEmpty().isMobilePhone(),
+    ], 'Email or phoneNumber is required'),
     check('password', 'Password is required').notEmpty()
 ]
-

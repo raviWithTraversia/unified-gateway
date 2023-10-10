@@ -1,4 +1,5 @@
-const commonResponse = require('../utils/commonResponse');
+
+const commonResponse = require('../utils/commonResponce');
 const constants = require('../utils/constants');
 const userSchema = require('./user.schema');
 const { ServerStatusCode } = constants;

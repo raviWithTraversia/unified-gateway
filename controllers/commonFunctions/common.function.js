@@ -1,4 +1,3 @@
-
 const bcryptjs = require("bcryptjs");
 const { Config } = require("../../configs/config");
 const jwt = require("jsonwebtoken");
@@ -34,16 +33,16 @@ const sendPasswordResetEmail = async (recipientEmail, resetToken) => {
         pass: Config.PASS, // Verify the password for leading/trailing spaces
       },
     });
-  
+ 
     // Email content
     const mailOptions = {
       from: Config.USER,
       to: recipientEmail,
       subject: 'Password Reset Request',
-      text: `Click the following link to reset your password: 
+      text: `Click the following link to reset your password:
              http://your-app-url/reset-password?token=${resetToken}`,
     };
-  
+ 
     // Send the email
     try {
       await transporter.sendMail(mailOptions);
@@ -53,7 +52,7 @@ const sendPasswordResetEmail = async (recipientEmail, resetToken) => {
       throw error;
     }
   };
-  
+ 
 
 
 

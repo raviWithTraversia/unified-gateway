@@ -5,7 +5,8 @@ const { Config } = require("../../configs/config");
 const jwt = require("jsonwebtoken");
 const userServices = require('./user.services');
 const { response } = require("../../routes/userRoute");
-const {apiSucessRes , apiErrorres} = require('../../utils/commonResponse');
+const { validationResult } = require("express-validator");
+const {apiSucessRes , apiErrorres} = require('../../utils/commonResponce');
 const {ServerStatusCode, errorResponse, ADMIN_USER_TYPE, CrudMessage}  = require('../../utils/constants');
 
 
@@ -19,11 +20,11 @@ const registerUser = async (req, res) => {
         apiSucessRes(
             res,
             CrudMessage.USER_CREATED,
-            result.response, 
+            result.response,
             ServerStatusCode.SUCESS_CODE
             )
        }
-      
+     
    }
     catch (error) {
        console.log(error);
@@ -37,7 +38,7 @@ const registerUser = async (req, res) => {
 
 
 const loginUser = async (req, res) => {
-   try {
+   try {    
     const result = await userServices.loginUser(req);
     if(result.response == 'User not found'){
         apiErrorres(
@@ -85,7 +86,7 @@ const userInsert = async (req, res) => {
       apiSucessRes(
         res,
         CrudMessage.USER_INSERT,
-        result.response, 
+        result.response,
         ServerStatusCode.SUCESS_CODE
         )
     }
@@ -96,7 +97,7 @@ const userInsert = async (req, res) => {
             errorResponse.SOMETHING_WRONG,
             ServerStatusCode.SERVER_ERROR,
             true )
-    } 
+    }
   };
 
   const forgotPassword = async (req,res) =>{
@@ -112,7 +113,7 @@ const userInsert = async (req, res) => {
         apiSucessRes(
           res,
           CrudMessage.RESET_MAIL_SENT,
-          result.response, 
+          result.response,
           ServerStatusCode.SUCESS_CODE
           )
       }
@@ -137,11 +138,11 @@ const userInsert = async (req, res) => {
           true )
 
       }else{
-  
+ 
         apiSucessRes(
           res,
           CrudMessage.PASSWORD_RESET,
-          result.response, 
+          result.response,
           ServerStatusCode.SUCESS_CODE
           )
 
@@ -155,7 +156,7 @@ const userInsert = async (req, res) => {
         true )
     }
   }
-  
+ 
 
 
 module.exports = {

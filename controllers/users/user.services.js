@@ -3,7 +3,7 @@ const Company = require("../../models/Company");
 const bcryptjs = require("bcryptjs");
 const { Config } = require("../../configs/config");
 const jwt = require("jsonwebtoken");
-const commonResponse = require('../../utils/commonResponse');
+const commonResponse = require('../../utils/commonResponce');
 const commonFunction = require('../commonFunctions/common.function')
 
 
@@ -34,12 +34,12 @@ const registerUser = async (req, res) => {
         }
 
         const spassword = await commonFunction.securePassword(password);
-        const newUser = new User({ 
+        const newUser = new User({
             name,
             email,
             password: spassword,
             mobile
-            
+           
         });
 
         const userData = await User.findOne({ email });
@@ -49,7 +49,7 @@ const registerUser = async (req, res) => {
                 response : 'This email is already in use'
             }
         } else {
-            const user_data = await newUser.save(); 
+            const user_data = await newUser.save();
             return  {
                 response : 'Registered Successfully'
             }
@@ -63,8 +63,15 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
+    // const errors = validationResult(req);
+    // if(!errors.isEmpty()){
+    //     return { 
+    //         success:false,
+    //         response:errors.array()            
+    //     }
+    // }  
       const { email, phoneNumber, password } = req.body;
-        
+       
         // Find the user by email
         const user = await User.findOne({
           $or: [
@@ -72,7 +79,7 @@ const loginUser = async (req, res) => {
             { phoneNumber: phoneNumber },
           ],
         });
-        
+       
 
         if (!user) {
             return {
@@ -115,20 +122,20 @@ const userInsert = async (req, res) => {
       // Define the required fields
       const requiredFields = [
         "companyName",
-         "parent", 
+         "parent",
          "type",
-         "companyStatus", 
-         "modifiedBy", 
+         "companyStatus",
+         "modifiedBy",
          "logo_URL",
          "office_Type",
-         "isAutoInvoicing", 
-         "invoicingPackageName", 
-         "planType", 
-         "creditPlanType", 
+         "isAutoInvoicing",
+         "invoicingPackageName",
+         "planType",
+         "creditPlanType",
          "booking_Prefix",
-        "invoicing_Prefix", 
-        "invoicingTemplate", 
-        "cin_number", 
+        "invoicing_Prefix",
+        "invoicingTemplate",
+        "cin_number",
         "signature",
         "pan_Number",
         "HSN_SAC_Code",
@@ -164,7 +171,7 @@ const userInsert = async (req, res) => {
         "sales_In_Charge",
         "personalPanCardUpload"
       ];
-  
+ 
       // Check for missing fields in the request body
       const missingFields = requiredFields.filter(field => !req.body[field]);
       if (missingFields.length > 0) {
@@ -174,60 +181,60 @@ const userInsert = async (req, res) => {
         }
        // return res.status(400).json({ success: false, msg: "All fields are required", data: missingFields });
       }
-  
+ 
       // Destructure the request body
       const {
-        companyName, 
-        parent, 
+        companyName,
+        parent,
         type,
-        companyStatus, 
-        modifiedBy, 
+        companyStatus,
+        modifiedBy,
         logo_URL,
-        office_Type, 
-        isAutoInvoicing, 
-        invoicingPackageName, 
+        office_Type,
+        isAutoInvoicing,
+        invoicingPackageName,
         planType,
         creditPlanType,
         booking_Prefix,
-        invoicing_Prefix, 
+        invoicing_Prefix,
         invoicingTemplate,
-        cin_number, 
+        cin_number,
         signature,
         pan_Number,
         HSN_SAC_Code,
         hierarchy_Level,
-        pan_upload, 
-        userType, 
+        pan_upload,
+        userType,
         login_Id,
-        email, 
-        title, 
+        email,
+        title,
         fname,
         lastName,
-        password, 
-        securityStamp, 
+        password,
+        securityStamp,
         phoneNumber,
-        twoFactorEnabled, 
+        twoFactorEnabled,
         lockoutEnabled,
         emailConfirmed,
         phoneNumberConfirmed,
         userStatus,
         userPanName,
-        userPanNumber, 
-        created_Date, 
-        lastModifiedDate, 
+        userPanNumber,
+        created_Date,
+        lastModifiedDate,
         userModifiedBy,
-        last_LoginDate, 
+        last_LoginDate,
         activation_Date,
-        sex, 
+        sex,
         dob,
-        nationality, 
-        deviceToken, 
-        deviceID, 
+        nationality,
+        deviceToken,
+        deviceID,
         user_planType,
-        sales_In_Charge, 
+        sales_In_Charge,
         personalPanCardUpload
       } = req.body;
-  
+ 
       // Check if a user with the same email already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -237,7 +244,7 @@ const userInsert = async (req, res) => {
         }
         return res.status(400).json({ success: false, msg: "User with this email already exists", data: null });
       }
-  
+ 
       // Check if a company with the same companyName already exists
       const existingCompany = await Company.findOne({ companyName });
       if (existingCompany) {
@@ -247,68 +254,68 @@ const userInsert = async (req, res) => {
         }
         return res.status(400).json({ success: false, msg: "Company with this companyName already exists", data: null });
       }
-  
+ 
       // Create a new Company document
       const newCompany = new Company({
-        companyName, 
-        parent, 
-        type, 
+        companyName,
+        parent,
+        type,
         companyStatus,
-        modifiedBy, 
+        modifiedBy,
         logo_URL,
-        office_Type, 
-        isAutoInvoicing, 
-        invoicingPackageName, 
+        office_Type,
+        isAutoInvoicing,
+        invoicingPackageName,
         planType,
-        creditPlanType, 
-        booking_Prefix, 
-        invoicing_Prefix, 
+        creditPlanType,
+        booking_Prefix,
+        invoicing_Prefix,
         invoicingTemplate,
-        cin_number, 
-        signature, 
-        pan_Number, 
-        HSN_SAC_Code, 
+        cin_number,
+        signature,
+        pan_Number,
+        HSN_SAC_Code,
         hierarchy_Level,
         pan_upload
       });
-  
+ 
       // Save the Company document to the database
       const savedCompany = await newCompany.save();
-  
+ 
       // Create a new User document and associate it with the Company document
       const newUser = new User({
-        userType, 
-        login_Id, 
-        email, 
-        title, 
-        fname, 
+        userType,
+        login_Id,
+        email,
+        title,
+        fname,
         lastName,
-        password, 
-        securityStamp, 
-        phoneNumber, 
+        password,
+        securityStamp,
+        phoneNumber,
         twoFactorEnabled,
-        lockoutEnabled, 
-        emailConfirmed, 
-        phoneNumberConfirmed, 
+        lockoutEnabled,
+        emailConfirmed,
+        phoneNumberConfirmed,
         userStatus,
-        userPanName, 
-        userPanNumber, 
-        created_Date, 
-        lastModifiedDate, 
+        userPanName,
+        userPanNumber,
+        created_Date,
+        lastModifiedDate,
         userModifiedBy,
-        last_LoginDate, 
-        activation_Date, 
-        sex, 
-        dob, 
-        nationality, 
-        deviceToken, 
-        deviceID, 
-        user_planType, 
-        sales_In_Charge, 
+        last_LoginDate,
+        activation_Date,
+        sex,
+        dob,
+        nationality,
+        deviceToken,
+        deviceID,
+        user_planType,
+        sales_In_Charge,
         personalPanCardUpload,
         company_ID: savedCompany._id, // Set the company_ID field to the _id of the saved Company document
       });
-  
+ 
       // Save the User document to the database
       await newUser.save();
       return {
@@ -325,10 +332,10 @@ const userInsert = async (req, res) => {
 
   const forgotPassword = async (req, res) => {
     const { email } = req.body;
-  
+ 
     try {
       // Find the user by email
-      
+     
       const resetToken = Math.random().toString(36).slice(2);
 
   // Find the user by email and update the reset token
@@ -337,22 +344,22 @@ const userInsert = async (req, res) => {
     { $set: { resetToken } },
     { new: true }
   );
-  
+ 
 
-  
+ 
       if (!user) {
         return {
           response : "User not found"
         }
       }
      
-  
+ 
       // Send a password reset email to the user
       await commonFunction.sendPasswordResetEmail(user.email, resetToken);
       return {
         response : "Password reset email sent"
       }
-  
+ 
     } catch (error) {
       console.error(error);
       return res.status(500).json({ success: false, msg: "Internal server error" });

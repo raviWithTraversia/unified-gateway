@@ -6,12 +6,7 @@ const roleSchema = new mongoose.Schema({
       type: String,
       required: true,        
       default: null
-    },
-    guardName: { // web or mob
-      type: String,
-      required: false,        
-      default: null
-    },
+    },    
     companyId: {
       type: String,
       required: false,        

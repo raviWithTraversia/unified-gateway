@@ -115,8 +115,7 @@ const seedRoles = async (companyID) => {
     // Define role data
     const roles = [
       {
-        name: "Tmc",
-        guardName: "web",
+        name: "Tmc",        
         companyId: companyID // Set the user ID to the company ID
       }
      

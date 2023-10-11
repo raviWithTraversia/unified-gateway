@@ -19,7 +19,10 @@ const CrudMessage = {
     BOOKING_FAIL : 'Booking Failed',
     USER_INSERT : 'User data inserted sucessfully',
     RESET_MAIL_SENT : "Password reset mail sent",
-    PASSWORD_RESET: 'Password reset sucessfull'
+    PASSWORD_RESET: 'Password reset sucessfull',
+    FETCH_DATA : "Fetch all SMTP",
+    ADD_SMTP : "Add smtp data",
+    REMOVE_SMTP : "Remove smtp config sucessfully"
 }
 
 const errorResponse = {
@@ -29,6 +32,7 @@ const errorResponse = {
     INVALID_REQ : 'Invalid Request',
     USER_NOT_INSERT : 'User data not inserted',
     SOMETHING_WRONG: 'Something went wrong!',
+    NOT_AVALIABLE: 'No data available'
 
 }
 

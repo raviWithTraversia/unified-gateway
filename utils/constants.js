@@ -19,7 +19,14 @@ const CrudMessage = {
     BOOKING_FAIL : 'Booking Failed',
     USER_INSERT : 'User data inserted sucessfully',
     RESET_MAIL_SENT : "Password reset mail sent",
-    PASSWORD_RESET: 'Password reset sucessfull'
+    PASSWORD_RESET: 'Password reset sucessfull',
+    EVENT_LOG_CREATED : "Event log created successfully",
+    PORTAL_LOG_CREATED : 'Portal log created successfully',
+    PRODUCT_CREATED : 'Product addedd successfully',
+    PRODUCT_UPDATE : 'Product updated sucessfully',
+    PRODUCT_DELETE : 'Product delete successfully',
+    PRODUCT_PLAN_CREATED : 'Product plan created successfully',
+    PRODUCT_PLAN_UPDATED : 'Product plan updated successfully'
 }
 
 const errorResponse = {

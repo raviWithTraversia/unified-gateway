@@ -6,7 +6,7 @@ product_route.use(bodyParser.urlencoded({extended:true}));
 const Product = require('../controllers/product/product.controller');
 const ProductPlan = require('../controllers/product/productPlan.controller');
 
-const productValidator = require('../utils/validation/product.validation');
+const productValidator = require('../validation/product.validation');
 
 
 // Product route created by alam Shah

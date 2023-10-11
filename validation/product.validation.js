@@ -1,6 +1,6 @@
 const productSchema = require('./product.schema');
-const constants = require('../../utils/constants');
-const commonResponse = require('../../utils/commonResponce');
+const constants = require('../utils/constants');
+const commonResponse = require('../utils/commonResponce');
 const { ServerStatusCode } = constants;
 
 const errorMessage = (value, res, next) => {

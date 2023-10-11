@@ -1,6 +1,7 @@
 /* Routes */
 const userRoute = require("../routes/userRoute");
 const logRoute = require("../routes/logRoute");
+const productRoute = require('../routes/productRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -8,6 +9,9 @@ class RoutesLoader {
 
         //  logs route By AlamShah 
         app.use('/api', logRoute);
+
+        // Product route by AlamShah
+        app.use('/api' , productRoute);
 
     }
 }

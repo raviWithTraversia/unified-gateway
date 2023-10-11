@@ -62,18 +62,8 @@ const registerUser = async (req, res) => {
 
 
 const loginUser = async (req, res) => {
-<<<<<<< HEAD
-    try {  
-=======
     try {
-    // const errors = validationResult(req);
-    // if(!errors.isEmpty()){
-    //     return { 
-    //         success:false,
-    //         response:errors.array()            
-    //     }
-    // }  
->>>>>>> 92992734dc158ee40838f824f56c62cff03bd990
+ 
       const { email, phoneNumber, password } = req.body;
        
         // Find the user by email

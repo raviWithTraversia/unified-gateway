@@ -26,7 +26,10 @@ const CrudMessage = {
     PRODUCT_UPDATE : 'Product updated sucessfully',
     PRODUCT_DELETE : 'Product delete successfully',
     PRODUCT_PLAN_CREATED : 'Product plan created successfully',
-    PRODUCT_PLAN_UPDATED : 'Product plan updated successfully'
+    PRODUCT_PLAN_UPDATED : 'Product plan updated successfully',
+    FETCH_DATA : "Fetch all SMTP",
+    ADD_SMTP : "Add smtp data",
+    REMOVE_SMTP : "Remove smtp config sucessfully"
 }
 
 const errorResponse = {
@@ -36,6 +39,7 @@ const errorResponse = {
     INVALID_REQ : 'Invalid Request',
     USER_NOT_INSERT : 'User data not inserted',
     SOMETHING_WRONG: 'Something went wrong!',
+    NOT_AVALIABLE: 'No data available'
 
 }
 

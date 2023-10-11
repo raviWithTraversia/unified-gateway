@@ -6,12 +6,7 @@ const parmissionSchema = new mongoose.Schema({
       type: String,
       required: true,        
       default: null
-    },
-    guardName: { // web or mob
-      type: String,
-      required: false,        
-      default: null
-    }      
+    }       
  
 }, {
   timestamps: true // Adds created_at and updated_at fields

@@ -2,21 +2,18 @@ const Permission = require('../models/Permission');
 
 const permission = [
     {
-        name: "role-list",
-        guardName: "web"   
+        name: "",
+
     },
     {
-        name: "role-create",
-        guardName: "web"   
+        name: "role-create",           
     },
     {
-        name: "role-edit",
-        guardName: "web"   
+        name: "role-edit",          
     }
     , 
     {
-        name: "role-delete",
-        guardName: "web"   
+        name: "role-delete",           
     }
 ];
 

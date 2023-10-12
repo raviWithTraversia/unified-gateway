@@ -29,7 +29,8 @@ const CrudMessage = {
     PRODUCT_PLAN_UPDATED : 'Product plan updated successfully',
     FETCH_DATA : "Fetch all SMTP",
     ADD_SMTP : "Add smtp data",
-    REMOVE_SMTP : "Remove smtp config sucessfully"
+    REMOVE_SMTP : "Remove smtp config sucessfully",
+    PRIVILAGE_PLAN_CREATED : 'Privilage plan created successfully',
 }
 
 const errorResponse = {

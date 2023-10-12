@@ -1,10 +1,11 @@
 const ProductPlan = require('../../models/ProductPlan');
 const Company = require('../../models/Company');
+const ProductHasPP = require('../../models/ProductPlanHasProduct');
 
 const addProductPlan = async (req, res) => {
     try {
-        const { productPlanName, companyId } = req.body;
-
+        const { productPlanName, companyId , product} = req.body;
+      
         // Check company id exist or not
         const checkCompanyIdExist = await Company.find({ _id: companyId });
 
@@ -20,7 +21,21 @@ const addProductPlan = async (req, res) => {
         });
 
         // save product plan
-        const result = addNewProductPlan.save();
+        const result = await addNewProductPlan.save();
+        const PlanHasId = result._id;
+
+
+        // Add productPlanHasProduct
+        product.forEach(async(product) => {
+            const productId = product.productId;
+            const productPlaneId = PlanHasId;
+            const ProductHPP = new ProductHasPP({
+                productPlaneId,
+                productId
+            });
+           const result = await ProductHPP.save();
+        });
+      
         return {
             response: 'Product plan addedd successfully'
         }

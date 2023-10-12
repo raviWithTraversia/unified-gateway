@@ -47,6 +47,7 @@ const productUpdateById = async (req, res) => {
         }
         // Check product exist or Not
         const productId = req.params.productId;
+        
         const checkProduct = await Product.find({ _id: productId });
        
         if (!checkProduct) {

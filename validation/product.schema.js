@@ -9,6 +9,7 @@ const schema = {
     productPlanSchema: Joi.object({
         productPlanName: Joi.string().required(),
         companyId: Joi.string().required(),
+        product : Joi.array().required(),
     }),
 
 

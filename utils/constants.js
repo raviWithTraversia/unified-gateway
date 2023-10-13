@@ -19,10 +19,12 @@ const CrudMessage = {
     BOOKING_FAIL : 'Booking Failed',
     USER_INSERT : 'User data inserted sucessfully',
     RESET_MAIL_SENT : "Password reset mail sent",
-    PASSWORD_RESET: 'Password reset sucessfull',
+    PASSWORD_RESET: 'Password reset sucessfully',
     FETCH_DATA : "Fetch all SMTP",
     ADD_SMTP : "Add smtp data",
-    REMOVE_SMTP : "Remove smtp config sucessfully"
+    REMOVE_SMTP : "Remove smtp config sucessfully",
+    ALL_DATA : "Fetch all data sucessfully",
+    FETCH_REG_DATA: "Fetch all data by ComapnyId"
 }
 
 const errorResponse = {

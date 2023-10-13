@@ -89,7 +89,6 @@ const loginUser = async (req, res) => {
             return {
                 response : 'Invalid password'
             }
-            return res.status(401).json({ success: false, msg: "Invalid password", data: null });
         }
         const token = await commonFunction.createToken(user._id);
         const userDetails = {

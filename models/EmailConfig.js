@@ -8,8 +8,8 @@ const emailSchema  = new mongoose.schema({
         required : true
     },
     EmailConfigDescriptionId : {
-        type : String,
-        required : true
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'EmailConfigDiscription'
     },
 
     mailDescription : {

@@ -5,7 +5,7 @@ product_route.use(bodyParser.json());
 product_route.use(bodyParser.urlencoded({extended:true}));
 const Product = require('../controllers/product/productController');
 
-const {productValidation} = require('../utils/validation/product.validation');
+const {productValidation} = require('../validation/product.validation');
 
 
 product_route.post('/product' ,  productValidation ,Product.storeProduct);

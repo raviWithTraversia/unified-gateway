@@ -25,7 +25,6 @@ const addEventLog = async (req, res) => {
         console.log(error);
         throw error;
     }
-
 }
 
 const retriveEventLog = async (req, res) => {

@@ -48,7 +48,7 @@ const addPrivilagePlan = async(req , res) =>{
            const result = await privilagePlanAdd.save();
         });
 
-        return {
+        return {    
             response : 'Privilage plan created successfully'
         }
 

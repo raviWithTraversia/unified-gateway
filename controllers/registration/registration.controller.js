@@ -44,7 +44,8 @@ const addRegistration = async (req,res) => {
         res,
         errorResponse.SOMETHING_WRONG,
         ServerStatusCode.SERVER_ERROR,
-        true )
+        true
+         )
 
   }
    

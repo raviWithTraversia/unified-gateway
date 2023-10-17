@@ -1,5 +1,9 @@
 
+<<<<<<< Updated upstream
 const { seedCompanies } = require('../seeders/seeder');
+=======
+const { seedCompanies, seedCompaniesSmtp, seedEmailConfigDescription } = require('../seeders/seeder');
+>>>>>>> Stashed changes
 const { seedPermissions } = require('../seeders/parmissionSeeder');
 const { seedProduct } = require('../seeders/productSeeder'); 
 const { seedProductPlan} = require('../seeders/productPlanSeeder');

@@ -2,6 +2,11 @@ const Company = require('../models/Company');
 const User = require("../models/User");
 const Role = require("../models/Role"); // Import the Role model
 const bcrypt = require('bcryptjs');
+<<<<<<< Updated upstream
+=======
+const Smtp = require('../models/smtp');
+const EmailDiscription = require('../models/EmailConfigDiscription')
+>>>>>>> Stashed changes
 
 const companies = [
   {

@@ -25,7 +25,20 @@ const CrudMessage = {
     ADD_SMTP : "Add smtp data",
     REMOVE_SMTP : "Remove smtp config sucessfully",
     ALL_DATA : "Fetch all data sucessfully",
-    FETCH_REG_DATA: "Fetch all data by ComapnyId"
+    FETCH_REG_DATA: "Fetch all data by ComapnyId",
+    PASSWORD_RESET: 'Password reset sucessfull',
+    EVENT_LOG_CREATED : "Event log created successfully",
+    PORTAL_LOG_CREATED : 'Portal log created successfully',
+    PRODUCT_CREATED : 'Product addedd successfully',
+    PRODUCT_UPDATE : 'Product updated sucessfully',
+    PRODUCT_DELETE : 'Product delete successfully',
+    PRODUCT_PLAN_CREATED : 'Product plan created successfully',
+    PRODUCT_PLAN_UPDATED : 'Product plan updated successfully',
+    FETCH_DATA : "Fetch all SMTP",
+    ADD_SMTP : "Add smtp data",
+    REMOVE_SMTP : "Remove smtp config sucessfully",
+    PRIVILAGE_PLAN_CREATED : 'Privilage plan created successfully',
+    CREDIT_REQUESTED_CREATED : 'Credit request created successfully'
 }
 
 const errorResponse = {

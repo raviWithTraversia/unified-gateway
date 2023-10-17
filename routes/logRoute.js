@@ -3,8 +3,8 @@ const log_route = express();
 const bodyParser = require("body-parser");
 log_route.use(bodyParser.json());
 log_route.use(bodyParser.urlencoded({extended:true}));
-const eventLogController = require('../controllers/logs/eventLogController');
-const portalLogController = require('../controllers/logs/portalLogController');
+const eventLogController = require('../controllers/logs/eventLog.controller');
+const portalLogController = require('../controllers/logs/portalLog.controller');
 
 
 // Event log route process By Alam Shah

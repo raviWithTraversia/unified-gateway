@@ -25,7 +25,6 @@ const CrudMessage = {
     ADD_SMTP : "Add smtp data",
     REMOVE_SMTP : "Remove smtp config sucessfully",
     ALL_DATA : "Fetch all data sucessfully",
-<<<<<<< HEAD
     FETCH_REG_DATA: "Fetch all data by ComapnyId",
     PASSWORD_RESET: 'Password reset sucessfull',
     EVENT_LOG_CREATED : "Event log created successfully",
@@ -39,10 +38,8 @@ const CrudMessage = {
     ADD_SMTP : "Add smtp data",
     REMOVE_SMTP : "Remove smtp config sucessfully",
     PRIVILAGE_PLAN_CREATED : 'Privilage plan created successfully',
-    CREDIT_REQUESTED_CREATED : 'Credit request created successfully'
-=======
+    CREDIT_REQUESTED_CREATED : 'Credit request created successfully',
     FETCH_REG_DATA: "Fetch all data by ComapnyId"
->>>>>>> 62eb340abea3ac049e6b5961eca2047e9775f9fd
 }
 
 const errorResponse = {

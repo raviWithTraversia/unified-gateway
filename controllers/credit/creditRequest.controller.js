@@ -1,0 +1,70 @@
+const { apiSucessRes, apiErrorres } = require('../../utils/commonResponce');
+const { ServerStatusCode, errorResponse, CrudMessage } = require('../../utils/constants');
+const creditRequestService = require('./creditRequest.services');
+
+const storeCreditRequest = async(req , res) => {
+    try {
+        const result = await creditRequestService.addCreditRequest(req);
+        if(result.response == 'All field are required' || result.response == 'companyId does not exist' || result.response == 'createdBy id does not exist') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        }
+        else {
+            apiSucessRes(
+                res,
+                CrudMessage.CREDIT_REQUESTED_CREATED,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+        }
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+const getAllCreditRequest = async(req , res) => {
+    try {
+        const result = await creditRequestService.getAllCreditList(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+const getCreditByCompanyId = async(req , res) => {
+    try {
+        const result = await creditRequestService.getCredirRequestByCompanyId(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+module.exports = {storeCreditRequest , getAllCreditRequest , getCreditByCompanyId}

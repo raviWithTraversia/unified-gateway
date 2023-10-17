@@ -1,4 +1,4 @@
-const productSchema = require('./product.schema');
+const creditRequestSchema = require('./creditRequest.shema');
 const constants = require('../utils/constants');
 const commonResponse = require('../utils/commonResponce');
 const { ServerStatusCode } = constants;
@@ -18,13 +18,9 @@ const errorMessage = (value, res, next) => {
 };
 
 module.exports = {
-    productValidation : async(req ,res , next) => {
-        const value = await productSchema.productSchema.validate(req.body);
+    creditValidation : async(req ,res , next) => {
+        const value = await creditRequestSchema.creditRequestValidation.validate(req.body);
         errorMessage(value, res, next);
     },
-
-    productPlanValidation : async(req ,res , next) => {
-        const value = await productSchema.productPlanSchema.validate(req.body);
-        errorMessage(value, res, next);
-    },
+ 
 }

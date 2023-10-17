@@ -2,19 +2,26 @@ const Permission = require('../models/Permission');
 
 const permission = [
     {
-        name: "",
-
+      category: "Flight",
+      productName : "Flight",
+      categoryName : "Flight Booking",
+      permissionName : "flight",
+      permissionDescription : "This could be a reference to a confirmation number or description of the ticket that grants permission to board a flight"
     },
     {
-        name: "role-create",           
+      category: "Hotel",
+      productName : "Hotel",
+      categoryName : "Hotel Booking",
+      permissionName : "hotel",
+      permissionDescription : "Information about the hotel's check-in and check-out times and any special procedures that guests need to follow"
     },
     {
-        name: "role-edit",          
-    }
-    , 
-    {
-        name: "role-delete",           
-    }
+      category: "Train",
+      productName : "Train",
+      categoryName : "Train Booking",
+      permissionName : "train",
+      permissionDescription : "Information on where and how to board the train, including platform or station details and any specific boarding instructions"
+    },
 ];
 
 const seedPermissions = async () => {

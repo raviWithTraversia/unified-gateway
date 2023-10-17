@@ -1,0 +1,48 @@
+const PortalLogService = require('../logs/protalLog.services');
+const {apiSucessRes , apiErrorres} = require('../../utils/commonResponce');
+const { ServerStatusCode, errorResponse, CrudMessage } = require('../../utils/constants');
+
+
+const storePortalLog =  async(req , res) => {
+    try {
+
+        const result = await PortalLogService.addPortalLog(req);
+        if (result.response == 'CompanyId fields are required') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        } else {
+            apiSucessRes(
+                res,
+                CrudMessage.PORTAL_LOG_CREATED,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )
+        }
+
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true)
+    }
+}
+
+const  retrivePortalLog = async(req ,res) => {
+
+    try {
+        
+        const result = await PortalLogService.getPortalLog(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+
+    } catch (error) {
+        return res.status(500).json({ success: false, msg: error.message, 
+            data: null });
+    }
+}
+
+module.exports = {storePortalLog , retrivePortalLog}

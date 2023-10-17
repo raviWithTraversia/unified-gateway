@@ -1,5 +1,5 @@
 
-const { seedCompanies } = require('../seeders/seeder');
+const { seedCompanies } = require('../seeders/companiesSeeder');
 const { seedPermissions } = require('../seeders/parmissionSeeder');
 const { seedProduct } = require('../seeders/productSeeder'); 
 const { seedProductPlan} = require('../seeders/productPlanSeeder');

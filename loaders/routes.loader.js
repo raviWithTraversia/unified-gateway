@@ -4,6 +4,7 @@ const logRoute = require("../routes/logRoute");
 const productRoute = require('../routes/productRoute');
 const privilageRoute = require('../routes/privilageRoute');
 const creditRoute = require('../routes/creditRoute');
+const productPlanController = require('../routes/productPlanRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -20,6 +21,9 @@ class RoutesLoader {
 
         // Credit route created by AlamShah
         app.use('/api' ,creditRoute);
+
+        // Product Plan Route
+        app.use('/api' ,productPlanController);
     }
 }
 

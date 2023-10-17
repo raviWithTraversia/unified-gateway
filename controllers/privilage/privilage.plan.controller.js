@@ -4,10 +4,10 @@ const PrivilageServices = require('./privilage.plan.services');
 
 const storePrivilagePlan = async (req, res) => {
     try {
-       
+
         const result = await PrivilageServices.addPrivilagePlan(req);
-        
-        if(result.response == 'All field are required' || result.response == 'companyId does not exist' || result.response == 'product plan Id does not exist') {
+
+        if (result.response == 'All field are required' || result.response == 'companyId does not exist' || result.response == 'product plan Id does not exist') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
         }
         else {
@@ -47,4 +47,4 @@ const getAllPrivilage = async (req, res) => {
     }
 }
 
-module.exports = { storePrivilagePlan , getAllPrivilage}
+module.exports = { storePrivilagePlan, getAllPrivilage }

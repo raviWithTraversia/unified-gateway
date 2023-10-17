@@ -3,7 +3,7 @@ const { seedCompanies } = require('../seeders/seeder');
 const { seedPermissions } = require('../seeders/parmissionSeeder');
 const { seedProduct } = require('../seeders/productSeeder'); 
 const { seedProductPlan} = require('../seeders/productPlanSeeder');
-const { productPlanHasProductSeeder } = require('../seeders/productPlanHasProduct');
+const { productPlanHasProductSeeder } = require('../seeders/productPlanHasProductSeeder');
 
 async function runSeeders() {
   try {

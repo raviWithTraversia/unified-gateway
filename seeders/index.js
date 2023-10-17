@@ -1,9 +1,5 @@
 
-<<<<<<< Updated upstream
 const { seedCompanies } = require('../seeders/seeder');
-=======
-const { seedCompanies, seedCompaniesSmtp, seedEmailConfigDescription } = require('../seeders/seeder');
->>>>>>> Stashed changes
 const { seedPermissions } = require('../seeders/parmissionSeeder');
 const { seedProduct } = require('../seeders/productSeeder'); 
 const { seedProductPlan} = require('../seeders/productPlanSeeder');
@@ -23,6 +19,7 @@ async function runSeeders() {
     await seedPermissions();
     await seedCompaniesSmtp();
     await seedEmailConfigDescription();  
+
     await seedStatus();
     console.log('All seeders completed.');
   } catch (err) {

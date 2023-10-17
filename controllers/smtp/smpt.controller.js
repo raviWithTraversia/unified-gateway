@@ -1,8 +1,4 @@
-const SmtpConfig = require("../../models/smtp");
-const Company = require("../../models/Company");
-const bcryptjs = require("bcryptjs");
-const { Config } = require("../../configs/config");
-const jwt = require("jsonwebtoken");
+
 const smtpServices = require('./smtp.services');
 const { response } = require("../../routes/smtpRoute");
 const { validationResult } = require("express-validator");

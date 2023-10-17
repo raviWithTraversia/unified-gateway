@@ -1,4 +1,4 @@
-const emailConfigServices = require('./email.services');
+const emailConfigServices = require('./emailConfig.services');
 const { response } = require("../../routes/smtpRoute");
 const { validationResult } = require("express-validator");
 const {apiSucessRes , apiErrorres} = require('../../utils/commonResponce');
@@ -15,6 +15,7 @@ const getEmailConfig = async(req,res) => {
 
 const addEmailConfig = async (req ,res) => {
     try{
+     const result = await emailConfigServices.addEmailConfig(req,res);
 
     }catch(error){
 

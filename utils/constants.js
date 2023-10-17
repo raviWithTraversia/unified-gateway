@@ -8,7 +8,8 @@ const ServerStatusCode = {
     BAD_REQUEST: 400,
     PRECONDITION_FAILED: 412,
     UNPROCESSABLE: 422,
-    RESOURCE_NOT_FOUND: 404
+    RESOURCE_NOT_FOUND: 404,
+    ALREADY_EXIST: 208
 
 }
 
@@ -19,6 +20,12 @@ const CrudMessage = {
     BOOKING_FAIL : 'Booking Failed',
     USER_INSERT : 'User data inserted sucessfully',
     RESET_MAIL_SENT : "Password reset mail sent",
+    PASSWORD_RESET: 'Password reset sucessfully',
+    FETCH_DATA : "Fetch all SMTP",
+    ADD_SMTP : "Add smtp data",
+    REMOVE_SMTP : "Remove smtp config sucessfully",
+    ALL_DATA : "Fetch all data sucessfully",
+    FETCH_REG_DATA: "Fetch all data by ComapnyId",
     PASSWORD_RESET: 'Password reset sucessfull',
     EVENT_LOG_CREATED : "Event log created successfully",
     PORTAL_LOG_CREATED : 'Portal log created successfully',
@@ -31,7 +38,8 @@ const CrudMessage = {
     ADD_SMTP : "Add smtp data",
     REMOVE_SMTP : "Remove smtp config sucessfully",
     PRIVILAGE_PLAN_CREATED : 'Privilage plan created successfully',
-    CREDIT_REQUESTED_CREATED : 'Credit request created successfully'
+    CREDIT_REQUESTED_CREATED : 'Credit request created successfully',
+    FETCH_REG_DATA: "Fetch all data by ComapnyId"
 }
 
 const errorResponse = {

@@ -1,9 +1,12 @@
 
-const { seedCompanies } = require('../seeders/seeder');
+const { seedCompanies } = require('../seeders/companiesSeeder');
 const { seedPermissions } = require('../seeders/parmissionSeeder');
 const { seedProduct } = require('../seeders/productSeeder'); 
 const { seedProductPlan} = require('../seeders/productPlanSeeder');
 const { productPlanHasProductSeeder } = require('../seeders/productPlanHasProductSeeder');
+const { seedCompaniesSmtp } = require('../seeders/companiesSmtp.seeder');
+const { seedEmailConfigDescription } = require('../seeders/emailConfigrationDescription.seeder');
+const { seedStatus } = require('../seeders/status.seeder');
 
 async function runSeeders() {
   try {
@@ -13,6 +16,11 @@ async function runSeeders() {
     await seedProductPlan();
     await productPlanHasProductSeeder();
 
+    await seedPermissions();
+    await seedCompaniesSmtp();
+    await seedEmailConfigDescription();  
+
+    await seedStatus();
     console.log('All seeders completed.');
   } catch (err) {
     console.error('Error running seeders:', err);

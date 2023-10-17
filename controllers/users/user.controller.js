@@ -1,11 +1,5 @@
-const User = require("../../models/User");
-const Company = require("../../models/Company");
-const bcryptjs = require("bcryptjs");
-const { Config } = require("../../configs/config");
-const jwt = require("jsonwebtoken");
 const userServices = require('./user.services');
 const { response } = require("../../routes/userRoute");
-const { validationResult } = require("express-validator");
 const {apiSucessRes , apiErrorres} = require('../../utils/commonResponce');
 const {ServerStatusCode, errorResponse, ADMIN_USER_TYPE, CrudMessage}  = require('../../utils/constants');
 

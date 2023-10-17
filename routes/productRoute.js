@@ -5,11 +5,11 @@ product_route.use(bodyParser.json());
 product_route.use(bodyParser.urlencoded({extended:true}));
 const Product = require('../controllers/product/product.controller');
 
+const {productValidation} = require('../validation/product.validation');
 const productValidator = require('../validation/product.validation');
 
 
-// Product route created by alam Shah
-product_route.post('/product' ,  productValidator.productValidation ,Product.storeProduct);
+product_route.post('/product' ,  productValidation ,Product.storeProduct);
 product_route.get('/get-product' , Product.getProduct);
 product_route.patch('/update-product/:productId' , Product.updateProduct);
 product_route.delete('/delete-product/:productId' , Product.deleteProduct);

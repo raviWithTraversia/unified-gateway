@@ -15,7 +15,6 @@ const getEmailConfig = async(req,res) => {
 
 const addEmailConfig = async (req ,res) => {
     try{
-     const result = await emailConfigServices.addEmailConfig(req,res);
 
     }catch(error){
 

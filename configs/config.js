@@ -1,7 +1,7 @@
 module.exports.Config = {   
     PORT: process.env.PORT || 3010,    
     SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",
-    MONGODB_URL:process.env.MONGODB_URL || "mongodb://127.0.0.1:27017/kafila",
+    MONGODB_URL:process.env.MONGODB_URL || "mongodb+srv://hsbhandari:fl1I9D8gtsbeHzdO@cluster0.xdzp3sk.mongodb.net/",
     HOST: 'smtp.hostinger.com',
     USER: 'developer@traversia.tech',
     PASS: 'Ttpl@2023'

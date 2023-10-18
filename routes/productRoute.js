@@ -14,8 +14,6 @@ product_route.get('/get-product' , Product.getProduct);
 product_route.patch('/update-product/:productId' , Product.updateProduct);
 product_route.delete('/delete-product/:productId' , Product.deleteProduct);
 
-
-
 module.exports = product_route;
 
 

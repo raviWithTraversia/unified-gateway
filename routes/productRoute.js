@@ -9,6 +9,7 @@ const {productValidation} = require('../validation/product.validation');
 const productValidator = require('../validation/product.validation');
 
 
+
 product_route.post('/product' ,  productValidation ,Product.storeProduct);
 product_route.get('/get-product' , Product.getProduct);
 product_route.patch('/update-product/:productId' , Product.updateProduct);

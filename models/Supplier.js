@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const yourSchema = new mongoose.Schema({
+const supplierSchema = new mongoose.Schema({
     cadeId: {
         type : String,
         required : true
@@ -94,5 +94,6 @@ const yourSchema = new mongoose.Schema({
         required : true
     }
   }, {
-    
+    timestamps: true // Adds created_at and updated_at fields
   });
+module.exports = mongoose.model('Supplier' , supplierSchema);

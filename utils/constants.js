@@ -38,8 +38,7 @@ const CrudMessage = {
     ADD_SMTP : "Add smtp data",
     REMOVE_SMTP : "Remove smtp config sucessfully",
     PRIVILAGE_PLAN_CREATED : 'Privilage plan created successfully',
-    CREDIT_REQUESTED_CREATED : 'Credit request created successfully',
-    FETCH_REG_DATA: "Fetch all data by ComapnyId"
+    CREDIT_REQUESTED_CREATED : 'Credit request created successfully'
 }
 
 const errorResponse = {

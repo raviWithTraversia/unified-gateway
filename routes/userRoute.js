@@ -8,6 +8,7 @@ const auth = require("../middleware/auth");
 //const { loginValidation } = require("../utils/validation/validation");
 const userValidatior = require('../validation/user.validation');
 
+
 user_route.post(
     '/register',
     userValidatior.userRegistration,
@@ -40,8 +41,7 @@ user_route.post(
     userController.resetPassword
 )
 
-
-user_route.get('/test',auth, function(req, res){
+user_route.get('/test', function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });
 

@@ -24,7 +24,6 @@ const addProductPlan = async (req, res) => {
         const result = await addNewProductPlan.save();
         const PlanHasId = result._id;
 
-
         // Add productPlanHasProduct
         product.forEach(async(product) => {
             const productId = product.productId;
@@ -35,7 +34,6 @@ const addProductPlan = async (req, res) => {
             });
            const result = await ProductHPP.save();
         });
-      
         return {
             response: 'Product plan addedd successfully'
         }
@@ -47,7 +45,6 @@ const addProductPlan = async (req, res) => {
 
 const getAllProductPlan = async (req, res) => {
     try {
-
         const result = await ProductPlan.find();
         if (result.length > 0) {
             return {
@@ -59,11 +56,9 @@ const getAllProductPlan = async (req, res) => {
                 data: null
             }
         }
-
     } catch (error) {
         throw error;
     }
-
 }
 
 

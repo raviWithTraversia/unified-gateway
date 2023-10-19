@@ -9,12 +9,11 @@ const {productValidation} = require('../validation/product.validation');
 const productValidator = require('../validation/product.validation');
 
 
+
 product_route.post('/product' ,  productValidation ,Product.storeProduct);
 product_route.get('/get-product' , Product.getProduct);
 product_route.patch('/update-product/:productId' , Product.updateProduct);
 product_route.delete('/delete-product/:productId' , Product.deleteProduct);
-
-
 
 module.exports = product_route;
 

@@ -6,7 +6,7 @@ const emailConfigSchema = new mongoose.Schema({
         required : true
     }
 
-})
+});
 const emailConfigDiscription = mongoose.model("emailConfigDiscription", emailConfigSchema);
 
 module.exports = emailConfigDiscription;

@@ -1,40 +1,36 @@
-const { boolean } = require('joi');
 const mongoose = require('mongoose');
 
-const emailSchema  = new mongoose.schema({
+const emailSchema = new mongoose.Schema({  // Changed mongoose.schema to mongoose.Schema
 
-    companyId : {
-        type : String,
-        required : true
+    companyId: {
+        type: String,
+        required: true
     },
-    EmailConfigDescriptionId : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref: 'EmailConfigDiscription'
+    EmailConfigDescriptionId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'EmailConfigDescription'
     },
-
-    mailDescription : {
-        type : String,
-        required : true
+    mailDescription: {
+        type: String,
+        required: true
     },
-    emailCc : {
-        type : String,
-        required : true
+    emailCc: {
+        type: String,
+        required: true
     },
-    emailBcc : {
-        type : String,
-        required : true
+    emailBcc: {
+        type: String,
+        required: true
     },
-
-    smptConfigId : {
-        type : mongoose.Schema.Types.ObjectId,
+    smptConfigId: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'smtp'
     },
-    
-    status : {
-        type : Boolean,
-        required : true
+    status: {
+        type: Boolean,  // Corrected the type to Boolean
+        required: true
     }
-})
+});
 
 const emailConfig = mongoose.model("emailConfig", emailSchema);
 

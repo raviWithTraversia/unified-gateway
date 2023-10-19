@@ -6,7 +6,9 @@ const registrationRoute = require('../routes/registrationRoute');
 const statusRoute = require('../routes/statusRoute');
 const privilageRoute = require('../routes/privilageRoute');
 const creditRoute = require('../routes/creditRoute');
-const productPlanController = require('../routes/productPlanRoute');
+const productPlanRoute = require('../routes/productPlanRoute');
+const emailConfigRoute = require('../routes/emaiConfigRoute');
+const emailConfigDecriptionRoute = require("../routes/emailConfigDiscriptionRoute");
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -32,7 +34,13 @@ class RoutesLoader {
         app.use('/api' ,creditRoute);
 
         // Product Plan Route
-        app.use('/api' ,productPlanController);
+        app.use('/api' ,productPlanRoute);
+
+        // emailConfig Route by shahsi
+        app.use('/api',emailConfigRoute);
+
+        // emailConfigDescription Route by shashi
+        app.use('/api', emailConfigDecriptionRoute)
     }
 }
 

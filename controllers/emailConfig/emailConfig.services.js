@@ -36,6 +36,8 @@ const addEmailConfig = async (req,res) => {
          response : 'Email config is already exist'
        }
       }else{
+         const newEmailConfigDescription = new emailConfigDes({emailConfigDescription: mailDescription });
+         EmailConfigDescriptionId = newEmailConfigDescription._id;
          let createEmailConfig = new emailConfig({
             companyId,
             EmailConfigDescriptionId,
@@ -61,9 +63,23 @@ const addEmailConfig = async (req,res) => {
 
 const getEmailConfig = async (req,res) => {
    try{
+      const { companyId } = req.body;
+      let allEmailConfigData = await emailConfig.find({ companyId });
+      if(!allEmailConfigData ||!allEmailConfigData.length ){
+      return {
+         response : 'No any email config exist for this comapnyId',
+         data : null
+      }
+   }else{
+      return {
+         response : 'Email config id fetch sucessfully',
+         data : allEmailConfigData
+      }
+   }
 
    }catch(error) {
-
+      console.log(error);
+      throw error
    }
 };
 

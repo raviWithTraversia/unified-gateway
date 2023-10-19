@@ -1,5 +1,4 @@
 const userServices = require('./user.services');
-const { response } = require("../../routes/userRoute");
 const {apiSucessRes , apiErrorres} = require('../../utils/commonResponce');
 const {ServerStatusCode, errorResponse, ADMIN_USER_TYPE, CrudMessage}  = require('../../utils/constants');
 

@@ -42,7 +42,7 @@ const sendPasswordResetEmail = async (recipientEmail, resetToken) => {
       text: `Click the following link to reset your password:
              http://your-app-url/reset-password?token=${resetToken}`,
     };
- 
+
     // Send the email
     try {
       await transporter.sendMail(mailOptions);
@@ -52,6 +52,26 @@ const sendPasswordResetEmail = async (recipientEmail, resetToken) => {
       throw error;
     }
   };
+
+
+  const getPagination = (page, size) => {
+    const limit = size ? +size : 3;
+    const offset = page ? (page - 1) * limit : 0;
+    return { limit, offset };
+  };
+  const getPagingData = (Data, page, limit) => {
+    const { count: totalItems, rows: data } = Data;
+    const currentPage = page ? +page : 0;
+    const totalPages = Math.ceil(totalItems / limit);
+  
+    return { totalItems, data, totalPages, currentPage };
+  };
+  const getPagingDataOfSp = async (Data, page, limit) => {
+    let total = Data.length ? Data[0].Total : 0;
+    const currentPage = page ? +page : 0;
+    const totalPages = Math.ceil(total / limit);
+    return { totalItems: total, data: Data, totalPages, currentPage };
+  };
  
 
 
@@ -59,5 +79,8 @@ const sendPasswordResetEmail = async (recipientEmail, resetToken) => {
 module.exports = {
     createToken,
     securePassword,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    getPagination,
+    getPagingData,
+    getPagingDataOfSp
 }

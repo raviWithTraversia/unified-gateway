@@ -7,7 +7,7 @@ const statusController = require('../controllers/status/status.controller');
 const auth = require("../middleware/auth");
 
 status_route.get(
-   '/:statustype',
+   '/status/:statustype',
    statusController.findStatusType
 );
 

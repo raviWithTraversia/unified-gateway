@@ -4,7 +4,7 @@ const status = require('../../models/status');
 const findStatusType = async(req,res) => {
   try{
     let { statusId } = req.query;
-    const isStatus = await status.findById({statusId});
+    const isStatus = await status.find();
     if(!status){
         return {
             response : "Status not Found"

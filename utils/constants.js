@@ -31,7 +31,7 @@ const CrudMessage = {
     PORTAL_LOG_CREATED : 'Portal log created successfully',
     PRODUCT_CREATED : 'Product addedd successfully',
     PRODUCT_UPDATE : 'Product updated sucessfully',
-    PRODUCT_DELETE : 'Product delete successfully',
+    PRODUCT_DELETE : 'Product deleted successfully',
     PRODUCT_PLAN_CREATED : 'Product plan created successfully',
     PRODUCT_PLAN_UPDATED : 'Product plan updated successfully',
     FETCH_DATA : "Fetch all SMTP",

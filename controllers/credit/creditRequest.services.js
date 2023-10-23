@@ -67,7 +67,6 @@ const addCreditRequest = async(req , res) => {
 
 const getAllCreditList = async(req , res) => {
     try {
-       
         const result = await CreditRequest.find();
         if (result.length > 0) {
             return {
@@ -84,6 +83,8 @@ const getAllCreditList = async(req , res) => {
         throw error;
     }
 }
+
+
 
 const getCredirRequestByCompanyId = async(req , res) => {
     try {
@@ -105,4 +106,8 @@ const getCredirRequestByCompanyId = async(req , res) => {
     }
 }
 
-module.exports = {addCreditRequest , getAllCreditList , getCredirRequestByCompanyId}
+module.exports = {
+     addCreditRequest ,
+     getAllCreditList , 
+     getCredirRequestByCompanyId
+    }

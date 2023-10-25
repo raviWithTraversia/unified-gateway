@@ -12,7 +12,7 @@ email_config_description_route.get(
 );
 
 email_config_description_route.post(
-    'add-Config-description',
+    'add/Config-description',
     emailConfigDescriptionController.addEmailConfig
 );
 

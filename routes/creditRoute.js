@@ -91,20 +91,6 @@ credit_route.get(
 )
 
 
-
-/**
- * @swagger
- * /api/get-credit-by-compnay/651f88e66be7808dd4bbdd70:
- *   get:
- *     summary: Get  credit requests by company id
- *     responses:
- *       200:
- *         description: Successful response
- *       404:
- *         description: Credit request not available
- *       500:
- *         description: Internal server error
- */
 credit_route.get('/get-credit-by-compnay/:companyId' , 
 creditRequest.getCreditByCompanyId)
 

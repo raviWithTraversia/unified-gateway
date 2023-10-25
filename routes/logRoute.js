@@ -16,32 +16,39 @@ const portalLogController = require('../controllers/logs/portalLog.controller');
  *    post:
  *      security:
  *      - bearerAuth: []
- *      summary: For add eventlog
- *      tags: [add eventlog]
- *      description: for add event log
+ *      summary: Add Event Log
+ *      tags: [Add Event Log]
+ *      description: Add an event log
  *      requestBody:
  *        content:
  *          application/json:
  *            schema:
+ *              type: object
  *              properties:
  *               eventName:
  *                 type: string
+ *                 example: "User Login"
  *               doerId:
- *                 type: string 
- *               doerName: 
- *                 type: string 
+ *                 type: string
+ *                 example: "651f88e66be7808dd4bbdd70"
+ *               doerName:
+ *                 type: string
+ *                 example: "John Doe"
  *               ipAddress:
  *                 type: string
+ *                 example: "192.168.1.100"
  *               companyId:
  *                 type: string
+ *                 example: "1234567890"
  *      responses:
  *        "200":
- *          description: Event log added Sucessfully
+ *          description: Event log added successfully
  *        "401":
- *          description: user unutharized
+ *          description: User unauthorized
  *        "500":
- *          description: server error
+ *          description: Server error
  */
+
 log_route.post('/eventlog' , eventLogController.storeEventLog);
 
 
@@ -68,34 +75,42 @@ log_route.get('/retriveEventLog/:companyId' , eventLogController.retriveEventLog
  *    post:
  *      security:
  *      - bearerAuth: []
- *      summary: For add portallog
- *      tags: [For add portallog]
- *      description: for add portallog
+ *      summary: Add Portal Log
+ *      tags: [Add Portal Log]
+ *      description: Add a portal log
  *      requestBody:
  *        content:
  *          application/json:
  *            schema:
+ *              type: object
  *              properties:
  *               traceId:
  *                 type: string
+ *                 example: "123456"
  *               companyId:
- *                 type: string 
- *               source: 
- *                 type: string 
+ *                 type: string
+ *                 example: "651f88e66be7808dd4bbdd70"
+ *               source:
+ *                 type: string
+ *                 example: "Web Application"
  *               product:
  *                 type: string
+ *                 example: "Product Name"
  *               request:
  *                 type: string
- *               responce:
+ *                 example: "GET /api/some-endpoint"
+ *               response:
  *                 type: string
+ *                 example: "200 OK"
  *      responses:
  *        "200":
- *          description:  event log list not available
+ *          description: Portal log added successfully
  *        "401":
- *          description: user unutharized
+ *          description: User unauthorized
  *        "500":
- *          description: server error
+ *          description: Server error
  */
+
 log_route.post('/portallog' , portalLogController.storePortalLog);
 
 /**

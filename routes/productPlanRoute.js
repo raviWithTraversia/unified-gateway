@@ -17,28 +17,35 @@ const productValidator = require('../validation/product.validation');
  *    post:
  *      security:
  *      - bearerAuth: []
- *      summary: For add product plan
- *      tags: [Add product Plan]
- *      description: for add product plan
+ *      summary: Add Product Plan
+ *      tags: [Add Product Plan]
+ *      description: Add a product plan
  *      requestBody:
  *        content:
  *          application/json:
  *            schema:
+ *              type: object
  *              properties:
  *               productPlanName:
  *                 type: string
+ *                 example: "Gold Plan"
  *               companyId:
- *                 type: mongoose.Schema.Types.ObjectId  
+ *                 type: string
+ *                 example: "651f88e66be7808dd4bbdd70"
  *               product:
- *                 type: mongoose.Schema.Types.ObjectId
+ *                 type: array
+ *                 example:
+ *                 - productId: "6524e5ef01aa7477c0ae9461"
+ *                 - productId: "6524e5ef01aa7477c0ae9462"
  *      responses:
  *        "200":
- *          description: product plan added Sucessfully
+ *          description: Product plan added successfully
  *        "401":
- *          description: user unutharized
+ *          description: User unauthorized
  *        "500":
- *          description: server error
+ *          description: Server error
  */
+
 
 product__plan_route.post('/product-plan' , productValidator.productPlanValidation ,ProductPlan.addProductPlan);
 
@@ -67,24 +74,27 @@ product__plan_route.get('/all-product-plan' , ProductPlan.retriveProductPlan);
  *    patch:
  *      security:
  *      - bearerAuth: []
- *      summary: For update product plan
- *      tags: [Update product Plan]
- *      description: For update product plan
+ *      summary: Update Product Plan
+ *      tags: [Update Product Plan]
+ *      description: Update a product plan
  *      requestBody:
  *        content:
  *          application/json:
  *            schema:
+ *              type: object
  *              properties:
  *               productPlanName:
  *                 type: string
+ *                 example: "Updated Product Plan Name"
  *      responses:
  *        "200":
- *          description: product plan updated Sucessfully
+ *          description: Product plan updated successfully
  *        "401":
- *          description: user unutharized
+ *          description: User unauthorized
  *        "500":
- *          description: server error
+ *          description: Server error
  */
+
 product__plan_route.patch('/update-product-plan/:producPlantId' , ProductPlan.updateProductPlan);
 
 

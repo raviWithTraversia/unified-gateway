@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const StateSchema = mongoose.Schema({
-    state : {
+    name : {
         type : String,
         required : true,
     },
@@ -13,7 +13,27 @@ const StateSchema = mongoose.Schema({
         type : String,
         required : false,
         default : null
-    }
+    },
+    country_code : {
+        type: String,
+        required : false,
+        default : null
+    },
+    country_name : {
+        type: String,
+        required : false,
+        default : null
+    },
+    latitude : {
+        type: String,
+        required : false,
+        default : null
+    },
+    longitude : {
+        type: String,
+        required : false,
+        default : null
+    },
 },{
     timestamps : true
 });

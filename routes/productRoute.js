@@ -17,24 +17,27 @@ const productValidator = require('../validation/product.validation');
  *    post:
  *      security:
  *      - bearerAuth: []
- *      summary: For add product
+ *      summary: Add Product
  *      tags: [Add Product]
- *      description: for add product
+ *      description: Add a product
  *      requestBody:
  *        content:
  *          application/json:
  *            schema:
+ *              type: object
  *              properties:
  *               productName:
  *                 type: string
+ *                 example: "New Product Name"
  *      responses:
  *        "200":
  *          description: Product added successfully
  *        "401":
- *          description: user unutharized
+ *          description: User unauthorized
  *        "500":
- *          description: server error
+ *          description: Server error
  */
+
 product_route.post('/product' ,  productValidation ,Product.storeProduct);
 
 
@@ -60,24 +63,27 @@ product_route.get('/get-product' , Product.getProduct);
  *    patch:
  *      security:
  *      - bearerAuth: []
- *      summary: For product update
+ *      summary: Update Product
  *      tags: [Update Product]
- *      description: for product update
+ *      description: Update a product
  *      requestBody:
  *        content:
  *          application/json:
  *            schema:
+ *              type: object
  *              properties:
  *               productName:
  *                 type: string
+ *                 example: "Updated Product Name"
  *      responses:
  *        "200":
  *          description: Product updated successfully
  *        "401":
- *          description: user unutharized
+ *          description: User unauthorized
  *        "500":
- *          description: server error
+ *          description: Server error
  */
+
 product_route.patch('/update-product/:productId' , Product.updateProduct);
 
 

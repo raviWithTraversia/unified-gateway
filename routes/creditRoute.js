@@ -13,44 +13,58 @@ const creditRequestValidator = require('../validation/creditRequest.validation')
  *    post:
  *      security:
  *      - bearerAuth: []
- *      summary: For add credit request
+ *      summary: Add Credit Request
  *      tags: [Add credit request]
  *      description: Add credit request
  *      requestBody:
  *        content:
  *          application/json:
  *            schema:
+ *              type: object
  *              properties:
  *               companyId:
- *                 type: mongoose.Schema.Types.ObjectId
+ *                 type: string
+ *                 example: "651f88e66be7808dd4bbdd70"
  *               date:
- *                 type: date
+ *                 type: string
+ *                 example: "2023-10-25"
  *               duration:
  *                 type: string
+ *                 example: "20 hours"
  *               purpose:
  *                 type: string
+ *                 example: "Testing"
  *               amount:
  *                 type: number
+ *                 example: 3000
  *               utilizeAmount:
  *                 type: number
+ *                 example: 3000
  *               remarks:
- *                 type: string
+ *                 type: string 
+ *                 example: "Remark"
  *               expireDate:
- *                 type: date
+ *                 type: string
+ *                 example: "2023-11-25"
  *               createdDate:
- *                 type: date
+ *                 type: string
+ *                 example: "2023-11-25"
  *               createdBy:
- *                 type: mongoose.Schema.Types.ObjectId
+ *                 type: string
+ *                 example: "651f88e66be7808dd4bbdd72"
  *               requestedAmount:
- *                 type: number   
+ *                 type: number
+ *                 example: 3000   
  *      responses:
  *        "200":
- *          description: credit added Sucessfully
+ *          description: Credit added successfully
  *        "401":
- *          description: user unutharized
+ *          description: User unauthorized
  *        "500":
- *          description: server error
+ *          description: Server error
  */
+
+
 credit_route.post('/add-credit-request' , 
 creditRequestValidator.creditValidation , 
 creditRequest.storeCreditRequest);

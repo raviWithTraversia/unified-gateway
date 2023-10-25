@@ -16,30 +16,38 @@ const privilageValidation = require('../validation/privilage.validation');
  *    post:
  *      security:
  *      - bearerAuth: []
- *      summary: For add privilage
- *      tags: [Add privilage]
- *      description: for add privilage
+ *      summary: Add Privilage
+ *      tags: [Add Privilage]
+ *      description: Add a privilege
  *      requestBody:
  *        content:
  *          application/json:
  *            schema:
+ *              type: object
  *              properties:
- *               companyId: 
- *                 type: mongoose.Schema.Types.ObjectId
+ *               companyId:
+ *                 type: string
+ *                 example: "651f88e66be7808dd4bbdd70"
  *               privilagePlanName:
- *                 type: string 
+ *                 type: string
+ *                 example: "Gold Plan"
  *               productPlanId:
- *                 type: mongoose.Schema.Types.ObjectId 
- *               permission: 
- *                 type: mongoose.Schema.Types.ObjectId
+ *                 type: string
+ *                 example: "6527c433614fd1befd4d5ef0"
+ *               permission:
+ *                 type: array
+ *                 example: 
+ *                 - permissionId: "65279684247eec0c6d53df94"
+ *                 - permissionId: "65279684247eec0c6d53df95"
  *      responses:
  *        "200":
- *          description: Privilage added Sucessfully
+ *          description: Privilage added successfully
  *        "401":
- *          description: user unutharized
+ *          description: User unauthorized
  *        "500":
- *          description: server error
+ *          description: Server error
  */
+
 privilage_route.post('/privilage' , privilageValidation.privilageValidation , PrivilageController.storePrivilagePlan);
 
 /**

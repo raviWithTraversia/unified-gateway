@@ -82,6 +82,16 @@ const sendPasswordResetEmail = async (recipientEmail, resetToken) => {
     }
   }
  
+  const  removeWWWAndProtocol = async(url) => {
+    // Remove "www" from the beginning (if it exists)
+    const withoutWWW = url.replace(/^(https?:\/\/)?(www\.)?/, '');
+
+    // Remove "http://" or "https://" from the beginning (if it exists)
+    const withoutProtocol = withoutWWW.replace(/^(https?:\/\/)/, '');
+
+    return withoutProtocol;
+}
+
 
 
 
@@ -92,5 +102,9 @@ module.exports = {
     getPagination,
     getPagingData,
     getPagingDataOfSp,
+<<<<<<< Updated upstream
     checkIsValidId
+=======
+    removeWWWAndProtocol
+>>>>>>> Stashed changes
 }

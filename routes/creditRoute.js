@@ -71,8 +71,11 @@ creditRequest.storeCreditRequest);
  *         description: Internal server error
  */
 
-credit_route.get('/get-all-credit-request' , 
-creditRequest.getAllCreditRequest)
+credit_route.get(
+    '/get-all-credit-request' , 
+    creditRequest.getAllCreditRequest
+)
+
 
 
 /**

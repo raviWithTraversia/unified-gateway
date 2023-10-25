@@ -110,6 +110,7 @@ const loginUser = async (req, res) => {
     }
 }
 
+
 const userInsert = async (req, res) => {
     try {
       // Define the required fields
@@ -166,13 +167,15 @@ const userInsert = async (req, res) => {
       ];
  
       // Check for missing fields in the request body
-      const missingFields = requiredFields.filter(field => !req.body[field]);
+      const missingFields = requiredFields.filter((fieldName) => req.body[fieldName] === null || req.body[fieldName] === undefined);
       if (missingFields.length > 0) {
+        const missingFieldsString = missingFields.join(', ');
         return {
-          response : 'All fields are required',
-          data : missingFields
+            response : null,
+            isSometingMissing : true,
+            data : `Missing or null fields: ${missingFieldsString}` 
         }
-       // return res.status(400).json({ success: false, msg: "All fields are required", data: missingFields });
+       
       }
  
       // Destructure the request body
@@ -235,7 +238,6 @@ const userInsert = async (req, res) => {
           response : 'User with this email already exists',
           data : null
         }
-        return res.status(400).json({ success: false, msg: "User with this email already exists", data: null });
       }
  
       // Check if a company with the same companyName already exists
@@ -245,7 +247,6 @@ const userInsert = async (req, res) => {
           response : 'Company with this companyName already exists',
           data: null
         }
-        return res.status(400).json({ success: false, msg: "Company with this companyName already exists", data: null });
       }
  
       // Create a new Company document
@@ -322,6 +323,8 @@ const userInsert = async (req, res) => {
      throw error;
     }
   };
+
+  
 
   const forgotPassword = async (req, res) => {
     const { email } = req.body;

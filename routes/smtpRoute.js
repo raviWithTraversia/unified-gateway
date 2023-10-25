@@ -6,15 +6,119 @@ smtp_route.use(bodyParser.urlencoded({extended:true}));
 const smtpController = require("../controllers/smtp/smpt.controller");
 const auth = require("../middleware/auth");
 
+/**
+ * @swagger
+ * /api/smtpConfig:
+ *   get:
+ *     summary: Get SMTP configurations.
+ *     tags:
+ *       - smtp
+ *     responses:
+ *       '200':
+ *         description: SMTP configurations fetched successfully.
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: SMTP configurations fetched successfully
+ *               data: [{ yourSmtpConfigData1 }, { yourSmtpConfigData2 }, ...]
+ *       '404':
+ *         description: No SMTP configurations available.
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: No SMTP configurations available
+ *       '500':
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: Internal server error
+ */
+
 smtp_route.get(
-    '/smtpConfig',
+    '/smtpConfig/all',
      smtpController.smtpConfig
     )
+
+/**
+ * @swagger
+ * /api/addSmtpConfig:
+ *   post:
+ *     summary: Add a new SMTP configuration.
+ *     tags:
+ *       - SMTP
+ *     requestBody:
+ *       description: SMTP configuration data.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               // Define the properties of the SMTP configuration here
+ *               // For example:
+ *               smtpServer:
+ *                 type: string
+ *                 example: smtp.example.com
+ *               port:
+ *                 type: integer
+ *                 example: 587
+ *               username:
+ *                 type: string
+ *                 example: your_username
+ *               password:
+ *                 type: string
+ *                 example: your_password
+ *     responses:
+ *       '200':
+ *         description: New SMTP configuration created successfully.
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: New SMTP configuration created successfully
+ *       '500':
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: Internal server error
+ */
 
 smtp_route.post(
     '/add/smtpConfig',
      smtpController.addSmtpConfig
     );
+   
+    /**
+ * @swagger
+ * /api/removeSmtpConfig/{companyId}:
+ *   delete:
+ *     summary: Remove SMTP configured mail by companyId.
+ *     tags:
+ *       - SMTP
+ *     parameters:
+ *       - in: path
+ *         name: companyId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           description: The companyId to identify the SMTP configuration to be removed.
+ *           example: your_company_id
+ *     responses:
+ *       '200':
+ *         description: SMTP configured mail deleted successfully.
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: SMTP configured mail deleted successfully
+ *       '500':
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: Internal server error
+ */
+
 
 smtp_route.delete(
     '/remove/smtpConfig/:companyId',

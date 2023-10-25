@@ -44,7 +44,7 @@ const addEmailConfig = async (req ,res) => {
           true
         )
       }
-      if(result.response === 'Smtp id not exist'){
+      if(result.response === 'Smtp id not exist' || result.response === 'smptConfigId is not valid'){
         apiErrorres(
           res,
           result.response,
@@ -52,7 +52,7 @@ const addEmailConfig = async (req ,res) => {
           true
         )
       }
-      if(result.response === 'Email config is already exist'){
+      if(result.response === 'Email config is already exist' || result.response === 'EmailConfigDescriptionId is not valid'){
        apiErrorres(
         res,
         result.response,

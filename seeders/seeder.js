@@ -121,6 +121,10 @@ const seedRoles = async (companyID) => {
       {
         name: "Tmc",        
         companyId: companyID // Set the user ID to the company ID
+      },
+      {
+        name: "Admin",        
+        companyId: companyID // Set the user ID to the company ID
       }
      
     ];

@@ -11,8 +11,11 @@ credit_route.post('/add-credit-request' ,
 creditRequestValidator.creditValidation , 
 creditRequest.storeCreditRequest);
 
-credit_route.get('/get-all-credit-request' , 
-creditRequest.getAllCreditRequest)
+credit_route.get
+(
+'/get-all-credit-request' , 
+creditRequest.getAllCreditRequest
+)
 
 credit_route.get('/get-credit-by-compnay/:companyId' , 
 creditRequest.getCreditByCompanyId)

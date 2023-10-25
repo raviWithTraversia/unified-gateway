@@ -6,7 +6,8 @@ const { seedProductPlan} = require('../seeders/productPlanSeeder');
 const { productPlanHasProductSeeder } = require('../seeders/productPlanHasProductSeeder');
 const { seedCompaniesSmtp } = require('../seeders/companiesSmtp.seeder');
 const { seedEmailConfigDescription } = require('../seeders/emailConfigrationDescription.seeder');
-const { seedStatus } = require('../seeders/status.seeder');
+const { seedStatus } = require('../seeders/statusSeeder');
+const { seedRoles } = require('../seeders/roleSeeder')
 
 async function runSeeders() {
   try {
@@ -19,6 +20,7 @@ async function runSeeders() {
     await seedPermissions();
     await seedCompaniesSmtp();
     await seedEmailConfigDescription();  
+   // await seedRoles()
 
     await seedStatus();
     console.log('All seeders completed.');

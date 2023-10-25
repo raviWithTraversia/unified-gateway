@@ -9,9 +9,9 @@ const smtpConfig = async (req, res) => {
                 response : "No smtp configuration available"
             }
         }
-        let smtpConfigsResult = res.json(smtpConfigs);
+       // let smtpConfigsResult = res.json(smtpConfigs);
         return {
-            response : smtpConfigsResult 
+            response : smtpConfigs 
         }
 
     }catch(error){

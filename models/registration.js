@@ -74,10 +74,8 @@ const registrationSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref: 'status'
     },
-    timestamp: {
-        type: Date,
-        default: Date.now,
-    },
+},{
+    timestamps : true  //Add created_at and updated_at coloumn
 });
 
 const Registration = mongoose.model('Registration', registrationSchema);

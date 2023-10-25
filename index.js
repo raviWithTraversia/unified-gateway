@@ -31,10 +31,22 @@ const options = {
             title: "B2B Portal",
             version: "1.0.0",
         },
+            components: {
+        securitySchemes: {
+            bearerAuth: {
+                type: 'http',
+                scheme: 'Bearer',
+                bearerFormat: 'JWT',
+            }
+        }
+    },
+    security: [{
+        bearerAuth: []
+    }]
     },
     apis: [
         "./routes/creditRoute.js",
-        "./routes/emailConfigRoute.js",
+        "./routes/emaiConfigRoute.js",
         "./routes/emailConfigDiscriptionRoute.js",
         "./routes/logRoute.js",
         "./routes/privilageRoute.js",

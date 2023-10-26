@@ -27,13 +27,13 @@ const privilageValidation = require('../validation/privilage.validation');
  *              properties:
  *               companyId:
  *                 type: string
- *                 example: "651f88e66be7808dd4bbdd70"
+ *                 example: "6538c030475692887584081e"
  *               privilagePlanName:
  *                 type: string
  *                 example: "Gold Plan"
  *               productPlanId:
  *                 type: string
- *                 example: "6527c433614fd1befd4d5ef0"
+ *                 example: "6538c0344756928875840835"
  *               permission:
  *                 type: array
  *                 example: 

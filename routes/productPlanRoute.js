@@ -31,7 +31,7 @@ const productValidator = require('../validation/product.validation');
  *                 example: "Gold Plan"
  *               companyId:
  *                 type: string
- *                 example: "651f88e66be7808dd4bbdd70"
+ *                 example: "6538c030475692887584081e"
  *               product:
  *                 type: array
  *                 example:

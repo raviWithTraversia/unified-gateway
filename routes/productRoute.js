@@ -84,7 +84,11 @@ product_route.get('/get-product' , Product.getProduct);
  *          description: Server error
  */
 
-product_route.patch('/update-product/:productId' , Product.updateProduct);
+product_route.patch
+    (
+    '/update-product/:productId' ,
+     Product.updateProduct
+    );
 
 
 /**

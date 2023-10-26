@@ -102,9 +102,6 @@ module.exports = {
     getPagination,
     getPagingData,
     getPagingDataOfSp,
-<<<<<<< Updated upstream
-    checkIsValidId
-=======
+    checkIsValidId,
     removeWWWAndProtocol
->>>>>>> Stashed changes
 }

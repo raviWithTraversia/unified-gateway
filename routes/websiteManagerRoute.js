@@ -32,7 +32,7 @@ const websiteManager = require("../controllers/websiteManager/websiteManager.con
  *                  example: "Traversia"
  *                companyId:
  *                  type: string
- *                  example: "651f88e66be7808dd4bbdd70"
+ *                  example: "6538c030475692887584081e"
  *                pageTitle:
  *                  type: string
  *                  example: "Page Title"

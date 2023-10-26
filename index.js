@@ -46,22 +46,6 @@ const options = {
             bearerAuth: []
         }]
         },
-<<<<<<< Updated upstream
-=======
-            components: {
-        securitySchemes: {
-            bearerAuth: {
-                type: 'http',
-                scheme: 'Bearer',
-                bearerFormat: 'JWT',
-            }
-        }
-    },
-    security: [{
-        bearerAuth: []
-    }]
-    },
->>>>>>> Stashed changes
     apis: [
         "./routes/creditRoute.js",
         "./routes/emailConfigRoute.js",
@@ -73,24 +57,12 @@ const options = {
         "./routes/registrationRoute.js",
         "./routes/statusRoute.js",
         "./routes/userRoute.js",
-<<<<<<< Updated upstream
-    ],
-    // parameters: [
-    //     {
-    //         in: "header",
-    //         name: "X-Request-ID",
-    //         description: "The unique request identifier.",
-    //         required: true,
-    //         schema: {
-    //             type: "string",
-    //         },
-    //     },
-    // ]
-=======
         "./routes/countryRoute.js",
-        "./routes/websiteManagerRoute.js",    
+        "./routes/websiteManagerRoute.js",  
+        "./routes/stateRoute.js",  
+        "./routes/cityRoute.js",  
+
     ]
->>>>>>> Stashed changes
 };
 
 const swaggerDocs = swaggerJSDoc(options);

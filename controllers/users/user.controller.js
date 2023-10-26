@@ -68,11 +68,19 @@ const loginUser = async (req, res) => {
 const userInsert = async (req, res) => {
    try {
     const result = await userServices.userInsert(req);
-    if(result.response == 'All fields are required' || result.response == 'User with this email already exists' 
+    if(!result.response && result.isSometingMissing){
+      apiErrorres(
+        res,
+        result.data,
+        ServerStatusCode.BAD_REQUEST,
+        true
+      )
+    }
+    if( result.response == 'User with this email already exists' 
     || result.response == 'Company with this companyName already exists'){
       apiErrorres(
         res,
-        result.response,
+        result.data,
         ServerStatusCode.BAD_REQUEST,
         true )
     } else {

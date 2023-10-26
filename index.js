@@ -24,52 +24,70 @@ RoutesLoader.initRoutes(app);
 runSeeders().then(() => {
     console.log('Seeders executed.');
 });
+
+
 const options = {
-    definition: {
-        openapi: "3.0.0",
-        info: {
-            title: "B2B Portal",
-            version: "1.0.0",
-        },
-            components: {
-        securitySchemes: {
-            bearerAuth: {
-                type: 'http',
-                scheme: 'Bearer',
-                bearerFormat: 'JWT',
+        definition: {
+            openapi: "3.0.0",
+            info: {
+                title: "B2B Portal",
+                version: "1.0.0",
+            },
+                components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'Bearer',
+                    bearerFormat: 'JWT',
+                }
             }
-        }
-    },
-    security: [{
-        bearerAuth: []
-    }]
-    },
+        },
+        security: [{
+            bearerAuth: []
+        }]
+        },
     apis: [
         "./routes/creditRoute.js",
-        "./routes/emaiConfigRoute.js",
-        "./routes/emailConfigDiscriptionRoute.js",
+        "./routes/emailConfigRoute.js",
+        "./routes/emailConfigDescriptionRoute.js", // Corrected route name
         "./routes/logRoute.js",
         "./routes/privilageRoute.js",
         "./routes/productPlanRoute.js",
         "./routes/productRoute.js",
         "./routes/registrationRoute.js",
-        "./routes/smtpRoute.js",
         "./routes/statusRoute.js",
-        "./routes/userRoute.js"    
-    ]
+        "./routes/userRoute.js",
+    ],
+    // parameters: [
+    //     {
+    //         in: "header",
+    //         name: "X-Request-ID",
+    //         description: "The unique request identifier.",
+    //         required: true,
+    //         schema: {
+    //             type: "string",
+    //         },
+    //     },
+    // ]
 };
+
 const swaggerDocs = swaggerJSDoc(options);
+const swaggerUiOptions = {
+    displayOperationId: true,
+    deepLinking: true,
+  };
 app.use("/api-docs", basicAuth({
     users: { 'admin': 'admin@1234' },
     challenge: true,
-}), swaggerUI.serve, swaggerUI.setup(swaggerDocs));
+  
+}), swaggerUI.serve, swaggerUI.setup(swaggerDocs,swaggerUiOptions));
+
 app.use("/b2b/api-docs", basicAuth({
     users: { 'admin': 'Ttpl@2023' },
     challenge: true,
-}), swaggerUI.serve, swaggerUI.setup(swaggerDocs));
+}), swaggerUI.serve, swaggerUI.setup(swaggerDocs,swaggerUiOptions));
 
 const port = Number(Config.PORT);
 app.listen(port, function(){
     console.log(`Server is running on port ${port}`);  
 })
-

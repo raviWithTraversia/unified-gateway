@@ -30,6 +30,30 @@ const addRegistration = async (req,res) => {
             true
         )
     }
+    if(result.response === 'status Id is not valid'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.BAD_REQUEST,
+            true
+        )
+    }
+    if(result.response === 'Sale incharge Id is not valid'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.BAD_REQUEST,
+            true
+        )
+    }
+    if(result.response === 'Status Id is not valid'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.BAD_REQUEST,
+            true
+        )
+    }
     else {
         apiSucessRes(
             res,

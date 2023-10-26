@@ -2,7 +2,7 @@ const bcryptjs = require("bcryptjs");
 const { Config } = require("../../configs/config");
 const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
-
+const mongoose = require('mongoose');
 const createToken = async (id) => {
     try {
        const token = await jwt.sign({_id:id},Config.SECRET_JWT);
@@ -72,7 +72,26 @@ const sendPasswordResetEmail = async (recipientEmail, resetToken) => {
     const totalPages = Math.ceil(total / limit);
     return { totalItems: total, data: Data, totalPages, currentPage };
   };
+
+  const checkIsValidId = async(Id) => {
+    let validId = mongoose.isValidObjectId(Id);
+    if(validId){
+      return "Valid Mongo Object Id"
+    }else{
+      return "Invalid Mongo Object Id"
+    }
+  }
  
+  const  removeWWWAndProtocol = async(url) => {
+    // Remove "www" from the beginning (if it exists)
+    const withoutWWW = url.replace(/^(https?:\/\/)?(www\.)?/, '');
+
+    // Remove "http://" or "https://" from the beginning (if it exists)
+    const withoutProtocol = withoutWWW.replace(/^(https?:\/\/)/, '');
+
+    return withoutProtocol;
+}
+
 
 
 
@@ -82,5 +101,10 @@ module.exports = {
     sendPasswordResetEmail,
     getPagination,
     getPagingData,
-    getPagingDataOfSp
+    getPagingDataOfSp,
+<<<<<<< Updated upstream
+    checkIsValidId
+=======
+    removeWWWAndProtocol
+>>>>>>> Stashed changes
 }

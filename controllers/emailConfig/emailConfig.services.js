@@ -2,6 +2,8 @@ const emailConfig = require('../../models/EmailConfig');
 const emailConfigDes = require('../../models/EmailConfigDiscription');
 const smtp = require('../../models/smtp');
 const user = require('../../models/User');
+const FUNC = require('../../controllers/commonFunctions/common.function')
+
 
 const addEmailConfig = async (req,res) => {
    try{
@@ -14,6 +16,19 @@ const addEmailConfig = async (req,res) => {
          smptConfigId,
          status,
        } = req.body;
+      
+      let isValidSmptConfigId = FUNC.checkIsValidId(smptConfigId);
+      let isValidEmailConfigDescriptionId = FUNC.checkIsValidId(EmailConfigDescriptionId);
+      if(isValidSmptConfigId === "Invalid Mongo Object Id"){
+        return {
+         response : "smptConfigId is not valid"
+        }
+      }
+      if(isValidEmailConfigDescriptionId === "Invalid Mongo Object Id"){
+         return {
+            response : "EmailConfigDescriptionId is not valid"
+         }
+      }
        let checkIscompanyIdExist = await user.findOne({company_ID : companyId});
        if(!checkIscompanyIdExist){
          checkIscompanyIdExist = null;
@@ -22,7 +37,7 @@ const addEmailConfig = async (req,res) => {
             data : checkIscompanyIdExist
          }
        };
-       let checkIsSmtpIdExist = await smtp.findById({smptConfigId});
+       let checkIsSmtpIdExist = await smtp.findOne({_id : smptConfigId});
        if(!checkIsSmtpIdExist){
          checkIsSmtpIdExist = null;
          return{
@@ -30,24 +45,23 @@ const addEmailConfig = async (req,res) => {
             data : checkIsSmtpIdExist
          }
        }
-       let checkIsEmailConfigDescriptionIdExist = await emailConfig.findOne({company_ID :companyId ,EmailConfigDescriptionId : EmailConfigDescriptionId, mailDescription : mailDescription}) ;
+       let checkIsEmailConfigDescriptionIdExist = await emailConfig.find({company_ID :companyId , mailDescription : mailDescription}) ;
        if(checkIsEmailConfigDescriptionIdExist){
        return {
          response : 'Email config is already exist'
        }
       }else{
          const newEmailConfigDescription = new emailConfigDes({emailConfigDescription: mailDescription });
-         EmailConfigDescriptionId = newEmailConfigDescription._id;
          let createEmailConfig = new emailConfig({
             companyId,
-            EmailConfigDescriptionId,
+            EmailConfigDescriptionId : newEmailConfigDescription._id,
             mailDescription,
             emailCc,
             emailBcc,
             smptConfigId,
             status,
           });
-          await emailConfig.save();
+          await createEmailConfig.save();
           return {
             response : 'New Email Config is created sucessfully',
             data : createEmailConfig
@@ -63,7 +77,7 @@ const addEmailConfig = async (req,res) => {
 
 const getEmailConfig = async (req,res) => {
    try{
-      const { companyId } = req.body;
+      const { companyId } = req.params;
       let allEmailConfigData = await emailConfig.find({ companyId });
       if(!allEmailConfigData ||!allEmailConfigData.length ){
       return {

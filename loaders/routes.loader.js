@@ -9,13 +9,10 @@ const creditRoute = require('../routes/creditRoute');
 const productPlanRoute = require('../routes/productPlanRoute');
 const emailConfigRoute = require('../routes/emailConfigRoute');
 const emailConfigDecriptionRoute = require("../routes/emailConfigDiscriptionRoute");
-<<<<<<< Updated upstream
 const smtpRoute = require('../routes/smtpRoute');
-=======
 const CountryRoute = require('../routes/countryRoute');
 const CabinClassMasterRoute = require('../routes/cabinClassMasterRoute');
 const websiteManagerRoute = require('../routes/websiteManagerRoute');
->>>>>>> Stashed changes
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -47,12 +44,10 @@ class RoutesLoader {
         app.use('/api',emailConfigRoute);
 
         // emailConfigDescription Route by shashi
-<<<<<<< Updated upstream
         app.use('/api', emailConfigDecriptionRoute);
 
         // smtp Route by shashi
         app.use('/api',smtpRoute);
-=======
         app.use('/api', emailConfigDecriptionRoute)
 
         // Country route by alamShah
@@ -63,7 +58,6 @@ class RoutesLoader {
 
         // website Manager Route by alam Shah
         app.use('/api', websiteManagerRoute);
->>>>>>> Stashed changes
     }
 }
 

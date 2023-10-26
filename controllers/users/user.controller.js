@@ -154,10 +154,49 @@ const userInsert = async (req, res) => {
         res,
         errorResponse.SOMETHING_WRONG,
         ServerStatusCode.SERVER_ERROR,
-        true )
+        true 
+        )
     }
   }
  
+  const changePassword = async (req,res) => {
+    try{
+      const result = await userServices.changePassword(req,res);
+      if(result.response === "Your current password is not valid"){
+        apiErrorres(
+          res,
+          result.response,
+          ServerStatusCode.RESOURCE_NOT_FOUND,
+          true
+           )
+      }
+      if(result.response === "User for this mail-id not exist"){
+        apiErrorres(
+          res,
+          result.response,
+          ServerStatusCode.RESOURCE_NOT_FOUND,
+          true
+           )
+      }
+      else{
+        apiSucessRes(
+          res,
+          CrudMessage.PASSWORD_RESET,
+          result.response,
+          ServerStatusCode.SUCESS_CODE
+          )
+
+      }
+
+    }catch{
+      apiErrorres(
+        res,
+        errorResponse.SOMETHING_WRONG,
+        ServerStatusCode.SERVER_ERROR,
+        true 
+        )
+    }
+  }
 
 
 module.exports = {
@@ -165,5 +204,6 @@ module.exports = {
     loginUser,
     userInsert,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    changePassword
 }

@@ -8,7 +8,7 @@ const auth = require("../middleware/auth");
 
 /**
  * @swagger
- * /api/smtpConfig:
+ * /api/smtp/smtpConfig/all:
  *   get:
  *     summary: Get SMTP configurations.
  *     tags:
@@ -36,13 +36,14 @@ const auth = require("../middleware/auth");
  */
 
 smtp_route.get(
-    '/smtpConfig/all',
+    '/smtp/smtpConfig/all',
+    auth,
      smtpController.smtpConfig
     )
 
 /**
  * @swagger
- * /api/addSmtpConfig:
+ * /api/smtp/add/smtpConfig:
  *   post:
  *     summary: Add a new SMTP configuration.
  *     tags:
@@ -85,13 +86,14 @@ smtp_route.get(
  */
 
 smtp_route.post(
-    '/add/smtpConfig',
+    '/smtp/add/smtpConfig',
+    auth,
      smtpController.addSmtpConfig
     );
    
     /**
  * @swagger
- * /api/removeSmtpConfig/{companyId}:
+ * /api/smtp/remove/smtpConfig/{companyId}:
  *   delete:
  *     summary: Remove SMTP configured mail by companyId.
  *     tags:
@@ -121,7 +123,8 @@ smtp_route.post(
 
 
 smtp_route.delete(
-    '/remove/smtpConfig/:companyId',
+    '/smtp/remove/smtpConfig/:companyId',
+    auth,
     smtpController.removeSmtpConfig
       
 );

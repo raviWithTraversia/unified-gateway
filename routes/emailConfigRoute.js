@@ -10,7 +10,7 @@ const auth = require("../middleware/auth.js");
 
 /**
  * @swagger
- * /api/getEmailConfig/:companyId:
+ * /api/emailconfig/getEmailConfig:companyId:
  *   get:
  *     summary: Get Email Configurations by Company ID.
  *     tags:
@@ -61,7 +61,7 @@ const auth = require("../middleware/auth.js");
 
 
 email_config_route.get(
-    '/getEmailConfig/:companyId',
+    '/emailconfig/getEmailConfig/:companyId',
     auth,
     emailController.getEmailConfig
 );
@@ -69,7 +69,7 @@ email_config_route.get(
 
 /**
  * @swagger
- * /api/add/emai-config:
+ * /api/emailconfig/add/emai-config:
  *   post:
  *     summary: Create a new email configuration.
  *     tags:
@@ -144,7 +144,7 @@ email_config_route.get(
 
 
 email_config_route.post(
-    '/add/emai-config',
+    '/emailconfig/add/emai-config',
     auth,
     emailController.addEmailConfig
 );

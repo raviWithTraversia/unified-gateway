@@ -90,7 +90,15 @@ const sendPasswordResetEmail = async (recipientEmail, resetToken) => {
     const withoutProtocol = withoutWWW.replace(/^(https?:\/\/)/, '');
 
     return withoutProtocol;
-}
+};
+
+const comparePassword = async (plainTextPassword, hashedPassword) => {
+  try {
+    return await bcryptjs.compare(plainTextPassword, hashedPassword);
+  } catch (error) {
+    throw error;
+  }
+};
 
 
 
@@ -102,9 +110,7 @@ module.exports = {
     getPagination,
     getPagingData,
     getPagingDataOfSp,
-<<<<<<< Updated upstream
-    checkIsValidId
-=======
-    removeWWWAndProtocol
->>>>>>> Stashed changes
+    checkIsValidId,
+    removeWWWAndProtocol,
+    comparePassword
 }

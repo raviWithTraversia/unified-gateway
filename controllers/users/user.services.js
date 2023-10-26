@@ -396,10 +396,40 @@ const userInsert = async (req, res) => {
 
   }
 
+  const changePassword = async (req,res) => {
+    try{
+      const { currentPassword, newPassword, email } = req.body;
+      const user = await User.findOne({email});
+      if(user.length){
+       const isCurrentPasswordIsValid = await commonFunction.comparePassword(currentPassword, user.password);
+        if(isCurrentPasswordIsValid){
+          user.password = await commonFunction.securePassword(newPassword);
+          await user.save()
+          return {
+            response : "Password Change Sucessfully",
+          }
+        }else{
+          return {
+            response : "Your current password is not valid"
+          }
+        }
+      }else{
+        return {
+          response : "User for this mail-id not exist"
+        }
+      }
+       
+    }catch{
+      console.log(error);
+      throw error;
+    }
+  }
+
 module.exports = {
     registerUser,
     loginUser,
     userInsert,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    changePassword
 }

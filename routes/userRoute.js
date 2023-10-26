@@ -365,8 +365,8 @@ user_route.post(
 
 
 user_route.post(
-    '/userInsert', 
-   userValidatior.userInsert,
+    '/user/register', 
+  // userValidatior.userInsert,
     userController.userInsert 
     );
 
@@ -444,6 +444,72 @@ user_route.post(
     '/reset-password',
     //userValidatior.userResetPassword,
     userController.resetPassword
+)
+/**
+* swagger: '2.0'
+* info:
+*   version: '1.0.0'
+*   title: Your API Documentation
+* paths:
+*   /changePassword:
+*     post:
+*       summary: Change user password
+*       description: Change the user's password with email and current password validation.
+*       parameters:
+*         - in: body
+*           name: request
+*           description: User information for changing the password
+*           required: true
+*           schema:
+*             type: object
+*             properties:
+*               email:
+*                 type: string
+*                 example: user@example.com
+*               currentPassword:
+*                 type: string
+*                 example: currentPassword123
+*               newPassword:
+*                 type: string
+*                 example: newPassword456
+*       responses:
+*         200:
+*           description: Password changed successfully
+*           schema:
+*             type: object
+*             properties:
+*               response:
+*                 type: string
+*                 example: Password Change Successfully
+*         401:
+*           description: Invalid current password
+*           schema:
+*             type: object
+*             properties:
+*               response:
+*                 type: string
+*                 example: Your current password is not valid
+*         404:
+*           description: User not found
+*           schema:
+*             type: object
+*             properties:
+*               response:
+*                 type: string
+*                 example: User for this mail-id does not exist
+*         500:
+*           description: Internal server error
+*           schema:
+*             type: object
+*             properties:
+*               response:
+*                 type: string
+*                 example: Internal server error
+*/
+
+user_route.post(
+    '/user/change-password',
+    userController.changePassword
 )
 
 

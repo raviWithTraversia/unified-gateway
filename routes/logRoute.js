@@ -30,7 +30,7 @@ const portalLogController = require('../controllers/logs/portalLog.controller');
  *                 example: "User Login"
  *               doerId:
  *                 type: string
- *                 example: "651f88e66be7808dd4bbdd70"
+ *                 example: "6538c030475692887584081e"
  *               doerName:
  *                 type: string
  *                 example: "John Doe"
@@ -89,7 +89,7 @@ log_route.get('/retriveEventLog/:companyId' , eventLogController.retriveEventLog
  *                 example: "123456"
  *               companyId:
  *                 type: string
- *                 example: "651f88e66be7808dd4bbdd70"
+ *                 example: "6538c030475692887584081e"
  *               source:
  *                 type: string
  *                 example: "Web Application"

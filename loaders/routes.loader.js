@@ -13,6 +13,8 @@ const smtpRoute = require('../routes/smtpRoute');
 const CountryRoute = require('../routes/countryRoute');
 const CabinClassMasterRoute = require('../routes/cabinClassMasterRoute');
 const websiteManagerRoute = require('../routes/websiteManagerRoute');
+const stateRoute = require('../routes/stateRoute');
+const cityRoute = require('../routes/cityRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -58,6 +60,12 @@ class RoutesLoader {
 
         // website Manager Route by alam Shah
         app.use('/api', websiteManagerRoute);
+
+        // State route by alam shah
+        app.use('/api' , stateRoute);
+
+        // City route by alam shah
+        app.use('/api' , cityRoute);
     }
 }
 

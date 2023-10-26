@@ -58,7 +58,10 @@ const options = {
         "./routes/statusRoute.js",
         "./routes/userRoute.js",
         "./routes/countryRoute.js",
-        "./routes/websiteManagerRoute.js",    
+        "./routes/websiteManagerRoute.js",  
+        "./routes/stateRoute.js",  
+        "./routes/cityRoute.js",  
+
     ]
 };
 

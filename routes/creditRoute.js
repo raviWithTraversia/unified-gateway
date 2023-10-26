@@ -24,7 +24,7 @@ const creditRequestValidator = require('../validation/creditRequest.validation')
  *              properties:
  *               companyId:
  *                 type: string
- *                 example: "651f88e66be7808dd4bbdd70"
+ *                 example: "6538c030475692887584081e"
  *               date:
  *                 type: string
  *                 example: "2023-10-25"
@@ -51,7 +51,7 @@ const creditRequestValidator = require('../validation/creditRequest.validation')
  *                 example: "2023-11-25"
  *               createdBy:
  *                 type: string
- *                 example: "651f88e66be7808dd4bbdd72"
+ *                 example: "6538c0314756928875840820"
  *               requestedAmount:
  *                 type: number
  *                 example: 3000   

@@ -13,7 +13,7 @@ const productValidator = require('../validation/product.validation');
 /**
  * @swagger
  * paths:
- *  /api/product:
+ *  /api/product/add-product:
  *    post:
  *      security:
  *      - bearerAuth: []
@@ -38,12 +38,12 @@ const productValidator = require('../validation/product.validation');
  *          description: Server error
  */
 
-product_route.post('/product' ,  productValidation ,Product.storeProduct);
+product_route.post('/product/add-product' ,  productValidation ,Product.storeProduct);
 
 
 /**
  * @swagger
- * /api/get-product:
+ * /api/product/get-product:
  *   get:
  *     summary: Get all product
  *     responses:
@@ -54,12 +54,12 @@ product_route.post('/product' ,  productValidation ,Product.storeProduct);
  *       500:
  *         description: Internal server error
  */
-product_route.get('/get-product' , Product.getProduct);
+product_route.get('/product/get-product' , Product.getProduct);
 
 /**
  * @swagger
  * paths:
- *  /api/update-product/652668b5f907cef72e7ef26c:
+ *  /api/product/update-product/:productId:
  *    patch:
  *      security:
  *      - bearerAuth: []
@@ -86,14 +86,14 @@ product_route.get('/get-product' , Product.getProduct);
 
 product_route.patch
     (
-    '/update-product/:productId' ,
+    '/product/update-product/:productId' ,
      Product.updateProduct
     );
 
 
 /**
  * @swagger
- * /api/delete-product/6535f9432f082e753a5329f1:
+ * /api/product/delete-product/6535f9432f082e753a5329f1:
  *   delete:
  *     summary: Get delete product by product id
  *     responses:
@@ -104,7 +104,7 @@ product_route.patch
  *       500:
  *         description: Internal server error
  */
-product_route.delete('/delete-product/:productId' , Product.deleteProduct);
+product_route.delete('/product/delete-product/:productId' , Product.deleteProduct);
 
 module.exports = product_route;
 

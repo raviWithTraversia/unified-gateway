@@ -8,7 +8,7 @@ const State = require('./../controllers/state/state.controller')
 
 /**
  * @swagger
- * /api/get-state-list/6538c03847569288758408b8:
+ * /api/state/get-state-list/:countryId:
  *   get:
  *     summary: Get state requests by counrtyId
  *     responses:
@@ -19,5 +19,5 @@ const State = require('./../controllers/state/state.controller')
  *       500:
  *         description: Internal server error
  */
-state_route.get('/get-state-list/:countryId' , State.stateListByCountry);
+state_route.get('/state/get-state-list/:countryId' , State.stateListByCountry);
 module.exports = state_route

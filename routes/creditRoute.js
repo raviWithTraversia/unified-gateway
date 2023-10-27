@@ -9,7 +9,7 @@ const creditRequestValidator = require('../validation/creditRequest.validation')
 /**
  * @swagger
  * paths:
- *  /api/add-credit-request:
+ *  /api/credit/add-credit-request:
  *    post:
  *      security:
  *      - bearerAuth: []
@@ -65,7 +65,7 @@ const creditRequestValidator = require('../validation/creditRequest.validation')
  */
 
 
-credit_route.post('/add-credit-request' , 
+credit_route.post('/credit/add-credit-request' , 
 creditRequestValidator.creditValidation , 
 creditRequest.storeCreditRequest);
 
@@ -73,7 +73,7 @@ creditRequest.storeCreditRequest);
 
 /**
  * @swagger
- * /api/get-all-credit-request:
+ * /api/credit/get-all-credit-request:
  *   get:
  *     summary: Get all credit requests
  *     responses:
@@ -86,12 +86,12 @@ creditRequest.storeCreditRequest);
  */
 
 credit_route.get(
-    '/get-all-credit-request' , 
+    '/credit/get-all-credit-request' , 
     creditRequest.getAllCreditRequest
 )
 
 
-credit_route.get('/get-credit-by-compnay/:companyId' , 
+credit_route.get('/credit/get-credit-by-compnay/:companyId' , 
 creditRequest.getCreditByCompanyId)
 
 

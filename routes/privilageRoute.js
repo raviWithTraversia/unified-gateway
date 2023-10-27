@@ -12,7 +12,7 @@ const privilageValidation = require('../validation/privilage.validation');
 /**
  * @swagger
  * paths:
- *  /api/privilage:
+ *  /api/privilage/add-privilage:
  *    post:
  *      security:
  *      - bearerAuth: []
@@ -48,11 +48,11 @@ const privilageValidation = require('../validation/privilage.validation');
  *          description: Server error
  */
 
-privilage_route.post('/privilage' , privilageValidation.privilageValidation , PrivilageController.storePrivilagePlan);
+privilage_route.post('/privilage/add-privilage' , privilageValidation.privilageValidation , PrivilageController.storePrivilagePlan);
 
 /**
  * @swagger
- * /api/privilage-list/651f88e66be7808dd4bbdd70:
+ * /api/privilage/privilage-list/:comapnyId:
  *   get:
  *     summary: Get privilage-list by company id
  *     responses:
@@ -63,6 +63,6 @@ privilage_route.post('/privilage' , privilageValidation.privilageValidation , Pr
  *       500:
  *         description: Internal server error
  */
-privilage_route.get('/privilage-list/:comapnyId' , PrivilageController.getAllPrivilage);
+privilage_route.get('/privilage/privilage-list/:comapnyId' , PrivilageController.getAllPrivilage);
 
 module.exports = privilage_route;

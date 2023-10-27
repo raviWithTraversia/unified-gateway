@@ -13,7 +13,7 @@ const productValidator = require('../validation/product.validation');
  /**
  * @swagger
  * paths:
- *  /api/product-plan:
+ *  /api/product/product-plan:
  *    post:
  *      security:
  *      - bearerAuth: []
@@ -47,12 +47,12 @@ const productValidator = require('../validation/product.validation');
  */
 
 
-product__plan_route.post('/product-plan' , productValidator.productPlanValidation ,ProductPlan.addProductPlan);
+product__plan_route.post('/product/product-plan' , productValidator.productPlanValidation ,ProductPlan.addProductPlan);
 
 
 /**
  * @swagger
- * /api/all-product-plan:
+ * /api/product/all-product-plan:
  *   get:
  *     summary: Get all-product-plan list
  *     responses:
@@ -63,14 +63,14 @@ product__plan_route.post('/product-plan' , productValidator.productPlanValidatio
  *       500:
  *         description: Internal server error
  */
-product__plan_route.get('/all-product-plan' , ProductPlan.retriveProductPlan);
+product__plan_route.get('/product/all-product-plan' , ProductPlan.retriveProductPlan);
 
 
 
 /**
  * @swagger
  * paths:
- *  /api/update-product-plan/6535f8c10bf61741d3617400:
+ *  /api/product/update-product-plan/:producPlantId:
  *    patch:
  *      security:
  *      - bearerAuth: []
@@ -95,7 +95,7 @@ product__plan_route.get('/all-product-plan' , ProductPlan.retriveProductPlan);
  *          description: Server error
  */
 
-product__plan_route.patch('/update-product-plan/:producPlantId' , ProductPlan.updateProductPlan);
+product__plan_route.patch('/product/update-product-plan/:producPlantId' , ProductPlan.updateProductPlan);
 
 
 module.exports = product__plan_route;

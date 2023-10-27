@@ -12,7 +12,7 @@ const portalLogController = require('../controllers/logs/portalLog.controller');
  /**
  * @swagger
  * paths:
- *  /api/eventlog:
+ *  /api/log/eventlog:
  *    post:
  *      security:
  *      - bearerAuth: []
@@ -49,12 +49,12 @@ const portalLogController = require('../controllers/logs/portalLog.controller');
  *          description: Server error
  */
 
-log_route.post('/eventlog' , eventLogController.storeEventLog);
+log_route.post('/log/eventlog' , eventLogController.storeEventLog);
 
 
 /**
  * @swagger
- * /api/retriveEventLog/651f88e66be7808dd4bbdd70:
+ * /api/log/retriveEventLog/:companyId:
  *   get:
  *     summary: Get  event log requests by company id
  *     responses:
@@ -65,13 +65,13 @@ log_route.post('/eventlog' , eventLogController.storeEventLog);
  *       500:
  *         description: Internal server error
  */
-log_route.get('/retriveEventLog/:companyId' , eventLogController.retriveEventLogByCompanyId);
+log_route.get('/log/retriveEventLog/:companyId' , eventLogController.retriveEventLogByCompanyId);
 
 // Portal Log Route process
 /**
  * @swagger
  * paths:
- *  /api/portallog:
+ *  /api/log/portallog:
  *    post:
  *      security:
  *      - bearerAuth: []
@@ -111,11 +111,11 @@ log_route.get('/retriveEventLog/:companyId' , eventLogController.retriveEventLog
  *          description: Server error
  */
 
-log_route.post('/portallog' , portalLogController.storePortalLog);
+log_route.post('/log/portallog' , portalLogController.storePortalLog);
 
 /**
  * @swagger
- * /api/retrivePortalLog/100323:
+ * /api/log/retrivePortalLog/:traceId:
  *   get:
  *     summary: Get protal  event log requests by traceId
  *     responses:
@@ -126,6 +126,6 @@ log_route.post('/portallog' , portalLogController.storePortalLog);
  *       500:
  *         description: Internal server error
  */
-log_route.get('/retrivePortalLog/:traceId' , portalLogController.retrivePortalLog);
+log_route.get('/log/retrivePortalLog/:traceId' , portalLogController.retrivePortalLog);
 
 module.exports = log_route;

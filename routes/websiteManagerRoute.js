@@ -9,7 +9,7 @@ const websiteManager = require("../controllers/websiteManager/websiteManager.con
 /**
  * @swagger
  * paths:
- *  /api/add-website-manager:
+ *  /api/website/add-website-manager:
  *    post:
  *      security:
  *        - bearerAuth: []
@@ -152,11 +152,11 @@ const websiteManager = require("../controllers/websiteManager/websiteManager.con
  *        "500":
  *          description: Server error
  */
-website_manager_route.post('/add-website-manager' , websiteManager.websiteManagerAdd);
+website_manager_route.post('/website/add-website-manager' , websiteManager.websiteManagerAdd);
 
 /**
  * @swagger
- * /api/retrive-website-manager/traversia.net:
+ * /api/website/retrive-website-manager/:domainName:
  *   get:
  *     summary: Get website manager by domain name 
  *     responses:
@@ -168,6 +168,6 @@ website_manager_route.post('/add-website-manager' , websiteManager.websiteManage
  *         description: Internal server error
  */
 
-website_manager_route.get('/retrive-website-manager/:domainName' , websiteManager.retriveWebsiteManager);
+website_manager_route.get('/website/retrive-website-manager/:domainName' , websiteManager.retriveWebsiteManager);
 
 module.exports = website_manager_route;

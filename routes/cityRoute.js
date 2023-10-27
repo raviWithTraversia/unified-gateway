@@ -8,7 +8,7 @@ const City = require('./../controllers/city/city.controller')
 
 /**
  * @swagger
- * /api/get-city-list/6538c05d4756928875842b14:
+ * /api/city/get-city-list/:stateId:
  *   get:
  *     summary: Get City requests by stateId
  *     responses:
@@ -19,5 +19,5 @@ const City = require('./../controllers/city/city.controller')
  *       500:
  *         description: Internal server error
  */
-city_route.get('/get-city-list/:stateId' , City.cityListByState);
+city_route.get('/city/get-city-list/:stateId' , City.cityListByState);
 module.exports = city_route

@@ -8,7 +8,7 @@ const CabinClass = require('../controllers/cabinClassMaster/cabinClassMaster.con
 
 /**
  * @swagger
- * /api/get-all-cabin:
+ * /api/cabin/get-all-cabin:
  *   get:
  *     summary: Get all cabin class master
  *     responses:
@@ -19,5 +19,5 @@ const CabinClass = require('../controllers/cabinClassMaster/cabinClassMaster.con
  *       500:
  *         description: Internal server error
  */
-cabin_class_route.get('/get-all-cabin' , CabinClass.cabinList);
+cabin_class_route.get('/cabin/get-all-cabin' , CabinClass.cabinList);
 module.exports = cabin_class_route

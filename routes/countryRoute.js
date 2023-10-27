@@ -11,7 +11,9 @@ const Country = require('./../controllers/country/country.controller')
  * @swagger
  * /api/country/all-country-list:
  *   get:
- *     summary: Get all country 
+ *     summary: Country 
+ *     tags:
+ *       - Country
  *     responses:
  *       200:
  *         description: Successful response

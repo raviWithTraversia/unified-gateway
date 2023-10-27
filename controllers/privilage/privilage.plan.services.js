@@ -28,6 +28,15 @@ const addPrivilagePlan = async(req , res) =>{
             }
         }
 
+        // check privilage name already exist behalf of company id
+        const checkPrivilagePlanNameExist = await PrivilagePlan.find({ privilagePlanName : privilagePlanName , companyId : companyId});
+       
+        if (checkPrivilagePlanNameExist.length > 0) {
+            return {
+                response: 'privilage plan name already exist'
+            }
+        }
+
         const addPrivilage = new PrivilagePlan({
             companyId,
             privilagePlanName,
@@ -77,4 +86,25 @@ const getPrivilageList =async(req ,res) => {
     }
 }
 
-module.exports = {addPrivilagePlan , getPrivilageList}
+// 
+const getPrivilagePlanByProductPlanId =async(req ,res) => {
+    try {
+        const productPlanId = req.params.productPlanId;
+        const result = await PrivilagePlan.find({productPlanId : productPlanId});
+        if (result.length > 0) {
+            return {
+                data: result
+            }
+        } else {
+            return {
+                response: 'Privilage Plan Not Found',
+                data: null
+            }
+        }
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+module.exports = {addPrivilagePlan , getPrivilageList , getPrivilagePlanByProductPlanId}

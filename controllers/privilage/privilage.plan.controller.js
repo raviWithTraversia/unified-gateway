@@ -7,7 +7,8 @@ const storePrivilagePlan = async (req, res) => {
 
         const result = await PrivilageServices.addPrivilagePlan(req);
 
-        if (result.response == 'All field are required' || result.response == 'companyId does not exist' || result.response == 'product plan Id does not exist') {
+        if (result.response == 'All field are required' || result.response == 'companyId does not exist' || result.response == 'product plan Id does not exist'
+        || result.response == 'privilage plan name already exist') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
         }
         else {
@@ -47,4 +48,23 @@ const getAllPrivilage = async (req, res) => {
     }
 }
 
-module.exports = { storePrivilagePlan, getAllPrivilage }
+
+const privilagePlanByProductId = async (req, res) => {
+    try {
+        const result = await PrivilageServices.getPrivilagePlanByProductPlanId(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true)
+    }
+}
+
+module.exports = { storePrivilagePlan, getAllPrivilage , privilagePlanByProductId }

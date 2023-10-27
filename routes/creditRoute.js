@@ -13,8 +13,9 @@ const creditRequestValidator = require('../validation/creditRequest.validation')
  *    post:
  *      security:
  *      - bearerAuth: []
- *      summary: Add Credit Request
- *      tags: [Add credit request]
+ *      summary: Credit Request
+ *      tags: 
+ *         - Credit request
  *      description: Add credit request
  *      requestBody:
  *        content:
@@ -75,7 +76,9 @@ creditRequest.storeCreditRequest);
  * @swagger
  * /api/credit/get-all-credit-request:
  *   get:
- *     summary: Get all credit requests
+ *     summary: Credit Request
+ *     tags: 
+ *         - Credit request
  *     responses:
  *       200:
  *         description: Successful response
@@ -89,6 +92,29 @@ credit_route.get(
     '/credit/get-all-credit-request' , 
     creditRequest.getAllCreditRequest
 )
+
+/**
+ * @swagger
+ * /api/credit/get-credit-by-compnay/{companyId}:
+ *   get:
+ *     summary: Get all credit requests by company ID
+ *     tags:
+ *       - Credit Request
+ *     parameters:
+ *       - in: path
+ *         name: companyId
+ *         required: true
+ *         description: The ID of the company for which credit requests are requested.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Successful response
+ *       '404':
+ *         description: Credit requests not available for the specified company.
+ *       '500':
+ *         description: Internal server error
+ */
 
 
 credit_route.get('/credit/get-credit-by-compnay/:companyId' , 

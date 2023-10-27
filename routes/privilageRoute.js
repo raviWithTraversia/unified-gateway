@@ -17,7 +17,8 @@ const privilageValidation = require('../validation/privilage.validation');
  *      security:
  *      - bearerAuth: []
  *      summary: Add Privilage
- *      tags: [Add Privilage]
+ *      tags:  
+ *          - Privilage
  *      description: Add a privilege
  *      requestBody:
  *        content:
@@ -52,17 +53,60 @@ privilage_route.post('/privilage/add-privilage' , privilageValidation.privilageV
 
 /**
  * @swagger
- * /api/privilage/privilage-list/:comapnyId:
+ * /api/privilege/privilage-list/{companyId}:
  *   get:
- *     summary: Get privilage-list by company id
+ *     summary: Get privilege list by company ID
+ *     tags:
+ *       - Privilege
+ *     parameters:
+ *       - in: path
+ *         name: companyId
+ *         required: true
+ *         description: The ID of the company for which privilege list is requested.
+ *         schema:
+ *           type: string
  *     responses:
- *       200:
+ *       '200':
  *         description: Successful response
- *       404:
- *         description: privilage-list not available
- *       500:
+ *       '404':
+ *         description: Privilege list not available for the specified company.
+ *       '500':
  *         description: Internal server error
  */
-privilage_route.get('/privilage/privilage-list/:comapnyId' , PrivilageController.getAllPrivilage);
+
+privilage_route.get(
+    '/privilage/privilage-list/:comapnyId' ,
+     PrivilageController.getAllPrivilage    
+    );
+
+  
+/**
+ * @swagger
+ * /api/privilege/privilage-list-by-product-plan-id/{productPlanId}:
+ *   get:
+ *     summary: Get privilege list by product plan ID
+ *     tags:
+ *       - Privilege
+ *     parameters:
+ *       - in: path
+ *         name: productPlanId
+ *         required: true
+ *         description: The ID of the product plan for which the privilege list is requested.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Successful response
+ *       '404':
+ *         description: Privilege list not available for the specified product plan.
+ *       '500':
+ *         description: Internal server error
+ */
+
+    
+privilage_route.get(
+    '/privilage/privilage-list-by-product-plan-id/:productPlanId' ,
+    PrivilageController.privilagePlanByProductId    
+    );    
 
 module.exports = privilage_route;

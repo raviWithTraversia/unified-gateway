@@ -14,8 +14,8 @@ const websiteManager = require("../controllers/websiteManager/websiteManager.con
  *      security:
  *        - bearerAuth: []
  *      summary: Add Website Manager
- *      tags:
- *        - Add website manager
+ *      tags:  
+ *          - Website Manager 
  *      description: Add a website manager
  *      requestBody:
  *        required: true
@@ -156,17 +156,27 @@ website_manager_route.post('/website/add-website-manager' , websiteManager.websi
 
 /**
  * @swagger
- * /api/website/retrive-website-manager/:domainName:
+ * /api/website/retrive-website-manager/{domainName}:
  *   get:
- *     summary: Get website manager by domain name 
+ *     summary: Get website manager by domain name
+ *     tags:
+ *       - Website Manager
+ *     parameters:
+ *       - in: path
+ *         name: domainName
+ *         required: true
+ *         description: The domain name of the website for which the manager is requested.
+ *         schema:
+ *           type: string
  *     responses:
- *       200:
+ *       '200':
  *         description: Successful response
- *       404:
- *         description: website manager not available
- *       500:
+ *       '404':
+ *         description: Website manager is not available
+ *       '500':
  *         description: Internal server error
  */
+
 
 website_manager_route.get('/website/retrive-website-manager/:domainName' , websiteManager.retriveWebsiteManager);
 

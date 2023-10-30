@@ -3,7 +3,7 @@ const Permission = require('../models/Permission');
 const permission = [
     {
       category: "Flight",
-      productName : "Flight",
+      productName : "Config",
       categoryName : "Flight Booking",
       permissionName : "flight",
       permissionDescription : "This could be a reference to a confirmation number or description of the ticket that grants permission to board a flight"

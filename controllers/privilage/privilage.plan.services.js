@@ -86,7 +86,7 @@ const getPrivilageList =async(req ,res) => {
     }
 }
 
-// 
+// Get privilage plab by product id
 const getPrivilagePlanByProductPlanId =async(req ,res) => {
     try {
         const productPlanId = req.params.productPlanId;
@@ -107,4 +107,104 @@ const getPrivilagePlanByProductPlanId =async(req ,res) => {
     }
 }
 
-module.exports = {addPrivilagePlan , getPrivilageList , getPrivilagePlanByProductPlanId}
+// Get privilage plna has product by privilage id
+const privilagePHPByPrivilageId =async(req ,res) => {
+    try {
+        const privilagePlanId = req.params.privilagePlanId;
+        const result = await privilagePlanHasPermission.find({privilagePlanId : privilagePlanId});
+        if (result.length > 0) {
+            return {
+                data: result
+            }
+        } else {
+            return {
+                response: 'Privilage Plan Not Found',
+                data: null
+            }
+        }
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+// privilage Plan update method 
+
+const privilagePlanPatch = async(req , res) => {
+    try {
+       
+        const {companyId ,privilagePlanName , productPlanId , permission} = req.body;
+        if(!companyId || !privilagePlanName || !productPlanId || !permission) {
+            return {
+                response : 'All field are required'
+            }
+        }
+
+         // check company id exits or not
+         const checkCompanyExist = await Company.findById(companyId);
+         if (!checkCompanyExist) {
+             return {
+                 response: "companyId does not exist"
+             }
+         }
+       
+        // check product plan id exist or not
+        const checkProductPlanExist = await ProductPlan.findById(productPlanId);
+        if (!checkProductPlanExist) {
+            return {
+                response: "product plan Id does not exist"
+            }
+        }
+
+        const _id = req.params.privilagePlanId;
+        const privilagePlanId = req.params.privilagePlanId;
+        // check privilage name already exist behalf of company id
+        const checkPrivilagePlanNameExist = await PrivilagePlan.findOne({ _id : _id});
+        
+        if (privilagePlanName != checkPrivilagePlanNameExist.privilagePlanName) {
+            
+            const checkPrivilage = await PrivilagePlan.find({ companyId : companyId });
+           
+            const oldNameExists = checkPrivilage.some(checkPrivilage => checkPrivilage.privilagePlanName.toLowerCase() === privilagePlanName.toLowerCase());
+            
+            if(oldNameExists) {
+                return {
+                    response: 'privilage plan name already exist'
+                }
+            }
+        }
+       
+        const updatePrivilage =  await PrivilagePlan.findByIdAndUpdate(_id, {
+            privilagePlanName : privilagePlanName,
+            productPlanId : productPlanId
+        }, { new: true })
+        // privious plan has permission deleted.
+        const result = await privilagePlanHasPermission.deleteMany({ privilagePlanId: _id });
+
+        // Add privilagePlanHasPermission
+        permission.forEach(async(permission) => {
+            const permissionId = permission.permissionId;
+            const privilagePlanAdd = new privilagePlanHasPermission({
+                privilagePlanId,
+                permissionId
+            });
+           const result = await privilagePlanAdd.save();
+        });
+
+        return {    
+            response : 'Privilage plan updated successfully'
+        }
+
+    } catch (error) {
+        throw error
+    }
+}
+
+
+module.exports = {
+    addPrivilagePlan , 
+    getPrivilageList , 
+    getPrivilagePlanByProductPlanId ,
+    privilagePHPByPrivilageId,
+    privilagePlanPatch
+}

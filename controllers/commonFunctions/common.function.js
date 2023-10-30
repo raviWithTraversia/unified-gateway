@@ -3,6 +3,9 @@ const { Config } = require("../../configs/config");
 const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
+const EventLog = require('../../models/Logs/EventLogs');
+const PortalLog = require('../../models/Logs/PortalApiLogs');
+
 const createToken = async (id) => {
     try {
        const token = await jwt.sign({_id:id},Config.SECRET_JWT);
@@ -100,8 +103,40 @@ const comparePassword = async (plainTextPassword, hashedPassword) => {
   }
 };
 
+// event Log  save when trigger any action related to event log....
+const eventLogFunction = async(eventName , doerId , doerName , ipAddress , companyId) => {
+  try {
+    const newEventLog = new EventLog({
+      eventName,
+      doerId,
+      doerName,
+      ipAddress,
+      companyId
+  });
+  const storeLogs = await newEventLog.save();
+    return "Event Log added successfully";
+  } catch (error) {
+    throw error;
+  }
+}
 
-
+// Portal Log event save when trigger any action related to portal log....
+const protalLogFunction = async(traceId , companyId , source , product , request , responce) => {
+  try {
+    const newPortalLog = new PortalLog({
+      traceId,
+      companyId,
+      source,
+      product,
+      request,
+      responce
+  });
+  const storeLogs = await newPortalLog.save();
+  return  "Portal Log added successfully";
+  } catch (error) {
+    throw error;
+  }
+}
 
 module.exports = {
     createToken,
@@ -112,5 +147,7 @@ module.exports = {
     getPagingDataOfSp,
     checkIsValidId,
     removeWWWAndProtocol,
-    comparePassword
+    comparePassword,
+    eventLogFunction,
+    protalLogFunction
 }

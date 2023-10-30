@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const registrationSchema = new mongoose.Schema({
     companyId: {
-        type : String,
-        required : true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company', 
     },
     companyName: {
         type: String,
@@ -58,22 +58,26 @@ const registrationSchema = new mongoose.Schema({
         required: true,
     },
     country: {
-        type: String,
-        required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Country', 
     },
     state: {
-        type: String,
-        required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'State', 
     },
     city: {
-        type: String,
-        required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'City', 
     },
     remark: String, 
     statusId: {
         type : mongoose.Schema.Types.ObjectId,
         ref: 'status'
     },
+    roleId: {
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Role'
+    }
 },{
     timestamps : true  //Add created_at and updated_at coloumn
 });

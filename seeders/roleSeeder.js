@@ -3,11 +3,11 @@ const roles = require('../models/Role');
 const role = [
     {
         name: "Admin" ,
-        companyId: '651bfac44a7853f4df0d81c8'
+        companyId: '6538c0314756928875840820'
     },
     {
         name: "TMC" ,
-        companyId: '651bfac44a7853f4df0d81c8'
+        companyId: '6538c0314756928875840820'
     }
        
    ] ;

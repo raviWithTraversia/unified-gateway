@@ -17,6 +17,13 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    deactivation_Date: {
+        type: String,
+        default: null
+    },
+    logoURI: {
+      type: String
+    },
     title: String,
     fname: String,
     lastName: String,
@@ -36,7 +43,6 @@ const userSchema = new mongoose.Schema({
     userModifiedBy: String,
     last_LoginDate: Date,
     activation_Date: Date,
-    deactivation_Date: Date,
     sex: String,
     dob: Date,
     nationality: String,
@@ -45,7 +51,6 @@ const userSchema = new mongoose.Schema({
     user_planType: Number,
     sales_In_Charge: Boolean,
     personalPanCardUpload: String,
-    isNewUser: Boolean,
     resetToken: String,
     
 }, {

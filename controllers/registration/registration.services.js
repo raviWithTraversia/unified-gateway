@@ -1,4 +1,4 @@
-const registration = require('../../models/registration');
+const registration = require('../../models/Registration');
 const FUNC = require('../../controllers/commonFunctions/common.function')
 
 const addRegistration = async(req,res) => {
@@ -22,7 +22,8 @@ let {
       state, 
       city, 
       remark, 
-      statusId, 
+      roleId,
+      statusId 
          } = req.body;
 
 const fieldNames = [
@@ -43,7 +44,8 @@ const fieldNames = [
         'country',
         'state',
         'city',
-        'statusId'
+        'statusId',
+        'roleId'
       ];
  const missingFields = fieldNames.filter((fieldName) => req.body[fieldName] === null || req.body[fieldName] === undefined);
   if (missingFields.length > 0) {
@@ -58,6 +60,10 @@ const fieldNames = [
 
   let isValidStatusId = FUNC.checkIsValidId(statusId);
   let isValidsaleInChargeId = FUNC.checkIsValidId(saleInChargeId);
+  let iscountry = FUNC.checkIsValidId(country);
+  let isState = FUNC.checkIsValidId(state);
+  let isroleId = FUNC.checkIsValidId(roleId)
+
   if(isValidStatusId === "Invalid Mongo Object Id"){
     return {
      response : "Status Id is not valid"
@@ -67,6 +73,24 @@ const fieldNames = [
      return {
         response : "Sale incharge Id is not valid"
      }
+  }
+
+  if(iscountry === "Invalid Mongo Object Id"){
+    return {
+     response : "Country Id is not valid"
+    }
+  }
+
+  if(isState === "Invalid Mongo Object Id"){
+    return {
+        response : "State Id is not valid"
+    }
+  }
+
+  if(isroleId === "Inavlid Mongo Object Id"){
+    return {
+        response : "Role Id is not valid"
+    }
   }
   const existingRegistrationWithEmail = await registration.findOne({ email });
   if(existingRegistrationWithEmail){
@@ -101,7 +125,8 @@ const newRegistration = new registration({
         state, 
         city, 
         remark, 
-        statusId
+        statusId,
+        roleId
 });
 await newRegistration.save();
 return {

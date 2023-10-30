@@ -22,8 +22,15 @@ const apiErrorres = (res,message,code, error) => {
 
     })
 }
+const status = {
+    1 : "Active",
+    2 : "InActive",
+    3 : "Pending",
+
+}
 
 module.exports = {
     apiSucessRes,
-    apiErrorres
+    apiErrorres,
+    status
 }

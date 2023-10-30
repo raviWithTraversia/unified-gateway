@@ -66,7 +66,7 @@ user_route.post(
 
  /**
  * @swagger
- * /api/login:
+ * /api/user/login:
  *   post:
  *     summary: Login User
  *     tags:
@@ -109,41 +109,56 @@ user_route.post(
  */
 
 user_route.post(
-    '/login',
-    userValidatior.userLogin,
+    '/user/login',
+   // userValidatior.userLogin,
      userController.loginUser 
      );
 
-/**
+     
+ /**
  * @swagger
- * paths:
- *  /api/login/phone:
- *    post:
- *      security:
- *      - bearerAuth: []
- *      summary: For admin/user login
- *      tags: [login with phone number]
- *      description: for admin or company login
- *      requestBody:
- *        content:
- *          application/json:
- *            schema:
- *              properties:
+ * /api/user/login/phone:
+ *   post:
+ *     summary: Login User
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
  *               phoneNumber:
  *                 type: string
  *               password:
- *                  password: string  
- *      responses:
- *        "200":
- *          description: User logedin Sucessfully
- *        "401":
- *          description: user unutharized
- *        "500":
- *          description: server error
+ *                 type: string
+ *           example:
+ *             phoneNumber: admin@traversia.net
+ *             password: Ttpl@2023
+ *     responses:
+ *       '200':
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: Login successful
+ *               data:
+ *                 _id: 12345 // Replace with actual user ID
+ *                 name: John Doe // Replace with actual user name
+ *                 email: admin@traversia.net
+ *                 phoneNumber: +1234567890 // Replace with actual phone number
+ *                 token: yourAuthToken // Replace with actual token
+ *       '400':
+ *         description: User not found or invalid password
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: User not found or Invalid password
  */
 
   user_route.post(
-     '/login/phone',
+     '/user/login/phone',
      userValidatior.userLogin,
      userController.loginUser 
     );
@@ -151,7 +166,7 @@ user_route.post(
 
 /**
  * @swagger
- * /api/userInsert:
+ * /api/user/userInsert:
  *   post:
  *     summary: User and Company
  *     tags:
@@ -349,8 +364,6 @@ user_route.post(
  *             HSN_SAC_Code: "HSN123"
  *             hierarchy_Level: "Level A"
  *             pan_upload: "pan_upload_url_a.jpg"
- *             createdAt: "2023-10-25T07:13:52.869+00:00"
- *             updatedAt: "2023-10-25T07:13:52.869+00:00"
  *     responses:
  *       '200':
  *         description: User and Company inserted successfully
@@ -365,8 +378,8 @@ user_route.post(
 
 
 user_route.post(
-    '/user/register', 
-  // userValidatior.userInsert,
+    '/user/userInsert', 
+   userValidatior.userInsert,
     userController.userInsert 
     );
 
@@ -374,12 +387,12 @@ user_route.post(
 /**
  * @swagger
  * paths:
- *  /api/forgot-password:
+ *  /api/user/forgot-password:
  *    post:
  *      security:
  *      - bearerAuth: []
  *      summary: route for forget password
- *      tags: [route for forget password]
+ *      tags: User
  *      description: for admin or company login
  *      requestBody:
  *        content:
@@ -400,16 +413,16 @@ user_route.post(
  */
 
 user_route.post(
-    '/forgot-password',
+    '/user/forgot-password',
     userValidatior.userForgetPassword,
     userController.forgotPassword
 )
 
-// route for reset password
+// route for reset passsword
 
 /**
  * @swagger
- * /api/resetPassword:
+ * /api/user/resetPassword:
  *   post:
  *     summary: Reset the user's password using a reset token.
  *     tags:
@@ -441,72 +454,62 @@ user_route.post(
  */
 
 user_route.post(
-    '/reset-password',
+    '/user/reset-password',
     //userValidatior.userResetPassword,
     userController.resetPassword
 )
-/**
-* swagger: '2.0'
-* info:
-*   version: '1.0.0'
-*   title: Your API Documentation
-* paths:
-*   /changePassword:
-*     post:
-*       summary: Change user password
-*       description: Change the user's password with email and current password validation.
-*       parameters:
-*         - in: body
-*           name: request
-*           description: User information for changing the password
-*           required: true
-*           schema:
-*             type: object
-*             properties:
-*               email:
-*                 type: string
-*                 example: user@example.com
-*               currentPassword:
-*                 type: string
-*                 example: currentPassword123
-*               newPassword:
-*                 type: string
-*                 example: newPassword456
-*       responses:
-*         200:
-*           description: Password changed successfully
-*           schema:
-*             type: object
-*             properties:
-*               response:
-*                 type: string
-*                 example: Password Change Successfully
-*         401:
-*           description: Invalid current password
-*           schema:
-*             type: object
-*             properties:
-*               response:
-*                 type: string
-*                 example: Your current password is not valid
-*         404:
-*           description: User not found
-*           schema:
-*             type: object
-*             properties:
-*               response:
-*                 type: string
-*                 example: User for this mail-id does not exist
-*         500:
-*           description: Internal server error
-*           schema:
-*             type: object
-*             properties:
-*               response:
-*                 type: string
-*                 example: Internal server error
-*/
 
+
+  /**
+ * @swagger
+ * /api/user/change-password:
+ *   post:
+ *     summary: Change User Password
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *           example:
+ *             email: user@example.com
+ *             currentPassword: currentPassword123
+ *             newPassword: newPassword456
+ *     responses:
+ *       '200':
+ *         description: Password changed successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: Password Change Successfully
+ *       '401':
+ *         description: Invalid current password
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: Your current password is not valid
+ *       '404':
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: User for this mail-id does not exist
+ *       '500':
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: Internal server error
+ */
 user_route.post(
     '/user/change-password',
     userController.changePassword

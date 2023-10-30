@@ -61,6 +61,7 @@ const options = {
         "./routes/websiteManagerRoute.js",  
         "./routes/stateRoute.js",  
         "./routes/cityRoute.js",  
+        "./routes/registrationRoute.js"
 
     ]
 };

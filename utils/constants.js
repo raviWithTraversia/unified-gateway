@@ -52,6 +52,12 @@ const errorResponse = {
     NOT_AVALIABLE: 'No data available'
 
 }
+const Status = {
+    "Active" : "Active",
+    "InActive" : "InActive",
+    "Pending" : "Pending",
+
+}
 
 const ADMIN_USER_TYPE = ['MASTER', 'COMPANY', 'SUB_COMPANY', 'EMPLOYEE'];
 
@@ -59,6 +65,6 @@ module.exports = {
     ServerStatusCode,
     errorResponse,
     ADMIN_USER_TYPE,
-    CrudMessage
-
+    CrudMessage,
+    Status
 }

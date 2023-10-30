@@ -1,5 +1,5 @@
 module.exports.Config = {   
-    PORT: process.env.PORT || 3010,    
+    PORT: process.env.PORT || 3020,    
     SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",
     MONGODB_URL:process.env.MONGODB_URL || "mongodb+srv://hsbhandari:fl1I9D8gtsbeHzdO@cluster0.xdzp3sk.mongodb.net/b2bportal",
     HOST: 'smtp.hostinger.com',

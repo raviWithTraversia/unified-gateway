@@ -5,7 +5,7 @@ const getCityByState = async(req , res) => {
         const stateId = req.params.stateId;
         const result = await City.find({ stateId: stateId });
 
-        console.log(result);
+        // console.log(result);
         if (result.length > 0) {
             return {
                 data: result

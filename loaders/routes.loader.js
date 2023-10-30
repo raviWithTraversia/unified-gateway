@@ -15,6 +15,7 @@ const CabinClassMasterRoute = require('../routes/cabinClassMasterRoute');
 const websiteManagerRoute = require('../routes/websiteManagerRoute');
 const stateRoute = require('../routes/stateRoute');
 const cityRoute = require('../routes/cityRoute');
+const permissionRoute = require('../routes/permissionRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -66,6 +67,9 @@ class RoutesLoader {
 
         // City route by alam shah
         app.use('/api' , cityRoute);
+
+        // Permission Route by ALam Shah
+        app.use('/api' , permissionRoute);
     }
 }
 

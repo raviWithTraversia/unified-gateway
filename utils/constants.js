@@ -40,6 +40,7 @@ const CrudMessage = {
     PRIVILAGE_PLAN_CREATED : 'Privilage plan created successfully',
     CREDIT_REQUESTED_CREATED : 'Credit request created successfully',
     WEBSIET_MANAGER_CREATED : 'Website manager created successfully',
+    PRIVILAGE_PLAN_UPDATE : 'Privilage plan updated successfully',
 }
 
 const errorResponse = {

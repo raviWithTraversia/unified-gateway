@@ -9,9 +9,11 @@ const Country = require('./../controllers/country/country.controller')
 
 /**
  * @swagger
- * /api/all-country-list:
+ * /api/country/all-country-list:
  *   get:
- *     summary: Get all country 
+ *     summary: Country 
+ *     tags:
+ *       - Country
  *     responses:
  *       200:
  *         description: Successful response
@@ -21,5 +23,5 @@ const Country = require('./../controllers/country/country.controller')
  *         description: Internal server error
  */
 
-country_route.get('/all-country-list' , Country.countryList);
+country_route.get('/country/all-country-list' , Country.countryList);
 module.exports = country_route

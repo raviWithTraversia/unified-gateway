@@ -8,16 +8,26 @@ const State = require('./../controllers/state/state.controller')
 
 /**
  * @swagger
- * /api/get-state-list/6538c03847569288758408b8:
+ * /api/state/get-state-list/{countryId}:
  *   get:
- *     summary: Get state requests by counrtyId
+ *     summary: Get state requests by country ID
+ *     tags:
+ *       - State
+ *     parameters:
+ *       - in: path
+ *         name: countryId
+ *         required: true
+ *         description: The ID of the country for which state requests are made.
+ *         schema:
+ *           type: string
  *     responses:
- *       200:
+ *       '200':
  *         description: Successful response
- *       404:
- *         description: State not available
- *       500:
+ *       '404':
+ *         description: State information is not available
+ *       '500':
  *         description: Internal server error
  */
-state_route.get('/get-state-list/:countryId' , State.stateListByCountry);
+
+state_route.get('/state/get-state-list/:countryId' , State.stateListByCountry);
 module.exports = state_route

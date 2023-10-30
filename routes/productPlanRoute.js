@@ -13,12 +13,13 @@ const productValidator = require('../validation/product.validation');
  /**
  * @swagger
  * paths:
- *  /api/product-plan:
+ *  /api/product/product-plan:
  *    post:
  *      security:
  *      - bearerAuth: []
  *      summary: Add Product Plan
- *      tags: [Add Product Plan]
+ *      tags:  
+ *          - Product Plan
  *      description: Add a product plan
  *      requestBody:
  *        content:
@@ -47,14 +48,16 @@ const productValidator = require('../validation/product.validation');
  */
 
 
-product__plan_route.post('/product-plan' , productValidator.productPlanValidation ,ProductPlan.addProductPlan);
+product__plan_route.post('/product/product-plan' , productValidator.productPlanValidation ,ProductPlan.addProductPlan);
 
 
 /**
  * @swagger
- * /api/all-product-plan:
+ * /api/product/all-product-plan:
  *   get:
  *     summary: Get all-product-plan list
+ *     tags:  
+ *          - Product Plan
  *     responses:
  *       200:
  *         description: Successful response
@@ -63,39 +66,53 @@ product__plan_route.post('/product-plan' , productValidator.productPlanValidatio
  *       500:
  *         description: Internal server error
  */
-product__plan_route.get('/all-product-plan' , ProductPlan.retriveProductPlan);
+product__plan_route.get('/product/all-product-plan' , ProductPlan.retriveProductPlan);
 
 
 
 /**
  * @swagger
- * paths:
- *  /api/update-product-plan/6535f8c10bf61741d3617400:
- *    patch:
- *      security:
- *      - bearerAuth: []
- *      summary: Update Product Plan
- *      tags: [Update Product Plan]
- *      description: Update a product plan
- *      requestBody:
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
+ * /api/product/update-product-plan/{productPlanId}:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Update Product Plan
+ *     tags:
+ *       - Product Plan
+ *     description: Update a product plan
+ *     parameters:
+ *       - in: path
+ *         name: productPlanId
+ *         required: true
+ *         description: The ID of the product plan to be updated.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
  *               productPlanName:
  *                 type: string
  *                 example: "Updated Product Plan Name"
- *      responses:
- *        "200":
- *          description: Product plan updated successfully
- *        "401":
- *          description: User unauthorized
- *        "500":
- *          description: Server error
+ *               product:
+ *                 type: array
+ *                 example:
+ *                 - productId: "6524e5ef01aa7477c0ae9461"
+ *                 - productId: "6524e5ef01aa7477c0ae9462"
+ *     responses:
+ *       '200':
+ *         description: Product plan updated successfully
+ *       '401':
+ *         description: Unauthorized. Please provide a valid token.
+ *       '500':
+ *         description: Internal server error. Something went wrong on our end.
  */
 
-product__plan_route.patch('/update-product-plan/:producPlantId' , ProductPlan.updateProductPlan);
+
+product__plan_route.patch('/product/update-product-plan/:producPlantId' , ProductPlan.updateProductPlan);
 
 
 module.exports = product__plan_route;

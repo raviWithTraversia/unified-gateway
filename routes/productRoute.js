@@ -13,12 +13,13 @@ const productValidator = require('../validation/product.validation');
 /**
  * @swagger
  * paths:
- *  /api/product:
+ *  /api/product/add-product:
  *    post:
  *      security:
  *      - bearerAuth: []
  *      summary: Add Product
- *      tags: [Add Product]
+ *      tags:  
+ *          - Product 
  *      description: Add a product
  *      requestBody:
  *        content:
@@ -38,14 +39,16 @@ const productValidator = require('../validation/product.validation');
  *          description: Server error
  */
 
-product_route.post('/product' ,  productValidation ,Product.storeProduct);
+product_route.post('/product/add-product' ,  productValidation ,Product.storeProduct);
 
 
 /**
  * @swagger
- * /api/get-product:
+ * /api/product/get-product:
  *   get:
  *     summary: Get all product
+ *     tags:  
+ *          - Product 
  *     responses:
  *       200:
  *         description: Successful response
@@ -54,48 +57,59 @@ product_route.post('/product' ,  productValidation ,Product.storeProduct);
  *       500:
  *         description: Internal server error
  */
-product_route.get('/get-product' , Product.getProduct);
+product_route.get('/product/get-product' , Product.getProduct);
 
 /**
  * @swagger
- * paths:
- *  /api/update-product/652668b5f907cef72e7ef26c:
- *    patch:
- *      security:
- *      - bearerAuth: []
- *      summary: Update Product
- *      tags: [Update Product]
- *      description: Update a product
- *      requestBody:
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
+ * /api/product/update-product/{productId}:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Update Product
+ *     tags:
+ *       - Product
+ *     description: Update a product
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         required: true
+ *         description: The ID of the product to be updated.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
  *               productName:
  *                 type: string
  *                 example: "Updated Product Name"
- *      responses:
- *        "200":
- *          description: Product updated successfully
- *        "401":
- *          description: User unauthorized
- *        "500":
- *          description: Server error
+ *     responses:
+ *       '200':
+ *         description: Product updated successfully
+ *       '401':
+ *         description: Unauthorized. Please provide a valid token.
+ *       '500':
+ *         description: Internal server error. Something went wrong on our end.
  */
+
 
 product_route.patch
     (
-    '/update-product/:productId' ,
+    '/product/update-product/:productId' ,
      Product.updateProduct
     );
 
 
 /**
  * @swagger
- * /api/delete-product/6535f9432f082e753a5329f1:
+ * /api/product/delete-product/{productId}:
  *   delete:
  *     summary: Get delete product by product id
+ *     tags:  
+ *          - Product 
  *     responses:
  *       200:
  *         description: Successful response
@@ -104,7 +118,7 @@ product_route.patch
  *       500:
  *         description: Internal server error
  */
-product_route.delete('/delete-product/:productId' , Product.deleteProduct);
+product_route.delete('/product/delete-product/:productId' , Product.deleteProduct);
 
 module.exports = product_route;
 

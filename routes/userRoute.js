@@ -5,7 +5,6 @@ user_route.use(bodyParser.json());
 user_route.use(bodyParser.urlencoded({extended:true}));
 const userController = require("../controllers/users/user.controller");
 const auth = require("../middleware/auth");
-//const { loginValidation } = require("../utils/validation/validation");
 const userValidatior = require('../validation/user.validation');
 
 /**

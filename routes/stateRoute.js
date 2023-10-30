@@ -12,7 +12,7 @@ const State = require('./../controllers/state/state.controller')
  *   get:
  *     summary: Get state requests by country ID
  *     tags:
- *       - State
+ *       - Country State City
  *     parameters:
  *       - in: path
  *         name: countryId

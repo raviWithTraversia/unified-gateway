@@ -87,7 +87,7 @@ app.use("/b2b/api-docs", basicAuth({
     challenge: true,
 }), swaggerUI.serve, swaggerUI.setup(swaggerDocs,swaggerUiOptions));
 
-const port = Number(Config.PORT);
+const port = 3010;
 app.listen(port, function(){
     console.log(`Server is running on port ${port}`);  
 })

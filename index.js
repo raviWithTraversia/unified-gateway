@@ -67,7 +67,9 @@ const options = {
         "./routes/roleRoute.js",
         "./routes/salesRoute.js", 
         "./routes/commercialAirPlanRoute.js", 
-        "./routes/fareFamilyMasterRoute.js" 
+        "./routes/fareFamilyMasterRoute.js" ,
+        "./routes/salesRoute.js" ,
+        "./routes/verifyOtpRoute.js"
 
     ]
 };
@@ -88,8 +90,7 @@ app.use("/b2b/api-docs", basicAuth({
     challenge: true,
 }), swaggerUI.serve, swaggerUI.setup(swaggerDocs,swaggerUiOptions));
 
-const port = Number(Config.PORT);
+const port = process.env.PORT || 3111;
 app.listen(port, function(){
     console.log(`Server is running on port ${port}`);  
 })
-

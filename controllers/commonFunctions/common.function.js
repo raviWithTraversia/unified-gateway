@@ -138,6 +138,60 @@ const protalLogFunction = async(traceId , companyId , source , product , request
   }
 }
 
+const sendOtpOnEmail = async (recipientEmail, otp) => {
+
+  const transporter = nodemailer.createTransport({
+    host: Config.HOST, // SMTP server hostname or IP address
+    port: 587, // Port number for SMTP with STARTTLS
+    secure: false, // Set to false when using STARTTLS
+    auth: {
+      user: Config.USER,
+      pass: Config.PASS, // Verify the password for leading/trailing spaces
+    },
+  });
+
+  // Email content
+  const mailOptions = {
+    from: Config.USER,
+    to: recipientEmail,
+    subject: 'OTP for New User Registration',
+    text: `Your OTP for New Registartion: ${otp}`,
+  };
+
+  // Send the email
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`OTP sent to ${recipientEmail}`);
+    return {
+      responce  : "OTP sent"
+    }
+  } catch (error) {
+    console.error('Error sending OTP:', error);
+    throw error;
+  }
+}
+
+const accountSid = 'your_account_sid';
+const authToken = 'your_auth_token';
+
+//const client = new twilio(accountSid, authToken);
+
+const sendOtpOnPhone = async (recipientPhone, otp) => {
+  try {
+    const message = await client.messages.create({
+      body: `Your OTP for password reset is: ${otp}`,
+      to: recipientPhone, 
+      from: 'your_twilio_phone_number', 
+    });
+
+    console.log(`OTP sent to ${recipientPhone} with message SID: ${message.sid}`);
+  } catch (error) {
+    console.error('Error sending OTP via SMS:', error);
+    throw error;
+  }
+};
+
+
 module.exports = {
     createToken,
     securePassword,
@@ -149,5 +203,8 @@ module.exports = {
     removeWWWAndProtocol,
     comparePassword,
     eventLogFunction,
-    protalLogFunction
+    protalLogFunction,
+    sendOtpOnEmail,
+    sendOtpOnPhone,
+    sendOtpOnPhone
 }

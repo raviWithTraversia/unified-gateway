@@ -384,32 +384,56 @@ user_route.post(
 
     // route for forget password 
 /**
- * @swagger
- * paths:
- *  /api/user/forgot-password:
- *    post:
- *      security:
- *      - bearerAuth: []
- *      summary: route for forget password
- *      tags: User
- *      description: for admin or company login
- *      requestBody:
- *        content:
- *          application/json:
- *            schema:
- *              properties:
- *               phoneNumber:
- *                 type: string
- *               password:
- *                  password: string  
- *      responses:
- *        "200":
- *          description: User logedin Sucessfully
- *        "401":
- *          description: user unutharized
- *        "500":
- *          description: server error
- */
+* @swagger
+*paths:
+*  /api/user/forgot-password:
+*    post:
+*      summary: Reset the user's password using a reset token.
+*      tags:
+*        - User
+*      consumes:
+*        - application/json
+*      produces:
+*        - application/json
+*      parameters:
+*        - in: body
+*          name: requestBody
+*          description: Email, reset token, and new password for password reset.
+*          required: true
+*          schema:
+*            type: object
+*            properties:
+*              email:
+*                type: string
+*                example: user@example.com
+*      responses:
+*        '200':
+*          description: Password reset successful.
+*        '401':
+*          description: Invalid reset token.
+*        '500':
+*          description: Internal server error
+
+*# Example response if the user is not found (you can customize this):
+*        '404':
+*          description: User not found
+*          schema:
+*            type: object
+*            properties:
+*              response:
+*                type: string
+*                example: User not found
+
+*# Example response if password reset email is sent successfully (you can customize this):
+*        '202':
+*          description: Password reset email sent
+*          schema:
+*            type: object
+*            properties:
+*              response:
+*                type: string
+*                example: Password reset email sent
+*/
 
 user_route.post(
     '/user/forgot-password',

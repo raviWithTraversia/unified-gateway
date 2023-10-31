@@ -163,7 +163,7 @@ const getAllRegistrationByCompany = async(req,res) => {
             message : "Company Id not true"
         }
     }
-    const registrationData = await registration.find({comapnyId});
+    const registrationData = await registration.find({companyId : comapnyId});
     if(!registrationData){
         return {
             response : null,

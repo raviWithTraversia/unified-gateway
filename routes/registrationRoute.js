@@ -116,7 +116,7 @@ registation_route.post(
 
   /**
  * @swagger
- * /getAllRegistration:
+ * /api/registration/all-registration:
  *   get:
  *     summary: Get All Registrations
  *     tags:
@@ -139,15 +139,52 @@ registation_route.post(
  *               response: Internal server error
  */
 registation_route.get(
-  '/registration/all',
+  '/registration/all-registration',
    registrationController.getAllRegistration
  );
 
-
+/**
+* @swagger
+*   /api/registration/{companyId}:
+*     get:
+*       tags:
+*         - Registration
+*       summary: Get all registration data by company ID
+*       parameters:
+*         - name: companyId
+*           in: path
+*           type: string
+*           required: true
+*           description: The ID of the company for which registration data is requested.
+*       responses:
+*         200:
+*           description: Registration data found successfully
+*           schema:
+*             type: object
+*             properties:
+*               response:
+*                 type: string
+*                 example: "Registration data found successfully"
+*               data:
+*                 type: array
+*                 items:
+*                   type: object
+*                   # Define the properties of the registration data object here.
+*         404:
+*           description: Registration Data Not Found
+*           schema:
+*             type: object
+*             properties:
+*               response:
+*                 type: string
+*                 example: "Registration data not found by this companyId"
+*/
  registation_route.get(
     '/registration/:companyId',
     registrationController.getAllRegistrationByCompany
  );
+
+
 
  registation_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

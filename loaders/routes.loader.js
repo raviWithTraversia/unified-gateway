@@ -18,6 +18,7 @@ const cityRoute = require('../routes/cityRoute');
 const permissionRoute = require('../routes/permissionRoute');
 const roleRoute = require('../routes/roleRoute');
 const salesRoute = require('../routes/salesRoute');
+const verifyOtpRoute = require('../routes/verifyOtpRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -80,6 +81,10 @@ class RoutesLoader {
         // saleInchage route by shashi
 
         app.use('/api', salesRoute)
+
+        // varify otp by shashi
+
+        app.use('/api', verifyOtpRoute)
     }
 }
 

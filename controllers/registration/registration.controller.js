@@ -7,50 +7,50 @@ const addRegistration = async (req,res) => {
     const result = await registrationServices.addRegistration(req,res);
     if(!result.response && result.isSometingMissing){
         apiErrorres(
-          res,
-          result.data,
-          ServerStatusCode.BAD_REQUEST,
-          true
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
         )
     }
 
-    if(result.response === 'Email already exists' ){
+    else if(result.response === 'Email already exists' ){
         apiErrorres(
             res,
             result.response,
-            ServerStatusCode.BAD_REQUEST,
+            ServerStatusCode.ALREADY_EXIST,
             true
         )
     }
-    if(result.response === 'Mobile number already exists'){
+     else if(result.response === 'Mobile number already exists'){
         apiErrorres(
             res,
             result.response,
-            ServerStatusCode.BAD_REQUEST,
+            ServerStatusCode.ALREADY_EXIST,
             true
         )
     }
-    if(result.response === 'status Id is not valid'){
+    else if(result.response === 'status Id is not valid'){
         apiErrorres(
             res,
             result.response,
-            ServerStatusCode.BAD_REQUEST,
+            ServerStatusCode.ALREADY_EXIST,
             true
         )
     }
-    if(result.response === 'Sale incharge Id is not valid'){
+    else if(result.response === 'Sale incharge Id is not valid'){
         apiErrorres(
             res,
             result.response,
-            ServerStatusCode.BAD_REQUEST,
+            ServerStatusCode.INVALID_CRED,
             true
         )
     }
-    if(result.response === 'Status Id is not valid'){
+    else if(result.response === 'Status Id is not valid'){
         apiErrorres(
             res,
             result.response,
-            ServerStatusCode.BAD_REQUEST,
+            ServerStatusCode.INVALID_CRED,
             true
         )
     }
@@ -63,12 +63,13 @@ const addRegistration = async (req,res) => {
         )
     }
   } catch (error){
-    apiErrorres(
+    console.error(error);
+    apiErrorres (
         res,
         errorResponse.SOMETHING_WRONG,
         ServerStatusCode.SERVER_ERROR,
         true
-         )
+    )
 
   }
    
@@ -84,6 +85,12 @@ const getAllRegistration = async (req , res) => {
             result.data,
             ServerStatusCode.SUCESS_CODE
         )
+    }else{
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.SERVER_ERROR,
+            true )
     }
 
     } catch (error){

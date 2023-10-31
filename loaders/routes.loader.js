@@ -10,6 +10,12 @@ const productPlanRoute = require('../routes/productPlanRoute');
 const emailConfigRoute = require('../routes/emailConfigRoute');
 const emailConfigDecriptionRoute = require("../routes/emailConfigDiscriptionRoute");
 const smtpRoute = require('../routes/smtpRoute');
+const CountryRoute = require('../routes/countryRoute');
+const CabinClassMasterRoute = require('../routes/cabinClassMasterRoute');
+const websiteManagerRoute = require('../routes/websiteManagerRoute');
+const stateRoute = require('../routes/stateRoute');
+const cityRoute = require('../routes/cityRoute');
+const permissionRoute = require('../routes/permissionRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -45,6 +51,25 @@ class RoutesLoader {
 
         // smtp Route by shashi
         app.use('/api',smtpRoute);
+        app.use('/api', emailConfigDecriptionRoute)
+
+        // Country route by alamShah
+        app.use('/api', CountryRoute);
+
+        // CabinClassMaster route by alam
+        app.use('/api', CabinClassMasterRoute);
+
+        // website Manager Route by alam Shah
+        app.use('/api', websiteManagerRoute);
+
+        // State route by alam shah
+        app.use('/api' , stateRoute);
+
+        // City route by alam shah
+        app.use('/api' , cityRoute);
+
+        // Permission Route by ALam Shah
+        app.use('/api' , permissionRoute);
     }
 }
 

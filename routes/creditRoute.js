@@ -9,12 +9,13 @@ const creditRequestValidator = require('../validation/creditRequest.validation')
 /**
  * @swagger
  * paths:
- *  /api/add-credit-request:
+ *  /api/credit/add-credit-request:
  *    post:
  *      security:
  *      - bearerAuth: []
- *      summary: Add Credit Request
- *      tags: [Add credit request]
+ *      summary: Credit Request
+ *      tags: 
+ *         - Credit request
  *      description: Add credit request
  *      requestBody:
  *        content:
@@ -24,7 +25,7 @@ const creditRequestValidator = require('../validation/creditRequest.validation')
  *              properties:
  *               companyId:
  *                 type: string
- *                 example: "651f88e66be7808dd4bbdd70"
+ *                 example: "6538c030475692887584081e"
  *               date:
  *                 type: string
  *                 example: "2023-10-25"
@@ -51,7 +52,7 @@ const creditRequestValidator = require('../validation/creditRequest.validation')
  *                 example: "2023-11-25"
  *               createdBy:
  *                 type: string
- *                 example: "651f88e66be7808dd4bbdd72"
+ *                 example: "6538c0314756928875840820"
  *               requestedAmount:
  *                 type: number
  *                 example: 3000   
@@ -65,7 +66,7 @@ const creditRequestValidator = require('../validation/creditRequest.validation')
  */
 
 
-credit_route.post('/add-credit-request' , 
+credit_route.post('/credit/add-credit-request' , 
 creditRequestValidator.creditValidation , 
 creditRequest.storeCreditRequest);
 
@@ -73,9 +74,11 @@ creditRequest.storeCreditRequest);
 
 /**
  * @swagger
- * /api/get-all-credit-request:
+ * /api/credit/get-all-credit-request:
  *   get:
- *     summary: Get all credit requests
+ *     summary: Credit Request
+ *     tags: 
+ *         - Credit request
  *     responses:
  *       200:
  *         description: Successful response
@@ -86,12 +89,35 @@ creditRequest.storeCreditRequest);
  */
 
 credit_route.get(
-    '/get-all-credit-request' , 
+    '/credit/get-all-credit-request' , 
     creditRequest.getAllCreditRequest
 )
 
+/**
+ * @swagger
+ * /api/credit/get-credit-by-compnay/{companyId}:
+ *   get:
+ *     summary: Get all credit requests by company ID
+ *     tags:
+ *       - Credit Request
+ *     parameters:
+ *       - in: path
+ *         name: companyId
+ *         required: true
+ *         description: The ID of the company for which credit requests are requested.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Successful response
+ *       '404':
+ *         description: Credit requests not available for the specified company.
+ *       '500':
+ *         description: Internal server error
+ */
 
-credit_route.get('/get-credit-by-compnay/:companyId' , 
+
+credit_route.get('/credit/get-credit-by-compnay/:companyId' , 
 creditRequest.getCreditByCompanyId)
 
 

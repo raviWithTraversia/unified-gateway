@@ -8,7 +8,7 @@ const auth = require("../middleware/auth");
 
 /**
  * @swagger
- * /api/findStatusType:
+ * /api/status/getStatus/:statustype:
  *   get:
  *     summary: Find a status by its ID.
  *     tags:
@@ -39,13 +39,13 @@ const auth = require("../middleware/auth");
  */
 
 status_route.get(
-   '/getStatus/:statustype',
+   '/status/getStatus/:statustype',
    statusController.findStatusType
 );
 
 /**
  * @swagger
- * /api/addStatusType:
+ * /api/status/addstatus:
  *   post:
  *     summary: Add a new status type.
  *     tags:
@@ -88,14 +88,14 @@ status_route.get(
 
 
 status_route.get(
-  '/addstatus',
+  '/status/addstatus',
   statusController.addStatusType
 
  )
 
  /**
  * @swagger
- * /api/findAllStatusType:
+ * /api/status/allstatus:
  *   get:
  *     summary: Get all status types.
  *     tags:
@@ -123,7 +123,7 @@ status_route.get(
  */
 
 status_route.post(
-  '/allstatus',
+  '/status/allstatus',
   statusController.findAllStatusType
 );
 

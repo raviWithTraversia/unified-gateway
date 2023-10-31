@@ -9,13 +9,13 @@ const websiteManager = require("../controllers/websiteManager/websiteManager.con
 /**
  * @swagger
  * paths:
- *  /api/add-website-manager:
+ *  /api/website/add-website-manager:
  *    post:
  *      security:
  *        - bearerAuth: []
  *      summary: Add Website Manager
- *      tags:
- *        - Add website manager
+ *      tags:  
+ *          - Website Manager 
  *      description: Add a website manager
  *      requestBody:
  *        required: true
@@ -32,7 +32,7 @@ const websiteManager = require("../controllers/websiteManager/websiteManager.con
  *                  example: "Traversia"
  *                companyId:
  *                  type: string
- *                  example: "651f88e66be7808dd4bbdd70"
+ *                  example: "6538c030475692887584081e"
  *                pageTitle:
  *                  type: string
  *                  example: "Page Title"
@@ -152,22 +152,32 @@ const websiteManager = require("../controllers/websiteManager/websiteManager.con
  *        "500":
  *          description: Server error
  */
-website_manager_route.post('/add-website-manager' , websiteManager.websiteManagerAdd);
+website_manager_route.post('/website/add-website-manager' , websiteManager.websiteManagerAdd);
 
 /**
  * @swagger
- * /api/retrive-website-manager/traversia.net:
+ * /api/website/retrive-website-manager/{domainName}:
  *   get:
- *     summary: Get website manager by domain name 
+ *     summary: Get website manager by domain name
+ *     tags:
+ *       - Website Manager
+ *     parameters:
+ *       - in: path
+ *         name: domainName
+ *         required: true
+ *         description: The domain name of the website for which the manager is requested.
+ *         schema:
+ *           type: string
  *     responses:
- *       200:
+ *       '200':
  *         description: Successful response
- *       404:
- *         description: website manager not available
- *       500:
+ *       '404':
+ *         description: Website manager is not available
+ *       '500':
  *         description: Internal server error
  */
 
-website_manager_route.get('/retrive-website-manager/:domainName' , websiteManager.retriveWebsiteManager);
+
+website_manager_route.get('/website/retrive-website-manager/:domainName' , websiteManager.retriveWebsiteManager);
 
 module.exports = website_manager_route;

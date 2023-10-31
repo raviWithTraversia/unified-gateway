@@ -74,6 +74,16 @@ const addwebsiteManager = async (req, res) => {
                 response: 'Compnay id does not exist'
             }
         }
+
+        // Check company id exist or not
+        const checkWebsiteManager = await WebsietManager.find({ companyId: companyId });
+
+        if (checkWebsiteManager.length > 0) {
+            return {
+                response: 'Compnay id already exist'
+            }
+        }
+
         // const newdomainName = commonFunction.removeWWWAndProtocol(domainName);
         const storeWebsite = new WebsietManager({
             domainName,

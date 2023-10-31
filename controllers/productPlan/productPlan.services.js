@@ -15,6 +15,14 @@ const addProductPlan = async (req, res) => {
             }
         }
 
+        // check ProductPlan Name exist for particular company or not
+        const checkProductPlanNameExist = await ProductPlan.find({ productPlanName : productPlanName , companyId : companyId});
+
+        if (checkProductPlanNameExist.length > 0) {
+            return {
+                response: 'Product plan name already exist'
+            }
+        }
         const addNewProductPlan = new ProductPlan({
             productPlanName,
             companyId
@@ -64,7 +72,7 @@ const getAllProductPlan = async (req, res) => {
 
 const productPlanUpdateById = async (req, res) => {
     try {
-        const productPlanName = req.body
+        const {productPlanName , product} = req.body
         if (!productPlanName) {
             return {
                 response: 'product plan name fields are required'
@@ -72,15 +80,42 @@ const productPlanUpdateById = async (req, res) => {
         }
         // Check product exist or Not
         const producPlantId = req.params.producPlantId;
-        const checkProduct = await ProductPlan.find({ _id: producPlantId });
+        const checkProduct = await ProductPlan.findOne({ _id: producPlantId });
        
         if (!checkProduct) {
             return {
                 response: "Product plan id not found"
             }
         }
+      
+        // check ProductPlan Name exist for particular company or not
+        if (productPlanName != checkProduct.productPlanName) {
+
+            const comId = checkProduct.companyId;
+            const checkProductPlanNameExist = await ProductPlan.find({ productPlanName : productPlanName , companyId : comId});
+            if(checkProductPlanNameExist.length > 0) {
+                return {
+                    response: 'Product plan name already exist'
+                }
+            } 
+        }
    
         const updateProduct = await ProductPlan.findByIdAndUpdate(producPlantId, productPlanName, { new: true })
+
+        // delete already exists productPlanHasProduct
+        const result = await ProductHasPP.deleteMany({ productPlaneId: producPlantId });
+         // update productPlanHasProduct
+         
+            product.forEach(async(product) => {
+                const productId = product.productId;
+                const productPlaneId = producPlantId;
+                const ProductHPP = new ProductHasPP({
+                    productPlaneId,
+                    productId
+                });
+               const result = await ProductHPP.save();
+            });
+         
 
         return {
             response: "Product plan updated successfully"

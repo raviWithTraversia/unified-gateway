@@ -40,6 +40,7 @@ const CrudMessage = {
     PRIVILAGE_PLAN_CREATED : 'Privilage plan created successfully',
     CREDIT_REQUESTED_CREATED : 'Credit request created successfully',
     WEBSIET_MANAGER_CREATED : 'Website manager created successfully',
+    PRIVILAGE_PLAN_UPDATE : 'Privilage plan updated successfully',
 }
 
 const errorResponse = {
@@ -52,6 +53,12 @@ const errorResponse = {
     NOT_AVALIABLE: 'No data available'
 
 }
+const Status = {
+    "Active" : "Active",
+    "InActive" : "InActive",
+    "Pending" : "Pending",
+
+}
 
 const ADMIN_USER_TYPE = ['MASTER', 'COMPANY', 'SUB_COMPANY', 'EMPLOYEE'];
 
@@ -59,6 +66,6 @@ module.exports = {
     ServerStatusCode,
     errorResponse,
     ADMIN_USER_TYPE,
-    CrudMessage
-
+    CrudMessage,
+    Status
 }

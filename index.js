@@ -57,18 +57,15 @@ const options = {
         "./routes/registrationRoute.js",
         "./routes/statusRoute.js",
         "./routes/userRoute.js",
-    ],
-    // parameters: [
-    //     {
-    //         in: "header",
-    //         name: "X-Request-ID",
-    //         description: "The unique request identifier.",
-    //         required: true,
-    //         schema: {
-    //             type: "string",
-    //         },
-    //     },
-    // ]
+        "./routes/countryRoute.js",
+        "./routes/websiteManagerRoute.js",  
+        "./routes/stateRoute.js",  
+        "./routes/cityRoute.js",  
+        "./routes/registrationRoute.js",
+        "./routes/cabinClassMasterRoute.js", 
+        "./routes/permissionRoute.js",  
+
+    ]
 };
 
 const swaggerDocs = swaggerJSDoc(options);
@@ -87,7 +84,7 @@ app.use("/b2b/api-docs", basicAuth({
     challenge: true,
 }), swaggerUI.serve, swaggerUI.setup(swaggerDocs,swaggerUiOptions));
 
-const port = 3010;
+const port = process.env.PORT || 3111;
 app.listen(port, function(){
     console.log(`Server is running on port ${port}`);  
 })

@@ -8,7 +8,7 @@ const addProductPlan = async (req, res) => {
 
     try {
         const result = await ProductPlanServices.addProductPlan(req);
-        if (result.response == 'Compnay id does not exist') {
+        if (result.response == 'Compnay id does not exist' || result.response == 'Product plan name already exist') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         } else {
             apiSucessRes(
@@ -45,7 +45,8 @@ const retriveProductPlan = async(req ,res) => {
 const updateProductPlan = async (req, res) => {
     try {
         const result = await ProductPlanServices.productPlanUpdateById(req);
-        if(result.response == 'product plan name fields are required' || result.response == 'Product plan id not found') {
+        if(result.response == 'product plan name fields are required' || result.response == 'Product plan id not found' ||
+        result.response == 'Product plan name already exist') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         }
         else {

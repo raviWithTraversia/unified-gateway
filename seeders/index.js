@@ -24,13 +24,12 @@ async function runSeeders() {
     await seedPermissions();
     await seedCompaniesSmtp();
     await seedEmailConfigDescription();  
-   // await seedRoles()
-
     await seedCountry();
     await seedState();
     await seedCity();
     await seedCabinClassMaster();
     await seedStatus();
+    await seedRoles();
     console.log('All seeders completed.');
   } catch (err) {
     console.error('Error running seeders:', err);

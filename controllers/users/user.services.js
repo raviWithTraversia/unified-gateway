@@ -1,11 +1,8 @@
 const User = require("../../models/User");
 const Company = require("../../models/Company");
 const bcryptjs = require("bcryptjs");
-const { Config } = require("../../configs/config");
-const jwt = require("jsonwebtoken");
-const commonResponse = require('../../utils/commonResponce');
 const commonFunction = require('../commonFunctions/common.function')
-
+const { Status } = require("../../utils/constants")
 
 const registerUser = async (req, res) => {
     try {
@@ -79,11 +76,15 @@ const loginUser = async (req, res) => {
             return {
                 response : 'User not found'
             }
-            return res.status(400).json({ success: false, msg: "User not found", data: null });
+           
         }
-
+        if(user.userStatus === Status.InActive ){
+          return {
+            response : 'User is not active'
+          }
+        }
         // Compare the provided password with the stored hashed password
-        const isPasswordValid = await bcryptjs.compare(password, user.password);
+        const isPasswordValid =  bcryptjs.compare(password, user.password);
 
         if (!isPasswordValid) {
             return {
@@ -275,7 +276,7 @@ const userInsert = async (req, res) => {
  
       // Save the Company document to the database
       const savedCompany = await newCompany.save();
- 
+      const  securePassword = await commonFunction.securePassword(password);
       // Create a new User document and associate it with the Company document
       const newUser = new User({
         userType,
@@ -284,7 +285,7 @@ const userInsert = async (req, res) => {
         title,
         fname,
         lastName,
-        password,
+        password : securePassword,
         securityStamp,
         phoneNumber,
         twoFactorEnabled,
@@ -314,11 +315,13 @@ const userInsert = async (req, res) => {
       await newUser.save();
       return {
         response : 'User and Company Inserted successfully',
-        data: newUser
+        data: {newUser,newCompany}
       }
      // return res.status(200).json({ success: true, msg: 'User and Company Inserted successfully', data: newUser });
     } catch (error) {
-     // return res.status(500).json({ success: false, msg: error.message, data: null });
+      if(savedCompany){
+        await Company.findByIdAndRemove(savedCompany._id);
+      }
      console.log(error);
      throw error;
     }
@@ -396,10 +399,92 @@ const userInsert = async (req, res) => {
 
   }
 
+  /**
+ * @swagger
+ * /changePassword:
+ *   post:
+ *     summary: Change User Password
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *           example:
+ *             email: user@example.com
+ *             currentPassword: currentPassword123
+ *             newPassword: newPassword456
+ *     responses:
+ *       '200':
+ *         description: Password changed successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: Password Change Successfully
+ *       '401':
+ *         description: Invalid current password
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: Your current password is not valid
+ *       '404':
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: User for this mail-id does not exist
+ *       '500':
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               response: Internal server error
+ */
+
+  const changePassword = async (req,res) => {
+    try{
+      const { currentPassword, newPassword, email } = req.body;
+      const user = await User.findOne({email});
+      console.log("===========>>>>>>>" ,user, "<<<<<<<============")
+      if(user.length){
+       const isCurrentPasswordIsValid = await commonFunction.comparePassword(currentPassword, user.password);
+        if(isCurrentPasswordIsValid){
+          user.password = await commonFunction.securePassword(newPassword);
+          await user.save()
+          return {
+            response : "Password Change Sucessfully",
+          }
+        }else{
+          return {
+            response : "Your current password is not valid"
+          }
+        }
+      }else{
+        return {
+          response : "User for this mail-id not exist"
+        }
+      }
+       
+    }catch{
+      console.log(error);
+      throw error;
+    }
+  }
+
 module.exports = {
     registerUser,
     loginUser,
     userInsert,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    changePassword
 }

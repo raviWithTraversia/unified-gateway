@@ -18,12 +18,9 @@ const cityRoute = require('../routes/cityRoute');
 const permissionRoute = require('../routes/permissionRoute');
 const roleRoute = require('../routes/roleRoute');
 const salesRoute = require('../routes/salesRoute');
-<<<<<<< HEAD
 const commercialAirPlanRoute = require('../routes/commercialAirPlanRoute');
 const afreFamilyRoute = require('../routes/fareFamilyMasterRoute');
-=======
 const verifyOtpRoute = require('../routes/verifyOtpRoute');
->>>>>>> 3db4d0cf21ecfcca0e53e24c70ab631ec3c84d42
 
 class RoutesLoader {
     static initRoutes (app) {        

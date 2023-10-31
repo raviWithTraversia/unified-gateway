@@ -399,62 +399,12 @@ const userInsert = async (req, res) => {
 
   }
 
-  /**
- * @swagger
- * /changePassword:
- *   post:
- *     summary: Change User Password
- *     tags:
- *       - User
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               currentPassword:
- *                 type: string
- *               newPassword:
- *                 type: string
- *           example:
- *             email: user@example.com
- *             currentPassword: currentPassword123
- *             newPassword: newPassword456
- *     responses:
- *       '200':
- *         description: Password changed successfully
- *         content:
- *           application/json:
- *             example:
- *               response: Password Change Successfully
- *       '401':
- *         description: Invalid current password
- *         content:
- *           application/json:
- *             example:
- *               response: Your current password is not valid
- *       '404':
- *         description: User not found
- *         content:
- *           application/json:
- *             example:
- *               response: User for this mail-id does not exist
- *       '500':
- *         description: Internal server error
- *         content:
- *           application/json:
- *             example:
- *               response: Internal server error
- */
+
 
   const changePassword = async (req,res) => {
     try{
       const { currentPassword, newPassword, email } = req.body;
       const user = await User.findOne({email});
-      console.log("===========>>>>>>>" ,user, "<<<<<<<============")
       if(user.length){
        const isCurrentPasswordIsValid = await commonFunction.comparePassword(currentPassword, user.password);
         if(isCurrentPasswordIsValid){

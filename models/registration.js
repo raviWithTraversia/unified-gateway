@@ -74,9 +74,13 @@ const registrationSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref: 'status'
     },
-    roleId: {
-        type : mongoose.Schema.Types.ObjectId,
-        ref: 'Role'
+    type: {
+        type : String,
+        required : true
+    },
+    isIATA: {
+        type : Boolean,
+        required : true
     }
 },{
     timestamps : true  //Add created_at and updated_at coloumn

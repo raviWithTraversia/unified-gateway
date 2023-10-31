@@ -16,6 +16,8 @@ const websiteManagerRoute = require('../routes/websiteManagerRoute');
 const stateRoute = require('../routes/stateRoute');
 const cityRoute = require('../routes/cityRoute');
 const permissionRoute = require('../routes/permissionRoute');
+const roleRoute = require('../routes/roleRoute');
+const salesRoute = require('../routes/salesRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -70,6 +72,14 @@ class RoutesLoader {
 
         // Permission Route by ALam Shah
         app.use('/api' , permissionRoute);
+
+        // role routes by shashi
+
+        app.use('/api', roleRoute );
+
+        // saleInchage route by shashi
+
+        app.use('/api', salesRoute)
     }
 }
 

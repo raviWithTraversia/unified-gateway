@@ -18,6 +18,8 @@ const cityRoute = require('../routes/cityRoute');
 const permissionRoute = require('../routes/permissionRoute');
 const roleRoute = require('../routes/roleRoute');
 const salesRoute = require('../routes/salesRoute');
+const commercialAirPlanRoute = require('../routes/commercialAirPlanRoute');
+const afreFamilyRoute = require('../routes/fareFamilyMasterRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -80,6 +82,12 @@ class RoutesLoader {
         // saleInchage route by shashi
 
         app.use('/api', salesRoute)
+
+        // Commercial air plan route
+        app.use('/api' , commercialAirPlanRoute);
+
+        // Fare family ROute
+        app.use('/api' , afreFamilyRoute);
     }
 }
 

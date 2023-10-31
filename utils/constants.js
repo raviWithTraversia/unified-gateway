@@ -41,6 +41,9 @@ const CrudMessage = {
     CREDIT_REQUESTED_CREATED : 'Credit request created successfully',
     WEBSIET_MANAGER_CREATED : 'Website manager created successfully',
     PRIVILAGE_PLAN_UPDATE : 'Privilage plan updated successfully',
+    COMMERCIAL_AIR_PLAN : 'Commercial air plan created successfully',
+    COMMERCIAL_AIR_PLAN_UPDATE : 'Commercial air plan updated successfully',
+    COMMERCIAL_AIR_PLAN_ISDEFAULT : 'Commercial air plan define as IsDefault updated successfully',
 }
 
 const errorResponse = {

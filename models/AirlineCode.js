@@ -6,10 +6,6 @@ const airlineCodeSchema = new mongoose.Schema({
         type : String,
         required: true
     },
-    companyId : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'Company'
-    },
     airlineName : {
         type : String,
         required : true

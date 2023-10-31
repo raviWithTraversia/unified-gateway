@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const CreditRequestSchema = mongoose.Schema({
+const CreditRequestSchema = new mongoose.Schema({
     companyId : {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Company',

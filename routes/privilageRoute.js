@@ -53,7 +53,7 @@ privilage_route.post('/privilage/add-privilage' , privilageValidation.privilageV
 
 /**
  * @swagger
- * /api/privilege/privilage-list/{companyId}:
+ * /api/privilage/privilage-list/{companyId}:
  *   get:
  *     summary: Get privilege list by company ID
  *     tags:

@@ -12,7 +12,7 @@ const City = require('./../controllers/city/city.controller')
  *   get:
  *     summary: Get City List by State ID
  *     tags:
- *       - City
+ *       - Country State City
  *     parameters:
  *       - in: path
  *         name: stateId

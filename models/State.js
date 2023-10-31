@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const StateSchema = mongoose.Schema({
+const StateSchema = new mongoose.Schema({
     name : {
         type : String,
         required : true,

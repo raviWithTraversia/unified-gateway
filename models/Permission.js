@@ -2,11 +2,6 @@ const mongoose = require('mongoose');
 
 const parmissionSchema = new mongoose.Schema({
       
-  category: {
-      type: String,
-      required: true,        
-      default: null
-    },
     productName: { 
       type: String,
       required: false,        

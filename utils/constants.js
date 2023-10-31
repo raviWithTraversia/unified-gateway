@@ -41,6 +41,8 @@ const CrudMessage = {
     CREDIT_REQUESTED_CREATED : 'Credit request created successfully',
     WEBSIET_MANAGER_CREATED : 'Website manager created successfully',
     PRIVILAGE_PLAN_UPDATE : 'Privilage plan updated successfully',
+    OTP_EMAIL : 'Otp send',
+    OTP_VARIFIED : 'OTP varified sucessfully'
 }
 
 const errorResponse = {

@@ -63,7 +63,10 @@ const options = {
         "./routes/cityRoute.js",  
         "./routes/registrationRoute.js",
         "./routes/cabinClassMasterRoute.js", 
-        "./routes/permissionRoute.js",  
+        "./routes/permissionRoute.js",
+        "./routes/roleRoute.js",
+        "./routes/salesRoute.js" ,
+        "./routes/verifyOtpRoute.js"
 
     ]
 };

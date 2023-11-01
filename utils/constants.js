@@ -45,7 +45,8 @@ const CrudMessage = {
     COMMERCIAL_AIR_PLAN_UPDATE : 'Commercial air plan updated successfully',
     COMMERCIAL_AIR_PLAN_ISDEFAULT : 'Commercial air plan define as IsDefault updated successfully',
     OTP_EMAIL : 'Otp send',
-    OTP_VARIFIED : 'OTP varified sucessfully'
+    OTP_VARIFIED : 'OTP varified sucessfully',
+    AIR_COMMERCIAL_ADD : 'Air commerical created successfully',
 }
 
 const errorResponse = {

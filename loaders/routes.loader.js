@@ -21,6 +21,8 @@ const salesRoute = require('../routes/salesRoute');
 const commercialAirPlanRoute = require('../routes/commercialAirPlanRoute');
 const afreFamilyRoute = require('../routes/fareFamilyMasterRoute');
 const verifyOtpRoute = require('../routes/verifyOtpRoute');
+const carrierRoute = require('../routes/carrierRoute');
+const airCommercialRoute = require('../routes/airCommercialRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -91,7 +93,13 @@ class RoutesLoader {
         app.use('/api' , afreFamilyRoute);
         // varify otp by shashi
 
-        app.use('/api', verifyOtpRoute)
+        app.use('/api', verifyOtpRoute);
+
+        // Carrier route by alam shah
+        app.use('/api' , carrierRoute);
+
+        // Air Commercial route by alam shah
+        app.use('/api' , airCommercialRoute);
     }
 }
 

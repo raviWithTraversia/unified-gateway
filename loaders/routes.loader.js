@@ -19,7 +19,7 @@ const permissionRoute = require('../routes/permissionRoute');
 const roleRoute = require('../routes/roleRoute');
 const salesRoute = require('../routes/salesRoute');
 const verifyOtpRoute = require('../routes/verifyOtpRoute');
-
+const flightRoute = require('../routes/flight/flightRoute');
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -85,6 +85,10 @@ class RoutesLoader {
         // varify otp by shashi
 
         app.use('/api', verifyOtpRoute)
+
+        // Flight Route Start Here
+        app.use("/api", flightRoute);
+
     }
 }
 

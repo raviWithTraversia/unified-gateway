@@ -7,53 +7,6 @@ const userController = require("../controllers/users/user.controller");
 const auth = require("../middleware/auth");
 const userValidatior = require('../validation/user.validation');
 
-/**
- * @swagger
- * /api/registerUser:
- *   post:
- *     summary: Register a new user.
- *     tags:
- *       - User
- *     requestBody:
- *       description: User registration data.
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 example: John Doe
- *               email:
- *                 type: string
- *                 example: user@example.com
- *               password:
- *                 type: string
- *                 example: securepassword
- *               mobile:
- *                 type: string
- *                 example: 1234567890
- *     responses:
- *       '200':
- *         description: Registered successfully.
- *         content:
- *           application/json:
- *             example:
- *               response: Registered Successfully
- *       '400':
- *         description: Bad request (missing fields or invalid format).
- *         content:
- *           application/json:
- *             example:
- *               response: All fields are required
- *       '500':
- *         description: Internal server error.
- *         content:
- *           application/json:
- *             example:
- *               response: Internal server error
- */
 
 user_route.post(
     '/register',

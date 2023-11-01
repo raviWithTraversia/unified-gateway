@@ -13,7 +13,7 @@ const Country = require('./../controllers/country/country.controller')
  *   get:
  *     summary: Country 
  *     tags:
- *       - Country
+ *       - Country State City
  *     responses:
  *       200:
  *         description: Successful response

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const privilagePlanHasPermissionSchema = mongoose.Schema({
+const privilagePlanHasPermissionSchema = new mongoose.Schema({
     privilagePlanId : {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'PrivilagePlan',

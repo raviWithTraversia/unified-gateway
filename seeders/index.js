@@ -7,11 +7,11 @@ const { productPlanHasProductSeeder } = require('../seeders/productPlanHasProduc
 const { seedCompaniesSmtp } = require('../seeders/companiesSmtp.seeder');
 const { seedEmailConfigDescription } = require('../seeders/emailConfigrationDescription.seeder');
 const { seedStatus } = require('../seeders/statusSeeder');
+const { seedRoles } = require('../seeders/roleSeeder')
 const { seedCountry} = require('../seeders/countrySeeder');
 const { seedState} = require('../seeders/stateSeeder');
 const { seedCity} = require('../seeders/citySeeder');
 const { seedCabinClassMaster} = require('../seeders/cabinClassMasterSeeder');
-const { seedRoles } = require('../seeders/roleSeeder')
 
 async function runSeeders() {
   try {

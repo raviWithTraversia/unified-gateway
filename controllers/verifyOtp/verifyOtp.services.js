@@ -1,18 +1,29 @@
 const varifyOtp = require("../../models/VerifyOtp");
 const FUNC = require("../commonFunctions/common.function");
+const smtpConfig = require("../../models/smtp");
 const moment = require('moment');
 
 const sendEmailOtp = async (req, res) => {
   try {
-    const { email, typeName } = req.body;
+    const { type, typeName , companyId} = req.body;
     let generateOtp = Math.floor(100000 + Math.random() * 900000);
-    let otpSent = await FUNC.sendOtpOnEmail(email, generateOtp);
-
+    //host,port,user,pass
+    let smtpDetails = await smtpConfig.findOne({companyId :companyId});
+    if(!smtpDetails){
+      return {
+        response : "No Smtp details found for this company id"
+      }
+    }
+   
+    const currentTime = new Date();
+    let deletePreviousResult  = await varifyOtp.deleteMany({otpExpireTime: { $lt: currentTime } ,otpFor : type, typeName : typeName, status : true });
+    let otpSent = await FUNC.sendOtpOnEmail(typeName, generateOtp, smtpDetails);
+    console.log(otpSent , "===========================")
     const saveOtpData = new varifyOtp({
-      otpFor: "Email",
+      otpFor: type,
       typeName: typeName,
       otp: generateOtp,
-      otpExpireTime : moment().add(1,'minute'),
+      otpExpireTime : moment().add(2,'minute'),
       status: true,
     });
     let otpRes = await saveOtpData.save();
@@ -36,14 +47,19 @@ const sendEmailOtp = async (req, res) => {
 
 const varifyOtpEmailOtp = async (req, res) => {
   try {
-    const { otp, typeName } = req.body;
+    const { otp, typeName,type } = req.body;
     const otpData = await varifyOtp.findOne({
       typeName,
-      otpFor: "Email",
+      otpFor: type,
       status: true,
     });
+    if(!otpData){
+      return {
+        response : 'Please send otp again'
+      }
+    }
     const currentTimestamp = moment();
-    if (moment(currentTimestamp).isAfter(moment(otpData.otpExpireTime))) {
+    if (moment(currentTimestamp).isAfter(moment(otpData?.otpExpireTime))) {
       otpData.status = false;
       await otpData.save();
       return {

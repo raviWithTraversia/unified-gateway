@@ -23,7 +23,9 @@ let {
       city, 
       remark, 
       roleId,
-      statusId 
+      statusId,
+      type,
+      isIATA
          } = req.body;
 
 const fieldNames = [
@@ -45,7 +47,9 @@ const fieldNames = [
         'state',
         'city',
         'statusId',
-        'roleId'
+        'roleId',
+        'type',
+        'isIATA'
       ];
  const missingFields = fieldNames.filter((fieldName) => req.body[fieldName] === null || req.body[fieldName] === undefined);
   if (missingFields.length > 0) {
@@ -126,7 +130,9 @@ const newRegistration = new registration({
         city, 
         remark, 
         statusId,
-        roleId
+        roleId,
+        type,
+        isIATA
 });
 await newRegistration.save();
 return {

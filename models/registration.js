@@ -80,7 +80,8 @@ const registrationSchema = new mongoose.Schema({
     },
     isIATA: {
         type : Boolean,
-        required : true
+        required : true,
+        default : false
     }
 },{
     timestamps : true  //Add created_at and updated_at coloumn

@@ -65,9 +65,6 @@ const options = {
         "./routes/cabinClassMasterRoute.js", 
         "./routes/permissionRoute.js",
         "./routes/roleRoute.js",
-        "./routes/salesRoute.js", 
-        "./routes/commercialAirPlanRoute.js", 
-        "./routes/fareFamilyMasterRoute.js" ,
         "./routes/salesRoute.js" ,
         "./routes/verifyOtpRoute.js",
         "./routes/carrierRoute.js"

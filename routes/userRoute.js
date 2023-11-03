@@ -390,7 +390,7 @@ user_route.post(
 
 user_route.post(
     '/user/forgot-password',
-    userValidatior.userForgetPassword,
+    //userValidatior.userForgetPassword,
     userController.forgotPassword
 )
 

@@ -64,7 +64,7 @@ const auth = require("../middleware/auth");
  */
 
 sales_route.get(
-    '/sales/sales-in-charge',
+    '/sales/sales-in-charge/:companyId',
     // auth,
     salesController.getSalesInCharge
 );

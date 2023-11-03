@@ -1,6 +1,7 @@
 const registrationServices = require('./registration.services');
 const {apiSucessRes , apiErrorres} = require('../../utils/commonResponce');
 const {ServerStatusCode, errorResponse, ADMIN_USER_TYPE, CrudMessage}  = require('../../utils/constants');
+const { response } = require('../../routes/registrationRoute');
 
 const addRegistration = async (req,res) => {
    try{ 
@@ -129,12 +130,60 @@ const getAllRegistrationByCompany = async (req,res) => {
             res,
             errorResponse.SOMETHING_WRONG,
             ServerStatusCode.SERVER_ERROR,
-            true )
+            true 
+            )
 
+    }
+}
+
+const updateRegistration = async (req,res) => {
+    try{
+        const result = await registrationServices.updateRegistration(req,res);
+        if(result.response === "Please pass valid registrationId or statusId"){
+            apiErrorres(
+                res,
+                result.response,
+                ServerStatusCode.INVALID_CRED,
+                true
+            )
+        }
+        else if(result.response === 'Registration data is not updated'){
+            apiErrorres(
+                res,
+                result.response,
+                ServerStatusCode.NOT_EXIST_CODE,
+                true
+            )
+        }
+        else if(result.response === 'Registration data updated sucessfully'){
+               apiSucessRes(
+                res,
+                CrudMessage.FETCH_REG_DATA,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+
+               )
+        }else {
+            apiErrorres(
+                res,
+                 result,
+                ServerStatusCode.SERVER_ERROR,
+                true 
+            )
+        }
+
+    }catch(error){
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true 
+        )
     }
 }
 module.exports = {
     addRegistration,
     getAllRegistration,
-    getAllRegistrationByCompany   
+    getAllRegistrationByCompany,
+    updateRegistration 
 }

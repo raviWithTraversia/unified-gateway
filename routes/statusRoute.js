@@ -39,7 +39,7 @@ const auth = require("../middleware/auth");
  */
 
 status_route.get(
-   '/status/getStatus/:statustype',
+   '/status/getStatus',
    statusController.findStatusType
 );
 
@@ -87,7 +87,7 @@ status_route.get(
  */
 
 
-status_route.get(
+status_route.post(
   '/status/addstatus',
   statusController.addStatusType
 
@@ -122,7 +122,7 @@ status_route.get(
  *               response: Internal server error
  */
 
-status_route.post(
+status_route.get(
   '/status/allstatus',
   statusController.findAllStatusType
 );

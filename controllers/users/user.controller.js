@@ -83,12 +83,7 @@ const userInsert = async (req, res) => {
           ServerStatusCode.SUCESS_CODE
         );
       } else {
-        apiErrorres(
-          res, 
-          result.response, 
-          ServerStatusCode.SERVER_ERROR, 
-          true
-          );
+        apiErrorres(res, result.response, ServerStatusCode.SERVER_ERROR, true);
       }
     }
   } catch (error) {
@@ -200,5 +195,5 @@ module.exports = {
   userInsert,
   forgotPassword,
   resetPassword,
-  changePassword
+  changePassword,
 };

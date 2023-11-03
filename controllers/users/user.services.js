@@ -1,8 +1,9 @@
 const User = require("../../models/User");
 const Company = require("../../models/Company");
 const bcryptjs = require("bcryptjs");
-const commonFunction = require('../commonFunctions/common.function')
-const { Status } = require("../../utils/constants")
+const commonFunction = require('../commonFunctions/common.function');
+const { Status } = require("../../utils/constants");
+const Smtp = require("../../models/smtp");
 
 const registerUser = async (req, res) => {
     try {
@@ -330,12 +331,12 @@ const userInsert = async (req, res) => {
   
 
   const forgotPassword = async (req, res) => {
-    const { email } = req.body;
+    const { email, companyId } = req.body;
  
     try {
       // Find the user by email
      
-      const resetToken = Math.random().toString(36).slice(2);
+  const resetToken = Math.random().toString(36).slice(2);
 
   // Find the user by email and update the reset token
   const user = await User.findOneAndUpdate(
@@ -343,25 +344,31 @@ const userInsert = async (req, res) => {
     { $set: { resetToken } },
     { new: true }
   );
- 
-
- 
       if (!user) {
         return {
           response : "User not found"
         }
       }
+      
      
- 
+      const comapnyIds = !companyId ? user?.company_ID : companyId;
+      const mailConfig = await Smtp.findOne({companyId : comapnyIds})
+      console.log(mailConfig.host)
       // Send a password reset email to the user
-      await commonFunction.sendPasswordResetEmail(user.email, resetToken);
+     const forgetPassWordMail =  await commonFunction.sendPasswordResetEmail(email, resetToken,mailConfig);
+     if(forgetPassWordMail.responce === 'Password reset email sent'){
       return {
         response : "Password reset email sent"
       }
+    }else{
+      return {
+        responce :forgetPassWordMail.data
+      }
+    }
  
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ success: false, msg: "Internal server error" });
+        throw error
     }
   };
 
@@ -370,7 +377,7 @@ const userInsert = async (req, res) => {
      const { email, resetToken, newPassword } = req.body;
    
   // Find the user by email and check the reset token
-  const user = await User.findOne({ email, resetToken });
+  const user = await User.findOne({ email: email, resetToken : resetToken});
   if (!user) {
     return {
       response : 'Invalid reset token'

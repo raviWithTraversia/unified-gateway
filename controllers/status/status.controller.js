@@ -12,7 +12,8 @@ const findStatusType = async(req,res) => {
             ServerStatusCode.BAD_REQUEST,
             true
         )
-    }else{
+    }
+    else{
         apiSucessRes(
             res,
             result.response,

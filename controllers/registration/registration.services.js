@@ -190,8 +190,45 @@ const getAllRegistrationByCompany = async(req,res) => {
    }
 }
 
+const updateRegistration = async (req,res) => {
+  try{
+    const {registrationId, statusId, remark} = req.body;
+    let checkIsValidregistrationId = FUNC.checkIsValidId(registrationId);
+    let checkIsValidstatusId = FUNC.checkIsValidId(statusId);
+    if(!checkIsValidregistrationId || !checkIsValidstatusId){
+      return {
+        response : 'Please pass valid registrationId or statusId'
+      }
+    }
+    const updateRegistration = await registration.findOneAndUpdate(
+      {_id : registrationId},
+      {
+        $set: {
+          statusId: statusId,
+          remark : remark
+        }
+      }
+  );
+  if(!updateRegistration){
+    return {
+      response : 'Registration data is not updated'
+    }
+  }
+  else{
+    return {
+      response : 'Registration data updated sucessfully'
+    }
+  }
+    
+  }catch(error){
+    console.log(error);
+    throw error
+  }
+}
+
 module.exports = {
     addRegistration,
     getAllRegistration,
-    getAllRegistrationByCompany
+    getAllRegistrationByCompany,
+    updateRegistration
 }

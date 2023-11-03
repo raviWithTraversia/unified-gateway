@@ -59,7 +59,6 @@ class RoutesLoader {
 
         // smtp Route by shashi
         app.use('/api',smtpRoute);
-        app.use('/api', emailConfigDecriptionRoute)
 
         // Country route by alamShah
         app.use('/api', CountryRoute);

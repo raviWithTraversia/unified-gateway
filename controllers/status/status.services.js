@@ -3,9 +3,10 @@ const status = require('../../models/status');
 
 const findStatusType = async(req,res) => {
   try{
-    let { statusId } = req.query;
-    const isStatus = await status.find();
-    if(!status){
+    let statusId  = req.query.statusId;
+    console.log(statusId)
+    const isStatus = await status.find({_id: statusId});
+    if(!isStatus){
         return {
             response : "Status not Found"
         }
@@ -30,13 +31,12 @@ const addStatusType = async(req,res) => {
     const isType = await status.findOne({type});
     let createStatus;
     if(!isStatus || !isType ){
-        createStatus = new status({
+        createStatus =  new status({
            name ,
-           type,
-           timestamp : Date.now
+           type
 
         });
-        await status.save();
+        await createStatus.save();
         return {
             response : `New status created sucessfully`,
             data : createStatus

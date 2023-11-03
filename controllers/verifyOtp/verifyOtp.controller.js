@@ -62,6 +62,14 @@ const varifyOtpEmailOtp = async (req, res) => {
         true
       );
     }
+    else if(result.response === "Please send otp again"){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    }
   } catch (error) {
     apiErrorres(res, error, ServerStatusCode.PRECONDITION_FAILED, true);
   }

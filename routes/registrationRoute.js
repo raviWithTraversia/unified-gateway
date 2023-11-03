@@ -137,7 +137,8 @@ registation_route.post(
  *             example:
  *               response: Internal server error
  */
-registation_route.get(
+
+  registation_route.get(
   '/registration/all-registration',
    registrationController.getAllRegistration
  );
@@ -178,14 +179,19 @@ registation_route.get(
 *                 type: string
 *                 example: "Registration data not found by this companyId"
 */
- registation_route.get(
+ 
+registation_route.get(
     '/registration/:companyId',
     registrationController.getAllRegistrationByCompany
  );
+ 
+ registation_route.patch(
+  '/registration/updateRegistration',
+  registrationController.updateRegistration
+ )
 
 
-
- registation_route.get('/test',auth, function(req, res){
+registation_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });
 

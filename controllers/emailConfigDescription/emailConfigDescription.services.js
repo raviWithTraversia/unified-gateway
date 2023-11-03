@@ -22,14 +22,14 @@ const findAllEmailConfig = async (req,res) => {
 
 const addEmailConfig = async (req,res) => {
    try{
-    const { emailConfigDescription } = req.body;
-    const isEmailConfigDescription = await emailConfigDis.findOne({descriptionName : emailConfigDescription});
+    const { descriptionName } = req.body;
+    const isEmailConfigDescription = await emailConfigDis.findOne({descriptionName : descriptionName});
     if(isEmailConfigDescription){
         return {
             response : 'This email config discription already exist'
         }
     }
-    const newEmailConfigDescription = new emailConfigDis({ emailConfigDescription });
+    const newEmailConfigDescription = new emailConfigDis({ descriptionName });
     await newEmailConfigDescription.save();
     return {
         response : 'Email config discription is sucessfully created',

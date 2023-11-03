@@ -107,7 +107,7 @@ const getPrivilagePlanByProductPlanId =async(req ,res) => {
     }
 }
 
-// Get privilage plna has product by privilage id
+// Get privilage plan has product by privilage id
 const privilagePHPByPrivilageId =async(req ,res) => {
     try {
         const privilagePlanId = req.params.privilagePlanId;

@@ -18,7 +18,7 @@ const addCreditRequest = async(req , res) => {
             requestedAmount 
         } = req.body;
 
-        if(!companyId || !date || !duration || !purpose || !amount || !utilizeAmount || !remarks || !expireDate || !createdDate || !createdBy || !requestedAmount) {
+        if(!companyId || !createdBy || !requestedAmount) {
             return {
                 response : 'All field are required'
             }

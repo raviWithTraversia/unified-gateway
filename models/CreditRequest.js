@@ -72,4 +72,4 @@ const CreditRequestSchema = new mongoose.Schema({
     timestamps : true  //add created_at and updated_at
 });
 
-module.exports = mongoose.model('CreditRequestSchema' , CreditRequestSchema);
+module.exports = mongoose.model('CreditRequest' , CreditRequestSchema);

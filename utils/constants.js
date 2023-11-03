@@ -44,6 +44,8 @@ const CrudMessage = {
     OTP_EMAIL : 'Otp send',
     OTP_VARIFIED : 'OTP varified sucessfully',
     AIR_COMMERCIAL_ADD : 'Air commerical created successfully',
+    ROLE_HAS_PERMISSION_CREATE : 'Role has permission created successfully',
+    ROLE_HAS_PERMISSION_UPDATE : 'Role has permission updated successfully',
 }
 
 const errorResponse = {

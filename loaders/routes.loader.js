@@ -23,7 +23,8 @@ const fareFamilyRoute = require('../routes/fareFamilyMasterRoute');
 const verifyOtpRoute = require('../routes/verifyOtpRoute');
 const carrierRoute = require('../routes/carrierRoute');
 const airCommercialRoute = require('../routes/airCommercialRoute');
-const verifyOtpRoute = require('../routes/verifyOtpRoute');
+const roleHasPermissionRoute = require('../routes/roleHasPermissioRoute');
+
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -98,6 +99,9 @@ class RoutesLoader {
 
         // Fare family route
         app.use('/api' , fareFamilyRoute);
+
+        // RoleHasPermission route created by alam
+        app.use('/api' , roleHasPermissionRoute);
     }
 }
 

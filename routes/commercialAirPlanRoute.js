@@ -3,6 +3,7 @@ const commercial_air_plan_route = express();
 const bodyParser = require("body-parser");
 commercial_air_plan_route.use(bodyParser.json());
 commercial_air_plan_route.use(bodyParser.urlencoded({extended:true}));
+const auth = require("../middleware/auth");
 
 const commercialAirPlan = require('./../controllers/commercialAirPlan/commercialAirPlan.controller');
 
@@ -48,6 +49,7 @@ const commercialAirPlan = require('./../controllers/commercialAirPlan/commercial
  */
 commercial_air_plan_route.post(
     '/commercial/store-commercial-air-plan' ,
+    auth,
     commercialAirPlan.storeCommercialAirPlan
 );
 
@@ -77,6 +79,7 @@ commercial_air_plan_route.post(
  */
 commercial_air_plan_route.get(
     '/commercial/get-commercial-air-plan/:companyId',
+    auth,
     commercialAirPlan.getCommercialAirPlanByCompanyId
 )
 
@@ -125,6 +128,7 @@ commercial_air_plan_route.get(
  */
 commercial_air_plan_route.patch(
     '/commercial/update-commercial-air-plan/:commercialAirPlanId',
+    auth,
     commercialAirPlan.updateCommercialAirPlan
 )
 
@@ -168,6 +172,7 @@ commercial_air_plan_route.patch(
 
 commercial_air_plan_route.patch(
     '/commercial/isdefine-commercial-air-plan-update/:commercialAirPlanId',
+    auth,
     commercialAirPlan.isDefaultCommercialAirPlan
 )
 

@@ -5,6 +5,7 @@ log_route.use(bodyParser.json());
 log_route.use(bodyParser.urlencoded({extended:true}));
 const eventLogController = require('../controllers/logs/eventLog.controller');
 const portalLogController = require('../controllers/logs/portalLog.controller');
+const auth = require("../middleware/auth");
 
 
 // Event log route process By Alam Shah
@@ -51,7 +52,11 @@ const portalLogController = require('../controllers/logs/portalLog.controller');
  */
 
 
-log_route.post('/log/eventlog' , eventLogController.storeEventLog);
+log_route.post(
+    '/log/eventlog' ,
+    auth,
+     eventLogController.storeEventLog
+);
 
 
 /**
@@ -78,7 +83,11 @@ log_route.post('/log/eventlog' , eventLogController.storeEventLog);
  */
 
 
-log_route.get('/log/retriveEventLog/:companyId' , eventLogController.retriveEventLogByCompanyId);
+log_route.get(
+    '/log/retriveEventLog/:companyId' ,
+    auth,
+     eventLogController.retriveEventLogByCompanyId
+);
 
 // Portal Log Route process
 
@@ -128,7 +137,11 @@ log_route.get('/log/retriveEventLog/:companyId' , eventLogController.retriveEven
  */
 
 
-log_route.post('/log/portallog' , portalLogController.storePortalLog);
+log_route.post(
+    '/log/portallog' ,
+    auth,
+    portalLogController.storePortalLog
+);
 
 /**
  * @swagger
@@ -153,6 +166,10 @@ log_route.post('/log/portallog' , portalLogController.storePortalLog);
  *         description: Internal server error
  */
 
-log_route.get('/log/retrivePortalLog/:traceId' , portalLogController.retrivePortalLog);
+log_route.get(
+    '/log/retrivePortalLog/:traceId' ,
+    auth,
+    portalLogController.retrivePortalLog
+);
 
 module.exports = log_route;

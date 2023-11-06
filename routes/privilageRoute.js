@@ -3,7 +3,7 @@ const privilage_route = express();
 const bodyParser = require("body-parser");
 privilage_route.use(bodyParser.json());
 privilage_route.use(bodyParser.urlencoded({extended:true}));
-
+const auth = require("../middleware/auth");
 const PrivilageController = require('../controllers/privilage/privilage.plan.controller');
 const privilageValidation = require('../validation/privilage.validation');
 
@@ -49,7 +49,12 @@ const privilageValidation = require('../validation/privilage.validation');
  *          description: Server error
  */
 
-privilage_route.post('/privilage/add-privilage' , privilageValidation.privilageValidation , PrivilageController.storePrivilagePlan);
+privilage_route.post(
+    '/privilage/add-privilage' ,
+     privilageValidation.privilageValidation ,
+     auth,
+      PrivilageController.storePrivilagePlan
+);
 
 /**
  * @swagger
@@ -76,6 +81,7 @@ privilage_route.post('/privilage/add-privilage' , privilageValidation.privilageV
 
 privilage_route.get(
     '/privilage/privilage-list/:comapnyId' ,
+    auth,
      PrivilageController.getAllPrivilage    
     );
 
@@ -106,6 +112,7 @@ privilage_route.get(
     
 privilage_route.get(
     '/privilage/privilage-list-by-product-plan-id/:productPlanId' ,
+    auth,
     PrivilageController.privilagePlanByProductId    
     );    
 
@@ -136,6 +143,7 @@ privilage_route.get(
 
 privilage_route.get(
     '/privilage/privilage-list-by-privilage-plan-id/:privilagePlanId' ,
+    auth,
     PrivilageController.privilagePlanHasPermission
     );
 
@@ -192,6 +200,7 @@ privilage_route.get(
 
 privilage_route.patch(
     '/privilage/privilage-plan-update/:privilagePlanId' ,
+    auth,
     PrivilageController.updatePrivilagePlan
     )
 

@@ -3,6 +3,7 @@ const country_route = express();
 const bodyParser = require("body-parser");
 country_route.use(bodyParser.json());
 country_route.use(bodyParser.urlencoded({extended:true}));
+const auth = require("../middleware/auth");
 
 const Country = require('./../controllers/country/country.controller')
 
@@ -23,5 +24,9 @@ const Country = require('./../controllers/country/country.controller')
  *         description: Internal server error
  */
 
-country_route.get('/country/all-country-list' , Country.countryList);
+country_route.get(
+    '/country/all-country-list' ,
+    auth,
+    Country.countryList
+);
 module.exports = country_route

@@ -35,8 +35,9 @@ const CreditRequestSchema = new mongoose.Schema({
         default : 0
     },
     status : {
-        type : Boolean,
-        default : true
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending',
     },
     remarks : {
         type : String,

@@ -3,7 +3,7 @@ const permission_route = express();
 const bodyParser = require("body-parser");
 permission_route.use(bodyParser.json());
 permission_route.use(bodyParser.urlencoded({extended:true}));
-
+const auth = require("../middleware/auth");
 const Permission = require('./../controllers/permission/permission.controller')
 
 
@@ -23,5 +23,9 @@ const Permission = require('./../controllers/permission/permission.controller')
  *         description: Internal server error
  */
 
-permission_route.get('/permission/all-permission-list' , Permission.permissionList);
+permission_route.get(
+    '/permission/all-permission-list' ,
+    auth,
+    Permission.permissionList
+);
 module.exports = permission_route

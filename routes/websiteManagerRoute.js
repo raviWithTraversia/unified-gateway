@@ -3,7 +3,7 @@ const website_manager_route = express();
 const bodyParser = require("body-parser");
 website_manager_route.use(bodyParser.json());
 website_manager_route.use(bodyParser.urlencoded({extended:true}));
-
+const auth = require("../middleware/auth");
 const websiteManager = require("../controllers/websiteManager/websiteManager.controller");
 
 /**
@@ -152,7 +152,11 @@ const websiteManager = require("../controllers/websiteManager/websiteManager.con
  *        "500":
  *          description: Server error
  */
-website_manager_route.post('/website/add-website-manager' , websiteManager.websiteManagerAdd);
+website_manager_route.post(
+    '/website/add-website-manager' ,
+    auth,
+     websiteManager.websiteManagerAdd
+    );
 
 /**
  * @swagger
@@ -178,6 +182,10 @@ website_manager_route.post('/website/add-website-manager' , websiteManager.websi
  */
 
 
-website_manager_route.get('/website/retrive-website-manager/:domainName' , websiteManager.retriveWebsiteManager);
+website_manager_route.get(
+    '/website/retrive-website-manager/:domainName' ,
+    auth,
+     websiteManager.retriveWebsiteManager
+);
 
 module.exports = website_manager_route;

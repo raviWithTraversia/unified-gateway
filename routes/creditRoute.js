@@ -5,6 +5,7 @@ credit_route.use(bodyParser.json());
 credit_route.use(bodyParser.urlencoded({extended:true}));
 const creditRequest = require('../controllers/credit/creditRequest.controller');
 const creditRequestValidator = require('../validation/creditRequest.validation');
+const auth = require("../middleware/auth");
 
 /**
  * @swagger
@@ -68,7 +69,9 @@ const creditRequestValidator = require('../validation/creditRequest.validation')
 
 credit_route.post('/credit/add-credit-request' , 
 creditRequestValidator.creditValidation , 
-creditRequest.storeCreditRequest);
+auth,
+creditRequest.storeCreditRequest
+);
 
 
 
@@ -90,6 +93,7 @@ creditRequest.storeCreditRequest);
 
 credit_route.get(
     '/credit/get-all-credit-request' , 
+    auth,
     creditRequest.getAllCreditRequest
 )
 
@@ -117,9 +121,18 @@ credit_route.get(
  */
 
 
-credit_route.get('/credit/get-credit-by-compnay/:companyId' , 
-creditRequest.getCreditByCompanyId)
+credit_route.get(
+    '/credit/get-credit-by-compnay/:companyId' ,
+    auth, 
+    creditRequest.getCreditByCompanyId
+)
 
+
+credit_route.patch(
+    '/credit/approv-reject-credit/:creditRequestId',
+    auth,
+    creditRequest.approveRejectCredit
+);
 
 
 

@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 product_route.use(bodyParser.json());
 product_route.use(bodyParser.urlencoded({extended:true}));
 const Product = require('../controllers/product/product.controller');
-
+const auth = require("../middleware/auth");
 const {productValidation} = require('../validation/product.validation');
 const productValidator = require('../validation/product.validation');
 
@@ -39,7 +39,12 @@ const productValidator = require('../validation/product.validation');
  *          description: Server error
  */
 
-product_route.post('/product/add-product' ,  productValidation ,Product.storeProduct);
+product_route.post(
+    '/product/add-product' ,
+      productValidation ,
+      auth,
+      Product.storeProduct
+);
 
 
 /**
@@ -57,7 +62,11 @@ product_route.post('/product/add-product' ,  productValidation ,Product.storePro
  *       500:
  *         description: Internal server error
  */
-product_route.get('/product/get-product' , Product.getProduct);
+product_route.get(
+    '/product/get-product' ,
+    auth,
+     Product.getProduct
+);
 
 /**
  * @swagger
@@ -99,6 +108,7 @@ product_route.get('/product/get-product' , Product.getProduct);
 product_route.patch
     (
     '/product/update-product/:productId' ,
+    auth,
      Product.updateProduct
     );
 
@@ -118,7 +128,11 @@ product_route.patch
  *       500:
  *         description: Internal server error
  */
-product_route.delete('/product/delete-product/:productId' , Product.deleteProduct);
+product_route.delete(
+    '/product/delete-product/:productId' ,
+    auth,
+     Product.deleteProduct
+);
 
 module.exports = product_route;
 

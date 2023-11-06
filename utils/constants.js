@@ -46,6 +46,8 @@ const CrudMessage = {
     AIR_COMMERCIAL_ADD : 'Air commerical created successfully',
     ROLE_HAS_PERMISSION_CREATE : 'Role has permission created successfully',
     ROLE_HAS_PERMISSION_UPDATE : 'Role has permission updated successfully',
+    CREDIT_APPROVE :  'Credit request approved successfully',
+    CREDIT_REJECTED :  'Credit request rejected successfully',
 }
 
 const errorResponse = {

@@ -1,6 +1,7 @@
 const WebsietManager = require('../../models/WebsiteManager');
 const commonFunction = require('../commonFunctions/common.function')
 const Company = require('../../models/Company');
+const User = require('../../models/User');
 
 const addwebsiteManager = async (req, res) => {
     try {
@@ -129,6 +130,18 @@ const addwebsiteManager = async (req, res) => {
         });
 
         await storeWebsite.save();
+
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+
+        await commonFunction.eventLogFunction(
+            'websiteManager' ,
+            doerId ,
+            loginUser.fname ,
+            req.ip , 
+            companyId , 
+            'add website manager'
+        );
         return {
             response: 'website Manager added successfully'
         }

@@ -112,7 +112,8 @@ const eventLogFunction = async (
   doerId,
   doerName,
   ipAddress,
-  companyId
+  companyId,
+  description
 ) => {
   try {
     const newEventLog = new EventLog({
@@ -121,6 +122,7 @@ const eventLogFunction = async (
       doerName,
       ipAddress,
       companyId,
+      description
     });
     const storeLogs = await newEventLog.save();
     return "Event Log added successfully";

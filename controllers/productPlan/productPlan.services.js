@@ -1,6 +1,8 @@
 const ProductPlan = require('../../models/ProductPlan');
 const Company = require('../../models/Company');
 const ProductHasPP = require('../../models/ProductPlanHasProduct');
+const User = require('../../models/User');
+const commonFunction = require('../commonFunctions/common.function');
 
 const addProductPlan = async (req, res) => {
     try {
@@ -42,6 +44,19 @@ const addProductPlan = async (req, res) => {
             });
            const result = await ProductHPP.save();
         });
+
+        // Log
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+
+        await commonFunction.eventLogFunction(
+            'productPlan' ,
+            doerId ,
+            loginUser.fname ,
+            req.ip , 
+            companyId , 
+            'add product plan'
+        );
         return {
             response: 'Product plan addedd successfully'
         }
@@ -116,6 +131,19 @@ const productPlanUpdateById = async (req, res) => {
                const result = await ProductHPP.save();
             });
          
+
+            // Log
+            const doerId = req.user._id;
+            const loginUser = await User.findById(doerId);
+    
+            await commonFunction.eventLogFunction(
+                'productPlan' ,
+                doerId ,
+                loginUser.fname ,
+                req.ip , 
+                loginUser.company_ID , 
+                'update product plan'
+            );
 
         return {
             response: "Product plan updated successfully"

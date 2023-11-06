@@ -3,6 +3,7 @@ const carrier_route = express();
 const bodyParser = require("body-parser");
 carrier_route.use(bodyParser.json());
 carrier_route.use(bodyParser.urlencoded({extended:true}));
+const auth = require("../middleware/auth");
 
 const carrierController = require('./../controllers/carrier/carrier.controller');
 
@@ -25,6 +26,7 @@ const carrierController = require('./../controllers/carrier/carrier.controller')
 
 carrier_route.get(
     '/carrier/get-carrier-list' ,
+    auth,
     carrierController.getCarrierList
 )
 

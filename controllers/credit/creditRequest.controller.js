@@ -67,4 +67,43 @@ const getCreditByCompanyId = async(req , res) => {
     }
 }
 
-module.exports = {storeCreditRequest , getAllCreditRequest , getCreditByCompanyId}
+const approveRejectCredit = async(req ,res) => {
+    try {
+        const result = await creditRequestService.approveAndRejectCredit(req);
+        if(result.response == 'Remark and status are required' || result.response == 'All field are required') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        }
+        else {
+            if(result.response == 'Credit request approved successfully') {
+                apiSucessRes(
+                    res,
+                    CrudMessage.CREDIT_APPROVE,
+                    result.response,
+                    ServerStatusCode.SUCESS_CODE
+                )  
+            }else{
+                apiSucessRes(
+                    res,
+                    CrudMessage.CREDIT_REJECTED,
+                    result.response,
+                    ServerStatusCode.SUCESS_CODE
+                )  
+            }
+        }
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+module.exports = {
+    storeCreditRequest , 
+    getAllCreditRequest , 
+    getCreditByCompanyId,
+    approveRejectCredit
+}

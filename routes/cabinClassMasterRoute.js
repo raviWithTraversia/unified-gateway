@@ -3,6 +3,7 @@ const cabin_class_route = express();
 const bodyParser = require("body-parser");
 cabin_class_route.use(bodyParser.json());
 cabin_class_route.use(bodyParser.urlencoded({extended:true}));
+const auth = require("../middleware/auth");
 
 const CabinClass = require('../controllers/cabinClassMaster/cabinClassMaster.controller')
 
@@ -22,5 +23,9 @@ const CabinClass = require('../controllers/cabinClassMaster/cabinClassMaster.con
  *         description: Internal server error
  */
 
-cabin_class_route.get('/cabin/get-all-cabin' , CabinClass.cabinList);
+cabin_class_route.get(
+    '/cabin/get-all-cabin' ,
+    auth,
+     CabinClass.cabinList
+);
 module.exports = cabin_class_route

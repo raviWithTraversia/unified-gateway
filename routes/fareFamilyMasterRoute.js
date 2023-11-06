@@ -3,6 +3,7 @@ const fare_family_route = express();
 const bodyParser = require("body-parser");
 fare_family_route.use(bodyParser.json());
 fare_family_route.use(bodyParser.urlencoded({extended:true}));
+const auth = require("../middleware/auth");
 
 const fareFamilyMaster = require('./../controllers/fareFamilyMaster/fareFamilyMaster.controller')
 
@@ -25,6 +26,7 @@ const fareFamilyMaster = require('./../controllers/fareFamilyMaster/fareFamilyMa
 
 fare_family_route.get(
     '/fare/fare-family-list' , 
+    auth,
     fareFamilyMaster.getFareFamilyListData
 );
 

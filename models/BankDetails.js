@@ -29,9 +29,9 @@ const bankDetailsSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  uploadQRCode: {
-    data: Buffer,       
-    contentType: String 
+  QrcodeImage: {
+    data: Buffer,       // Store image data as a buffer
+    contentType: String // Define content type for the image (e.g., image/jpeg)
   },
   createdAt: {
     type: Date,

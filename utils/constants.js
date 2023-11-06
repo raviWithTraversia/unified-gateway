@@ -64,10 +64,29 @@ const Status = {
 
 const ADMIN_USER_TYPE = ['MASTER', 'COMPANY', 'SUB_COMPANY', 'EMPLOYEE'];
 
+const TMC_ROLE= {
+  Agency : "Agency",
+  Distrbuter : "Distributer",
+  Supplier : "Supplier"
+};
+
+const DISTRIBUTER_ROLE = {
+   Agency : "Agency",
+   Staff : "Staff"
+};
+
+const HOST_ROLE = {
+    TMC : "TMC",
+    DISTRIBUTER : "Distributer"
+}
+
 module.exports = {
     ServerStatusCode,
     errorResponse,
     ADMIN_USER_TYPE,
     CrudMessage,
-    Status
+    Status,
+    TMC_ROLE,
+    DISTRIBUTER_ROLE,
+    HOST_ROLE
 }

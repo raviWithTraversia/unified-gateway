@@ -69,8 +69,8 @@ role_route.post(
 
 
 role_route.get(
-    "/role/get-role",
-    auth,
+    "/role/get-role/:companyId",
+   // auth,
     roleController.findRoles
 );
 

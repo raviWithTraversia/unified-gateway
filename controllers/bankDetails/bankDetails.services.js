@@ -77,10 +77,11 @@ const getCompanyBankDetalis = async (req,res) => {
 
 const updateBankDetails = async (req,res) => {
     try{
+        
 
     }
     catch{
-        
+
     }
 }
 

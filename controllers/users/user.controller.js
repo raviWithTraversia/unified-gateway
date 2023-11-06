@@ -107,12 +107,19 @@ const forgotPassword = async (req, res) => {
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
-    } else {
+    } else if (result.response === "Password reset email sent" || result.data === true ) {
       apiSucessRes(
         res,
         CrudMessage.RESET_MAIL_SENT,
         result.response,
         ServerStatusCode.SUCESS_CODE
+      );
+    } else if(result.response === "Error sending password reset email"){
+      apiErrorres(
+        res,
+       result.response,
+        ServerStatusCode.UNPROCESSABLE,
+        true
       );
     }
   } catch (error) {
@@ -128,19 +135,26 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     const result = await userServices.resetPassword(req, res);
-    if (result.response == "Invalid reset token") {
+    if (result.response == "Inavalid User or User not found") {
       apiErrorres(
         res,
         result.response,
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
-    } else {
+    } else if (result.response === "Password reset successful") {
       apiSucessRes(
         res,
         CrudMessage.PASSWORD_RESET,
         result.response,
         ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.NOT_AVALIABLE,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
       );
     }
   } catch (error) {
@@ -163,29 +177,49 @@ const changePassword = async (req, res) => {
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
-    }
-    if (result.response === "User for this mail-id not exist") {
+    } else if (result.response === "User for this mail-id not exist") {
       apiErrorres(
         res,
         result.response,
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
-    } else {
+    } else if (result.response === "Password Change Sucessfully") {
       apiSucessRes(
         res,
         CrudMessage.PASSWORD_RESET,
         result.response,
         ServerStatusCode.SUCESS_CODE
       );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.NOT_AVALIABLE,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
     }
-  } catch {
+  } catch (error) {
     apiErrorres(
       res,
       errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );
+  }
+};
+const varifyTokenForForgetPassword = async (req, res) => {
+  try {
+    const result = await userServices.varifyTokenForForgetPassword(req, res);
+    if (result.response === "Invalid reset token") {
+      apiErrorres(res, result.response, ServerStatusCode.INVALID_CRED, true);
+    } else if (result.response === "Token varified sucessfully") {
+      apiSucessRes(res, result.response, true, ServerStatusCode.SUCESS_CODE);
+    } else {
+      apiErrorres(res, result.response, ServerStatusCode.INVALID_CRED, true);
+    }
+  } catch (error) {
+    apiErrorres(res, error, ServerStatusCode.INVALID_CRED, true);
   }
 };
 
@@ -196,4 +230,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   changePassword,
+  varifyTokenForForgetPassword,
 };

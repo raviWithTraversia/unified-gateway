@@ -491,6 +491,11 @@ user_route.post(
     userController.changePassword
 )
 
+user_route.get(
+    '/user/varifyToken',
+    userController.varifyTokenForForgetPassword
+)
+
 
 user_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

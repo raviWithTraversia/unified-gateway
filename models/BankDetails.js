@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const bankDetailsSchema = new mongoose.Schema({
-        companyId: {
-    type: String,
-    required: true,
+companyId: {
+    type : mongoose.Schema.Types.ObjectId,
+        ref: 'Company'
   },
   accountName: {
     type: String,
@@ -30,8 +30,8 @@ const bankDetailsSchema = new mongoose.Schema({
     required: true,
   },
   QrcodeImage: {
-    data: Buffer,       // Store image data as a buffer
-    contentType: String // Define content type for the image (e.g., image/jpeg)
+    data: Buffer,       
+    contentType: String 
   },
   createdAt: {
     type: Date,
@@ -39,12 +39,15 @@ const bankDetailsSchema = new mongoose.Schema({
   },
   modifyAt: {
     type: Date,
+    default: Date.now,
   },
   createdBy: {
     type: String,
+    required: true
   },
   modifyBy: {
     type: String,
+    required: true
   },
   status: {
     type: Boolean,

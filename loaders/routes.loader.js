@@ -24,6 +24,7 @@ const verifyOtpRoute = require('../routes/verifyOtpRoute');
 const carrierRoute = require('../routes/carrierRoute');
 const airCommercialRoute = require('../routes/airCommercialRoute');
 const roleHasPermissionRoute = require('../routes/roleHasPermissioRoute');
+const bankDetailsRoute = require('../routes/bankDetailsRoute');
 
 
 class RoutesLoader {
@@ -102,6 +103,9 @@ class RoutesLoader {
 
         // RoleHasPermission route created by alam
         app.use('/api' , roleHasPermissionRoute);
+
+        // bankDetails Route by shashi
+        app.use('/api' , bankDetailsRoute)
     }
 }
 

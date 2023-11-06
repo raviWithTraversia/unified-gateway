@@ -1,58 +1,54 @@
 const bankDetail = require('../../models/BankDetails');
 
-const addBankDetails = async (req,res) => {
+const addBankDetails = async (bankDetailsData, file) => {
     try{
-        const { 
-            companyId,
-            accountName,
-            accountNumber,
-            ifscCode,
-            bankAddress,
-            bankName,
-            bankCode,
-            uploadQRCode
-        } = req.body;
-
-        const requiredFields = [
-            'companyId',
-            'accountName',
-            'accountNumber',
-            'ifscCode',
-            'bankAddress',
-            'bankName',
-            'bankCode',
-            'uploadQRCode',
-          ];
-      
-          for (const field of requiredFields) {
-            if (!(field in req.body)) {
-                return {
-                    response :  `Missing field: ${field}`
-                }
-            }
-          }
-
-          let addAccountDatail = new bankDetail({
-            companyId,
-            accountName,
-            accountNumber,
-            ifscCode,
-            bankAddress,
-            bankName,
-            bankCode,
-            uploadQRCode
-          });
-          await addAccountDatail.save();
-          return {
-            responce : "Bank Details save sucessfully"
-          }
-
-    }catch(error){
-       console.log(error);
-       throw error
+    const {
+      companyId,
+      accountName,
+      accountNumber,
+      ifscCode,
+      bankAddress,
+      bankName,
+      bankCode,
+      createdBy,
+      modifyBy
+    } = bankDetailsData;
+  
+    const newBankDetails = new bankDetail({
+      companyId,
+      accountName,
+      accountNumber,
+      ifscCode,
+      bankAddress,
+      bankName,
+      bankCode,
+      createdBy,
+      modifyBy,
+      QrcodeImage: {
+        data: file.buffer,
+        contentType: file.mimetype,
+      },
+    });
+  
+    const savedBankDetails = await newBankDetails.save();
+    if(savedBankDetails){
+        return {
+            response : "Bank Details Added sucessfully",
+            data : savedBankDetails
+        }
     }
+    else{
+        return {
+            response : "Some Datails is missing or bank detils not saved"
+        }
+    }
+   
+  }catch(error){
+    console.log(error);
+    throw error
+  }
 };
-
+  
 const getCompanyBankDetalis = async (req,res) => {
     try{
         const comapnyId = req.params.comapnyId;
@@ -77,7 +73,7 @@ const getCompanyBankDetalis = async (req,res) => {
 
 const updateBankDetails = async (req,res) => {
     try{
-        
+
 
     }
     catch{

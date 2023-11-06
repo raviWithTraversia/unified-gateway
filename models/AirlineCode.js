@@ -12,15 +12,18 @@ const airlineCodeSchema = new mongoose.Schema({
     },
     theeeDCode : {
        type : String ,
-       required : true
+       required : false,
+       default : null
     },
     isLcc : {
         type : Boolean,
-        required : true
+        required : true,
+        default : false
     },
     allinceCode : {
         type : String ,
-        required : true
+        required : false,
+        default : null
     },
     timeStaamp : {
 

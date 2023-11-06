@@ -139,7 +139,6 @@ return {
     response : `New registration created successfully`,
     data : newRegistration
 }
-
  }catch(error){
     console.log(error);
     throw error;

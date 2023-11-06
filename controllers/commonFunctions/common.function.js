@@ -24,7 +24,7 @@ const securePassword = async (password) => {
 };
 
 // Function to send a password reset email
-const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig ) => {
+const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig , user) => {
   // Create a Nodemailer transporter using your email service provider's SMTP settings
   const transporter = nodemailer.createTransport({
     host: mailConfig.host, // SMTP server hostname or IP address
@@ -42,19 +42,20 @@ const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig ) => 
     to: recipientEmail,
     subject: "Password Reset Request",
     text: `Click the following link to reset your password:
-             http://your-app-url/reset-password?token=${resetToken}`,
+             ${Config.BASE_URL}user/varifyToken?token=${resetToken}&userId=${user._id}`,
   };
 
   // Send the email
   try {
     await transporter.sendMail(mailOptions);
     return {
-       responce : `Password reset email sent `
+      response : `Password reset email sent `,
+      data : true
     }
   } catch (error) {
     console.error("Error sending password reset email:", error);
     return {
-       responce : "Error sending password reset email:",
+      response : "Error sending password reset email:",
        data : error
     }
   }

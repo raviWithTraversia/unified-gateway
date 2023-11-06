@@ -2,12 +2,11 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({       
     company_ID: {
-        type: String,
-        required: true,
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Company'
     },
     userType: {
-        type: String,
-        required: true,
+        type: String
     },
     login_Id: {
         type: String,
@@ -23,6 +22,10 @@ const userSchema = new mongoose.Schema({
     },
     logoURI: {
       type: String
+    },
+    roleId: {
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Role'
     },
     title: String,
     fname: String,
@@ -52,7 +55,7 @@ const userSchema = new mongoose.Schema({
     sales_In_Charge: Boolean,
     personalPanCardUpload: String,
     resetToken: String,
-    
+    ip_address : String  
 }, {
     timestamps: true // Adds created_at and updated_at fields
   });

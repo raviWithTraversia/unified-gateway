@@ -8,9 +8,8 @@ const companySchema = new mongoose.Schema({
       default: null
     },
     parent: {
-      type: String,
-      required: false,        
-      default: null
+      type : mongoose.Schema.Types.ObjectId,
+      ref: 'Company'
     },
     type: {
       type: String,
@@ -125,4 +124,5 @@ const companySchema = new mongoose.Schema({
   timestamps: true // Adds created_at and updated_at fields
 });
 
-module.exports = mongoose.model('Company', companySchema);
+const Company = mongoose.model("Company", companySchema);
+module.exports = Company; // Export the User model

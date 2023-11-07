@@ -131,17 +131,6 @@ const addwebsiteManager = async (req, res) => {
 
         await storeWebsite.save();
 
-        const doerId = req.user._id;
-        const loginUser = await User.findById(doerId);
-
-        await commonFunction.eventLogFunction(
-            'websiteManager' ,
-            doerId ,
-            loginUser.fname ,
-            req.ip , 
-            companyId , 
-            'add website manager'
-        );
         return {
             response: 'website Manager added successfully'
         }

@@ -1,4 +1,6 @@
 const Product = require('../../models/Product');
+const User = require('../../models/User');
+const commonFunction = require('../commonFunctions/common.function');
 
 const addProduct = async (req, res) => {
     try {
@@ -7,6 +9,20 @@ const addProduct = async (req, res) => {
             productName
         });
         const productSave = await storeProduct.save();
+
+        // Log
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+
+        await commonFunction.eventLogFunction(
+            'product' ,
+            doerId ,
+            loginUser.fname ,
+            req.ip , 
+            loginUser.company_ID, 
+            'add product'
+        );
+
         return {
             response: 'Product added successfully'
         }
@@ -58,6 +74,18 @@ const productUpdateById = async (req, res) => {
    
         const updateProduct = await Product.findByIdAndUpdate(productId, productName, { new: true })
 
+        // Log
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+        await commonFunction.eventLogFunction(
+            'product' ,
+            doerId ,
+            loginUser.fname ,
+            req.ip , 
+            loginUser.company_ID , 
+            'updated product'
+        );
+        
         return {
             response: "Product updated successfully"
         }
@@ -73,6 +101,18 @@ const removeProduct = async(req, res) => {
         
         if (checkProductExist) {
             const result = await Product.deleteOne({ _id: req.params.productId });
+
+            // Log
+            const doerId = req.user._id;
+            const loginUser = await User.findById(doerId);
+            await commonFunction.eventLogFunction(
+                'product' ,
+                doerId ,
+                loginUser.fname ,
+                req.ip , 
+                loginUser.company_ID , 
+                'remove product'
+            );
             return {
                 response : 'Porduct deleted Successfully!'
             }

@@ -390,7 +390,7 @@ user_route.post(
 
 user_route.post(
     '/user/forgot-password',
-    userValidatior.userForgetPassword,
+    //userValidatior.userForgetPassword,
     userController.forgotPassword
 )
 
@@ -489,6 +489,11 @@ user_route.post(
 user_route.post(
     '/user/change-password',
     userController.changePassword
+)
+
+user_route.get(
+    '/user/varifyToken',
+    userController.varifyTokenForForgetPassword
 )
 
 

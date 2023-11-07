@@ -25,7 +25,12 @@ const evenLogSchema = new mongoose.Schema({
         type : String,
         required : false,
         default : null  
-    } 
+    },
+    description : {
+        type: String,
+        required: false,        
+        default: null
+    }, 
 },{
     timestamps: true // Adds created_at and updated_at fields
 });

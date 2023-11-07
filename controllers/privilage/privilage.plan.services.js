@@ -2,6 +2,8 @@ const PrivilagePlan = require('../../models/PrivilagePlan');
 const Company = require('../../models/Company');
 const ProductPlan = require('../../models/ProductPlan');
 const privilagePlanHasPermission = require('../../models/PrivilagePlanHasPermission')
+const User = require('../../models/User');
+const commonFunction = require('../commonFunctions/common.function');
 
 const addPrivilagePlan = async(req , res) =>{
     try {
@@ -57,6 +59,20 @@ const addPrivilagePlan = async(req , res) =>{
            const result = await privilagePlanAdd.save();
         });
 
+
+        // Log add 
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+
+        await commonFunction.eventLogFunction(
+            'privilagePlan' ,
+            doerId ,
+            loginUser.fname ,
+            req.ip , 
+            companyId , 
+            'Privilage plan add'
+        );
+
         return {    
             response : 'Privilage plan created successfully'
         }
@@ -107,7 +123,7 @@ const getPrivilagePlanByProductPlanId =async(req ,res) => {
     }
 }
 
-// Get privilage plna has product by privilage id
+// Get privilage plan has product by privilage id
 const privilagePHPByPrivilageId =async(req ,res) => {
     try {
         const privilagePlanId = req.params.privilagePlanId;
@@ -191,6 +207,17 @@ const privilagePlanPatch = async(req , res) => {
            const result = await privilagePlanAdd.save();
         });
 
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+
+        await commonFunction.eventLogFunction(
+            'privilagePlan' ,
+            doerId ,
+            loginUser.fname ,
+            req.ip , 
+            companyId , 
+            'Privilage plan update'
+        );
         return {    
             response : 'Privilage plan updated successfully'
         }

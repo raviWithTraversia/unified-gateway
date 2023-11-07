@@ -66,7 +66,8 @@ const options = {
         "./routes/permissionRoute.js",
         "./routes/roleRoute.js",
         "./routes/salesRoute.js" ,
-        "./routes/verifyOtpRoute.js"
+        "./routes/verifyOtpRoute.js",
+        "./routes/carrierRoute.js"
 
     ]
 };

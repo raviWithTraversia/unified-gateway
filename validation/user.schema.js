@@ -17,7 +17,6 @@ const schema = {
 
     userSchemaInsert :  Joi.object({
         company_ID: Joi.string().required(),
-        userType: Joi.string().required(),
         login_Id: Joi.string().required(),
         email: Joi.string().email().required(),
         deactivation_Date: Joi.string().allow(null), // Assuming it can be a string or null
@@ -49,7 +48,7 @@ const schema = {
         user_planType: Joi.number(),
         sales_In_Charge: Joi.boolean(),
         personalPanCardUpload: Joi.string(),
-        resetToken: Joi.string(),
+        resetToken: Joi.string()
       }).options({ allowUnknown: true }),
 
     userSchemaForgetPassword : Joi.object({

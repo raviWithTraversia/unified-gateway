@@ -35,8 +35,9 @@ const CreditRequestSchema = new mongoose.Schema({
         default : 0
     },
     status : {
-        type : Boolean,
-        default : true
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending',
     },
     remarks : {
         type : String,
@@ -72,4 +73,4 @@ const CreditRequestSchema = new mongoose.Schema({
     timestamps : true  //add created_at and updated_at
 });
 
-module.exports = mongoose.model('CreditRequestSchema' , CreditRequestSchema);
+module.exports = mongoose.model('CreditRequest' , CreditRequestSchema);

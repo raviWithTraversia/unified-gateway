@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const smtpConfigSchema = new mongoose.Schema({
     companyId : {
-        type : String,
-        required : true
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Company'
     },
     host : {
         type : String,
@@ -40,12 +40,8 @@ const smtpConfigSchema = new mongoose.Schema({
         type : Boolean,
         required : true
     }
-
-
-
     
 });
 
 const SmtpConfig = mongoose.model("SmtpConfig", smtpConfigSchema);
-
 module.exports = SmtpConfig;

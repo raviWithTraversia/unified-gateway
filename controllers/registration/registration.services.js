@@ -13,66 +13,54 @@ let {
       saleInChargeId , 
       email, 
       mobile, 
-      gstNumber, 
-      gstName, 
-      gstAddress, 
       street, 
       pincode, 
       country, 
       state, 
       city, 
       remark, 
-      roleId,
-      statusId,
-      type,
-      isIATA
+      isIATA,
+      roleId ,
+      gstNumber,
+      gstName,
+      gstAddress
          } = req.body;
 
-const fieldNames = [
-        'companyId',
-        'companyName',
-        'panNumber',
-        'panName',
-        'firstName',
-        'lastName',
-        'saleInChargeId',
-        'email',
-        'mobile',
-        'gstNumber',
-        'gstName',
-        'gstAddress',
-        'street',
-        'pincode',
-        'country',
-        'state',
-        'city',
-        'statusId',
-        'roleId',
-        'type',
-        'isIATA'
-      ];
- const missingFields = fieldNames.filter((fieldName) => req.body[fieldName] === null || req.body[fieldName] === undefined);
-  if (missingFields.length > 0) {
-    const missingFieldsString = missingFields.join(', ');
-    return {
-        response : null,
-        isSometingMissing : true,
-        data : `Missing or null fields: ${missingFieldsString}` 
-    }
+// const fieldNames = [
+//         'companyId',
+//         'companyName',
+//         'panNumber',
+//         'panName',
+//         'firstName',
+//         'lastName',
+//         'saleInChargeId',
+//         'email',
+//         'mobile',
+//         'street',
+//         'pincode',
+//         'country',
+//         'state',
+//         'city',
+//         'roleId',
+//         'isIATA'
+//       ];
+//  const missingFields = fieldNames.filter((fieldName) => req.body[fieldName] === null || req.body[fieldName] === undefined);
+//   if (missingFields.length > 0) {
+//     const missingFieldsString = missingFields.join(', ');
+//     return {
+//         response : null,
+//         isSometingMissing : true,
+//         data : `Missing or null fields: ${missingFieldsString}` 
+//     }
    
-  }
+//   }
 
-  let isValidStatusId = FUNC.checkIsValidId(statusId);
   let isValidsaleInChargeId = FUNC.checkIsValidId(saleInChargeId);
   let iscountry = FUNC.checkIsValidId(country);
   let isState = FUNC.checkIsValidId(state);
   let isroleId = FUNC.checkIsValidId(roleId)
 
-  if(isValidStatusId === "Invalid Mongo Object Id"){
-    return {
-     response : "Status Id is not valid"
-    }
-  }
+ 
   if(isValidsaleInChargeId === "Invalid Mongo Object Id"){
      return {
         response : "Sale incharge Id is not valid"
@@ -119,27 +107,24 @@ const newRegistration = new registration({
         lastName , 
         saleInChargeId , 
         email, 
-        mobile, 
-        gstNumber, 
-        gstName, 
-        gstAddress, 
+        mobile,  
         street, 
         pincode, 
         country, 
         state, 
         city, 
         remark, 
-        statusId,
         roleId,
-        type,
-        isIATA
+        isIATA,
+        gstAddress,
+        gstName,
+        gstNumber
 });
 await newRegistration.save();
 return {
     response : `New registration created successfully`,
     data : newRegistration
 }
-
  }catch(error){
     console.log(error);
     throw error;
@@ -190,8 +175,45 @@ const getAllRegistrationByCompany = async(req,res) => {
    }
 }
 
+const updateRegistration = async (req,res) => {
+  try{
+    const {registrationId, statusId, remark} = req.body;
+    let checkIsValidregistrationId = FUNC.checkIsValidId(registrationId);
+    let checkIsValidstatusId = FUNC.checkIsValidId(statusId);
+    if(!checkIsValidregistrationId || !checkIsValidstatusId){
+      return {
+        response : 'Please pass valid registrationId or statusId'
+      }
+    }
+    const updateRegistration = await registration.findOneAndUpdate(
+      {_id : registrationId},
+      {
+        $set: {
+          statusId: statusId,
+          remark : remark
+        }
+      }
+  );
+  if(!updateRegistration){
+    return {
+      response : 'Registration data is not updated'
+    }
+  }
+  else{
+    return {
+      response : 'Registration data updated sucessfully'
+    }
+  }
+    
+  }catch(error){
+    console.log(error);
+    throw error
+  }
+}
+
 module.exports = {
     addRegistration,
     getAllRegistration,
-    getAllRegistrationByCompany
+    getAllRegistrationByCompany,
+    updateRegistration
 }

@@ -10,7 +10,10 @@ const roleSchema = new mongoose.Schema({
     companyId:  {
       type : mongoose.Schema.Types.ObjectId,
       ref: 'User'
-  } 
+  } ,
+  type : {
+    type : String,
+  }
  
 }, {
   timestamps: true // Adds created_at and updated_at fields

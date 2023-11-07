@@ -24,34 +24,40 @@ const securePassword = async (password) => {
 };
 
 // Function to send a password reset email
-const sendPasswordResetEmail = async (recipientEmail, resetToken) => {
+const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig , user) => {
   // Create a Nodemailer transporter using your email service provider's SMTP settings
   const transporter = nodemailer.createTransport({
-    host: Config.HOST, // SMTP server hostname or IP address
-    port: 587, // Port number for SMTP with STARTTLS
+    host: mailConfig.host, // SMTP server hostname or IP address
+    port: mailConfig.port, // Port number for SMTP with STARTTLS
     secure: false, // Set to false when using STARTTLS
     auth: {
-      user: Config.USER,
-      pass: Config.PASS, // Verify the password for leading/trailing spaces
+      user: mailConfig.userName,
+      pass: mailConfig.password, // Verify the password for leading/trailing spaces
     },
   });
 
   // Email content
   const mailOptions = {
-    from: Config.USER,
+    from:  mailConfig.emailFrom,
     to: recipientEmail,
     subject: "Password Reset Request",
     text: `Click the following link to reset your password:
-             http://your-app-url/reset-password?token=${resetToken}`,
+             ${Config.BASE_URL}user/varifyToken?token=${resetToken}&userId=${user._id}`,
   };
 
   // Send the email
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Password reset email sent to ${recipientEmail}`);
+    return {
+      response : `Password reset email sent `,
+      data : true
+    }
   } catch (error) {
     console.error("Error sending password reset email:", error);
-    throw error;
+    return {
+      response : "Error sending password reset email:",
+       data : error
+    }
   }
 };
 
@@ -107,7 +113,8 @@ const eventLogFunction = async (
   doerId,
   doerName,
   ipAddress,
-  companyId
+  companyId,
+  description
 ) => {
   try {
     const newEventLog = new EventLog({
@@ -116,6 +123,7 @@ const eventLogFunction = async (
       doerName,
       ipAddress,
       companyId,
+      description
     });
     const storeLogs = await newEventLog.save();
     return "Event Log added successfully";

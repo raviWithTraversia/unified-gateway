@@ -42,7 +42,12 @@ const CrudMessage = {
     WEBSIET_MANAGER_CREATED : 'Website manager created successfully',
     PRIVILAGE_PLAN_UPDATE : 'Privilage plan updated successfully',
     OTP_EMAIL : 'Otp send',
-    OTP_VARIFIED : 'OTP varified sucessfully'
+    OTP_VARIFIED : 'OTP varified sucessfully',
+    AIR_COMMERCIAL_ADD : 'Air commerical created successfully',
+    ROLE_HAS_PERMISSION_CREATE : 'Role has permission created successfully',
+    ROLE_HAS_PERMISSION_UPDATE : 'Role has permission updated successfully',
+    CREDIT_APPROVE :  'Credit request approved successfully',
+    CREDIT_REJECTED :  'Credit request rejected successfully',
 }
 
 const errorResponse = {
@@ -64,10 +69,29 @@ const Status = {
 
 const ADMIN_USER_TYPE = ['MASTER', 'COMPANY', 'SUB_COMPANY', 'EMPLOYEE'];
 
+const TMC_ROLE= {
+  Agency : "Agency",
+  Distrbuter : "Distributer",
+  Supplier : "Supplier"
+};
+
+const DISTRIBUTER_ROLE = {
+   Agency : "Agency",
+   Staff : "Staff"
+};
+
+const HOST_ROLE = {
+    TMC : "TMC",
+    DISTRIBUTER : "Distributer"
+}
+
 module.exports = {
     ServerStatusCode,
     errorResponse,
     ADMIN_USER_TYPE,
     CrudMessage,
-    Status
+    Status,
+    TMC_ROLE,
+    DISTRIBUTER_ROLE,
+    HOST_ROLE
 }

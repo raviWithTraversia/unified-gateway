@@ -53,6 +53,7 @@ const varifyOtpEmailOtp = async (req, res) => {
       otpFor: type,
       status: true,
     });
+    console.log(otpData, "<<<================>>>")
     if(!otpData){
       return {
         response : 'Please send otp again'

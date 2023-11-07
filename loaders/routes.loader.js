@@ -18,8 +18,16 @@ const cityRoute = require('../routes/cityRoute');
 const permissionRoute = require('../routes/permissionRoute');
 const roleRoute = require('../routes/roleRoute');
 const salesRoute = require('../routes/salesRoute');
+const commercialAirPlanRoute = require('../routes/commercialAirPlanRoute');
+const fareFamilyRoute = require('../routes/fareFamilyMasterRoute');
 const verifyOtpRoute = require('../routes/verifyOtpRoute');
-const flightRoute = require('../routes/flight/flightRoute');
+//const flightRoute = require('../routes/flight/flightRoute');
+const carrierRoute = require('../routes/carrierRoute');
+const airCommercialRoute = require('../routes/airCommercialRoute');
+const roleHasPermissionRoute = require('../routes/roleHasPermissioRoute');
+const bankDetailsRoute = require('../routes/bankDetailsRoute');
+
+
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -54,7 +62,6 @@ class RoutesLoader {
 
         // smtp Route by shashi
         app.use('/api',smtpRoute);
-        app.use('/api', emailConfigDecriptionRoute)
 
         // Country route by alamShah
         app.use('/api', CountryRoute);
@@ -87,8 +94,24 @@ class RoutesLoader {
         app.use('/api', verifyOtpRoute)
 
         // Flight Route Start Here
-        app.use("/api", flightRoute);
+       // app.use("/api", flightRoute);
 
+        app.use('/api', verifyOtpRoute);
+
+        // Carrier route by alam shah
+        app.use('/api' , carrierRoute);
+
+        // Air Commercial route by alam shah
+        app.use('/api' , airCommercialRoute);
+
+        // Fare family route
+        app.use('/api' , fareFamilyRoute);
+
+        // RoleHasPermission route created by alam
+        app.use('/api' , roleHasPermissionRoute);
+
+        // bankDetails Route by shashi
+        app.use('/api' , bankDetailsRoute)
     }
 }
 

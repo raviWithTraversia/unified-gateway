@@ -1,6 +1,7 @@
 const CreditRequest = require('../../models/CreditRequest');
 const Company = require('../../models/Company');
 const User = require('../../models/User');
+const commonFunction = require('../commonFunctions/common.function');
 
 
 const addCreditRequest = async(req , res) => {
@@ -15,10 +16,10 @@ const addCreditRequest = async(req , res) => {
             expireDate,
             createdDate,
             createdBy,
-            requestedAmount 
+            requestedAmount,
         } = req.body;
 
-        if(!companyId || !date || !duration || !purpose || !amount || !utilizeAmount || !remarks || !expireDate || !createdDate || !createdBy || !requestedAmount) {
+        if(!companyId || !createdBy || !requestedAmount) {
             return {
                 response : 'All field are required'
             }
@@ -54,11 +55,23 @@ const addCreditRequest = async(req , res) => {
         })
         
         const result = await saveResult.save();
+        
+        // Log add 
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+
+        await commonFunction.eventLogFunction(
+            'creditRequest' ,
+            doerId ,
+            loginUser.fname ,
+            req.ip , 
+            companyId , 
+            'add credit request'
+        );
 
         return {
             response : 'Credit request created successfully'
         }
-
 
     } catch (error) {
         throw error;
@@ -106,8 +119,77 @@ const getCredirRequestByCompanyId = async(req , res) => {
     }
 }
 
+// accept and reject credit request
+
+const approveAndRejectCredit = async(req, res) => {
+    try {
+        const {expireDate , utilizeAmount , remarks , status} = req.body;
+        const _id = req.params.creditRequestId;
+        if(!remarks || !status) {
+            return {
+                response : 'Remark and status are required'
+            }
+        }
+        if(status == "approved") {
+            if(!expireDate || !utilizeAmount) {
+                return {
+                    response : 'All field are required',
+                }
+            }
+
+            
+            const doerId = req.user._id;
+            const loginUser = await User.findById(doerId);
+    
+            // Approved
+            const updateCreditRequestApproved =  await CreditRequest.findByIdAndUpdate(_id, {
+                expireDate,
+                utilizeAmount,
+                remarks,
+                status,
+                amount: utilizeAmount
+            }, { new: true })
+
+            await commonFunction.eventLogFunction(
+                'creditRequest' ,
+                doerId ,
+                loginUser.fname ,
+                req.ip , 
+                loginUser.company_ID , 
+                'Credit request approved'
+            );
+            return {
+                response : 'Credit request approved successfully'
+            }
+        }else{
+
+            // Rejected
+            const updateCreditRequestRejected =  await CreditRequest.findByIdAndUpdate(_id, {
+                remarks,
+                status,
+            }, { new: true })
+
+            await commonFunction.eventLogFunction(
+                'creditRequest' ,
+                doerId ,
+                loginUser.fname ,
+                req.ip , 
+                loginUser.company_ID , 
+                'Credit request rejected'
+            );
+            return {
+                response : 'Credit request rejected successfully'
+            }
+        }
+
+    } catch (error) {
+       throw error 
+    }
+}
+
 module.exports = {
      addCreditRequest ,
      getAllCreditList , 
-     getCredirRequestByCompanyId
+     getCredirRequestByCompanyId ,
+     approveAndRejectCredit
     }

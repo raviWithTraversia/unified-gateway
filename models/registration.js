@@ -4,6 +4,7 @@ const registrationSchema = new mongoose.Schema({
     companyId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Company', 
+        required : true
     },
     companyName: {
         type: String,
@@ -39,15 +40,15 @@ const registrationSchema = new mongoose.Schema({
     },
     gstNumber: {
         type: String,
-        required: true,
+        default: null
     },
     gstName: {
         type: String,
-        required: true,
+        default: null
     },
     gstAddress: {
         type: String,
-        required: true,
+        default : null
     },
     street: {
         type: String,
@@ -71,12 +72,9 @@ const registrationSchema = new mongoose.Schema({
     },
     remark: String, 
     statusId: {
-        type : mongoose.Schema.Types.ObjectId,
-        ref: 'status'
-    },
-    type: {
-        type : String,
-        required : true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'status',
+        default: '6544519c2e87b61867441992'
     },
     isIATA: {
         type : Boolean,

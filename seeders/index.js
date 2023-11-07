@@ -12,6 +12,10 @@ const { seedCountry} = require('../seeders/countrySeeder');
 const { seedState} = require('../seeders/stateSeeder');
 const { seedCity} = require('../seeders/citySeeder');
 const { seedCabinClassMaster} = require('../seeders/cabinClassMasterSeeder');
+const { seedFareFamilyMaster } = require('../seeders/familyFareMasterSeeder'); 
+const { seedCarrierSeeder} = require('../seeders/carrierSeeder');
+const { seedAirCommercialRowMaster } = require('../seeders/airCommertialRowMasterSeeder');
+const { seedCommercialColumnMaster } = require('../seeders/airCommertialColumnMasterSeeder');
 
 async function runSeeders() {
   try {
@@ -30,6 +34,10 @@ async function runSeeders() {
     await seedCabinClassMaster();
     await seedStatus();
     await seedRoles();
+    await seedFareFamilyMaster();
+    await seedCarrierSeeder();
+    await seedAirCommercialRowMaster();
+    await seedCommercialColumnMaster();
     console.log('All seeders completed.');
   } catch (err) {
     console.error('Error running seeders:', err);

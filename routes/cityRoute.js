@@ -3,8 +3,6 @@ const city_route = express();
 const bodyParser = require("body-parser");
 city_route.use(bodyParser.json());
 city_route.use(bodyParser.urlencoded({extended:true}));
-const auth = require("../middleware/auth");
-
 const City = require('./../controllers/city/city.controller')
 
 /**
@@ -32,7 +30,6 @@ const City = require('./../controllers/city/city.controller')
 
 city_route.get(
     '/city/get-city-list/:stateId' ,
-    auth,
     City.cityListByState
 );
 module.exports = city_route

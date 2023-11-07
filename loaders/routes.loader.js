@@ -25,7 +25,7 @@ const carrierRoute = require('../routes/carrierRoute');
 const airCommercialRoute = require('../routes/airCommercialRoute');
 const roleHasPermissionRoute = require('../routes/roleHasPermissioRoute');
 const bankDetailsRoute = require('../routes/bankDetailsRoute');
-
+const plbMaster = require('../routes/plbMasterRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -106,6 +106,9 @@ class RoutesLoader {
 
         // bankDetails Route by shashi
         app.use('/api' , bankDetailsRoute)
+
+        // PLB Master route
+        app.use('/api' , plbMaster);
     }
 }
 

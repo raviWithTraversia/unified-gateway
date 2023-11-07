@@ -30,7 +30,7 @@ const addBankDetails = async (bankDetailsData, file) => {
       },
     });
   
-    const savedBankDetails = await newBankDetails.save();
+ let  savedBankDetails = await newBankDetails.save();
     if(savedBankDetails){
         return {
             response : "Bank Details Added sucessfully",
@@ -61,7 +61,7 @@ const getCompanyBankDetalis = async (req,res) => {
         }
         else{
            return {
-            responce : 'Bank Details Fetch Sucessfully',
+            response : 'Bank Details Fetch Sucessfully',
             data : bankDetails
            }
         }
@@ -73,8 +73,8 @@ const getCompanyBankDetalis = async (req,res) => {
 
 const updateBankDetails = async (req,res) => {
     try{
-
-
+         
+       
     }
     catch{
 

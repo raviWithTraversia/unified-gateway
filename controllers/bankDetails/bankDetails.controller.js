@@ -43,6 +43,45 @@ const addBankDetails = async (req,res) => {
     }
 }
 
+const getBankDetails = async (req,res) => {
+    try{
+    const result = await bankDetails.getCompanyBankDetalis(req,res);
+    if(result.response === "Bank Details Fetch Sucessfully"){
+       apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+       ) 
+    }
+    else if(result.response === "No any Bank details added for this company"){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.RECORD_NOTEXIST,
+            true
+        )
+    }
+    else{
+        apiErrorres(
+            res,
+            "Some Unkown error",
+            ServerStatusCode.NOT_EXIST_CODE,
+            true
+        )
+    }
+
+    }catch(error){
+         apiErrorres(
+            res,
+            error,
+            ServerStatusCode.BAD_REQUEST,
+            true
+         )
+    }
+}
+
 module.exports = {
-    addBankDetails
+    addBankDetails,
+    getBankDetails
 }

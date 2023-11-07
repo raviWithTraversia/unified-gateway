@@ -503,6 +503,39 @@ const changePassword = async (req, res) => {
   }
 };
 
+const addUser = async (req,res) => {
+  try{
+    let requiredFeild = [
+      'companyId',
+       'title',
+       'firstName',
+       'lastName',
+       'email',
+       'phoneNumber',
+       'salesInCharge',
+       'isMailSent',
+       'type'
+    ];
+
+    const missingFields = requiredFeild.filter(
+    (fieldName) =>   req.body[fieldName] === null || req.body[fieldName] === undefined
+    );
+    if (missingFields.length > 0) {
+      const missingFieldsString = missingFields.join(", ");
+      return {
+        response: null,
+        isSometingMissing: true,
+        data: `Missing or null fields: ${missingFieldsString}`,
+      };
+    }
+
+    let { companyId ,title , firstName , lastName , email, phoneNumber, salesInCharge , isMailSent, type} = req.body;
+    
+
+  }catch(error){
+
+  }
+}
 module.exports = {
   registerUser,
   loginUser,

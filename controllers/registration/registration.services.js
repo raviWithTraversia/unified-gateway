@@ -13,19 +13,17 @@ let {
       saleInChargeId , 
       email, 
       mobile, 
-      gstNumber, 
-      gstName, 
-      gstAddress, 
       street, 
       pincode, 
       country, 
       state, 
       city, 
       remark, 
-      roleId,
-      statusId,
-      type,
-      isIATA
+      isIATA,
+      roleId ,
+      gstNumber,
+      gstName,
+      gstAddress
          } = req.body;
 
 const fieldNames = [
@@ -35,20 +33,14 @@ const fieldNames = [
         'panName',
         'firstName',
         'lastName',
-        'saleInChargeId',
         'email',
         'mobile',
-        'gstNumber',
-        'gstName',
-        'gstAddress',
         'street',
         'pincode',
         'country',
         'state',
         'city',
-        'statusId',
         'roleId',
-        'type',
         'isIATA'
       ];
  const missingFields = fieldNames.filter((fieldName) => req.body[fieldName] === null || req.body[fieldName] === undefined);
@@ -62,17 +54,12 @@ const fieldNames = [
    
   }
 
-  let isValidStatusId = FUNC.checkIsValidId(statusId);
   let isValidsaleInChargeId = FUNC.checkIsValidId(saleInChargeId);
   let iscountry = FUNC.checkIsValidId(country);
   let isState = FUNC.checkIsValidId(state);
-  let isroleId = FUNC.checkIsValidId(roleId)
+  let isroleId = FUNC.checkIsValidId(roleId);
 
-  if(isValidStatusId === "Invalid Mongo Object Id"){
-    return {
-     response : "Status Id is not valid"
-    }
-  }
+ 
   if(isValidsaleInChargeId === "Invalid Mongo Object Id"){
      return {
         response : "Sale incharge Id is not valid"
@@ -96,6 +83,14 @@ const fieldNames = [
         response : "Role Id is not valid"
     }
   }
+  if(saleInChargeId !== null){
+    let issaleInChargeId = FUNC.checkIsValidId(saleInChargeId);
+    if(issaleInChargeId === "Invalid Mongo Object Id"){
+      return {
+          response : "State Id is not valid"
+      }
+    }
+  }
   const existingRegistrationWithEmail = await registration.findOne({ email });
   if(existingRegistrationWithEmail){
     return {
@@ -108,7 +103,7 @@ const fieldNames = [
         response : 'Mobile number already exists'
     }
   }
-
+   
     
 const newRegistration = new registration({
         companyId , 
@@ -117,22 +112,20 @@ const newRegistration = new registration({
         panName, 
         firstName , 
         lastName , 
-        saleInChargeId , 
+        saleInChargeId, 
         email, 
-        mobile, 
-        gstNumber, 
-        gstName, 
-        gstAddress, 
+        mobile,  
         street, 
         pincode, 
         country, 
         state, 
         city, 
         remark, 
-        statusId,
         roleId,
-        type,
-        isIATA
+        isIATA,
+        gstAddress,
+        gstName,
+        gstNumber
 });
 await newRegistration.save();
 return {

@@ -15,7 +15,16 @@ add_bank_details_route.post
    (
     '/bank-details/addBankDetails', 
     upload.single('QrcodeImage'),
-     bankDetailController.addBankDetails
+    bankDetailController.addBankDetails
   );
 
-     module.exports = add_bank_details_route
+  add_bank_details_route.get
+  (
+    '/bank-details/getBankDetails/:companyId',
+    bankDetailController.getBankDetails
+  )
+
+
+
+
+ module.exports = add_bank_details_route

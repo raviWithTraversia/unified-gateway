@@ -494,6 +494,12 @@ user_route.post(
 user_route.get(
     '/user/varifyToken',
     userController.varifyTokenForForgetPassword
+);
+
+user_route.post(
+    '/user/addUser',
+    auth,
+    userController.addUser
 )
 
 

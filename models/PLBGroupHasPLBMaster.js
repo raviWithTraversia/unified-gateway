@@ -12,3 +12,5 @@ const PLBGroupHasPLBMasterSchema = new mongoose.Schema({
 },{
     timestamps : true
 });
+
+module.exports = mongoose.model('PLBGroupHasPLBMaster' , PLBGroupHasPLBMasterSchema);

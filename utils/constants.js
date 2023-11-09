@@ -52,6 +52,7 @@ const CrudMessage = {
     UPDATE_PLBMASTER :  'Updated PLB master successfully',
     COPY_PLB : 'Copy PLB Master successfully',
     PLBGROUP_CREATE : 'PLB Group master added successfully',
+    LAYOUT_COUNT : 'Layout count fetch sucessfully '
 }
 
 const errorResponse = {

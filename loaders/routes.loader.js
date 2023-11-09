@@ -26,7 +26,7 @@ const airCommercialRoute = require('../routes/airCommercialRoute');
 const roleHasPermissionRoute = require('../routes/roleHasPermissioRoute');
 const bankDetailsRoute = require('../routes/bankDetailsRoute');
 const plbMaster = require('../routes/plbMasterRoute');
-
+const layoutRoute = require('../routes/layoutRoute')
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -109,6 +109,10 @@ class RoutesLoader {
 
         // PLB Master route
         app.use('/api' , plbMaster);
+
+        // layot Route by  shashi
+
+        app.use('/api', layoutRoute);
     }
 }
 

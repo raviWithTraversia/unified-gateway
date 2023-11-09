@@ -505,16 +505,17 @@ const changePassword = async (req, res) => {
 
 const addUser = async (req,res) => {
   try{
-    console.log("============>>>",req.user , "<<<<<<<<<===================")
+    console.log(req.user, "<<<<<<<<<<<<++++++++++++++++>>>>>>>>>>>>>>>>>>>>>>");
     let requiredFeild = [
-      'companyId',
        'title',
        'firstName',
        'lastName',
        'email',
        'phoneNumber',
-       'salesInCharge',
-       'type'
+       'sales_In_Charge',
+       'type',
+       'password',
+       'roleId'
     ];
 
     const missingFields = requiredFeild.filter(
@@ -527,39 +528,47 @@ const addUser = async (req,res) => {
         isSometingMissing: true,
         data: `Missing or null fields: ${missingFieldsString}`,
       };
-    }
-
+    };
 
     let { 
-      companyId ,
       title , 
       firstName , 
       lastName ,
       email, 
       phoneNumber, 
-      salesInCharge ,
+      sales_In_Charge ,
       isMailSent, 
-      type
+      type,
+      password,
+      roleId
       } = req.body;
       const existingUser = await User.findOne({ email });
+
+   //  console.log(companyId, "<<<<<<<<<+++++++++++++++>>>>>>>>>>>>>>..")
       if (existingUser) {
         return {
           response: "User with this email already exists",
           data: null,
         };
-      }
+      };
+
+      let company = await User.findOne({_id: req.user._id});
+      let companyId = company.company_ID;
+      const securePassword = await commonFunction.securePassword(password);
       const newUser = new User({
-        companyId ,
+        company_ID : companyId,
         title , 
-        firstName , 
+        fname :firstName , 
         lastName ,
         email, 
         phoneNumber, 
-        salesInCharge ,
+        sales_In_Charge ,
         isMailSent, 
-        type
+        type,
+        password :securePassword,
+        userStatus : "Active",
+        roleId
       });
-  
       // Save the User document to the database
      let saveUser = await newUser.save();
      if(saveUser){
@@ -573,12 +582,39 @@ const addUser = async (req,res) => {
           response : 'User Not created sucessfully'
         }
      }
- 
+  }catch(error){
+     console.log(error);
+     throw error
+  }
+};
+
+const editUser = async (req,res) => {
+  try{
+    const userId = req.query.id;
+    const updateData = req.body; 
+
+    const updatedUserData = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true }
+    );
+    if(updatedBankDetails){
+      return {
+        response : 'Bank details updated sucessfully',
+        data : updatedUserData
+      }
+    }else{
+      return {
+        response : 'Failed to update bank details'
+      }
+    }
   }catch(error){
      console.log(error);
      throw error
   }
 }
+
+
 module.exports = {
   registerUser,
   loginUser,
@@ -587,5 +623,6 @@ module.exports = {
   resetPassword,
   changePassword,
   varifyTokenForForgetPassword,
-  addUser
+  addUser,
+  editUser
 };

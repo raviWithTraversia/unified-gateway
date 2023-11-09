@@ -127,10 +127,16 @@ const newRegistration = new registration({
         gstName,
         gstNumber
 });
-await newRegistration.save();
+let newRegistrationRes  =await newRegistration.save();
+if(newRegistrationRes){
 return {
     response : `New registration created successfully`,
     data : newRegistration
+}
+}else{
+  return {
+    response : `Registration Failed!`,
+}
 }
  }catch(error){
     console.log(error);

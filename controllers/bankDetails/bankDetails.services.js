@@ -79,8 +79,7 @@ const getCompanyBankDetalis = async (req,res) => {
 const updateBankDetails = async (req,res) => {
     try{
          
-      const bankDetailsId = req.params.id; 
-
+      const bankDetailsId = req.query.id; 
       const updateData = req.body; 
 
     const updatedBankDetails = await bankDetail.findByIdAndUpdate(
@@ -110,7 +109,8 @@ const updateBankDetails = async (req,res) => {
 
 const deleteBankDetails = async (req,res) => {
   try{
-    const bankDetailsId = req.params.id; 
+    const { bankDetailsId } = req.query; 
+    //console.log(bankDetailsId , "<<<<<<<<<<==================>>>>>>>>>>>>>>>>")
     const deletedBankDetails = await bankDetail.findByIdAndRemove(bankDetailsId);
     if(deletedBankDetails){
       return {

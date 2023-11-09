@@ -244,7 +244,15 @@ const addUser = async (req,res) => {
             ServerStatusCode.RESOURCE_NOT_FOUND,
             true
           )
-    }else{
+    }else if(result.response === "User with this email already exists"){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.ALREADY_EXIST,
+        true
+      )
+    }
+    else{
        apiErrorres(
         res,
         errorResponse.SOME_UNOWN,
@@ -263,6 +271,43 @@ const addUser = async (req,res) => {
   }
 }
 
+const editUser = async (req,res) => {
+  try{
+     const result = await userServices.editUser(req,res);
+     if(result.response === 'Bank details updated sucessfully'){
+       apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+       )
+     }
+     else if(result.response === 'Failed to update bank details'){
+        apiErrorres(
+          res,
+          result.response,
+          ServerStatusCode.RECORD_NOTEXIST,
+          true
+        )
+     }else{
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      )
+     }
+  }catch(error){
+     apiErrorres(
+      res,
+      error,
+      ServerStatusCode.UNAUTHORIZED,
+      true
+
+     )
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
@@ -271,5 +316,6 @@ module.exports = {
   resetPassword,
   changePassword,
   varifyTokenForForgetPassword,
-  addUser
+  addUser,
+  editUser
 };

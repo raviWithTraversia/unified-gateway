@@ -26,7 +26,6 @@ const Country = require('./../controllers/country/country.controller')
 
 country_route.get(
     '/country/all-country-list' ,
-    auth,
     Country.countryList
 );
 module.exports = country_route

@@ -29,6 +29,7 @@ const registrationSchema = new mongoose.Schema({
     saleInChargeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', 
+        default: null
     },
     email: {
         type: String,

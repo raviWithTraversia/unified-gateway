@@ -27,12 +27,27 @@ const userSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref: 'Role'
     },
-    title: String,
-    fname: String,
-    lastName: String,
-    password: String,
+    title: {
+        type : String,
+        required : true
+    },
+    fname:  {
+        type : String,
+        required : true
+    },
+    lastName:  {
+        type : String,
+        required : true
+    },
+    password:  {
+        type : String,
+        required : true
+    },
     securityStamp: String,
-    phoneNumber: String,
+    phoneNumber:  {
+        type : String,
+        required : true
+    },
     twoFactorEnabled: Boolean,
     lockoutEnabled: Boolean,
     accessfailedCount: Number,

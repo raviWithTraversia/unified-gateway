@@ -154,7 +154,6 @@ const websiteManager = require("../controllers/websiteManager/websiteManager.con
  */
 website_manager_route.post(
     '/website/add-website-manager' ,
-    auth,
      websiteManager.websiteManagerAdd
     );
 
@@ -184,7 +183,6 @@ website_manager_route.post(
 
 website_manager_route.get(
     '/website/retrive-website-manager/:domainName' ,
-    auth,
      websiteManager.retriveWebsiteManager
 );
 

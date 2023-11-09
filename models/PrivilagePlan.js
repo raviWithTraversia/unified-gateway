@@ -17,6 +17,10 @@ const privilagePlanSchema = new mongoose.Schema({
     status : {
         type :Boolean,
         default : true
+    },
+    IsDefault: {
+        type: Boolean,
+        default : false
     }
 },{
     timestamps : true  //add created_at and updated_at

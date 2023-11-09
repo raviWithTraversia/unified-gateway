@@ -27,6 +27,10 @@ const roleHasPermissionRoute = require('../routes/roleHasPermissioRoute');
 const bankDetailsRoute = require('../routes/bankDetailsRoute');
 const plbMaster = require('../routes/plbMasterRoute');
 const layoutRoute = require('../routes/layoutRoute')
+const plbGroupMaster = require('../routes/plbGroupMasterRoute');
+const incentiveMasterRoute = require('../routes/incentiveMasterRoute');
+const incentiveGroupMasterRoute = require('../routes/incentiveGroupMasterRoute');
+
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -113,6 +117,17 @@ class RoutesLoader {
         // layot Route by  shashi
 
         app.use('/api', layoutRoute);
+        // PLB Group Master
+        app.use('/api' , plbGroupMaster);
+
+        // Incentive Master route
+        app.use('/api' , incentiveMasterRoute);
+
+        // Commercial Route
+        app.use('/api' , commercialAirPlanRoute);
+
+        // incentive Master Group route
+        app.use('/api' , incentiveGroupMasterRoute);
     }
 }
 

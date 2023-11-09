@@ -50,9 +50,19 @@ const CrudMessage = {
     CREDIT_REJECTED :  'Credit request rejected successfully',
     CREATE_PLBMASTER : 'created PLB master successfully',
     UPDATE_PLBMASTER :  'Updated PLB master successfully',
+    DELETE_PLBMASTER :  'deleted PLB master successfully',
     COPY_PLB : 'Copy PLB Master successfully',
     PLBGROUP_CREATE : 'PLB Group master added successfully',
-    LAYOUT_COUNT : 'Layout count fetch sucessfully '
+    LAYOUT_COUNT : 'Layout count fetch sucessfully ',
+    PLBGROUP_UPDATE : 'PLB Group master updated successfully',
+    PLBGROUP_DELETE : 'PLB Group master deleted successfully',
+    CREATE_INCENTIVE_MASTER : 'created incentive master successfully',
+    UPDATE_INCENTIVE_MASTER :  'Updated incentive master successfully',
+    COPY_INCENTIVE_MASTER : 'Copy incentive Master successfully',
+    DELETE_INCENTIVE_MASTER : 'Deleted incentive Master successfully',
+    INCGROUP_CREATE : 'incentive Group master added successfully',
+    INCGROUP_UPDATE : 'incentive Group master updated successfully',
+    INCGROUP_DELETE : 'incentive Group master deleted successfully',
 }
 
 const errorResponse = {

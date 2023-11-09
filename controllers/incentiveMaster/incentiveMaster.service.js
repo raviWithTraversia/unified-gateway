@@ -1,0 +1,208 @@
+const IncentiveMaster = require('../../models/IncentiveMaster');
+const commonFunction = require('../commonFunctions/common.function');
+const User = require('../../models/User');
+
+const addIncentiveMaster= async(req, res) => {
+    try {
+        const {
+            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily, deductTDS, isdeleted, flightNo, dealcode, farebasis
+        } = req.body;
+
+        if(!companyId) {
+            return {
+                response : 'Company Id is required'
+            }
+        }
+
+        const IncentiveMasterData = new IncentiveMaster({
+            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted ,flightNo, dealcode, farebasis
+        })
+        await IncentiveMasterData.save();
+
+         // Log add 
+         const doerId = req.user._id;
+         const loginUser = await User.findById(doerId);
+ 
+         await commonFunction.eventLogFunction(
+             'IncentiveMaster' ,
+             doerId ,
+             loginUser.fname ,
+             req.ip , 
+             companyId , 
+             'add Incentive Master'
+         );
+
+        return {
+            response: 'Incentive Master save successfully'
+        }
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+const getIncentiveMaster = async(req , res) => {
+    try {
+        const PLBType = req.params.PLBType;
+        const result = await IncentiveMaster.find({ PLBType: PLBType });
+        if (result.length > 0) {
+            return {
+                data: result
+            }
+        } else {
+            return {
+                response: 'Incentive Master not available',
+                data: null
+            }
+        }
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+const incentiveMasterUpdate = async(req, res) => {
+    try {
+        const _id = req.params.id;
+        const {
+            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted , flightNo, dealcode, farebasis
+        } = req.body;
+
+        if(!companyId) {
+            return {
+                response : 'Company Id is required'
+            }
+        } 
+
+        const IncentiveMasterUpdate = await IncentiveMaster.findByIdAndUpdate(
+            _id, 
+            {
+                companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted , flightNo, dealcode, farebasis
+            }, { new: true }
+            )
+
+             // Log add 
+         const doerId = req.user._id;
+         const loginUser = await User.findById(doerId);
+ 
+         await commonFunction.eventLogFunction(
+             'IncentiveMaster' ,
+             doerId ,
+             loginUser.fname ,
+             req.ip , 
+             loginUser.companyId , 
+             'updated Incentive Master'
+         );
+
+        return {
+            response : 'Incentive Master updated successfully'
+        }
+
+    } catch (error) {
+        throw error
+    }
+}
+
+
+const removeIncentiveMaster = async(req , res) => {
+    try {
+
+        const result = await IncentiveMaster.deleteOne({ _id: req.params.id });
+
+              // Log add 
+              const doerId = req.user._id;
+              const loginUser = await User.findById(doerId);
+      
+              await commonFunction.eventLogFunction(
+                  'IncentiveMaster' ,
+                  doerId ,
+                  loginUser.fname ,
+                  req.ip , 
+                  loginUser.companyId , 
+                  'deleted Incentive Master'
+              );
+        return {
+            response : 'Incentive Master deleted Successfully!'
+        }
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+const CopyIncentiveMaster = async(req, res) => {
+    try {
+        const _id = req.body.id;
+        const IncMaster = IncentiveMaster.findById(_id);
+        if(IncMaster) {
+            
+            const IncDataSave = new IncentiveMaster({
+                companyId : IncMaster.companyId,
+                origin : IncMaster.origin,
+                destination : IncMaster.destination, 
+                supplierCode : IncMaster.supplierCode, 
+                airlineCode : IncMaster.airlineCode, 
+                cabinClass : IncMaster.cabinClass, 
+                rbd : IncMaster.rbd, 
+                PLBApplyOnBasefare : IncMaster.PLBApplyOnBasefare,  
+                PLBApplyOnYQ : IncMaster.PLBApplyOnYQ, 
+                PLBApplyOnYR : IncMaster.PLBApplyOnYR, 
+                PLBApplyOnTotalAmount : IncMaster.PLBApplyOnTotalAmount, 
+                PLBApplyOnAllTAxes : IncMaster.PLBApplyOnAllTAxes,
+                minPrice :IncMaster.minPrice, 
+                maxPrice :IncMaster.maxPrice, 
+                travelDateFrom :IncMaster.travelDateFrom,
+                travelDateTo :IncMaster.travelDateTo, 
+                PLBValue :IncMaster.PLBValue, 
+                PLBValueType :IncMaster.PLBValueType,
+                PLBType :IncMaster.PLBType, 
+                createdBy :IncMaster.createdBy, 
+                modifiedAt :IncMaster.modifiedAt,
+                modifiedBy :IncMaster.modifiedBy, 
+                status :IncMaster.status,
+                datefIssueFrom :IncMaster.datefIssueFrom,
+                datefIssueTo :IncMaster.datefIssueTo, 
+                fareFamily :IncMaster.fareFamily,
+                deductTDS :IncMaster.deductTDS,
+                isdeleted :IncMaster.isdeleted,
+                flightNo : IncMaster.flightNo,
+                dealcode : IncMaster.dealcode,
+                farebasis : IncMaster.farebasis
+
+            })
+            await IncDataSave.save();
+    
+             // Log add 
+             const doerId = req.user._id;
+             const loginUser = await User.findById(doerId);
+     
+             await commonFunction.eventLogFunction(
+                 'IncentiveMaster' ,
+                 doerId ,
+                 loginUser.fname ,
+                 req.ip , 
+                 loginUser.companyId , 
+                 'Copy Incentive Master'
+             );
+
+            return {
+                response: 'Incentive Master copy successfully'
+            }
+        }else{
+            return {
+                response : 'Incentive Master id not exist'
+            }
+        }
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+module.exports = {
+    addIncentiveMaster,
+    getIncentiveMaster,
+    incentiveMasterUpdate,
+    removeIncentiveMaster,
+    CopyIncentiveMaster
+}

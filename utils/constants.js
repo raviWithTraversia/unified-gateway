@@ -41,6 +41,7 @@ const CrudMessage = {
     CREDIT_REQUESTED_CREATED : 'Credit request created successfully',
     WEBSIET_MANAGER_CREATED : 'Website manager created successfully',
     PRIVILAGE_PLAN_UPDATE : 'Privilage plan updated successfully',
+    PRIVILAGE_PLAN_ISDEFAULT : 'Privilage plan IsDefault assign successfully',
     OTP_EMAIL : 'Otp send',
     OTP_VARIFIED : 'OTP varified sucessfully',
     AIR_COMMERCIAL_ADD : 'Air commerical created successfully',

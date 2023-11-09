@@ -71,7 +71,8 @@ const errorResponse = {
     INVALID_REQ : 'Invalid Request',
     USER_NOT_INSERT : 'User data not inserted',
     SOMETHING_WRONG: 'Something went wrong!',
-    NOT_AVALIABLE: 'No data available'
+    NOT_AVALIABLE: 'No data available',
+    SOME_UNOWN : "Some Unhandle error"
 
 }
 const Status = {

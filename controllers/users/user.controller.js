@@ -69,7 +69,7 @@ const userInsert = async (req, res) => {
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.BAD_REQUEST, true);
     }
-    if (
+    else if (
       result.response === "User with this email already exists" ||
       result.response === "Company with this companyName already exists"
     ) {
@@ -223,6 +223,46 @@ const varifyTokenForForgetPassword = async (req, res) => {
   }
 };
 
+const addUser = async (req,res) => {
+  try{
+    const result = await userServices.addUser(req,res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.BAD_REQUEST, true);
+    }
+    else if(result.response === 'New User Created Sucessfully'){
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      )
+    }
+    else if(result.response === "User Not created sucessfully"){
+          apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
+            true
+          )
+    }else{
+       apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.NOT_EXIST_CODE,
+        true
+       )
+    }
+
+  }catch(error){
+    apiErrorres(
+      res,
+      error,
+      ServerStatusCode.BAD_REQUEST,
+      true
+    )
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
@@ -231,4 +271,5 @@ module.exports = {
   resetPassword,
   changePassword,
   varifyTokenForForgetPassword,
+  addUser
 };

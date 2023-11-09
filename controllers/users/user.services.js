@@ -505,6 +505,7 @@ const changePassword = async (req, res) => {
 
 const addUser = async (req,res) => {
   try{
+    console.log("============>>>",req.user , "<<<<<<<<<===================")
     let requiredFeild = [
       'companyId',
        'title',
@@ -513,7 +514,6 @@ const addUser = async (req,res) => {
        'email',
        'phoneNumber',
        'salesInCharge',
-       'isMailSent',
        'type'
     ];
 
@@ -529,11 +529,54 @@ const addUser = async (req,res) => {
       };
     }
 
-    let { companyId ,title , firstName , lastName , email, phoneNumber, salesInCharge , isMailSent, type} = req.body;
-    
 
+    let { 
+      companyId ,
+      title , 
+      firstName , 
+      lastName ,
+      email, 
+      phoneNumber, 
+      salesInCharge ,
+      isMailSent, 
+      type
+      } = req.body;
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return {
+          response: "User with this email already exists",
+          data: null,
+        };
+      }
+      const newUser = new User({
+        companyId ,
+        title , 
+        firstName , 
+        lastName ,
+        email, 
+        phoneNumber, 
+        salesInCharge ,
+        isMailSent, 
+        type
+      });
+  
+      // Save the User document to the database
+     let saveUser = await newUser.save();
+     if(saveUser){
+      return {
+        response : 'New User Created Sucessfully',
+        data : saveUser
+      }
+     }
+     else{
+        return {
+          response : 'User Not created sucessfully'
+        }
+     }
+ 
   }catch(error){
-
+     console.log(error);
+     throw error
   }
 }
 module.exports = {
@@ -543,5 +586,6 @@ module.exports = {
   forgotPassword,
   resetPassword,
   changePassword,
-  varifyTokenForForgetPassword
+  varifyTokenForForgetPassword,
+  addUser
 };

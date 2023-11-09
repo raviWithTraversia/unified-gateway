@@ -1,4 +1,4 @@
-const bankDetails  = require("./bankDetails.services");
+const bankDetailServices  = require("./bankDetails.services");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
@@ -9,7 +9,7 @@ const {
 
 const addBankDetails = async (req,res) => {
     try{
-         const result = await bankDetails.addBankDetails(req.body, req.file)
+         const result = await bankDetailServices.addBankDetails(req.body, req.file)
          if( result.response == "Bank Details Added sucessfully"){
             apiSucessRes(
                 res,
@@ -25,7 +25,16 @@ const addBankDetails = async (req,res) => {
                 ServerStatusCode.PRECONDITION_FAILED,
                 true
             )
-         }else{
+         }else if(result.response === "This account number alrady exist"){
+            apiErrorres(
+                res,
+                result.response,
+                ServerStatusCode.ALREADY_EXIST,
+                true
+            )
+         }
+         
+         else{
             apiErrorres(
                 res,
                 errorResponse.SOMETHING_WRONG,
@@ -45,7 +54,7 @@ const addBankDetails = async (req,res) => {
 
 const getBankDetails = async (req,res) => {
     try{
-    const result = await bankDetails.getCompanyBankDetalis(req,res);
+    const result = await bankDetailServices.getCompanyBankDetalis(req,res);
     if(result.response === "Bank Details Fetch Sucessfully"){
        apiSucessRes(
         res,
@@ -81,7 +90,90 @@ const getBankDetails = async (req,res) => {
     }
 }
 
+const updateBankDetails = async (req,res) => {
+    try{
+    const result = await bankDetailServices.updateBankDetails(req,res);
+    if(!result){
+       apiErrorres(
+        res,
+        errorResponse.NOT_AVALIABLE,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+       )
+    }
+    else if(result.response === 'Failed to update bank details'){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      )
+    }
+    else if(result.response === 'Bank details updated sucessfully'){
+       apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+       )
+    }
+    else{
+         apiErrorres(
+            res,
+            errorResponse.NOT_AVALIABLE,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
+            true
+         )
+    }
+
+    }catch(error){
+        apiErrorres(
+            res,
+            error,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
+            true
+        )
+    }
+}
+
+const deleteBankDetails = async (req,res) => {
+    try{
+        const result = await bankDetailServices.deleteBankDetails(req,res);
+        if(result.response  === "Bank details deleted successfully"){
+          apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+          )
+        }else if(result.response === 'Bank details not found' ){
+           apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.RECORD_NOTEXIST,
+            true
+           )
+        }else{
+            apiErrorres(
+                res,
+                errorResponse.SOME_UNOWN,
+                ServerStatusCode.UNPROCESSABLE,
+                true
+               )
+        }
+
+    }catch(error){
+        apiErrorres(
+            res,
+            error,
+            ServerStatusCode.UNAUTHORIZED,
+            true
+        )
+    }
+}
 module.exports = {
     addBankDetails,
-    getBankDetails
+    getBankDetails,
+    updateBankDetails,
+    deleteBankDetails
 }

@@ -19,11 +19,11 @@ let {
       state, 
       city, 
       remark, 
-      isIATA,
       roleId ,
       gstNumber,
       gstName,
-      gstAddress
+      gstAddress,
+      isIATA
          } = req.body;
 
 const fieldNames = [
@@ -40,8 +40,7 @@ const fieldNames = [
         'country',
         'state',
         'city',
-        'roleId',
-        'isIATA'
+        'roleId'
       ];
  const missingFields = fieldNames.filter((fieldName) => req.body[fieldName] === null || req.body[fieldName] === undefined);
   if (missingFields.length > 0) {
@@ -122,10 +121,10 @@ const newRegistration = new registration({
         city, 
         remark, 
         roleId,
-        isIATA,
         gstAddress,
         gstName,
-        gstNumber
+        gstNumber,
+        ...isIATA
 });
 let newRegistrationRes  =await newRegistration.save();
 if(newRegistrationRes){

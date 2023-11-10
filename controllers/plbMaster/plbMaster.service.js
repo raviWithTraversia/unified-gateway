@@ -1,4 +1,6 @@
 const PLBMaster = require('../../models/PLBMaster');
+const commonFunction = require('../commonFunctions/common.function');
+const User = require('../../models/User');
 
 const addPLBMaster = async(req, res) => {
     try {
@@ -16,6 +18,19 @@ const addPLBMaster = async(req, res) => {
             companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted
         })
         await PLBData.save();
+
+         // Log add 
+         const doerId = req.user._id;
+         const loginUser = await User.findById(doerId);
+ 
+         await commonFunction.eventLogFunction(
+             'PLBMaster' ,
+             doerId ,
+             loginUser.fname ,
+             req.ip , 
+             companyId , 
+             'add PLB Master'
+         );
 
         return {
             response: 'PLB Master save successfully'
@@ -65,6 +80,20 @@ const PLBMasterUpdate = async(req, res) => {
                 companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted
             }, { new: true }
             )
+
+             // Log add 
+         const doerId = req.user._id;
+         const loginUser = await User.findById(doerId);
+ 
+         await commonFunction.eventLogFunction(
+             'PLBMaster' ,
+             doerId ,
+             loginUser.fname ,
+             req.ip , 
+             loginUser.companyId , 
+             'updated PLB Master'
+         );
+
         return {
             response : 'PLB Master updated successfully'
         }
@@ -79,6 +108,19 @@ const removePLBMaster = async(req , res) => {
     try {
 
         const result = await PLBMaster.deleteOne({ _id: req.params.id });
+
+              // Log add 
+              const doerId = req.user._id;
+              const loginUser = await User.findById(doerId);
+      
+              await commonFunction.eventLogFunction(
+                  'PLBMaster' ,
+                  doerId ,
+                  loginUser.fname ,
+                  req.ip , 
+                  loginUser.companyId , 
+                  'deleted PLB Master'
+              );
         return {
             response : 'PLB Master deleted Successfully!'
         }
@@ -126,6 +168,19 @@ const CopyPLBMaster = async(req, res) => {
             })
             await PLBData.save();
     
+             // Log add 
+             const doerId = req.user._id;
+             const loginUser = await User.findById(doerId);
+     
+             await commonFunction.eventLogFunction(
+                 'PLBMaster' ,
+                 doerId ,
+                 loginUser.fname ,
+                 req.ip , 
+                 loginUser.companyId , 
+                 'Copy PLB Master'
+             );
+
             return {
                 response: 'PLB Master copy successfully'
             }

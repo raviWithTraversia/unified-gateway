@@ -20,8 +20,18 @@ add_bank_details_route.post
 
   add_bank_details_route.get
   (
-    '/bank-details/getBankDetails/:companyId',
+    '/bank-details/getBankDetails',
     bankDetailController.getBankDetails
+  );
+
+  add_bank_details_route.patch(
+    '/bank-details/updateBankDetails',
+    bankDetailController.updateBankDetails
+  );
+
+  add_bank_details_route.delete(
+    '/bank-details/deleteBankDetails',
+    bankDetailController.deleteBankDetails
   )
 
 

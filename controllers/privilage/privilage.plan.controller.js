@@ -120,10 +120,32 @@ const updatePrivilagePlan = async(req , res) => {
     }
 }
 
+const isDefaultPrivilagePlan = async(req, res) => {
+    try {
+        const result = await PrivilageServices.privilagePlanAssignIsDefault(req); 
+        
+            apiSucessRes(
+                res,
+                CrudMessage.PRIVILAGE_PLAN_ISDEFAULT,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+        
+    } catch (error) {
+         apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
 module.exports = { 
     storePrivilagePlan, 
     getAllPrivilage , 
     privilagePlanByProductId , 
     privilagePlanHasPermission ,
-    updatePrivilagePlan
+    updatePrivilagePlan,
+    isDefaultPrivilagePlan
 }

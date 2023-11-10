@@ -6,11 +6,12 @@ const userSchema = new mongoose.Schema({
         ref: 'Company'
     },
     userType: {
-        type: String
+        type: String,
+        default: null
     },
     login_Id: {
         type: String,
-        required: true,
+        default: null
     },
     email: {
         type: String,
@@ -21,7 +22,8 @@ const userSchema = new mongoose.Schema({
         default: null
     },
     logoURI: {
-      type: String
+      type: String,
+      default: null
     },
     roleId: {
         type : mongoose.Schema.Types.ObjectId,
@@ -43,32 +45,97 @@ const userSchema = new mongoose.Schema({
         type : String,
         required : true
     },
-    securityStamp: String,
+    securityStamp: {
+        type: String,
+        default: null
+    },
     phoneNumber:  {
         type : String,
         required : true
     },
-    twoFactorEnabled: Boolean,
-    lockoutEnabled: Boolean,
-    accessfailedCount: Number,
-    emailConfirmed: Boolean,
-    phoneNumberConfirmed: Boolean,
-    userStatus: String,
-    userPanName: String,
-    userPanNumber: String,
-    created_Date: Date,
-    lastModifiedDate: Date,
-    userModifiedBy: String,
-    last_LoginDate: Date,
-    activation_Date: Date,
-    sex: String,
-    dob: Date,
-    nationality: String,
-    deviceToken: String,
-    deviceID: String,
-    user_planType: Number,
-    sales_In_Charge: Boolean,
-    personalPanCardUpload: String,
+    twoFactorEnabled: {
+        type: Boolean,
+        default: null
+    },
+    lockoutEnabled: {
+        type: Boolean,
+        default: null
+    },
+    accessfailedCount: {
+        type: Number,
+        default: null
+    },
+    emailConfirmed: {
+        type : Boolean,
+        default : false
+    },
+    phoneNumberConfirmed: {
+        type : Boolean,
+        default : false
+    },
+    userStatus: {
+        type: String,
+        default: null
+    },
+    userPanName: {
+        type: String,
+        default: null
+    },
+    userPanNumber: {
+        type: String,
+        default: null
+    },
+    created_Date: {
+        type: Date,
+         default: Date.now,
+    },
+    lastModifiedDate: {
+        type: Date,
+        default: Date.now,
+    },
+    userModifiedBy: {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'User'
+    },
+    last_LoginDate:  {
+        type: Date,
+        default: Date.now,
+    },
+    activation_Date: {
+        type: Date,
+        default: Date.now,
+    },
+    sex: {
+      type : String,
+      default: null  
+    },
+    dob: {
+        type: Date  
+    },
+    nationality: {
+        type : String,
+        default : "IN"
+    },
+    deviceToken: {
+        type : String,
+        default: null 
+    },
+    deviceID: {
+        type : String,
+        default: null 
+    },
+    user_planType: { /// need to be discuss
+        type : Number,
+        default : 1
+    },
+    sales_In_Charge: {
+        type: Boolean,
+        default: false
+    },
+    personalPanCardUpload: {
+        type: String,
+        default: null
+    },
     resetToken: String,
     ip_address : String  
 }, {

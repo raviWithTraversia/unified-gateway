@@ -40,8 +40,7 @@ const addRegistration = async(req,res) => {
          'country',
          'state',
          'city',
-         'roleId',
-         'isIATA'
+         'roleId'
        ];
   const missingFields = fieldNames.filter((fieldName) => req.body[fieldName] === null || req.body[fieldName] === undefined);
    if (missingFields.length > 0) {
@@ -125,13 +124,20 @@ const addRegistration = async(req,res) => {
          isIATA,
          gstAddress,
          gstName,
-         gstNumber
+         gstNumber,
+         ...isIATA
  });
- await newRegistration.save();
+ let newRegistrationRes = await newRegistration.save();
+ if(newRegistrationRes){
  return {
      response : `New registration created successfully`,
      data : newRegistration
  }
+}else{
+  return {
+    response : `Registration Failed!`
+  }
+}
   }catch(error){
      console.log(error);
      throw error;

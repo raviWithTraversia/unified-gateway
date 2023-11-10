@@ -9,7 +9,7 @@ const addRegistration = async (req,res) => {
     if(!result.response && result.isSometingMissing){
         apiErrorres(
             res,
-            errorResponse.SOMETHING_WRONG,
+            result.data,
             ServerStatusCode.SERVER_ERROR,
             true
         )
@@ -23,7 +23,7 @@ const addRegistration = async (req,res) => {
             true
         )
     }
-     else if(result.response === 'Mobile number already exists'){
+    else if(result.response === 'Mobile number already exists'){
         apiErrorres(
             res,
             result.response,
@@ -55,12 +55,28 @@ const addRegistration = async (req,res) => {
             true
         )
     }
-    else {
+    else if(result.response === 'New registration created successfully'){
         apiSucessRes(
             res,
             result.response,
             result.data,
             ServerStatusCode.SUCESS_CODE
+        )
+    }
+    else if(result.response === 'Registration Failed!'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        )
+    }
+    else {
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.UNPROCESSABLE,
+            true
         )
     }
   } catch (error){
@@ -99,7 +115,8 @@ const getAllRegistration = async (req , res) => {
             res,
             errorResponse.SOMETHING_WRONG,
             ServerStatusCode.SERVER_ERROR,
-            true )
+            true 
+            )
 
     }
 }

@@ -2,13 +2,22 @@ const varifyOtp = require("../../models/VerifyOtp");
 const FUNC = require("../commonFunctions/common.function");
 const smtpConfig = require("../../models/smtp");
 const moment = require('moment');
+const company = require('../../models/Company');
 
 const sendEmailOtp = async (req, res) => {
   try {
     const { type, typeName , companyId} = req.body;
     let generateOtp = Math.floor(100000 + Math.random() * 900000);
     //host,port,user,pass
-    let smtpDetails = await smtpConfig.findOne({companyId :companyId});
+    let smtpDetails;
+    if(companyId){
+     smtpDetails = await smtpConfig.findOne({companyId :companyId});
+    }else{
+      let companyId = await company.findOne({type : "Host"});
+      companyId = companyId._id
+      smtpDetails = await smtpConfig.findOne({companyId :companyId})
+    }
+
     if(!smtpDetails){
       return {
         response : "No Smtp details found for this company id"
@@ -18,7 +27,7 @@ const sendEmailOtp = async (req, res) => {
     const currentTime = new Date();
     let deletePreviousResult  = await varifyOtp.deleteMany({otpExpireTime: { $lt: currentTime } ,otpFor : type, typeName : typeName, status : true });
     let otpSent = await FUNC.sendOtpOnEmail(typeName, generateOtp, smtpDetails);
-    console.log(otpSent , "===========================")
+   // console.log(otpSent , "===========================")
     const saveOtpData = new varifyOtp({
       otpFor: type,
       typeName: typeName,
@@ -53,7 +62,7 @@ const varifyOtpEmailOtp = async (req, res) => {
       otpFor: type,
       status: true,
     });
-    console.log(otpData, "<<<================>>>")
+    //console.log(otpData, "<<<================>>>")
     if(!otpData){
       return {
         response : 'Please send otp again'

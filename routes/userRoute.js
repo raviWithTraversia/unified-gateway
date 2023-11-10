@@ -494,8 +494,19 @@ user_route.post(
 user_route.get(
     '/user/varifyToken',
     userController.varifyTokenForForgetPassword
+);
+
+user_route.post(
+    '/user/addUser',
+    auth,
+    userController.addUser
 )
 
+user_route.patch(
+    '/user/editUser',
+    auth,
+    userController.editUser
+);
 
 user_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

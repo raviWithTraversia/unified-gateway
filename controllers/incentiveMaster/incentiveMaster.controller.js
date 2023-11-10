@@ -1,16 +1,16 @@
-const PLBMasterService = require('./plbMaster.service');
+const IncentiveMasterService = require('./incentiveMaster.service');
 const {apiSucessRes , apiErrorres} = require('../../utils/commonResponce');
 const { ServerStatusCode, errorResponse, CrudMessage } = require('../../utils/constants');
 
-const storePLBMaster = async(req ,res) => {
+const storeIncentiveMaster = async(req ,res) => {
     try {
-        const result = await PLBMasterService.addPLBMaster(req);
+        const result = await IncentiveMasterService.addIncentiveMaster(req);
         if (result.response == 'Company Id is required') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         } else {
             apiSucessRes(
                 res,
-                CrudMessage.CREATE_PLBMASTER,
+                CrudMessage.CREATE_INCENTIVE_MASTER,
                 result.response,
                 ServerStatusCode.SUCESS_CODE
             )
@@ -25,9 +25,9 @@ const storePLBMaster = async(req ,res) => {
 }
 
 
-const getPLBMasterList = async(req ,res) => {
+const getIncentiveMasterList = async(req ,res) => {
     try {
-        const result = await PLBMasterService.getPLBMaterByPLBType(req);
+        const result = await IncentiveMasterService.getIncentiveMaster(req);
         apiSucessRes(
             res,
             result.response,
@@ -44,16 +44,16 @@ const getPLBMasterList = async(req ,res) => {
 }
 
 
-const updatePLBMaster = async (req, res) => {
+const updateIncentiveMaster = async (req, res) => {
     try {
-        const result = await PLBMasterService.PLBMasterUpdate(req);
+        const result = await IncentiveMasterService.incentiveMasterUpdate(req);
         if(result.response == 'Company Id is required') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         }
         else {
             apiSucessRes(
                 res,
-                CrudMessage.UPDATE_PLBMASTER,
+                CrudMessage.UPDATE_INCENTIVE_MASTER,
                 result.response,
                 ServerStatusCode.SUCESS_CODE
             )
@@ -67,13 +67,13 @@ const updatePLBMaster = async (req, res) => {
     }
 }
 
-const deletePLBMaster = async (req, res) => {
+const deleteIncentiveMaster = async (req, res) => {
     try {
 
-        const result = await PLBMasterService.removePLBMaster(req);
+        const result = await IncentiveMasterService.removeIncentiveMaster(req);
         apiSucessRes(
             res,
-            CrudMessage.DELETE_PLBMASTER,
+            CrudMessage.DELETE_INCENTIVE_MASTER,
             result.response,
             ServerStatusCode.SUCESS_CODE
         ) 
@@ -87,15 +87,15 @@ const deletePLBMaster = async (req, res) => {
     }
 }
 
-const copyPLBMaster = async(req ,res) => {
+const copyIncentiveMaster = async(req ,res) => {
     try {
-        const result = await PLBMasterService.CopyPLBMaster(req);
+        const result = await IncentiveMasterService.CopyIncentiveMaster(req);
         if (result.response == 'PLB Master id not exist') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         } else {
             apiSucessRes(
                 res,
-                CrudMessage.COPY_PLB,
+                CrudMessage.COPY_INCENTIVE_MASTER,
                 result.response,
                 ServerStatusCode.SUCESS_CODE
             )
@@ -110,9 +110,9 @@ const copyPLBMaster = async(req ,res) => {
 }
 
 module.exports = {
-    storePLBMaster,
-    getPLBMasterList,
-    updatePLBMaster,
-    deletePLBMaster,
-    copyPLBMaster
+    storeIncentiveMaster,
+    getIncentiveMasterList,
+    updateIncentiveMaster,
+    deleteIncentiveMaster,
+    copyIncentiveMaster
 }

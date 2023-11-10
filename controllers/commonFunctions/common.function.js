@@ -211,6 +211,39 @@ const sendOtpOnPhone = async (recipientPhone, otp) => {
   }
 };
 
+const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSubject,otp) => {
+  const transporter = nodemailer.createTransport({
+    host: smtpDetails.host, // SMTP server hostname or IP address
+    port: smtpDetails.port, // Port number for SMTP with STARTTLS
+    secure: false, // Set to false when using STARTTLS
+    auth: {
+      user: smtpDetails.userName,
+      pass: smtpDetails.password, // Verify the password for leading/trailing spaces
+    },
+  });
+
+  // Email content
+  const mairlOptions = {
+    from: smtpDetails.emailFrom,
+    to: recipientEmail,
+    subject: `${mailSubject}`,
+    html : { path: '' },
+    text: `${mailText}`,
+  };
+
+  // Send the email
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`OTP sent to ${recipientEmail}`);
+    return {
+      responce: "OTP sent",
+    };
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   createToken,
   securePassword,
@@ -226,4 +259,5 @@ module.exports = {
   sendOtpOnEmail,
   sendOtpOnPhone,
   sendOtpOnPhone,
+  commonEmailFunction
 };

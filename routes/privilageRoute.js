@@ -204,4 +204,11 @@ privilage_route.patch(
     PrivilageController.updatePrivilagePlan
     )
 
+
+privilage_route.patch(
+    '/privilage/privilage-isdefault-update/:privilagePlanId',
+    auth,
+    PrivilageController.isDefaultPrivilagePlan
+)    
+
 module.exports = privilage_route;

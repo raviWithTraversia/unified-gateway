@@ -29,8 +29,13 @@ const addBankDetails = async (bankDetailsData, file) => {
         contentType: file.mimetype,
       },
     });
-  
- let  savedBankDetails = await newBankDetails.save();
+    let checkIsAcountAlreadyExist = await bankDetail.findOne({accountNumber});
+    if(checkIsAcountAlreadyExist){
+      return {
+        response : "This account number alrady exist"
+      }
+    }
+    let  savedBankDetails = await newBankDetails.save();
     if(savedBankDetails){
         return {
             response : "Bank Details Added sucessfully",
@@ -51,10 +56,10 @@ const addBankDetails = async (bankDetailsData, file) => {
   
 const getCompanyBankDetalis = async (req,res) => {
     try{
-        const comapnyId = req.params.comapnyId;
+      const {companyId} = req.query; 
 
-        let bankDetails = await bankDetail.find({ companyId : comapnyId });
-        if(!bankDetails){
+        let bankDetails = await bankDetail.find({ companyId : companyId });
+        if(!bankDetails || bankDetails.length === 0){
             return {
                 response : 'No any Bank details added for this company'
             }
@@ -74,14 +79,58 @@ const getCompanyBankDetalis = async (req,res) => {
 const updateBankDetails = async (req,res) => {
     try{
          
+      const bankDetailsId = req.query.id; 
+      const updateData = req.body; 
+
+    const updatedBankDetails = await bankDetail.findByIdAndUpdate(
+      bankDetailsId,
+      { $set: updateData },
+      { new: true }
+    );
+  //  console.log(updatedBankDetails)
+    if(updatedBankDetails){
+      return {
+        response : 'Bank details updated sucessfully',
+        data : updatedBankDetails
+      }
+    }else{
+      return {
+        response : 'Failed to update bank details',
+        data : updatedBankDetails
+      }
+    }
        
     }
-    catch{
-
+    catch(error){
+       console.log(error);
+       throw error
     }
 }
 
+const deleteBankDetails = async (req,res) => {
+  try{
+    const { bankDetailsId } = req.query; 
+    //console.log(bankDetailsId , "<<<<<<<<<<==================>>>>>>>>>>>>>>>>")
+    const deletedBankDetails = await bankDetail.findByIdAndRemove(bankDetailsId);
+    if(deletedBankDetails){
+      return {
+        response : 'Bank details deleted successfully',
+         data: deletedBankDetails
+      }
+    }
+    else{
+      return {
+        response : 'Bank details not found'
+      }
+    }
+  }catch(error){
+     console.log(error);
+     throw error
+  }
+}
 module.exports = {
     addBankDetails ,
-    getCompanyBankDetalis
+    getCompanyBankDetalis,
+    updateBankDetails,
+    deleteBankDetails
 }

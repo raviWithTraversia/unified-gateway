@@ -362,12 +362,9 @@ const userInsert = async (req, res) => {
 
 const forgotPassword = async (req, res) => {
   const { email, companyId } = req.body;
-
   try {
     // Find the user by email
-
     const resetToken = Math.random().toString(36).slice(2);
-
     // Find the user by email and update the reset token
     const user = await User.findOneAndUpdate(
       { email },
@@ -379,7 +376,6 @@ const forgotPassword = async (req, res) => {
         response: "User not found",
       };
     }
-
     const comapnyIds = !companyId ? user?.company_ID : companyId;
     let mailConfig = await Smtp.findOne({ companyId : comapnyIds });
     // if not mailconfig then we send their parant mail config
@@ -505,7 +501,7 @@ const changePassword = async (req, res) => {
 
 const addUser = async (req,res) => {
   try{
-    console.log(req.user, "<<<<<<<<<<<<++++++++++++++++>>>>>>>>>>>>>>>>>>>>>>");
+  //  console.log(req.user, "<<<<<<<<<<<<++++++++++++++++>>>>>>>>>>>>>>>>>>>>>>");
     let requiredFeild = [
        'title',
        'firstName',

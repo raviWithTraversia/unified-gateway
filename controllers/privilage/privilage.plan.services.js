@@ -228,10 +228,29 @@ const privilagePlanPatch = async(req , res) => {
 }
 
 
+const privilagePlanAssignIsDefault = async(req ,res) => {
+    try {
+        const {companyId} = req.body;
+        const _id = req.params.privilagePlanId;
+
+         await PrivilagePlan.updateMany({ companyId }, { IsDefault: false });
+
+        const result = await PrivilagePlan.findByIdAndUpdate( _id , {IsDefault : true }, { new: true });
+
+        return {
+            response : 'Privilage plan define as IsDefault updated successfully'
+        }
+    } catch (error) {
+        throw error
+    }
+}
+
+
 module.exports = {
     addPrivilagePlan , 
     getPrivilageList , 
     getPrivilagePlanByProductPlanId ,
     privilagePHPByPrivilageId,
-    privilagePlanPatch
+    privilagePlanPatch,
+    privilagePlanAssignIsDefault
 }

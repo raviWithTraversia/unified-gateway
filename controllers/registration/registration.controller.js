@@ -148,6 +148,7 @@ const getAllRegistrationByCompany = async (req,res) => {
             errorResponse.SOMETHING_WRONG,
             ServerStatusCode.SERVER_ERROR,
             true 
+         
             )
 
     }

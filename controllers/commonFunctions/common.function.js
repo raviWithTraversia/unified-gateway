@@ -27,12 +27,12 @@ const securePassword = async (password) => {
 const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig , user) => {
   // Create a Nodemailer transporter using your email service provider's SMTP settings
   const transporter = nodemailer.createTransport({
-    host: mailConfig.host, // SMTP server hostname or IP address
-    port: mailConfig.port, // Port number for SMTP with STARTTLS
-    secure: false, // Set to false when using STARTTLS
+    host: mailConfig.host, 
+    port: mailConfig.port, 
+    secure: false, 
     auth: {
       user: mailConfig.userName,
-      pass: mailConfig.password, // Verify the password for leading/trailing spaces
+      pass: mailConfig.password, 
     },
   });
 

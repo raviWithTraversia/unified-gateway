@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const emailSchema = new mongoose.Schema({  // Changed mongoose.schema to mongoose.Schema
 
     companyId: {
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'company'
     },
     EmailConfigDescriptionId: {
         type: mongoose.Schema.Types.ObjectId,

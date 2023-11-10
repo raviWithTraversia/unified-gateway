@@ -32,7 +32,38 @@ const dashBoardCount = async (req , res) => {
 
 
 
-module.exports = {
-    dashBoardCount
+const checkPanCardDataExist = async(req ,res) => {
+  try{
+    const result = await layoutService.checkPanCard(req,res);
+    if(result.response === 'All fields are required'){
+      apiErrorres(
+        res,
+        errorResponse.NOT_AVALIABLE,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+    )
+    }else{
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE  
+    )
+    }
+  }
+  catch(error){
+      apiErrorres(
+          res,
+          error,
+          ServerStatusCode.SERVER_ERROR,
+          true 
+      )
+  }
+}
 
+
+
+module.exports = {
+    dashBoardCount,
+    checkPanCardDataExist
 }

@@ -71,17 +71,60 @@ const checkPanCard = async (req, res) => {
         }
       });
   
-      return {
-        response : "Data Fetch Sucessfully",
-        data: responseData.data  
-      };
+      if(responseData){
+        return {
+          response : "Data Fetch Sucessfully",
+          data: responseData.data  
+        };
+      }else{
+          return {
+              response : "Some Error in 3rd party api"
+          }
+      }
     } catch (error) {
       throw error;
     }
   };
+  const checkGstin = async (req,res) => {
+    try{
+        const { gstNumber } = req.body;
+        
+      if (!gstNumber) {
+        return {
+          response: "GST number is required"
+        };
+      }
+  
+      const apiUrl = Config.GST_URL;
+      const headers = Config.HADDER_3RD_PAERT;
+  
+      const responseData = await axios.post(apiUrl,null,{
+        headers,
+        params: {
+          gst_number: gstNumber
+        }
+      });
+       
+      if(responseData){
+      return {
+        response : "Data Fetch Sucessfully",
+        data: responseData.data  
+      };
+    }else{
+        return {
+            response : "Some Error"
+        }
+    }
+    }
+    catch(error){
+        console.log(error);
+        throw error 
+    }
+  }
   
 
 module.exports = {
     dashBoardCount,
-    checkPanCard
+    checkPanCard,
+    checkGstin
 }

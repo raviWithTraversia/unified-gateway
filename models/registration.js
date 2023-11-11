@@ -79,7 +79,6 @@ const registrationSchema = new mongoose.Schema({
     },
     isIATA: {
         type : Boolean,
-        required : true,
         default : false
     }
 },{

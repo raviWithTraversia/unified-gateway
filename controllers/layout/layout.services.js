@@ -1,5 +1,7 @@
 const registration = require('../../models/Registration');
 const creditRequest = require('../../models/CreditRequest');
+const axios = require('axios');
+const { Config } = require("../../configs/config");
 
 
 const dashBoardCount  = async (req,res) => {
@@ -49,8 +51,37 @@ const dashBoardCount  = async (req,res) => {
     }
 };
 
-
+const checkPanCard = async (req, res) => {
+    try {
+      const { panNumber } = req.body;
+  
+      if (!panNumber) {
+        return {
+          response: "PAN number is required"
+        };
+      }
+  
+      const apiUrl = Config.PAN_URL;
+      const headers = Config.HADDER_3RD_PAERT;
+  
+      const responseData = await axios.post(apiUrl,null,{
+        headers,
+        params: {
+          pan_number: panNumber
+        }
+      });
+  
+      return {
+        response : "Data Fetch Sucessfully",
+        data: responseData.data  
+      };
+    } catch (error) {
+      throw error;
+    }
+  };
+  
 
 module.exports = {
-    dashBoardCount
+    dashBoardCount,
+    checkPanCard
 }

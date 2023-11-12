@@ -10,12 +10,12 @@ layout_route.get(
     '/layout/Count',
     layoutController.dashBoardCount
 );
-layout_route.get(
+layout_route.post(
     '/layout/pancard',
     layoutController.checkPanCard
 )
 
-layout_route.get(
+layout_route.post(
     '/layout/gstnumber',
     layoutController.checkGstin
 )

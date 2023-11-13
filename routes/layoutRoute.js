@@ -10,7 +10,10 @@ layout_route.get(
     '/layout/Count',
     layoutController.dashBoardCount
 );
-
+layout_route.get(
+    '/layout/pancard',
+    layoutController.checkPanCard
+)
 
 
 layout_route.get('/test',auth, function(req, res){

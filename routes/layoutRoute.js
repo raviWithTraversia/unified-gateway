@@ -10,11 +10,15 @@ layout_route.get(
     '/layout/Count',
     layoutController.dashBoardCount
 );
-layout_route.get(
+layout_route.post(
     '/layout/pancard',
     layoutController.checkPanCard
 )
 
+layout_route.post(
+    '/layout/gstnumber',
+    layoutController.checkGstin
+)
 
 layout_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

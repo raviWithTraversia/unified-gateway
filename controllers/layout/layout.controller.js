@@ -40,7 +40,15 @@ const checkPanCard = async (req,res) => {
         result.data,
         ServerStatusCode.SUCESS_CODE  
     )
-    }else if(result.response === '"PAN number is required"'){
+    }else if(result.response === "Some Error in 3rd party api"){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      )
+    }
+    else if(result.response === "PAN number is required"){
       apiErrorres(
         res,
         result.response,
@@ -66,8 +74,54 @@ const checkPanCard = async (req,res) => {
   }
 }
 
+const checkGstin = async (req,res) => {
+  try{
+    const result = await layoutService.checkGstin(req,res);
+    if(result.response === "Data Fetch Sucessfully"){
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE  
+    )
+    }else if(result.response === "Some Error in 3rd party api"){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      )
+    }
+    else if(result.response === "GST mber is required"){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      )
+    }
+    else{
+      apiErrorres(
+        res,
+        errorResponse.NOT_AVALIABLE,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      )
+    }
+  }catch(error){
+    apiErrorres(
+      res,
+      error,
+      ServerStatusCode.SERVER_ERROR,
+      true 
+  )
+  }
+}
+
+
 module.exports = {
     dashBoardCount,
-    checkPanCard
+    checkPanCard,
+    checkGstin
 
 }

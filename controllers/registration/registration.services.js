@@ -54,17 +54,13 @@ const fieldNames = [
    
   }
 
-  let isValidsaleInChargeId = FUNC.checkIsValidId(saleInChargeId);
   let iscountry = FUNC.checkIsValidId(country);
   let isState = FUNC.checkIsValidId(state);
   let isroleId = FUNC.checkIsValidId(roleId);
 
- 
-  if(isValidsaleInChargeId === "Invalid Mongo Object Id"){
-     return {
-        response : "Sale incharge Id is not valid"
-     }
-  }
+ if(saleInChargeId == "" || saleInChargeId == '' || !saleInChargeId){
+  saleInChargeId = null;
+ }
 
   if(iscountry === "Invalid Mongo Object Id"){
     return {

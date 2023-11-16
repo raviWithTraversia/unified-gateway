@@ -54746,21 +54746,21 @@ const seedCity = async () => {
                 const countryCode = element.country_code
                 const stateCode = element.state_code
                 const findCountry =  await Country.findOne({countryCode : countryCode});
-                const findState =  await State.findOne({stateCode : stateCode});
-
-                // if(findCountry)  {
+                const findState =  await State.findOne({stateCode : stateCode , country_code: countryCode});
+                if(findState) {
                     const insertData = new City({
                         name : element.name,
                         stateId : findState._id,
-                        stateCode : element.state_code,
+                        state_code : findState.stateCode,
                         state_name : element.state_name,
                         countryId : findCountry._id,
                         country_code : element.country_code,
                         country_name : element.country_name,
                         longitude : element.longitude
                     });
+                    
                     await insertData.save();
-                // }
+                }
             });
             // await State.create(contryData);
             console.log('city table seeded successfully.');

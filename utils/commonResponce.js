@@ -18,8 +18,7 @@ const apiErrorres = (res,message,code, error) => {
         IsSucess : false,
         Message: message,
         ResponseStatusCode : code,
-        Error: error,
-
+        Error: error
     })
 }
 const status = {

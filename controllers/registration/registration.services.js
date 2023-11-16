@@ -1,6 +1,8 @@
 const registration = require('../../models/Registration');
 const FUNC = require('../../controllers/commonFunctions/common.function');
 const status = require('../../models/Registration');
+const Company = require("../../models/Company");
+const Smtp = require("../../models/smtp");
 
 const addRegistration = async(req,res) => {
  try {
@@ -123,10 +125,17 @@ const newRegistration = new registration({
         gstNumber,
         ...isIATA
 });
-let newRegistrationRes  =await newRegistration.save();
+let newRegistrationRes  = await newRegistration.save();
+console.log(newRegistrationRes);
+let comapnyIds =  companyId;
+let mailConfig = await Smtp.findOne({ companyId : comapnyIds });
+let mailText  = newRegistrationRes;
+let mailSubject = `New registration created successfully`
 if(newRegistrationRes){
+ let mailRes =  await FUNC.commonEmailFunction(email,mailConfig,mailText,mailSubject);
+// console.log(mailRes, "==============================");
 return {
-    response : `New registration created successfully`,
+    response : `${mailSubject}`,
     data : newRegistration
 }
 }else{
@@ -247,7 +256,6 @@ const getAllRegistrationByCompany = async(req,res) => {
   ]);
   
 
-   // console.log(aggregrationRes, "<<<<<<<<==============>>>>>>>");
 
     if(!aggregrationRes){
         return {

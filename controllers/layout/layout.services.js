@@ -85,7 +85,8 @@ const checkPanCard = async (req, res) => {
       throw error;
     }
   };
-  const checkGstin = async (req,res) => {
+
+const checkGstin = async (req,res) => {
     try{
         const { gstNumber } = req.body;
         
@@ -96,7 +97,7 @@ const checkPanCard = async (req, res) => {
       }
   
       const apiUrl = Config.GST_URL;
-      const headers = Config.HADDER_3RD_PAERT;
+      const headers = Config.GST_TOKEN;
   
       const responseData = await axios.post(apiUrl,null,{
         headers,
@@ -121,8 +122,6 @@ const checkPanCard = async (req, res) => {
         throw error 
     }
   }
-  
-
 module.exports = {
     dashBoardCount,
     checkPanCard,

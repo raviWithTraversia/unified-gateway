@@ -24,7 +24,7 @@ const securePassword = async (password) => {
 };
 
 // Function to send a password reset email
-const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig , user) => {
+const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig , user, basrUrl) => {
   // Create a Nodemailer transporter using your email service provider's SMTP settings
   const transporter = nodemailer.createTransport({
     host: mailConfig.host, 
@@ -42,7 +42,7 @@ const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig , use
     to: recipientEmail,
     subject: "Password Reset Request",
     text: `Click the following link to reset your password:
-             ${Config.BASE_URL}user/varifyToken?token=${resetToken}&userId=${user._id}`,
+             ${basrUrl}/user/varifyToken?token=${resetToken}&userId=${user._id}`,
   };
 
   // Send the email
@@ -211,7 +211,7 @@ const sendOtpOnPhone = async (recipientPhone, otp) => {
   }
 };
 
-const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSubject,otp) => {
+const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSubject) => {
   const transporter = nodemailer.createTransport({
     host: smtpDetails.host, // SMTP server hostname or IP address
     port: smtpDetails.port, // Port number for SMTP with STARTTLS
@@ -223,20 +223,21 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSub
   });
 
   // Email content
-  const mairlOptions = {
+  const mailOptions = {
     from: smtpDetails.emailFrom,
     to: recipientEmail,
     subject: `${mailSubject}`,
-    html : { path: '' },
+    html: `<h1>${mailText}</h1>`,
     text: `${mailText}`,
   };
+
 
   // Send the email
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`OTP sent to ${recipientEmail}`);
+    console.log(`Mail sent to ${recipientEmail}`);
     return {
-      responce: "OTP sent",
+      responce: " Mail sent",
     };
   } catch (error) {
     console.error("Error sending OTP:", error);

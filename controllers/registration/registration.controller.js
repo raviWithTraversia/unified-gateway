@@ -184,7 +184,7 @@ const updateRegistration = async (req,res) => {
         }else {
             apiErrorres(
                 res,
-                 result,
+                result,
                 ServerStatusCode.SERVER_ERROR,
                 true 
             )

@@ -4,7 +4,7 @@ const registrationSchema = new mongoose.Schema({
     companyId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Company', 
-        required : true
+        default : '6538c030475692887584081e'
     },
     companyName: {
         type: String,
@@ -53,7 +53,6 @@ const registrationSchema = new mongoose.Schema({
     },
     street: {
         type: String,
-        required: true,
     },
     pincode: {
         type: String,

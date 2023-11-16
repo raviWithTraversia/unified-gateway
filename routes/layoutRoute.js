@@ -27,9 +27,9 @@ layout_route.get('/test',auth, function(req, res){
 
 
 // PanCard
-layout_route.post(
-    '/layout/pancard-detail',
-    layoutController.checkPanCardDataExist
-    )
+// layout_route.post(
+//     '/layout/pancard-detail',
+//     layoutController.checkPanCardDataExist
+//     )
 
 module.exports = layout_route;

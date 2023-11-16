@@ -1,5 +1,6 @@
 const registration = require('../../models/Registration');
-const FUNC = require('../../controllers/commonFunctions/common.function')
+const FUNC = require('../../controllers/commonFunctions/common.function');
+const status = require('../../models/Registration');
 
 const addRegistration = async(req,res) => {
  try {
@@ -53,17 +54,13 @@ const fieldNames = [
    
   }
 
-  let isValidsaleInChargeId = FUNC.checkIsValidId(saleInChargeId);
   let iscountry = FUNC.checkIsValidId(country);
   let isState = FUNC.checkIsValidId(state);
   let isroleId = FUNC.checkIsValidId(roleId);
 
- 
-  if(isValidsaleInChargeId === "Invalid Mongo Object Id"){
-     return {
-        response : "Sale incharge Id is not valid"
-     }
-  }
+ if(saleInChargeId == "" || saleInChargeId == '' || !saleInChargeId){
+  saleInChargeId = null;
+ }
 
   if(iscountry === "Invalid Mongo Object Id"){
     return {
@@ -145,7 +142,46 @@ return {
 
 const getAllRegistration = async(req,res) => {
     try{
-     let getAllRegistartion = await registration.find();
+    // let getAllRegistartion = await registration.find();
+    let getAllRegistartion =   await registration.aggregate([
+      {
+        $lookup: {
+          from: "status",
+          localField: "statusId",
+          foreignField: "_id",
+          as: "statusName"
+        }
+      },
+      {
+      $project: {
+      _id: 1,
+      companyId: 1,
+      companyName: 1,
+      panNumber: 1,
+      panName: 1,
+      firstName: 1,
+      lastName: 1,
+      saleInChargeId: 1,
+      email: 1,
+      mobile: 1,
+      gstNumber: 1,
+      gstName: 1,
+      gstAddress: 1,
+      street: 1,
+      pincode: 1,
+      country: 1,
+      state: 1,
+      city: 1,
+      remark: 1,
+      statusId: 1,
+      isIATA: 1,
+      createdAt: 1,
+      updatedAt: 1,
+          statusName: { name: { $arrayElemAt: ["$statusName.name", 0] } } // Projection for the '_id' field
+        }
+      }
+    ]);
+  
      return {
         response : "All registrationData fetch",
         data : getAllRegistartion
@@ -165,9 +201,55 @@ const getAllRegistrationByCompany = async(req,res) => {
             response : null,
             message : "Company Id not true"
         }
+    };
+   // const registrationData = await registration.find({companyId : comapnyId});
+
+   let aggregrationRes = await registration.aggregate([
+    { 
+      $match: { companyId: comapnyId } 
+    },
+    {
+      $lookup: {
+        from: "status",
+        localField: "statusId",
+        foreignField: "_id",
+        as: "statusName"
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        companyId: 1,
+        companyName: 1,
+        panNumber: 1,
+        panName: 1,
+        firstName: 1,
+        lastName: 1,
+        saleInChargeId: 1,
+        email: 1,
+        mobile: 1,
+        gstNumber: 1,
+        gstName: 1,
+        gstAddress: 1,
+        street: 1,
+        pincode: 1,
+        country: 1,
+        state: 1,
+        city: 1,
+        remark: 1,
+        statusId: 1,
+        isIATA: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        statusName: { name: { $arrayElemAt: ["$statusName.name", 0] } }
+      }
     }
-    const registrationData = await registration.find({companyId : comapnyId});
-    if(!registrationData){
+  ]);
+  
+
+   // console.log(aggregrationRes, "<<<<<<<<==============>>>>>>>");
+
+    if(!aggregrationRes){
         return {
             response : null,
             message : "Registration Data not found by this companyId"
@@ -176,11 +258,9 @@ const getAllRegistrationByCompany = async(req,res) => {
     else{
         return {
             response : "Registration data found sucessfully",
-            data : registrationData
+            data : aggregrationRes
         }
     }
-
-
    }catch(error){
     console.log(error);
     throw error;

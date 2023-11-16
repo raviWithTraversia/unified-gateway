@@ -1,7 +1,7 @@
 const registration = require('../../models/Registration');
 const creditRequest = require('../../models/CreditRequest');
 const axios = require('axios');
-
+const { Config } = require("../../configs/config");
 
 
 const dashBoardCount  = async (req,res) => {
@@ -51,37 +51,80 @@ const dashBoardCount  = async (req,res) => {
     }
 };
 
-
 const checkPanCard = async (req, res) => {
     try {
-      const { panNumber, companyId } = req.body;
+      const { panNumber } = req.body;
   
-      if (!panNumber || !companyId) {
-        return{
-          response: "All fields are required"
+      if (!panNumber) {
+        return {
+          response: "PAN number is required"
         };
       }
-     
-      const apiUrl = 'https://api.atlaskyc.com/v2/prod/verify/pan';
-      const headers = {
-        'Accept': 'application/json',
-        'Authorization': 'Basic ay0zNzU2OGVjOS0zNzBiLTRiMDctYTlkOS03MWNiYjViNGQxNjM6cy01YTExMGE0MS05MGE2LTQ1ZjItOTM3YS1iYzE2NzQ4ZWE3MzA='
-      };
   
-      const response = await axios.post(apiUrl, {pan_number :panNumber } , { headers: headers });
-      
-      return{
-        data: response.data
-      };
+      const apiUrl = Config.PAN_URL;
+      const headers = Config.HADDER_3RD_PAERT;
   
+      const responseData = await axios.post(apiUrl,null,{
+        headers,
+        params: {
+          pan_number: panNumber
+        }
+      });
+  
+      if(responseData){
+        return {
+          response : "Data Fetch Sucessfully",
+          data: responseData.data  
+        };
+      }else{
+          return {
+              response : "Some Error in 3rd party api"
+          }
+      }
     } catch (error) {
-     throw error
+      throw error;
     }
   };
+  const checkGstin = async (req,res) => {
+    try{
+        const { gstNumber } = req.body;
+        
+      if (!gstNumber) {
+        return {
+          response: "GST number is required"
+        };
+      }
   
-
+      const apiUrl = Config.GST_URL;
+      const headers = Config.HADDER_3RD_PAERT;
+  
+      const responseData = await axios.post(apiUrl,null,{
+        headers,
+        params: {
+          gst_number: gstNumber
+        }
+      });
+       
+      if(responseData){
+      return {
+        response : "Data Fetch Sucessfully",
+        data: responseData.data  
+      };
+    }else{
+        return {
+            response : "Some Error"
+        }
+    }
+    }
+    catch(error){
+        console.log(error);
+        throw error 
+    }
+  }
+  
 
 module.exports = {
     dashBoardCount,
-    checkPanCard
+    checkPanCard,
+    checkGstin
 }

@@ -44,7 +44,8 @@ const addIncentiveMaster= async(req, res) => {
 const getIncentiveMaster = async(req , res) => {
     try {
         const PLBType = req.params.PLBType;
-        const result = await IncentiveMaster.find({ PLBType: PLBType });
+        const companyId = req.params.companyId;
+        const result = await IncentiveMaster.find({ PLBType: PLBType  , companyId: companyId});
         if (result.length > 0) {
             return {
                 data: result

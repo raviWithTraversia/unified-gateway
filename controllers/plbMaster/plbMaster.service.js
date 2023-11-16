@@ -1,28 +1,26 @@
 const PLBMaster = require('../../models/PLBMaster');
 const commonFunction = require('../commonFunctions/common.function');
 const User = require('../../models/User');
+const PLBMasterHistory =require('../../models/PLBMasterHistory');
 
 const addPLBMaster = async(req, res) => {
     try {
         const {
             companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted
         } = req.body;
-
         if(!companyId) {
             return {
                 response : 'Company Id is required'
             }
         }
-
         const PLBData = new PLBMaster({
             companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted
         })
-        await PLBData.save();
+        const result =  await PLBData.save();
 
          // Log add 
          const doerId = req.user._id;
          const loginUser = await User.findById(doerId);
- 
          await commonFunction.eventLogFunction(
              'PLBMaster' ,
              doerId ,
@@ -31,6 +29,9 @@ const addPLBMaster = async(req, res) => {
              companyId , 
              'add PLB Master'
          );
+
+        //  History log PLB Master
+         logHistoryPLB(req , result);
 
         return {
             response: 'PLB Master save successfully'
@@ -44,7 +45,8 @@ const addPLBMaster = async(req, res) => {
 const getPLBMaterByPLBType = async(req , res) => {
     try {
         const PLBType = req.params.PLBType;
-        const result = await PLBMaster.find({ PLBType: PLBType });
+        const companyId = req.params.companyId;
+        const result = await PLBMaster.find({ PLBType: PLBType , companyId: companyId});
         if (result.length > 0) {
             return {
                 data: result
@@ -93,6 +95,9 @@ const PLBMasterUpdate = async(req, res) => {
              loginUser.companyId , 
              'updated PLB Master'
          );
+
+        // History update and create
+        PLBMasterUpdateHistory(req , _id);
 
         return {
             response : 'PLB Master updated successfully'
@@ -192,6 +197,238 @@ const CopyPLBMaster = async(req, res) => {
 
     } catch (error) {
         throw error;
+    }
+}
+
+// PLB Master log hostiry
+const logHistoryPLB = async(req , result ,res) => {
+    const {
+        companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted
+    } = req.body;
+    const newRemark = {};
+    if(origin) {
+        newRemark['origin'] = origin;
+    }
+    if(destination) {
+        newRemark['destination'] = destination;
+    }
+    if(supplierCode) {
+        newRemark['supplierCode'] = supplierCode;
+    }
+    if(airlineCode) {
+        newRemark['airlineCode'] = airlineCode;
+    }
+    if(cabinClass) {
+        newRemark['cabinClass'] = cabinClass;
+    }
+    if(rbd) {
+        newRemark['rbd'] = rbd;
+    }
+    if(PLBApplyOnBasefare) {
+        newRemark['PLBApplyOnBasefare'] = PLBApplyOnBasefare;
+    }
+    if(PLBApplyOnYQ) {
+        newRemark['PLBApplyOnYQ'] = PLBApplyOnYQ;
+    }
+    if(PLBApplyOnYR) {
+        newRemark['PLBApplyOnYR'] = PLBApplyOnYR;
+    }
+    if(PLBApplyOnTotalAmount) {
+        newRemark['PLBApplyOnTotalAmount'] = PLBApplyOnTotalAmount;
+    }
+    if(PLBApplyOnAllTAxes) {
+        newRemark['PLBApplyOnAllTAxes'] = PLBApplyOnAllTAxes;
+    }
+    if(minPrice) {
+        newRemark['minPrice'] = minPrice;
+    }
+    if(maxPrice) {
+        newRemark['maxPrice'] = maxPrice;
+    }
+    if(travelDateFrom) {
+        newRemark['travelDateFrom'] = travelDateFrom;
+    }
+    if(travelDateTo) {
+        newRemark['travelDateTo'] = travelDateTo;
+    }
+    if(PLBValue) {
+        newRemark['PLBValue'] = PLBValue;
+    }
+    if(PLBValueType) {
+        newRemark['PLBValueType'] = PLBValueType;
+    }
+    if(PLBType) {
+        newRemark['PLBType'] = PLBType;
+    }
+    if(createdBy) {
+        newRemark['createdBy'] = createdBy;
+    }
+    if(modifiedAt) {
+        newRemark['modifiedAt'] = modifiedAt;
+    }
+    if(modifiedBy) {
+        newRemark['modifiedBy'] = modifiedBy;
+    }
+    if(status) {
+        newRemark['status'] = status;
+    }
+    if(datefIssueFrom) {
+        newRemark['datefIssueFrom'] = datefIssueFrom;
+    }
+    if(datefIssueTo) {
+        newRemark['datefIssueTo'] = datefIssueTo;
+    }
+    if(fareFamily) {
+        newRemark['fareFamily'] = fareFamily;
+    }
+    if(deductTDS) {
+        newRemark['deductTDS'] = deductTDS;
+    }
+    if(isdeleted) {
+        newRemark['isdeleted'] = isdeleted;
+    }
+    
+    const PLBHistory = new PLBMasterHistory({
+        PLBMasterId : result._id,
+        companyId,
+        oldChanges : JSON.stringify(newRemark),
+        newChanges : JSON.stringify(newRemark),
+    });
+
+    await PLBHistory.save();
+}
+
+
+// update PLBMaster Data History
+const PLBMasterUpdateHistory = async(req , PLBMasterId ,res) => {
+
+    // GET PLB Master History Data
+    const oldRemark = {};
+    const newRemark = {};
+    const GetMasterHistory = await PLBMasterHistory.findOne({PLBMasterId : PLBMasterId});
+    const history = JSON.parse(GetMasterHistory.newChanges);
+    // console.log(GetMasterHistory);
+    // return false;
+    const {
+        companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted
+    } = req.body;
+    if(origin != history.origin) {
+        newRemark['origin'] = origin;
+        newRemark['origin'] = history.origin;
+    }
+    if(destination != history.destination) {
+        newRemark['destination'] = destination;
+        oldRemark['destination'] = history.destination;
+    }
+    if(supplierCode != history.supplierCode) {
+        newRemark['supplierCode'] = supplierCode;
+        oldRemark['supplierCode'] = history.supplierCode;
+    }
+    if(airlineCode != history.airlineCode) {
+        newRemark['airlineCode'] = airlineCode;
+        oldRemark['airlineCode'] = history.airlineCode;
+    }
+    if(cabinClass != history.cabinClass) {
+        newRemark['cabinClass'] = cabinClass;
+        oldRemark['cabinClass'] = history.cabinClass;
+    }
+    if(rbd != history.rbd) {
+        newRemark['rbd'] = rbd;
+        oldRemark['rbd'] = history.rbd;
+    }
+    if(PLBApplyOnBasefare != history.PLBApplyOnBasefare) {
+        newRemark['PLBApplyOnBasefare'] = PLBApplyOnBasefare;
+        oldRemark['PLBApplyOnBasefare'] = history.PLBApplyOnBasefare;
+    }
+    if(PLBApplyOnYQ != history.PLBApplyOnYQ) {
+        newRemark['PLBApplyOnYQ'] = PLBApplyOnYQ;
+        oldRemark['PLBApplyOnYQ'] = history.PLBApplyOnYQ;
+    }
+    if(PLBApplyOnYR != history.PLBApplyOnYR) {
+        newRemark['PLBApplyOnYR'] = PLBApplyOnYR;
+        oldRemark['PLBApplyOnYR'] = history.PLBApplyOnYR;
+    }
+    if(PLBApplyOnTotalAmount != history.PLBApplyOnTotalAmount) {
+        newRemark['PLBApplyOnTotalAmount'] = PLBApplyOnTotalAmount;
+        oldRemark['PLBApplyOnTotalAmount'] = history.PLBApplyOnTotalAmount;
+    }
+    if(PLBApplyOnAllTAxes != history.PLBApplyOnAllTAxes) {
+        newRemark['PLBApplyOnAllTAxes'] = PLBApplyOnAllTAxes;
+        oldRemark['PLBApplyOnAllTAxes'] = history.PLBApplyOnAllTAxes;
+    }
+    if(minPrice != history.minPrice) {
+        newRemark['minPrice'] = minPrice;
+        oldRemark['minPrice'] = history.minPrice;
+    }
+    if(maxPrice != history.maxPrice) {
+        newRemark['maxPrice'] = maxPrice;
+        oldRemark['maxPrice'] = history.maxPrice;
+    }
+    if(travelDateFrom != history.travelDateFrom) {
+        newRemark['travelDateFrom'] = travelDateFrom;
+        oldRemark['travelDateFrom'] = history.travelDateFrom;
+    }
+    if(travelDateTo != history.travelDateTo) {
+        newRemark['travelDateTo'] = travelDateTo;
+        oldRemark['travelDateTo'] = history.travelDateTo;
+    }
+    if(PLBValue != history.PLBValue) {
+        newRemark['PLBValue'] = PLBValue;
+        oldRemark['PLBValue'] = history.PLBValue;
+    }
+    if(PLBValueType != history.PLBValueType) {
+        newRemark['PLBValueType'] = PLBValueType;
+        oldRemark['PLBValueType'] = history.PLBValueType;
+    }
+    if(PLBType != history.PLBType) {
+        newRemark['PLBType'] = PLBType;
+        oldRemark['PLBType'] = history.PLBType;
+    }
+    if(createdBy != history.createdBy) {
+        newRemark['createdBy'] = createdBy;
+        oldRemark['createdBy'] = history.createdBy;
+    }
+    if(modifiedAt != history.modifiedAt) {
+        newRemark['modifiedAt'] = modifiedAt;
+        oldRemark['modifiedAt'] = history.modifiedAt;
+    }
+    if(modifiedBy != history.modifiedBy) {
+        newRemark['modifiedBy'] = modifiedBy;
+        oldRemark['modifiedBy'] = history.modifiedBy;
+    }
+    if(status != history.status) {
+        newRemark['status'] = status;
+        oldRemark['status'] = history.status;
+    }
+    if(datefIssueFrom != history.datefIssueFrom) {
+        newRemark['datefIssueFrom'] = datefIssueFrom;
+        oldRemark['datefIssueFrom'] = history.datefIssueFrom;
+    }
+    if(datefIssueTo != history.datefIssueTo) {
+        newRemark['datefIssueTo'] = datefIssueTo;
+        oldRemark['datefIssueTo'] = history.datefIssueTo;
+    }
+    if(fareFamily != history.fareFamily) {
+        newRemark['fareFamily'] = fareFamily;
+        oldRemark['fareFamily'] = history.fareFamily;
+    }
+    if(deductTDS != history.deductTDS) {
+        newRemark['deductTDS'] = deductTDS;
+        oldRemark['deductTDS'] = history.deductTDS;
+    }
+    if(isdeleted != history.isdeleted) {
+        newRemark['isdeleted'] = isdeleted;
+        oldRemark['isdeleted'] = history.isdeleted;
+    }
+    if(newRemark) {
+        const PLBHistory = new PLBMasterHistory({
+            PLBMasterId,
+            companyId,
+            oldChanges : JSON.stringify(oldRemark),
+            newChanges : JSON.stringify(newRemark),
+        });
+    
+        await PLBHistory.save();
     }
 }
 

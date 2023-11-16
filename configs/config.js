@@ -10,5 +10,9 @@ module.exports.Config = {
     HADDER_3RD_PAERT : {
         'Accept': 'application/json',
         'Authorization': 'Basic ay0zNzU2OGVjOS0zNzBiLTRiMDctYTlkOS03MWNiYjViNGQxNjM6cy01YTExMGE0MS05MGE2LTQ1ZjItOTM3YS1iYzE2NzQ4ZWE3MzA='
-      }
+      },
+    GST_TOKEN : {
+      'Accept' :  'application/json',
+      'Authorization': 'Basic ay0zNzU2OGVjOS0zNzBiLTRiMDctYTlkOS03MWNiYjViNGQxNjM6cy01YTExMGE0MS05MGE2LTQ1ZjItOTM3YS1iYzE2NzQ4ZWE3MzA='
+    }
 };

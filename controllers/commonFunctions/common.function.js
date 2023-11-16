@@ -211,7 +211,7 @@ const sendOtpOnPhone = async (recipientPhone, otp) => {
   }
 };
 
-const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSubject,otp) => {
+const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSubject) => {
   const transporter = nodemailer.createTransport({
     host: smtpDetails.host, // SMTP server hostname or IP address
     port: smtpDetails.port, // Port number for SMTP with STARTTLS
@@ -223,20 +223,21 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSub
   });
 
   // Email content
-  const mairlOptions = {
+  const mailOptions = {
     from: smtpDetails.emailFrom,
     to: recipientEmail,
     subject: `${mailSubject}`,
-    html : { path: '' },
+    html: `<h1>${mailText}</h1>`,
     text: `${mailText}`,
   };
+
 
   // Send the email
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`OTP sent to ${recipientEmail}`);
+    console.log(`Mail sent to ${recipientEmail}`);
     return {
-      responce: "OTP sent",
+      responce: " Mail sent",
     };
   } catch (error) {
     console.error("Error sending OTP:", error);

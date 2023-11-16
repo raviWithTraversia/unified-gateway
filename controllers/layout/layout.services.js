@@ -69,8 +69,7 @@ const checkPanCard = async (req, res) => {
       };
   
       const response = await axios.post(apiUrl, {pan_number :panNumber } , { headers: headers });
-  
-      console.log(response.data);
+      
       return{
         data: response.data
       };

@@ -7,6 +7,7 @@ const Smtp = require("../../models/smtp");
 const Role = require("../../models/Role");
 const {TMC_ROLE ,DISTRIBUTER_ROLE,HOST_ROLE} = require("../../utils/constants");
 const { response } = require("../../routes/registrationRoute");
+const webMaster = require("../../models/WebsiteManager");
 
 
 const registerUser = async (req, res) => {
@@ -159,11 +160,6 @@ const userInsert = async (req, res) => {
       "userStatus",
       "userPanName",
       "userPanNumber",
-      "created_Date",
-      "lastModifiedDate",
-      "userModifiedBy",
-      "last_LoginDate",
-      "activation_Date",
       "sex",
       "dob",
       "nationality",
@@ -327,11 +323,6 @@ const userInsert = async (req, res) => {
       userStatus,
       userPanName,
       userPanNumber,
-      created_Date,
-      lastModifiedDate,
-      userModifiedBy,
-      last_LoginDate,
-      activation_Date,
       sex,
       dob,
       nationality,
@@ -385,6 +376,8 @@ const forgotPassword = async (req, res) => {
       mailConfig = await Smtp.find({ companyId: parentCompanyId });
       mailConfig = mailConfig[0];
     }
+    let basrUrl = await webMaster.findOne({companyId : comapnyIds})
+    basrUrl = basrUrl.websiteURL;
    // console.log(mailConfig, "================>>>>>>>>>>>>>>>>");
     // Send a password reset email to the user
 
@@ -392,7 +385,8 @@ const forgotPassword = async (req, res) => {
       email,
       resetToken,
       mailConfig,
-      user
+      user,
+      basrUrl
     );
     if (forgetPassWordMail.response == "Password reset email sent"||  forgetPassWordMail.data == true) {
       return {

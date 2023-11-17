@@ -2,6 +2,7 @@ const registration = require('../../models/Registration');
 const creditRequest = require('../../models/CreditRequest');
 const axios = require('axios');
 const { Config } = require("../../configs/config");
+const axiosRetry = require('axios-retry');
 
 
 const dashBoardCount  = async (req,res) => {
@@ -84,7 +85,7 @@ const checkPanCard = async (req, res) => {
     } catch (error) {
       throw error;
     }
-  };
+};
 
 const checkGstin = async (req,res) => {
     try{
@@ -121,7 +122,8 @@ const checkGstin = async (req,res) => {
         console.log(error);
         throw error 
     }
-  }
+};
+
 module.exports = {
     dashBoardCount,
     checkPanCard,

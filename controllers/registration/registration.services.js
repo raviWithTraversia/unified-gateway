@@ -1,6 +1,6 @@
 const registration = require('../../models/Registration');
 const FUNC = require('../../controllers/commonFunctions/common.function');
-const status = require('../../models/Registration');
+const status = require('../../models/status');
 const Company = require("../../models/Company");
 const Smtp = require("../../models/smtp");
 
@@ -25,8 +25,13 @@ let {
       roleId ,
       gstNumber,
       gstName,
-      gstAddress,
-      isIATA
+      gstAddress_1,
+      isIATA,
+      gstAddress_2,
+      gstState,
+      gstPinCode,
+      gstCity
+      
          } = req.body;
 
 const fieldNames = [
@@ -120,20 +125,24 @@ const newRegistration = new registration({
         city, 
         remark, 
         roleId,
-        gstAddress,
         gstName,
         gstNumber,
-        ...isIATA
+        ...isIATA,
+        ...gstCity,
+        ...gstAddress_1,
+        ...gstAddress_2,
+        ...gstState,
+        ...gstPinCode,
 });
 let newRegistrationRes  = await newRegistration.save();
-console.log(newRegistrationRes);
+//console.log(newRegistrationRes);
 let comapnyIds =  companyId;
 let mailConfig = await Smtp.findOne({ companyId : comapnyIds });
 let mailText  = newRegistrationRes;
 let mailSubject = `New registration created successfully`
 if(newRegistrationRes){
  let mailRes =  await FUNC.commonEmailFunction(email,mailConfig,mailText,mailSubject);
-// console.log(mailRes, "==============================");
+ //console.log(mailRes, "==============================");
 return {
     response : `${mailSubject}`,
     data : newRegistration

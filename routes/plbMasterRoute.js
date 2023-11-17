@@ -13,7 +13,7 @@ plb_route.post(
 );
 
 plb_route.get(
-    '/plb/get-plb-by-plb-types/:PLBType',
+    '/plb/get-plb-by-plb-types/:PLBType/:companyId',
     auth,
     PLBMaster.getPLBMasterList
 )

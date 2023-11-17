@@ -13,7 +13,7 @@ incentive_master_route.post(
 );
 
 incentive_master_route.get(
-    '/incentive/get-incentive-master-by-plb-types/:PLBType',
+    '/incentive/get-incentive-master-by-plb-types/:PLBType/:companyId',
     auth,
     IncentiveMaster.getIncentiveMasterList
 )

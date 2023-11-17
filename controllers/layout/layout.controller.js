@@ -123,5 +123,4 @@ module.exports = {
     dashBoardCount,
     checkPanCard,
     checkGstin
-
 }

@@ -3,6 +3,7 @@ const FUNC = require('../../controllers/commonFunctions/common.function');
 const status = require('../../models/status');
 const Company = require("../../models/Company");
 const Smtp = require("../../models/smtp");
+const { ObjectId } = require('mongodb');
 
 const addRegistration = async(req,res) => {
  try {
@@ -127,12 +128,12 @@ const newRegistration = new registration({
         roleId,
         gstName,
         gstNumber,
-        ...isIATA,
-        ...gstCity,
-        ...gstAddress_1,
-        ...gstAddress_2,
-        ...gstState,
-        ...gstPinCode,
+        isIATA : isIATA || false ,
+        gstCity : gstCity || null,
+        gstAddress_1 : gstAddress_1 || null,
+        gstAddress_2 : gstAddress_2 || null,
+        gstState : gstState || null,
+        gstPinCode:gstPinCode || null ,
 });
 let newRegistrationRes  = await newRegistration.save();
 //console.log(newRegistrationRes);
@@ -303,14 +304,56 @@ const updateRegistration = async (req,res) => {
         }
       }
   );
-  if(!updateRegistration){
-    return {
-      response : 'Registration data is not updated'
-    }
+  ///console.log(updateRegistration , "<<<<<<<<<<<+++++++++>>>>>>>>>>>>>>>>>>>>>>>>")
+  if(updateRegistration){
+    let registrationIds = new ObjectId(registrationId);  
+    let comapnyId = updateRegistration.companyId;
+    let mailSubject = `Registration status change successfully`;
+    let mailConfig = await Smtp.findOne({ companyId : comapnyId });
+    let mailText  =  await registration.aggregate([
+      {
+        $match: {
+          _id: registrationIds
+        }
+      },
+      {
+        $lookup: {
+          from: "status",
+          localField: "statusId",
+          foreignField: "_id",
+          as: "statusName"
+        }
+      },
+      {
+        $project: {
+          companyName: 1,
+          firstName: 1,
+          lastName: 1,
+          email: 1,
+          mobile: 1,
+          street: 1,
+          pincode: 1,
+          statusName: { name: { $arrayElemAt: ["$statusName.name", 0] } } // Projection for the 'name' field
+        }
+      }
+    
+    ]);
+    ///console.log(regData[0].statusName, "?????????????????????????????????????????????","==========>>>>>>>>>>>>>>>>>>>");
+   // let  { companyName, firstName, lastName, email, mobile, statusName : [{name}] } = regData[0];
+   // console.log("companyName",companyName, "firstName", firstName, "lastName",lastName,"email", email, "mobile",mobile, "statusName",name)
+    let mailSent = FUNC.commonEmailFunctionOnRegistrationUpdate(mailText[0].email,mailConfig,mailText,mailSubject)
+   // console.log(statusData , "<<<===========" ,comapnyId )
+   if(mailSent.responce){
+    console.log("Mail Sent ")
+   }
+   return {
+    response : 'Registration data updated sucessfully'
+  }
+   
   }
   else{
     return {
-      response : 'Registration data updated sucessfully'
+      response : 'Registration data is not updated'
     }
   }
     

@@ -6,8 +6,10 @@ const { Status } = require("../../utils/constants");
 const Smtp = require("../../models/smtp");
 const Role = require("../../models/Role");
 const {TMC_ROLE ,DISTRIBUTER_ROLE,HOST_ROLE} = require("../../utils/constants");
-const { response } = require("../../routes/registrationRoute");
 const webMaster = require("../../models/WebsiteManager");
+const Registration = require('../../models/Registration');
+const { object } = require("joi");
+
 
 
 const registerUser = async (req, res) => {
@@ -223,11 +225,6 @@ const userInsert = async (req, res) => {
       userStatus,
       userPanName,
       userPanNumber,
-      created_Date,
-      lastModifiedDate,
-      userModifiedBy,
-      last_LoginDate,
-      activation_Date,
       sex,
       dob,
       nationality,
@@ -257,7 +254,6 @@ const userInsert = async (req, res) => {
       };
     }
 
-    // Create a new Company document
     const newCompany = new Company({
       companyName,
       parent,
@@ -279,11 +275,17 @@ const userInsert = async (req, res) => {
       HSN_SAC_Code,
       hierarchy_Level,
       pan_upload,
+      gstState: gstState || null,
+      gstPinCode : gstPinCode || null,
+      gstCity : gstCity || null,
+      gstNumber : gstNumber || null,
+      gstName : gstName || null,
+      gstAddress_1 : gstAddress_1 || null,
+      gstAddress_2 : gstAddress_2 || null
     });
-
     let createdComapanyId = newCompany._id;
     let findRole = await Role.findOne({_id : roleId })
-    console.log(findRole.name, "=====================");
+  //  console.log(findRole.name, "=====================");
     if(findRole.name === HOST_ROLE.TMC){
       const rolesToInsert = [
         { name: TMC_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
@@ -336,7 +338,13 @@ const userInsert = async (req, res) => {
     });
 
     // Save the User document to the database
-    await newUser.save();
+    let userCreated = await newUser.save();
+    if(userCreated){
+      await Registration.deleteOne({email : email, mobile :phoneNumber});
+      console.log("Registration details deleted");
+     // commonEmailFunction
+
+    }
     return {
       response: "User and Company Inserted successfully",
       data: { newUser, newCompany },
@@ -344,7 +352,7 @@ const userInsert = async (req, res) => {
     // return res.status(200).json({ success: true, msg: 'User and Company Inserted successfully', data: newUser });
   } catch (error) {
     if (savedCompany) {
-      await Company.findByIdAndRemove(savedCompany._id);
+      await Company.deleteOne(savedCompany._id);
     }
     console.log(error);
     throw error;

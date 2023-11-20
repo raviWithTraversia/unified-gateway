@@ -5,6 +5,8 @@ const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
 const EventLog = require("../../models/Logs/EventLogs");
 const PortalLog = require("../../models/Logs/PortalApiLogs");
+const fs = require('fs');
+const path = require('path');
 
 const createToken = async (id) => {
   try {
@@ -212,6 +214,13 @@ const sendOtpOnPhone = async (recipientPhone, otp) => {
 };
 
 const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSubject) => {
+  const { companyName, firstName, lastName, mobile, email } = mailText;
+  const htmlTemplate = fs.readFileSync('./view/Account_Registration.html', 'utf8');
+  const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName)
+  .replace(/\${firstName}/g, firstName)
+  .replace(/\${lastName}/g, lastName)
+  .replace(/\${mobile}/g, mobile)
+  .replace(/\${email}/g, email);
   const transporter = nodemailer.createTransport({
     host: smtpDetails.host, // SMTP server hostname or IP address
     port: smtpDetails.port, // Port number for SMTP with STARTTLS
@@ -227,10 +236,8 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSub
     from: smtpDetails.emailFrom,
     to: recipientEmail,
     subject: `${mailSubject}`,
-    html: `<h1>${mailText}</h1>`,
-    text: `${mailText}`,
+    html: htmlContent
   };
-
 
   // Send the email
   try {
@@ -240,7 +247,7 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSub
       responce: " Mail sent",
     };
   } catch (error) {
-    console.error("Error sending OTP:", error);
+    console.error("Error sending Mail:", error);
     throw error;
   }
 };

@@ -47,7 +47,11 @@ const registrationSchema = new mongoose.Schema({
         type: String,
         default: null
     },
-    gstAddress: {
+    gstAddress_1: {
+        type: String,
+        default : null
+    },
+    gstAddress_2: {
         type: String,
         default : null
     },
@@ -79,7 +83,20 @@ const registrationSchema = new mongoose.Schema({
     isIATA: {
         type : Boolean,
         default : false
+    },
+    gstState : {
+        type: String,
+        default : null
+    },
+    gstPinCode : {
+        type: String,
+        default : null
+    },
+    gstCity : {
+        type: String,
+        default : null
     }
+
 },{
     timestamps : true  //Add created_at and updated_at coloumn
 });

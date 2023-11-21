@@ -305,130 +305,132 @@ const PLBMasterUpdateHistory = async(req , PLBMasterId ,res) => {
     // GET PLB Master History Data
     const oldRemark = {};
     const newRemark = {};
-    const GetMasterHistory = await PLBMasterHistory.findOne({PLBMasterId : PLBMasterId});
+    const GetMasterHistory = await PLBMasterHistory.findOne({PLBMasterId : PLBMasterId}).sort({ _id: -1 }).limit(10);
     const history = JSON.parse(GetMasterHistory.newChanges);
-    // console.log(GetMasterHistory);
-    // return false;
+    
     const {
         companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted
     } = req.body;
-    if(origin != history.origin) {
-        newRemark['origin'] = origin;
-        newRemark['origin'] = history.origin;
-    }
-    if(destination != history.destination) {
-        newRemark['destination'] = destination;
-        oldRemark['destination'] = history.destination;
-    }
-    if(supplierCode != history.supplierCode) {
-        newRemark['supplierCode'] = supplierCode;
-        oldRemark['supplierCode'] = history.supplierCode;
-    }
-    if(airlineCode != history.airlineCode) {
-        newRemark['airlineCode'] = airlineCode;
-        oldRemark['airlineCode'] = history.airlineCode;
-    }
-    if(cabinClass != history.cabinClass) {
-        newRemark['cabinClass'] = cabinClass;
-        oldRemark['cabinClass'] = history.cabinClass;
-    }
-    if(rbd != history.rbd) {
-        newRemark['rbd'] = rbd;
-        oldRemark['rbd'] = history.rbd;
-    }
-    if(PLBApplyOnBasefare != history.PLBApplyOnBasefare) {
-        newRemark['PLBApplyOnBasefare'] = PLBApplyOnBasefare;
-        oldRemark['PLBApplyOnBasefare'] = history.PLBApplyOnBasefare;
-    }
-    if(PLBApplyOnYQ != history.PLBApplyOnYQ) {
-        newRemark['PLBApplyOnYQ'] = PLBApplyOnYQ;
-        oldRemark['PLBApplyOnYQ'] = history.PLBApplyOnYQ;
-    }
-    if(PLBApplyOnYR != history.PLBApplyOnYR) {
-        newRemark['PLBApplyOnYR'] = PLBApplyOnYR;
-        oldRemark['PLBApplyOnYR'] = history.PLBApplyOnYR;
-    }
-    if(PLBApplyOnTotalAmount != history.PLBApplyOnTotalAmount) {
-        newRemark['PLBApplyOnTotalAmount'] = PLBApplyOnTotalAmount;
-        oldRemark['PLBApplyOnTotalAmount'] = history.PLBApplyOnTotalAmount;
-    }
-    if(PLBApplyOnAllTAxes != history.PLBApplyOnAllTAxes) {
-        newRemark['PLBApplyOnAllTAxes'] = PLBApplyOnAllTAxes;
-        oldRemark['PLBApplyOnAllTAxes'] = history.PLBApplyOnAllTAxes;
-    }
-    if(minPrice != history.minPrice) {
-        newRemark['minPrice'] = minPrice;
-        oldRemark['minPrice'] = history.minPrice;
-    }
-    if(maxPrice != history.maxPrice) {
-        newRemark['maxPrice'] = maxPrice;
-        oldRemark['maxPrice'] = history.maxPrice;
-    }
-    if(travelDateFrom != history.travelDateFrom) {
-        newRemark['travelDateFrom'] = travelDateFrom;
-        oldRemark['travelDateFrom'] = history.travelDateFrom;
-    }
-    if(travelDateTo != history.travelDateTo) {
-        newRemark['travelDateTo'] = travelDateTo;
-        oldRemark['travelDateTo'] = history.travelDateTo;
-    }
-    if(PLBValue != history.PLBValue) {
-        newRemark['PLBValue'] = PLBValue;
-        oldRemark['PLBValue'] = history.PLBValue;
-    }
-    if(PLBValueType != history.PLBValueType) {
-        newRemark['PLBValueType'] = PLBValueType;
-        oldRemark['PLBValueType'] = history.PLBValueType;
-    }
-    if(PLBType != history.PLBType) {
-        newRemark['PLBType'] = PLBType;
-        oldRemark['PLBType'] = history.PLBType;
-    }
-    if(createdBy != history.createdBy) {
-        newRemark['createdBy'] = createdBy;
-        oldRemark['createdBy'] = history.createdBy;
-    }
-    if(modifiedAt != history.modifiedAt) {
-        newRemark['modifiedAt'] = modifiedAt;
-        oldRemark['modifiedAt'] = history.modifiedAt;
-    }
-    if(modifiedBy != history.modifiedBy) {
-        newRemark['modifiedBy'] = modifiedBy;
-        oldRemark['modifiedBy'] = history.modifiedBy;
-    }
-    if(status != history.status) {
-        newRemark['status'] = status;
-        oldRemark['status'] = history.status;
-    }
-    if(datefIssueFrom != history.datefIssueFrom) {
-        newRemark['datefIssueFrom'] = datefIssueFrom;
-        oldRemark['datefIssueFrom'] = history.datefIssueFrom;
-    }
-    if(datefIssueTo != history.datefIssueTo) {
-        newRemark['datefIssueTo'] = datefIssueTo;
-        oldRemark['datefIssueTo'] = history.datefIssueTo;
-    }
-    if(fareFamily != history.fareFamily) {
-        newRemark['fareFamily'] = fareFamily;
-        oldRemark['fareFamily'] = history.fareFamily;
-    }
-    if(deductTDS != history.deductTDS) {
-        newRemark['deductTDS'] = deductTDS;
-        oldRemark['deductTDS'] = history.deductTDS;
-    }
-    if(isdeleted != history.isdeleted) {
-        newRemark['isdeleted'] = isdeleted;
-        oldRemark['isdeleted'] = history.isdeleted;
-    }
-    if(newRemark) {
-        const PLBHistory = new PLBMasterHistory({
-            PLBMasterId,
-            companyId,
-            oldChanges : JSON.stringify(oldRemark),
-            newChanges : JSON.stringify(newRemark),
-        });
-    
+
+    if(GetMasterHistory) {
+        if(origin != history.origin) {
+            newRemark['origin'] = origin;
+            oldRemark['origin'] = history.origin;
+        }
+        if(destination != history.destination) {
+            newRemark['destination'] = destination;
+            oldRemark['destination'] = history.destination;
+        }
+        if(supplierCode != history.supplierCode) {
+            newRemark['supplierCode'] = supplierCode;
+            oldRemark['supplierCode'] = history.supplierCode;
+        }
+        if(airlineCode != history.airlineCode) {
+            newRemark['airlineCode'] = airlineCode;
+            oldRemark['airlineCode'] = history.airlineCode;
+        }
+        if(cabinClass != history.cabinClass) {
+            newRemark['cabinClass'] = cabinClass;
+            oldRemark['cabinClass'] = history.cabinClass;
+        }
+        if(rbd != history.rbd) {
+            newRemark['rbd'] = rbd;
+            oldRemark['rbd'] = history.rbd;
+        }
+        if(PLBApplyOnBasefare != history.PLBApplyOnBasefare) {
+            newRemark['PLBApplyOnBasefare'] = PLBApplyOnBasefare;
+            oldRemark['PLBApplyOnBasefare'] = history.PLBApplyOnBasefare;
+        }
+        if(PLBApplyOnYQ != history.PLBApplyOnYQ) {
+            newRemark['PLBApplyOnYQ'] = PLBApplyOnYQ;
+            oldRemark['PLBApplyOnYQ'] = history.PLBApplyOnYQ;
+        }
+        if(PLBApplyOnYR != history.PLBApplyOnYR) {
+            newRemark['PLBApplyOnYR'] = PLBApplyOnYR;
+            oldRemark['PLBApplyOnYR'] = history.PLBApplyOnYR;
+        }
+        if(PLBApplyOnTotalAmount != history.PLBApplyOnTotalAmount) {
+            newRemark['PLBApplyOnTotalAmount'] = PLBApplyOnTotalAmount;
+            oldRemark['PLBApplyOnTotalAmount'] = history.PLBApplyOnTotalAmount;
+        }
+        if(PLBApplyOnAllTAxes != history.PLBApplyOnAllTAxes) {
+            newRemark['PLBApplyOnAllTAxes'] = PLBApplyOnAllTAxes;
+            oldRemark['PLBApplyOnAllTAxes'] = history.PLBApplyOnAllTAxes;
+        }
+        if(minPrice != history.minPrice) {
+            newRemark['minPrice'] = minPrice;
+            oldRemark['minPrice'] = history.minPrice;
+        }
+        if(maxPrice != history.maxPrice) {
+            newRemark['maxPrice'] = maxPrice;
+            oldRemark['maxPrice'] = history.maxPrice;
+        }
+        if(travelDateFrom != history.travelDateFrom) {
+            newRemark['travelDateFrom'] = travelDateFrom;
+            oldRemark['travelDateFrom'] = history.travelDateFrom;
+        }
+        if(travelDateTo != history.travelDateTo) {
+            newRemark['travelDateTo'] = travelDateTo;
+            oldRemark['travelDateTo'] = history.travelDateTo;
+        }
+        if(PLBValue != history.PLBValue) {
+            newRemark['PLBValue'] = PLBValue;
+            oldRemark['PLBValue'] = history.PLBValue;
+        }
+        if(PLBValueType != history.PLBValueType) {
+            newRemark['PLBValueType'] = PLBValueType;
+            oldRemark['PLBValueType'] = history.PLBValueType;
+        }
+        if(PLBType != history.PLBType) {
+            newRemark['PLBType'] = PLBType;
+            oldRemark['PLBType'] = history.PLBType;
+        }
+        if(createdBy != history.createdBy) {
+            newRemark['createdBy'] = createdBy;
+            oldRemark['createdBy'] = history.createdBy;
+        }
+        if(modifiedAt != history.modifiedAt) {
+            newRemark['modifiedAt'] = modifiedAt;
+            oldRemark['modifiedAt'] = history.modifiedAt;
+        }
+        if(modifiedBy != history.modifiedBy) {
+            newRemark['modifiedBy'] = modifiedBy;
+            oldRemark['modifiedBy'] = history.modifiedBy;
+        }
+        if(status != history.status) {
+            newRemark['status'] = status;
+            oldRemark['status'] = history.status;
+        }
+        if(datefIssueFrom != history.datefIssueFrom) {
+            newRemark['datefIssueFrom'] = datefIssueFrom;
+            oldRemark['datefIssueFrom'] = history.datefIssueFrom;
+        }
+        if(datefIssueTo != history.datefIssueTo) {
+            newRemark['datefIssueTo'] = datefIssueTo;
+            oldRemark['datefIssueTo'] = history.datefIssueTo;
+        }
+        if(fareFamily != history.fareFamily) {
+            newRemark['fareFamily'] = fareFamily;
+            oldRemark['fareFamily'] = history.fareFamily;
+        }
+        if(deductTDS != history.deductTDS) {
+            newRemark['deductTDS'] = deductTDS;
+            oldRemark['deductTDS'] = history.deductTDS;
+        }
+        if(isdeleted != history.isdeleted) {
+            newRemark['isdeleted'] = isdeleted;
+            oldRemark['isdeleted'] = history.isdeleted;
+        }
+        if(newRemark) {
+            const PLBHistory = new PLBMasterHistory({
+                PLBMasterId,
+                companyId,
+                oldChanges : JSON.stringify(oldRemark),
+                newChanges : JSON.stringify(newRemark),
+            });
+        
         await PLBHistory.save();
+    }
     }
 }
 

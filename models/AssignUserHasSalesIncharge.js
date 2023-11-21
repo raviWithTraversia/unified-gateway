@@ -7,7 +7,8 @@ const assignUserHasSalesIncharge = new mongoose.Schema({
         required: true
       },
     salesInchargeId: {
-       type : mongoose.Schema.Types.ObjectId
+       type : mongoose.Schema.Types.ObjectId,
+       ref: 'User',
     }
     
     },

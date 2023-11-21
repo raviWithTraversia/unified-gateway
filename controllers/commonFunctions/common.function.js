@@ -214,7 +214,7 @@ const sendOtpOnPhone = async (recipientPhone, otp) => {
 };
 
 const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSubject) => {
-  const { companyName, firstName, lastName, mobile, email } = mailText;
+  const { companyName, firstName, lastName, mobile, email, name } = mailText;
   const htmlTemplate = fs.readFileSync('./view/Account_Registration.html', 'utf8');
   const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName)
   .replace(/\${firstName}/g, firstName)
@@ -252,6 +252,45 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSub
   }
 };
 
+const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetails, mailText,mailSubject) => {
+  console.log(mailText, "<<<<<<<<<<???????????????????????????????",recipientEmail);
+  let  { companyName, firstName, lastName, email, mobile, statusName : [{name}] } = mailText[0];
+  const htmlTemplate = fs.readFileSync('./view/Account_Registration.html', 'utf8');
+  const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName)
+  .replace(/\${firstName}/g, firstName)
+  .replace(/\${lastName}/g, lastName)
+  .replace(/\${mobile}/g, mobile)
+  .replace(/\${email}/g, email);
+  const transporter = nodemailer.createTransport({
+    host: smtpDetails.host, 
+    port: smtpDetails.port, 
+    secure: false, 
+    auth: {
+      user: smtpDetails.userName,
+      pass: smtpDetails.password, // Verify the password for leading/trailing spaces
+    },
+  });
+
+  // Email content
+  const mailOptions = {
+    from: smtpDetails.emailFrom,
+    to: recipientEmail,
+    subject: `${mailSubject}`,
+    html: htmlContent
+  };
+
+  // Send the email
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Mail sent to ${recipientEmail}`);
+    return {
+      responce: " Mail sent",
+    };
+  } catch (error) {
+    console.error("Error sending Mail:", error);
+    throw error;
+  }
+};
 module.exports = {
   createToken,
   securePassword,
@@ -267,5 +306,6 @@ module.exports = {
   sendOtpOnEmail,
   sendOtpOnPhone,
   sendOtpOnPhone,
-  commonEmailFunction
+  commonEmailFunction,
+  commonEmailFunctionOnRegistrationUpdate
 };

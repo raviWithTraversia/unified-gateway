@@ -66,6 +66,7 @@ const loginUser = async (req, res) => {
 const userInsert = async (req, res) => {
   try {
     const result = await userServices.userInsert(req);
+    console.log(result, "<<<<<<<<<<<<++++++++++++++++++")
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.BAD_REQUEST, true);
     }

@@ -503,7 +503,7 @@ const changePassword = async (req, res) => {
 
 const addUser = async (req,res) => {
   try{
-  //  console.log(req.user, "<<<<<<<<<<<<++++++++++++++++>>>>>>>>>>>>>>>>>>>>>>");
+   // console.log(req.user, "<<<<<<<<<<<<++++++++++++++++>>>>>>>>>>>>>>>>>>>>>>");
     let requiredFeild = [
        'title',
        'firstName',

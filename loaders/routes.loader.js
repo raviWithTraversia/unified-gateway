@@ -31,7 +31,7 @@ const layoutRoute = require('../routes/layoutRoute')
 const plbGroupMaster = require('../routes/plbGroupMasterRoute');
 const incentiveMasterRoute = require('../routes/incentiveMasterRoute');
 const incentiveGroupMasterRoute = require('../routes/incentiveGroupMasterRoute');
-const configManage = require('../routes/configManage/configManageRoute');
+const configManageRoute = require('../routes/configManage/configManageRoute');
 
 
 class RoutesLoader {
@@ -137,8 +137,8 @@ class RoutesLoader {
         // incentive Master Group route
         app.use('/api' , incentiveGroupMasterRoute);
 
-        // Air Wise GST route / Config Manage
-        //app.use('/api' , configManage);
+        // Air Wise GST route Config Manage
+        app.use('/api', configManageRoute);
     }
 }
 

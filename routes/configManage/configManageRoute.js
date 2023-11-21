@@ -1,8 +1,12 @@
 const express = require("express");
-const flight_route = express();
+const config_manage_route = express();
 const bodyParser = require("body-parser");
-flight_route.use(bodyParser.json());
-flight_route.use(bodyParser.urlencoded({extended:true}));
-const ConfigManage = require('../../controllers/configManage/configManage.controller');
+config_manage_route.use(bodyParser.json());
+config_manage_route.use(bodyParser.urlencoded({extended:true}));
+const configManage = require('../../controllers/configManage/configManage.controller');
+const auth = require("../../middleware/auth");
 
-flight_route.post('/config/airgstmandate' , ConfigManage.addairGSTMandate);
+config_manage_route.post('/config/addAirGstMandate' ,auth,  configManage.addairGSTMandate);
+config_manage_route.post('/config/getAirGstMandate' ,auth,  configManage.getairGSTMandate);
+
+module.exports = config_manage_route;

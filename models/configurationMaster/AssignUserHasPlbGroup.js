@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const assignUserHasSalesIncharge = new mongoose.Schema({
+const assignUserHasPlbGroupMaster = new mongoose.Schema({
     companyId: {
         type : mongoose.Schema.Types.ObjectId,
         ref: 'Company',
@@ -8,7 +8,7 @@ const assignUserHasSalesIncharge = new mongoose.Schema({
       },
     salesInchargeId: {
        type : mongoose.Schema.Types.ObjectId,
-       ref: 'User',
+       ref: 'PLBGroupMaster',
     }
     
     },
@@ -16,5 +16,5 @@ const assignUserHasSalesIncharge = new mongoose.Schema({
             timestamp: true
     }
     );
-    const UserSalesIncharge = mongoose.model("UserSalesIncharge", assignUserHasSalesIncharge);
-    module.exports = UserSalesIncharge
+    const UserHasPlbGroupMaster = mongoose.model("UserHasPlbGroupMaster", assignUserHasPlbGroupMaster);
+    module.exports = UserHasPlbGroupMaster

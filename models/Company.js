@@ -148,6 +148,14 @@ const companySchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    isIATA: {
+      type : Boolean,
+      default : false
+  },
+  holdPnrAllowed : {
+    type : Boolean,
+    dafault : false
+  }
   },
   {
     timestamps: true, // Adds created_at and updated_at fields

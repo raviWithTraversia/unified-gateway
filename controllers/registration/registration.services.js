@@ -32,8 +32,7 @@ let {
       gstState,
       gstPinCode,
       gstCity
-      
-         } = req.body;
+      } = req.body;
 
 const fieldNames = [
         'companyId',

@@ -7,7 +7,8 @@ const assignUserHasSalesIncharge = new mongoose.Schema({
         required: true
       },
     salesInchargeId: {
-       type : mongoose.Schema.Types.ObjectId
+       type : mongoose.Schema.Types.ObjectId,
+       ref: 'User',
     }
     
     },
@@ -15,5 +16,5 @@ const assignUserHasSalesIncharge = new mongoose.Schema({
             timestamp: true
     }
     );
-    const UserSalesIncharge = mongoose.model("UserSalesIncharge", assignUserHasSalesIncharge);
-    module.exports = UserSalesIncharge
+    const UserHasSalesIncharge = mongoose.model("UserHasSalesIncharge", assignUserHasSalesIncharge);
+    module.exports = UserHasSalesIncharge

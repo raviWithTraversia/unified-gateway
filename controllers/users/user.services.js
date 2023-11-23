@@ -6,8 +6,10 @@ const { Status } = require("../../utils/constants");
 const Smtp = require("../../models/smtp");
 const Role = require("../../models/Role");
 const {TMC_ROLE ,DISTRIBUTER_ROLE,HOST_ROLE} = require("../../utils/constants");
-const { response } = require("../../routes/registrationRoute");
 const webMaster = require("../../models/WebsiteManager");
+const Registration = require('../../models/Registration');
+const { object } = require("joi");
+
 
 
 const registerUser = async (req, res) => {
@@ -122,8 +124,8 @@ const loginUser = async (req, res) => {
 };
 
 const userInsert = async (req, res) => {
+  let savedCompany = null;
   try {
-    // Define the required fields
     const requiredFields = [
       "companyName",
       "parent",
@@ -171,7 +173,6 @@ const userInsert = async (req, res) => {
       "roleId",
     ];
 
-    // Check for missing fields in the request body
     const missingFields = requiredFields.filter(
       (fieldName) =>
         req.body[fieldName] === null || req.body[fieldName] === undefined
@@ -223,11 +224,6 @@ const userInsert = async (req, res) => {
       userStatus,
       userPanName,
       userPanNumber,
-      created_Date,
-      lastModifiedDate,
-      userModifiedBy,
-      last_LoginDate,
-      activation_Date,
       sex,
       dob,
       nationality,
@@ -236,9 +232,18 @@ const userInsert = async (req, res) => {
       user_planType,
       sales_In_Charge,
       personalPanCardUpload,
-      roleId
+      roleId,
+      gstState,
+      gstPinCode,
+      gstCity,
+      gstNumber,
+      gstName,
+      gstAddress_1,
+      gstAddress_2,
+      isIATA,
+      holdPnrAllowed
     } = req.body;
-    
+   
     // Check if a user with the same email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -256,8 +261,6 @@ const userInsert = async (req, res) => {
         data: null,
       };
     }
-
-    // Create a new Company document
     const newCompany = new Company({
       companyName,
       parent,
@@ -279,11 +282,19 @@ const userInsert = async (req, res) => {
       HSN_SAC_Code,
       hierarchy_Level,
       pan_upload,
+      gstState: gstState || null,
+      gstPinCode : gstPinCode || null,
+      gstCity : gstCity || null,
+      gstNumber : gstNumber || null,
+      gstName : gstName || null,
+      gstAddress_1 : gstAddress_1 || null,
+      gstAddress_2 : gstAddress_2 || null,
+      isIATA : isIATA || false,
+      holdPnrAllowed : holdPnrAllowed || false
     });
-
     let createdComapanyId = newCompany._id;
     let findRole = await Role.findOne({_id : roleId })
-    console.log(findRole.name, "=====================");
+  //  console.log(findRole.name, "=====================");
     if(findRole.name === HOST_ROLE.TMC){
       const rolesToInsert = [
         { name: TMC_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
@@ -303,9 +314,8 @@ const userInsert = async (req, res) => {
       console.log("Default Role Created Sucessfully");
     }
     // Save the Company document to the database
-    const savedCompany = await newCompany.save();
+     savedCompany = await newCompany.save();
     const securePassword = await commonFunction.securePassword(password);
-    // Create a new User document and associate it with the Company document
     const newUser = new User({
       userType,
       login_Id,
@@ -335,19 +345,27 @@ const userInsert = async (req, res) => {
       company_ID: savedCompany._id, // Set the company_ID field to the _id of the saved Company document
     });
 
-    // Save the User document to the database
-    await newUser.save();
+    let userCreated = await newUser.save();
+    if(userCreated){
+      await Registration.deleteOne({email : email});
+      console.log("Registration details deleted");
+      
+    }
     return {
       response: "User and Company Inserted successfully",
       data: { newUser, newCompany },
     };
     // return res.status(200).json({ success: true, msg: 'User and Company Inserted successfully', data: newUser });
   } catch (error) {
-    if (savedCompany) {
-      await Company.findByIdAndRemove(savedCompany._id);
+    if (savedCompany == null) {
+      console.log(error);
+      throw error;
+    }else{
+      await Company.deleteOne(savedCompany._id);
+      console.log(error);
+      throw error;
     }
-    console.log(error);
-    throw error;
+   
   }
 };
 
@@ -495,7 +513,6 @@ const changePassword = async (req, res) => {
 
 const addUser = async (req,res) => {
   try{
-   // console.log(req.user, "<<<<<<<<<<<<++++++++++++++++>>>>>>>>>>>>>>>>>>>>>>");
     let requiredFeild = [
        'title',
        'firstName',

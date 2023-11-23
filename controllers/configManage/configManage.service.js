@@ -66,169 +66,80 @@ const addGSTMandate = async (req, res) => {
   }
 };
 
-// const getAllRegistration = async(req,res) => {
-//     try{
-//     // let getAllRegistartion = await registration.find();
-//     let getAllRegistartion =   await registration.aggregate([
-//       {
-//         $lookup: {
-//           from: "status",
-//           localField: "statusId",
-//           foreignField: "_id",
-//           as: "statusName"
-//         }
-//       },
-//       {
-//       $project: {
-//       _id: 1,
-//       companyId: 1,
-//       companyName: 1,
-//       panNumber: 1,
-//       panName: 1,
-//       firstName: 1,
-//       lastName: 1,
-//       saleInChargeId: 1,
-//       email: 1,
-//       mobile: 1,
-//       gstNumber: 1,
-//       gstName: 1,
-//       gstAddress: 1,
-//       street: 1,
-//       pincode: 1,
-//       country: 1,
-//       state: 1,
-//       city: 1,
-//       remark: 1,
-//       statusId: 1,
-//       isIATA: 1,
-//       createdAt: 1,
-//       updatedAt: 1,
-//           statusName: { name: { $arrayElemAt: ["$statusName.name", 0] } } // Projection for the '_id' field
-//         }
-//       }
-//     ]);
+const getairGSTMandate = async (req, res) => {
+  try {
+    const comapnyId = req.params.companyId;
+    if (!comapnyId) {
+      return {
+        response: "Company Id required",
+      };
+    }
 
-//      return {
-//         response : "All registrationData fetch",
-//         data : getAllRegistartion
-//      }
-//     }catch(error){
-//      console.log(error);
-//      throw error;
-//     }
+    const result = await airGstMandate.find({ companyId: comapnyId });
+    //   console.log(result);
+    // return false;
+    if (result.length > 0) {
+      return {
+        response: "Fetch Data Successfully",
+        data: result,
+      };
+    } else {
+      return {
+        response: "Company Id Not Valid",
+        data: null,
+      };
+    }
+  } catch (error) {
+    throw error;
+  }
+};
 
-// }
+const updateairGSTMandate = async (req, res) => {
+  try {
+    const airGstMandateId = req.params.airGstMandateId;
+    // console.log(companyId);
+    // return false;
+    const { airLine, fareFamily, promoCode } = req.body;
 
-const getairGSTMandate = async(req,res) => {
-  //  try{
-  //   const comapnyId = req.params.companyId;
-  //   if(!comapnyId){
-  //       return {
-  //           response : null,
-  //           message : "Company Id not true"
-  //       }
-  //   };
-  //  // const registrationData = await registration.find({companyId : comapnyId});
+    // Check if companyId is provided
+    if (!airGstMandateId) {
+      return {
+        response: "Company Id required",
+      };            
+    }
 
-  //  let aggregrationRes = await registration.aggregate([
-  //   {
-  //     $match: { companyId: comapnyId }
-  //   },
-  //   {
-  //     $lookup: {
-  //       from: "status",
-  //       localField: "statusId",
-  //       foreignField: "_id",
-  //       as: "statusName"
-  //     }
-  //   },
-  //   {
-  //     $project: {
-  //       _id: 1,
-  //       companyId: 1,
-  //       companyName: 1,
-  //       panNumber: 1,
-  //       panName: 1,
-  //       firstName: 1,
-  //       lastName: 1,
-  //       saleInChargeId: 1,
-  //       email: 1,
-  //       mobile: 1,
-  //       gstNumber: 1,
-  //       gstName: 1,
-  //       gstAddress: 1,
-  //       street: 1,
-  //       pincode: 1,
-  //       country: 1,
-  //       state: 1,
-  //       city: 1,
-  //       remark: 1,
-  //       statusId: 1,
-  //       isIATA: 1,
-  //       createdAt: 1,
-  //       updatedAt: 1,
-  //       statusName: { name: { $arrayElemAt: ["$statusName.name", 0] } }
-  //     }
-  //   }
-  // ]);
+    // Check if the record exists
+    const existingRecord = await airGstMandate.findOne({ companyId });
 
-  //   if(!aggregrationRes){
-  //       return {
-  //           response : null,
-  //           message : "Registration Data not found by this companyId"
-  //       }
-  //   }
-  //   else{
-  //       return {
-  //           response : "Registration data found sucessfully",
-  //           data : aggregrationRes
-  //       }
-  //   }
-  //  }catch(error){
-  //   console.log(error);
-  //   throw error;
-  //  }
-}
+    if (!existingRecord) {
+      return {
+        response: "Record not found for the provided Company Id",
+      };
+    }
 
-// const updateRegistration = async (req,res) => {
-//   try{
-//     const {registrationId, statusId, remark} = req.body;
-//     let checkIsValidregistrationId = FUNC.checkIsValidId(registrationId);
-//     let checkIsValidstatusId = FUNC.checkIsValidId(statusId);
-//     if(!checkIsValidregistrationId || !checkIsValidstatusId){
-//       return {
-//         response : 'Please pass valid registrationId or statusId'
-//       }
-//     }
-//     const updateRegistration = await registration.findOneAndUpdate(
-//       {_id : registrationId},
-//       {
-//         $set: {
-//           statusId: statusId,
-//           remark : remark
-//         }
-//       }
-//   );
-//   if(!updateRegistration){
-//     return {
-//       response : 'Registration data is not updated'
-//     }
-//   }
-//   else{
-//     return {
-//       response : 'Registration data updated sucessfully'
-//     }
-//   }
+    // Update the record with the new values
+    existingRecord.airLine = airLine || existingRecord.airLine;
+    existingRecord.fareFamily = fareFamily || existingRecord.fareFamily;
+    existingRecord.promoCode = promoCode || existingRecord.promoCode;
 
-//   }catch(error){
-//     console.log(error);
-//     throw error
-//   }
-// }
+    // Save the updated record
+    const updatedRecord = await existingRecord.save();
+
+    return {
+      response: "Update Air GST Mandate Successfully",
+      data: updatedRecord,
+    };
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      response: null,
+      error: "Internal Server Error",
+    });
+  }
+};
 
 module.exports = {
   addGSTMandate,
-  // getAllRegistration,
-  // getAllRegistrationByCompany,
-  // updateRegistration
+  getairGSTMandate,
+  updateairGSTMandate,
 };

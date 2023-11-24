@@ -44,9 +44,9 @@ const getairGSTMandate = async (req, res) => {
         const result = await airGSTMandateService.getairGSTMandate(req, res);
         if (!result.response && result.isSometingMissing) {
           apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-        }else if (result.response === "Compnay id does not exist" || result.response == 'company Id field are required') {
+        }else if (result.response === "Company Id required" || result.response == 'Company Id Not Valid') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
-        }else if (result.response === "Add Air GST Mandate Successfully") {
+        }else if (result.response === "Fetch Data Successfully") {
           apiSucessRes(
             res,
             result.response,
@@ -70,7 +70,41 @@ const getairGSTMandate = async (req, res) => {
           true
         );
       }
-};    
+};  
+
+const updateairGSTMandate = async (req, res) => {
+  try {
+      const result = await airGSTMandateService.updateairGSTMandate(req, res);
+      if (!result.response && result.isSometingMissing) {
+        apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+      }else if (result.response === "Company Id required" || result.response == 'Record not found for the provided Company Id') {
+          apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+      }else if (result.response === "Update Air GST Mandate Successfully") {
+        apiSucessRes(
+          res,
+          result.response,
+          result.data,
+          ServerStatusCode.SUCESS_CODE
+        );
+      }else {
+        apiErrorres(
+          res,
+          errorResponse.SOME_UNOWN,
+          ServerStatusCode.UNPROCESSABLE,
+          true
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      apiErrorres(
+        res,
+        errorResponse.SOMETHING_WRONG,
+        ServerStatusCode.SERVER_ERROR,
+        true
+      );
+    }
+}; 
 
 
-module.exports = { addairGSTMandate,getairGSTMandate };
+
+module.exports = { addairGSTMandate,getairGSTMandate, updateairGSTMandate };

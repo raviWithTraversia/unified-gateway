@@ -81,7 +81,7 @@ privilage_route.post(
 
 privilage_route.get(
     '/privilage/privilage-list/:comapnyId' ,
-    auth,
+   // auth,
      PrivilageController.getAllPrivilage    
     );
 

@@ -14,8 +14,7 @@ const supplierSchema = new mongoose.Schema({
         required: true
     },
     supplierUserId: {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'Company' /// need to discuss
+        type : String,
     },
     supplierPassword: {
         type : String,

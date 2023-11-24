@@ -16,5 +16,5 @@ const assignUserHasPlbGroupMaster = new mongoose.Schema({
             timestamp: true
     }
     );
-    const UserHasPlbGroupMaster = mongoose.model("UserHasPlbGroupMaster", assignUserHasPlbGroupMaster);
-    module.exports = UserHasPlbGroupMaster
+    const UserPlbGroupMasterConfig = mongoose.model("UserPlbGroupMasterConfig", assignUserHasPlbGroupMaster);
+    module.exports = UserPlbGroupMasterConfig;

@@ -6,14 +6,14 @@ const assignUserHasFairRuleGroup = new mongoose.Schema({
         ref: 'Company',
         required: true
       },
-    salesInchargeId: {
+    fairRuleGroupId: {
        type : mongoose.Schema.Types.ObjectId,
-       ref : 'FairRuleGroup'
+       ref : 'FareRuleGroup'
     }
     },
     {
             timestamp: true
     }
     );
-    const UserHasFairRuleGroup = mongoose.model("UserHasFairRuleGroup", assignUserHasFairRuleGroup);
-    module.exports = UserHasFairRuleGroup
+    const UserHasFairRuleConfig = mongoose.model("UserHasFairRuleConfig", assignUserHasFairRuleGroup);
+    module.exports = UserHasFairRuleConfig;

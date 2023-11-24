@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const assignUserHasCommercial = new mongoose.Schema({
+const assignUserHasIncentiveGroup = new mongoose.Schema({
     companyId: {
         type : mongoose.Schema.Types.ObjectId,
         ref: 'Company',
@@ -15,5 +15,5 @@ const assignUserHasCommercial = new mongoose.Schema({
             timestamp: true
     }
     );
-    const UserComerCialConfig = mongoose.model("UserComerCialConfig", assignUserHasCommercial);
-    module.exports = UserComerCialConfig
+    const UserIncentiveGroupConfig = mongoose.model("UserIncentiveGroupConfig", assignUserHasIncentiveGroup);
+    module.exports = UserIncentiveGroupConfig;

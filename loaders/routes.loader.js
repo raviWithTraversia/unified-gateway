@@ -32,6 +32,7 @@ const plbGroupMaster = require('../routes/plbGroupMasterRoute');
 const incentiveMasterRoute = require('../routes/incentiveMasterRoute');
 const incentiveGroupMasterRoute = require('../routes/incentiveGroupMasterRoute');
 const configManageRoute = require('../routes/configManage/configManageRoute');
+const pgChargesRoute = require('../routes/pgChargesRoute');
 
 
 class RoutesLoader {
@@ -139,6 +140,9 @@ class RoutesLoader {
 
         // Air Wise GST route Config Manage
         app.use('/api', configManageRoute);
+
+        // pgcharges route 
+        app.use('/api', pgChargesRoute)
     }
 }
 

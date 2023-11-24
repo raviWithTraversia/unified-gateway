@@ -68,9 +68,13 @@ const addProductPlan = async (req, res) => {
 
 const getAllProductPlan = async (req, res) => {
     try {
-        const result = await ProductPlan.find();
+        const { companyId } = req.query;
+
+        const result = await ProductPlan.find({companyId : companyId});
+       // console.log(result,"result")
         if (result.length > 0) {
             return {
+                response : 'Product Plan Fetch Sucessfull',
                 data: result
             }
         } else {

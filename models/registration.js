@@ -95,6 +95,10 @@ const registrationSchema = new mongoose.Schema({
     gstCity : {
         type: String,
         default : null
+    },
+    roleId : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Role'
     }
 
 },{

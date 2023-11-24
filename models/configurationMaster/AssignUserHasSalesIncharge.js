@@ -16,5 +16,5 @@ const assignUserHasSalesIncharge = new mongoose.Schema({
             timestamp: true
     }
     );
-    const UserHasSalesIncharge = mongoose.model("UserHasSalesIncharge", assignUserHasSalesIncharge);
-    module.exports = UserHasSalesIncharge
+    const UserHasSalesInchargeConfig = mongoose.model("UserHasSalesInchargeConfig", assignUserHasSalesIncharge);
+    module.exports = UserHasSalesInchargeConfig;

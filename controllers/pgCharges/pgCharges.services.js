@@ -1,15 +1,26 @@
 const pgCharges = require("../../models/pgCharges");
-const { response } = require("../../routes/registrationRoute");
+const Role = require ('../../models/Role');
+const User = require('../../models/User')
 
 const addPgCharges = async (req, res) => {
   try {
-    const { paymentGatewayProvider, paymentMethod, gatewayChargesOnMethod } =
+  //  console.log( req)
+    const {paymentGatewayProvider, paymentMethod, gatewayChargesOnMethod, gatewayFixchargesOnMethod,companyId } =
       req.body;
-    let pgChargesInsert = new pgCharges({
-      paymentGatewayProvider,
-      paymentMethod,
-      gatewayChargesOnMethod,
-    });
+     // console.log(paymentGatewayProvider , "<<<<<<<=============>>>>>>>",paymentMethod,"<<<<<<+++++++++", gatewayChargesOnMethod, gatewaySurchargesOnMethod)
+     let userId = req.user._id
+     let checkIsRole = await User.findById(userId).populate('roleId', 'name').exec();
+     
+   //  console.log(checkIsRole , "[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]")
+     if(checkIsRole.name == "Tmc" || checkIsRole.name == "TMC" ){
+    let pgChargesInsert =  await pgCharges.create({
+        companyId,
+        paymentGatewayProvider,
+        paymentMethod,
+        gatewayChargesOnMethod,
+        gatewayFixchargesOnMethod
+      });
+  //  console.log(pgChargesInsert, "<<<<++++++++++")
     pgChargesInsert = await pgChargesInsert.save();
     if (pgChargesInsert) {
       return {
@@ -21,6 +32,12 @@ const addPgCharges = async (req, res) => {
         response: "Payment Gateway Charges Not Added",
       };
     }
+}
+else{
+    return {
+        response : `User Dont have permision to add Pg Charges Details`
+    }
+}
   } catch (error) {
     console.log(error);
     throw error;
@@ -108,8 +125,29 @@ const calculatePgCharges = async (req, res) => {
   }
 };
 
+const getPgCharges = async (req,res) => {
+    try{
+    let companyId = req.query.companyId;
+    let allPaymentMethod = await pgCharges.find({companyId : companyId});
+    if(allPaymentMethod){
+        return {
+            response : 'All Payment Method Fetch Sucessful',
+            data : allPaymentMethod
+        }
+    }else{
+        return {
+            response : 'Payment Method Not Found'
+        }
+    }
+
+    }catch(error){
+      console.log(error);
+      throw error;
+    }
+}
 module.exports = {
   addPgCharges,
   editPgcharges,
   calculatePgCharges,
+  getPgCharges
 };

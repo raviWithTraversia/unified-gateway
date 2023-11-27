@@ -1,10 +1,15 @@
 const mongoose = require('mongoose');
 
 const paymentGateway = new mongoose.Schema({
-    paymentGatewayProvider : {
-     type : String
+    companyId : {
+      type : mongoose.Schema.Types.ObjectId,
+      required : true
     },
-    paymetMethod : {
+    paymentGatewayProvider : {
+     type : String,
+     required : true
+    },
+    paymentMethod : {
         Global: {type: String},
         Upi: { type: String },
         Wallet: { type: String },
@@ -15,22 +20,22 @@ const paymentGateway = new mongoose.Schema({
 
     },
     gatewayChargesOnMethod : {
-        Global : {type : Number},
-        Upi: { type: Number },
-        Wallet: { type: Number },
-        Card: { type: Number },
-        Paylater: { type: Number },
-        Emi : { type: String },
-        NetBanking : { type: String }
+        Global : {type : Number,required : false, default: null},
+        Upi: { type: Number, required : false,  default: null },
+        Wallet: { type: Number,required : false, default: null},
+        Card: { type: Number ,required : false, default: null},
+        Paylater: { type: Number,required : false, default: null },
+        Emi : { type: Number,required : false, default: null },
+        NetBanking : { type: Number,required : false, default: null }
     },
-    gatewaySurchargesOnMethod : {
-        Global : {type : Number},
-        Upi: { type: Number },
-        Wallet: { type: Number },
-        Card: { type: Number },
-        Paylater: { type: Number },
-        Emi : { type: String },
-        NetBanking : { type: String }
+    gatewayFixchargesOnMethod : {
+        Global : {type : Number,required : false, default: null},
+        Upi: {type : Number,required : false, default: null},
+        Wallet: {type : Number,required : false, default: null},
+        Card: {type : Number,required : false, default: null},
+        Paylater: {type : Number,required : false, default: null},
+        Emi : {type : Number,required : false, default: null},
+        NetBanking :{type : Number,required : false, default: null}
     }
 });
 const pgCharges = mongoose.model("pgCharges", paymentGateway);

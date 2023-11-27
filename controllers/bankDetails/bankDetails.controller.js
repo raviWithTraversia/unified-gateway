@@ -33,6 +33,14 @@ const addBankDetails = async (req,res) => {
                 true
             )
          }
+         else if(result.isSometingMissing){
+            apiErrorres(
+                res,
+                result.data,
+                ServerStatusCode.RESOURCE_NOT_FOUND,
+                true
+            )
+         }
          
          else{
             apiErrorres(

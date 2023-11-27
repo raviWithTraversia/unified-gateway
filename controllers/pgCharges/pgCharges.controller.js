@@ -10,7 +10,7 @@ const addPgCharges = async (req,res) => {
             res,
             result.data,
             result.response,
-            ServerStatusCode.SERVER_ERROR
+            ServerStatusCode.SUCESS_CODE
         )
       }else if(result.response == 'Payment Gateway Charges Not Added'){
        apiErrorres(
@@ -19,6 +19,14 @@ const addPgCharges = async (req,res) => {
         ServerStatusCode.PRECONDITION_FAILED,
         true
        )
+      }
+      else if(result.response == 'User Dont have permision to add Pg Charges Details'){
+         apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.UNAUTHORIZED,
+            true
+         )
       }
       else{
         apiErrorres(
@@ -113,8 +121,45 @@ const calculatePgCharges = async (req,res) => {
           );  
     }
 };
+const getPgCharges = async (req,res) => {
+    try{
+    const result = await pgChargesServices.getPgCharges(req,res);
+    if(result.response == 'All Payment Method Fetch Sucessful' ){
+       apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+       )
+    }
+    else if(result.response == 'Payment Method Not Found'){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      )
+    }else{
+      apiErrorres(
+        res,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        errorResponse.SOME_UNOWN,
+        true
+      )
+    }
+
+    }catch(error){
+        apiErrorres(
+            res,
+             error,
+            ServerStatusCode.SERVER_ERROR,
+            true
+          );  
+    }
+}
 module.exports = {
     addPgCharges,
     editPgcharges,
-    calculatePgCharges
+    calculatePgCharges,
+    getPgCharges
 }

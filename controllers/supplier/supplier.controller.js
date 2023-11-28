@@ -41,9 +41,30 @@ const addSupplier = async (req,res) => {
 
 const updateSupplier = async (req,res) =>{
     try{
-        const result = await supplierServices.addSupplier(req,res);
-        if(result.response == ''){
-
+        const result = await supplierServices.updateSupplier(req,res);
+        if(result.response == 'Supplier Data Updated Sucessfully'){
+           apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+           )
+        }
+        else if(result.response == 'Supplier data not updated'){
+            apiErrorres(
+                res,
+                result.response,
+                ServerStatusCode.PRECONDITION_FAILED,
+                true
+            )
+        }
+        else{
+            apiErrorres(
+                res,
+                errorResponse.SOME_UNOWN,
+                ServerStatusCode.PRECONDITION_FAILED,
+                true
+            )  
         }
     
 

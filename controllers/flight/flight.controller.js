@@ -11,7 +11,7 @@ const getSearch = async (req, res) => {
         const result = await flightSearch.getSearch(req, res);
         if (!result.response && result.isSometingMissing) {
           apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-        }else if (result.response === "Company Id required" || result.response == 'Company Id Not Valid') {
+        }else if (result.response === "company Id field are required" || result.response === "Compnay id does not exist") {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
         }else if (result.response === "Fetch Data Successfully") {
           apiSucessRes(

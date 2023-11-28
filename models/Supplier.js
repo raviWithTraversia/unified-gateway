@@ -3,13 +3,12 @@ const mongoose = require('mongoose');
 const supplierSchema = new mongoose.Schema({
     cadeId: {
         type : String,
-        required : true
     },
     companyId : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Company'
     },
-    supplierCode: {
+    supplierCodeId: {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'SupplierCode'
     },
@@ -95,4 +94,6 @@ const supplierSchema = new mongoose.Schema({
   }, {
     timestamps: true // Adds created_at and updated_at fields
   });
-module.exports = mongoose.model('Supplier' , supplierSchema);
+  const supplier = mongoose.model('supplier',supplierSchema);
+
+module.exports = supplier

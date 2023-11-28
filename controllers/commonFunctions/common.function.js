@@ -82,7 +82,7 @@ const getPagingDataOfSp = async (Data, page, limit) => {
   return { totalItems: total, data: Data, totalPages, currentPage };
 };
 
-const checkIsValidId = async (Id) => {
+const checkIsValidId =  (Id) => {
   let validId = mongoose.isValidObjectId(Id);
   if (validId) {
     return "Valid Mongo Object Id";
@@ -309,6 +309,15 @@ console.log(url)
       return false;
   }
 };
+
+const checkRole = async () => {
+  try{
+
+  }
+  catch(error){
+
+  }
+}
 
 module.exports = {
   createToken,

@@ -33,6 +33,8 @@ const incentiveMasterRoute = require('../routes/incentiveMasterRoute');
 const incentiveGroupMasterRoute = require('../routes/incentiveGroupMasterRoute');
 const configManageRoute = require('../routes/configManage/configManageRoute');
 const pgChargesRoute = require('../routes/pgChargesRoute');
+const supplierCode = require('../routes/supplierCodeRoute');
+const supplier = require('../routes/supplierRoute')
 
 
 class RoutesLoader {
@@ -142,7 +144,13 @@ class RoutesLoader {
         app.use('/api', configManageRoute);
 
         // pgcharges route 
-        app.use('/api', pgChargesRoute)
+        app.use('/api', pgChargesRoute);
+
+        // supplierCode route
+        app.use('/api', supplierCode);
+
+        // supplier route
+        app.use('/api', supplier);
     }
 }
 

@@ -6,7 +6,7 @@ const assignUserHasPrevillagePlan = new mongoose.Schema({
         ref: 'Company',
         required: true
       },
-    salesInchargeId: {
+      privilagePlanId: {
        type : mongoose.Schema.Types.ObjectId,
        ref : 'PrivilagePlan'
     }
@@ -17,4 +17,4 @@ const assignUserHasPrevillagePlan = new mongoose.Schema({
     }
     );
     const UserPervillagePlanConfig = mongoose.model("UserPervillagePlanConfig", assignUserHasPrevillagePlan);
-    module.exports = UserPervillagePlanConfig
+    module.exports = UserPervillagePlanConfig;

@@ -3,97 +3,97 @@ const mongoose = require('mongoose');
 const supplierSchema = new mongoose.Schema({
     cadeId: {
         type : String,
-        required : true
     },
     companyId : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Company'
     },
-    supplierCode: {
-        type : String,
-        required: true
+    supplierCodeId: {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'SupplierCode'
     },
     supplierUserId: {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'Company' /// need to discuss
+        type : String,
     },
     supplierPassword: {
         type : String,
-        required : true
+        default: null
     },
     supplierSudo: {
         type : String,
-        required : true
+        default: null
     },
     accountNumber: {
         type : String,
-        required : true
+        default: null
     },
     accountPassword: {
         type : String,
-        required : true
+        default: null
     },
     accountVersion: {
         type : String,
-        required : true
+        default: null
     },
     credentialsType: {
         type : String,
-        required : true
+        default: null
     },
     status: {
         type : Boolean,
-        required : true
+        default: false
     },
     supplierOfficeId: {
         type : String,
-        required : true
+        default: null
     },
     domesticExcludeAirline: {
         type : String,
-        required : true
+        default: null
     },
     domesticIncludeAirline: {
         type : String,
-        required : true
+        default: null
     },
     searchAllow: {
         type : Boolean,
-        required : true
+        default: null
     },
     bookAllow: {
         type : Boolean,
-        required : true
+        default: null
     },
     importAllow: {
         type : Boolean,
-        required : true
+        default: null
     },
     productClass: {
         type : String,
-        required : true
+        default: null
     },
     fareType: {
         type : String,
-        required : true
+        default: null
     },
     GKPnrAllow: {
         type : Boolean,
-        required : true
+        default: null
     },
     internationalncludeAirline: {
         type : String,
-        rrquired : true
+        default: null
     },
     internationalExcludeAirline: {
         type : String ,
-        required : true
+        default: null
     },
     billingAccountCode: {
         type : String,
-        required : true
+        default: null
     }
   }, {
     timestamps: true // Adds created_at and updated_at fields
   });
-module.exports = mongoose.model('Supplier' , supplierSchema);
+  const supplier = mongoose.model('supplier',supplierSchema);
+
+module.exports = supplier

@@ -82,7 +82,7 @@ const getPagingDataOfSp = async (Data, page, limit) => {
   return { totalItems: total, data: Data, totalPages, currentPage };
 };
 
-const checkIsValidId = async (Id) => {
+const checkIsValidId =  (Id) => {
   let validId = mongoose.isValidObjectId(Id);
   if (validId) {
     return "Valid Mongo Object Id";
@@ -253,7 +253,7 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSub
 };
 
 const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetails, mailText,mailSubject) => {
-  console.log(mailText, "<<<<<<<<<<???????????????????????????????",recipientEmail);
+  //console.log(mailText, "<<<<<<<<<<???????????????????????????????",recipientEmail);
   let  { companyName, firstName, lastName, email, mobile, statusName : [{name}] } = mailText[0];
   const htmlTemplate = fs.readFileSync('./view/Account_Registration.html', 'utf8');
   const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName)
@@ -291,6 +291,34 @@ const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetai
     throw error;
   }
 };
+
+const sendSMS = async (mobileno, message) => {
+const url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(mobileno)}&msg=${encodeURIComponent(message)}&sid=Smsint&type=0&entityid=1201158081004555492&tempid=1607100000000001933&dtNow=${encodeURIComponent(new Date().toLocaleString())}`;
+console.log(url)
+  try {
+      const response = await fetch(url);
+      const strSMSResponseString = await response.text();
+
+      if (strSMSResponseString.startsWith("100")) {
+          return true;
+      } else {
+          return false;
+      }
+  } catch (error) {
+      console.error('Error sending SMS:', error);
+      return false;
+  }
+};
+
+const checkRole = async () => {
+  try{
+
+  }
+  catch(error){
+
+  }
+}
+
 module.exports = {
   createToken,
   securePassword,
@@ -307,5 +335,6 @@ module.exports = {
   sendOtpOnPhone,
   sendOtpOnPhone,
   commonEmailFunction,
-  commonEmailFunctionOnRegistrationUpdate
+  commonEmailFunctionOnRegistrationUpdate,
+  sendSMS
 };

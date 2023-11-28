@@ -66,11 +66,10 @@ const loginUser = async (req, res) => {
 const userInsert = async (req, res) => {
   try {
     const result = await userServices.userInsert(req);
-    console.log(result, "<<<<<<<<<<<<++++++++++++++++++")
+    // console.log(result, "<<<<<<<<<<<<++++++++++++++++++")
     if (!result.response || result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.BAD_REQUEST, true);
-    }
-    else if (
+    } else if (
       result.response === "User with this email already exists" ||
       result.response === "Company with this companyName already exists"
     ) {
@@ -108,20 +107,18 @@ const forgotPassword = async (req, res) => {
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
-    } else if (result.response === "Password reset email sent" || result.data === true ) {
+    } else if (
+      result.response === "Password reset email sent" ||
+      result.data === true
+    ) {
       apiSucessRes(
         res,
         CrudMessage.RESET_MAIL_SENT,
         result.response,
         ServerStatusCode.SUCESS_CODE
       );
-    } else if(result.response === "Error sending password reset email"){
-      apiErrorres(
-        res,
-       result.response,
-        ServerStatusCode.UNPROCESSABLE,
-        true
-      );
+    } else if (result.response === "Error sending password reset email") {
+      apiErrorres(res, result.response, ServerStatusCode.UNPROCESSABLE, true);
     }
   } catch (error) {
     apiErrorres(
@@ -224,90 +221,64 @@ const varifyTokenForForgetPassword = async (req, res) => {
   }
 };
 
-const addUser = async (req,res) => {
-  try{
-    const result = await userServices.addUser(req,res);
+const addUser = async (req, res) => {
+  try {
+    const result = await userServices.addUser(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.BAD_REQUEST, true);
-    }
-    else if(result.response === 'New User Created Sucessfully'){
+    } else if (result.response === "New User Created Sucessfully") {
       apiSucessRes(
         res,
         result.response,
         result.data,
         ServerStatusCode.SUCESS_CODE
-      )
-    }
-    else if(result.response === "User Not created sucessfully"){
-          apiErrorres(
-            res,
-            result.response,
-            ServerStatusCode.RESOURCE_NOT_FOUND,
-            true
-          )
-    }else if(result.response === "User with this email already exists"){
+      );
+    } else if (result.response === "User Not created sucessfully") {
       apiErrorres(
         res,
         result.response,
-        ServerStatusCode.ALREADY_EXIST,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
         true
-      )
-    }
-    else{
-       apiErrorres(
+      );
+    } else if (result.response === "User with this email already exists") {
+      apiErrorres(res, result.response, ServerStatusCode.ALREADY_EXIST, true);
+    } else {
+      apiErrorres(
         res,
         errorResponse.SOME_UNOWN,
         ServerStatusCode.NOT_EXIST_CODE,
         true
-       )
+      );
     }
-
-  }catch(error){
-    apiErrorres(
-      res,
-      error,
-      ServerStatusCode.BAD_REQUEST,
-      true
-    )
+  } catch (error) {
+    apiErrorres(res, error, ServerStatusCode.BAD_REQUEST, true);
   }
-}
+};
 
-const editUser = async (req,res) => {
-  try{
-     const result = await userServices.editUser(req,res);
-     if(result.response === 'Bank details updated sucessfully'){
-       apiSucessRes(
+const editUser = async (req, res) => {
+  try {
+    const result = await userServices.editUser(req, res);
+    if (result.response === "Bank details updated sucessfully") {
+      apiSucessRes(
         res,
         result.response,
         result.data,
         ServerStatusCode.SUCESS_CODE
-       )
-     }
-     else if(result.response === 'Failed to update bank details'){
-        apiErrorres(
-          res,
-          result.response,
-          ServerStatusCode.RECORD_NOTEXIST,
-          true
-        )
-     }else{
+      );
+    } else if (result.response === "Failed to update bank details") {
+      apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
+    } else {
       apiErrorres(
         res,
         errorResponse.SOME_UNOWN,
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
-      )
-     }
-  }catch(error){
-     apiErrorres(
-      res,
-      error,
-      ServerStatusCode.UNAUTHORIZED,
-      true
-
-     )
+      );
+    }
+  } catch (error) {
+    apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
   }
-}
+};
 
 module.exports = {
   registerUser,
@@ -318,5 +289,5 @@ module.exports = {
   changePassword,
   varifyTokenForForgetPassword,
   addUser,
-  editUser
+  editUser,
 };

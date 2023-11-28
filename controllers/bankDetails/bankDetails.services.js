@@ -13,7 +13,28 @@ const addBankDetails = async (bankDetailsData, file) => {
       createdBy,
       modifyBy
     } = bankDetailsData;
-  
+    const fieldNames = [
+      "companyId",
+      "accountName",
+      "accountNumber",
+      "ifscCode",
+      "bankAddress",
+      "bankName",
+      "bankCode",
+      "QrcodeImage"
+    ];
+    const missingFields = fieldNames.filter(
+      (fieldName) =>
+      bankDetailsData[fieldName] === null || bankDetailsData[fieldName] === undefined
+    );
+    if (missingFields.length > 0) {
+      const missingFieldsString = missingFields.join(", ");
+      return {
+        response: null,
+        isSometingMissing: true,
+        data: `Missing or null fields: ${missingFieldsString}`,
+      };
+    }
     const newBankDetails = new bankDetail({
       companyId,
       accountName,
@@ -25,8 +46,8 @@ const addBankDetails = async (bankDetailsData, file) => {
       createdBy,
       modifyBy,
       QrcodeImage: {
-        data: file.buffer,
-        contentType: file.mimetype,
+      data: file.buffer,
+      contentType: file.mimetype,
       },
     });
     let checkIsAcountAlreadyExist = await bankDetail.findOne({accountNumber});
@@ -87,7 +108,6 @@ const updateBankDetails = async (req,res) => {
       { $set: updateData },
       { new: true }
     );
-  //  console.log(updatedBankDetails)
     if(updatedBankDetails){
       return {
         response : 'Bank details updated sucessfully',

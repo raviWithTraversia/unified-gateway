@@ -6,14 +6,14 @@ const assignUserHasCommercial = new mongoose.Schema({
         ref: 'Company',
         required: true
       },
-    salesInchargeId: {
+      commercialPlanId: {
        type : mongoose.Schema.Types.ObjectId,
-       ref : 'Commercial'
+       ref : 'CommercialAirPlan'
     }
     },
     {
             timestamp: true
     }
     );
-    const UserComerCialConfig = mongoose.model("UserComerCialConfig", assignUserHasCommercial);
-    module.exports = UserComerCialConfig
+    const UserCommercialConfig = mongoose.model("UserCommercialConfig", assignUserHasCommercial);
+    module.exports = UserCommercialConfig;

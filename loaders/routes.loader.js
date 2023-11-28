@@ -34,7 +34,8 @@ const incentiveGroupMasterRoute = require('../routes/incentiveGroupMasterRoute')
 const configManageRoute = require('../routes/configManage/configManageRoute');
 const pgChargesRoute = require('../routes/pgChargesRoute');
 const supplierCode = require('../routes/supplierCodeRoute');
-const supplier = require('../routes/supplierRoute')
+const supplier = require('../routes/supplierRoute');
+const airlinePromo = require('../routes/airlinePromoCodeRoute')
 
 
 class RoutesLoader {
@@ -151,6 +152,9 @@ class RoutesLoader {
 
         // supplier route
         app.use('/api', supplier);
+
+        // airline Peomocode route
+        app.use('/api', airlinePromo )
     }
 }
 

@@ -118,7 +118,10 @@ const getSupplier = async (req,res) => {
             response : 'Invalid Mongo Object Id'
          }
        }
-       let supplierData =  await supplier.find({companyId :id }).populate('supplierCodeId').populate('companyId').exec();
+       let supplierData =  await supplier.find({companyId :id }).populate({
+        path: 'supplierCodeId',
+        select: 'supplierCode'
+      }).exec();
 
        if(supplierData){
          return {

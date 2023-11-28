@@ -99,7 +99,7 @@ const updateSupplier = async (req,res) =>{
       }else{
           
           return {
-            response : 'Supplier data updated Sucessfully'
+            response : 'Supplier data not updated'
           }
       }
        
@@ -118,7 +118,7 @@ const getSupplier = async (req,res) => {
             response : 'Invalid Mongo Object Id'
          }
        }
-       let supplierData =  await supplier.findById(id).populate('supplierCodeId').populate('companyId').exec();
+       let supplierData =  await supplier.find({companyId :id }).populate('supplierCodeId').populate('companyId').exec();
 
        if(supplierData){
          return {

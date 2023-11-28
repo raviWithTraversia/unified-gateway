@@ -27,26 +27,55 @@ const getSearch = async (req, res) => {
 
   let companyId = Authentication.CompanyId;
 
-  if (companyId === undefined || companyId === null) {
+  if (!companyId) {
     return {
       response: "company Id field are required",
     };
   }
 
-  // Check company Id is exis or not
-  const checkCompanyIdExist = await Company.find({ _id:companyId });
-  
-  if (checkCompanyIdExist.length === 0) {
+  // Check if company Id exists
+  const checkCompanyIdExist = await Company.findById(companyId);
+
+  if (!checkCompanyIdExist) {
     return {
       response: "Compnay id does not exist",
     };
   }
-  console.log(checkCompanyIdExist);
-  return false;
-  // Now check
-  // Check Search Type Of Trip - OneWay, Round, MultiCIty
-  /// get suppliere data from agency
+  // Also CHeck Role Of TMC by Company Id( PENDING )
+  // Logs Pending
+
+  // Check Travel Type ( International / Domestic )
+  let result;
+  if (TravelType === "International") {
+    result = await handleInternational(Authentication);
+  } else if (TravelType === "Domestic") {
+    result = await handleDomestic(Authentication);
+  } else {
+    return {
+      response: "Travel Type Not Valid",
+    };
+  }
+  return {
+    response: "Fetch Data Successfully",
+    data: result,
+  };
 };
+
+async function handleInternational(Authentication) {  // International
+    // Check Supplier and Get Details
+    // Check LIVE and TEST
+    const { CredentialType, CompanyId, TraceId } = Authentication;
+     
+    const supplierObj = [{'supplierCode': '1G'},{'supplierCode': 'TBO'}];
+    
+    console.log(supplierObj);
+
+    return supplierObj;
+}
+
+async function handleDomestic(Authentication) { // Domestic
+  return "Domestic";
+}
 
 module.exports = {
   getSearch,

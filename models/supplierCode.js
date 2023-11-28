@@ -4,7 +4,7 @@ const supplierCodeSchema = new mongoose.Schema({
     supplierCode : {
         type : String
     },
-    statue : {
+    status : {
         type : Boolean
     }
 }, {
@@ -12,4 +12,4 @@ const supplierCodeSchema = new mongoose.Schema({
 });
 const SupplierCode = mongoose.model("SupplierCode", supplierCodeSchema);
 
-module.exports = SupplierCode
+module.exports = SupplierCode;

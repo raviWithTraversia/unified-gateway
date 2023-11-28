@@ -4,23 +4,19 @@ const User = require('../../models/User')
 
 const addPgCharges = async (req, res) => {
   try {
-  //  console.log( req)
     const {paymentGatewayProvider, paymentMethod, gatewayChargesOnMethod, gatewayFixchargesOnMethod,companyId } =
       req.body;
-     // console.log(paymentGatewayProvider , "<<<<<<<=============>>>>>>>",paymentMethod,"<<<<<<+++++++++", gatewayChargesOnMethod, gatewaySurchargesOnMethod)
      let userId = req.user._id
-     let checkIsRole = await User.findById(userId).populate('roleId', 'name').exec();
+     let checkIsRole =  await User.findById(userId).populate('roleId').exec();
      
-   //  console.log(checkIsRole , "[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]")
-     if(checkIsRole.name == "Tmc" || checkIsRole.name == "TMC" ){
-    let pgChargesInsert =  await pgCharges.create({
+     if(checkIsRole.roleId.name == "Tmc" || checkIsRole.roleId.name == "TMC" ){
+        let pgChargesInsert =  await pgCharges.create({
         companyId,
         paymentGatewayProvider,
         paymentMethod,
         gatewayChargesOnMethod,
         gatewayFixchargesOnMethod
       });
-  //  console.log(pgChargesInsert, "<<<<++++++++++")
     pgChargesInsert = await pgChargesInsert.save();
     if (pgChargesInsert) {
       return {
@@ -32,8 +28,8 @@ const addPgCharges = async (req, res) => {
         response: "Payment Gateway Charges Not Added",
       };
     }
-}
-else{
+   }
+   else{
     return {
         response : `User Dont have permision to add Pg Charges Details`
     }
@@ -144,7 +140,8 @@ const getPgCharges = async (req,res) => {
       console.log(error);
       throw error;
     }
-}
+};
+
 module.exports = {
   addPgCharges,
   editPgcharges,

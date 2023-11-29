@@ -291,10 +291,10 @@ const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetai
   }
 };
 
-const sendSMS = async (mobileno,urlData) => {
+const sendSMS = async (mobileno) => {
 let otp = Math.floor(100000 + Math.random() * 900000);
 let message = `Your OTP for authentication is:${otp} Kafila Hospitality & Travels Pvt. Ltd`
-let {type,userId, password,} = urlData;
+//let {type,userId, password,} = urlData;
 let url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(mobileno)}&msg=${encodeURIComponent(message)}&sid=KAFILA&type=0&entityid=1701157909411808398&tempid=1707170089574543263&dtNow=${encodeURIComponent(new Date().toLocaleString())}`;
 
   try {

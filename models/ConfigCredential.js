@@ -17,6 +17,9 @@ const credentialConfigSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Company'
     },
+    forWhat : {
+        type : String
+    },
     type : {
        token : String,
        secretKey : String,

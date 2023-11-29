@@ -4,6 +4,7 @@ const status = require("../../models/status");
 const Company = require("../../models/Company");
 const Smtp = require("../../models/smtp");
 const { ObjectId } = require("mongodb");
+const configCred = require('../../models/ConfigCredential')
 
 const addRegistration = async (req, res) => {
   try {
@@ -110,7 +111,6 @@ const addRegistration = async (req, res) => {
         response: "Mobile number already exists",
       };
     }
-
     const newRegistration = new registration({
       companyId,
       companyName,
@@ -143,6 +143,12 @@ const addRegistration = async (req, res) => {
     let mailConfig = await Smtp.findOne({ companyId: comapnyIds });
     let mailText = newRegistrationRes;
     let mailSubject = `New registration created successfully`;
+    let smsUrl = await configCred.findOne({companyId : companyId});
+    if(!smsUrl){
+      smsUrl = await configCred.find();
+    }
+    let sendSms = await  FUNC.sendSMS(mobile,smsUrl);
+    console.log(sendSms, "SMS Sent");
     if (newRegistrationRes) {
       let mailRes = await FUNC.commonEmailFunction(
         email,

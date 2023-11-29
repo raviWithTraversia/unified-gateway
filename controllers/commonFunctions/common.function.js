@@ -291,7 +291,7 @@ const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetai
   }
 };
 
-const sendSMS = async (mobileno, urlData) => {
+const sendSMS = async (mobileno,urlData) => {
 let otp = Math.floor(100000 + Math.random() * 900000);
 let message = `Your OTP for authentication is:${otp} Kafila Hospitality & Travels Pvt. Ltd`
 let {type,userId, password,} = urlData;

@@ -1,15 +1,33 @@
 //const airGstMandate = require("../../models/configManage/AirGSTMandate");
 const Company = require("../../models/Company");
-
+const Supplier = require("../../models/Supplier");
+const axios = require("axios");
 const getSearch = async (req, res) => {
-  const { Authentication, TypeOfTrip, Segments, PaxDetail, TravelType } =
-    req.body;
+  const {
+    Authentication,
+    TypeOfTrip,
+    Segments,
+    PaxDetail,
+    TravelType,
+    Flexi,
+    Direct,
+    ClassOfService,
+    Airlines,
+    FareFamily,
+    RefundableOnly,
+  } = req.body;
   const fieldNames = [
     "Authentication",
     "TypeOfTrip",
     "Segments",
     "PaxDetail",
     "TravelType",
+    "Flexi",
+    "Direct",
+    "ClassOfService",
+    "Airlines",
+    "FareFamily",
+    "RefundableOnly",
   ];
   const missingFields = fieldNames.filter(
     (fieldName) =>
@@ -35,7 +53,6 @@ const getSearch = async (req, res) => {
 
   // Check if company Id exists
   const checkCompanyIdExist = await Company.findById(companyId);
-
   if (!checkCompanyIdExist) {
     return {
       response: "Compnay id does not exist",
@@ -47,33 +64,185 @@ const getSearch = async (req, res) => {
   // Check Travel Type ( International / Domestic )
   let result;
   if (TravelType === "International") {
-    result = await handleInternational(Authentication);
+    result = await handleInternational(
+      Authentication,
+      TypeOfTrip,
+      Segments,
+      PaxDetail,
+      TravelType,
+      Flexi,
+      Direct,
+      ClassOfService,
+      Airlines,
+      FareFamily,
+      RefundableOnly
+    );
   } else if (TravelType === "Domestic") {
-    result = await handleDomestic(Authentication);
+    result = await handleDomestic(
+      Authentication,
+      TypeOfTrip,
+      Segments,
+      PaxDetail,
+      TravelType,
+      Flexi,
+      Direct,
+      ClassOfService,
+      Airlines,
+      FareFamily,
+      RefundableOnly
+    );
   } else {
     return {
       response: "Travel Type Not Valid",
     };
   }
-  return {
-    response: "Fetch Data Successfully",
-    data: result,
-  };
+
+  if (!result.IsSucess) {
+    return {
+      response: result.response,
+    };
+  } else {
+    return {
+      response: "Fetch Data Successfully",
+      data: result.response,
+    };
+  }
 };
 
-async function handleInternational(Authentication) {  // International
-    // Check Supplier and Get Details
-    // Check LIVE and TEST
-    const { CredentialType, CompanyId, TraceId } = Authentication;
-     
-    const supplierObj = [{'supplierCode': '1G'},{'supplierCode': 'TBO'}];
-    
-    console.log(supplierObj);
+async function handleInternational(
+  Authentication,
+  TypeOfTrip,
+  Segments,
+  PaxDetail,
+  TravelType,
+  Flexi,
+  Direct,
+  ClassOfService,
+  Airlines,
+  FareFamily,
+  RefundableOnly
+) {
+  // International
+  // Check LIVE and TEST
+  const { CredentialType, CompanyId, TraceId } = Authentication;
+  if (!["LIVE", "TEST"].includes(CredentialType)) {
+    return {
+      IsSucess: false,
+      response: "Credential Type does not exist",
+    };
+  }
+  const supplierCredentials = await Supplier.find({
+    companyId: CompanyId,
+    credentialsType: CredentialType,
+  })
+    .populate({
+      path: "supplierCodeId",
+      select: "supplierCode",
+    })
+    .exec();
+  if (!supplierCredentials || !supplierCredentials.length) {
+    return {
+      IsSucess: false,
+      response: "Supplier credentials does not exist",
+    };
+  }
+  if (!TraceId) {
+    return {
+      IsSucess: false,
+      response: "Trace Id Required",
+    };
+  }
+  // Commertial query call here ( PENDING )
+  // Supplier API Integration Start Here ....
+  const responsesApi = await Promise.all(
+    supplierCredentials.map(async (supplier) => {
+      try {
+        switch (supplier.supplierCodeId.supplierCode) {
+          case "Kafila":
+            return await internationalKafilaFun(
+              supplier,
+              TypeOfTrip,
+              Segments,
+              PaxDetail,
+              TravelType,
+              Flexi,
+              Direct,
+              ClassOfService,
+              Airlines,
+              FareFamily,
+              RefundableOnly
+            );
 
-    return supplierObj;
+          default:
+            throw new Error(
+              `Unsupported supplier: ${supplier.supplierCodeId.supplierCode}`
+            );
+        }
+      } catch (error) {
+        return { error: error.message, supplier: supplier };
+      }
+    })
+  );
+
+  // Combine the responses here
+  const combineResponseObj = {};
+  supplierCredentials.forEach((supplier, index) => {
+    const responsecombineapi = responsesApi[index];
+    if (!responsecombineapi.error) {
+      combineResponseObj[supplier.supplierCodeId.supplierCode] =
+        responsecombineapi;
+    } else {
+      combineResponseObj[supplier.supplierCodeId.supplierCode] = {
+        IsSucess: false,
+        response: "Supplier Not Found",
+      };
+    }
+  });
+
+  return {
+    IsSucess: true,
+    response: combineResponseObj,
+  };
 }
 
-async function handleDomestic(Authentication) { // Domestic
+const internationalKafilaFun = async (
+  supplier,
+  TypeOfTrip,
+  Segments,
+  PaxDetail,
+  TravelType,
+  Flexi,
+  Direct,
+  ClassOfService,
+  Airlines,
+  FareFamily,
+  RefundableOnly
+) => {
+  // Apply APi for Type of trip ( ONEWAY / ROUNDTRIP / MULTYCITY )
+  if (!["MULTYCITY", "ONEWAY", "ROUNDTRIP"].includes(TypeOfTrip)) {
+    return {
+      IsSucess: false,
+      response: "Type of trip does not exist",
+    };
+  }
+  // add api with here oneway round multicity
+
+  return Flexi;
+};
+async function handleDomestic(
+  Authentication,
+  TypeOfTrip,
+  Segments,
+  PaxDetail,
+  TravelType,
+  Flexi,
+  Direct,
+  ClassOfService,
+  Airlines,
+  FareFamily,
+  RefundableOnly
+) {
+  // Domestic
   return "Domestic";
 }
 

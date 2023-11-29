@@ -147,7 +147,7 @@ const addRegistration = async (req, res) => {
     if(!smsUrl){
       smsUrl = await configCred.find();
     }
-    let sendSms = await  FUNC.sendSMS(mobile,smsUrl);
+    let sendSms = await  FUNC.sendSMS(mobile);
     console.log(sendSms, "SMS Sent");
     if (newRegistrationRes) {
       let mailRes = await FUNC.commonEmailFunction(

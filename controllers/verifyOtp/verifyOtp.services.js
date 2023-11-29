@@ -3,6 +3,7 @@ const FUNC = require("../commonFunctions/common.function");
 const smtpConfig = require("../../models/smtp");
 const moment = require('moment');
 const company = require('../../models/Company');
+const configCred = require('../../models/ConfigCredential')
 
 const sendEmailOtp = async (req, res) => {
   try {

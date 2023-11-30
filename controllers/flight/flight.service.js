@@ -220,6 +220,9 @@ const internationalKafilaFun = async (
   FareFamily,
   RefundableOnly
 ) => {
+
+  let createTokenUrl;
+  let flightSearchUrl;
   // Apply APi for Type of trip ( ONEWAY / ROUNDTRIP / MULTYCITY )
   if (!["MULTYCITY", "ONEWAY", "ROUNDTRIP"].includes(TypeOfTrip)) {
     return {
@@ -230,13 +233,15 @@ const internationalKafilaFun = async (
   // add api with here oneway round multicity
   if(Authentication.CredentialType === "LIVE"){
     // Live Url here
-    let createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
+    createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
+    flightSearchUrl = `http://stage1.ksofttechnology.com/api/FSearch`;    
   }else{
     // Test Url here
-    let createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
+    createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
+    flightSearchUrl = `http://stage1.ksofttechnology.com/api/FSearch`;    
   }
 
-  let curlData = {
+  let tokenData = {
     P_TYPE: "API",
     R_TYPE: "FLIGHT",
     R_NAME: "GetToken",
@@ -245,8 +250,29 @@ const internationalKafilaFun = async (
     PWD: "test",
     Version: "1.0.0.0.0.0",
   };
+  try {    
+    let response = await axios.post(createTokenUrl, tokenData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if(response.data.Status === "success"){
+      let getToken = response.data.Result;
+      return supplier;
+    }else{
+      return {
+        IsSucess: false,
+        response: response.data.ErrorMessage,
+      };
+    } 
+    
+  } catch (error) {
+    return {
+      IsSucess: false,
+      response: error.message,
+    };    
+  }
   
-  return Flexi;
 };
 async function handleDomestic(
   Authentication,

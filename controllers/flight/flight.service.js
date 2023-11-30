@@ -245,9 +245,9 @@ const internationalKafilaFun = async (
     P_TYPE: "API",
     R_TYPE: "FLIGHT",
     R_NAME: "GetToken",
-    AID: "675923",
-    UID: "test",
-    PWD: "test",
+    AID: supplier.supplierWsapSesssion,
+    UID: supplier.supplierUserId,
+    PWD: supplier.supplierPassword,
     Version: "1.0.0.0.0.0",
   };
   try {    
@@ -258,8 +258,8 @@ const internationalKafilaFun = async (
     });
     if(response.data.Status === "success"){
       let getToken = response.data.Result;
-      return supplier;
-    }else{
+      return getToken;
+    }else{ 
       return {
         IsSucess: false,
         response: response.data.ErrorMessage,

@@ -138,7 +138,8 @@ const addRegistration = async (req, res) => {
       gstPinCode: gstPinCode || null,
     });
     let newRegistrationRes = await newRegistration.save();
-    //console.log(newRegistrationRes);
+    // console.log(newRegistrationRes);
+    // return false;
     let comapnyIds = companyId;
     let mailConfig = await Smtp.findOne({ companyId: comapnyIds });
     let mailText = newRegistrationRes;

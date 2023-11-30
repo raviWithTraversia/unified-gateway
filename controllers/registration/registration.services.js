@@ -249,7 +249,7 @@ const getAllRegistrationByCompany = async (req, res) => {
     }
     // const registrationData = await registration.find({companyId : comapnyId});
 
-    let aggregrationRes = await registration. registration.find({comapnyId : comapnyId})
+    let aggregrationRes = await registration.find({comapnyId : comapnyId})
     .populate('statusId', 'name')
     .populate('roleId', 'name')
     .exec();
@@ -273,24 +273,30 @@ const getAllRegistrationByCompany = async (req, res) => {
 
 const updateRegistration = async (req, res) => {
   try {
-    const { registrationId, statusId, remark } = req.body;
+    const { registrationId, statusId, remark , roleId } = req.body;
     let checkIsValidregistrationId = FUNC.checkIsValidId(registrationId);
     let checkIsValidstatusId = FUNC.checkIsValidId(statusId);
-    if (!checkIsValidregistrationId || !checkIsValidstatusId) {
+    let checkIsValidRoleId = FUNC.checkIsValidId(roleId);
+
+    if (!checkIsValidregistrationId || !checkIsValidstatusId || checkIsValidRoleId) {
       return {
-        response: "Please pass valid registrationId or statusId",
+        response: "Please pass valid registrationId or statusId or roleId",
       };
-    }
+    };
     const updateRegistration = await registration.findOneAndUpdate(
       { _id: registrationId },
       {
         $set: {
           statusId: statusId,
           remark: remark,
+          roleId : roleId
         },
-      }
+      },
+      { new: true }
     );
-    ///console.log(updateRegistration , "<<<<<<<<<<<+++++++++>>>>>>>>>>>>>>>>>>>>>>>>")
+   
+    
+    console.log(updateRegistration , "<<<<<<<<<<<+++++++++>>>>>>>>>>>>>>>>>>>>>>>>")
     if (updateRegistration) {
       let registrationIds = new ObjectId(registrationId);
       let comapnyId = updateRegistration.companyId;
@@ -338,6 +344,7 @@ const updateRegistration = async (req, res) => {
       }
       return {
         response: "Registration data updated sucessfully",
+        data: updateRegistration
       };
     } else {
       return {

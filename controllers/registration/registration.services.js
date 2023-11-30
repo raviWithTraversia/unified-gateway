@@ -278,7 +278,7 @@ const updateRegistration = async (req, res) => {
     let checkIsValidstatusId = FUNC.checkIsValidId(statusId);
     let checkIsValidRoleId = FUNC.checkIsValidId(roleId);
 
-    if (!checkIsValidregistrationId || !checkIsValidstatusId || checkIsValidRoleId) {
+    if (!checkIsValidregistrationId || !checkIsValidstatusId || !checkIsValidRoleId) {
       return {
         response: "Please pass valid registrationId or statusId or roleId",
       };

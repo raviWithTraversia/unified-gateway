@@ -14,6 +14,7 @@ const supplierSchema = new mongoose.Schema({
     },
     supplierUserId: {
         type : String,
+        default: null
     },
     supplierPassword: {
         type : String,
@@ -90,6 +91,10 @@ const supplierSchema = new mongoose.Schema({
     billingAccountCode: {
         type : String,
         default: null
+    },
+    supplierWsapSesssion:{
+       type : String,
+       default: null
     }
   }, {
     timestamps: true // Adds created_at and updated_at fields

@@ -96,4 +96,4 @@ const supplierSchema = new mongoose.Schema({
   });
   const supplier = mongoose.model('supplier',supplierSchema);
 
-module.exports = supplier
+module.exports = supplier;

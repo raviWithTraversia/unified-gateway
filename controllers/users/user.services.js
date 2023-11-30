@@ -114,7 +114,7 @@ const loginUser = async (req, res) => {
     await User.findOneAndUpdate({ email: email}, user);
 
     let message = 'Login successful'
-    let messageSent = await commonFunction.sendSMS(phoneNumber);
+    let messageSent =             await commonFunction.sendSMS(phoneNumber);
     console.log(messageSent, "Message Sent Sucessfully")
     return {
       response: "Login successful",

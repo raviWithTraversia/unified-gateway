@@ -112,11 +112,11 @@ const loginUser = async (req, res) => {
       last_LoginDate : new Date()
     }
     await User.findOneAndUpdate({ email: email}, user);
-    let otp = Math.floor(100000 + Math.random() * 900000);
-    let message = 'Login successful';
-    //console.log(userDetails.phoneNumber,"<<<<<<<<<<<<<<<=========================");
-    let messageSent = await commonFunction.sendSMS(userDetails.phoneNumber,otp);
-    console.log(messageSent, "Message Sent Sucessfully")
+    // let otp = Math.floor(100000 + Math.random() * 900000);
+    // let message = 'Login successful';
+    // //console.log(userDetails.phoneNumber,"<<<<<<<<<<<<<<<=========================");
+    // let messageSent = await commonFunction.sendSMS(userDetails.phoneNumber,otp);
+    // console.log(messageSent, "Message Sent Sucessfully")
     return {
       response: "Login successful",
       data: userDetails,

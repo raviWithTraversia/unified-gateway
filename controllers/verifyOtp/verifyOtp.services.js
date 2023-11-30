@@ -7,28 +7,29 @@ const configCred = require('../../models/ConfigCredential')
 
 const sendEmailOtp = async (req, res) => {
   try {
-    const { type, typeName , companyId, otp} = req.body;
+    const { type, typeName , companyId} = req.body;
+    let otp = Math.floor(100000 + Math.random() * 900000);
     let generateOtp = otp
     //host,port,user,pass
-    // let smtpDetails;
-    // if(companyId){
-    //  smtpDetails = await smtpConfig.findOne({companyId :companyId});
-    // }else{
-    //   let companyId = await company.findOne({type : "Host"});
-    //   companyId = companyId._id
-    //   smtpDetails = await smtpConfig.findOne({companyId :companyId})
-    // }
+    let smtpDetails;
+    if(companyId){
+     smtpDetails = await smtpConfig.findOne({companyId :companyId});
+    }else{
+      let companyId = await company.findOne({type : "Host"});
+      companyId = companyId._id
+      smtpDetails = await smtpConfig.findOne({companyId :companyId})
+    }
 
-    // if(!smtpDetails){
-    //   return {
-    //     response : "No Smtp details found for this company id"
-    //   }
-    // }
+    if(!smtpDetails){
+      return {
+        response : "No Smtp details found for this company id"
+      }
+    }
    
     const currentTime = new Date();
-    let deletePreviousResult  = await varifyOtp.deleteMany({otpExpireTime: { $lt: currentTime } ,otpFor : type, typeName : typeName, status : true });
-  //  let otpSent = await FUNC.sendOtpOnEmail(typeName, generateOtp, smtpDetails);
-   // console.log(otpSent , "===========================")
+   let deletePreviousResult  = await varifyOtp.deleteMany({otpExpireTime: { $lt: currentTime } ,otpFor : type, typeName : typeName, status : true });
+   let otpSent = await FUNC.sendOtpOnEmail(typeName, generateOtp, smtpDetails);
+   console.log(otpSent , "===========================")
     const saveOtpData = new varifyOtp({
       otpFor: type,
       typeName: typeName,
@@ -51,9 +52,6 @@ const sendEmailOtp = async (req, res) => {
     throw error;
   }
 };
-
-
-
 
 const varifyOtpEmailOtp = async (req, res) => {
   try {
@@ -94,7 +92,42 @@ const varifyOtpEmailOtp = async (req, res) => {
   }
 };
 
+const sendPhoneOtp = async (req, res) => {
+  try {
+    const { type, typeName , companyId} = req.body;
+    let otp = Math.floor(100000 + Math.random() * 900000);
+    let generateOtp = otp
+    //host,port,user,pass
+   
+    const currentTime = new Date();
+   let deletePreviousResult  = await varifyOtp.deleteMany({otpExpireTime: { $lt: currentTime } ,otpFor : type, typeName : typeName, status : true });
+   let otpSent = await FUNC.sendSMS(typeName,otp);
+    console.log(otpSent , "===========================")
+    const saveOtpData = new varifyOtp({
+      otpFor: type,
+      typeName: typeName,
+      otp: generateOtp,
+      otpExpireTime : moment().add(2,'minute'),
+      status: true,
+    });
+    let otpRes = await saveOtpData.save();
+    if (otpRes) {
+      return {
+        response: "Otp sent sucessfully to your Mobile",
+      };
+    } else {
+      return {
+        response: "Try Again to sent otp ",
+      };
+    }
+  } catch (error){
+    console.log(error, "======================");
+    throw error;
+  }
+};
+
 module.exports = {
   sendEmailOtp,
   varifyOtpEmailOtp,
+  sendPhoneOtp
 };

@@ -27,7 +27,8 @@ const addSupplier = async (req,res) => {
         GKPnrAllow,
         internationalncludeAirline,
         internationalExcludeAirline,
-        billingAccountCode
+        billingAccountCode,
+        supplierWsapSesssion,
       } = req.body;
     let checkIsValidCompanyId = FUNC.checkIsValidId(companyId);
     let checkValidSupplierCodeId = FUNC.checkIsValidId(supplierCodeId);
@@ -55,7 +56,8 @@ const addSupplier = async (req,res) => {
         GKPnrAllow,
         internationalncludeAirline,
         internationalExcludeAirline,
-        billingAccountCode
+        billingAccountCode,
+        supplierWsapSesssion
       });
       newSupplier = await newSupplier.save();
       if(newSupplier){

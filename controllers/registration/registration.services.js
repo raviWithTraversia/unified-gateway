@@ -190,14 +190,7 @@ const addRegistration = async (req, res) => {
       gstPinCode: gstPinCode || null,
     });
     let newRegistrationRes = await newRegistration.save();
-<<<<<<< HEAD
-    // console.log(newRegistrationRes);
-    // return false;
-    let comapnyIds = companyId;
-    let mailConfig = await Smtp.findOne({ companyId: comapnyIds });
-=======
     console.log(newRegistrationRes);
->>>>>>> 007ed167ef50e3c15d18c72664d967de999426aa
     let mailText = newRegistrationRes;
     let mailSubject = `New registration created successfully`;
     let smsUrl = await configCred.findOne({companyId : companyId});

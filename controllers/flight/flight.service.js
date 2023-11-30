@@ -160,6 +160,7 @@ async function handleInternational(
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
             return await internationalKafilaFun(
+              Authentication,
               supplier,
               TypeOfTrip,
               Segments,
@@ -206,6 +207,7 @@ async function handleInternational(
 }
 
 const internationalKafilaFun = async (
+  Authentication,
   supplier,
   TypeOfTrip,
   Segments,
@@ -226,7 +228,24 @@ const internationalKafilaFun = async (
     };
   }
   // add api with here oneway round multicity
+  if(Authentication.CredentialType === "LIVE"){
+    // Live Url here
+    let createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
+  }else{
+    // Test Url here
+    let createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
+  }
 
+  let curlData = {
+    P_TYPE: "API",
+    R_TYPE: "FLIGHT",
+    R_NAME: "GetToken",
+    AID: "675923",
+    UID: "test",
+    PWD: "test",
+    Version: "1.0.0.0.0.0",
+  };
+  
   return Flexi;
 };
 async function handleDomestic(

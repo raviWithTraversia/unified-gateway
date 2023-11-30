@@ -106,15 +106,16 @@ const loginUser = async (req, res) => {
     if(user.roleId){
       let userRoleName = await Role.findOne({})
     }
-
+  console.log(userDetails)
     user = {
       ip_address : req.ip,
       last_LoginDate : new Date()
     }
     await User.findOneAndUpdate({ email: email}, user);
-
-    let message = 'Login successful'
-    let messageSent =             await commonFunction.sendSMS(phoneNumber);
+    let otp = Math.floor(100000 + Math.random() * 900000);
+    let message = 'Login successful';
+    //console.log(userDetails.phoneNumber,"<<<<<<<<<<<<<<<=========================");
+    let messageSent = await commonFunction.sendSMS(userDetails.phoneNumber,otp);
     console.log(messageSent, "Message Sent Sucessfully")
     return {
       response: "Login successful",

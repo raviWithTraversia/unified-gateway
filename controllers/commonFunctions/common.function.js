@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const EventLog = require("../../models/Logs/EventLogs");
 const PortalLog = require("../../models/Logs/PortalApiLogs");
 const fs = require('fs');
+const smsConfigCred = require('../../models/ConfigCredential');
 
 const createToken = async (id) => {
   try {
@@ -291,13 +292,11 @@ const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetai
   }
 };
 
-const sendSMS = async (mobileno,urlData) => {
-let otp = Math.floor(100000 + Math.random() * 900000);
-let message = `Your OTP for authentication is:${otp} Kafila Hospitality & Travels Pvt. Ltd`
-let {type,userId, password,} = urlData;
-let url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(mobileno)}&msg=${encodeURIComponent(message)}&sid=KAFILA&type=0&entityid=1701157909411808398&tempid=1707170089574543263&dtNow=${encodeURIComponent(new Date().toLocaleString())}`;
-
+const sendSMS = async (mobileno, otp) => {
   try {
+    let message = `Your OTP for authentication is:${otp} Kafila Hospitality & Travels Pvt. Ltd`;
+    let url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(mobileno)}&msg=${encodeURIComponent(message)}&sid=KAFILA&type=0&entityid=1701157909411808398&tempid=1707170089574543263&dtNow=${encodeURIComponent(new Date().toLocaleString())}`;
+
       const response = await fetch(url);
       const strSMSResponseString = await response.text();
 

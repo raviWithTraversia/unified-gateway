@@ -14,5 +14,6 @@ module.exports.Config = {
     GST_TOKEN : {
       'Accept' :  'application/json',
       'Authorization': 'Basic ay0zZmY0ZDYzNy0yY2UzLTQ2Y2UtYTAzMS0wZDEyMDAwOTM1MzE6cy1kNzlmOTk5MC1iYTBjLTRmNTctOTA5MS03NWYyZTQ1ZTA1Njk='
-    }
+    },
+    MAIL_CONFIG_ID : '6538c0364756928875840840'
 }

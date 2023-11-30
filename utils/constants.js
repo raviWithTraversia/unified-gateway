@@ -101,6 +101,14 @@ const DISTRIBUTER_ROLE = {
 const HOST_ROLE = {
     TMC : "TMC",
     DISTRIBUTER : "Distributer"
+};
+const OTP_FOR = {
+    "Mail": "Email",
+    "Phone" : "Phone"
+};
+const OTP_TYPE = {
+    "Reg" : 'Registration',
+    "Login": 'Login'
 }
 
 module.exports = {
@@ -111,5 +119,7 @@ module.exports = {
     Status,
     TMC_ROLE,
     DISTRIBUTER_ROLE,
-    HOST_ROLE
+    HOST_ROLE,
+    OTP_FOR,
+    OTP_TYPE
 }

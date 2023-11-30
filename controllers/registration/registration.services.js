@@ -223,45 +223,11 @@ const addRegistration = async (req, res) => {
 const getAllRegistration = async (req, res) => {
   try {
     // let getAllRegistartion = await registration.find();
-    let getAllRegistartion = await registration.aggregate([
-      {
-        $lookup: {
-          from: "status",
-          localField: "statusId",
-          foreignField: "_id",
-          as: "statusName",
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          companyId: 1,
-          companyName: 1,
-          panNumber: 1,
-          panName: 1,
-          firstName: 1,
-          lastName: 1,
-          saleInChargeId: 1,
-          email: 1,
-          mobile: 1,
-          gstNumber: 1,
-          gstName: 1,
-          gstAddress: 1,
-          street: 1,
-          pincode: 1,
-          country: 1,
-          state: 1,
-          city: 1,
-          remark: 1,
-          statusId: 1,
-          isIATA: 1,
-          createdAt: 1,
-          updatedAt: 1,
-          statusName: { name: { $arrayElemAt: ["$statusName.name", 0] } }, // Projection for the '_id' field
-        },
-      },
-    ]);
 
+    let getAllRegistartion = await registration.find()
+     .populate('statusId', 'name')
+     .populate('roleId', 'name')
+     .exec();
     return {
       response: "All registrationData fetch",
       data: getAllRegistartion,
@@ -283,47 +249,10 @@ const getAllRegistrationByCompany = async (req, res) => {
     }
     // const registrationData = await registration.find({companyId : comapnyId});
 
-    let aggregrationRes = await registration.aggregate([
-      {
-        $match: { companyId: comapnyId },
-      },
-      {
-        $lookup: {
-          from: "status",
-          localField: "statusId",
-          foreignField: "_id",
-          as: "statusName",
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          companyId: 1,
-          companyName: 1,
-          panNumber: 1,
-          panName: 1,
-          firstName: 1,
-          lastName: 1,
-          saleInChargeId: 1,
-          email: 1,
-          mobile: 1,
-          gstNumber: 1,
-          gstName: 1,
-          gstAddress: 1,
-          street: 1,
-          pincode: 1,
-          country: 1,
-          state: 1,
-          city: 1,
-          remark: 1,
-          statusId: 1,
-          isIATA: 1,
-          createdAt: 1,
-          updatedAt: 1,
-          statusName: { name: { $arrayElemAt: ["$statusName.name", 0] } },
-        },
-      },
-    ]);
+    let aggregrationRes = await registration. registration.find({comapnyId : comapnyId})
+    .populate('statusId', 'name')
+    .populate('roleId', 'name')
+    .exec();
 
     if (!aggregrationRes) {
       return {

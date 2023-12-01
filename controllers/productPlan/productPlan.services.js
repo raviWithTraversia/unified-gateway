@@ -6,7 +6,7 @@ const commonFunction = require('../commonFunctions/common.function');
 
 const addProductPlan = async (req, res) => {
     try {
-        const { productPlanName, companyId , product} = req.body;
+        const { productPlanName, companyId , product, status} = req.body;
       
         // Check company id exist or not
         const checkCompanyIdExist = await Company.find({ _id: companyId });
@@ -27,7 +27,8 @@ const addProductPlan = async (req, res) => {
         }
         const addNewProductPlan = new ProductPlan({
             productPlanName,
-            companyId
+            companyId,
+             status : status || true
         });
 
         // save product plan
@@ -91,7 +92,7 @@ const getAllProductPlan = async (req, res) => {
 
 const productPlanUpdateById = async (req, res) => {
     try {
-        const {productPlanName , product} = req.body
+        const {productPlanName , product, status} = req.body
         if (!productPlanName) {
             return {
                 response: 'product plan name fields are required'

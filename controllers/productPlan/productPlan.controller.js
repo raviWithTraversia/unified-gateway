@@ -6,8 +6,7 @@ const {
   CrudMessage,
 } = require("../../utils/constants");
 
-// hjghjjjgj
-// product plan store
+
 const addProductPlan = async (req, res) => {
   try {
     const result = await ProductPlanServices.addProductPlan(req);

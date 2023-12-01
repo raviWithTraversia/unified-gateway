@@ -64,7 +64,10 @@ const CrudMessage = {
     INCGROUP_CREATE : 'incentive Group master added successfully',
     INCGROUP_UPDATE : 'incentive Group master updated successfully',
     INCGROUP_DELETE : 'incentive Group master deleted successfully',
-    PAN_DATA: 'Data retrvee sucessfully'
+    PAN_DATA: 'Data retrvee sucessfully',
+    IMAGE_UPLOAD: 'Image Uploded',
+    IMAGE_UPLOAD_FETCH: 'Image Uploded Fetch',
+
 }
 
 const errorResponse = {

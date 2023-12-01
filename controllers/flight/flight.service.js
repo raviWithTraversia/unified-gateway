@@ -2,6 +2,9 @@
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const axios = require("axios");
+const NodeCache = require('node-cache');
+const flightCache = new NodeCache();
+
 const getSearch = async (req, res) => {
   const {
     Authentication,
@@ -221,6 +224,24 @@ const internationalKafilaFun = async (
   RefundableOnly
 ) => {
 
+  const cacheKey = JSON.stringify({
+    TypeOfTrip,
+    Segments,
+    PaxDetail,
+    TravelType,
+    Flexi,
+    Direct,
+    ClassOfService,
+    Airlines,
+    FareFamily,
+    RefundableOnly,
+  });
+
+  const cachedResult = flightCache.get(cacheKey);
+  if (cachedResult) {
+    return cachedResult;
+  }
+
   let createTokenUrl;
   let flightSearchUrl;
   // Apply APi for Type of trip ( ONEWAY / ROUNDTRIP / MULTYCITY )
@@ -258,7 +279,8 @@ const internationalKafilaFun = async (
     });
     if(response.data.Status === "success"){
       let getToken = response.data.Result;
-      return getToken;
+      flightCache.set(cacheKey, getToken, 300);
+      return getToken; // apply after token and check one way and round or ...
     }else{ 
       return {
         IsSucess: false,

@@ -3,6 +3,7 @@ const Company = require('../../models/Company');
 const ProductHasPP = require('../../models/ProductPlanHasProduct');
 const User = require('../../models/User');
 const commonFunction = require('../commonFunctions/common.function');
+const ProductPlanHasProduct = require('../../models/ProductPlanHasProduct');
 
 const addProductPlan = async (req, res) => {
     try {
@@ -69,10 +70,10 @@ const addProductPlan = async (req, res) => {
 
 const getAllProductPlan = async (req, res) => {
     try {
-        const { companyId } = req.query;
+        const { companyId } = req.params;
 
         const result = await ProductPlan.find({companyId : companyId});
-       // console.log(result,"result")
+    //    console.log(companyId,"result")
         if (result.length > 0) {
             return {
                 response : 'Product Plan Fetch Sucessfull',
@@ -159,4 +160,51 @@ const productPlanUpdateById = async (req, res) => {
     }
 }
 
-module.exports = { addProductPlan, getAllProductPlan , productPlanUpdateById}
+
+const getAllProductPlanDetail = async (req, res) => {
+    try {
+        const { companyId } = req.params;
+
+        const result = await ProductPlan.find({ companyId: companyId });
+
+        if (result.length > 0) {
+            const allData = await Promise.all(result.map(async (productPlan) => {
+                const newObj = {
+                    "_id": productPlan._id,
+                    "productPlanName": productPlan.productPlanName,
+                    "companyId": productPlan.companyId,
+                    "status": productPlan.status,
+                    "createdAt": productPlan.createdAt,
+                    "updatedAt": productPlan.updatedAt,
+                    "productId": []
+                };
+
+                const ProductPlanHasP = await ProductPlanHasProduct.find({ productPlaneId: productPlan._id });
+                if (ProductPlanHasP.length > 0) {
+                    newObj.productId.push(...ProductPlanHasP); // Use push with spread operator
+                }
+
+                return newObj;
+            }));
+
+            return {
+                response: 'Product Plan Fetch Successfully',
+                data: allData
+            };
+        } else {
+            return {
+                response: 'Product Plan Not Found',
+                data: null
+            };
+        }
+    } catch (error) {
+        throw error;
+    }
+};
+
+module.exports = { 
+    addProductPlan, 
+    getAllProductPlan, 
+    productPlanUpdateById,
+    getAllProductPlanDetail
+}

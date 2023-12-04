@@ -1,8 +1,8 @@
 const express = require("express");
-const product__plan_route = express();
+const product_plan_route = express();
 const bodyParser = require("body-parser");
-product__plan_route.use(bodyParser.json());
-product__plan_route.use(bodyParser.urlencoded({extended:true}));
+product_plan_route.use(bodyParser.json());
+product_plan_route.use(bodyParser.urlencoded({extended:true}));
 const ProductPlan = require('../controllers/productPlan/productPlan.controller');
 const auth = require("../middleware/auth");
 //const productValidator = require('../validation/product.validation');
@@ -48,7 +48,7 @@ const auth = require("../middleware/auth");
  */
 
 
-product__plan_route.post(
+ product_plan_route.post(
     '/product/product-plan', 
     auth,
     ProductPlan.addProductPlan
@@ -70,8 +70,8 @@ product__plan_route.post(
  *       500:
  *         description: Internal server error
  */
-product__plan_route.get(
-    '/product/all-product-plan' ,
+product_plan_route.get(
+    '/product/all-product-plan/:companyId' ,
     auth,
     ProductPlan.getAllProductPlan
 );
@@ -120,14 +120,20 @@ product__plan_route.get(
  */
 
 
-product__plan_route.patch(
+product_plan_route.patch(
     '/product/update-product-plan/:producPlantId' ,
     auth,
      ProductPlan.productPlanUpdateById
 );
 
 
-module.exports = product__plan_route;
+product_plan_route.get(
+    '/product/all-product-plan-detail/:companyId' ,
+    auth,
+    ProductPlan.getAllProductPlanDetail
+);
+
+module.exports = product_plan_route;
 
 
 

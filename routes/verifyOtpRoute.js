@@ -52,10 +52,14 @@ const userValidatior = require('../validation/user.validation');
 
 
 verifyOtp_route.post(
-    '/otp/sent-otp',
+    '/otp/sentOtpEmail',
     verifyOtpController.sendEmailOtp
 );
 
+verifyOtp_route.post(
+    '/otp/sentOtpPhone',
+    verifyOtpController.sendPhoneOtp
+);
 /**
  * @swagger
  * /api/otp/verify-otp:

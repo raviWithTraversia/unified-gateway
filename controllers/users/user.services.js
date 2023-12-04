@@ -6,8 +6,12 @@ const { Status } = require("../../utils/constants");
 const Smtp = require("../../models/smtp");
 const Role = require("../../models/Role");
 const {TMC_ROLE ,DISTRIBUTER_ROLE,HOST_ROLE} = require("../../utils/constants");
-const { response } = require("../../routes/registrationRoute");
 const webMaster = require("../../models/WebsiteManager");
+const Registration = require('../../models/Registration');
+const CommercialAirPlan = require('../../models/CommercialAirPlan');
+const FareRule = require('../../models/FareRules')
+const UserHasSalesInchargeConfig = require('../../models/configurationMaster/AssignUserHasSalesIncharge');
+const UserPervillagePlanConfig = require('../../models/configurationMaster/AssignUserHasPrevillagePlan');
 
 
 const registerUser = async (req, res) => {
@@ -65,13 +69,9 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, phoneNumber, password } = req.body;
-    console.log(req.ip, "=================>>>>>>>>>>>>>>>>>>>")
-
-    // Find the user by email
     let user = await User.findOne({
       $or: [{ email: email }, { phoneNumber: phoneNumber }],
     });
-
     if (!user) {
       return {
         response: "User not found",
@@ -91,30 +91,36 @@ const loginUser = async (req, res) => {
       };
     }
     const token = await commonFunction.createToken(user._id);
-    let id = user._id;
-    console.log(id)
     const userDetails = {
       _id: user._id,
-      name: user.name,
+      name: `${user.fname}${user.lastName}`,
       email: user.email,
       phoneNumber: user.phoneNumber,
+      companyId: user.company_ID,
+      roleId : user?.roleId || null,
       token: token,
     };
-    // Password is valid; user is authenticated
+    // let loginUserDetails = await User.aggregate([
+
+    // ])
+    if(user.roleId){
+      let userRoleName = await Role.findOne({})
+    }
+  console.log(userDetails)
     user = {
       ip_address : req.ip,
       last_LoginDate : new Date()
     }
-    console.log(user, "{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}")
     await User.findOneAndUpdate({ email: email}, user);
-  
-    
- //  console.log(data, "PPPPPPPPPPPPPPPPPPPPPPPPP")
+    // let otp = Math.floor(100000 + Math.random() * 900000);
+    // let message = 'Login successful';
+    // //console.log(userDetails.phoneNumber,"<<<<<<<<<<<<<<<=========================");
+    // let messageSent = await commonFunction.sendSMS(userDetails.phoneNumber,otp);
+    // console.log(messageSent, "Message Sent Sucessfully")
     return {
       response: "Login successful",
       data: userDetails,
     };
-    //  res.status(200).json({ success: true, msg: "Login successful", data: userDetails });
   } catch (error) {
     console.log(error);
     throw error;
@@ -122,8 +128,8 @@ const loginUser = async (req, res) => {
 };
 
 const userInsert = async (req, res) => {
+  let savedCompany = null;
   try {
-    // Define the required fields
     const requiredFields = [
       "companyName",
       "parent",
@@ -163,15 +169,12 @@ const userInsert = async (req, res) => {
       "sex",
       "dob",
       "nationality",
-      "deviceToken",
-      "deviceID",
       "user_planType",
       "sales_In_Charge",
       "personalPanCardUpload",
       "roleId",
     ];
 
-    // Check for missing fields in the request body
     const missingFields = requiredFields.filter(
       (fieldName) =>
         req.body[fieldName] === null || req.body[fieldName] === undefined
@@ -183,9 +186,7 @@ const userInsert = async (req, res) => {
         isSometingMissing: true,
         data: `Missing or null fields: ${missingFieldsString}`,
       };
-    }
-
-    // Destructure the request body
+    };
     const {
       companyName,
       parent,
@@ -223,11 +224,6 @@ const userInsert = async (req, res) => {
       userStatus,
       userPanName,
       userPanNumber,
-      created_Date,
-      lastModifiedDate,
-      userModifiedBy,
-      last_LoginDate,
-      activation_Date,
       sex,
       dob,
       nationality,
@@ -236,15 +232,26 @@ const userInsert = async (req, res) => {
       user_planType,
       sales_In_Charge,
       personalPanCardUpload,
-      roleId
+      roleId,
+      gstState,
+      gstPinCode,
+      gstCity,
+      gstNumber,
+      gstName,
+      gstAddress_1,
+      gstAddress_2,
+      isIATA,
+      holdPnrAllowed,
+      saleInChargeId,
+      privillagePlanId
     } = req.body;
-    
+   
     // Check if a user with the same email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return {
         response: "User with this email already exists",
-        data: null,
+        data: null
       };
     }
     
@@ -256,8 +263,6 @@ const userInsert = async (req, res) => {
         data: null,
       };
     }
-
-    // Create a new Company document
     const newCompany = new Company({
       companyName,
       parent,
@@ -279,11 +284,19 @@ const userInsert = async (req, res) => {
       HSN_SAC_Code,
       hierarchy_Level,
       pan_upload,
+      gstState: gstState || null,
+      gstPinCode : gstPinCode || null,
+      gstCity : gstCity || null,
+      gstNumber : gstNumber || null,
+      gstName : gstName || null,
+      gstAddress_1 : gstAddress_1 || null,
+      gstAddress_2 : gstAddress_2 || null,
+      isIATA : isIATA || false,
+      holdPnrAllowed : holdPnrAllowed || false
     });
-
     let createdComapanyId = newCompany._id;
     let findRole = await Role.findOne({_id : roleId })
-    console.log(findRole.name, "=====================");
+  //  console.log(findRole.name, "=====================");
     if(findRole.name === HOST_ROLE.TMC){
       const rolesToInsert = [
         { name: TMC_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
@@ -299,13 +312,12 @@ const userInsert = async (req, res) => {
         { name: DISTRIBUTER_ROLE.Staff, companyId:  newCompany._id, type: 'Default' },
       ];
       const insertedRoles = await Role.insertMany(rolesToInsert);
-      console.log(insertedRoles);
+      //console.log(insertedRoles);
       console.log("Default Role Created Sucessfully");
     }
     // Save the Company document to the database
-    const savedCompany = await newCompany.save();
+    savedCompany = await newCompany.save();
     const securePassword = await commonFunction.securePassword(password);
-    // Create a new User document and associate it with the Company document
     const newUser = new User({
       userType,
       login_Id,
@@ -335,19 +347,39 @@ const userInsert = async (req, res) => {
       company_ID: savedCompany._id, // Set the company_ID field to the _id of the saved Company document
     });
 
-    // Save the User document to the database
-    await newUser.save();
+    let userCreated = await newUser.save();
+    if(userCreated){
+      await Registration.deleteOne({email : email});
+      console.log("Registration details deleted");
+      if(saleInChargeId){
+        let userSalesInchage = new UserHasSalesInchargeConfig({
+          companyId :savedCompany._id,
+          salesInchargeId : savedCompany._id || null
+        });
+        await userSalesInchage.save();
+      }
+      if(privillagePlanId){
+         let UserPervillagePlanAssign = new UserPervillagePlanConfig({
+          companyId : savedCompany._id,
+          privilagePlanId : privillagePlanId || null
+         });
+         await UserPervillagePlanAssign.save();
+      }
+    }
     return {
       response: "User and Company Inserted successfully",
       data: { newUser, newCompany },
     };
-    // return res.status(200).json({ success: true, msg: 'User and Company Inserted successfully', data: newUser });
   } catch (error) {
-    if (savedCompany) {
-      await Company.findByIdAndRemove(savedCompany._id);
+    if (savedCompany == null) {
+      console.log(error);
+      throw error;
+    }else{
+      await Company.deleteOne(savedCompany._id);
+      console.log(error);
+      throw error;
     }
-    console.log(error);
-    throw error;
+   
   }
 };
 
@@ -377,10 +409,8 @@ const forgotPassword = async (req, res) => {
       mailConfig = mailConfig[0];
     }
     let basrUrl = await webMaster.findOne({companyId : comapnyIds})
-    basrUrl = basrUrl.websiteURL;
-   // console.log(mailConfig, "================>>>>>>>>>>>>>>>>");
-    // Send a password reset email to the user
-
+    basrUrl = basrUrl.websiteURL || 'http://localhost:3111/api';
+   // console.log(basrUrl, "nnnnnnnnnnnnnnnnnnnnnnn")
     const forgetPassWordMail = await commonFunction.sendPasswordResetEmail(
       email,
       resetToken,
@@ -495,7 +525,6 @@ const changePassword = async (req, res) => {
 
 const addUser = async (req,res) => {
   try{
-  //  console.log(req.user, "<<<<<<<<<<<<++++++++++++++++>>>>>>>>>>>>>>>>>>>>>>");
     let requiredFeild = [
        'title',
        'firstName',

@@ -74,7 +74,38 @@ const varifyOtpEmailOtp = async (req, res) => {
     apiErrorres(res, error, ServerStatusCode.PRECONDITION_FAILED, true);
   }
 };
+
+const sendPhoneOtp = async (req, res) => {
+  try {
+    const result = await varifyOtpServices.sendPhoneOtp(req, res);
+    if (result.response === "Otp sent sucessfully to your Mobile") {
+      apiSucessRes(
+        res,
+        CrudMessage.OTP_EMAIL,
+        result.response,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else if (result.response === "Try Again to sent otp") {
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.PRECONDITION_FAILED,
+        true
+      );
+    } else {
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.PRECONDITION_FAILED,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(res, error, ServerStatusCode.PRECONDITION_FAILED, true);
+  }
+};
 module.exports = {
   sendEmailOtp,
   varifyOtpEmailOtp,
+  sendPhoneOtp
 };

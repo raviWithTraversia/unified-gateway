@@ -5,7 +5,7 @@ product__plan_route.use(bodyParser.json());
 product__plan_route.use(bodyParser.urlencoded({extended:true}));
 const ProductPlan = require('../controllers/productPlan/productPlan.controller');
 const auth = require("../middleware/auth");
-const productValidator = require('../validation/product.validation');
+//const productValidator = require('../validation/product.validation');
 
 
 // Product Plan route created by alam Shah
@@ -49,8 +49,7 @@ const productValidator = require('../validation/product.validation');
 
 
 product__plan_route.post(
-    '/product/product-plan' , 
-    productValidator.productPlanValidation ,
+    '/product/product-plan', 
     auth,
     ProductPlan.addProductPlan
 );
@@ -74,7 +73,7 @@ product__plan_route.post(
 product__plan_route.get(
     '/product/all-product-plan' ,
     auth,
-    ProductPlan.retriveProductPlan
+    ProductPlan.getAllProductPlan
 );
 
 
@@ -124,7 +123,7 @@ product__plan_route.get(
 product__plan_route.patch(
     '/product/update-product-plan/:producPlantId' ,
     auth,
-     ProductPlan.updateProductPlan
+     ProductPlan.productPlanUpdateById
 );
 
 

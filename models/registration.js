@@ -77,7 +77,7 @@ const registrationSchema = new mongoose.Schema({
     remark: String, 
     statusId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'status',
+        ref: 'Status',
         default: '6544519c2e87b61867441992'
     },
     isIATA: {
@@ -95,6 +95,10 @@ const registrationSchema = new mongoose.Schema({
     gstCity : {
         type: String,
         default : null
+    },
+    roleId : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Role'
     }
 
 },{

@@ -18,5 +18,6 @@ const roleSchema = new mongoose.Schema({
 }, {
   timestamps: true // Adds created_at and updated_at fields
 });
+const Role = mongoose.model("Role", roleSchema);
+module.exports = Role;
 
-module.exports = mongoose.model('Role', roleSchema);

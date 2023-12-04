@@ -6,7 +6,7 @@ product_route.use(bodyParser.urlencoded({extended:true}));
 const Product = require('../controllers/product/product.controller');
 const auth = require("../middleware/auth");
 const {productValidation} = require('../validation/product.validation');
-const productValidator = require('../validation/product.validation');
+//const productValidator = require('../validation/product.validation');
 
 
 

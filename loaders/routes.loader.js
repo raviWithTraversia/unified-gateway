@@ -21,6 +21,7 @@ const salesRoute = require('../routes/salesRoute');
 const commercialAirPlanRoute = require('../routes/commercialAirPlanRoute');
 const fareFamilyRoute = require('../routes/fareFamilyMasterRoute');
 const verifyOtpRoute = require('../routes/verifyOtpRoute');
+const flightRoute = require('../routes/flight/flightRoute');
 const carrierRoute = require('../routes/carrierRoute');
 const airCommercialRoute = require('../routes/airCommercialRoute');
 const roleHasPermissionRoute = require('../routes/roleHasPermissioRoute');
@@ -30,6 +31,13 @@ const layoutRoute = require('../routes/layoutRoute')
 const plbGroupMaster = require('../routes/plbGroupMasterRoute');
 const incentiveMasterRoute = require('../routes/incentiveMasterRoute');
 const incentiveGroupMasterRoute = require('../routes/incentiveGroupMasterRoute');
+const configManageRoute = require('../routes/configManage/configManageRoute');
+const pgChargesRoute = require('../routes/pgChargesRoute');
+const supplierCode = require('../routes/supplierCodeRoute');
+const supplier = require('../routes/supplierRoute');
+const airlinePromo = require('../routes/airlinePromoCodeRoute');
+const configCredential = require('../routes/configCredentialRoute');
+
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -94,6 +102,11 @@ class RoutesLoader {
 
         // varify otp by shashi
 
+        app.use('/api', verifyOtpRoute)
+
+        // Flight Route Start Here
+        app.use("/api", flightRoute);
+
         app.use('/api', verifyOtpRoute);
 
         // Carrier route by alam shah
@@ -128,6 +141,24 @@ class RoutesLoader {
 
         // incentive Master Group route
         app.use('/api' , incentiveGroupMasterRoute);
+
+        // Air Wise GST route Config Manage
+        app.use('/api', configManageRoute);
+
+        // pgcharges route 
+        app.use('/api', pgChargesRoute);
+
+        // supplierCode route
+        app.use('/api', supplierCode);
+
+        // supplier route
+        app.use('/api', supplier);
+
+        // airline Peomocode route
+        app.use('/api', airlinePromo )
+
+        // configCredential apis route
+        app.use('/api', configCredential)
     }
 }
 

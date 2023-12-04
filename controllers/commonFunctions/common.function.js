@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const EventLog = require("../../models/Logs/EventLogs");
 const PortalLog = require("../../models/Logs/PortalApiLogs");
 const fs = require('fs');
-const path = require('path');
+const smsConfigCred = require('../../models/ConfigCredential');
 
 const createToken = async (id) => {
   try {
@@ -82,7 +82,7 @@ const getPagingDataOfSp = async (Data, page, limit) => {
   return { totalItems: total, data: Data, totalPages, currentPage };
 };
 
-const checkIsValidId = async (Id) => {
+const checkIsValidId =  (Id) => {
   let validId = mongoose.isValidObjectId(Id);
   if (validId) {
     return "Valid Mongo Object Id";
@@ -214,7 +214,7 @@ const sendOtpOnPhone = async (recipientPhone, otp) => {
 };
 
 const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSubject) => {
-  const { companyName, firstName, lastName, mobile, email } = mailText;
+  const { companyName, firstName, lastName, mobile, email, name } = mailText;
   const htmlTemplate = fs.readFileSync('./view/Account_Registration.html', 'utf8');
   const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName)
   .replace(/\${firstName}/g, firstName)
@@ -252,6 +252,76 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSub
   }
 };
 
+const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetails, mailText,mailSubject) => {
+  //console.log(mailText, "<<<<<<<<<<???????????????????????????????",recipientEmail);
+  let  { companyName, firstName, lastName, email, mobile, statusName : [{name}] } = mailText[0];
+  const htmlTemplate = fs.readFileSync('./view/Account_Registration.html', 'utf8');
+  const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName)
+  .replace(/\${firstName}/g, firstName)
+  .replace(/\${lastName}/g, lastName)
+  .replace(/\${mobile}/g, mobile)
+  .replace(/\${email}/g, email);
+  const transporter = nodemailer.createTransport({
+    host: smtpDetails.host, 
+    port: smtpDetails.port, 
+    secure: false, 
+    auth: {
+      user: smtpDetails.userName,
+      pass: smtpDetails.password, // Verify the password for leading/trailing spaces
+    },
+  });
+
+  // Email content
+  const mailOptions = {
+    from: smtpDetails.emailFrom,
+    to: recipientEmail,
+    subject: `${mailSubject}`,
+    html: htmlContent
+  };
+
+  // Send the email
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Mail sent to ${recipientEmail}`);
+    return {
+      responce: " Mail sent",
+    };
+  } catch (error) {
+    console.error("Error sending Mail:", error);
+    throw error;
+  }
+};
+
+const sendSMS = async (mobileno, otp) => {
+  try {
+    let message = `Your OTP for authentication is:${otp} Kafila Hospitality & Travels Pvt. Ltd`;
+    let url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(mobileno)}&msg=${encodeURIComponent(message)}&sid=KAFILA&type=0&entityid=1701157909411808398&tempid=1707170089574543263&dtNow=${encodeURIComponent(new Date().toLocaleString())}`;
+
+      const response = await fetch(url);
+      const strSMSResponseString = await response.text();
+
+      if (strSMSResponseString.startsWith("100")) {
+          return {
+            response : `Sms sent to ${mobileno}`
+          };
+      } else {
+          return false;
+      }
+  } catch (error) {
+      console.error('Error sending SMS:', error);
+      return false;
+  }
+};
+
+// const checkRole = async () => {
+  try{
+
+  }
+  catch(error){
+
+  }
+// }
+
 module.exports = {
   createToken,
   securePassword,
@@ -267,5 +337,7 @@ module.exports = {
   sendOtpOnEmail,
   sendOtpOnPhone,
   sendOtpOnPhone,
-  commonEmailFunction
+  commonEmailFunction,
+  commonEmailFunctionOnRegistrationUpdate,
+  sendSMS
 };

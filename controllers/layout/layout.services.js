@@ -7,8 +7,8 @@ const axiosRetry = require('axios-retry');
 
 const dashBoardCount  = async (req,res) => {
     try{
-     let  {companyId} = req.query;
-     let data = {};
+    let  {companyId} = req.query;
+    let data = {};
     let newRegistrationCount = await registration.find({companyId : companyId});
     let creditReqCount = await creditRequest.find({companyId : companyId});
     let pending = 0;

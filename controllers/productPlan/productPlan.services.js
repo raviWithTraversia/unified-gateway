@@ -6,8 +6,8 @@ const commonFunction = require('../commonFunctions/common.function');
 
 const addProductPlan = async (req, res) => {
     try {
-        const { productPlanName, companyId , product} = req.body;
-      
+        const { productPlanName, companyId , status, product} = req.body;
+        
         // Check company id exist or not
         const checkCompanyIdExist = await Company.find({ _id: companyId });
 
@@ -27,7 +27,8 @@ const addProductPlan = async (req, res) => {
         }
         const addNewProductPlan = new ProductPlan({
             productPlanName,
-            companyId
+            companyId,
+            status
         });
 
         // save product plan
@@ -68,9 +69,13 @@ const addProductPlan = async (req, res) => {
 
 const getAllProductPlan = async (req, res) => {
     try {
-        const result = await ProductPlan.find();
+        const { companyId } = req.query;
+
+        const result = await ProductPlan.find({companyId : companyId});
+       // console.log(result,"result")
         if (result.length > 0) {
             return {
+                response : 'Product Plan Fetch Sucessfull',
                 data: result
             }
         } else {

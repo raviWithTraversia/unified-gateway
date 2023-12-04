@@ -84,7 +84,7 @@ const loginUser = async (req, res) => {
     }
     // Compare the provided password with the stored hashed password
     const isPasswordValid = bcryptjs.compare(password, user.password);
-
+console.log(isPasswordValid, "nnnnnnnnnnnnnnnnnnnnnnn")
     if (!isPasswordValid) {
       return {
         response: "Invalid password",
@@ -408,9 +408,10 @@ const forgotPassword = async (req, res) => {
       mailConfig = await Smtp.find({ companyId: parentCompanyId });
       mailConfig = mailConfig[0];
     }
-    let basrUrl = await webMaster.findOne({companyId : comapnyIds})
-    basrUrl = basrUrl.websiteURL || 'http://localhost:3111/api';
-   // console.log(basrUrl, "nnnnnnnnnnnnnnnnnnnnnnn")
+    let basrUrl = await webMaster.findOne({companyId : comapnyIds});
+    console.log(basrUrl, "llllllllllllllllllllllllllllllllllllll");
+    basrUrl = basrUrl?.websiteURL || 'http://localhost:3111/api';
+  // console.log(basrUrl, "nnnnnnnnnnnnnnnnnnnnnnn")
     const forgetPassWordMail = await commonFunction.sendPasswordResetEmail(
       email,
       resetToken,
@@ -461,10 +462,10 @@ const varifyTokenForForgetPassword = async(req,res) => {
 }
 const resetPassword = async (req, res) => {
   try {
-    const { email,  newPassword } = req.body;
+    const { userId,  newPassword } = req.body;
 
     // Find the user by email and check the reset token
-    const user = await User.findOne({ email: email, resetToken  : "verify"});
+    const user = await User.findOne({ _id:userId , resetToken  : "verify"});
     if (!user) {
       return {
         response: "Inavalid User or User not found",
@@ -474,11 +475,11 @@ const resetPassword = async (req, res) => {
 
     // Hash the new password
     const spassword = await commonFunction.securePassword(newPassword);
-    console.log(spassword);
+   // console.log(spassword);
 
     // Update the user's password and reset the resetToken
     await User.findOneAndUpdate(
-      { email },
+      { _id : userId },
       { $set: { password: spassword, resetToken: null } }
     );
     console.log("password reset sucessfully");

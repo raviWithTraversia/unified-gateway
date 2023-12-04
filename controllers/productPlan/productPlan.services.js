@@ -6,8 +6,8 @@ const commonFunction = require('../commonFunctions/common.function');
 
 const addProductPlan = async (req, res) => {
     try {
-        const { productPlanName, companyId , product, status} = req.body;
-      
+        const { productPlanName, companyId , status, product} = req.body;
+        
         // Check company id exist or not
         const checkCompanyIdExist = await Company.find({ _id: companyId });
 
@@ -28,7 +28,7 @@ const addProductPlan = async (req, res) => {
         const addNewProductPlan = new ProductPlan({
             productPlanName,
             companyId,
-             status : status || true
+            status
         });
 
         // save product plan

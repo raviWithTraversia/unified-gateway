@@ -21,7 +21,7 @@ const salesRoute = require('../routes/salesRoute');
 const commercialAirPlanRoute = require('../routes/commercialAirPlanRoute');
 const fareFamilyRoute = require('../routes/fareFamilyMasterRoute');
 const verifyOtpRoute = require('../routes/verifyOtpRoute');
-//const flightRoute = require('../routes/flight/flightRoute');
+const flightRoute = require('../routes/flight/flightRoute');
 const carrierRoute = require('../routes/carrierRoute');
 const airCommercialRoute = require('../routes/airCommercialRoute');
 const roleHasPermissionRoute = require('../routes/roleHasPermissioRoute');
@@ -105,7 +105,7 @@ class RoutesLoader {
         app.use('/api', verifyOtpRoute)
 
         // Flight Route Start Here
-       // app.use("/api", flightRoute);
+        app.use("/api", flightRoute);
 
         app.use('/api', verifyOtpRoute);
 

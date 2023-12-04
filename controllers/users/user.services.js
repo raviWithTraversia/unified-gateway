@@ -84,7 +84,6 @@ const loginUser = async (req, res) => {
     }
     // Compare the provided password with the stored hashed password
     const isPasswordValid = bcryptjs.compare(password, user.password);
-console.log(isPasswordValid, "nnnnnnnnnnnnnnnnnnnnnnn")
     if (!isPasswordValid) {
       return {
         response: "Invalid password",

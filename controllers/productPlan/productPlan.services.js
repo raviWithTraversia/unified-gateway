@@ -92,7 +92,7 @@ const getAllProductPlan = async (req, res) => {
 
 const productPlanUpdateById = async (req, res) => {
     try {
-        const {productPlanName , product} = req.body
+        const {productPlanName , product, status} = req.body
         if (!productPlanName) {
             return {
                 response: 'product plan name fields are required'

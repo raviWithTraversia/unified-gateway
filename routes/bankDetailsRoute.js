@@ -14,7 +14,7 @@ const upload = multer({ storage: storage });
 add_bank_details_route.post
    (
     '/bank-details/addBankDetails', 
-    upload.single('QrcodeImage'),
+     upload.single('QrcodeImage'),
     bankDetailController.addBankDetails
   );
 

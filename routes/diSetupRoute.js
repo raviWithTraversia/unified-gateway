@@ -12,6 +12,18 @@ diSetup_route.post(
     diSetupController.addDiSetup
 );
 
+diSetup_route.get(
+    '/diSetup/getdiSetup',
+    auth,
+    diSetupController.getDiSetup
+
+);
+diSetup_route.delete(
+    '/diSetup/deleteDi',
+    auth,
+    diSetupController.deleteDiSetup
+)
+
 diSetup_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

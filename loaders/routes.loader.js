@@ -38,6 +38,7 @@ const supplier = require('../routes/supplierRoute');
 const airlinePromo = require('../routes/airlinePromoCodeRoute');
 const configCredential = require('../routes/configCredentialRoute');
 const diSetup = require('../routes/diSetupRoute');
+const autoTicketing = require('../routes/autoTicketingRoute')
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -162,6 +163,9 @@ class RoutesLoader {
 
         // diSetup api route
         app.use('/api' , diSetup);
+
+        // autoTicketing routes
+        app.use('/api',autoTicketing);
     }
 }
 

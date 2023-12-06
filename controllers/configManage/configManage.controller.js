@@ -77,7 +77,7 @@ const updateairGSTMandate = async (req, res) => {
       const result = await airGSTMandateService.updateairGSTMandate(req, res);
       if (!result.response && result.isSometingMissing) {
         apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-      }else if (result.response === "Company Id required" || result.response == 'Record not found for the provided Company Id') {
+      }else if (result.response === "Air GST Mandate Id required" || result.response === "Company Id required" || result.response == 'Record not found for the provided Id') {
           apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
       }else if (result.response === "Update Air GST Mandate Successfully") {
         apiSucessRes(

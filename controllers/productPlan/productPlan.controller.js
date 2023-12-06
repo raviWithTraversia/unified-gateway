@@ -88,8 +88,41 @@ const productPlanUpdateById = async (req, res) => {
   }
 };
 
+
+
+const getAllProductPlanDetail = async (req, res) => {
+  try {
+    const result = await ProductPlanServices.getAllProductPlanDetail(req);
+    if (result.response == "Product Plan Fetch Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else if (result.response == "Product Plan Not Found") {
+      apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.NOT_EXIST_CODE,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+
 module.exports = {
   addProductPlan,
   getAllProductPlan,
   productPlanUpdateById,
+  getAllProductPlanDetail
 };

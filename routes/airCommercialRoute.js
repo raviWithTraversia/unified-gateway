@@ -13,4 +13,22 @@ air_commercial_route.post(
     airCommercialController.storeAirCommercial
 );
 
+air_commercial_route.get(
+    '/commercial/air-commercial-coloumn-get',
+    auth,
+    airCommercialController.getColoumnData
+)
+
+air_commercial_route.get(
+    '/commercial/air-commercial-row-get',
+    auth,
+    airCommercialController.getRowData
+)
+
+air_commercial_route.post(
+    '/commercial/add-commercial-type',
+    auth,
+    airCommercialController.commercialTypeAdd
+)
+
 module.exports = air_commercial_route;

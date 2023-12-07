@@ -2,6 +2,11 @@ const AirCommercialColumnMaster = require('./../models/AirCommertialColumnMaster
 
 const columnData = [
     {
+        "name" : "Service Fee Rate(+)",
+        "commercialType" : "Rate",
+        "modifiedBy" : "6538c0314756928875840820"
+    },
+    {
         "name" : "Discount (-)",
         "commercialType" : "Rate",
         "modifiedBy" : "6538c0314756928875840820"
@@ -19,6 +24,16 @@ const columnData = [
     {
         "name" : "GDS OC Charges (+)",
         "commercialType" : "Rate",
+        "modifiedBy" : "6538c0314756928875840820"
+    },
+    {
+        "name" : "Segment Kickback (-)",
+        "commercialType" : "fixed",
+        "modifiedBy" : "6538c0314756928875840820"
+    },
+    {
+        "name" : "Segment Kickback Import (-)",
+        "commercialType" : "fixed",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
@@ -48,6 +63,11 @@ const columnData = [
     },
     {
         "name" : "OC Charge(+)",
+        "commercialType" : "fixed",
+        "modifiedBy" : "6538c0314756928875840820"
+    },
+    {
+        "name" : "Fixed Service Fee(+)",
         "commercialType" : "fixed",
         "modifiedBy" : "6538c0314756928875840820"
     },

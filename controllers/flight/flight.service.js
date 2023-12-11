@@ -288,21 +288,17 @@ const internationalKafilaFun = async (
       };
   }
 
-  // Class Of Service Economy, Business, Premium Economy 
-  let classOfServiceVal;
-  switch (ClassOfService) {
-    case "Economy":
-      classOfServiceVal = "EC";
-      break;
-    case "Business":
-      classOfServiceVal = "BU";
-      break;
-    case "Premium Economy":
-      classOfServiceVal = "PE";
-      break;
-    default:
-      classOfServiceVal = "";
-  }
+  // Class Of Service Economy, Business, Premium Economy
+  console.log(ClassOfService);
+  return false; 
+  const classOfServiceMap = {
+    "Economy": "EC",
+    "Business": "BU",
+    "Premium Economy": "PE",
+  };
+
+  let classOfServiceVal = classOfServiceMap[ClassOfService] || "";
+  
 
   const segmentsArray = Segments.map(segment => ({
     Src: segment.Origin,

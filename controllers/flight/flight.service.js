@@ -1,7 +1,6 @@
 //const airGstMandate = require("../../models/configManage/AirGSTMandate");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
-//const AirLinePromoCode = require("../../models/airlinePromoCode");
 const axios = require("axios");
 const NodeCache = require('node-cache');
 const flightCache = new NodeCache();
@@ -152,9 +151,9 @@ async function handleInternational(
   }
 
   // GET PromoCode
-   //const getPromoCode = await AirLinePromoCode.find({ companyId: CompanyId });    
-   // console.log({getPromoCode});
-
+  //  const getPromoCode = await AirLinePromoCode.find({ companyId: CompanyId });    
+  //  console.log("aaaaaaaaaaaaaaaaaaaaaaa" + getPromoCode);
+  return false
   if (!TraceId) {
     return {
       IsSucess: false,
@@ -248,7 +247,6 @@ const internationalKafilaFun = async (
   if (cachedResult) {
     return cachedResult;
   }
-
   let createTokenUrl;
   let flightSearchUrl;
   // Apply APi for Type of trip ( ONEWAY / ROUNDTRIP / MULTYCITY )
@@ -286,17 +284,14 @@ const internationalKafilaFun = async (
         IsSucess: false,
         response: "Invalid TypeOfTrip",
       };
-  }
-
-  // Class Of Service Economy, Business, Premium Economy
-  console.log(ClassOfService);
-  return false; 
+  } 
+  //Class Of Service Economy, Business, Premium Economy
   const classOfServiceMap = {
     "Economy": "EC",
     "Business": "BU",
     "Premium Economy": "PE",
   };
-
+  
   let classOfServiceVal = classOfServiceMap[ClassOfService] || "";
   
 
@@ -348,14 +343,13 @@ const internationalKafilaFun = async (
           TPnr: false
         }
       };
-      
+       
       let fSearchApiResponse = await axios.post(flightSearchUrl, requestDataFSearch, {
         headers: {
           'Content-Type': 'application/json',
         },
       });     
       
-
       if (fSearchApiResponse.data.Status == "failed") {
         return {
           IsSucess: false,
@@ -365,9 +359,8 @@ const internationalKafilaFun = async (
         // Extract the necessary data and return it
         flightCache.set(cacheKey, fSearchApiResponse.data, 300);
         return fSearchApiResponse.data;
-      }
-      
-      //flightCache.set(cacheKey, getToken, 300);
+      }    
+     
       
     }else{ 
       return {

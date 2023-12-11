@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ProductPlanHasProducts = new mongoose.Schema({
-    productPlaneId : { 
+    productPlanId : { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ProductPlan',
     },

@@ -121,7 +121,7 @@ product_plan_route.get(
 
 
 product_plan_route.patch(
-    '/product/update-product-plan/:producPlantId' ,
+    '/product/update-product-plan/:producPlanId' ,
     auth,
      ProductPlan.productPlanUpdateById
 );

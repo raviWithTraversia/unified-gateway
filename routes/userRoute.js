@@ -508,6 +508,12 @@ user_route.patch(
     userController.editUser
 );
 
+user_route.get(
+    '/user/getUser',
+    auth,
+    userController.getUser
+);
+
 user_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

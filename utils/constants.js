@@ -3,7 +3,7 @@ const ServerStatusCode = {
     UNAUTHORIZED: 401,
     SUCESS_CODE: 200,
     SERVER_ERROR: 500,
-    RECORD_NOTEXIST: 502,
+    BAD_GATEWAY: 502,
     INVALID_CRED: 403,
     BAD_REQUEST: 400,
     PRECONDITION_FAILED: 412,
@@ -67,6 +67,8 @@ const CrudMessage = {
     PAN_DATA: 'Data retrvee sucessfully',
     IMAGE_UPLOAD: 'Image Uploded',
     IMAGE_UPLOAD_FETCH: 'Image Uploded Fetch',
+    IMAGE_UPLOAD_UPDATED: 'Upload image is updated',
+    IMAGE_UPLOAD_DELETED: 'Upload image is deleted'
 
 }
 

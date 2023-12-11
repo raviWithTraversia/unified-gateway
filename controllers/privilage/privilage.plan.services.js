@@ -88,8 +88,29 @@ const getPrivilageList =async(req ,res) => {
         const companyId = req.params.comapnyId;
         const result = await PrivilagePlan.find({companyId : companyId});
         if (result.length > 0) {
+            const allData = await Promise.all(result.map(async (privilagePlan) => {
+                const newObj = {
+                    "_id": privilagePlan._id,
+                    "companyId": privilagePlan.companyId,
+                    "privilagePlanName" : privilagePlan.privilagePlanName,
+                    "productPlanId": privilagePlan.productPlanId,
+                    "status" : privilagePlan.status,
+                    "IsDefault" : privilagePlan.IsDefault,
+                    "createdAt": privilagePlan.createdAt,
+                    "updatedAt": privilagePlan.updatedAt,
+                    "permission": []
+                };
+
+                const PrivilegePHP = await privilagePlanHasPermission.find({ privilagePlanId: privilagePlan._id });
+                if (PrivilegePHP.length > 0) {
+                    newObj.permission.push(...PrivilegePHP); // Use push with spread operator
+                }
+
+                return newObj;
+            }));
+
             return {
-                data: result
+                data: allData
             }
         } else {
             return {

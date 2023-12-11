@@ -7,22 +7,22 @@ const auth = require("../middleware/auth");
 const airlinePromoController = require('./../controllers/airLinePromoCode/airLinePromoCode.controller');
 
 airlinePromoCode_route.post(
-    'airlinePromocode/addAPromo',
+    '/airlinePromocode/addPromo',
     auth,
     airlinePromoController.addAirlinePromoCode
 );
 airlinePromoCode_route.patch(
-   'airlinePromocode/editPromo',
+   '/airlinePromocode/editPromo',
    auth,
    airlinePromoController.editAirlinePromoCode
 );
 airlinePromoCode_route.get(
-    'airlinePromocode/getPromo',
+    '/airlinePromocode/getPromo',
     auth,
     airlinePromoController.getPromoCode
 );
 airlinePromoCode_route.delete(
-    'airlinePromocode/deletePromo',
+    '/airlinePromocode/deletePromo',
     auth,
     airlinePromoController.deletePromoCode
 )

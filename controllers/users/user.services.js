@@ -590,6 +590,27 @@ const addUser = async (req,res) => {
       });
       // Save the User document to the database
      let saveUser = await newUser.save();
+     let companyName = await Company.findById(companyId);
+     if(isMailSent == true){
+      let mailText = {
+        companyName, 
+        firstName, 
+        lastName, 
+        mobile: phoneNumber, 
+        email
+      }
+      let mailConfig = await Smtp.findOne({ companyId : companyId });
+    // if not mailconfig then we send their parant mail config
+    if(!mailConfig){
+      let parentCompanyId = await Company.findById({_id : comapnyIds});
+      parentCompanyId = parentCompanyId.parent;
+      mailConfig = await Smtp.find({ companyId: parentCompanyId });
+      mailConfig = mailConfig[0];
+    }
+    let mailSubject = 'User Created Sucessfully'
+      let mailSend = await commonFunction.commonEmailFunction(email,mailConfig,mailText,mailSubject);
+      //console.log(mailSend, "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
+    }
      if(saveUser){
       return {
         response : 'New User Created Sucessfully',
@@ -617,14 +638,14 @@ const editUser = async (req,res) => {
       { $set: updateData },
       { new: true }
     );
-    if(updatedBankDetails){
+    if(updatedUserData){
       return {
-        response : 'Bank details updated sucessfully',
+        response : 'User details updated sucessfully',
         data : updatedUserData
       }
     }else{
       return {
-        response : 'Failed to update bank details'
+        response : 'Failed to update User details'
       }
     }
   }catch(error){
@@ -633,6 +654,26 @@ const editUser = async (req,res) => {
   }
 }
 
+const getUser = async (req,res) => {
+  try{
+  let {companyId} = req.query;
+  let userData = await User.find({company_ID :companyId });
+  if(userData){
+    return {
+      response : 'User data found SucessFully',
+      data : userData
+    }
+  }else{
+     return {
+      response : 'User data not found'
+     }
+  }
+  
+  }catch(error){
+    console.log(error);
+    throw error
+  }
+}
 
 module.exports = {
   registerUser,
@@ -643,5 +684,6 @@ module.exports = {
   changePassword,
   varifyTokenForForgetPassword,
   addUser,
-  editUser
+  editUser,
+  getUser
 };

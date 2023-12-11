@@ -258,14 +258,39 @@ const addUser = async (req, res) => {
 const editUser = async (req, res) => {
   try {
     const result = await userServices.editUser(req, res);
-    if (result.response === "Bank details updated sucessfully") {
+    if (result.response === "User details updated sucessfully") {
       apiSucessRes(
         res,
         result.response,
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    } else if (result.response === "Failed to update bank details") {
+    } else if (result.response === "Failed to update User details") {
+      apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
+  }
+};
+
+const getUser = async (req, res) => {
+  try {
+    const result = await userServices.getUser(req, res);
+    if (result.response === "User data found SucessFully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else if (result.response === "User data not found") {
       apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
     } else {
       apiErrorres(
@@ -290,4 +315,5 @@ module.exports = {
   varifyTokenForForgetPassword,
   addUser,
   editUser,
+  getUser
 };

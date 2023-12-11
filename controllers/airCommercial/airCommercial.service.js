@@ -194,9 +194,28 @@ const addCommercialType = async(req ,res) => {
     }
 }
 
+const getCommercialDetailList = async(req , res) => {
+    try {
+        const coloumnData = await CommercialType.find();
+        if (coloumnData.length > 0) {
+            return {
+                data: coloumnData,
+            }
+        } else {
+            return {
+                response: 'Commercial type not available',
+                data: null,
+            }
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
 module.exports = {
     addAirCommercial,
     getColoumnDetail,
     getRowDetail,
-    addCommercialType
+    addCommercialType,
+    getCommercialDetailList
 }

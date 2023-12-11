@@ -4,60 +4,70 @@ const rowMasterData = [
     {
         "name" : "Rate On Base fare",
         "commercialType" : "rate",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "On Fuel Surcharge",
         "commercialType" : "rate",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "On Airline Surcharge",
         "commercialType" : "rate",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "On Other Tax",
         "commercialType" : "rate",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "On YR",
         "commercialType" : "rate",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "On Net Basic",
         "commercialType" : "rate",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "On Net Basic",
         "commercialType" : "rate",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "Deduct TDS",
         "commercialType" : "rate",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "On Gross",
         "commercialType" : "rate",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "Discount on Supplier Discount",
         "commercialType" : "rate",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
@@ -65,54 +75,63 @@ const rowMasterData = [
     {
         "name" : "Adult",
         "commercialType" : "fixed",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "Child",
         "commercialType" : "fixed",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "Infant",
         "commercialType" : "fixed",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "Onward Only",
         "commercialType" : "fixed",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "Non Zero Only",
         "commercialType" : "fixed",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "Per Airline Per Pax",
         "commercialType" : "fixed",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "Per Pnr Per Ticket",
         "commercialType" : "fixed",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "Deduct TDS",
         "commercialType" : "fixed",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
     {
         "name" : "via Nocharge",
         "commercialType" : "fixed",
+        "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },

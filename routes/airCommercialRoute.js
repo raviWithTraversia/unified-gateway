@@ -31,4 +31,10 @@ air_commercial_route.post(
     airCommercialController.commercialTypeAdd
 )
 
+air_commercial_route.get(
+    '/commercial/air-commercial-detail',
+    auth,
+    airCommercialController.commercialDetailList
+)
+
 module.exports = air_commercial_route;

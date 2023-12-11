@@ -103,11 +103,31 @@ const commercialTypeAdd = async(req ,res) => {
     }
 }
 
+const commercialDetailList = async(req , res) => {
+    try {
+        const result = await airCommericalService.getCommercialDetailList(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
 module.exports = {
     storeAirCommercial,
     getColoumnData,
     getRowData,
-    commercialTypeAdd
+    commercialTypeAdd,
+    commercialDetailList
 }
 
 

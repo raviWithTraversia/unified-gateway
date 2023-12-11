@@ -176,12 +176,12 @@ const getAllProductPlanDetail = async (req, res) => {
                     "status": productPlan.status,
                     "createdAt": productPlan.createdAt,
                     "updatedAt": productPlan.updatedAt,
-                    "productId": []
+                    "product": []
                 };
 
                 const ProductPlanHasP = await ProductPlanHasProduct.find({ productPlaneId: productPlan._id });
                 if (ProductPlanHasP.length > 0) {
-                    newObj.productId.push(...ProductPlanHasP); // Use push with spread operator
+                    newObj.product.push(...ProductPlanHasP); // Use push with spread operator
                 }
 
                 return newObj;

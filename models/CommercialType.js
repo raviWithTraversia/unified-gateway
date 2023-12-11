@@ -7,11 +7,11 @@ const CommercialTypeSchema = new mongoose.Schema({
     },
     AirCommertialColumnMasterId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'AirCommertialColumnMaster'
+        ref: 'AirCommercial'
     },
     AirCommertialRowMasterId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'AirCommertialRowMaster'
+        ref: 'AirCommercial'
     },
     companyId: {
         type: mongoose.Schema.Types.ObjectId,

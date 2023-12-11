@@ -1,6 +1,7 @@
 //const airGstMandate = require("../../models/configManage/AirGSTMandate");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
+//const AirLinePromoCode = require("../../models/airlinePromoCode");
 const axios = require("axios");
 const NodeCache = require('node-cache');
 const flightCache = new NodeCache();
@@ -149,6 +150,11 @@ async function handleInternational(
       response: "Supplier credentials does not exist",
     };
   }
+
+  // GET PromoCode
+   //const getPromoCode = await AirLinePromoCode.find({ companyId: CompanyId });    
+   // console.log({getPromoCode});
+
   if (!TraceId) {
     return {
       IsSucess: false,
@@ -225,6 +231,7 @@ const internationalKafilaFun = async (
 ) => {
 
   const cacheKey = JSON.stringify({
+    supplier,
     TypeOfTrip,
     Segments,
     PaxDetail,
@@ -281,6 +288,22 @@ const internationalKafilaFun = async (
       };
   }
 
+  // Class Of Service Economy, Business, Premium Economy 
+  let classOfServiceVal;
+  switch (ClassOfService) {
+    case "Economy":
+      classOfServiceVal = "EC";
+      break;
+    case "Business":
+      classOfServiceVal = "BU";
+      break;
+    case "Premium Economy":
+      classOfServiceVal = "PE";
+      break;
+    default:
+      classOfServiceVal = "";
+  }
+
   const segmentsArray = Segments.map(segment => ({
     Src: segment.Origin,
     Des: segment.Destination,
@@ -311,7 +334,7 @@ const internationalKafilaFun = async (
         Inf: PaxDetail.Infants,
         Sector: segmentsArray,
         PF: "",
-        PC: "",
+        PC: classOfServiceVal,
         Routing: "ALL",
         Ver: "1.0.0.0",
         Auth: {
@@ -324,7 +347,7 @@ const internationalKafilaFun = async (
           PromoCode: "KAF2022",
           FFlight: "",
           FareType: "",
-          TraceId: "",
+          TraceId: Authentication.TraceId,
           IsUnitTesting: false,
           TPnr: false
         }

@@ -32,5 +32,5 @@ const airLinePremoSchema = new mongoose.Schema({
 }, {
     timestamps : true 
 });
-const airLinePromoCode = mongoose.model("airLinePromoCode", airLinePremoSchema);
-module.exports = airLinePromoCode;
+const airlinePromoCode = mongoose.model("airlinePromoCode", airLinePremoSchema);
+module.exports = airlinePromoCode;

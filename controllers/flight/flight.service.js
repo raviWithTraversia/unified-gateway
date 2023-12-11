@@ -1,4 +1,4 @@
-//const airGstMandate = require("../../models/configManage/AirGSTMandate");
+const PromoCode = require("../../models/AirlinePromoCode");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const axios = require("axios");
@@ -151,9 +151,9 @@ async function handleInternational(
   }
 
   // GET PromoCode
-  //  const getPromoCode = await AirLinePromoCode.find({ companyId: CompanyId });    
+  //  const getPromoCode = await PromoCode.find({ companyId: CompanyId, supplierCode: supplierCredentials });    
   //  console.log("aaaaaaaaaaaaaaaaaaaaaaa" + getPromoCode);
-  return false
+  //return false
   if (!TraceId) {
     return {
       IsSucess: false,
@@ -292,8 +292,8 @@ const internationalKafilaFun = async (
     "Premium Economy": "PE",
   };
   
-  let classOfServiceVal = classOfServiceMap[ClassOfService] || "";
-  
+  let classOfServiceVal = classOfServiceMap[ClassOfService] || ""; 
+ 
 
   const segmentsArray = Segments.map(segment => ({
     Src: segment.Origin,
@@ -324,7 +324,7 @@ const internationalKafilaFun = async (
         Chd: PaxDetail.Child,
         Inf: PaxDetail.Infants,
         Sector: segmentsArray,
-        PF: "",
+        PF: Airlines.length > 0 ? Airlines.join(',') : "",
         PC: classOfServiceVal,
         Routing: "ALL",
         Ver: "1.0.0.0",

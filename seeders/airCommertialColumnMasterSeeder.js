@@ -127,13 +127,7 @@ const columnData = [
         "modifiedBy" : "6538c0314756928875840820",
         "modifiedDate" : ""
     },
-    {
-        "name" : "On Net Basic",
-        "commercialType" : "rate",
-        "type" : "row",
-        "modifiedBy" : "6538c0314756928875840820",
-        "modifiedDate" : ""
-    },
+  
     {
         "name" : "Deduct TDS",
         "commercialType" : "rate",

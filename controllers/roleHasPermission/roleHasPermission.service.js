@@ -75,6 +75,7 @@ const updateRoleHasPermission = async(req ,res) => {
             }
         }
         const result = await RoleHasPermission.deleteMany({ roleId: roleId });
+        
         permission.forEach(async(element) => {
             const addRoleHasPermission = new RoleHasPermission({
                 roleId,

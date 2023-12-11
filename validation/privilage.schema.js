@@ -6,6 +6,7 @@ const schema = {
         privilagePlanName : Joi.string().required(),
         productPlanId : Joi.string().required(),
         permission : Joi.array().required(),
+        // status :
     }),
 };
 

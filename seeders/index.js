@@ -36,7 +36,7 @@ async function runSeeders() {
     await seedRoles();
     await seedFareFamilyMaster();
     await seedCarrierSeeder();
-    await seedAirCommercialRowMaster();
+    // await seedAirCommercialRowMaster();
     await seedCommercialColumnMaster();
     console.log('All seeders completed.');
   } catch (err) {

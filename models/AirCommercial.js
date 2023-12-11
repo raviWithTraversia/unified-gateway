@@ -83,7 +83,11 @@ const AirCommercialSchema = new mongoose.Schema({
         type: Date,
         required: false,
         default: null
-    }
+    },
+    companyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company'
+    },
 }, {
     timestamps: true  // Use "timestamps" instead of "timestamp"
 });

@@ -4,6 +4,8 @@ const ProductHasPP = require('../../models/ProductPlanHasProduct');
 const User = require('../../models/User');
 const commonFunction = require('../commonFunctions/common.function');
 const ProductPlanHasProduct = require('../../models/ProductPlanHasProduct');
+const { object } = require('joi');
+const { default: mongoose } = require('mongoose');
 
 const addProductPlan = async (req, res) => {
     try {
@@ -39,9 +41,9 @@ const addProductPlan = async (req, res) => {
         // Add productPlanHasProduct
         product.forEach(async(product) => {
             const productId = product.productId;
-            const productPlaneId = PlanHasId;
+            const productPlanId = PlanHasId;
             const ProductHPP = new ProductHasPP({
-                productPlaneId,
+                productPlanId,
                 productId
             });
            const result = await ProductHPP.save();
@@ -93,15 +95,17 @@ const getAllProductPlan = async (req, res) => {
 
 const productPlanUpdateById = async (req, res) => {
     try {
-        const {productPlanName , product, status} = req.body
+        const producPlanId = req.params.producPlanId;
+
+        const {productPlanName , product, status} = req.body;
         if (!productPlanName) {
             return {
                 response: 'product plan name fields are required'
             }
         }
         // Check product exist or Not
-        const producPlantId = req.params.producPlantId;
-        const checkProduct = await ProductPlan.findOne({ _id: producPlantId });
+      
+        const checkProduct = await ProductPlan.findOne({ _id: producPlanId });
        
         if (!checkProduct) {
             return {
@@ -120,18 +124,19 @@ const productPlanUpdateById = async (req, res) => {
                 }
             } 
         }
-   
-        const updateProduct = await ProductPlan.findByIdAndUpdate(producPlantId, productPlanName, { new: true })
+        let _id = producPlanId;
+
+        const updateProduct = await ProductPlan.findByIdAndUpdate(_id, {productPlanName , status}, { new: true })
 
         // delete already exists productPlanHasProduct
-        const result = await ProductHasPP.deleteMany({ productPlaneId: producPlantId });
+        const result = await ProductHasPP.deleteMany({ productPlanId: producPlanId });
          // update productPlanHasProduct
          
             product.forEach(async(product) => {
                 const productId = product.productId;
-                const productPlaneId = producPlantId;
+                const productPlanId = producPlanId;
                 const ProductHPP = new ProductHasPP({
-                    productPlaneId,
+                    productPlanId,
                     productId
                 });
                const result = await ProductHPP.save();
@@ -176,12 +181,12 @@ const getAllProductPlanDetail = async (req, res) => {
                     "status": productPlan.status,
                     "createdAt": productPlan.createdAt,
                     "updatedAt": productPlan.updatedAt,
-                    "productId": []
+                    "product": []
                 };
 
-                const ProductPlanHasP = await ProductPlanHasProduct.find({ productPlaneId: productPlan._id });
+                const ProductPlanHasP = await ProductPlanHasProduct.find({ productPlanId: productPlan._id });
                 if (ProductPlanHasP.length > 0) {
-                    newObj.productId.push(...ProductPlanHasP); // Use push with spread operator
+                    newObj.product.push(...ProductPlanHasP); // Use push with spread operator
                 }
 
                 return newObj;

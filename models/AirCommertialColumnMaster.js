@@ -11,6 +11,11 @@ const AirCommertialColumnMasterSchema = new mongoose.Schema({
         required : false,
         default : null
     },
+    type: {
+        type : String,
+        required : false,
+        default : null
+    },
     modifiedBy: {
         type : mongoose.Schema.Types.ObjectId,
         'ref' : 'User'

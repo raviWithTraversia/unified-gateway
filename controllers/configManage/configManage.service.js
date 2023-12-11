@@ -104,16 +104,16 @@ const updateairGSTMandate = async (req, res) => {
     // Check if companyId is provided
     if (!airGstMandateId) {
       return {
-        response: "Company Id required",
+        response: "Air GST Mandate Id required",
       };            
     }
 
     // Check if the record exists
-    const existingRecord = await airGstMandate.findOne({ companyId });
+    const existingRecord = await airGstMandate.findById(airGstMandateId);
 
     if (!existingRecord) {
       return {
-        response: "Record not found for the provided Company Id",
+        response: "Record not found for the provided Id",
       };
     }
 

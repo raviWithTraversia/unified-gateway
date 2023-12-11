@@ -34,6 +34,7 @@ const addProductPlan = async (req, res) => {
 const getAllProductPlan = async (req, res) => {
   try {
     const result = await ProductPlanServices.getAllProductPlan(req);
+
     if (result.response == "Product Plan Fetch Sucessfull") {
       apiSucessRes(
         res,
@@ -42,7 +43,7 @@ const getAllProductPlan = async (req, res) => {
         ServerStatusCode.SUCESS_CODE
       );
     } else if (result.response == "Product Plan Not Found") {
-      apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
+      apiErrorres(res, result.response, ServerStatusCode.RESOURCE_NOT_FOUND, true);
     } else {
       apiErrorres(
         res,
@@ -101,7 +102,7 @@ const getAllProductPlanDetail = async (req, res) => {
         ServerStatusCode.SUCESS_CODE
       );
     } else if (result.response == "Product Plan Not Found") {
-      apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
+      apiErrorres(res, result.response, ServerStatusCode.RESOURCE_NOT_FOUND, true);
     } else {
       apiErrorres(
         res,

@@ -261,6 +261,31 @@ const internationalKafilaFun = async (
     createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
     flightSearchUrl = `http://stage1.ksofttechnology.com/api/FSearch`;    
   }
+  
+  let tripTypeValue;
+
+  switch (TypeOfTrip) {
+    case "ONEWAY":
+      tripTypeValue = "I1";
+      break;
+    case "ROUNDTRIP":
+      tripTypeValue = "I2";
+      break;
+    case "MULTYCITY":
+      tripTypeValue = "I3";
+      break;
+    default:
+      return {
+        IsSucess: false,
+        response: "Invalid TypeOfTrip",
+      };
+  }
+
+  const segmentsArray = Segments.map(segment => ({
+    Src: segment.Origin,
+    Des: segment.Destination,
+    DDate: segment.DepartureDate,    
+  }));
 
   let tokenData = {
     P_TYPE: "API",
@@ -278,9 +303,53 @@ const internationalKafilaFun = async (
       },
     });
     if(response.data.Status === "success"){
-      let getToken = response.data.Result;
-      flightCache.set(cacheKey, getToken, 300);
-      return getToken; // apply after token and check one way and round or ...
+      let getToken = response.data.Result;      
+      let requestDataFSearch = {        
+        Trip: tripTypeValue,
+        Adt: PaxDetail.Adults,
+        Chd: PaxDetail.Child,
+        Inf: PaxDetail.Infants,
+        Sector: segmentsArray,
+        PF: "",
+        PC: "",
+        Routing: "ALL",
+        Ver: "1.0.0.0",
+        Auth: {
+          AgentId: supplier.supplierWsapSesssion,
+          Token: getToken,
+        },
+        Env: "D",
+        Module: "B2B",
+        OtherInfo: {
+          PromoCode: "KAF2022",
+          FFlight: "",
+          FareType: "",
+          TraceId: "",
+          IsUnitTesting: false,
+          TPnr: false
+        }
+      };
+      
+      let fSearchApiResponse = await axios.post(flightSearchUrl, requestDataFSearch, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });     
+      
+
+      if (fSearchApiResponse.data.Status == "failed") {
+        return {
+          IsSucess: false,
+          response: fSearchApiResponse.data.ErrorMessage + '-' + fSearchApiResponse.data.WarningMessage,
+        };
+      } else {
+        // Extract the necessary data and return it
+        flightCache.set(cacheKey, fSearchApiResponse.data, 300);
+        return fSearchApiResponse.data;
+      }
+      
+      //flightCache.set(cacheKey, getToken, 300);
+      
     }else{ 
       return {
         IsSucess: false,

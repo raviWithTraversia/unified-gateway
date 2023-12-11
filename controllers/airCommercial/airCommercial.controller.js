@@ -40,6 +40,95 @@ const storeAirCommercial = async(req , res) => {
     }
 }
 
-module.exports = {
-    storeAirCommercial
+const getColoumnData = async(req , res) => {
+    try {
+        const result = await airCommericalService.getColoumnDetail(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
 }
+
+
+const getRowData = async(req , res) => {
+    try {
+        const result = await airCommericalService.getRowDetail(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+const commercialTypeAdd = async(req ,res) => {
+    try {
+        const result = await airCommericalService.addCommercialType(req);
+        if(result.response == 'All fields are required') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        }
+        else {
+            apiSucessRes(
+                res,
+                CrudMessage.AIR_COMMERCIAL_ADD,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+        }
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+const commercialDetailList = async(req , res) => {
+    try {
+        const result = await airCommericalService.getCommercialDetailList(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+module.exports = {
+    storeAirCommercial,
+    getColoumnData,
+    getRowData,
+    commercialTypeAdd,
+    commercialDetailList
+}
+
+
+

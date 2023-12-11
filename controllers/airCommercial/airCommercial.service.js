@@ -2,6 +2,8 @@ const Carrier = require('../../models/AirlineCode');
 const FareFamilyMaster = require('../../models/FareFamilyMaster');
 const AirCommercial = require('../../models/AirCommercial');
 const AirCommercialRowMaster = require('../../models/AirCommertialRowMaster');
+const AirCommercialColoumnMaster = require('../../models/AirCommertialColumnMaster');
+const CommercialType = require('../../models/CommercialType');
 
 const addAirCommercial = async(req , res) => {
     try {
@@ -24,6 +26,7 @@ const addAirCommercial = async(req , res) => {
             tourCodes,
             modifiedBy,
             lastModifiedDate,
+            companyId
         } = req.body;
         if(!commercialAirPlanId) {
             return {
@@ -108,6 +111,7 @@ const addAirCommercial = async(req , res) => {
             tourCodes,
             modifiedBy,
             lastModifiedDate,
+            companyId
         });
         
         const result = await saveAirCommercial.save();
@@ -121,6 +125,97 @@ const addAirCommercial = async(req , res) => {
     }
 }
 
+const getColoumnDetail = async(req , res) => {
+    try {
+        const coloumnData = await AirCommercialColoumnMaster.find();
+        if (coloumnData.length > 0) {
+            return {
+                data: coloumnData,
+            }
+        } else {
+            return {
+                response: 'Commercial coloumn not available',
+                data: null,
+            }
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+const getRowDetail = async(req , res) => {
+    try {
+        const rowData = await AirCommercialRowMaster.find();
+        if (rowData.length > 0) {
+            return {
+                data: rowData,
+            }
+        } else {
+            return {
+                response: 'Commercial row not available',
+                data: null,
+            }
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+const addCommercialType = async(req ,res) => {
+    try {
+        const {
+            airCommercialId, 
+            AirCommertialColumnMasterId,
+            AirCommertialRowMasterId,
+            companyId,
+            textType
+        } = req.body;
+        if(!airCommercialId || !AirCommertialColumnMasterId || !AirCommertialRowMasterId || !companyId || !textType){
+            return {
+                response : 'All fields are required'
+            }
+        }else{
+            const saveResult = new CommercialType({
+                airCommercialId,
+                AirCommertialColumnMasterId,
+                AirCommertialRowMasterId,
+                companyId,
+                textType
+            });
+            const result =saveResult.save();
+            return {
+                response : "Air commercial type added successfully"
+            }
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+const getCommercialDetailList = async(req , res) => {
+    try {
+        const coloumnData = await CommercialType.find();
+        if (coloumnData.length > 0) {
+            return {
+                data: coloumnData,
+            }
+        } else {
+            return {
+                response: 'Commercial type not available',
+                data: null,
+            }
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
 module.exports = {
-    addAirCommercial
+    addAirCommercial,
+    getColoumnDetail,
+    getRowDetail,
+    addCommercialType,
+    getCommercialDetailList
 }

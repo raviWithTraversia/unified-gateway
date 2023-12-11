@@ -51,7 +51,6 @@ const privilageValidation = require('../validation/privilage.validation');
 
 privilage_route.post(
     '/privilage/add-privilage' ,
-     privilageValidation.privilageValidation ,
      auth,
       PrivilageController.storePrivilagePlan
 );

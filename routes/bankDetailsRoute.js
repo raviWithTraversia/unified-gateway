@@ -26,6 +26,7 @@ add_bank_details_route.post
 
   add_bank_details_route.patch(
     '/bank-details/updateBankDetails',
+    upload.single('QrcodeImage'),
     bankDetailController.updateBankDetails
   );
 

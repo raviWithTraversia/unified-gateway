@@ -214,9 +214,10 @@ const sendOtpOnPhone = async (recipientPhone, otp) => {
 };
 
 const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSubject) => {
-  const { companyName, firstName, lastName, mobile, email, name } = mailText;
+  const { companyName,firstName, lastName, mobile, email, name } = mailText;
+  console.log("================>>>>>>>>>>>>>>>>>>>",mailText, "====================================");
   const htmlTemplate = fs.readFileSync('./view/Account_Registration.html', 'utf8');
-  const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName)
+  const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName.companyName)
   .replace(/\${firstName}/g, firstName)
   .replace(/\${lastName}/g, lastName)
   .replace(/\${mobile}/g, mobile)

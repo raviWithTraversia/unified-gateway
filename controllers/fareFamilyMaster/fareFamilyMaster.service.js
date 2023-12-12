@@ -4,7 +4,8 @@ const FareFamilyMaster = require('../../models/FareFamilyMaster');
 
 const getFareFamilyMaster = async(req , res) => {
     try {
-        const result = await FareFamilyMaster.find({});
+        const companyId = req.params.companyId;
+        const result = await FareFamilyMaster.find({companyId : companyId});
         if (result.length > 0) {
             return {
                 data: result

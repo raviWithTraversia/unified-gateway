@@ -25,7 +25,7 @@ const fareFamilyMaster = require('./../controllers/fareFamilyMaster/fareFamilyMa
  */
 
 fare_family_route.get(
-    '/fare/fare-family-list' , 
+    '/fare/fare-family-list/:companyId' , 
     auth,
     fareFamilyMaster.getFareFamilyListData
 );

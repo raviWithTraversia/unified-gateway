@@ -20,8 +20,7 @@ const addBankDetails = async (bankDetailsData, file) => {
       "ifscCode",
       "bankAddress",
       "bankName",
-      "bankCode",
-      "QrcodeImage"
+      "bankCode"
     ];
     const missingFields = fieldNames.filter(
       (fieldName) =>
@@ -97,28 +96,62 @@ const getCompanyBankDetalis = async (req,res) => {
     }
 }
 
-const updateBankDetails = async (req,res) => {
+const updateBankDetails = async (bankDetailsData, file) => {
     try{
          
-      const bankDetailsId = req.query.id; 
-      const updateData = req.body; 
+      // const bankDetailsId = req.query.id; 
+      // const updateData = req.body; 
+      const {
+        companyId,
+        accountName,
+        accountNumber,
+        ifscCode,
+        bankAddress,
+        bankName,
+        bankCode,
+        createdBy,
+        modifyBy,
+        bankDetailsId
+      } = bankDetailsData;
+      console.log("===============>>>>>>>>>",bankDetailsData, "<<<<<<<<<+++++++++++++++++++++++++++")
 
-    const updatedBankDetails = await bankDetail.findByIdAndUpdate(
-      bankDetailsId,
-      { $set: updateData },
-      { new: true }
-    );
-    if(updatedBankDetails){
+      const fieldNames = ["companyId", "accountName", "accountNumber", "ifscCode", "bankAddress", "bankName", "bankCode", "createdBy","modifyBy", "bankDetailsId"];
+      const updatedFields = {};
+  
+      for (const field of fieldNames) {
+        if (bankDetailsData[field] !== undefined && bankDetailsData[field] !== null) {
+          console.log(field, "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+          updatedFields[field] = bankDetailsData[field];
+        }
+      };
+      console.log(updatedFields, "<<<<<<<<<<<+++++++++++++++++++++++");
+  
+      if (Object.keys(updatedFields).length === 0) {
+        return {
+          response: "No fields provided for update",
+        };
+      }
+  
+      const existingUploadData = await bankDetail.findById(bankDetailsId);
+      if (!existingUploadData) {
+        return {
+          response: "Upload data not found",
+        };
+      }
+  
+      if (file) {
+        existingUploadData.QrcodeImage.data = file.buffer;
+        existingUploadData.QrcodeImage.contentType = file.mimetype;
+      }
+  
+      Object.assign(existingUploadData, updatedFields);
+      await existingUploadData.save();
+   
       return {
         response : 'Bank details updated sucessfully',
-        data : updatedBankDetails
+        data : existingUploadData
       }
-    }else{
-      return {
-        response : 'Failed to update bank details',
-        data : updatedBankDetails
-      }
-    }
+  
        
     }
     catch(error){

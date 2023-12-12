@@ -149,11 +149,19 @@ async function handleInternational(
       response: "Supplier credentials does not exist",
     };
   }
+     
+  // Fare Type Start Here 
+  let fareTypeVal = await PromoCode.find({ companyId: CompanyId});
+
+  if (!fareTypeVal || !fareTypeVal.length) {
+      fareTypeVal = "";
+  }
+
 
   // GET PromoCode
   //  const getPromoCode = await PromoCode.find({ companyId: CompanyId, supplierCode: supplierCredentials });    
-  //  console.log("aaaaaaaaaaaaaaaaaaaaaaa" + getPromoCode);
-  //return false
+  // console.log("aaaaaaaaaaaaaaaaaaaaaaa" + fareTypeVal);
+  // return false
   if (!TraceId) {
     return {
       IsSucess: false,
@@ -293,7 +301,6 @@ const internationalKafilaFun = async (
   };
   
   let classOfServiceVal = classOfServiceMap[ClassOfService] || ""; 
- 
 
   const segmentsArray = Segments.map(segment => ({
     Src: segment.Origin,

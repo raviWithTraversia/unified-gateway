@@ -657,7 +657,7 @@ const editUser = async (req,res) => {
 const getUser = async (req,res) => {
   try{
   let {companyId} = req.query;
-  let userData = await User.find({company_ID :companyId });
+  let userData = await User.find({company_ID :companyId }).populate('roleId', 'name');
   if(userData){
     return {
       response : 'User data found SucessFully',

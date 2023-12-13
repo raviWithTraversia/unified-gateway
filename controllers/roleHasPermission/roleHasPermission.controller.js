@@ -30,12 +30,28 @@ const addRoleHasPermission = async(req , res) => {
 const getRoleHasPermission = async (req, res) => {
     try {
         const result = await roleHasPermissionService.getRoleHasPermission(req);
+        if(result.response == "Data Fetch Sucessfully"){
         apiSucessRes(
             res,
             result.response,
             result.data,
             ServerStatusCode.SUCESS_CODE
         )
+    }else if(result.response == "Role has permission Not Found" ){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
+            true
+            )
+    }else{
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.UNPROCESSABLE,
+            true
+        )
+    }
     } catch (error) {
         apiErrorres(
             res,

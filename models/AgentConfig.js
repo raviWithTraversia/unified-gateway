@@ -72,10 +72,14 @@ fareTypes : {
     corporate : {type : Boolean},
     agency : {type : Boolean},
     series : {type : Boolean}
+},
+UserId : {
+   type : mongoose.Schema.Types.ObjectId,
+   ref : 'User'
 }
 
 },{
-    timestamps: true  // Use "timestamps" instead of "timestamp"
+    timestamps: true 
 });
 const agentConfiguration = mongoose.model("agentConfiguration", agentConfigSchema);
 module.exports = agentConfiguration;

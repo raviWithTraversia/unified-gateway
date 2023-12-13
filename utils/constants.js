@@ -87,6 +87,7 @@ const Status = {
     "Active" : "Active",
     "InActive" : "InActive",
     "Pending" : "Pending",
+    "Inactive" : "Inactive"
 
 }
 

@@ -9,6 +9,7 @@ const {
 
 const addBankDetails = async (req,res) => {
     try{
+        console.log(req.file, ",,,,,,,,,,,,,,,,,,,,,", req.body);
          const result = await bankDetailServices.addBankDetails(req.body, req.file)
          if( result.response == "Bank Details Added sucessfully"){
             apiSucessRes(

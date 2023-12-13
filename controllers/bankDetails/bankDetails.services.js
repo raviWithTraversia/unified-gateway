@@ -76,68 +76,6 @@ const addBankDetails = async (bankDetailsData, file) => {
     throw error
   }
 };
-// const uploadStorage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, path.join(__dirname, '../../image'));
-//   },
-//   filename: function (req, file, cb) {
-//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-//     const filename = `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`;
-//     cb(null, filename);
-//   },
-// });
-
-// const upload = multer({ storage: uploadStorage });
-
-// const addBankDetails = async (req, res) => {
-//   try {
-
-//     const { companyId, accountName, accountNumber, ifscCode, bankAddress, bankName, bankCode } = req.body;
-//     let createdBy = req.user._id;
-//     let modifyBy = req.user._id;
-  
-//     const uploadedFile = await upload.single('QrcodeImageUrl')(req, res);
-
-//     if (!uploadedFile || !uploadedFile.file) {
-//       return {
-//         response : 'No image uploaded'
-//       }
-//     };
-//     const bankDetails = new bankDetail({
-//       companyId,
-//       accountName,
-//       accountNumber,
-//       ifscCode,
-//       bankAddress,
-//       bankName,
-//       bankCode,
-//       QrcodeImageUrl: `/uploads/bank_details/${uploadedFile.file.filename}`, 
-//       createdBy,
-//       modifyBy,
-//     });
-
-//    let bankData =  await bankDetails.save();
-//    if(!bankData){
-//     return {
-//       response : 'Some Datails is missing or bank detils not saved'
-//     }
-//    }
-//     return {
-//       response : 'Bank Details Added sucessfully',
-//       data : bankData
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     if (req.file) {
-//       fs.unlinkSync(req.file.path);
-//     }
-//     return res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
-
 
 const getCompanyBankDetalis = async (req,res) => {
     try{
@@ -163,9 +101,6 @@ const getCompanyBankDetalis = async (req,res) => {
 
 const updateBankDetails = async (bankDetailsData, file) => {
     try{
-         
-      // const bankDetailsId = req.query.id; 
-      // const updateData = req.body; 
       const {
         companyId,
         accountName,

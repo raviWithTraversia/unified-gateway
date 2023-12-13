@@ -6,9 +6,14 @@ add_bank_details_route.use(bodyParser.urlencoded({extended:true}));
 const multer = require('multer'); // Import Multer
 const bankDetailController = require('../controllers/bankDetails/bankDetails.controller');
 
-
-// Define storage for file uploads
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+   return cb(null, './Public/bank')
+  },
+  filename: function (req, file, cb) {
+    return cb(null, `${Date.now()}-${file.originalname}`)
+  }
+});
 const upload = multer({ storage: storage });
 
 add_bank_details_route.post
@@ -32,6 +37,12 @@ add_bank_details_route.post
 
   add_bank_details_route.patch(
     '/bank-details/updateBankDetails',
+    (req, res, next) => {
+      if (!req.file) {
+        req.body.QrcodeImage = null; 
+      }
+      next();
+    },
     upload.single('QrcodeImage'),
     bankDetailController.updateBankDetails
   );

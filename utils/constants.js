@@ -68,7 +68,8 @@ const CrudMessage = {
     IMAGE_UPLOAD: 'Image Uploded',
     IMAGE_UPLOAD_FETCH: 'Image Uploded Fetch',
     IMAGE_UPLOAD_UPDATED: 'Upload image is updated',
-    IMAGE_UPLOAD_DELETED: 'Upload image is deleted'
+    IMAGE_UPLOAD_DELETED: 'Upload image is deleted',
+    PERMISSION_CREATE : 'Permission created successfully'
 
 }
 
@@ -87,6 +88,7 @@ const Status = {
     "Active" : "Active",
     "InActive" : "InActive",
     "Pending" : "Pending",
+    "Inactive" : "Inactive"
 
 }
 

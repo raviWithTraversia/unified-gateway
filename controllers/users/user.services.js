@@ -77,7 +77,7 @@ const loginUser = async (req, res) => {
         response: "User not found",
       };
     }
-    if (user.userStatus === Status.InActive) {
+    if (user.userStatus === Status.InActive || user.userStatus === Status.Inactive) {
       return {
         response: "User is not active",
       };
@@ -99,9 +99,6 @@ const loginUser = async (req, res) => {
       roleId : user?.roleId || null,
       token: token,
     };
-    // let loginUserDetails = await User.aggregate([
-
-    // ])
     if(user.roleId){
       let userRoleName = await Role.findOne({})
     }
@@ -111,11 +108,6 @@ const loginUser = async (req, res) => {
       last_LoginDate : new Date()
     }
     await User.findOneAndUpdate({ email: email}, user);
-    // let otp = Math.floor(100000 + Math.random() * 900000);
-    // let message = 'Login successful';
-    // //console.log(userDetails.phoneNumber,"<<<<<<<<<<<<<<<=========================");
-    // let messageSent = await commonFunction.sendSMS(userDetails.phoneNumber,otp);
-    // console.log(messageSent, "Message Sent Sucessfully")
     return {
       response: "Login successful",
       data: userDetails,
@@ -562,8 +554,6 @@ const addUser = async (req,res) => {
       roleId
       } = req.body;
       const existingUser = await User.findOne({ email });
-
-   //  console.log(companyId, "<<<<<<<<<+++++++++++++++>>>>>>>>>>>>>>..")
       if (existingUser) {
         return {
           response: "User with this email already exists",
@@ -609,7 +599,6 @@ const addUser = async (req,res) => {
     }
     let mailSubject = 'User Created Sucessfully'
       let mailSend = await commonFunction.commonEmailFunction(email,mailConfig,mailText,mailSubject);
-      //console.log(mailSend, "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
     }
      if(saveUser){
       return {
@@ -657,7 +646,7 @@ const editUser = async (req,res) => {
 const getUser = async (req,res) => {
   try{
   let {companyId} = req.query;
-  let userData = await User.find({company_ID :companyId });
+  let userData = await User.find({company_ID :companyId }).populate('roleId', 'name type');
   if(userData){
     return {
       response : 'User data found SucessFully',

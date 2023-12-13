@@ -42,9 +42,12 @@ const storeRoleHasPermission = async(req , res) => {
 const getRoleHasPermission = async(req ,res) => {
     try {
         const roleId = req.params.roleId;
-        const result = await RoleHasPermission.find({roleId : roleId});
+      //  console.log(roleId, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,")
+        const result = await RoleHasPermission.find({roleId : roleId}).populate('permissionId', 'productName categoryName permissionName permissionDescription');
+   
         if (result.length > 0) {
             return {
+                response : "Data Fetch Sucessfully",
                 data: result
             }
         } else {

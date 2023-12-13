@@ -138,20 +138,20 @@ const rowMasterData = [
 ];
 
 const seedAirCommercialRowMaster = async(req , res) => {
-    try {
-        // Check if any seedAirCommercialRowMaster already exist
-        const existing = await AirCommercialRowMaster.find();
+    // try {
+    //     // Check if any seedAirCommercialRowMaster already exist
+    //     const existing = await AirCommercialRowMaster.find();
         
-        if (existing.length === 0) {     
-          await AirCommercialRowMaster.create(rowMasterData); 
-          console.log('Air Commercial Row Master table seeded successfully.');     
+    //     if (existing.length === 0) {     
+    //       await AirCommercialRowMaster.create(rowMasterData); 
+    //       console.log('Air Commercial Row Master table seeded successfully.');     
           
-        } else {
-          console.log('Air Commercial Row Master table already exists. Skipping seeding.');
-        }
-      } catch (err) {
-        console.error('Error seeding Air Commercial Row Master table:', err);
-      }
+    //     } else {
+    //       console.log('Air Commercial Row Master table already exists. Skipping seeding.');
+    //     }
+    //   } catch (err) {
+    //     console.error('Error seeding Air Commercial Row Master table:', err);
+    //   }
 }
 
 module.exports = {

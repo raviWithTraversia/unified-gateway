@@ -1,4 +1,5 @@
 const bankDetail = require('../../models/BankDetails');
+const multer = require('multer')
 
 const addBankDetails = async (bankDetailsData, file) => {
     try{
@@ -13,6 +14,8 @@ const addBankDetails = async (bankDetailsData, file) => {
       createdBy,
       modifyBy
     } = bankDetailsData;
+    
+
     const fieldNames = [
       "companyId",
       "accountName",
@@ -20,8 +23,7 @@ const addBankDetails = async (bankDetailsData, file) => {
       "ifscCode",
       "bankAddress",
       "bankName",
-      "bankCode",
-      "QrcodeImage"
+      "bankCode"
     ];
     const missingFields = fieldNames.filter(
       (fieldName) =>
@@ -34,7 +36,8 @@ const addBankDetails = async (bankDetailsData, file) => {
         isSometingMissing: true,
         data: `Missing or null fields: ${missingFieldsString}`,
       };
-    }
+    };
+ 
     const newBankDetails = new bankDetail({
       companyId,
       accountName,
@@ -45,10 +48,12 @@ const addBankDetails = async (bankDetailsData, file) => {
       bankCode,
       createdBy,
       modifyBy,
-      QrcodeImage: {
-      data: file.buffer,
-      contentType: file.mimetype,
-      },
+      QrcodeImage: file
+      ? {
+          data: file.buffer,
+          contentType: file.mimetype,
+        }
+      : undefined,
     });
     let checkIsAcountAlreadyExist = await bankDetail.findOne({accountNumber});
     if(checkIsAcountAlreadyExist){
@@ -56,7 +61,9 @@ const addBankDetails = async (bankDetailsData, file) => {
         response : "This account number alrady exist"
       }
     }
+   
     let  savedBankDetails = await newBankDetails.save();
+    
     if(savedBankDetails){
         return {
             response : "Bank Details Added sucessfully",
@@ -74,7 +81,7 @@ const addBankDetails = async (bankDetailsData, file) => {
     throw error
   }
 };
-  
+
 const getCompanyBankDetalis = async (req,res) => {
     try{
       const {companyId} = req.query; 
@@ -97,28 +104,56 @@ const getCompanyBankDetalis = async (req,res) => {
     }
 }
 
-const updateBankDetails = async (req,res) => {
+const updateBankDetails = async (bankDetailsData, file) => {
     try{
-         
-      const bankDetailsId = req.query.id; 
-      const updateData = req.body; 
+      const {
+        companyId,
+        accountName,
+        accountNumber,
+        ifscCode,
+        bankAddress,
+        bankName,
+        bankCode,
+        createdBy,
+        modifyBy,
+        bankDetailsId
+      } = bankDetailsData;
 
-    const updatedBankDetails = await bankDetail.findByIdAndUpdate(
-      bankDetailsId,
-      { $set: updateData },
-      { new: true }
-    );
-    if(updatedBankDetails){
+      const fieldNames = ["companyId", "accountName", "accountNumber", "ifscCode", "bankAddress", "bankName", "bankCode", "createdBy","modifyBy", "bankDetailsId"];
+      const updatedFields = {};
+  
+      for (const field of fieldNames) {
+        if (bankDetailsData[field] !== undefined && bankDetailsData[field] !== null) {
+          updatedFields[field] = bankDetailsData[field];
+        }
+      };
+  
+      if (Object.keys(updatedFields).length === 0) {
+        return {
+          response: "No fields provided for update",
+        };
+      }
+  
+      const existingUploadData = await bankDetail.findById(bankDetailsId);
+      if (!existingUploadData) {
+        return {
+          response: "Upload data not found",
+        };
+      }
+  
+      if (file) {
+        existingUploadData.QrcodeImage.data = file.buffer;
+        existingUploadData.QrcodeImage.contentType = file.mimetype;
+      }
+  
+      Object.assign(existingUploadData, updatedFields);
+      await existingUploadData.save();
+   
       return {
         response : 'Bank details updated sucessfully',
-        data : updatedBankDetails
+        data : existingUploadData
       }
-    }else{
-      return {
-        response : 'Failed to update bank details',
-        data : updatedBankDetails
-      }
-    }
+  
        
     }
     catch(error){

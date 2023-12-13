@@ -37,4 +37,12 @@ air_commercial_route.get(
     airCommercialController.commercialDetailList
 )
 
+
+air_commercial_route.post(
+    '/commercial/commercial-add-row-coloumn',
+    auth,
+    airCommercialController.addRowColoumn
+)
+
+
 module.exports = air_commercial_route;

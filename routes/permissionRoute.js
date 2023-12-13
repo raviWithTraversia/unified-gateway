@@ -28,4 +28,10 @@ permission_route.get(
     auth,
     Permission.permissionList
 );
+
+permission_route.post(
+    '/permission/add-permission',
+    auth,
+    Permission.addPermission
+)
 module.exports = permission_route

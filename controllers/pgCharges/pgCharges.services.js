@@ -4,8 +4,7 @@ const User = require('../../models/User')
 
 const addPgCharges = async (req, res) => {
   try {
-    const {paymentGatewayProvider, paymentMethod, gatewayChargesOnMethod, gatewayFixchargesOnMethod,companyId } =
-      req.body;
+    const {paymentGatewayProvider, paymentMethod, gatewayChargesOnMethod, gatewayFixchargesOnMethod,companyId } = req.body;
      let userId = req.user._id
      let checkIsRole =  await User.findById(userId).populate('roleId').exec();
      

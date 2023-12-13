@@ -3,18 +3,16 @@ const mongoose = require('mongoose');
 const roleHasPermissionsSchema = new mongoose.Schema({
       
     permissionId: {
-      type: String,
-      required: true,        
-      default: null
+      type: mongoose.Schema.Types.ObjectId,
+      ref : 'Permission'
     },
     roleId: { // web or mob
-      type: String,
-      required: true,        
-      default: null
+      type: mongoose.Schema.Types.ObjectId,
+      ref : 'Role'
     }      
  
 }, {
-  timestamps: true // Adds created_at and updated_at fields
+  timestamps: true
 });
 
 module.exports = mongoose.model('RoleHasPermission', roleHasPermissionsSchema);

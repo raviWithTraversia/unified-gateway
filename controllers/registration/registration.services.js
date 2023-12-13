@@ -121,47 +121,7 @@ const addRegistration = async (req, res) => {
       let id = Config.MAIL_CONFIG_ID ;
       mailConfig = await Smtp.findById(id);
     }
-    // let otpPhone = Math.floor(100000 + Math.random() * 900000);
-    // let otpEmail = Math.floor(100000 + Math.random() * 900000);
-    // let sendSmsOtp = await  FUNC.sendSMS(mobile,otpPhone);
-    // let sendEmailOtp = await FUNC.sendOtpOnEmail(email,otpEmail,mailConfig);
-    // console.log(sendSmsOtp,sendEmailOtp, "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
-    //  // { type, typeName , companyId, otp}
 
-    //  let request = {
-    // body :{  
-    //   type:constants.OTP_FOR.Mail ,
-    //   typeName: constants.OTP_TYPE.Reg,
-    //   companyId,
-    //   otp :otpEmail
-    // }
-    //  }
-    // let saveOtpDataForEmail = await verifyOtpServices.sendEmailOtp(request);
-    // request = {
-    //  body: 
-    //   {
-    //   type : constants.OTP_FOR.Phone,
-    //   typeName : constants.OTP_TYPE.Reg,
-    //   companyId,
-    //   otp: otpPhone
-    // }
-    //  }
-
-    // let saveOtpDataForPhone = await verifyOtpServices.sendEmailOtp(request);
-
-    
-    //console.log("SMS Sent", saveOtpDataForEmail, "ppppppppppppppp", saveOtpDataForPhone, "llllllllllllllllllllll");
-    // let mailOtpVarify = await axios.post(`${Config.BASE_URL}otp/verify-otp`, {
-    //   otp :otpEmail,
-    //   type:constants.OTP_FOR.Mail ,
-    //   typeName: constants.OTP_TYPE.Reg,
-    // });
-    // let phoneOtpVarify = await axios.post(`${Config.BASE_URL}otp/verify-otp`, {
-    //   otp :otpPhone,
-    //   type:constants.OTP_FOR.Phone,
-    //   typeName: constants.OTP_TYPE.Reg,
-    // });
-    // console.log(mailOtpVarify.data ,phoneOtpVarify.data);
   
     const newRegistration = new registration({
       companyId,

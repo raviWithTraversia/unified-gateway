@@ -9,6 +9,7 @@ const {
 
 const addBankDetails = async (req,res) => {
     try{
+        console.log(req.file, ",,,,,,,,,,,,,,,,,,,,,", req.body);
          const result = await bankDetailServices.addBankDetails(req.body, req.file)
          if( result.response == "Bank Details Added sucessfully"){
             apiSucessRes(
@@ -100,7 +101,7 @@ const getBankDetails = async (req,res) => {
 
 const updateBankDetails = async (req,res) => {
     try{
-    const result = await bankDetailServices.updateBankDetails(req,res);
+    const result = await bankDetailServices.updateBankDetails(req.body, req.file);
     if(!result){
        apiErrorres(
         res,
@@ -109,7 +110,15 @@ const updateBankDetails = async (req,res) => {
         true
        )
     }
-    else if(result.response === 'Failed to update bank details'){
+    else if(result.response === 'Upload data not found'){
+        apiErrorres(
+          res,
+          result.response,
+          ServerStatusCode.UNPROCESSABLE,
+          true
+        )
+      }
+    else if(result.response === 'No fields provided for update'){
       apiErrorres(
         res,
         result.response,
@@ -133,7 +142,6 @@ const updateBankDetails = async (req,res) => {
             true
          )
     }
-
     }catch(error){
         apiErrorres(
             res,
@@ -142,8 +150,7 @@ const updateBankDetails = async (req,res) => {
             true
         )
     }
-}
-
+};
 const deleteBankDetails = async (req,res) => {
     try{
         const result = await bankDetailServices.deleteBankDetails(req,res);

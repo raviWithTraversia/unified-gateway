@@ -73,7 +73,7 @@ const getUploadImage = async (req, res) => {
 
 const updateUploadImage = async (uploadImageData, file) => {
   try {
-    let { imageDetailsId,type } = uploadImageData;
+    let { imageDetailsId,type ,title, description} = uploadImageData;
     const fieldNames = ["type", "title", "description", "imageDetailsId"];
     const updatedFields = {};
 
@@ -103,7 +103,7 @@ const updateUploadImage = async (uploadImageData, file) => {
 
     Object.assign(existingUploadData, updatedFields);
     await existingUploadData.save();
-
+    
     return {
       response: "Data updated successfully",
     };
@@ -116,7 +116,6 @@ const updateUploadImage = async (uploadImageData, file) => {
 const deleteUploadImage = async (req, res) => {
   try {
     const { uploadImageDetailsId } = req.query;
-    //console.log(bankDetailsId , "<<<<<<<<<<==================>>>>>>>>>>>>>>>>")
     const deletedBankDetails = await manageUploadSchema.findByIdAndRemove(
       uploadImageDetailsId
     );

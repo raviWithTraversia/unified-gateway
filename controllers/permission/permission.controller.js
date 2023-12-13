@@ -26,12 +26,17 @@ const permissionList = async(req, res) => {
 const addPermission = async(req ,res) => {
     try {
         const result = await permissionServices.storePermission(req);
-        apiSucessRes(
-            res,
-            CrudMessage.PERMISSION_CREATE,
-            result.response,
-            ServerStatusCode.SUCESS_CODE
-        )
+        if(result.response == 'Something went wrong try again later') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        }
+        else {
+            apiSucessRes(
+                res,
+                CrudMessage.CREDIT_REQUESTED_CREATED,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+        }
 
     } catch (error) {
         apiErrorres(

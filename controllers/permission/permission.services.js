@@ -31,10 +31,16 @@ const storePermission = async(req ,res) => {
             permissionDescription
         });
         const productSave = await savePermission.save();
-
-        return {
-            response: 'Permission added successfully'
+        if(productSave) {
+            return {
+                response: 'Permission added successfully'
+            }
+        }else{
+            return {
+                response: 'Something went wrong try again later'
+            }
         }
+       
 
     } catch (error) {
         throw error;

@@ -41,11 +41,8 @@ const diSetup = require('../routes/diSetupRoute');
 const autoTicketingRoute = require('../routes/autoTicketingRoute');
 const manageUploadRoute = require('../routes/manageUploadsRoute');
 const fareRuleRoute = require('../routes/fareRulesRoute');
-<<<<<<< HEAD
 const fareRuleGroupRoute = require('../routes/fareRuleGroupRoute');
-=======
 const airLineCodeRoute = require('../routes/airLineCodeRoute');
->>>>>>> f3904a244b648674a0b890b1e9473f0e4c8e9fb1
 
 class RoutesLoader {
     static initRoutes (app) {        

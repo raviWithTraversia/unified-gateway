@@ -1,4 +1,5 @@
 const bankDetail = require('../../models/BankDetails');
+const multer = require('multer')
 
 const addBankDetails = async (bankDetailsData, file) => {
     try{
@@ -13,6 +14,8 @@ const addBankDetails = async (bankDetailsData, file) => {
       createdBy,
       modifyBy
     } = bankDetailsData;
+    
+
     const fieldNames = [
       "companyId",
       "accountName",
@@ -58,7 +61,9 @@ const addBankDetails = async (bankDetailsData, file) => {
         response : "This account number alrady exist"
       }
     }
+   
     let  savedBankDetails = await newBankDetails.save();
+    
     if(savedBankDetails){
         return {
             response : "Bank Details Added sucessfully",

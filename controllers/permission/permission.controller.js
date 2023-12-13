@@ -23,4 +23,26 @@ const permissionList = async(req, res) => {
 }
 
 
-module.exports = {permissionList}
+const addPermission = async(req ,res) => {
+    try {
+        const result = await permissionServices.storePermission(req);
+        apiSucessRes(
+            res,
+            CrudMessage.PERMISSION_CREATE,
+            result.response,
+            ServerStatusCode.SUCESS_CODE
+        )
+
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true)
+    }
+}
+
+module.exports = {
+    permissionList,
+    addPermission
+}

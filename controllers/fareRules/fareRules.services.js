@@ -15,7 +15,9 @@ const addfareRule = async (req,res) => {
         validDateFrom,
         validDateTo,
         status,
-        desceription
+        desceription,
+        rbd,
+        fareBasis
 
     } = req.body;
     let addRules = new fareRulesModel({
@@ -30,7 +32,9 @@ const addfareRule = async (req,res) => {
         validDateFrom,
         validDateTo,
         status : status || false,
-        desceription
+        desceription,
+        fareBasis,
+        rbd
     });
     addRules = await addRules.save();
     if(addRules){
@@ -88,6 +92,7 @@ const deleteFareRule = async (req, res) => {
         throw error
     }
 };
+
 
 module.exports = {
     addfareRule,

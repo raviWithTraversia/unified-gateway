@@ -40,6 +40,12 @@ const fareRuleSchema = new mongoose.Schema({
    },
    desceription : {
     type : String
+   },
+   rbd :{
+    type : String
+   },
+   fareBasis : {
+    type : String
    }
 });
 const fareRule = mongoose.model("fareRule", fareRuleSchema);

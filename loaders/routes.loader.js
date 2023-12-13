@@ -40,7 +40,8 @@ const configCredential = require('../routes/configCredentialRoute');
 const diSetup = require('../routes/diSetupRoute');
 const autoTicketingRoute = require('../routes/autoTicketingRoute');
 const manageUploadRoute = require('../routes/manageUploadsRoute');
-const fareRuleRoute = require('../routes/fareRulesRoute')
+const fareRuleRoute = require('../routes/fareRulesRoute');
+const airLineCodeRoute = require('../routes/airLineCodeRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -174,6 +175,9 @@ class RoutesLoader {
 
         // fareRule route
         app.use('/api/',fareRuleRoute)
+
+        // airLine code
+        app.use('/api/',airLineCodeRoute);
     }
 }
 

@@ -32,7 +32,7 @@ const addPermission = async(req ,res) => {
         else {
             apiSucessRes(
                 res,
-                CrudMessage.CREDIT_REQUESTED_CREATED,
+                CrudMessage.PERMISSION_CREATE,
                 result.response,
                 ServerStatusCode.SUCESS_CODE
             )  

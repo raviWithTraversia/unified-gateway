@@ -10,10 +10,13 @@ const addfareRule = async (req,res) => {
         providerId,
         airlineCodeId,
         fareFamilyId,
-        cabinclass,travelType
-        ,validDateFrom,
+        cabinclass,
+        travelType,
+        validDateFrom,
         validDateTo,
-        status
+        status,
+        desceription
+
     } = req.body;
     let addRules = new fareRulesModel({
         companyId ,
@@ -26,7 +29,8 @@ const addfareRule = async (req,res) => {
         travelType,
         validDateFrom,
         validDateTo,
-        status : status || false
+        status : status || false,
+        desceription
     });
     addRules = await addRules.save();
     if(addRules){
@@ -47,7 +51,19 @@ const addfareRule = async (req,res) => {
 };
 const getFareRule = async (req,res) => {
     try{
-        
+    let {companyId } = req.query;
+    let fareRuleData = await fareRulesModel.find({companyId:companyId }).populate('providerId', 'supplierCode').populate('airlineCodeId','airlineCode airlineName').populate('fareFamilyId','fareFamilyCode fareFamilyName');
+    if(fareRuleData){
+        return {
+            response : "Fare Rule Added Sucessfully",
+            data :fareRuleData
+        }
+    }else{
+        return {
+            response : 'Fare Rule Not Added'
+        }
+    }
+
     }catch(error){
         console.log(error);
         throw error
@@ -55,6 +71,17 @@ const getFareRule = async (req,res) => {
 };
 const deleteFareRule = async (req, res) => {
     try{
+    let {id} = req.query.id;
+    const removeFareRule = await fareRulesModel.findOneAndRemove(id);
+    if(removeFareRule){
+        return {
+            response : "Fare Rule Deleted Sucessfully"
+        }
+    }else{
+        return{
+            response : "Fare Rule Not Deleted" 
+        }
+    }
 
     }catch(error){
         console.log(error);

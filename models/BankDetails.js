@@ -30,9 +30,8 @@ companyId: {
     type: String,
     required: true,
   },
-  QrcodeImage: {
-    data: Buffer,       
-    contentType: String 
+  QrcodeImagePath: {
+    type : String
   },
   createdAt: {
     type: Date,

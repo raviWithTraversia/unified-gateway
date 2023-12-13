@@ -1,7 +1,6 @@
 const bankDetail = require('../../models/BankDetails');
-const multer = require('multer')
 
-const addBankDetails = async (bankDetailsData, file) => {
+const addBankDetails = async (reqData , file) => {
     try{
     const {
       companyId,
@@ -13,9 +12,8 @@ const addBankDetails = async (bankDetailsData, file) => {
       bankCode,
       createdBy,
       modifyBy
-    } = bankDetailsData;
+    } = reqData;
     
-
     const fieldNames = [
       "companyId",
       "accountName",
@@ -27,7 +25,7 @@ const addBankDetails = async (bankDetailsData, file) => {
     ];
     const missingFields = fieldNames.filter(
       (fieldName) =>
-      bankDetailsData[fieldName] === null || bankDetailsData[fieldName] === undefined
+      reqData[fieldName] === null || reqData[fieldName] === undefined
     );
     if (missingFields.length > 0) {
       const missingFieldsString = missingFields.join(", ");
@@ -48,12 +46,8 @@ const addBankDetails = async (bankDetailsData, file) => {
       bankCode,
       createdBy,
       modifyBy,
-      QrcodeImage: file
-      ? {
-          data: file.buffer,
-          contentType: file.mimetype,
-        }
-      : undefined,
+      QrcodeImagePath: file.path || null
+    
     });
     let checkIsAcountAlreadyExist = await bankDetail.findOne({accountNumber});
     if(checkIsAcountAlreadyExist){
@@ -104,50 +98,36 @@ const getCompanyBankDetalis = async (req,res) => {
     }
 }
 
-const updateBankDetails = async (bankDetailsData, file) => {
-    try{
-      const {
-        companyId,
-        accountName,
-        accountNumber,
-        ifscCode,
-        bankAddress,
-        bankName,
-        bankCode,
-        createdBy,
-        modifyBy,
-        bankDetailsId
-      } = bankDetailsData;
+const updateBankDetails = async (reqData , file) => {
+  console.log("==========>>>>>>>>>>",reqData,"<<<<<<<<<==================", "==============>>>>",file,"<<<<<<<<=================")
 
-      const fieldNames = ["companyId", "accountName", "accountNumber", "ifscCode", "bankAddress", "bankName", "bankCode", "createdBy","modifyBy", "bankDetailsId"];
-      const updatedFields = {};
-  
-      for (const field of fieldNames) {
-        if (bankDetailsData[field] !== undefined && bankDetailsData[field] !== null) {
-          updatedFields[field] = bankDetailsData[field];
-        }
-      };
-  
-      if (Object.keys(updatedFields).length === 0) {
-        return {
-          response: "No fields provided for update",
-        };
-      }
-  
-      const existingUploadData = await bankDetail.findById(bankDetailsId);
-      if (!existingUploadData) {
-        return {
-          response: "Upload data not found",
-        };
-      }
-  
-      if (file) {
-        existingUploadData.QrcodeImage.data = file.buffer;
-        existingUploadData.QrcodeImage.contentType = file.mimetype;
-      }
-  
-      Object.assign(existingUploadData, updatedFields);
-      await existingUploadData.save();
+    try{
+     let { bankDetailsId } = req.query.bankDetailsId
+     let updateBankDetails;
+     if(file){
+   updateBankDetails=  await bankDetail.findByIdAndUpdate(
+        bankDetailsId,
+        {
+          $set: validUpdateData,
+          modifyAt: new Date(),
+          modifyBy: req.user._id,
+          QrcodeImagePath :file.path 
+        },
+        { new: true }
+      );
+
+     }else{
+      updateBankDetails = await bankDetail.findByIdAndUpdate(
+        bankDetailsId,
+        {
+          $set: validUpdateData,
+          modifyAt: new Date(),
+          modifyBy: req.user._id
+        },
+        { new: true }
+      );
+     } 
+   
    
       return {
         response : 'Bank details updated sucessfully',
@@ -165,7 +145,6 @@ const updateBankDetails = async (bankDetailsData, file) => {
 const deleteBankDetails = async (req,res) => {
   try{
     const { bankDetailsId } = req.query; 
-    //console.log(bankDetailsId , "<<<<<<<<<<==================>>>>>>>>>>>>>>>>")
     const deletedBankDetails = await bankDetail.findByIdAndRemove(bankDetailsId);
     if(deletedBankDetails){
       return {

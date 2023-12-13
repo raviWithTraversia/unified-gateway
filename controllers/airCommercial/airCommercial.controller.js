@@ -122,12 +122,38 @@ const commercialDetailList = async(req , res) => {
     }
 }
 
+const addRowColoumn = async(req ,res) => {
+    try {
+        const result = await airCommericalService.commercialRowColoumnAdd(req);
+        if(result.response == 'Commercial air plan Id field are required') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        }
+        else {
+            apiSucessRes(
+                res,
+                CrudMessage.AIR_COMMERCIAL_ADD,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+        }
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
 module.exports = {
     storeAirCommercial,
     getColoumnData,
     getRowData,
     commercialTypeAdd,
-    commercialDetailList
+    commercialDetailList,
+    addRowColoumn
 }
 
 

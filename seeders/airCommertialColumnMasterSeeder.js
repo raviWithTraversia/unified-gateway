@@ -2,91 +2,91 @@ const AirCommercialColumnMaster = require('./../models/AirCommertialColumnMaster
 
 const columnData = [
     {
-        "name" : "Service Fee Rate(+)",
-        "commercialType" : "Rate",
-        "type" : "Coloumn",
+        "name" : "Service Fee rate(+)",
+        "commercialType" : "rate",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
         "name" : "Discount (-)",
-        "commercialType" : "Rate",
-        "type" : "Coloumn",
+        "commercialType" : "rate",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
-        "name" : "Booking Fee Rate(+)",
-        "commercialType" : "Rate",
-        "type" : "Coloumn",
+        "name" : "Booking Fee rate(+)",
+        "commercialType" : "rate",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
-        "name" : "Markup Rate(+)",
-        "commercialType" : "Rate",
-        "type" : "Coloumn",
+        "name" : "Markup rate(+)",
+        "commercialType" : "rate",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
         "name" : "GDS OC Charges (+)",
-        "commercialType" : "Rate",
-        "type" : "Coloumn",
+        "commercialType" : "rate",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
         "name" : "Segment Kickback (-)",
         "commercialType" : "fixed",
-        "type" : "Coloumn",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
         "name" : "Segment Kickback Import (-)",
         "commercialType" : "fixed",
-        "type" : "Coloumn",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
         "name" : "Fixed Booking Fee",
         "commercialType" : "fixed",
-        "type" : "Coloumn",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
         "name" : "Cancellation Fee",
         "commercialType" : "fixed",
-        "type" : "Coloumn",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
         "name" : "Reschedule Fee",
         "commercialType" : "fixed",
-        "type" : "Coloumn",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
         "name" : "Fixed Markup (+)",
         "commercialType" : "fixed",
-        "type" : "Coloumn",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
         "name" : "Amendmend Fee Markup(+)",
         "commercialType" : "fixed",
-        "type" : "Coloumn",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
         "name" : "OC Charge(+)",
         "commercialType" : "fixed",
-        "type" : "Coloumn",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
         "name" : "Fixed Service Fee(+)",
         "commercialType" : "fixed",
-        "type" : "Coloumn",
+        "type" : "coloumn",
         "modifiedBy" : "6538c0314756928875840820"
     },
     {
-        "name" : "Rate On Base fare",
+        "name" : "rate On Base fare",
         "commercialType" : "rate",
         "type" : "row",
         "modifiedBy" : "6538c0314756928875840820",

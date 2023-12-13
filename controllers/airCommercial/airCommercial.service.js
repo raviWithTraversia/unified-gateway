@@ -212,10 +212,39 @@ const getCommercialDetailList = async(req , res) => {
     }
 }
 
+
+
+const commercialRowColoumnAdd = async(req ,res) =>{
+   try {
+    const {name , commercialType , type , modifiedBy} = req.body;
+    if(!name || !commercialType || !type || !modifiedBy) {
+        return {
+            response : 'All fields are required'
+        }
+    }
+
+    const storeData = new AirCommercialColoumnMaster({
+        name,
+        commercialType,
+        type,
+        modifiedBy
+    });
+
+    const result = await storeData.save();
+    return {
+        response : "Commercial row / coloumn created successfully"
+    }    
+
+   } catch (error) {
+        throw error
+   }
+}
+
 module.exports = {
     addAirCommercial,
     getColoumnDetail,
     getRowDetail,
     addCommercialType,
-    getCommercialDetailList
+    getCommercialDetailList,
+    commercialRowColoumnAdd
 }

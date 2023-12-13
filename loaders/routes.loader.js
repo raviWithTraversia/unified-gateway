@@ -40,7 +40,8 @@ const configCredential = require('../routes/configCredentialRoute');
 const diSetup = require('../routes/diSetupRoute');
 const autoTicketingRoute = require('../routes/autoTicketingRoute');
 const manageUploadRoute = require('../routes/manageUploadsRoute');
-const fareRuleRoute = require('../routes/fareRulesRoute')
+const fareRuleRoute = require('../routes/fareRulesRoute');
+const fareRuleGroupRoute = require('../routes/fareRuleGroupRoute');
 
 class RoutesLoader {
     static initRoutes (app) {        
@@ -173,7 +174,9 @@ class RoutesLoader {
         app.use('/api', manageUploadRoute);
 
         // fareRule route
-        app.use('/api/',fareRuleRoute)
+        app.use('/api/',fareRuleRoute);
+         
+        app.use('/api', fareRuleGroupRoute);
     }
 }
 

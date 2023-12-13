@@ -46,6 +46,13 @@ const fareRuleSchema = new mongoose.Schema({
    },
    fareBasis : {
     type : String
+   },
+   modifyAt : {
+    type : Date
+   },
+   modifyBy : {
+    type : mongoose.Schema.Types.ObjectId,
+    ref : "User"
    }
 });
 const fareRule = mongoose.model("fareRule", fareRuleSchema);

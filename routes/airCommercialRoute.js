@@ -45,4 +45,11 @@ air_commercial_route.post(
 )
 
 
+air_commercial_route.post(
+    '/commercial/commercial-update-matrix',
+    auth,
+    airCommercialController.updateMatrix
+)
+
+
 module.exports = air_commercial_route;

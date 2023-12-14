@@ -4,6 +4,7 @@ const AirCommercial = require('../../models/AirCommercial');
 const AirCommercialRowMaster = require('../../models/AirCommertialRowMaster');
 const AirCommercialColoumnMaster = require('../../models/AirCommertialColumnMaster');
 const CommercialType = require('../../models/CommercialType');
+const Matrix = require('../../models/UpdateAirCommercialMatrix');
 
 const addAirCommercial = async(req , res) => {
     try {
@@ -240,11 +241,51 @@ const commercialRowColoumnAdd = async(req ,res) =>{
    }
 }
 
+
+const UpdateMatrixData = async(req , res) => {
+    try {
+        const {
+            comercialPlanId, 
+            airCommercialPlanId,
+            ComanyId,
+            type,
+            coloumnId,
+            rowId,
+            textType,
+            value,
+            rateValue
+        } = req.body;
+
+        if(!comercialPlanId || !airCommercialPlanId || !ComanyId || !type || !coloumnId || !rowId || !textType || !value) {
+            return {
+                response : "All field are required",
+            }  
+        }
+
+        
+        if(!result) {
+            return {
+                response : "Matrix updated successfully",
+            }  
+        }else{
+            return {
+                response : "Something went wrong!!",
+            }   
+        }
+
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+
 module.exports = {
     addAirCommercial,
     getColoumnDetail,
     getRowDetail,
     addCommercialType,
     getCommercialDetailList,
-    commercialRowColoumnAdd
+    commercialRowColoumnAdd,
+    UpdateMatrixData
 }

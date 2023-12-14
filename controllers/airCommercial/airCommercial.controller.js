@@ -147,13 +147,42 @@ const addRowColoumn = async(req ,res) => {
     }
 }
 
+
+const updateMatrix = async(req ,res) => {
+    try {
+        
+        const result = await airCommericalService.UpdateMatrixData(req);
+        if(result.response == 'All field are required' || result.response == 'Something went wrong!!') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        }
+        else {
+            apiSucessRes(
+                res,
+                CrudMessage.MATRIX_UPDATE,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+        }
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+
 module.exports = {
     storeAirCommercial,
     getColoumnData,
     getRowData,
     commercialTypeAdd,
     commercialDetailList,
-    addRowColoumn
+    addRowColoumn,
+    updateMatrix
 }
 
 

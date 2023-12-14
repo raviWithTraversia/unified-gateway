@@ -2,20 +2,20 @@ const cabinClassMaster = require('./../models/CabinClassMaster');
 
 const cabinClassData = [
     {
-        cabinClassCode: '0866',
-        cabinClassName: 'economy class',
+        cabinClassCode: 'Business',
+        cabinClassName: 'Business',
     },
     {
-        cabinClassCode: '0867',
-        cabinClassName: 'premium economy',
+        cabinClassCode: 'Economy',
+        cabinClassName: 'Economy',
     },
     {
-        cabinClassCode: '0869',
-        cabinClassName: 'business',
+        cabinClassCode: 'First',
+        cabinClassName: 'First',
     },
     {
-        cabinClassCode: '0870',
-        cabinClassName: 'first class',
+        cabinClassCode: 'Premium Economy',
+        cabinClassName: 'Premium Economy',
     },
 ];
 

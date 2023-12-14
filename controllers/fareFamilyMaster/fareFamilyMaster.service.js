@@ -1,7 +1,5 @@
 const FareFamilyMaster = require('../../models/FareFamilyMaster');
 
-// Get fare family master list
-
 const getFareFamilyMaster = async(req , res) => {
     try {
         const companyId = req.params.companyId;

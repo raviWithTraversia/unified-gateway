@@ -239,7 +239,8 @@ const userInsert = async (req, res) => {
    
     // Check if a user with the same email already exists
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
+  //  console.log(existingUser, "<<<<<<<<<<<<===============================")
+    if (existingUser ) {
       return {
         response: "User with this email already exists",
         data: null

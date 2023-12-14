@@ -1,14 +1,13 @@
 const manageUploadSchema = require("../../models/ManageUplods");
 const FUNC = require("../commonFunctions/common.function");
 
-const addImageUpload = async (uploadImageData, file) => {
+const addImageUpload = async (req, res) => {
   try {
-    let { type, title, description, userId } = uploadImageData;
+    let { type, title, description, userId } = req.body;
     const fieldNames = ["type", "userId"];
     const missingFields = fieldNames.filter(
       (fieldName) =>
-        uploadImageData[fieldName] === null ||
-        uploadImageData[fieldName] === undefined
+        req.body[fieldName] === null || req.body[fieldName] === undefined
     );
     if (missingFields.length > 0) {
       const missingFieldsString = missingFields.join(", ");
@@ -25,17 +24,13 @@ const addImageUpload = async (uploadImageData, file) => {
       };
     }
     let uploadData = new manageUploadSchema({
-      image: {
-        data: file.buffer,
-        contentType: file.mimetype,
-      },
+      imagePath: req.file.path,
       userId,
       type,
       title,
       description,
     });
     uploadData = await uploadData.save();
-    //    console.log(uploadData, "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm")
     if (uploadData) {
       return {
         response: "Data Upload Sucessfully",
@@ -71,42 +66,37 @@ const getUploadImage = async (req, res) => {
   }
 };
 
-const updateUploadImage = async (uploadImageData, file) => {
+const updateUploadImage = async (req, res) => {
   try {
-    let { imageDetailsId,type ,title, description} = uploadImageData;
-    const fieldNames = ["type", "title", "description", "imageDetailsId"];
-    const updatedFields = {};
-
-    for (const field of fieldNames) {
-      if (uploadImageData[field] !== undefined && uploadImageData[field] !== null) {
-        updatedFields[field] = uploadImageData[field];
-      }
+    let { uploadDataId } = req.query;
+    let updateBankDetails;
+    if (req.file) {
+      updateBankDetails = await manageUploadSchema.findByIdAndUpdate(
+        uploadDataId,
+        {
+          $set: req.body,
+          imagePath: req.file.path,
+        },
+        { new: true }
+      );
+    } else {
+      updateBankDetails = await manageUploadSchema.findByIdAndUpdate(
+        uploadDataId,
+        {
+          $set: req.body,
+        },
+        { new: true }
+      );
     }
-
-    if (Object.keys(updatedFields).length === 0) {
-      return {
-        response: "No fields provided for update",
-      };
-    }
-
-    const existingUploadData = await manageUploadSchema.findById(imageDetailsId);
-    if (!existingUploadData) {
+    if (!updateBankDetails) {
       return {
         response: "Upload data not found",
       };
+    } else {
+      return {
+        response: "Data updated successfully",
+      };
     }
-
-    if (file) {
-      existingUploadData.image.data = file.buffer;
-      existingUploadData.image.contentType = file.mimetype;
-    }
-
-    Object.assign(existingUploadData, updatedFields);
-    await existingUploadData.save();
-    
-    return {
-      response: "Data updated successfully",
-    };
   } catch (error) {
     console.log(error);
     throw error;

@@ -4,6 +4,7 @@ const Smtp = require("../../models/smtp");
 const { ObjectId } = require("mongodb");
 const configCred = require("../../models/ConfigCredential");
 const { Config } = require("../../configs/config");
+const statusModel = require('../../models/status')
 
 const addRegistration = async (req, res) => {
   try {
@@ -248,10 +249,6 @@ const updateRegistration = async (req, res) => {
       { new: true }
     );
 
-    console.log(
-      updateRegistration,
-      "<<<<<<<<<<<+++++++++>>>>>>>>>>>>>>>>>>>>>>>>"
-    );
     if (updateRegistration) {
       let registrationIds = new ObjectId(registrationId);
       let comapnyId = updateRegistration.companyId;
@@ -293,7 +290,7 @@ const updateRegistration = async (req, res) => {
       );
       // console.log(statusData , "<<<===========" ,comapnyId )
       if (mailSent.responce) {
-        console.log("Mail Sent ");
+        console.log("Mail Sent "); 
       }
       return {
         response: "Registration data updated sucessfully",

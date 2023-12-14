@@ -23,8 +23,9 @@ const fareRuleSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'FareFamilyMaster'
     },
-    cabinclass : {
-        type : String
+    cabinclassId : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'CabinClassMaster'
     },
    travelType: {
     type : String

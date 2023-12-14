@@ -115,7 +115,7 @@ const updateUploadImage = async (uploadImageData, file) => {
 
 const deleteUploadImage = async (req, res) => {
   try {
-    const { uploadImageDetailsId } = req.query;
+    const { uploadImageDetailsId } = req.params;
     const deletedBankDetails = await manageUploadSchema.findByIdAndRemove(
       uploadImageDetailsId
     );

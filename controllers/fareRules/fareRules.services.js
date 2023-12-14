@@ -79,7 +79,7 @@ const getFareRule = async (req, res) => {
 };
 const deleteFareRule = async (req, res) => {
   try {
-    let { id } = req.query.id;
+    let  id = req.params.id;
     const removeFareRule = await fareRulesModel.findOneAndRemove(id);
     if (removeFareRule) {
       return {

@@ -25,7 +25,7 @@ fareRules_route.patch(
 )
 
 fareRules_route.delete(
-  '/fareRule/deleteFareRules',
+  '/fareRule/deleteFareRules/:id',
   auth,
   fareRuleController.deleteFareRule
 );

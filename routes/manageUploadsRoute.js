@@ -7,12 +7,20 @@ mangageUpload_route.use(bodyParser.urlencoded({extended:true}));
 const auth = require("../middleware/auth");
 const multer = require('multer');
 const manageUploadController = require('../controllers/manageUploads/manageUploads.controller');
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+
+const storage = multer.diskStorage({
+   destination: function (req, file, cb) {
+    return cb(null, './Public/uploadImage')
+   },
+   filename: function (req, file, cb) {
+     return cb(null, `${Date.now()}-${file.originalname}`)
+   }
+ });
+ const upload = multer({ storage: storage });
 
 mangageUpload_route.post(
    '/manageUpload/addImageUpload',
-    upload.single('image'),
+    upload.array('image'),
     manageUploadController.addImageUpload
 );
 mangageUpload_route.get(
@@ -23,12 +31,12 @@ mangageUpload_route.get(
 mangageUpload_route.patch(
    '/manageUpload/updateUploadImage',
    auth,
-   upload.single('image'),
+   upload.array('image'),
    manageUploadController.updateUploadImage
 );
 
 mangageUpload_route.delete(
-   '/manageUpload/deleteUploadImage',
+   '/manageUpload/deleteUploadImage/:id',
    auth,
    manageUploadController.deleteUploadImage
 )

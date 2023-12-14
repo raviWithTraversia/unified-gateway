@@ -131,7 +131,7 @@ const updateBankDetails = async (reqData, file) => {
 
 const deleteBankDetails = async (req, res) => {
   try {
-    const { bankDetailsId } = req.query;
+    const  id  = req.params.id;
     const deletedBankDetails = await bankDetail.findByIdAndDelete(
       bankDetailsId
     );

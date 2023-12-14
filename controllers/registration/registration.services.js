@@ -1,14 +1,9 @@
 const registration = require("../../models/Registration");
 const FUNC = require("../../controllers/commonFunctions/common.function");
-const status = require("../../models/status");
-const Company = require("../../models/Company");
 const Smtp = require("../../models/smtp");
 const { ObjectId } = require("mongodb");
-const configCred = require('../../models/ConfigCredential')
+const configCred = require("../../models/ConfigCredential");
 const { Config } = require("../../configs/config");
-const verifyOtpServices = require('../verifyOtp/verifyOtp.services');
-const constants = require('../../utils/constants')
-const axios = require('axios');
 
 const addRegistration = async (req, res) => {
   try {
@@ -114,15 +109,14 @@ const addRegistration = async (req, res) => {
       return {
         response: "Mobile number already exists",
       };
-    };
+    }
     let comapnyIds = companyId;
     let mailConfig = await Smtp.findOne({ companyId: comapnyIds });
-    if(!mailConfig){
-      let id = Config.MAIL_CONFIG_ID ;
+    if (!mailConfig) {
+      let id = Config.MAIL_CONFIG_ID;
       mailConfig = await Smtp.findById(id);
     }
 
-  
     const newRegistration = new registration({
       companyId,
       companyName,
@@ -153,18 +147,11 @@ const addRegistration = async (req, res) => {
     console.log(newRegistrationRes);
     let mailText = newRegistrationRes;
     let mailSubject = `New registration created successfully`;
-    let smsUrl = await configCred.findOne({companyId : companyId});
-    if(!smsUrl){
+    let smsUrl = await configCred.findOne({ companyId: companyId });
+    if (!smsUrl) {
       smsUrl = await configCred.find();
     }
-     if (newRegistrationRes) {
-    //   let mailRes = await FUNC.commonEmailFunction(
-    //     email,
-    //     mailConfig,
-    //     mailText,
-    //     mailSubject
-    //   );
-      //console.log(mailRes, "==============================");
+    if (newRegistrationRes) {
       return {
         response: `${mailSubject}`,
         data: newRegistration,
@@ -184,10 +171,11 @@ const getAllRegistration = async (req, res) => {
   try {
     // let getAllRegistartion = await registration.find();
 
-    let getAllRegistartion = await registration.find()
-     .populate('statusId', 'name')
-     .populate('roleId', 'name')
-     .exec();
+    let getAllRegistartion = await registration
+      .find()
+      .populate("statusId", "name")
+      .populate("roleId", "name")
+      .exec();
     return {
       response: "All registrationData fetch",
       data: getAllRegistartion,
@@ -209,10 +197,11 @@ const getAllRegistrationByCompany = async (req, res) => {
     }
     // const registrationData = await registration.find({companyId : comapnyId});
 
-    let aggregrationRes = await registration.find({comapnyId : comapnyId})
-    .populate('statusId', 'name')
-    .populate('roleId', 'name')
-    .exec();
+    let aggregrationRes = await registration
+      .find({ comapnyId: comapnyId })
+      .populate("statusId", "name")
+      .populate("roleId", "name")
+      .exec();
 
     if (!aggregrationRes) {
       return {
@@ -233,30 +222,36 @@ const getAllRegistrationByCompany = async (req, res) => {
 
 const updateRegistration = async (req, res) => {
   try {
-    const { registrationId, statusId, remark , roleId } = req.body;
+    const { registrationId, statusId, remark, roleId } = req.body;
     let checkIsValidregistrationId = FUNC.checkIsValidId(registrationId);
     let checkIsValidstatusId = FUNC.checkIsValidId(statusId);
     let checkIsValidRoleId = FUNC.checkIsValidId(roleId);
 
-    if (!checkIsValidregistrationId || !checkIsValidstatusId || !checkIsValidRoleId) {
+    if (
+      !checkIsValidregistrationId ||
+      !checkIsValidstatusId ||
+      !checkIsValidRoleId
+    ) {
       return {
         response: "Please pass valid registrationId or statusId or roleId",
       };
-    };
+    }
     const updateRegistration = await registration.findOneAndUpdate(
       { _id: registrationId },
       {
         $set: {
           statusId: statusId,
           remark: remark,
-          roleId : roleId
+          roleId: roleId,
         },
       },
       { new: true }
     );
-   
-    
-    console.log(updateRegistration , "<<<<<<<<<<<+++++++++>>>>>>>>>>>>>>>>>>>>>>>>")
+
+    console.log(
+      updateRegistration,
+      "<<<<<<<<<<<+++++++++>>>>>>>>>>>>>>>>>>>>>>>>"
+    );
     if (updateRegistration) {
       let registrationIds = new ObjectId(registrationId);
       let comapnyId = updateRegistration.companyId;
@@ -289,9 +284,7 @@ const updateRegistration = async (req, res) => {
           },
         },
       ]);
-      ///console.log(regData[0].statusName, "?????????????????????????????????????????????","==========>>>>>>>>>>>>>>>>>>>");
-      // let  { companyName, firstName, lastName, email, mobile, statusName : [{name}] } = regData[0];
-      // console.log("companyName",companyName, "firstName", firstName, "lastName",lastName,"email", email, "mobile",mobile, "statusName",name)
+
       let mailSent = FUNC.commonEmailFunctionOnRegistrationUpdate(
         mailText[0].email,
         mailConfig,
@@ -304,7 +297,7 @@ const updateRegistration = async (req, res) => {
       }
       return {
         response: "Registration data updated sucessfully",
-        data: updateRegistration
+        data: updateRegistration,
       };
     } else {
       return {

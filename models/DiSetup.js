@@ -21,8 +21,10 @@ const diSetupSchema = new mongoose.Schema({
         ref : 'Company'
     },
     validFromDate : {
-        type: Date,
-        default: Date.now
+        type: Date
+    },
+    validToDate : {
+        type: Date 
     },
     createdBy :{
         type : mongoose.Schema.Types.ObjectId,

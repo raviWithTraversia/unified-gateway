@@ -110,15 +110,7 @@ const updateBankDetails = async (req,res) => {
         true
        )
     }
-    else if(result.response === 'Upload data not found'){
-        apiErrorres(
-          res,
-          result.response,
-          ServerStatusCode.UNPROCESSABLE,
-          true
-        )
-      }
-    else if(result.response === 'No fields provided for update'){
+    else if(result.response === 'Bank details not updated'){
       apiErrorres(
         res,
         result.response,

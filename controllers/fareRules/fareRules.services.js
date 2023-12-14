@@ -10,7 +10,7 @@ const addfareRule = async (req, res) => {
       providerId,
       airlineCodeId,
       fareFamilyId,
-      cabinclass,
+      cabinclassId,
       travelType,
       validDateFrom,
       validDateTo,
@@ -26,7 +26,7 @@ const addfareRule = async (req, res) => {
       providerId,
       airlineCodeId,
       fareFamilyId,
-      cabinclass,
+      cabinclassId,
       travelType,
       validDateFrom,
       validDateTo,
@@ -60,7 +60,8 @@ const getFareRule = async (req, res) => {
       .find({ companyId: companyId })
       .populate("providerId", "supplierCode")
       .populate("airlineCodeId", "airlineCode airlineName")
-      .populate("fareFamilyId", "fareFamilyCode fareFamilyName");
+      .populate("fareFamilyId", "fareFamilyCode fareFamilyName")
+      .populate("cabinclassId", 'cabinClassCode cabinClassName')
     if (fareRuleData) {
       return {
         response: "Fare Rule Fetch Sucessfully",

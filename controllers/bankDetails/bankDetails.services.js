@@ -1,7 +1,7 @@
-const bankDetail = require('../../models/BankDetails');
+const bankDetail = require("../../models/BankDetails");
 
-const addBankDetails = async (reqData , file) => {
-    try{
+const addBankDetails = async (reqData, file) => {
+  try {
     const {
       companyId,
       accountName,
@@ -10,10 +10,8 @@ const addBankDetails = async (reqData , file) => {
       bankAddress,
       bankName,
       bankCode,
-      createdBy,
-      modifyBy
     } = reqData;
-    
+
     const fieldNames = [
       "companyId",
       "accountName",
@@ -21,11 +19,11 @@ const addBankDetails = async (reqData , file) => {
       "ifscCode",
       "bankAddress",
       "bankName",
-      "bankCode"
+      "bankCode",
     ];
     const missingFields = fieldNames.filter(
       (fieldName) =>
-      reqData[fieldName] === null || reqData[fieldName] === undefined
+        reqData[fieldName] === null || reqData[fieldName] === undefined
     );
     if (missingFields.length > 0) {
       const missingFieldsString = missingFields.join(", ");
@@ -34,8 +32,8 @@ const addBankDetails = async (reqData , file) => {
         isSometingMissing: true,
         data: `Missing or null fields: ${missingFieldsString}`,
       };
-    };
- 
+    }
+
     const newBankDetails = new bankDetail({
       companyId,
       accountName,
@@ -44,127 +42,117 @@ const addBankDetails = async (reqData , file) => {
       bankAddress,
       bankName,
       bankCode,
-      createdBy,
-      modifyBy,
-      QrcodeImagePath: file.path || null
-    
+      QrcodeImagePath: file.path || null,
     });
-    let checkIsAcountAlreadyExist = await bankDetail.findOne({accountNumber});
-    if(checkIsAcountAlreadyExist){
+    let checkIsAcountAlreadyExist = await bankDetail.findOne({ accountNumber });
+    if (checkIsAcountAlreadyExist) {
       return {
-        response : "This account number alrady exist"
-      }
+        response: "This account number alrady exist",
+      };
     }
-   
-    let  savedBankDetails = await newBankDetails.save();
-    
-    if(savedBankDetails){
-        return {
-            response : "Bank Details Added sucessfully",
-            data : savedBankDetails
-        }
+
+    let savedBankDetails = await newBankDetails.save();
+
+    if (savedBankDetails) {
+      return {
+        response: "Bank Details Added sucessfully",
+        data: savedBankDetails,
+      };
+    } else {
+      return {
+        response: "Some Datails is missing or bank detils not saved",
+      };
     }
-    else{
-        return {
-            response : "Some Datails is missing or bank detils not saved"
-        }
-    }
-   
-  }catch(error){
+  } catch (error) {
     console.log(error);
-    throw error
+    throw error;
   }
 };
 
-const getCompanyBankDetalis = async (req,res) => {
-    try{
-      const {companyId} = req.query; 
+const getCompanyBankDetalis = async (req, res) => {
+  try {
+    const { companyId } = req.query;
 
-        let bankDetails = await bankDetail.find({ companyId : companyId });
-        if(!bankDetails || bankDetails.length === 0){
-            return {
-                response : 'No any Bank details added for this company'
-            }
-        }
-        else{
-           return {
-            response : 'Bank Details Fetch Sucessfully',
-            data : bankDetails
-           }
-        }
-    }catch(error){
-      console.log(error);
-      throw error
+    let bankDetails = await bankDetail.find({ companyId: companyId });
+    if (!bankDetails || bankDetails.length === 0) {
+      return {
+        response: "No any Bank details added for this company",
+      };
+    } else {
+      return {
+        response: "Bank Details Fetch Sucessfully",
+        data: bankDetails,
+      };
     }
-}
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
 
-const updateBankDetails = async (reqData , file) => {
-  console.log("==========>>>>>>>>>>",reqData,"<<<<<<<<<==================", "==============>>>>",file,"<<<<<<<<=================")
-
-    try{
-     let { bankDetailsId } = req.query.bankDetailsId
-     let updateBankDetails;
-     if(file){
-   updateBankDetails=  await bankDetail.findByIdAndUpdate(
-        bankDetailsId,
-        {
-          $set: validUpdateData,
-          modifyAt: new Date(),
-          modifyBy: req.user._id,
-          QrcodeImagePath :file.path 
-        },
-        { new: true }
-      );
-
-     }else{
+const updateBankDetails = async (reqData, file) => {
+  try {
+    let bankDetailsId = reqData.bankDetailsId;
+    let updateBankDetails;
+    if (file) {
       updateBankDetails = await bankDetail.findByIdAndUpdate(
         bankDetailsId,
         {
-          $set: validUpdateData,
+          $set: reqData,
           modifyAt: new Date(),
-          modifyBy: req.user._id
+          QrcodeImagePath: file.path,
         },
         { new: true }
       );
-     } 
-   
-   
+    } else {
+      updateBankDetails = await bankDetail.findByIdAndUpdate(
+        bankDetailsId,
+        {
+          $set: reqData,
+          modifyAt: new Date(),
+        },
+        { new: true }
+      );
+    }
+    if (!updateBankDetails) {
       return {
-        response : 'Bank details updated sucessfully',
-        data : existingUploadData
-      }
-  
-       
+        response: "Bank details not updated ",
+      };
     }
-    catch(error){
-       console.log(error);
-       throw error
-    }
-}
-
-const deleteBankDetails = async (req,res) => {
-  try{
-    const { bankDetailsId } = req.query; 
-    const deletedBankDetails = await bankDetail.findByIdAndRemove(bankDetailsId);
-    if(deletedBankDetails){
-      return {
-        response : 'Bank details deleted successfully',
-         data: deletedBankDetails
-      }
-    }
-    else{
-      return {
-        response : 'Bank details not found'
-      }
-    }
-  }catch(error){
-     console.log(error);
-     throw error
+    return {
+      response: "Bank details updated sucessfully",
+      data: updateBankDetails,
+    };
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
-}
+};
+
+const deleteBankDetails = async (req, res) => {
+  try {
+    const { bankDetailsId } = req.query;
+    const deletedBankDetails = await bankDetail.findByIdAndDelete(
+      bankDetailsId
+    );
+    if (deletedBankDetails) {
+      return {
+        response: "Bank details deleted successfully",
+        data: deletedBankDetails,
+      };
+    } else {
+      return {
+        response: "Bank details not found",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
 module.exports = {
-    addBankDetails ,
-    getCompanyBankDetalis,
-    updateBankDetails,
-    deleteBankDetails
-}
+  addBankDetails,
+  getCompanyBankDetalis,
+  updateBankDetails,
+  deleteBankDetails,
+};

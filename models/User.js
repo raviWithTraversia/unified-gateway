@@ -124,10 +124,6 @@ const userSchema = new mongoose.Schema({
         type : String,
         default: null 
     },
-    user_planType: { /// need to be discuss
-        type : Number,
-        default : 1
-    },
     sales_In_Charge: {
         type: Boolean,
         default: false
@@ -136,10 +132,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    modifiedBy : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+     
     resetToken: String,
     ip_address : String  
 }, {
-    timestamps: true // Adds created_at and updated_at fields
+    timestamps: true 
   });
 
 const User = mongoose.model("User", userSchema);

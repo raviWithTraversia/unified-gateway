@@ -248,20 +248,24 @@ const UpdateMatrixData = async(req , res) => {
             comercialPlanId, 
             airCommercialPlanId,
             ComanyId,
-            type,
-            coloumnId,
-            rowId,
-            textType,
-            value,
-            rateValue
         } = req.body;
-
-        if(!comercialPlanId || !airCommercialPlanId || !ComanyId || !type || !coloumnId || !rowId || !textType || !value) {
+        console.log(req.body);
+        if(!comercialPlanId || !airCommercialPlanId || !ComanyId ) {
             return {
                 response : "All field are required",
             }  
         }
 
+       
+        const rateValueData = req.body.rateValue;
+        console.log(rateValueData);
+        const saveDataMatrix = new Matrix({
+            comercialPlanId,
+            airCommercialPlanId,
+            ComanyId,
+            rateValue:[]
+        });
+        // await saveDataMatrix.save();
         
         if(!result) {
             return {

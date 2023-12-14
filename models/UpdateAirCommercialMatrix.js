@@ -18,7 +18,8 @@ const UpdateAirCommercialMatrixSchema = new Schema({
   comercialPlanId: { type: String, required: true },
   airCommercialPlanId: { type: String, required: true },
   ComanyId: { type: String, required: true },
-  rateValue: [rowSchema]
+  rateValue: [rowSchema],
+  fixedValue: [rowSchema]
 });
 
 module.exports = mongoose.model('UpdateAirCommercialMatrix', UpdateAirCommercialMatrixSchema);

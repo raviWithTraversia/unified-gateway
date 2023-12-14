@@ -1,4 +1,5 @@
 const agentConfigs = require('../../models/AgentConfig');
+const  userModel = require('../../models/User');
 
 const addAgentConfiguration = async (req,res) => {
     try{
@@ -21,7 +22,7 @@ const addAgentConfiguration = async (req,res) => {
             UserId
         } = req.body;
         let userId = req.user._id
-        let checkIsRole =  await User.findById(userId).populate('roleId').exec();
+        let checkIsRole =  await userModel.findById(userId).populate('roleId').exec();
         if(checkIsRole.roleId.name == 'Tmc' ||checkIsRole.roleId.name == 'TMC' ){
             let agentConfigsInsert = await agentConfigs.create({
                 privilegePlansIds,
@@ -54,6 +55,7 @@ const addAgentConfiguration = async (req,res) => {
         throw error
     }
 };
+
 
 module.exports = {
     addAgentConfiguration

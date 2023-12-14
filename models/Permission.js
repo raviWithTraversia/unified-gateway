@@ -14,7 +14,7 @@ const parmissionSchema = new mongoose.Schema({
     },
     permissionName: {
       type: String,
-      required: false,        
+      required: true,        
       default: null
     },
     permissionDescription: {

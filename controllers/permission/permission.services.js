@@ -30,8 +30,8 @@ const storePermission = async(req ,res) => {
             permissionName,
             permissionDescription
         });
-        const productSave = await savePermission.save();
-        if(productSave) {
+        const permissionSave = await savePermission.save();
+        if(permissionSave) {
             return {
                 response: 'Permission added successfully'
             }

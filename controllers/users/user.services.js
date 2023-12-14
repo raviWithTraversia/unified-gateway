@@ -237,16 +237,14 @@ const userInsert = async (req, res) => {
       privillagePlanId
     } = req.body;
    
-    // Check if a user with the same email already exists
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    if (existingUser ) {
       return {
         response: "User with this email already exists",
         data: null
       };
     }
     
-    // Check if a company with the same companyName already exists
     const existingCompany = await Company.findOne({ companyName });
     if (existingCompany) {
       return {
@@ -259,7 +257,7 @@ const userInsert = async (req, res) => {
       parent,
       type,
       companyStatus,
-      modifiedBy,
+      modifiedBy : req.user.id || null,
       logo_URL,
       office_Type,
       isAutoInvoicing,
@@ -303,10 +301,8 @@ const userInsert = async (req, res) => {
         { name: DISTRIBUTER_ROLE.Staff, companyId:  newCompany._id, type: 'Default' },
       ];
       const insertedRoles = await Role.insertMany(rolesToInsert);
-      //console.log(insertedRoles);
       console.log("Default Role Created Sucessfully");
     }
-    // Save the Company document to the database
     savedCompany = await newCompany.save();
     const securePassword = await commonFunction.securePassword(password);
     const newUser = new User({
@@ -335,7 +331,8 @@ const userInsert = async (req, res) => {
       sales_In_Charge,
       personalPanCardUpload,
       roleId,
-      company_ID: savedCompany._id, // Set the company_ID field to the _id of the saved Company document
+      company_ID: savedCompany._id,
+      modifiedBy : req.user.id || null, 
     });
 
     let userCreated = await newUser.save();
@@ -576,7 +573,8 @@ const addUser = async (req,res) => {
         type,
         password :securePassword,
         userStatus : "Active",
-        roleId
+        roleId,
+
       });
       // Save the User document to the database
      let saveUser = await newUser.save();
@@ -646,7 +644,16 @@ const editUser = async (req,res) => {
 const getUser = async (req,res) => {
   try{
   let {companyId} = req.query;
-  let userData = await User.find({company_ID :companyId }).populate('roleId', 'name type');
+  let userData = await User.find({company_ID :companyId }).populate('roleId', 'name type').populate({
+    path: 'company_ID',
+    model: 'Company',
+    select: 'companyName type cashBalance creditBalance maxCreditLimit updatedAt',
+    populate: {
+      path: 'parent',
+      model: 'Company',
+      select: 'companyName type'
+    }
+  })
   if(userData){
     return {
       response : 'User data found SucessFully',

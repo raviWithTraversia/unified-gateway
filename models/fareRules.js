@@ -13,7 +13,7 @@ const fareRuleSchema = new mongoose.Schema({
     },
     providerId : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'Provider'
+        ref : 'SupplierCode'
     },
     airlineCodeId : {
         type : mongoose.Schema.Types.ObjectId,
@@ -23,8 +23,9 @@ const fareRuleSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'FareFamilyMaster'
     },
-    cabinclass : {
-        type : String
+    cabinclassId : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'CabinClassMaster'
     },
    travelType: {
     type : String
@@ -37,6 +38,22 @@ const fareRuleSchema = new mongoose.Schema({
    },
    status : {
     type : Boolean
+   },
+   desceription : {
+    type : String
+   },
+   rbd :{
+    type : String
+   },
+   fareBasis : {
+    type : String
+   },
+   modifyAt : {
+    type : Date
+   },
+   modifyBy : {
+    type : mongoose.Schema.Types.ObjectId,
+    ref : "User"
    }
 });
 const fareRule = mongoose.model("fareRule", fareRuleSchema);

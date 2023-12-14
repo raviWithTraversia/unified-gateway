@@ -19,7 +19,7 @@ diSetup_route.get(
 
 );
 diSetup_route.delete(
-    '/diSetup/deleteDi',
+    '/diSetup/deleteDi/:id',
     auth,
     diSetupController.deleteDiSetup
 )

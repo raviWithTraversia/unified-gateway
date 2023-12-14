@@ -18,8 +18,14 @@ fareRules_route.get(
   fareRuleController.getFareRule
 );
 
+fareRules_route.patch(
+    '/fareRule/updateFareRules',
+    auth,
+    fareRuleController.updateFareRule
+)
+
 fareRules_route.delete(
-  '/fareRule/deleteFareRules',
+  '/fareRule/deleteFareRules/:id',
   auth,
   fareRuleController.deleteFareRule
 );

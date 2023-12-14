@@ -48,7 +48,7 @@ add_bank_details_route.post
   );
 
   add_bank_details_route.delete(
-    '/bank-details/deleteBankDetails',
+    '/bank-details/deleteBankDetails/:id',
     bankDetailController.deleteBankDetails
   )
 

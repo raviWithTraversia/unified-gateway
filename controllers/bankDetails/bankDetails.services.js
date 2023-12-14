@@ -133,7 +133,7 @@ const deleteBankDetails = async (req, res) => {
   try {
     const  id  = req.params.id;
     const deletedBankDetails = await bankDetail.findByIdAndDelete(
-      bankDetailsId
+      id
     );
     if (deletedBankDetails) {
       return {

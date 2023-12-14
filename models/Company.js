@@ -155,6 +155,10 @@ const companySchema = new mongoose.Schema(
   holdPnrAllowed : {
     type : Boolean,
     dafault : false
+  },
+  modifiedBy : {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   }
   },
   {

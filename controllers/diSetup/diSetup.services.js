@@ -44,7 +44,7 @@ const getDiSetup = async (req,res) => {
 
 const deleteDiSetup = async (req,res) => {
     try{
-      let id = req.query.id;
+      let id = req.params.id;
       let deleteDi = await diSetup.findByIdAndDelete(id) ;
       if(deleteDi){
         return {

@@ -2,51 +2,58 @@ const mongoose = require("mongoose");
 
 const agentConfigSchema = new mongoose.Schema(
   {
-    privilegePlansIds: {
-      privilegePlansId: {
+    userId : {
+     type : mongoose.Schema.Types.ObjectId,
+     ref : 'User'
+    },
+    companyId : {
+      type : mongoose.Schema.Types.ObjectId,
+      ref : 'Company'
+    },
+
+    privilegePlansIds:  [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "privilagePlan",
-      },
-    },
-    commercialPlanIds: {
-      commercialPlanId: {
+      }],
+    commercialPlanIds:[{
+    
         type: mongoose.Schema.Types.ObjectId,
         ref: "CommercialAirPlan",
-      },
-    },
+      
+    }],
     UserId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    creditPlansIds: {
-      creditPlansId: {
+    creditPlansIds:[{
+    
         type: mongoose.Schema.Types.ObjectId,
         ref: "CommercialAirPlan",
-      },
-    },
-    fareRuleGroupIds: {
-      fareRuleGroupId: {
+   
+    }],
+    fareRuleGroupIds: [{
+     
         type: mongoose.Schema.Types.ObjectId,
         ref: " fareRuleGroup",
-      },
-      salesInchargeIds: {
-        salesInchargeId: {
+      }],
+      salesInchargeIds: [{
+      
           type: mongoose.Schema.Types.ObjectId,
           ref: " User",
-        },
-      },
-      plbGroupIds: {
-        plbGroupId: {
+        
+      }],
+      plbGroupIds: [{
+       
           type: mongoose.Schema.Types.ObjectId,
           ref: " PLBGroupMaster",
-        },
-      },
-      incentiveGroupIds: {
-        incentiveGroupId: {
+      
+      }],
+      incentiveGroupIds:[{
+       
           type: mongoose.Schema.Types.ObjectId,
           ref: " IncentiveGroupMaster",
-        },
-      },
+      
+      }],
       portalLedgerAllowed: {
         type: Boolean,
       },
@@ -85,7 +92,6 @@ const agentConfigSchema = new mongoose.Schema(
         default : Date.now()
       }
     },
-  },
   {
     timestamps: true,
   }

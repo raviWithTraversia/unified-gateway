@@ -175,12 +175,15 @@ class RoutesLoader {
         app.use('/api', manageUploadRoute);
 
         // fareRule route
-        app.use('/api/',fareRuleRoute);
+        app.use('/api',fareRuleRoute);
          
         app.use('/api', fareRuleGroupRoute);
 
         // airLine code
-        app.use('/api/',airLineCodeRoute);
+        app.use('/api',airLineCodeRoute);
+
+        //agent Configuration Route
+        app.use('/api', agencyConfigRoute);
     }
 }
 

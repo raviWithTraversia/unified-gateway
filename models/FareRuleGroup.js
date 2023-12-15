@@ -17,6 +17,10 @@ const fairRuleGroupSchema = new mongoose.Schema({
       modifyBy : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User'
+      },
+      companyId : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Company'
       }
 });
 const fareRuleGroup = mongoose.model("fareRuleGroup", fairRuleGroupSchema);

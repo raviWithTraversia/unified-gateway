@@ -13,6 +13,7 @@ const addAgentConfiguration = async (req,res) => {
 };
 const updateAgentConfiguration = async (req,res) => {
     try{
+        console.log(req.body);
     const result = await agentConfigServices.updateAgentConfiguration(req,res);
     if(result.response == 'Agency config data update Sucessfully'){
      apiSucessRes(

@@ -248,6 +248,8 @@ const UpdateMatrixData = async(req , res) => {
             comercialPlanId, 
             airCommercialPlanId,
             ComanyId,
+            rateValue,
+            fixedValue
         } = req.body;
         console.log(req.body);
         if(!comercialPlanId || !airCommercialPlanId || !ComanyId ) {
@@ -256,18 +258,16 @@ const UpdateMatrixData = async(req , res) => {
             }  
         }
 
-       
         const rateValueData = req.body.rateValue;
-        console.log(rateValueData);
         const saveDataMatrix = new Matrix({
             comercialPlanId,
             airCommercialPlanId,
             ComanyId,
-            rateValue:[]
+            rateValue,
+            fixedValue
         });
-        // await saveDataMatrix.save();
-        
-        if(!result) {
+        let resultAll = await saveDataMatrix.save();
+        if(!resultAll) {
             return {
                 response : "Matrix updated successfully",
             }  

@@ -15,17 +15,7 @@ const AirCommercialSchema = new mongoose.Schema({
         required: false,
         default: null
     },
-    cabinClass: {
-        type: String,
-        required: false,
-        default: null
-    },
     commercialCategory: {
-        type: String,
-        required: false,
-        default: null
-    },
-    commercialType: {
         type: String,
         required: false,
         default: null
@@ -40,47 +30,8 @@ const AirCommercialSchema = new mongoose.Schema({
         required: false,
         default: null
     },
-    fareFamily: {
+    priority: {
         type: String,
-        required: false,
-        default: null
-    },
-    RBD: {
-        type: String,
-        required: false,
-        default: null
-    },
-    issueFromDate: {
-        type: Date,
-        required: false,
-        default: null
-    },
-    issueToDate: {
-        type: Date,
-        required: false,
-        default: null
-    },
-    travelFromDate: {
-        type: Date,
-        required: false,
-        default: null
-    },
-    travelToDate: {
-        type: Date,
-        required: false,
-        default: null
-    },
-    tourCodes: {
-        type: String,  // Change to the correct data type if it's not a Date
-        required: false,
-        default: null
-    },
-    modifiedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    lastModifiedDate: {
-        type: Date,
         required: false,
         default: null
     },

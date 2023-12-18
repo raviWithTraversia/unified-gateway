@@ -227,7 +227,8 @@ const UpdateMatrixData = async(req , res) => {
 const getAirCommercialListByAirComId = async(req ,res) => {
     try {
         const airCommercialPlanId = req.params.airCommercialPlanId;
-        const coloumnData = await AirCommercial.find({commercialAirPlanId : airCommercialPlanId});
+        const coloumnData = await AirCommercial.find({commercialAirPlanId : airCommercialPlanId}).populate('carrier').populate('supplier').populate('source');
+        
         if (coloumnData.length > 0) {
             return {
                 data: coloumnData,

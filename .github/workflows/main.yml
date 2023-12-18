@@ -20,5 +20,5 @@ jobs:
           username: Kafila
           password: '${{ secrets.prop_secret_password }}'
           port: 21
-          local-dir: /KafilaNodeAPI/
+          local-dir: /KafilaNodeAPI
           debug: true

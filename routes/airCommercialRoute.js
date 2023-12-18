@@ -54,7 +54,7 @@ air_commercial_route.post(
 
 // Get AirCommercialList
 air_commercial_route.get(
-    '/commercial/air-commercial-get-list/:airCommercialId',
+    '/commercial/air-commercial-get-list/:airCommercialPlanId',
     auth,
     airCommercialController.getAirCommercialListByCommercialId
 )

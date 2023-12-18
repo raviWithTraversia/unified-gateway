@@ -68,4 +68,10 @@ air_commercial_route.post(
 )
 
 
+air_commercial_route.get(
+    '/commercial/air-commercial-include-exclude-list',
+    auth,
+    airCommercialController.getCommercialIncExc
+)
+
 module.exports = air_commercial_route;

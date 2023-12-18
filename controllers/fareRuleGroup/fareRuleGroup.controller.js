@@ -40,7 +40,7 @@ const addFareRuleGroup = async (req, res) => {
 const getFareRuleGroup = async (req, res) => {
   try {
     const result = await fareRuleGoupController.getFareRuleGroup(req, res);
-    if (result.response == "Fare Rule Deleted Sucessfully") {
+    if (result.response == "Fare Rule Fetch Sucessfully") {
       apiSucessRes(
         res,
         result.response,

@@ -2,6 +2,14 @@ const mongoose = require("mongoose");
 
 const agentConfigSchema = new mongoose.Schema(
   {
+    userId : {
+     type : mongoose.Schema.Types.ObjectId,
+     ref : 'User'
+    },
+    companyId : {
+      type : mongoose.Schema.Types.ObjectId,
+      ref : 'Company'
+    },
     privilegePlansIds: {
       privilegePlansId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -13,10 +21,6 @@ const agentConfigSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "CommercialAirPlan",
       },
-    },
-    UserId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
     },
     creditPlansIds: {
       creditPlansId: {

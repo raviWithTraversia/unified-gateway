@@ -130,16 +130,16 @@ const approveAndRejectCredit = async(req, res) => {
                 response : 'Remark and status are required'
             }
         }
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+
+
         if(status == "approved") {
             if(!expireDate || !utilizeAmount) {
                 return {
                     response : 'All field are required',
                 }
             }
-
-            
-            const doerId = req.user._id;
-            const loginUser = await User.findById(doerId);
     
             // Approved
             const updateCreditRequestApproved =  await CreditRequest.findByIdAndUpdate(_id, {
@@ -163,12 +163,13 @@ const approveAndRejectCredit = async(req, res) => {
             }
         }else{
 
+           
             // Rejected
             const updateCreditRequestRejected =  await CreditRequest.findByIdAndUpdate(_id, {
                 remarks,
                 status,
             }, { new: true })
-
+          
             await commonFunction.eventLogFunction(
                 'creditRequest' ,
                 doerId ,

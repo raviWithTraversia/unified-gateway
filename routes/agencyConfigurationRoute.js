@@ -7,7 +7,11 @@ const auth = require("../middleware/auth");
 
 const agencyConfigurationController = require('./../controllers/agentConfig/agentConfig.controller');
 
-
+agency_config_route.patch(
+    '/agentConfiguration/updateAgentConfiguration',
+    auth,
+    agencyConfigurationController.updateAgentConfiguration
+)
 
 agency_config_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

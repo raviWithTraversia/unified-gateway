@@ -183,6 +183,7 @@ async function handleflight(
     })
   );
 
+  
   // Combine the responses here
   const combineResponseObj = {};
   supplierCredentials.forEach((supplier, index) => {

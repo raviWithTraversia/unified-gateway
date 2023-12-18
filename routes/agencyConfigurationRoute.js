@@ -6,7 +6,9 @@ agency_config_route.use(bodyParser.urlencoded({extended:true}));
 const auth = require("../middleware/auth");
 
 const agencyConfigurationController = require('./../controllers/agentConfig/agentConfig.controller');
-
+agency_config_route.post(
+    '/agentConfiguration/addAgencyConfig'
+)
 agency_config_route.patch(
     '/agentConfiguration/updateAgentConfiguration',
     auth,

@@ -56,12 +56,16 @@ const addfareRule = async (req, res) => {
 const getFareRule = async (req, res) => {
   try {
     let { companyId } = req.query;
+    let res =  await fareRulesModel.find({ companyId: companyId });
+    console.log(res, "lllllllllllllllllllllllllll")
+    //.find({ companyId: companyId })
     let fareRuleData = await fareRulesModel
       .find({ companyId: companyId })
       .populate("providerId", "supplierCode")
       .populate("airlineCodeId", "airlineCode airlineName")
       .populate("fareFamilyId", "fareFamilyCode fareFamilyName")
       .populate("cabinclassId", 'cabinClassCode cabinClassName')
+      console.log(fareRuleData, "lllllllllllllllllllllllllllll")
     if (fareRuleData) {
       return {
         response: "Fare Rule Fetch Sucessfully",

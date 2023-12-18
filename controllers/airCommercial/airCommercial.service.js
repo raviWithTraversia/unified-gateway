@@ -13,20 +13,10 @@ const addAirCommercial = async(req , res) => {
             commercialAirPlanId,
             travelType,
             carrier,
-            cabinClass,
             commercialCategory,
-            commercialType,
             supplier,
             source,
-            RBD,
-            fareFamily,
-            issueFromDate,
-            issueToDate,
-            travelFromDate,
-            travelToDate,
-            tourCodes,
-            modifiedBy,
-            lastModifiedDate,
+            priority,
             companyId
         } = req.body;
         if(!commercialAirPlanId) {
@@ -44,74 +34,24 @@ const addAirCommercial = async(req , res) => {
                 response : 'Carrier field are required'
             }
         }
-        if(!cabinClass) {
-            return {
-                response : 'Cabin Class field are required'
-            }
-        }
-        if(!commercialCategory) {
-            return {
-                response : 'Commercial category  field are required'
-            }
-        }
         if(!supplier) {
             return {
                 response : 'Supplier field are required'
             }
         }
-        if(!source) {
+        if(!priority) {
             return {
-                response : 'Source field are required'
-            }
-        }
-        if(!commercialType){
-            return {
-                response : 'Commercial Type field are required'
-            } 
-        }
-        if(!fareFamily) {
-            return {
-                response : 'Fare Family field are required'
-            }
-        }
-        if(!issueFromDate) {
-            return {
-                response : 'issue From Date field are required'
-            }
-        }
-        if(!issueToDate) {
-            return {
-                response : 'issue To Date field are required'
-            }
-        }
-        if(!travelFromDate) {
-            return {
-                response : 'Travel from date field are required'
-            }
-        }
-        if(!travelToDate) {
-            return {
-                response : 'Travel to Date field are required'
+                response : 'Priority field are required'
             }
         }
         const saveAirCommercial = new AirCommercial({
             commercialAirPlanId,
             travelType,
             carrier,
-            cabinClass,
             commercialCategory,
-            commercialType,
             supplier,
             source,
-            RBD,
-            fareFamily,
-            issueFromDate,
-            issueToDate,
-            travelFromDate,
-            travelToDate,
-            tourCodes,
-            modifiedBy,
-            lastModifiedDate,
+            priority,
             companyId
         });
         

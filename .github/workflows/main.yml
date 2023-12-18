@@ -1,5 +1,10 @@
-on: push
+on:
+  push:
+    branches:
+      - main
+
 name: 🚀 Deploy website on push
+
 jobs:
   web-deploy:
     name: 🎉 Deploy
@@ -15,4 +20,4 @@ jobs:
           username: Kafila
           password: ${{ secrets.KE@ruCRvy765za%2J }}
           port: 21
-          local-dir: /KafilaNodeAPI      
+          local-dir: /KafilaNodeAPI

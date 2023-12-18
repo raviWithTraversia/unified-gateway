@@ -166,6 +166,37 @@ const updateMatrix = async(req ,res) => {
     }
 }
 
+// 
+
+const getAirCommercialListByCommercialId = async(req , res) => {
+    try {
+        try {
+            const result = await airCommericalService.getAirCommercialListByAirComId(req);
+            if(result.response == 'Commercial not available') {
+                apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+            }
+            else {
+                apiSucessRes(
+                    res,
+                    result.response,
+                    result.data,
+                    ServerStatusCode.SUCESS_CODE
+                )  
+            }
+           
+        } catch (error) {
+            apiErrorres(
+                res,
+                errorResponse.SOMETHING_WRONG,
+                ServerStatusCode.SERVER_ERROR,
+                true
+            )
+        }
+    } catch (error) {
+        throw error
+    }
+}
+
 
 module.exports = {
     storeAirCommercial,
@@ -174,7 +205,8 @@ module.exports = {
     commercialTypeAdd,
     commercialDetailList,
     addRowColoumn,
-    updateMatrix
+    updateMatrix,
+    getAirCommercialListByCommercialId
 }
 
 

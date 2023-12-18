@@ -52,4 +52,20 @@ air_commercial_route.post(
 )
 
 
+// Get AirCommercialList
+air_commercial_route.get(
+    '/commercial/air-commercial-get-list/:airCommercialId',
+    auth,
+    airCommercialController.getAirCommercialListByCommercialId
+)
+
+
+// Add Commercial Filter include and exclude
+// air_commercial_route.post(
+//     'commercial/add-commercial-filter',
+//     auth,
+//     airCommercialController.addCommercialFilterInEx
+// )
+
+
 module.exports = air_commercial_route;

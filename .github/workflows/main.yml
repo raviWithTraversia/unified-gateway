@@ -21,3 +21,4 @@ jobs:
           password: ${{ secrets.KE@ruCRvy765za%2J }}
           port: 21
           local-dir: /KafilaNodeAPI
+          debug: true

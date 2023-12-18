@@ -224,6 +224,26 @@ const UpdateMatrixData = async(req , res) => {
 }
 
 
+const getAirCommercialListByAirComId = async(req ,res) => {
+    try {
+        const _id = req.params.airCommercialId;
+        const coloumnData = await AirCommercial.find({_id});
+        if (coloumnData.length > 0) {
+            return {
+                data: coloumnData,
+            }
+        } else {
+            return {
+                response: 'Commercial not available',
+                data: null,
+            }
+        }
+    } catch (error) {
+        throw error
+    }
+}
+
+
 module.exports = {
     addAirCommercial,
     getColoumnDetail,
@@ -231,5 +251,6 @@ module.exports = {
     addCommercialType,
     getCommercialDetailList,
     commercialRowColoumnAdd,
-    UpdateMatrixData
+    UpdateMatrixData,
+    getAirCommercialListByAirComId
 }

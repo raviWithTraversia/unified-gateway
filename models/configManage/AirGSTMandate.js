@@ -7,8 +7,8 @@ const airGSTMandateSchema = new mongoose.Schema({
         default : '6555f84c991eaa63cb171a9f'
     },
     airLine: {
-        type: String,
-        required: false,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AirlineCode',
         default: null
         
     },

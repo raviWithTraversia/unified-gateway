@@ -10,13 +10,13 @@ const paymentGateway = new mongoose.Schema({
      required : true
     },
     paymentMethod : {
-        Global: {type: String},
-        Upi: { type: String },
-        Wallet: { type: String },
-        Card: { type: String },
-        Paylater: { type: String },
-        Emi: { type: String },
-        NetBanking : { type: String }
+        Global: {type: String, default : 'GlobalValue'},
+        Upi: { type: String , default : 'Upi'},
+        Wallet: { type: String , default : 'Paytm/Phonepe/etc' },
+        Card: { type: String, default : 'Credit/Debit Card' },
+        Paylater: { type: String ,default : 'Epay/SimplePay'},
+        Emi: { type: String, default : 'Emi' },
+        NetBanking : { type: String, default : 'NetBanking' }
 
     },
     gatewayChargesOnMethod : {

@@ -28,6 +28,14 @@ const addPgCharges = async (req,res) => {
             true
          )
       }
+      else if(result.response == 'Payment gateway charges for this company and provider already exist'){
+        apiErrorres(
+          res,
+          result.response,
+          ServerStatusCode.PRECONDITION_FAILED,
+          true
+        )
+      }
       else{
         apiErrorres(
             res,
@@ -65,7 +73,8 @@ const editPgcharges = async (req,res) => {
             ServerStatusCode.PRECONDITION_FAILED,
             true
           )
-        }else{
+        }
+        else{
             apiErrorres(
                 res,
                 errorResponse.SOME_UNOWN,

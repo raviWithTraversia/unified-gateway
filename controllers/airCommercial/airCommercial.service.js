@@ -5,6 +5,7 @@ const AirCommercialRowMaster = require('../../models/AirCommertialRowMaster');
 const AirCommercialColoumnMaster = require('../../models/AirCommertialColumnMaster');
 const CommercialType = require('../../models/CommercialType');
 const Matrix = require('../../models/UpdateAirCommercialMatrix');
+const { response } = require('../../routes/airCommercialRoute');
 
 const addAirCommercial = async(req , res) => {
     try {
@@ -224,6 +225,44 @@ const UpdateMatrixData = async(req , res) => {
 }
 
 
+const getAirCommercialListByAirComId = async(req ,res) => {
+    try {
+        const airCommercialPlanId = req.params.airCommercialPlanId;
+        const coloumnData = await AirCommercial.find({commercialAirPlanId : airCommercialPlanId}).populate('carrier').populate('supplier').populate('source');
+        
+        if (coloumnData.length > 0) {
+            return {
+                data: coloumnData,
+            }
+        } else {
+            return {
+                response: 'Commercial not available',
+                data: null,
+            }
+        }
+    } catch (error) {
+        throw error
+    }
+}
+
+
+// Filter Coloumn exclude and include
+const addCommercialFilterExcInc = async(req ,res) => {
+    try {
+        const {commercialAirPlanId , airCommercialId , commercialFilterId , type , value} = req.body;
+        if(!commercialAirPlanId || !airCommercialId || !commercialFilterId || !type) {
+            return {
+                response : "All field are required",
+            }
+        }
+
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+
 module.exports = {
     addAirCommercial,
     getColoumnDetail,
@@ -231,5 +270,7 @@ module.exports = {
     addCommercialType,
     getCommercialDetailList,
     commercialRowColoumnAdd,
-    UpdateMatrixData
+    UpdateMatrixData,
+    getAirCommercialListByAirComId,
+    addCommercialFilterExcInc
 }

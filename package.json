@@ -25,7 +25,8 @@
     "node-cache": "^5.1.2",
     "nodemailer": "^6.9.5",
     "path": "^0.12.7",
-    "twilio": "^4.19.0"
+    "twilio": "^4.19.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",

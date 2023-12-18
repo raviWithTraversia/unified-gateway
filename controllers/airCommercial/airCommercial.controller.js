@@ -193,7 +193,28 @@ const getAirCommercialListByCommercialId = async(req , res) => {
             )
         }
     } catch (error) {
-        throw error
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+
+// Commercial Field for include and exclude
+const addCommercialFilterInEx = async(req, res) => {
+    try {
+        const result = await airCommericalService.addCommercialFilterExcInc(req);
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
     }
 }
 
@@ -206,7 +227,8 @@ module.exports = {
     commercialDetailList,
     addRowColoumn,
     updateMatrix,
-    getAirCommercialListByCommercialId
+    getAirCommercialListByCommercialId,
+    addCommercialFilterInEx
 }
 
 

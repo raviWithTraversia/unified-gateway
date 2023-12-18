@@ -5,6 +5,7 @@ const AirCommercialRowMaster = require('../../models/AirCommertialRowMaster');
 const AirCommercialColoumnMaster = require('../../models/AirCommertialColumnMaster');
 const CommercialType = require('../../models/CommercialType');
 const Matrix = require('../../models/UpdateAirCommercialMatrix');
+const { response } = require('../../routes/airCommercialRoute');
 
 const addAirCommercial = async(req , res) => {
     try {
@@ -245,6 +246,23 @@ const getAirCommercialListByAirComId = async(req ,res) => {
 }
 
 
+// Filter Coloumn exclude and include
+const addCommercialFilterExcInc = async(req ,res) => {
+    try {
+        const {commercialAirPlanId , airCommercialId , commercialFilterId , type , value} = req.body;
+        if(!commercialAirPlanId || !airCommercialId || !commercialFilterId || !type) {
+            return {
+                response : "All field are required",
+            }
+        }
+
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+
 module.exports = {
     addAirCommercial,
     getColoumnDetail,
@@ -253,5 +271,6 @@ module.exports = {
     getCommercialDetailList,
     commercialRowColoumnAdd,
     UpdateMatrixData,
-    getAirCommercialListByAirComId
+    getAirCommercialListByAirComId,
+    addCommercialFilterExcInc
 }

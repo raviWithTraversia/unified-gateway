@@ -16,6 +16,10 @@ const AirCommercialFilterListSchema = new mongoose.Schema({
     type:{
         type: String,
         default : null
+    },
+    value:{
+        type: String,
+        default : null
     }
 });
 

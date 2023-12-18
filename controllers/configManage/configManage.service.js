@@ -75,8 +75,8 @@ const getairGSTMandate = async (req, res) => {
       };
     }
 
-    const result = await airGstMandate.find({ companyId: comapnyId });
-    //   console.log(result);
+    const result = await airGstMandate.find({ companyId: comapnyId }).populate('airLine');
+     console.log(result);
     // return false;
     if (result.length > 0) {
       return {

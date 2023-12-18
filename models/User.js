@@ -136,6 +136,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
+      city : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : ""
+      },
      
     resetToken: String,
     ip_address : String  

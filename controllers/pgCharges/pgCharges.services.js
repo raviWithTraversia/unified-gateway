@@ -5,8 +5,15 @@ const User = require('../../models/User')
 const addPgCharges = async (req, res) => {
   try {
     const {paymentGatewayProvider, paymentMethod, gatewayChargesOnMethod, gatewayFixchargesOnMethod,companyId } = req.body;
-     let userId = req.user._id
+     let userId = req.user._id;
+     const existingPgCharges = await pgCharges.findOne({ companyId, paymentGatewayProvider });
+     if(existingPgCharges){
+      return {
+        response : 'Payment gateway charges for this company and provider already exist'
+      }
+     }
      let checkIsRole =  await User.findById(userId).populate('roleId').exec();
+
      
      if(checkIsRole.roleId.name == "Tmc" || checkIsRole.roleId.name == "TMC" ){
         let pgChargesInsert =  await pgCharges.create({
@@ -43,9 +50,10 @@ const editPgcharges = async (req, res) => {
   try {
     const id = req.query.id;
     const updateData = req.body;
+    console.log(...updateData, "nnnnnnnnnnnnn")
     const updatedUserData = await pgCharges.findByIdAndUpdate(
       id,
-      { $set: updateData },
+     ...updateData ,
       { new: true }
     );
     if (updatedUserData) {

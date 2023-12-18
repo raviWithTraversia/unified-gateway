@@ -2,6 +2,7 @@ const PromoCode = require("../../models/AirlinePromoCode");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const axios = require("axios");
+const uuid = require('uuid');
 const NodeCache = require('node-cache');
 const flightCache = new NodeCache();
 
@@ -66,39 +67,26 @@ const getSearch = async (req, res) => {
 
   // Check Travel Type ( International / Domestic )
   let result;
-  if (TravelType === "International") {
-    result = await handleInternational(
-      Authentication,
-      TypeOfTrip,
-      Segments,
-      PaxDetail,
-      TravelType,
-      Flexi,
-      Direct,
-      ClassOfService,
-      Airlines,
-      FareFamily,
-      RefundableOnly
-    );
-  } else if (TravelType === "Domestic") {
-    result = await handleDomestic(
-      Authentication,
-      TypeOfTrip,
-      Segments,
-      PaxDetail,
-      TravelType,
-      Flexi,
-      Direct,
-      ClassOfService,
-      Airlines,
-      FareFamily,
-      RefundableOnly
-    );
-  } else {
+  if (TravelType !== "International" && TravelType !== "Domestic") {
     return {
       response: "Travel Type Not Valid",
     };
+  }else{
+    result = await handleflight(
+      Authentication,
+      TypeOfTrip,
+      Segments,
+      PaxDetail,
+      TravelType,
+      Flexi,
+      Direct,
+      ClassOfService,
+      Airlines,
+      FareFamily,
+      RefundableOnly
+    );
   }
+ 
 
   if (!result.IsSucess) {
     return {
@@ -112,7 +100,7 @@ const getSearch = async (req, res) => {
   }
 };
 
-async function handleInternational(
+async function handleflight(
   Authentication,
   TypeOfTrip,
   Segments,
@@ -148,12 +136,14 @@ async function handleInternational(
       IsSucess: false,
       response: "Supplier credentials does not exist",
     };
-  }
+  }     
+
 
   // GET PromoCode
   //  const getPromoCode = await PromoCode.find({ companyId: CompanyId, supplierCode: supplierCredentials });    
-  //  console.log("aaaaaaaaaaaaaaaaaaaaaaa" + getPromoCode);
-  //return false
+  // console.log("aaaaaaaaaaaaaaaaaaaaaaa" + fareTypeVal);
+  // return false
+
   if (!TraceId) {
     return {
       IsSucess: false,
@@ -207,6 +197,16 @@ async function handleInternational(
       };
     }
   });
+  
+  // let commonArray = [];
+  // if (combineResponseObj.IsSuccess) {
+  //   for (let key in combineResponseObj.Result) {
+  //     if (combineResponseObj.Result[key].IsSucess) {
+  //       commonArray.push(...combineResponseObj.Result[key].response);
+  //     }
+  //   }      
+  //   console.log(commonArray);
+  // }
 
   return {
     IsSucess: true,
@@ -290,10 +290,14 @@ const internationalKafilaFun = async (
     "Economy": "EC",
     "Business": "BU",
     "Premium Economy": "PE",
+    "First":""
   };
   
-  let classOfServiceVal = classOfServiceMap[ClassOfService] || ""; 
- 
+  let classOfServiceVal = classOfServiceMap[ClassOfService] || "";
+  
+  // Fare Family Array 
+  let fareFamilyVal = FareFamily && FareFamily.length > 0 ? FareFamily.join(',') : "";
+
 
   const segmentsArray = Segments.map(segment => ({
     Src: segment.Origin,
@@ -337,7 +341,7 @@ const internationalKafilaFun = async (
         OtherInfo: {
           PromoCode: "KAF2022",
           FFlight: "",
-          FareType: "",
+          FareType: fareFamilyVal,
           TraceId: Authentication.TraceId,
           IsUnitTesting: false,
           TPnr: false
@@ -355,11 +359,125 @@ const internationalKafilaFun = async (
           IsSucess: false,
           response: fSearchApiResponse.data.ErrorMessage + '-' + fSearchApiResponse.data.WarningMessage,
         };
-      } else {
-        // Extract the necessary data and return it
-        flightCache.set(cacheKey, fSearchApiResponse.data, 300);
-        return fSearchApiResponse.data;
-      }    
+      } 
+      //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
+      let apiResponse = fSearchApiResponse.data;
+      let apiResponseCommon = [];
+      for (let schedule of apiResponse.Schedules[0]) { 
+        let randomUID = uuid.v4();
+        //apiResponseCommon.push(schedule);
+        apiResponseCommon.push({
+          "UID": randomUID,
+          "BaseFare":schedule.Fare.BasicTotal,
+          "Taxes":schedule.Fare.TaxesTotal,
+          "TotalPrice":schedule.Fare.GrandTotal,
+          "ExtraCharges":0.0,
+          "TaxMarkUp":0.0,
+          "MarkUp":0.0,
+          "Commission":0.0,
+          "Fees":0.0,
+          "BookingFees":0.0,
+          "ServiceFee":0.0,
+          "CancellationFees":0.0,
+          "RescheduleFees":0.0,
+          "AdminFees":0.0,
+          "Discount":0.0,
+          "TDS":0.0,
+          "BaseCharges":0.0,
+          "SupplierDiscount":0.0,
+          "SupplierDiscountPercent":0.0,
+          "GrandTotal":schedule.Fare.GrandTotal,
+          "Currency":"INR",
+          "FareType":"",
+          "TourCode":"",
+          "PricingMethod":"Guaranteed",
+          "FareFamily":"Regular Fare",
+          "PromotionalFare":false,
+          "FareFamilyDN":null,
+          "PromotionalCode":"",
+          "PromoCodeType":"Partner",
+          "RefundableFare":false,
+          "IndexNumber":0,
+          "Provider":"1G",
+          "ValCarrier":"AI",
+          "LastTicketingDate":"2023-12-27T23:59:00.000+05:30",
+          "TravelTime":null,
+          "Sectors":schedule.Itinerary.map(sector => (
+            {
+              "IsConnect":false,
+              "AirlineCode": sector.FCode,
+              "AirlineName": sector.FName,
+              "Class": sector.FClass,
+              "CabinClass":"Economy",
+              "BookingCounts":"",
+              "NoSeats":0,
+              "FltNum":sector.FNo,
+              "EquipType":"32N",
+              "FlyingTime":"01:25",
+              "TravelTime":"03:30",
+              "TechStopOver":1,
+              "Status":"",
+              "OperatingCarrier":null,
+              "MarketingCarrier":null,
+              "BaggageInfo":"20 Kilograms",
+              "HandBaggage":"7 KG",
+              "TransitTime":null,
+              "MealCode":null,
+              "Key":"gvEvQxFDuDKAOTyacNAAAA==",
+              "Distance":"708",
+              "ETicket":"Yes",
+              "ChangeOfPlane":"false",
+              "ParticipantLevel":"Secure Sell",
+              "OptionalServicesIndicator":false,
+              "AvailabilitySource":"P",
+              "Group":"0",
+              "LinkAvailability":"true",
+              "PolledAvailabilityOption":"Cached status used. Polled avail exists",
+              "FareBasisCode":"SIP",
+              "HostTokenRef":"",
+              "APISRequirementsRef":"",
+              "Departure":{
+                "Terminal":sector.DTrmnl,
+                "Date": sector.DDate.split('T')[0],
+                "Time":sector.DDate.split('T')[1].substring(0, 5),
+                "Day":null,
+                "DateTimeStamp":sector.DDate,
+                "Code":sector.Src,
+                "Name":sector.DArpt,
+                "CityCode":sector.Src,
+                "CityName": sector.SrcName,
+                "CountryCode":"IN",
+                "CountryName":"India"
+              },
+              "Arrival":{
+                "Terminal":sector.ATrmnl,
+                "Date":sector.ADate.split('T')[0],
+                "Time":sector.ADate.split('T')[1].substring(0, 5),
+                "Day":null,
+                "DateTimeStamp":sector.ADate,
+                "Code":sector.Des,
+                "Name":sector.AArpt,
+                "CityCode":sector.Des,
+                "CityName":sector.DesName,
+                "CountryCode":"IN",
+                "CountryName":"India"
+              }
+            }
+            )),
+          "HostTokens":null,
+          "Key":"gvEvQxFDuDKAkayacNAAAA==",
+          "SearchID":"2a1aefe1-8b53-419a-b5fb-44a7f4b4f859",
+          "TRCNumber":null,
+          "TraceId":"c27f4b59-679c-47c4-922e-8ca4db457c3a"  
+        });
+      }
+
+
+      return {
+        IsSucess: true,
+        response: apiResponseCommon,
+      };     
+         
      
       
     }else{ 
@@ -377,22 +495,6 @@ const internationalKafilaFun = async (
   }
   
 };
-async function handleDomestic(
-  Authentication,
-  TypeOfTrip,
-  Segments,
-  PaxDetail,
-  TravelType,
-  Flexi,
-  Direct,
-  ClassOfService,
-  Airlines,
-  FareFamily,
-  RefundableOnly
-) {
-  // Domestic
-  return "Domestic";
-}
 
 module.exports = {
   getSearch,

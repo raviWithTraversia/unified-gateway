@@ -1,0 +1,18 @@
+on: push
+name: 🚀 Deploy website on push
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v3
+
+      - name: 📂 kafila
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: 43.242.214.135
+          username: Kafila
+          password: ${{ secrets.KE@ruCRvy765za%2J }}
+          port: 21
+          local-dir: /KafilaNodeAPI      

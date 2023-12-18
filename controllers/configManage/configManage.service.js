@@ -49,7 +49,7 @@ const addGSTMandate = async (req, res) => {
       companyId,
       airLine,
       fareFamily,
-      ...promoCode,
+      promoCode,
     });
     try {
       let newAirGSTMandateRes = await newAirGSTMandate.save();

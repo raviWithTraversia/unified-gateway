@@ -3,20 +3,21 @@ const mongoose = require('mongoose');
 const paymentGateway = new mongoose.Schema({
     companyId : {
       type : mongoose.Schema.Types.ObjectId,
-      required : true
+      required : true,
+      ref : 'Company'
     },
     paymentGatewayProvider : {
      type : String,
      required : true
     },
     paymentMethod : {
-        Global: {type: String, default : 'GlobalValue'},
-        Upi: { type: String , default : 'Upi'},
-        Wallet: { type: String , default : 'Paytm/Phonepe/etc' },
-        Card: { type: String, default : 'Credit/Debit Card' },
-        Paylater: { type: String ,default : 'Epay/SimplePay'},
-        Emi: { type: String, default : 'Emi' },
-        NetBanking : { type: String, default : 'NetBanking' }
+        Global: {type: String, default : null},
+        Upi: { type: String , default : null},
+        Wallet: { type: String ,default : null },
+        Card: { type: String, default : null },
+        Paylater: { type: String ,default : null},
+        Emi: { type: String,default : null },
+        NetBanking : { type: String,default : null }
 
     },
     gatewayChargesOnMethod : {

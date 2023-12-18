@@ -50,10 +50,11 @@ const editPgcharges = async (req, res) => {
   try {
     const id = req.query.id;
     const updateData = req.body;
-    console.log(...updateData, "nnnnnnnnnnnnn")
     const updatedUserData = await pgCharges.findByIdAndUpdate(
       id,
-     ...updateData ,
+      {
+        $set: updateData,
+    },
       { new: true }
     );
     if (updatedUserData) {

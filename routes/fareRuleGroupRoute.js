@@ -14,7 +14,7 @@ fareRuleGroup_route.post(
 
 fareRuleGroup_route.get(
   '/fareRuleGroup/getFareRules',
-  auth,
+ // auth,
   fareRuleGroupController.getFareRuleGroup
 );
 

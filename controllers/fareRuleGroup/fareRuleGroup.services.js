@@ -65,31 +65,28 @@ const editFareRuleGroup = async (req, res) => {
 
 const getFareRuleGroup = async (req, res) => {
   try {
+    const { ObjectId } = require('mongoose').Types; 
     let companyId = req.query.companyId;
-    let getFareRule = await fareRuleGroupModels.find({ companyId: companyId });
-    const lookupOptions = {
-      from: 'fareRule',
-      localField: 'fareRuleIds',
-      foreignField: '_id',
-      as: 'fareRules'
-    };
+    let getFareRule ;
+    try {
+      getFareRule = await fareRuleGroupModels.find({ companyId: companyId });
 
+      for (let i = 0; i < getFareRule.length; i++) {      
+          let convertedFareRuleIds = getFareRule[i].fareRuleIds.map(id => id.toString());
+      
+          let documents = await fareRuleModel.find({ _id: { $in: convertedFareRuleIds } })
+              .populate("providerId", "supplierCode")
+              .populate("airlineCodeId", "airlineCode airlineName")
+              .populate("fareFamilyId", "fareFamilyCode fareFamilyName")
+              .populate("cabinclassId", 'cabinClassCode cabinClassName')
+              .exec();      
+          getFareRule[i].fareRuleIds = documents;
+      }
    
-    //  console.log(result, "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-      const query = await fareRuleGroupModels.findOne().populate('fareRuleIds');
-      console.log(query, "<<<<<<<<<<<<<<<<==========================")
-
-      query.exec((err, fareRuleGroups) => {
-        if (err) {
-          // Handle error
-        } else {
-          // Each fareRuleGroup will have a new field `fareRules` populated with corresponding fare rules
-          console.log(fareRuleGroups);
-        }
-      });
-    
-
-    // console.log(getFareRule, "????????????????????////")
+    } catch (err) {
+      retur
+      console.error(err);
+    }
     if (getFareRule) {
       return {
         response: "Fare Rule Fetch Sucessfully",

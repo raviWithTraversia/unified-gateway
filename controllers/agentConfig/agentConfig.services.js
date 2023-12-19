@@ -102,7 +102,7 @@ const updateAgentConfiguration = async (req,res) => {
         $or: [{ userId: userId }, { companyId: companyId }],
       });
     //console.log(checkIsAcgencyConfigExist,",,,,,,,,,,,,,,,,,,checkIsAcgencyConfigExist")
-    if(checkIsAcgencyConfigExist !== null || checkIsAcgencyConfigExist.length !== 0){
+    if(checkIsAcgencyConfigExist !== null || checkIsAcgencyConfigExist?.length !== 0){
         let updateData = req.body;
         let updateConfig = await agentConfigs.findByIdAndUpdate(
           { _id : req.query.id},

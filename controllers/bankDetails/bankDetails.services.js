@@ -10,6 +10,9 @@ const addBankDetails = async (reqData, file) => {
       bankAddress,
       bankName,
       bankCode,
+      createdBy,
+      modifyBy
+
     } = reqData;
 
     const fieldNames = [
@@ -20,6 +23,8 @@ const addBankDetails = async (reqData, file) => {
       "bankAddress",
       "bankName",
       "bankCode",
+      "createdBy",
+      "modifyBy"
     ];
     const missingFields = fieldNames.filter(
       (fieldName) =>
@@ -33,7 +38,12 @@ const addBankDetails = async (reqData, file) => {
         data: `Missing or null fields: ${missingFieldsString}`,
       };
     }
-
+    let checkIfAccountNoExist = await bankDetail.find({accountNumber :accountNumber });
+    if(checkIfAccountNoExist.length > 0){
+      return{
+        response : 'This Account Number alerady Exist'
+      }
+    }
     const newBankDetails = new bankDetail({
       companyId,
       accountName,
@@ -43,6 +53,8 @@ const addBankDetails = async (reqData, file) => {
       bankName,
       bankCode,
       QrcodeImagePath: file.path || null,
+      createdBy,
+      modifyBy 
     });
     let checkIsAcountAlreadyExist = await bankDetail.findOne({ accountNumber });
     if (checkIsAcountAlreadyExist) {
@@ -101,6 +113,7 @@ const updateBankDetails = async (reqData, file) => {
           $set: reqData,
           modifyAt: new Date(),
           QrcodeImagePath: file.path,
+          modifyBy : req.user.id
         },
         { new: true }
       );
@@ -110,6 +123,7 @@ const updateBankDetails = async (reqData, file) => {
         {
           $set: reqData,
           modifyAt: new Date(),
+          modifyBy : req.user.id
         },
         { new: true }
       );

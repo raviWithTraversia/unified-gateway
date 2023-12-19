@@ -9,6 +9,11 @@ const auth = require("../middleware/auth.js");
 emulate_route.get(
     '/emulate/search-agency',
     emulateController.emulateLogin
-)
+);
+
+emulate_route.post(
+    '/emulate/authenticate',
+    emulateController.emulateAuthenticate
+);
 
 module.exports = emulate_route;

@@ -44,7 +44,6 @@ const fareRuleRoute = require('../routes/fareRulesRoute');
 const fareRuleGroupRoute = require('../routes/fareRuleGroupRoute');
 const airLineCodeRoute = require('../routes/airLineCodeRoute');
 const emulateRoute = require('../routes/emulateRoute');
-const agencyConfigRoute = require('../routes/agencyConfigurationRoute');
 const paymentGatewayChargeRoute = require('../routes/paymentGatewayChargeRoute')
 class RoutesLoader {
     static initRoutes (app) {        

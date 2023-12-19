@@ -43,7 +43,6 @@ const manageUploadRoute = require('../routes/manageUploadsRoute');
 const fareRuleRoute = require('../routes/fareRulesRoute');
 const fareRuleGroupRoute = require('../routes/fareRuleGroupRoute');
 const airLineCodeRoute = require('../routes/airLineCodeRoute');
-const agencyConfigRoute = require('../routes/agencyConfigurationRoute')
 const emulateRoute = require('../routes/emulateRoute');
 const agencyConfigRoute = require('../routes/agencyConfigurationRoute');
 const paymentGatewayChargeRoute = require('../routes/paymentGatewayChargeRoute')

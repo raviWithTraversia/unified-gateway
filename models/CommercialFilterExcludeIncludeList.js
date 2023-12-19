@@ -6,21 +6,26 @@ const AirCommercialFilterListSchema = new mongoose.Schema({
         ref: 'CommercialAirPlanSchema'
     },
     airCommercialId: {
-        type : mongoose.Schema.Types.ObjectId,
-        'ref': 'AirCommercial'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AirCommercial' // Corrected 'ref' value
     },
-    commercialFilterId: {
-        type : mongoose.Schema.Types.ObjectId,
-        'ref': 'AirCommercialFilter'
-    },
-    type:{
-        type: String,
-        default : null
-    },
-    value:{
-        type: String,
-        default : null
-    }
+    commercialFilter: [{
+        commercialFilterId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'AirCommercialFilter'
+        },
+        type: {
+            type: String, // Changed to String
+            enum: ["exclude", "include"]
+        },
+        value: {
+            type: String,
+            default: null
+        }
+    }]
 });
 
+
 module.exports = mongoose.model('AirCommercialFilterList' , AirCommercialFilterListSchema)
+
+

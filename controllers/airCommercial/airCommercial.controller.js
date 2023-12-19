@@ -219,6 +219,33 @@ const addCommercialFilterInEx = async(req, res) => {
 }
 
 
+// get commercial Include exclude
+const getCommercialIncExc = async(req ,res) => {
+    try {
+        const result = await airCommericalService.getComExcIncList(req);
+        if(result.response == 'Commercial include exclude list not available') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        }
+        else {
+            apiSucessRes(
+                res,
+                result.data,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+        }
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+
 module.exports = {
     storeAirCommercial,
     getColoumnData,
@@ -228,6 +255,7 @@ module.exports = {
     addRowColoumn,
     updateMatrix,
     getAirCommercialListByCommercialId,
+    getCommercialIncExc,
     addCommercialFilterInEx
 }
 

@@ -21,7 +21,7 @@ const AirCommercialSchema = new mongoose.Schema({
     },
     supplier: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'supplier'
+        ref: 'SupplierCode'
     },
     source: {
         type: mongoose.Schema.Types.ObjectId,

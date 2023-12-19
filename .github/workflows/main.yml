@@ -13,11 +13,11 @@ jobs:
       - name: 🚚 Get latest code
         uses: actions/checkout@v3
 
-      - name: 📂 kafila
+      - name: 📂 kafila2
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: 43.242.214.135
-          username: Kafila
+          username: kafila2
           password: '${{ secrets.prop_secret_password }}'
           port: 21         
           debug: true

@@ -62,7 +62,7 @@ air_commercial_route.get(
 
 // Add Commercial Filter include and exclude
 air_commercial_route.post(
-    'commercial/add-commercial-filter',
+    '/commercial/add-commercial-filter',
     auth,
     airCommercialController.addCommercialFilterInEx
 )

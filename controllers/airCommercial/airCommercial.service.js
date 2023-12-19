@@ -5,7 +5,7 @@ const AirCommercialRowMaster = require('../../models/AirCommertialRowMaster');
 const AirCommercialColoumnMaster = require('../../models/AirCommertialColumnMaster');
 const CommercialType = require('../../models/CommercialType');
 const Matrix = require('../../models/UpdateAirCommercialMatrix');
-const CommercialFilterExcInd = ('../../models/CommercialFilterExcludeIncludeList');
+const CommercialFilterExcInd = require('../../models/CommercialFilterExcludeIncludeList');
 const { response } = require('../../routes/airCommercialRoute');
 const AirCommercialFilter = require('../../models/AirCommercialFilter');
 
@@ -250,53 +250,57 @@ const getAirCommercialListByAirComId = async(req ,res) => {
 
 
 // Filter Coloumn exclude and include
-const addCommercialFilterExcInc = async(req ,res) => {
+const addCommercialFilterExcInc = async (req, res) => {
     try {
-        const {commercialAirPlanId , airCommercialId , commercialFilter } = req.body;
-        if(!commercialAirPlanId || !airCommercialId || !commercialFilter) {
+        const { commercialAirPlanId, airCommercialId, commercialFilter } = req.body;
+        if (!commercialAirPlanId || !airCommercialId || !commercialFilter) {
             return {
-                response : "All field are required",
-            }
+                response: "All fields are required",
+            };
         }
 
-        const checkExist = await CommercialFilterExcInd.findOne({
+        const checkExist = await AirCommercialFilter.findOne({
             commercialAirPlanId: commercialAirPlanId,
             airCommercialId: airCommercialId,
-          });
-      
-        if(checkExist) {
+        });
+
+        console.log(req.body);
+
+        if (checkExist) {
             var data = await CommercialFilterExcInd.findByIdAndUpdate(
                 checkExist._id,
                 {
-                  commercialAirPlanId,
-                  airCommercialId,
-                  commercialFilter,
+                    commercialAirPlanId,
+                    airCommercialId,
+                    commercialFilter,
                 },
                 { new: true }
-              );
-        }else{
-            var data = await CommercialFilterExcInd.create({
+            );
+        } else {
+            
+            var result = new CommercialFilterExcInd({
                 commercialAirPlanId,
                 airCommercialId,
                 commercialFilter,
-              });
+            });
+
+            var data = result.save();
+
         }
 
-        if(data) {
+        if (data) {
             return {
-                response : "Commercial updated successfully"
-            }
-        }else{
+                response: "Commercial updated successfully",
+            };
+        } else {
             return {
-                response : "Something went wrong try again later!"
-            } 
+                response: "Something went wrong, try again later!",
+            };
         }
-
-
     } catch (error) {
         throw error;
     }
-}
+};
 
 const getComExcIncList = async(req ,res) => {
     try {

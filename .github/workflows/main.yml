@@ -19,6 +19,7 @@ jobs:
           server: 43.242.214.135
           username: Kafila
           password: '${{ secrets.prop_secret_password }}'
-          port: 21
+          port: 21          
           remote-dir: /KafilaNodeAPI/
+          server-dir: /KafilaNodeAPI/
           debug: true

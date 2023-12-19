@@ -65,11 +65,6 @@ const companySchema = new mongoose.Schema(
       required: false,
       default: null,
     },
-    planType: {
-      type: String,
-      required: false,
-      default: null,
-    },
     creditPlanType: {
       type: String,
       required: false,

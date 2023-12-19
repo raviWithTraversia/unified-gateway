@@ -11,8 +11,6 @@ const addPgCharges = async (req, res) => {
         }
        }
        let checkIsRole =  await User.findById(userId).populate('roleId').exec();
-  
-       
        if(checkIsRole.roleId.name == "Tmc" || checkIsRole.roleId.name == "TMC" ){
           let pgChargesInsert =  await pgChargesModels.create({
           companyId,

@@ -332,7 +332,8 @@ user_route.post(
 user_route.post(
     '/user/userInsert', 
    userValidatior.userInsert,
-    userController.userInsert 
+   auth,
+   userController.userInsert 
     );
 
     // route for forget password 

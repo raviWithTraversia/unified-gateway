@@ -20,9 +20,7 @@ const permissionList = async(req, res) => {
             true
         )
     }
-}
-
-
+};
 const addPermission = async(req ,res) => {
     try {
         const result = await permissionServices.storePermission(req);
@@ -45,8 +43,7 @@ const addPermission = async(req ,res) => {
             ServerStatusCode.SERVER_ERROR,
             true)
     }
-}
-
+};
 module.exports = {
     permissionList,
     addPermission

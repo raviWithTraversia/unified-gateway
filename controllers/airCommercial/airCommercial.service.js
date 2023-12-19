@@ -202,25 +202,53 @@ const UpdateMatrixData = async(req , res) => {
             }  
         }
 
-        const rateValueData = req.body.rateValue;
-        const saveDataMatrix = new Matrix({
-            comercialPlanId,
-            airCommercialPlanId,
-            ComanyId,
-            rateValue,
-            fixedValue
+        const checkDataExist = await Matrix.findOne({
+            airCommercialPlanId: airCommercialPlanId,
+            comercialPlanId: comercialPlanId,
         });
-        let resultAll = await saveDataMatrix.save();
-        if(!resultAll) {
-            return {
-                response : "Matrix updated successfully",
-            }  
-        }else{
-            return {
-                response : "Something went wrong!!",
-            }   
-        }
+        if(checkDataExist) {
 
+            let resultAll = await CommercialFilterExcInd.findByIdAndUpdate(
+                checkDataExist._id,
+                {
+                    comercialPlanId,
+                    airCommercialPlanId,
+                    ComanyId,
+                    rateValue,
+                    fixedValue
+                },
+                { new: true }
+            );
+            if(!resultAll) {
+                return {
+                    response : "Matrix updated successfully",
+                }  
+            }else{
+                return {
+                    response : "Something went wrong!!",
+                }   
+            }
+
+        }else{
+            const rateValueData = req.body.rateValue;
+            const saveDataMatrix = new Matrix({
+                comercialPlanId,
+                airCommercialPlanId,
+                ComanyId,
+                rateValue,
+                fixedValue
+            });
+            let resultAll = await saveDataMatrix.save();
+            if(!resultAll) {
+                return {
+                    response : "Matrix updated successfully",
+                }  
+            }else{
+                return {
+                    response : "Something went wrong!!",
+                }   
+            }
+        }
 
     } catch (error) {
         throw error;
@@ -264,10 +292,8 @@ const addCommercialFilterExcInc = async (req, res) => {
             airCommercialId: airCommercialId,
         });
 
-        console.log(req.body);
-
         if (checkExist) {
-            var data = await CommercialFilterExcInd.findByIdAndUpdate(
+            let data = await CommercialFilterExcInd.findByIdAndUpdate(
                 checkExist._id,
                 {
                     commercialAirPlanId,
@@ -276,27 +302,38 @@ const addCommercialFilterExcInc = async (req, res) => {
                 },
                 { new: true }
             );
+
+            if (data) {
+                return {
+                    response: "Commercial updated successfully",
+                };
+            } else {
+                return {
+                    response: "Something went wrong, try again later!",
+                };
+            }
         } else {
+            
             
             var result = new CommercialFilterExcInd({
                 commercialAirPlanId,
                 airCommercialId,
                 commercialFilter,
             });
-
-            var data = result.save();
-
+            
+            let data = result.save();
+            if (data) {
+                return {
+                    response: "Commercial updated successfully",
+                };
+            } else {
+                return {
+                    response: "Something went wrong, try again later!",
+                };
+            }
         }
 
-        if (data) {
-            return {
-                response: "Commercial updated successfully",
-            };
-        } else {
-            return {
-                response: "Something went wrong, try again later!",
-            };
-        }
+        
     } catch (error) {
         throw error;
     }

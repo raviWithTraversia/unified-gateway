@@ -44,6 +44,7 @@ const fareRuleRoute = require('../routes/fareRulesRoute');
 const fareRuleGroupRoute = require('../routes/fareRuleGroupRoute');
 const airLineCodeRoute = require('../routes/airLineCodeRoute');
 const agencyConfigRoute = require('../routes/agencyConfigurationRoute')
+const emulateRoute = require('../routes/emulateRoute');
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -184,6 +185,9 @@ class RoutesLoader {
 
         //agent Configuration Route
         app.use('/api', agencyConfigRoute);
+
+        // emulate
+        app.use('/api', emulateRoute);
     }
 }
 

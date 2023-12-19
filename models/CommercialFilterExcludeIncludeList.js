@@ -1,6 +1,7 @@
+
 const mongoose = require('mongoose');
 
-const AirCommercialFilterListSchema = new mongoose.Schema({
+const AirCommercialFilterIncExcSchema = new mongoose.Schema({
     commercialAirPlanId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'CommercialAirPlanSchema'
@@ -19,13 +20,13 @@ const AirCommercialFilterListSchema = new mongoose.Schema({
             enum: ["exclude", "include"]
         },
         value: {
-            type: String,
+            type: Number,
             default: null
         }
-    }]
+}]
 });
 
 
-module.exports = mongoose.model('AirCommercialFilterList' , AirCommercialFilterListSchema)
+module.exports = mongoose.model('AirCommercialFilterIncExc' , AirCommercialFilterIncExcSchema)
 
 

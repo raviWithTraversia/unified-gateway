@@ -207,7 +207,17 @@ const getAirCommercialListByCommercialId = async(req , res) => {
 const addCommercialFilterInEx = async(req, res) => {
     try {
         const result = await airCommericalService.addCommercialFilterExcInc(req);
-        
+        if(result.response == 'All fields are required' || result.response == 'Something went wrong, try again later!') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        }
+        else {
+            apiSucessRes(
+                res,
+                CrudMessage.COMMERCIAL_FILTER,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+        }
     } catch (error) {
         apiErrorres(
             res,

@@ -71,6 +71,7 @@ const CrudMessage = {
     IMAGE_UPLOAD_DELETED: 'Upload image is deleted',
     PERMISSION_CREATE : 'Permission created successfully',
     MATRIX_UPDATE : 'Matrix updated successfully',
+    COMMERCIAL_FILTER : 'Commercial updated successfully'
 
 }
 

@@ -77,6 +77,13 @@ const swaggerUiOptions = {
     displayOperationId: true,
     deepLinking: true,
   };
+
+// Place your cache control middleware here // remove after dev to pro
+app.use((req, res, next) => {
+    res.header('Cache-Control', 'no-store');
+    next();
+});
+
 app.use("/api-docs", basicAuth({
     users: { 'admin': 'admin@1234' },
     challenge: true,

@@ -27,6 +27,10 @@ const diSetupSchema = new mongoose.Schema({
     validToDate : {
         type: Date 
     },
+    status : {
+        type : Boolean,
+        default : true
+    },
     createdBy :{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User',

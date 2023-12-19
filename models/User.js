@@ -136,9 +136,9 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
-      city : {
+      cityId : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : ""
+        ref : "City"
       },
      
     resetToken: String,

@@ -9,9 +9,9 @@ const {TMC_ROLE ,DISTRIBUTER_ROLE,HOST_ROLE} = require("../../utils/constants");
 const webMaster = require("../../models/WebsiteManager");
 const Registration = require('../../models/Registration');
 const CommercialAirPlan = require('../../models/CommercialAirPlan');
-const FareRule = require('../../models/FareRules')
-const UserHasSalesInchargeConfig = require('../../models/configurationMaster/AssignUserHasSalesIncharge');
-const UserPervillagePlanConfig = require('../../models/configurationMaster/AssignUserHasPrevillagePlan');
+const agentConfigModel = require('../../models/AgentConfig');
+const privilagePlanModel = require('../../models/PrivilagePlan');
+const commercialPlanModel = require('../../models/CommercialAirPlan')
 
 
 const registerUser = async (req, res) => {
@@ -120,22 +120,20 @@ const loginUser = async (req, res) => {
 
 const userInsert = async (req, res) => {
   let savedCompany = null;
+ // console.log(req.user, "lllllllllllllllllllllllllllllllllllll")
   try {
     const requiredFields = [
       "companyName",
       "parent",
       "type",
       "companyStatus",
-      "modifiedBy",
       "logo_URL",
-      "office_Type",
       "isAutoInvoicing",
       "invoicingPackageName",
-      "planType",
       "creditPlanType",
-      "booking_Prefix",
-      "invoicing_Prefix",
-      "invoicingTemplate",
+      // "booking_Prefix",
+      // "invoicing_Prefix",
+      // "invoicingTemplate",
       "cin_number",
       "signature",
       "pan_Number",
@@ -160,7 +158,6 @@ const userInsert = async (req, res) => {
       "sex",
       "dob",
       "nationality",
-      "user_planType",
       "sales_In_Charge",
       "personalPanCardUpload",
       "roleId",
@@ -183,7 +180,6 @@ const userInsert = async (req, res) => {
       parent,
       type,
       companyStatus,
-      modifiedBy,
       logo_URL,
       office_Type,
       isAutoInvoicing,
@@ -234,7 +230,10 @@ const userInsert = async (req, res) => {
       isIATA,
       holdPnrAllowed,
       saleInChargeId,
-      privillagePlanId
+      privillagePlanId,
+      cityId,
+      creditBalance,
+      maxCreditLimit
     } = req.body;
    
     const existingUser = await User.findOne({ email });
@@ -252,12 +251,13 @@ const userInsert = async (req, res) => {
         data: null,
       };
     }
+    console.log(req.user)
     const newCompany = new Company({
       companyName,
       parent,
       type,
       companyStatus,
-      modifiedBy : req.user.id || null,
+      modifiedBy : req?.user?.id || null,
       logo_URL,
       office_Type,
       isAutoInvoicing,
@@ -333,26 +333,29 @@ const userInsert = async (req, res) => {
       roleId,
       company_ID: savedCompany._id,
       modifiedBy : req.user.id || null, 
+      cityId
     });
 
     let userCreated = await newUser.save();
     if(userCreated){
       await Registration.deleteOne({email : email});
       console.log("Registration details deleted");
-      if(saleInChargeId){
-        let userSalesInchage = new UserHasSalesInchargeConfig({
-          companyId :savedCompany._id,
-          salesInchargeId : savedCompany._id || null
+    let privilegePlansIds = await privilagePlanModel.findOne({companyId :parent,IsDefault : true});
+    let commercialPlanIds = await commercialPlanModel.findOne({companyId :parent,IsDefault : true});
+    console.log(privilegePlansIds ,commercialPlanIds )
+      let agentConfigsInsert = await agentConfigModel.create({
+        userId : userCreated._id,
+        companyId : savedCompany._id ,
+        privilegePlansIds : privilegePlansIds || null,
+        salesInchargeIds : saleInChargeId || null,
+        maxcreditLimit : maxCreditLimit,
+        holdPNRAllowed : holdPnrAllowed,
+        commercialPlanIds : commercialPlanIds || null,
+        modifyAt: new Date(),
+        modifiedBy : req.user.id || null
         });
-        await userSalesInchage.save();
-      }
-      if(privillagePlanId){
-         let UserPervillagePlanAssign = new UserPervillagePlanConfig({
-          companyId : savedCompany._id,
-          privilagePlanId : privillagePlanId || null
-         });
-         await UserPervillagePlanAssign.save();
-      }
+        agentConfigsInsert = await agentConfigsInsert.save();
+      console.log( 'User Config Insert Sucessfully')
     }
     return {
       response: "User and Company Inserted successfully",
@@ -653,7 +656,7 @@ const getUser = async (req,res) => {
       model: 'Company',
       select: 'companyName type'
     }
-  })
+  }).populate('cityId')
   if(userData){
     return {
       response : 'User data found SucessFully',

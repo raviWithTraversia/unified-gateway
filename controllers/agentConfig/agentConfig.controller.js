@@ -13,16 +13,9 @@ const addAgentConfiguration = async (req,res) => {
 };
 const updateAgentConfiguration = async (req,res) => {
     try{
-    //console.log(req.body);
+    console.log(req.body);
     const result = await agentConfigServices.updateAgentConfiguration(req,res);
-    if(result.response == 'Config data updated successfully'){
-     apiSucessRes(
-        res,
-        result.response,
-        result.data,
-        ServerStatusCode.SUCESS_CODE
-     )
-    }else  if(result.response == 'TMC Config Insert Sucessfully'){
+   if(result.response == 'Config updated successfully'){
         apiSucessRes(
            res,
            result.response,
@@ -30,15 +23,7 @@ const updateAgentConfiguration = async (req,res) => {
            ServerStatusCode.SUCESS_CODE
         )
        }
-    else if(result.response == 'Agent Config Insert Sucessfully'){
-        apiSucessRes(
-           res,
-           result.response,
-           result.data,
-           ServerStatusCode.SUCESS_CODE
-        )
-       }
-    else if(result.response == 'User  is not Tmc or agent or distributer'){
+    else if(result.response == 'Config not found'){
      apiErrorres(
         res,
         result.response,

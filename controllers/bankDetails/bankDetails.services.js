@@ -122,8 +122,7 @@ const updateBankDetails = async (reqData, file) => {
         bankDetailsId,
         {
           $set: reqData,
-          modifyAt: new Date(),
-          modifyBy : req.user.id
+          modifyAt: new Date()
         },
         { new: true }
       );
@@ -149,6 +148,7 @@ const deleteBankDetails = async (req, res) => {
     const deletedBankDetails = await bankDetail.findByIdAndDelete(
       id
     );
+    console.log()
     if (deletedBankDetails) {
       return {
         response: "Bank details deleted successfully",

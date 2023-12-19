@@ -146,7 +146,6 @@ const userInsert = async (req, res) => {
       "fname",
       "lastName",
       "password",
-      "securityStamp",
       "phoneNumber",
      // "twoFactorEnabled",
       //"lockoutEnabled",

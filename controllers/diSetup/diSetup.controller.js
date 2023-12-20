@@ -110,9 +110,47 @@ const deleteDiSetup = async (req,res) => {
             true
           ) 
     }
+};
+
+const editDiSetup = async (req,res) => {
+  try{
+    let result = await diServices.editDiSetup(req,res);
+    if(result.response == 'Di data Updated Sucessfully'){
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      )
+    }
+    else if(result.response == 'Di Data Not Updated'){
+      apiErrorres(
+       res,
+       result.response,
+       ServerStatusCode.RESOURCE_NOT_FOUND,
+       true
+      )
+     }else{
+       apiErrorres(
+           res,
+           errorResponse.SOME_UNOWN,
+           ServerStatusCode.INVALID_CRED,
+           true
+         )
+     }
+
+  }catch(error){
+    apiErrorres(
+      res,
+      errorResponse.SOME_UNOWN,
+      ServerStatusCode.INVALID_CRED,
+      true
+    ) 
+  }
 }
 module.exports = {
     addDiSetup,
     getDiSetup,
-    deleteDiSetup
+    deleteDiSetup,
+    editDiSetup
 }

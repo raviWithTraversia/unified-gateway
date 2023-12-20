@@ -98,6 +98,7 @@ const loginUser = async (req, res) => {
       companyId: user.company_ID,
       roleId : user?.roleId || null,
       token: token,
+      lastLogin : user?.last_LoginDate ||new Date()
     };
     if(user.roleId){
       let userRoleName = await Role.findOne({})

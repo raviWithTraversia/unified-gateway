@@ -127,38 +127,18 @@ const userInsert = async (req, res) => {
       "parent",
       "type",
       "companyStatus",
-      //"logo_URL",
-      ///"isAutoInvoicing",
-     // "invoicingPackageName",
-     // "creditPlanType",
-      // "booking_Prefix",
-      // "invoicing_Prefix",
-      // "invoicingTemplate",
-     // "cin_number",
-     // "signature",
       "pan_Number",
-     // "HSN_SAC_Code",
-     // "hierarchy_Level",
-     // "pan_upload",
       "login_Id",
       "email",
-     // "title",
       "fname",
       "lastName",
       "password",
       "phoneNumber",
-     // "twoFactorEnabled",
-      //"lockoutEnabled",
-    //  "emailConfirmed",
-     // "phoneNumberConfirmed",
       "userStatus",
       "userPanName",
       "userPanNumber",
-     // "sex",
-    //  "dob",
       "nationality",
       "sales_In_Charge",
-    //  "personalPanCardUpload",
       "roleId",
     ];
 
@@ -673,6 +653,44 @@ const getUser = async (req,res) => {
   }
 }
 
+const getAllAgencyAndDistributer = async (req,res) => {
+  try{
+    let parentId = req.query.id;
+    let agency = await Company.find({parent : parentId});
+    if(agency.length == 0){
+      return {
+        response : 'No Agency with this TMC'
+      }
+    }
+    
+    const ids = agency.map(item => item._id.toString());
+    const users = await User.find({ company_ID: { $in: ids } }).populate('roleId').populate('cityId').populate({
+      path: 'company_ID',
+      model: 'Company',
+      select: 'companyName type cashBalance creditBalance maxCreditLimit updatedAt',
+      populate: {
+        path: 'parent',
+        model: 'Company',
+        select: 'companyName type'
+      }
+    }).exec();
+    if(users.length != 0){
+      return {
+        response : 'Agency Data fetch Sucessfully',
+        data : users
+      }
+    }else{
+      return {
+        response : 'Agency Data not found'
+      }
+    }
+
+  }catch(error){
+     console.log(error);
+     throw error
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
@@ -683,5 +701,6 @@ module.exports = {
   varifyTokenForForgetPassword,
   addUser,
   editUser,
-  getUser
+  getUser,
+  getAllAgencyAndDistributer
 };

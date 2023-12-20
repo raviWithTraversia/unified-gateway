@@ -61,6 +61,13 @@ const deleteDiSetup = async (req,res) => {
       console.log(error);
       throw error
     }
+};
+const editDiSetup = async (req,res) => {
+    try{
+    // let resDiData = await diSetup.fim
+    }catch(error){
+
+    }
 }
 
 module.exports = {

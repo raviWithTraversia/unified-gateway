@@ -22,6 +22,11 @@ diSetup_route.delete(
     '/diSetup/deleteDi/:id',
     auth,
     diSetupController.deleteDiSetup
+);
+diSetup_route.patch(
+    '/diSetup/editDiSetup',
+    auth,
+    diSetupController.editDiSetup
 )
 
 diSetup_route.get('/test',auth, function(req, res){

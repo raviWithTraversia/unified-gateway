@@ -3,12 +3,22 @@ const fareRuleModel = require("../../models/FareRules");
 
 const addFareRuleGroup = async (req, res) => {
   try {
-    const {
+    let {
       fareRuleIds,
       fareRuleGroupName,
       fareRuleGroupDescription,
       companyId,
+      isDefault
     } = req.body;
+    let fareRuleGroupNameExist = await fareRuleGroupModels.findOne({companyId,fareRuleGroupName});
+    if(fareRuleGroupNameExist){
+      return {
+        response :'Fare rule group with the same name already exists for this company'
+      }
+    };
+    if(isDefault === true){
+      let checkIsAnydefaultTrue = await fareRuleGroupModels.updateMany({companyId} ,{isDefault : false});
+    }
     const newFareRuleGroup = new fareRuleGroupModels({
       fareRuleIds,
       fareRuleGroupName,
@@ -16,6 +26,7 @@ const addFareRuleGroup = async (req, res) => {
       companyId,
       modifyAt: new Date(),
       modifyBy: req.user._id,
+      isDefault
     });
     const saveFareRuleGroup = await newFareRuleGroup.save();
     if (saveFareRuleGroup) {
@@ -37,7 +48,19 @@ const addFareRuleGroup = async (req, res) => {
 const editFareRuleGroup = async (req, res) => {
   try {
     let { id } = req.query;
-    let updateData = req.body;
+    let updateData = {
+      ...req.body
+    };
+
+    let fareRuleGroupNameExist = await fareRuleGroupModels.findOne({companyId:updateData?.companyId,fareRuleGroupName:updateData?.fareRuleGroupName});
+    if(fareRuleGroupNameExist){
+      return {
+        response :'Fare rule group with the same name already exists for this company'
+      }
+    };
+    if(updateData?.isDefault === true){
+      let checkIsAnydefaultTrue = await fareRuleGroupModels.updateMany({companyId: updateData.companyId} ,{isDefault : false});
+    }
     let updateFareRuleData = await fareRuleGroupModels.findByIdAndUpdate(
       id,
       {
@@ -107,7 +130,22 @@ const getFareRuleGroup = async (req, res) => {
 
 const deleteFareRuleGroup = async (req, res) => {
   try {
-  } catch (error) {}
+    let id = req.query.id;
+    let deleteData = await fareRuleGroupModels.findByIdAndDelete(id);
+    if(deleteData){
+      return{
+        response : 'Data deleted sucessfully'
+      }
+    }else{
+      return{
+        response : 'Farerule Group data not found for this id'
+      }
+    }
+
+  } catch (error) {
+    console.log(error);
+    throw error
+  }
 };
 
 module.exports = {

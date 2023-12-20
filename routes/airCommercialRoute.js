@@ -8,7 +8,7 @@ const auth = require("../middleware/auth");
 const airCommercialController = require('./../controllers/airCommercial/airCommercial.controller');
 
 air_commercial_route.post(
-    '/commercial/air-commercial-store' ,
+    '/commercial/air-commercial-store',
     auth,
     airCommercialController.storeAirCommercial
 );
@@ -72,6 +72,22 @@ air_commercial_route.get(
     '/commercial/air-commercial-include-exclude-list',
     auth,
     airCommercialController.getCommercialIncExc
+)
+
+
+// Get data for commercial include exclude list
+air_commercial_route.get(
+    '/commercial/get-include-exclude/:commercialAirPlanId/:airCommercialId',
+    auth,
+    airCommercialController.getComIncExludeList
+)
+
+
+// Get Matrix list
+air_commercial_route.get(
+    '/commercial/matrix-list/:comercialPlanId/:airCommercialPlanId',
+    auth,
+    airCommercialController.matrixList
 )
 
 module.exports = air_commercial_route;

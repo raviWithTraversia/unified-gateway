@@ -11,7 +11,8 @@ const searchForUserEmulate = async (req, res) => {
             company_ID: companyId,
             $or: [
                 { fname: new RegExp(search, 'i') },
-                { lastName: new RegExp(search, 'i') }
+                { lastName: new RegExp(search, 'i') },
+                { companyName: new RegExp(search, 'i') }
             ]
         });
 

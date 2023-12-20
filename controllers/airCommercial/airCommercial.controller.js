@@ -256,6 +256,46 @@ const getCommercialIncExc = async(req ,res) => {
 }
 
 
+const getComIncExludeList = async(req ,res) => {
+    try {
+        const result = await airCommericalService.getComIncludeExclude(req);
+         apiSucessRes(
+                res,
+                result.data,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+
+const matrixList = async(req ,res) => {
+    try {
+        const result = await airCommericalService.getMatrixList(req);
+         apiSucessRes(
+                res,
+                result.data,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+
 module.exports = {
     storeAirCommercial,
     getColoumnData,
@@ -266,7 +306,9 @@ module.exports = {
     updateMatrix,
     getAirCommercialListByCommercialId,
     getCommercialIncExc,
-    addCommercialFilterInEx
+    addCommercialFilterInEx,
+    getComIncExludeList,
+    matrixList
 }
 
 

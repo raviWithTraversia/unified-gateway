@@ -30,8 +30,7 @@ const userSchema = new mongoose.Schema({
         ref: 'Role'
     },
     title: {
-        type : String,
-        required : true
+        type : String
     },
     fname:  {
         type : String,
@@ -104,13 +103,15 @@ const userSchema = new mongoose.Schema({
     activation_Date: {
         type: Date,
         default: Date.now,
+        default: null  
     },
     sex: {
       type : String,
       default: null  
     },
     dob: {
-        type: Date  
+        type: Date,
+        default: null    
     },
     nationality: {
         type : String,

@@ -66,7 +66,6 @@ const loginUser = async (req, res) => {
 const userInsert = async (req, res) => {
   try {
     const result = await userServices.userInsert(req);
-    // console.log(result, "<<<<<<<<<<<<++++++++++++++++++")
     if (!result.response || result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.BAD_REQUEST, true);
     } else if (
@@ -305,6 +304,36 @@ const getUser = async (req, res) => {
   }
 };
 
+const getAllAgencyAndDistributer = async (req,res) => {
+  try{
+    let result = await userServices.getAllAgencyAndDistributer(req,res);
+    if (result.response === "Agency Data fetch Sucessfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else if (result.response === "No Agency with this TMC") {
+      apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
+    }else if (result.response === "Agency Data not found") {
+      apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
+    } 
+    else{
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    }
+
+  }catch(error){
+    apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
+     
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
@@ -315,5 +344,6 @@ module.exports = {
   varifyTokenForForgetPassword,
   addUser,
   editUser,
-  getUser
+  getUser,
+  getAllAgencyAndDistributer
 };

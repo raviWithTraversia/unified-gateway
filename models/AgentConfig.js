@@ -22,11 +22,6 @@ const agentConfigSchema = new mongoose.Schema({
         ref: "CommercialAirPlan",
         default : null
       },
-    creditPlansIds: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "CommercialAirPlan",
-        default : null
-      },
     fareRuleGroupIds: {
         type: mongoose.Schema.Types.ObjectId,
         ref: " fareRuleGroup",

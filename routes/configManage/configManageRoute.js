@@ -9,6 +9,7 @@ const auth = require("../../middleware/auth");
 config_manage_route.post('/config/addAirGstMandate' ,auth,  configManage.addairGSTMandate);
 config_manage_route.get('/config/getAirGstMandate/:companyId',auth,  configManage.getairGSTMandate);
 config_manage_route.patch('/config/updateAirGstMandate/:airGstMandateId',auth,  configManage.updateairGSTMandate);
+config_manage_route.delete('/config/deleteGSTMandate/:airGstMandateId', auth,configManage.deleteGSTMandate);
 
 
 

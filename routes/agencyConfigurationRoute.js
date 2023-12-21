@@ -16,7 +16,7 @@ agency_config_route.patch(
 )
 
 agency_config_route.get(
-    '/agentConfiguration/updateAgentConfiguration',
+    '/agentConfiguration/getAgentConfig',
     auth,
     agencyConfigurationController.getAgentConfig
 )

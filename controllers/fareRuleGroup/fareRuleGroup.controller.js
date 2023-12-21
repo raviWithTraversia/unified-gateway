@@ -24,7 +24,15 @@ const addFareRuleGroup = async (req, res) => {
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
-    } else {
+    }  else if (result.response == "Fare rule group with the same name already exists for this company") {
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    }
+    else {
       apiErrorres(
         res,
         ServerStatusCode.RESOURCE_NOT_FOUND,
@@ -84,7 +92,15 @@ const editFareRuleGroup = async (req, res) => {
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
-    } else {
+    } else if (result.response == "Fare rule group with the same name already exists for this company") {
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    }
+    else {
       apiErrorres(
         res,
         ServerStatusCode.RESOURCE_NOT_FOUND,
@@ -99,14 +115,14 @@ const editFareRuleGroup = async (req, res) => {
 const deleteFareRuleGroup = async (req, res) => {
   try {
     const result = await fareRuleGoupController.deleteFareRuleGroup(req, res);
-    if (result.response == "Fare Rule Added Sucessfully") {
+    if (result.response == "Data deleted sucessfully") {
       apiSucessRes(
         res,
         result.response,
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    } else if (result.response == "Fare Rule Not Added") {
+    } else if (result.response == "Farerule Group data not found for this id") {
       apiErrorres(
         res,
         result.response,

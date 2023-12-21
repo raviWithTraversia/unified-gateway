@@ -11,7 +11,8 @@ const Registration = require('../../models/Registration');
 const CommercialAirPlan = require('../../models/CommercialAirPlan');
 const agentConfigModel = require('../../models/AgentConfig');
 const privilagePlanModel = require('../../models/PrivilagePlan');
-const commercialPlanModel = require('../../models/CommercialAirPlan')
+const commercialPlanModel = require('../../models/CommercialAirPlan');
+const fareRuleGroupModel = require('../../models/FareRuleGroup')
 
 
 const registerUser = async (req, res) => {
@@ -322,6 +323,7 @@ const userInsert = async (req, res) => {
       console.log("Registration details deleted");
     let privilegePlansIds = await privilagePlanModel.findOne({companyId :parent,IsDefault : true});
     let commercialPlanIds = await commercialPlanModel.findOne({companyId :parent,IsDefault : true});
+    let fareRuleGroupIds = await fareRuleGroupModel.findOne({companyId :parent,IsDefault : true});
     console.log(privilegePlansIds ,commercialPlanIds )
       let agentConfigsInsert = await agentConfigModel.create({
         userId : userCreated._id,
@@ -332,7 +334,8 @@ const userInsert = async (req, res) => {
         holdPNRAllowed : holdPnrAllowed,
         commercialPlanIds : commercialPlanIds || null,
         modifyAt: new Date(),
-        modifiedBy : req.user.id || null
+        modifiedBy : req.user.id || null,
+        fareRuleGroupIds : fareRuleGroupIds || null
         });
         agentConfigsInsert = await agentConfigsInsert.save();
       console.log( 'User Config Insert Sucessfully')

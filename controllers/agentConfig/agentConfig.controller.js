@@ -13,7 +13,7 @@ const addAgentConfiguration = async (req,res) => {
 };
 const updateAgentConfiguration = async (req,res) => {
     try{
-    console.log(req.body);
+   // console.log(req.body);
     const result = await agentConfigServices.updateAgentConfiguration(req,res);
    if(result.response == 'Config updated successfully'){
         apiSucessRes(
@@ -46,10 +46,46 @@ const updateAgentConfiguration = async (req,res) => {
         true
      )
     }
+};
+
+const getAgentConfig = async (req,res) => {
+    try{
+     const result = await agentConfigServices.getAgentConfig(req,res);
+     if(result.response == 'Agent config Data found Sucessfully'){
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+         )
+     }else if(result.response == 'Agent config Data not found'){
+        apiErrorres(
+           res,
+           result.response,
+           ServerStatusCode.RESOURCE_NOT_FOUND,
+           true 
+        )
+     }else{
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
+            true 
+        )
+     }
+    }catch(error){
+        apiErrorres(
+            res,
+            error,
+            ServerStatusCode.SERVER_ERROR,
+            true
+         ) 
+    }
 }
 
 
 module.exports = {
     addAgentConfiguration,
-    updateAgentConfiguration
+    updateAgentConfiguration,
+    getAgentConfig
 }

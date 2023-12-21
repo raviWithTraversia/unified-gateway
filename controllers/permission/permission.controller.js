@@ -24,7 +24,7 @@ const permissionList = async(req, res) => {
 const addPermission = async(req ,res) => {
     try {
         const result = await permissionServices.storePermission(req);
-        if(result.response == 'Something went wrong try again later') {
+        if(result.response == 'Something went wrong try again later' || result.response == 'Permission name already exist') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         }
         else {

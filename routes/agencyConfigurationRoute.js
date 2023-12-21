@@ -15,6 +15,12 @@ agency_config_route.patch(
     agencyConfigurationController.updateAgentConfiguration
 )
 
+agency_config_route.get(
+    '/agentConfiguration/getAgentConfig',
+    auth,
+    agencyConfigurationController.getAgentConfig
+)
+
 agency_config_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

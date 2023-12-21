@@ -21,6 +21,10 @@ const fairRuleGroupSchema = new mongoose.Schema({
       companyId : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Company'
+      },
+      isDefault : {
+        type : Boolean,
+        default: false
       }
 });
 const fareRuleGroup = mongoose.model("fareRuleGroup", fairRuleGroupSchema);

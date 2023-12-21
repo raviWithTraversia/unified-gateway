@@ -64,7 +64,29 @@ const deleteDiSetup = async (req,res) => {
 };
 const editDiSetup = async (req,res) => {
     try{
-    // let resDiData = await diSetup.fim
+        let { id } = req.query;
+        let updateData = {
+          ...req.body
+        };
+        let updateDiData = await diSetup.findByIdAndUpdate(
+            id,
+            {
+              $set: updateData,
+              modifyAt: new Date(),
+              modifyBy: req.user._id,
+            },
+            { new: true }
+          );
+          if (updateDiData) {
+            return {
+              response: "Di data Updated Sucessfully",
+              data: updateDiData,
+            };
+          } else {
+            return {
+              response: "Di Data Not Updated",
+            };
+          }
     }catch(error){
 
     }
@@ -73,5 +95,6 @@ const editDiSetup = async (req,res) => {
 module.exports = {
     addDiSetup,
     getDiSetup ,
-    deleteDiSetup
+    deleteDiSetup,
+    editDiSetup
 }

@@ -296,6 +296,55 @@ const matrixList = async(req ,res) => {
 }
 
 
+// Delete process for air commercial 
+
+const deleteAirCommercial = async(req ,res) => {
+    try {
+        const result = await airCommericalService.deleteAirCommmercialDetail(req);
+        if(result.response == 'Air commercial not deleted , Something went wrong') 
+        {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+
+        }else{
+            apiSucessRes(
+                res,
+                CrudMessage.COMMERCIAL_DELETE,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+        }
+
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        ) 
+    }
+}
+
+
+const getSingleAirComList = async(req ,res) => {
+    try {
+        const result = await airCommericalService.getSingleAirComList(req);
+         apiSucessRes(
+                res,
+                result.data,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+
 module.exports = {
     storeAirCommercial,
     getColoumnData,
@@ -308,7 +357,9 @@ module.exports = {
     getCommercialIncExc,
     addCommercialFilterInEx,
     getComIncExludeList,
-    matrixList
+    matrixList,
+    deleteAirCommercial,
+    getSingleAirComList
 }
 
 

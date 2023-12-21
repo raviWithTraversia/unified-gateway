@@ -90,4 +90,20 @@ air_commercial_route.get(
     airCommercialController.matrixList
 )
 
+
+// Delete Commercial Single
+air_commercial_route.get(
+    '/commercial/delete-air-commercial/:airComId',
+    auth,
+    airCommercialController.deleteAirCommercial
+)
+
+// Get Single Commercial Data By Air COmmercial 
+air_commercial_route.get(
+    '/commercial/get-signle-air-commercial-list/:airComId',
+    auth,
+    airCommercialController.getSingleAirComList
+)
+
+
 module.exports = air_commercial_route;

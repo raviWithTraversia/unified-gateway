@@ -1,30 +1,54 @@
 const UserModule = require('../../models/User');
 const CompanyModel = require('../../models/Company');
+const RoleModel = require('../../models/Role');
 const { Status } = require("../../utils/constants");
 const commonFunction = require('../commonFunctions/common.function');
 
 const searchForUserEmulate = async (req, res) => {
     try {
-        const { companyId, search } = req.query;
+        const { companyId, search , userId } = req.query;
 
-        const result = await UserModule.find({
-            company_ID: companyId,
-            $or: [
-                { fname: new RegExp(search, 'i') },
-                { lastName: new RegExp(search, 'i') },
-                { companyName: new RegExp(search, 'i') }
-            ]
-        });
+        const getUserId = await UserModule.findOne({_id : userId , roleId: { $exists: true, $ne: null }});
 
-        if (result.length > 0) {
-            return {
-                data: result
-            };
-        } else {
-            return {
-                data: []
-            };
+        const getRole = await RoleModel.findOne({_id : getUserId.roleId});
+
+        if(getRole.name == 'TMC' || getRole.name == 'Distributer') {
+            const result = await CompanyModel.find({
+                parent: companyId,
+                $or: [
+                    { companyName: new RegExp(search, 'i') }
+                ]
+            });
+    
+            if (result.length > 0) {
+                return {
+                    data: result
+                };
+            } else {
+                return {
+                    data: []
+                };
+            }
+        }else{
+            const result = await UserModule.find({
+                companyId: companyId,
+                $or: [
+                    { fname: new RegExp(search, 'i') },
+                    { lname: new RegExp(search, 'i') },
+                ]
+            });
+    
+            if (result.length > 0) {
+                return {
+                    data: result
+                };
+            } else {
+                return {
+                    data: []
+                };
+            }
         }
+
     } catch (error) {
         throw error;
     }

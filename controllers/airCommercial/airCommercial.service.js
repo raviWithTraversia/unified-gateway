@@ -122,16 +122,43 @@ const addCommercialType = async(req ,res) => {
                 response : 'All fields are required'
             }
         }else{
-            const saveResult = new CommercialType({
+            
+            const checkComType =  new CommercialType.findOne({
                 airCommercialId,
                 AirCommertialColumnMasterId,
                 AirCommertialRowMasterId,
-                companyId,
-                textType
+                companyId
             });
-            const result =saveResult.save();
-            return {
-                response : "Air commercial type added successfully"
+
+            if(checkComType) {
+                
+                const saveResult = await CommercialType.findByIdAndUpdate(
+                    checkComType._id,
+                    {
+                    airCommercialId,
+                    AirCommertialColumnMasterId,
+                    AirCommertialRowMasterId,
+                    companyId,
+                    textType
+                },
+                { new: true }
+                );
+                const result =saveResult.save();
+                return {
+                    response : "Air commercial type added successfully"
+                }
+            }else{
+                const saveResult = new CommercialType({
+                    airCommercialId,
+                    AirCommertialColumnMasterId,
+                    AirCommertialRowMasterId,
+                    companyId,
+                    textType
+                });
+                const result =saveResult.save();
+                return {
+                    response : "Air commercial type added successfully"
+                }
             }
         }
     } catch (error) {
@@ -411,6 +438,48 @@ const getMatrixList = async(req ,res) => {
 }
 
 
+const deleteAirCommmercialDetail = async(req ,res) => {
+    try {
+        
+        const id = req.params.airComId;
+        const removeAirCom = await AirCommercial.findOneAndDelete({_id : id});
+        if (removeAirCom) {
+        return {
+            response: "Air Commercial Deleted Sucessfully",
+        };
+        } else {
+            return {
+                response: "Air commercial not deleted , Something went wrong",
+            };
+        }
+
+    } catch (error) {
+        throw error;
+    }
+} 
+
+
+const getSingleAirComList = async(req ,res) => {
+    try {
+        const airComId = req.params.airComId;
+        const coloumnData = await AirCommercial.find({_id : airComId}).populate('carrier').populate('supplier').populate('source');
+        
+        if (coloumnData.length > 0) {
+            return {
+                data: coloumnData,
+            }
+        } else {
+            return {
+                response: 'Commercial not available',
+                data: null,
+            }
+        }
+    } catch (error) {
+        throw error
+    }
+}
+
+
 module.exports = {
     addAirCommercial,
     getColoumnDetail,
@@ -423,5 +492,7 @@ module.exports = {
     getComExcIncList,
     addCommercialFilterExcInc,
     getComIncludeExclude,
-    getMatrixList
+    getMatrixList,
+    deleteAirCommmercialDetail,
+    getSingleAirComList
 }

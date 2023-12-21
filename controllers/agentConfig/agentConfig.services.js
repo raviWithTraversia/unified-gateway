@@ -7,7 +7,6 @@ const addAgentConfiguration = async (req, res) => {
     let {
       privilegePlansIds,
       commercialPlanIds,
-      creditPlansIds,
       fareRuleGroupIds,
       portalLedgerAllowed,
       salesInchargeIds,
@@ -31,7 +30,6 @@ const addAgentConfiguration = async (req, res) => {
       let agentConfigsInsert = await agentConfigsModels.create({
         privilegePlansIds,
         commercialPlanIds,
-        creditPlansIds,
         fareRuleGroupIds,
         portalLedgerAllowed,
         salesInchargeIds,
@@ -61,7 +59,6 @@ const addAgentConfiguration = async (req, res) => {
       let agentConfigsInsert = await agentConfigsModels.create({
         privilegePlansIds,
         commercialPlanIds,
-        creditPlansIds,
         fareRuleGroupIds,
         portalLedgerAllowed,
         salesInchargeIds,
@@ -129,20 +126,26 @@ const updateAgentConfiguration = async (req, res) => {
 const getAgentConfig = async (req, res) => {
   try {
     let id = req.query.id;
-    let agentConfigData = await agentConfigsModels.findById(id)
-      if(agentConfigData){
-        return {
-            response : 'Agent config Data found Sucessfully',
-            data : agentConfigData
-        }
-      }else{
-        return{
-            response : 'Agent config Data not found'
-        }
-      }
+    let agentConfigData = await agentConfigsModels
+      .findById(id)
+      .populate("userId")
+      .populate("companyId")
+      .populate("privilegePlansIds")
+      .populate("commercialPlanIds")
+    console.log(agentConfigData);
+    if (agentConfigData) {
+      return {
+        response: "Agent config Data found Sucessfully",
+        data: agentConfigData,
+      };
+    } else {
+      return {
+        response: "Agent config Data not found",
+      };
+    }
   } catch (error) {
     console.log(error);
-    throw error
+    throw error;
   }
 };
 module.exports = {

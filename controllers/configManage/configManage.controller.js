@@ -85,7 +85,7 @@ const updateairGSTMandate = async (req, res) => {
           result.response,
           result.data,
           ServerStatusCode.SUCESS_CODE
-        );
+        )
       }else {
         apiErrorres(
           res,
@@ -105,6 +105,51 @@ const updateairGSTMandate = async (req, res) => {
     }
 }; 
 
+const deleteGSTMandate = async (req,res) => {
+  try{
+  const result = await airGSTMandateService.deleteGSTMandate(req,res);
+  if(result.response == 'Air GST Mandate Delete Sucessfully'){
+   apiSucessRes(
+    res,
+    result.response,
+    result.data,
+    ServerStatusCode.SUCESS_CODE
+   )
+  }else if(result.response == 'Air GST Mandate Id required'){
+    apiErrorres(
+      res,
+       result.response, 
+       ServerStatusCode.RESOURCE_NOT_FOUND,
+        true);
+  
+
+  }else if(result.response == 'Air GST Mandate id not found'){
+   apiErrorres(
+    res,
+    result.response,
+    ServerStatusCode.PRECONDITION_FAILED,
+    true
+   )
+  }else{
+    apiErrorres(
+      res,
+      errorResponse.SOME_UNOWN,
+      ServerStatusCode.UNPROCESSABLE,
+      true
+    );
+  }
+
+  }catch(error){
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
 
 
-module.exports = { addairGSTMandate,getairGSTMandate, updateairGSTMandate };
+
+module.exports = { addairGSTMandate,getairGSTMandate, updateairGSTMandate, deleteGSTMandate };

@@ -267,7 +267,7 @@ const userInsert = async (req, res) => {
     let createdComapanyId = newCompany._id;
     let findRole = await Role.findOne({_id : roleId })
   //  console.log(findRole.name, "=====================");
-    if(findRole.name === HOST_ROLE.TMC){
+    if(findRole?.name === HOST_ROLE.TMC){
       const rolesToInsert = [
         { name: TMC_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
         { name: TMC_ROLE.Distrbuter, companyId:  newCompany._id, type: 'Default' },
@@ -276,7 +276,7 @@ const userInsert = async (req, res) => {
       const insertedRoles = await Role.insertMany(rolesToInsert);
       console.log("Default Role Created Sucessfully")
     }
-    if(findRole.name === HOST_ROLE.DISTRIBUTER ){
+    if(findRole?.name === HOST_ROLE.DISTRIBUTER ){
       const rolesToInsert = [
         { name: DISTRIBUTER_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
         { name: DISTRIBUTER_ROLE.Staff, companyId:  newCompany._id, type: 'Default' },
@@ -324,7 +324,7 @@ const userInsert = async (req, res) => {
     let privilegePlansIds = await privilagePlanModel.findOne({companyId :parent,IsDefault : true});
     let commercialPlanIds = await commercialPlanModel.findOne({companyId :parent,IsDefault : true});
     let fareRuleGroupIds = await fareRuleGroupModel.findOne({companyId :parent,IsDefault : true});
-    console.log(privilegePlansIds ,commercialPlanIds )
+    console.log(privilegePlansIds ,commercialPlanIds ,fareRuleGroupIds)
       let agentConfigsInsert = await agentConfigModel.create({
         userId : userCreated._id,
         companyId : savedCompany._id ,

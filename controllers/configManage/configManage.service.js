@@ -138,8 +138,35 @@ const updateairGSTMandate = async (req, res) => {
   }
 };
 
+const deleteGSTMandate = async(req,res) =>{
+  try{
+    const airGstMandateId = req.params.airGstMandateId;
+    if (!airGstMandateId) {
+      return {
+        response: "Air GST Mandate Id required",
+      };            
+    }
+    let deleteAirgst = await airGstMandate.findByIdAndDelete(airGstMandateId);
+    if(deleteAirgst){
+      return {
+        response : 'Air GST Mandate Delete Sucessfully',
+        data : deleteAirgst
+      }
+    }else{
+      return {
+        response : 'Air GST Mandate id not found'
+      }
+    }
+
+  }catch(error){
+    console.log(error);
+    throw error
+  }
+}
+
 module.exports = {
   addGSTMandate,
   getairGSTMandate,
   updateairGSTMandate,
+  deleteGSTMandate
 };

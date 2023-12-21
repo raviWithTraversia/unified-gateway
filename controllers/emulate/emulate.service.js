@@ -13,13 +13,16 @@ const searchForUserEmulate = async (req, res) => {
         const getRole = await RoleModel.findOne({_id : getUserId.roleId});
 
         if(getRole.name == 'TMC' || getRole.name == 'Distributer') {
-            const result = await CompanyModel.find({
-                parent: companyId,
+            const result = await UserModule.find({
+                company_ID: companyId,
                 $or: [
-                    { companyName: new RegExp(search, 'i') }
+                    { fname: new RegExp(search, 'i') },
+                    { lname: new RegExp(search, 'i') }
                 ]
             });
-    
+
+
+            console.log(result)
             if (result.length > 0) {
                 return {
                     data: result

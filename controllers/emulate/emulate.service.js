@@ -12,42 +12,70 @@ const searchForUserEmulate = async (req, res) => {
 
         const getRole = await RoleModel.findOne({_id : getUserId.roleId});
 
-        if(getRole.name == 'TMC' || getRole.name == 'Distributer') {
-            const result = await CompanyModel.find({
-                parent: companyId,
+        //if(getRole.name == 'TMC' || getRole.name == 'Distributer' || getRole.name == 'Supplier') {
+            const getCompaniesDetails = await CompanyModel.find({
+                parent: getUserId.company_ID,
                 $or: [
                     { companyName: new RegExp(search, 'i') }
                 ]
             });
-    
-            if (result.length > 0) {
-                return {
-                    data: result
-                };
-            } else {
-                return {
-                    data: []
-                };
+            let companiesList = [];
+            for (let i = 0; i < getCompaniesDetails.length; i++) {
+                const companyDetails = getCompaniesDetails[i];
+                const populatedCompanyDetails = await UserModule.findOne({ company_ID: companyDetails._id });
+
+                // Check if populatedCompanyDetails exists before trying to access _id
+                if (populatedCompanyDetails) {
+                    companiesList.push({_id:populatedCompanyDetails._id,name:companyDetails.companyName});
+                   
+                }
+                
+                
             }
-        }else{
-            const result = await UserModule.find({
-                companyId: companyId,
+            const getUserDetails = await UserModule.find({
+                company_ID: getUserId.company_ID,
                 $or: [
                     { fname: new RegExp(search, 'i') },
-                    { lname: new RegExp(search, 'i') },
+                    { lastName: new RegExp(search, 'i') }
                 ]
             });
-    
-            if (result.length > 0) {
+            for (let i = 0; i < getUserDetails.length; i++) {
+                const userDetails = getUserDetails[i];
+                    companiesList.push({_id:userDetails._id,name:userDetails.fname+' '+userDetails.lastName});                   
+            }  
+                
+            
+            //const getUserDetails = await UserModule.findOne({ company_ID : getUserId.company_ID });
+            //  console.log(getUserDetails)
+            //  return false
+            if (companiesList.length > 0) {
                 return {
-                    data: result
+                    data: companiesList
                 };
             } else {
                 return {
                     data: []
                 };
             }
-        }
+        //}else{
+            // const result = await UserModule.find({
+            //     companyId: companyId,
+            //     $or: [
+            //         { fname: new RegExp(search, 'i') },
+            //         { lname: new RegExp(search, 'i') },
+            //     ]
+            // });
+    
+            // if (result.length > 0) {
+            //     return {
+            //         data: result
+            //     };
+            // } else {
+            //     return {
+            //         data: []
+            //     };
+            // }
+        //}
 
     } catch (error) {
         throw error;

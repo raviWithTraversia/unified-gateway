@@ -18,12 +18,15 @@ const storeRoleHasPermission = async(req , res) => {
         }
         
         permission.forEach(async(element) => {
-            const addRoleHasPermission = new RoleHasPermission({
-                roleId,
-                permissionId : element.permissionId
-            });
-
-            const result = await addRoleHasPermission.save();
+            const CheckExist = RoleHasPermission.findOne({roleId : roleId , permissionId : element.permissionId});
+            if(!CheckExist) {
+                const addRoleHasPermission = new RoleHasPermission({
+                    roleId,
+                    permissionId : element.permissionId
+                });
+    
+                const result = await addRoleHasPermission.save();
+            }
         });
 
         return {

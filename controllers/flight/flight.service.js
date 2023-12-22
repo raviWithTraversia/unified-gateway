@@ -183,7 +183,7 @@ async function handleflight(
     })
   );
 
-  
+
   // Combine the responses here
   const combineResponseObj = {};
   supplierCredentials.forEach((supplier, index) => {
@@ -198,20 +198,20 @@ async function handleflight(
       };
     }
   });
-  
-  // let commonArray = [];
-  // if (combineResponseObj.IsSuccess) {
-  //   for (let key in combineResponseObj.Result) {
-  //     if (combineResponseObj.Result[key].IsSucess) {
-  //       commonArray.push(...combineResponseObj.Result[key].response);
-  //     }
-  //   }      
-  //   console.log(commonArray);
-  // }
+  // make common before commercial 
+  let commonArray = [];
+  for (let key in combineResponseObj) {
+    if (combineResponseObj[key].IsSucess) {
+      commonArray.push(...combineResponseObj[key].response);
+    }
+  }
+
+  // apply commercial function 
+  const  commercialApplyResult = await commercialApplyHandle(commonArray); 
 
   return {
     IsSucess: true,
-    response: combineResponseObj,
+    response: commercialApplyResult,
   };
 }
 
@@ -269,22 +269,45 @@ const internationalKafilaFun = async (
   }
   
   let tripTypeValue;
-
-  switch (TypeOfTrip) {
-    case "ONEWAY":
-      tripTypeValue = "I1";
-      break;
-    case "ROUNDTRIP":
-      tripTypeValue = "I2";
-      break;
-    case "MULTYCITY":
-      tripTypeValue = "I3";
-      break;
-    default:
-      return {
-        IsSucess: false,
-        response: "Invalid TypeOfTrip",
-      };
+  if (TravelType == "International") {
+    switch (TypeOfTrip) {
+      case "ONEWAY":
+        tripTypeValue = "I1";
+        break;
+      case "ROUNDTRIP":
+        tripTypeValue = "I2";
+        break;
+      case "MULTYCITY":
+        tripTypeValue = "I3";
+        break;
+      default:
+        return {
+          IsSucess: false,
+          response: "Invalid TypeOfTrip",
+        };
+    }
+  }else if(TravelType == "Domestic"){
+    switch (TypeOfTrip) {
+      case "ONEWAY":
+        tripTypeValue = "D1";
+        break;
+      case "ROUNDTRIP":
+        tripTypeValue = "D2";
+        break;
+      case "MULTYCITY":
+        tripTypeValue = "D3";
+        break;
+      default:
+        return {
+          IsSucess: false,
+          response: "Invalid TypeOfTrip",
+        };
+    }
+  }else{
+    return {
+      IsSucess: false,
+      response: "Invalid TypeOfTrip",
+    };
   } 
   //Class Of Service Economy, Business, Premium Economy
   const classOfServiceMap = {
@@ -366,10 +389,10 @@ const internationalKafilaFun = async (
       let apiResponseCommon = [];
       for (let schedule of apiResponse.Schedules[0]) { 
         let randomUID = uuid.v4();
-        //apiResponseCommon.push(schedule);
+       // apiResponseCommon.push(schedule);
         apiResponseCommon.push({
           "UID": randomUID,
-          "BaseFare":schedule.Fare.BasicTotal,
+          "BaseFare":schedule.Fare.BasicTotal,          
           "Taxes":schedule.Fare.TaxesTotal,
           "TotalPrice":schedule.Fare.GrandTotal,
           "ExtraCharges":0.0,
@@ -496,6 +519,23 @@ const internationalKafilaFun = async (
   }
   
 };
+
+const commercialApplyHandle = async (commonArray) => {
+  // const commercialPlan = await  
+  // const supplierCredentials = await Supplier.find({
+  //   companyId: CompanyId,
+  //   credentialsType: CredentialType,
+  // })
+  //   .populate({
+  //     path: "supplierCodeId",
+  //     select: "supplierCode",
+  //   })
+  //   .exec();
+  return {
+    IsSucess: true,
+    response: commonArray,
+  };
+}
 
 module.exports = {
   getSearch,

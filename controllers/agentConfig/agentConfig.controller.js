@@ -81,11 +81,47 @@ const getAgentConfig = async (req,res) => {
             true
          ) 
     }
+};
+
+const updateAgencyProfile = async (req,res) => {
+    try{
+    const result = await agentConfigServices.updateAgencyProfile(req,res);
+    if(result.response == 'Agency/Distributer details updated sucessfully'){
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+         )
+    }else if(result.response == 'Agency/Distributer details not updated'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
+            true 
+         )
+    }else{
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
+            true 
+        ) 
+    }
+    }catch(error){
+        apiErrorres(
+            res,
+            error,
+            ServerStatusCode.SERVER_ERROR,
+            true
+         )
+    }
 }
 
 
 module.exports = {
     addAgentConfiguration,
     updateAgentConfiguration,
-    getAgentConfig
+    getAgentConfig,
+    updateAgencyProfile
 }

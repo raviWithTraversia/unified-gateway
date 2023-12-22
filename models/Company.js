@@ -26,11 +26,6 @@ const companySchema = new mongoose.Schema(
       required: false,
       default: null,
     },
-    logo_URL: {
-      type: String,
-      required: false,
-      default: null,
-    },
     office_Type: {
       type: String,
       required: false,
@@ -90,11 +85,6 @@ const companySchema = new mongoose.Schema(
       required: false,
       default: null,
     },
-    signature: {
-      type: String,
-      required: false,
-      default: null,
-    },
     pan_Number: {
       type: String,
       required: false,
@@ -106,11 +96,6 @@ const companySchema = new mongoose.Schema(
       default: null,
     },
     hierarchy_Level: {
-      type: String,
-      required: false,
-      default: null,
-    },
-    pan_upload: {
       type: String,
       required: false,
       default: null,
@@ -144,22 +129,77 @@ const companySchema = new mongoose.Schema(
       default: null,
     },
     isIATA: {
-      type : Boolean,
-      default : false
-  },
-  holdPnrAllowed : {
-    type : Boolean,
-    dafault : false
-  },
-  modifiedBy : {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  }
+      type: Boolean,
+      default: false,
+    },
+    holdPnrAllowed: {
+      type: Boolean,
+      dafault: false,
+    },
+    modifiedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    tds_exemption_certificate_URL: {
+      type: String,
+      default: null,
+    },
+    gst_URL: {
+      type: String,
+      default: null,
+    },
+    panUpload_URL: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    logoDocument_URL: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    signature_URL: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    aadhar_URL: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    agencyLogo_URL: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    companyMobileNumber: {
+      type: String,
+      required: false,
+      default: null,
+      trim: true,
+    },
+    companyAddress: {
+      type: String,
+      default: null,
+    },
+    companyState: {
+      type: String,
+      default: null,
+    },
+    companyPinCode: {
+      type: String,
+      default: null,
+    },
+    companyCity: {
+      type: String,
+      default: null,
+    },
   },
   {
-    timestamps: true, // Adds created_at and updated_at fields
+    timestamps: true,
   }
 );
 
 const Company = mongoose.model("Company", companySchema);
-module.exports = Company; // Export the User model
+module.exports = Company;

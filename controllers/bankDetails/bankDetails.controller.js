@@ -9,7 +9,7 @@ const {
 
 const addBankDetails = async (req,res) => {
     try{
-         const result = await bankDetailServices.addBankDetails(req.body, req.file)
+         const result = await bankDetailServices.addBankDetails(req,res)
          if( result.response == "Bank Details Added sucessfully"){
             apiSucessRes(
                 res,
@@ -110,7 +110,7 @@ const getBankDetails = async (req,res) => {
 const updateBankDetails = async (req,res) => {
     try{
 
-    const result = await bankDetailServices.updateBankDetails(req.body, req.file);
+    const result = await bankDetailServices.updateBankDetails(req,res);
     if(!result){
        apiErrorres(
         res,

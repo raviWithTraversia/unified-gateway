@@ -85,21 +85,10 @@ const searchForUserEmulate = async (req, res) => {
 
 const authenticate = async (req, res) => {
     try {
-        const { parentId, companyId, userId } = req.body;
+        const {userId } = req.body;
 
-        // Check if all required fields are present
-        if (!parentId || !companyId || !userId) {
-            return {
-                response: 'All fields are required'
-            };
-        }
-
-        // Check if the parent company exists
-        const checkParentCompanyExist = await CompanyModel.findOne({ _id: parentId });
-
-        if (checkParentCompanyExist) {
             // Check if the user exists for the given user ID and company ID
-            const user = await UserModule.findOne({ _id: userId, company_ID: companyId });
+            const user = await UserModule.findOne({ _id: userId});
            
             if (user) {
                 
@@ -134,11 +123,7 @@ const authenticate = async (req, res) => {
                     response: "User not exist",
                 };
             }
-        } else {
-            return {
-                response: "Company not exist",
-            };
-        }
+    
 
     } catch (error) {
         return {

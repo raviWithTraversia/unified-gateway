@@ -5,8 +5,6 @@ const agentConfigServices = require('./agentConfig.services');
 const addAgentConfiguration = async (req,res) => {
     try{
         const result = await agentConfigServices.addAgentConfiguration(req,res);
-        
-
     }catch(error){
 
     }

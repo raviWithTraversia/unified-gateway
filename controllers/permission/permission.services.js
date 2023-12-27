@@ -4,7 +4,9 @@ const addRoleHasPermission = require('../../models/RoleHasPermissions');
 
 const getAllPermission = async(req , res) => {
     try {
+        
         const result = await Permission.find();
+        
         if (result.length > 0) {
             return {
                 data: result
@@ -24,7 +26,7 @@ const getAllPermission = async(req , res) => {
 
 const storePermission = async(req ,res) => {
     try {
-        const { productName , categoryName , permissionName , permissionDescription } = req.body;
+        const { productName , categoryName , permissionName , permissionDescription , emulate} = req.body;
        
         const CheckPermissionName = await Permission.findOne({permissionName : permissionName});
         
@@ -33,7 +35,8 @@ const storePermission = async(req ,res) => {
                 productName,
                 categoryName,
                 permissionName,
-                permissionDescription
+                permissionDescription,
+                emulate
             });
             const permissionSave = await savePermission.save();
 

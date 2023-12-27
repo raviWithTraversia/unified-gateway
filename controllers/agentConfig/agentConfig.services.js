@@ -190,7 +190,6 @@ const updateAgencyProfile = async (req,res) => {
             response : 'Agency/Distributer details not updated'
         }
     }
-    
     }catch(error){
       console.log(error)
       throw error

@@ -17,7 +17,7 @@ const { seedCarrierSeeder} = require('../seeders/carrierSeeder');
 const { seedAirCommercialRowMaster } = require('../seeders/airCommertialRowMasterSeeder');
 const { seedCommercialColumnMaster } = require('../seeders/airCommertialColumnMasterSeeder');
 const { AirCommercialFilterSeeder } = require('../seeders/airCommercialFilterSeeder');
-
+const { seedMarkUpCategoryData }  = require('../seeders/markUpCategorySeeder')
 async function runSeeders() {
   try {
     await seedCompanies();
@@ -40,6 +40,7 @@ async function runSeeders() {
     // await seedAirCommercialRowMaster();
     await seedCommercialColumnMaster();
     await AirCommercialFilterSeeder();
+    await seedMarkUpCategoryData();
     console.log('All seeders completed.');
   } catch (err) {
     console.error('Error running seeders:', err);

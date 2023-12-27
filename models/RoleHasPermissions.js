@@ -9,7 +9,12 @@ const roleHasPermissionsSchema = new mongoose.Schema({
     roleId: { // web or mob
       type: mongoose.Schema.Types.ObjectId,
       ref : 'Role'
-    }      
+    },
+    emulate:{
+      type : Boolean,
+      default : false
+    }
+
  
 }, {
   timestamps: true

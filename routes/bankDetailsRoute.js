@@ -20,12 +20,33 @@ add_bank_details_route.post
    (
     '/bank-details/addBankDetails',
     (req, res, next) => {
-      if (!req.file) {
-        req.body.QrcodeImage = null; 
+      req.body.images = {};
+    
+      if (req.files && req.files.length > 0) {
+        req.files.forEach((file, index) => {
+          let key;
+    
+          switch (file.fieldname) {
+            case 'QrcodeImage':
+              key = 'QrcodeImage';
+              break;
+            default:
+              key = `image${index + 1}`;
+              break;
+          }
+    
+          req.body.images[key] = {
+            path: file.path,
+            filename: file.filename
+          };
+        });
       }
+    
       next();
     },
-    upload.single('QrcodeImage'),
+    upload.fields([
+      { name: 'QrcodeImage', maxCount: 1 },
+    ]),
     bankDetailController.addBankDetails
   );
 
@@ -38,12 +59,29 @@ add_bank_details_route.post
   add_bank_details_route.patch(
     '/bank-details/updateBankDetails',
     (req, res, next) => {
-      if (!req.file) {
-        req.body.QrcodeImage = null; 
+      req.body.images = {};
+      if (req.files && req.files.length > 0) {
+        req.files.forEach((file, index) => {
+          switch (file.fieldname) {
+            case 'QrcodeImage':
+              key = 'QrcodeImage';
+              break;
+            default:
+              key = `image${index + 1}`;
+              break;
+          }
+          req.body.images[key] = {
+            path: file.path,
+            filename: file.filename
+          };
+        });
       }
+    
       next();
     },
-    upload.single('QrcodeImage'),
+    upload.fields([
+      { name: 'QrcodeImage', maxCount: 1 },
+    ]),
     bankDetailController.updateBankDetails
   );
 

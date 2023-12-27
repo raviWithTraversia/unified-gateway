@@ -69,9 +69,9 @@ const getUploadImage = async (req, res) => {
 const updateUploadImage = async (req, res) => {
   try {
     let { uploadDataId } = req.query;
-    let updateBankDetails;
+    let updateDetails;
     if (req.file) {
-      updateBankDetails = await manageUploadSchema.findByIdAndUpdate(
+      updateDetails = await manageUploadSchema.findByIdAndUpdate(
         uploadDataId,
         {
           $set: req.body,
@@ -80,7 +80,7 @@ const updateUploadImage = async (req, res) => {
         { new: true }
       );
     } else {
-      updateBankDetails = await manageUploadSchema.findByIdAndUpdate(
+      updateDetails = await manageUploadSchema.findByIdAndUpdate(
         uploadDataId,
         {
           $set: req.body,
@@ -88,7 +88,7 @@ const updateUploadImage = async (req, res) => {
         { new: true }
       );
     }
-    if (!updateBankDetails) {
+    if (!updateDetails) {
       return {
         response: "Upload data not found",
       };

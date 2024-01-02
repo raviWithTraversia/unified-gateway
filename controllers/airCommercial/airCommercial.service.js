@@ -103,9 +103,6 @@ const addAirCommercial = async(req , res) => {
             const filterCreated = await createFilter.save();
 
         }
-
-
-
         return {
             response : 'Air Commercial created successfully'
         }

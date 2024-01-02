@@ -1,9 +1,13 @@
 const Permission = require('../../models/Permission');
 const Role = require('../../models/Role');
 const addRoleHasPermission = require('../../models/RoleHasPermissions');
+const User = require('../../models/User');
 
 const getAllPermission = async(req , res) => {
     try {
+        const userId = req.user;
+        const checkUser = await User.findById(userId);
+        
         
         const result = await Permission.find();
         

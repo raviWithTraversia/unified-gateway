@@ -75,11 +75,31 @@ const getAllProductPlan = async (req, res) => {
         const { companyId } = req.params;
 
         const result = await ProductPlan.find({companyId : companyId});
-    //    console.log(companyId,"result")
+        
         if (result.length > 0) {
+            const allData = await Promise.all(result.map(async (productPlan) => {
+                const newObj = {
+                    "_id": productPlan._id,
+                    "productPlanName": productPlan.productPlanName,
+                    "companyId": productPlan.companyId,
+                    "status": productPlan.status,
+                    "createdAt": productPlan.createdAt,
+                    "updatedAt": productPlan.updatedAt,
+                    "product": []
+                };
+
+                const ProductPlanHasP = await ProductPlanHasProduct.find({ productPlanId: productPlan._id }).populate('productId');
+                if (ProductPlanHasP.length > 0) {
+                    newObj.product.push(...ProductPlanHasP); // Use push with spread operator
+                }
+
+                return newObj;
+            }));
+
+
             return {
                 response : 'Product Plan Fetch Sucessfull',
-                data: result
+                data: allData
             }
         } else {
             return {

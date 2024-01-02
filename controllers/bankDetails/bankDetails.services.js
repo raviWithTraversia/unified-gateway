@@ -1,6 +1,6 @@
 const bankDetail = require("../../models/BankDetails");
 
-const addBankDetails = async (reqData, file) => {
+const addBankDetails = async (req, res) => {
   try {
     const {
       companyId,
@@ -12,9 +12,8 @@ const addBankDetails = async (reqData, file) => {
       bankCode,
       createdBy,
       modifyBy
-
-    } = reqData;
-
+    } = req.body;
+    
     const fieldNames = [
       "companyId",
       "accountName",
@@ -26,44 +25,61 @@ const addBankDetails = async (reqData, file) => {
       "createdBy",
       "modifyBy"
     ];
+    
     const missingFields = fieldNames.filter(
-      (fieldName) =>
-        reqData[fieldName] === null || reqData[fieldName] === undefined
+      fieldName => req.body[fieldName] === null || req.body[fieldName] === undefined
     );
+    
     if (missingFields.length > 0) {
       const missingFieldsString = missingFields.join(", ");
       return {
         response: null,
-        isSometingMissing: true,
-        data: `Missing or null fields: ${missingFieldsString}`,
+        isSomethingMissing: true,
+        data: `Missing or null fields: ${missingFieldsString}`
       };
     }
+    
     let checkIfAccountNoExist = await bankDetail.find({accountNumber :accountNumber });
     if(checkIfAccountNoExist.length > 0){
       return{
         response : 'This Account Number alerady Exist'
       }
-    }
-    const newBankDetails = new bankDetail({
-      companyId,
-      accountName,
-      accountNumber,
-      ifscCode,
-      bankAddress,
-      bankName,
-      bankCode,
-      QrcodeImagePath: file.path || null,
-      createdBy,
-      modifyBy 
-    });
-    let checkIsAcountAlreadyExist = await bankDetail.findOne({ accountNumber });
-    if (checkIsAcountAlreadyExist) {
-      return {
-        response: "This account number alrady exist",
-      };
-    }
+    };
+  //  console.log(req.files, "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmbbbbbbbbbbbbbbbbbbbbbbbbb");
+    let savedBankDetails;
+    if(req.files?.QrcodeImage){
+      const newBankDetails = new bankDetail({
+        companyId,
+        accountName,
+        accountNumber,
+        ifscCode,
+        bankAddress,
+        bankName,
+        bankCode,
+        QrcodeImagePath: req?.files?.QrcodeImage[0]?.path || null,
+        createdBy,
+        modifyBy ,
+      });
+      savedBankDetails = await newBankDetails.save();
+    }else{
+      const newBankDetails = new bankDetail({
+        companyId,
+        accountName,
+        accountNumber,
+        ifscCode,
+        bankAddress,
+        bankName,
+        bankCode,
+        QrcodeImagePath: null,
+        createdBy,
+        modifyBy ,
+      });
+      savedBankDetails = await newBankDetails.save();
 
-    let savedBankDetails = await newBankDetails.save();
+    }
+   
+   
+   
 
     if (savedBankDetails) {
       return {
@@ -102,31 +118,36 @@ const getCompanyBankDetalis = async (req, res) => {
   }
 };
 
-const updateBankDetails = async (reqData, file) => {
+const updateBankDetails = async (req,res) => {
   try {
-    let bankDetailsId = reqData.bankDetailsId;
-    let updateBankDetails;
-    if (file) {
-      updateBankDetails = await bankDetail.findByIdAndUpdate(
-        bankDetailsId,
-        {
-          $set: reqData,
-          modifyAt: new Date(),
-          QrcodeImagePath: file.path,
-          modifyBy : req.user.id
-        },
-        { new: true }
-      );
-    } else {
-      updateBankDetails = await bankDetail.findByIdAndUpdate(
-        bankDetailsId,
-        {
-          $set: reqData,
-          modifyAt: new Date()
-        },
-        { new: true }
-      );
+    
+    let {id} = req.query;
+    let dataForUpdate = {
+      ...req.body
     }
+    console.log(req.files)
+    let updateBankDetails;
+    if(req.files?.QrcodeImage){
+       updateBankDetails = await bankDetail.findByIdAndUpdate(
+        id,
+        {
+          $set: dataForUpdate,
+          modifyAt: new Date(),
+          QrcodeImagePath :  req?.files?.QrcodeImage[0]?.path || null
+
+        },
+        { new: true }
+      );
+      }else{
+        updateBankDetails = await bankDetail.findByIdAndUpdate(
+          id,
+          {
+            $set: dataForUpdate,
+            modifyAt: new Date()
+          },
+          { new: true }
+        );
+      }
     if (!updateBankDetails) {
       return {
         response: "Bank details not updated ",

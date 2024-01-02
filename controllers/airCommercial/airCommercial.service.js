@@ -61,6 +61,18 @@ const addAirCommercial = async(req , res) => {
         
         const result = await saveAirCommercial.save();
 
+        // Create matrix for commercial when we create commercial detail
+        if(result) {
+            const getMatrixData = await CommercialType.find();
+            const createCommercialType =  new Matrix({
+                comercialPlanId : commercialAirPlanId,
+                airCommercialPlanId : result._id,
+                companyId,
+                data : getMatrixData,
+            });
+            const saveData = createCommercialType.save();
+        }
+
         return {
             response : 'Air Commercial created successfully'
         }
@@ -73,6 +85,7 @@ const addAirCommercial = async(req , res) => {
 const getColoumnDetail = async(req , res) => {
     try {
         const coloumnData = await AirCommercialColoumnMaster.find();
+        
         if (coloumnData.length > 0) {
             return {
                 data: coloumnData,
@@ -219,8 +232,7 @@ const UpdateMatrixData = async(req , res) => {
             comercialPlanId, 
             airCommercialPlanId,
             ComanyId,
-            rateValue,
-            fixedValue
+            data,
         } = req.body;
         
         if(!comercialPlanId || !airCommercialPlanId || !ComanyId ) {
@@ -235,15 +247,13 @@ const UpdateMatrixData = async(req , res) => {
         });
       
         if(checkDataExist) {
-            
             let resultAll = await Matrix.findByIdAndUpdate(
                 checkDataExist._id,
                 {
                     comercialPlanId,
                     airCommercialPlanId,
                     ComanyId,
-                    rateValue,
-                    fixedValue
+                    data,
                 },
                 { new: true }
             );
@@ -263,8 +273,7 @@ const UpdateMatrixData = async(req , res) => {
                 comercialPlanId,
                 airCommercialPlanId,
                 ComanyId,
-                rateValue,
-                fixedValue
+                data
             });
             let resultAll = await saveDataMatrix.save();
             if(!resultAll) {
@@ -417,12 +426,12 @@ const getMatrixList = async(req ,res) => {
     try {
         const comercialPlanId = req.params.comercialPlanId;
         const airCommercialPlanId = req.params.airCommercialPlanId;
-        const result = await Matrix.find({
+        const result = await Matrix.findOne({
             comercialPlanId,
             airCommercialPlanId
         });
         
-        if(result.length > 0) {
+        if(result) {
             return {
                 response : 'Matrix list',
                 data : result

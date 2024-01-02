@@ -46,6 +46,7 @@ const airLineCodeRoute = require('../routes/airLineCodeRoute');
 const emulateRoute = require('../routes/emulateRoute');
 const paymentGatewayChargeRoute = require('../routes/paymentGatewayChargeRoute');
 const agencyConfigRoute = require('../routes/agencyConfigurationRoute');
+const markupRoute =  require('../routes/manageMarkupRoute')
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -191,6 +192,9 @@ class RoutesLoader {
         app.use('/api', emulateRoute);
         //paymentgateWay ChargeRoute
         app.use('/api', paymentGatewayChargeRoute);
+
+        // markupRoute 
+        app.use('/api', markupRoute)
     }
 }
 

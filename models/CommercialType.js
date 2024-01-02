@@ -18,9 +18,17 @@ const CommercialTypeSchema = new mongoose.Schema({
         ref: 'Company'
     },
     textType: {
-        type : String,
-        required : true,
-        default : null
+        type: String,
+        required: true,
+        default: null
+    },
+    value: {
+        type: Object,
+        properties: {
+            numberValue: { type: Number },
+            stringValue: { type: String },
+            booleanValue: { type: Boolean }
+        }
     }
 }, {
     timestamps: true  // Use "timestamps" instead of "timestamp"

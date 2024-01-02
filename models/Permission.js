@@ -22,6 +22,10 @@ const parmissionSchema = new mongoose.Schema({
       required: false,        
       default: null
     },
+    emulate : {
+      type: Boolean,
+      default : false
+    }
 
 }, {
   timestamps: true // Adds created_at and updated_at fields

@@ -20,7 +20,11 @@ const AirCommercialFilterIncExcSchema = new mongoose.Schema({
             enum: ["exclude", "include"]
         },
         value: {
-            type: Number,
+            type: String,
+            default: null
+        },
+        valueType: {
+            type: String,
             default: null
         }
 }]

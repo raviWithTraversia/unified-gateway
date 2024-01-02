@@ -3,7 +3,7 @@ const Role = require('../../models/Role');
 
 const storeRoleHasPermission = async(req , res) => {
     try {
-        const {roleId , permission} = req.body;
+        const {roleId , permission , emulate} = req.body;
         if(!roleId || !permission) {
             return {
                 response : 'All field are required'
@@ -22,7 +22,8 @@ const storeRoleHasPermission = async(req , res) => {
             if(!CheckExist) {
                 const addRoleHasPermission = new RoleHasPermission({
                     roleId,
-                    permissionId : element.permissionId
+                    permissionId : element.permissionId,
+                    emulate
                 });
     
                 const result = await addRoleHasPermission.save();
@@ -45,7 +46,6 @@ const storeRoleHasPermission = async(req , res) => {
 const getRoleHasPermission = async(req ,res) => {
     try {
         const roleId = req.params.roleId;
-      //  console.log(roleId, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,")
         const result = await RoleHasPermission.find({roleId : roleId}).populate('permissionId', 'productName categoryName permissionName permissionDescription');
    
         if (result.length > 0) {
@@ -68,7 +68,7 @@ const getRoleHasPermission = async(req ,res) => {
 // update roleHasPermission
 const updateRoleHasPermission = async(req ,res) => {
     try {
-        const {roleId , permission} = req.body;
+        const {roleId , permission , emulate} = req.body;
         if(!roleId || !permission) {
             return {
                 response : 'All field are required'
@@ -85,7 +85,8 @@ const updateRoleHasPermission = async(req ,res) => {
         permission.forEach(async(element) => {
             const addRoleHasPermission = new RoleHasPermission({
                 roleId,
-                permissionId : element.permissionId
+                permissionId : element.permissionId,
+                emulate
             });
 
             const result = await addRoleHasPermission.save();

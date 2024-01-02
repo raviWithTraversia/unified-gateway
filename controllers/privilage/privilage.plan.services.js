@@ -8,7 +8,7 @@ const commonFunction = require('../commonFunctions/common.function');
 const addPrivilagePlan = async(req , res) =>{
     try {
         
-        const {companyId , privilagePlanName , productPlanId , permission , status} = req.body;
+        const {companyId , privilagePlanName , productPlanId , permission , status , emulate} = req.body;
         if(!companyId || !privilagePlanName || !productPlanId || !permission) {
             return {
                 response : 'All field are required'
@@ -55,7 +55,8 @@ const addPrivilagePlan = async(req , res) =>{
             const permissionId = permission.permissionId;
             const privilagePlanAdd = new privilagePlanHasPermission({
                 privilagePlanId,
-                permissionId
+                permissionId,
+                emulate
             });
            const result = await privilagePlanAdd.save();
         });
@@ -215,7 +216,7 @@ const privilagePlanPatch = async(req , res) => {
         const updatePrivilage =  await PrivilagePlan.findByIdAndUpdate(_id, {
             privilagePlanName : privilagePlanName,
             productPlanId : productPlanId,
-            status
+            status,
         }, { new: true })
         // privious plan has permission deleted.
         const result = await privilagePlanHasPermission.deleteMany({ privilagePlanId: _id });
@@ -225,7 +226,8 @@ const privilagePlanPatch = async(req , res) => {
             const permissionId = permission.permissionId;
             const privilagePlanAdd = new privilagePlanHasPermission({
                 privilagePlanId,
-                permissionId
+                permissionId,
+                emulate
             });
            const result = await privilagePlanAdd.save();
         });

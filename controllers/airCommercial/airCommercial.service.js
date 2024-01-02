@@ -61,6 +61,48 @@ const addAirCommercial = async(req , res) => {
         
         const result = await saveAirCommercial.save();
 
+        // Create matrix for commercial when we create commercial detail
+        if(result) {
+            const getMatrixData = await CommercialType.find();
+            const createCommercialType =  new Matrix({
+                comercialPlanId : commercialAirPlanId,
+                airCommercialPlanId : result._id,
+                companyId,
+                data : getMatrixData,
+            });
+            const saveData = await createCommercialType.save();
+        }
+
+
+        // Create Filter for Matrix............
+        if(result) {
+            const allFilter = await AirCommercialFilter.find();
+            const dataArray = [];
+            for (let i = 0; i < allFilter.length; i++) {
+                const object1 = {
+                    commercialFilterId : allFilter[i]._id,
+                    type : "exclude",
+                    value : null,
+                    valueType : allFilter[i].type,
+                }
+                const object2 = {
+                    commercialFilterId : allFilter[i]._id,
+                    type : "include",
+                    value : null,
+                    valueType : allFilter[i].type,
+                }
+                dataArray.push(object1 , object2);
+            }
+            
+            const createFilter = new CommercialFilterExcInd({
+                commercialAirPlanId : commercialAirPlanId,
+                airCommercialId : result._id,
+                commercialFilter : dataArray
+            });
+
+            const filterCreated = await createFilter.save();
+
+        }
         return {
             response : 'Air Commercial created successfully'
         }
@@ -73,6 +115,7 @@ const addAirCommercial = async(req , res) => {
 const getColoumnDetail = async(req , res) => {
     try {
         const coloumnData = await AirCommercialColoumnMaster.find();
+        
         if (coloumnData.length > 0) {
             return {
                 data: coloumnData,
@@ -143,7 +186,7 @@ const addCommercialType = async(req ,res) => {
                 },
                 { new: true }
                 );
-                const result =saveResult.save();
+                const result =await saveResult.save();
                 return {
                     response : "Air commercial type added successfully"
                 }
@@ -155,7 +198,7 @@ const addCommercialType = async(req ,res) => {
                     companyId,
                     textType
                 });
-                const result =saveResult.save();
+                const result =await saveResult.save();
                 return {
                     response : "Air commercial type added successfully"
                 }
@@ -178,7 +221,7 @@ const getCommercialDetailList = async(req , res) => {
                 response: 'Commercial type not available',
                 data: null,
             }
-        }
+        }   
     } catch (error) {
         throw error;
     }
@@ -219,8 +262,7 @@ const UpdateMatrixData = async(req , res) => {
             comercialPlanId, 
             airCommercialPlanId,
             ComanyId,
-            rateValue,
-            fixedValue
+            data,
         } = req.body;
         
         if(!comercialPlanId || !airCommercialPlanId || !ComanyId ) {
@@ -235,15 +277,13 @@ const UpdateMatrixData = async(req , res) => {
         });
       
         if(checkDataExist) {
-            
             let resultAll = await Matrix.findByIdAndUpdate(
                 checkDataExist._id,
                 {
                     comercialPlanId,
                     airCommercialPlanId,
                     ComanyId,
-                    rateValue,
-                    fixedValue
+                    data,
                 },
                 { new: true }
             );
@@ -263,8 +303,7 @@ const UpdateMatrixData = async(req , res) => {
                 comercialPlanId,
                 airCommercialPlanId,
                 ComanyId,
-                rateValue,
-                fixedValue
+                data
             });
             let resultAll = await saveDataMatrix.save();
             if(!resultAll) {
@@ -349,7 +388,7 @@ const addCommercialFilterExcInc = async (req, res) => {
                 commercialFilter,
             });
             
-            let data = result.save();
+            let data = await result.save();
             if (data) {
                 return {
                     response: "Commercial updated successfully",
@@ -417,12 +456,12 @@ const getMatrixList = async(req ,res) => {
     try {
         const comercialPlanId = req.params.comercialPlanId;
         const airCommercialPlanId = req.params.airCommercialPlanId;
-        const result = await Matrix.find({
+        const result = await Matrix.findOne({
             comercialPlanId,
             airCommercialPlanId
         });
         
-        if(result.length > 0) {
+        if(result) {
             return {
                 response : 'Matrix list',
                 data : result

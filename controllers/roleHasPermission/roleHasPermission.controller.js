@@ -28,7 +28,7 @@ const addRoleHasPermission = async(req , res) => {
 }
 
 const getRoleHasPermission = async (req, res) => {
-    try {
+    try { 
         const result = await roleHasPermissionService.getRoleHasPermission(req);
         if(result.response == "Data Fetch Sucessfully"){
         apiSucessRes(

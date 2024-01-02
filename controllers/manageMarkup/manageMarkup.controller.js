@@ -31,7 +31,15 @@ const addMarkup = async (req,res) => {
         ServerStatusCode.PRECONDITION_FAILED,
         true
     )
-  }else{
+  }else if(result.response == 'This Markup already exists!'){
+    apiErrorres (  
+    res,
+    result.response,
+    ServerStatusCode.ALREADY_EXIST,
+    true
+    )
+  }
+  else{
     apiErrorres(
         res,
         errorResponse.SOME_UNOWN,
@@ -109,8 +117,45 @@ const deletedMarkup = async (req, res) => {
       );
     }
 };
+
+const getMarkUp = async (req , res) => {
+  try{
+    let result = await manageMarkUpServices.getMarkUp(req, res);
+    if(result.response == 'Markup Data Fetch Sucessfully'){
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+
+      )
+    }else if(result.response == 'Markup Data not found'){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      )
+    }else{
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.INVALID_CRED,
+        true
+      );
+    }
+  }catch(error){
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    )
+  }
+}
 module.exports = {
     addMarkup,
     deletedMarkup,
-    updateMarkup
+    updateMarkup,
+    getMarkUp
 }

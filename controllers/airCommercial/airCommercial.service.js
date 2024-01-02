@@ -70,8 +70,41 @@ const addAirCommercial = async(req , res) => {
                 companyId,
                 data : getMatrixData,
             });
-            const saveData = createCommercialType.save();
+            const saveData = await createCommercialType.save();
         }
+
+
+        // Create Filter for Matrix............
+        if(result) {
+            const allFilter = await AirCommercialFilter.find();
+            const dataArray = [];
+            for (let i = 0; i < allFilter.length; i++) {
+                const object1 = {
+                    commercialFilterId : allFilter[i]._id,
+                    type : "exclude",
+                    value : null,
+                    valueType : allFilter[i].type,
+                }
+                const object2 = {
+                    commercialFilterId : allFilter[i]._id,
+                    type : "include",
+                    value : null,
+                    valueType : allFilter[i].type,
+                }
+                dataArray.push(object1 , object2);
+            }
+            
+            const createFilter = new CommercialFilterExcInd({
+                commercialAirPlanId : commercialAirPlanId,
+                airCommercialId : result._id,
+                commercialFilter : dataArray
+            });
+
+            const filterCreated = await createFilter.save();
+
+        }
+
+
 
         return {
             response : 'Air Commercial created successfully'
@@ -156,7 +189,7 @@ const addCommercialType = async(req ,res) => {
                 },
                 { new: true }
                 );
-                const result =saveResult.save();
+                const result =await saveResult.save();
                 return {
                     response : "Air commercial type added successfully"
                 }
@@ -168,7 +201,7 @@ const addCommercialType = async(req ,res) => {
                     companyId,
                     textType
                 });
-                const result =saveResult.save();
+                const result =await saveResult.save();
                 return {
                     response : "Air commercial type added successfully"
                 }
@@ -191,7 +224,7 @@ const getCommercialDetailList = async(req , res) => {
                 response: 'Commercial type not available',
                 data: null,
             }
-        }
+        }   
     } catch (error) {
         throw error;
     }
@@ -358,7 +391,7 @@ const addCommercialFilterExcInc = async (req, res) => {
                 commercialFilter,
             });
             
-            let data = result.save();
+            let data = await result.save();
             if (data) {
                 return {
                     response: "Commercial updated successfully",

@@ -3,42 +3,55 @@ const AirCommercialFilter = require('../models/AirCommercialFilter');
 const filter = [
     {
         rowName: "AllAirport" ,
+        type : 'text',
     },
     {
         rowName: "bookingDate" ,
+        type : 'date',
     },
     {
         rowName: "onTravelDate" ,
+        type : 'date',
     },
     {
         rowName: "returnDeptDate" ,
+        type : 'date',
     },
     {
         rowName: "RBD" ,
+        type : 'text',
     },
     {
         rowName: "operatingCarrier" ,
+        type : 'text',
     },
     {
         rowName: "marketingCarrier" ,
+        type : 'text',
     },
     {
         rowName: "accountCode" ,
+        type : 'text',
     },
     {
         rowName: "fareBase" ,
+        type : 'text',
     },
     {
         rowName: "tourCode" ,
+        type : 'text',
     },
     {
         rowName: "fareRange" ,
+        type : 'text',
     },
     {
         rowName: "sourceId" ,
+        type : 'text',
     },
     {
         rowName: "productClass" ,
+        type : 'text',
     }
    ] ;
 

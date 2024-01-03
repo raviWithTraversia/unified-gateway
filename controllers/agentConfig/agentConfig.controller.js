@@ -114,12 +114,38 @@ const updateAgencyProfile = async (req,res) => {
             true
          )
     }
-}
+};
+
+const getUserProfile = async (req, res) => {
+    try {
+      const result = await agentConfigServices.getUserProfile(req, res);
+      if (result.response === "User data found SucessFully") {
+        apiSucessRes(
+          res,
+          result.response,
+          result.data,
+          ServerStatusCode.SUCESS_CODE
+        );
+      } else if (result.response === "User data not found") {
+        apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
+      } else {
+        apiErrorres(
+          res,
+          errorResponse.SOME_UNOWN,
+          ServerStatusCode.RESOURCE_NOT_FOUND,
+          true
+        );
+      }
+    } catch (error) {
+      apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
+    }
+  };
 
 
 module.exports = {
     addAgentConfiguration,
     updateAgentConfiguration,
     getAgentConfig,
-    updateAgencyProfile
+    updateAgencyProfile,
+    getUserProfile
 }

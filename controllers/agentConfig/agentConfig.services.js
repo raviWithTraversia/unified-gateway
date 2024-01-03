@@ -124,9 +124,9 @@ const updateAgentConfiguration = async (req, res) => {
 
 const getAgentConfig = async (req, res) => {
   try {
-    let id = req.query.id;
+    let {id} = req.query.id;
     let agentConfigData = await agentConfigsModels
-      .findById(id)
+      .findOne({userId  : id})
       .populate("userId")
       .populate("companyId")
       .populate("privilegePlansIds")
@@ -194,10 +194,41 @@ const updateAgencyProfile = async (req,res) => {
       console.log(error)
       throw error
     }
+};
+
+const getUserProfile = async (req,res) => {
+  try{
+  let {userId} = req.query;
+  let userData = await userModel.findById(userId).populate('roleId', 'name type').populate({
+    path: 'company_ID',
+    model: 'Company',
+    select: 'companyName type cashBalance creditBalance maxCreditLimit updatedAt',
+    populate: {
+      path: 'parent',
+      model: 'Company',
+      select: 'companyName type'
+    }
+  }).populate('cityId').populate('roleId')
+  if(userData){
+    return {
+      response : 'User data found SucessFully',
+      data : userData
+    }
+  }else{
+     return {
+      response : 'User data not found'
+     }
+  }
+  
+  }catch(error){
+    console.log(error);
+    throw error
+  }
 }
 module.exports = {
   addAgentConfiguration,
   updateAgentConfiguration,
   getAgentConfig,
-  updateAgencyProfile
+  updateAgencyProfile,
+  getUserProfile
 };

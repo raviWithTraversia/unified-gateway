@@ -172,7 +172,7 @@ const privilagePHPByPrivilageId =async(req ,res) => {
 const privilagePlanPatch = async(req , res) => {
     try {
        
-        const {companyId ,privilagePlanName , productPlanId , permission , status} = req.body;
+        const {companyId ,privilagePlanName , productPlanId , permission , status , emulate} = req.body;
         if(!companyId || !privilagePlanName || !productPlanId || !permission) {
             return {
                 response : 'All field are required'

@@ -165,32 +165,33 @@ const addCommercialType = async(req ,res) => {
                 response : 'All fields are required'
             }
         }else{
-            
-            const checkComType =  new CommercialType.findOne({
-                airCommercialId,
-                AirCommertialColumnMasterId,
-                AirCommertialRowMasterId,
-                companyId
-            });
 
-            if(checkComType) {
-                
-                const saveResult = await CommercialType.findByIdAndUpdate(
-                    checkComType._id,
-                    {
-                    airCommercialId,
-                    AirCommertialColumnMasterId,
-                    AirCommertialRowMasterId,
-                    companyId,
-                    textType
-                },
-                { new: true }
-                );
-                const result =await saveResult.save();
-                return {
-                    response : "Air commercial type added successfully"
-                }
-            }else{
+            // const checkComType =  new CommercialType.findOne({
+            //     airCommercialId,
+            //     AirCommertialColumnMasterId,
+            //     AirCommertialRowMasterId,
+            //     companyId
+            // });
+
+            // if(checkComType) {
+               
+            //     const saveResult = await CommercialType.findByIdAndUpdate(
+            //         checkComType._id,
+            //         {
+            //         airCommercialId,
+            //         AirCommertialColumnMasterId,
+            //         AirCommertialRowMasterId,
+            //         companyId,
+            //         textType
+            //     },
+            //     { new: true }
+            //     );
+            //     const result =await saveResult.save();
+            //     return {
+            //         response : "Air commercial type added successfully"
+            //     }
+            // }else{
+
                 const saveResult = new CommercialType({
                     airCommercialId,
                     AirCommertialColumnMasterId,
@@ -202,7 +203,7 @@ const addCommercialType = async(req ,res) => {
                 return {
                     response : "Air commercial type added successfully"
                 }
-            }
+            // }
         }
     } catch (error) {
         throw error;
@@ -261,11 +262,13 @@ const UpdateMatrixData = async(req , res) => {
         const {
             comercialPlanId, 
             airCommercialPlanId,
-            ComanyId,
+            companyId,
             data,
+            commercialFilter,
         } = req.body;
-        
-        if(!comercialPlanId || !airCommercialPlanId || !ComanyId ) {
+        // console.log(data);
+
+        if(!comercialPlanId || !airCommercialPlanId || !companyId ) {
             return {
                 response : "All field are required",
             }  
@@ -276,13 +279,34 @@ const UpdateMatrixData = async(req , res) => {
             comercialPlanId: comercialPlanId,
         });
       
+        
         if(checkDataExist) {
+
+            // Filter Commercial Data
+            const checkExist = await CommercialFilterExcInd.findOne({
+                commercialAirPlanId: airCommercialPlanId,
+                airCommercialId: comercialPlanId,
+            });
+            // console.log(checkExist);
+
+            if (checkExist) {
+                await CommercialFilterExcInd.findByIdAndUpdate(
+                    checkExist._id,
+                    {
+                        commercialAirPlanId : airCommercialPlanId,
+                        airCommercialId : comercialPlanId,
+                        commercialFilter,
+                    },
+                    { new: true }
+                );
+            }
+
             let resultAll = await Matrix.findByIdAndUpdate(
                 checkDataExist._id,
                 {
                     comercialPlanId,
                     airCommercialPlanId,
-                    ComanyId,
+                    companyId : companyId,
                     data,
                 },
                 { new: true }
@@ -298,11 +322,19 @@ const UpdateMatrixData = async(req , res) => {
             }
 
         }else{
+
+            var resultData = new CommercialFilterExcInd({
+                commercialAirPlanId: comercialPlanId,
+                airCommercialId: airCommercialPlanId,
+                commercialFilter,
+            });
+            
+            let data = await result.save();
             // const rateValueData = req.body.rateValue;
             const saveDataMatrix = new Matrix({
                 comercialPlanId,
                 airCommercialPlanId,
-                ComanyId,
+                companyId : companyId,
                 data
             });
             let resultAll = await saveDataMatrix.save();
@@ -430,9 +462,11 @@ const getComIncludeExclude = async(req ,res) => {
     try {
         const commercialAirPlanId = req.params.commercialAirPlanId;
         const airCommercialId = req.params.airCommercialId;
+        // console.log(commercialAirPlanId);
+
         const result = await CommercialFilterExcInd.find({
-            commercialAirPlanId,
-            airCommercialId
+            commercialAirPlanId : commercialAirPlanId,
+            airCommercialId : airCommercialId
         });
         
         if(result.length > 0) {

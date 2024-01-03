@@ -77,7 +77,8 @@ air_commercial_route.get(
 
 // Get data for commercial include exclude list
 air_commercial_route.get(
-    '/commercial/get-include-exclude/:commercialAirPlanId/:airCommercialId',
+    // '/commercial/get-include-exclude/:commercialAirPlanId/:airCommercialId',
+    '/commercial/get-include-exclude/',
     auth,
     airCommercialController.getComIncExludeList
 )

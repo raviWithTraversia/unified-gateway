@@ -19,6 +19,7 @@ const storeRoleHasPermission = async(req , res) => {
         
         permission.forEach(async(element) => {
             const CheckExist = RoleHasPermission.findOne({roleId : roleId , permissionId : element.permissionId});
+            const emulate = element.emulate;
             if(!CheckExist) {
                 const addRoleHasPermission = new RoleHasPermission({
                     roleId,
@@ -83,6 +84,7 @@ const updateRoleHasPermission = async(req ,res) => {
         const result = await RoleHasPermission.deleteMany({ roleId: roleId });
         
         permission.forEach(async(element) => {
+            const emulate = element.emulate;
             const addRoleHasPermission = new RoleHasPermission({
                 roleId,
                 permissionId : element.permissionId,

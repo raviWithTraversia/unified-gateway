@@ -23,6 +23,13 @@ markup_route.delete(
     '/markup/deletedMarkup',
     auth,
     markupController.deletedMarkup 
+);
+
+markup_route.get(
+    '/markup/getMarkUp',
+    auth,
+    markupController.getMarkUp
+
 )
 markup_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

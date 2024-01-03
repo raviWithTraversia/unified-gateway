@@ -3,11 +3,11 @@ const markupMasterData = require('./MangeMarkupMaster')
 
 const markupDataSchema =  new mongoose.Schema ({
   markupData: [markupMasterData.schema],
-  markUpOn: {
+  markupOn: {
     type: String,
     default: 'Domestic'
   },
-  markUpFor: {
+  markupFor: {
     type: String,
     default: 'Ticket'
   },

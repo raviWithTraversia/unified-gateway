@@ -7,7 +7,9 @@ const getAllPermission = async(req , res) => {
     try {
         const userId = req.user;
         const checkUser = await User.findById(userId);
-        
+        if(checkUser) {
+            const getRoleId = Role.findById(checkUser.roleId);
+        }
         
         const result = await Permission.find();
         

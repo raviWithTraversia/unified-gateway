@@ -266,7 +266,7 @@ const UpdateMatrixData = async(req , res) => {
             data,
             commercialFilter,
         } = req.body;
-        // console.log(data);
+        console.log(airCommercialPlanId);
 
         if(!comercialPlanId || !airCommercialPlanId || !companyId ) {
             return {
@@ -284,17 +284,15 @@ const UpdateMatrixData = async(req , res) => {
 
             // Filter Commercial Data
             const checkExist = await CommercialFilterExcInd.findOne({
-                commercialAirPlanId: airCommercialPlanId,
-                airCommercialId: comercialPlanId,
+                airCommercialId: airCommercialPlanId,
             });
-            // console.log(checkExist);
 
             if (checkExist) {
                 await CommercialFilterExcInd.findByIdAndUpdate(
                     checkExist._id,
                     {
-                        commercialAirPlanId : airCommercialPlanId,
-                        airCommercialId : comercialPlanId,
+                        // commercialAirPlanId : airCommercialPlanId,
+                        // airCommercialId : airCommercialPlanId,
                         commercialFilter,
                     },
                     { new: true }
@@ -386,7 +384,7 @@ const addCommercialFilterExcInc = async (req, res) => {
             };
         }
 
-        const checkExist = await AirCommercialFilter.findOne({
+        const checkExist = await CommercialFilterExcInd.findOne({
             commercialAirPlanId: commercialAirPlanId,
             airCommercialId: airCommercialId,
         });
@@ -460,10 +458,10 @@ const getComExcIncList = async(req ,res) => {
 
 const getComIncludeExclude = async(req ,res) => {
     try {
-        const commercialAirPlanId = req.params.commercialAirPlanId;
-        const airCommercialId = req.params.airCommercialId;
+        // const commercialAirPlanId = req.params.commercialAirPlanId;
+        // const airCommercialId = req.params.airCommercialId;
         // console.log(commercialAirPlanId);
-
+        const { commercialAirPlanId, airCommercialId } = req.query;
         const result = await CommercialFilterExcInd.find({
             commercialAirPlanId : commercialAirPlanId,
             airCommercialId : airCommercialId

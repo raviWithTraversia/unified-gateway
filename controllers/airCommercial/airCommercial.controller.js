@@ -2,15 +2,15 @@ const airCommericalService = require('./airCommercial.service');
 const { ServerStatusCode, errorResponse, CrudMessage } = require('../../utils/constants');
 const { apiSucessRes, apiErrorres } = require('../../utils/commonResponce');
 
-const storeAirCommercial = async(req , res) => {
+const storeAirCommercial = async (req, res) => {
     try {
         const result = await airCommericalService.addAirCommercial(req);
-        if(result.response == 'Commercial air plan Id field are required' || 
+        if (result.response == 'Commercial air plan Id field are required' ||
             result.response == 'Travel Type field are required' ||
-            result.response == 'Carrier field are required' || 
-            result.response == 'Supplier field are required' || 
+            result.response == 'Carrier field are required' ||
+            result.response == 'Supplier field are required' ||
             result.response == 'Priority field are required'
-            ) {
+        ) {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         }
         else {
@@ -19,9 +19,9 @@ const storeAirCommercial = async(req , res) => {
                 CrudMessage.AIR_COMMERCIAL_ADD,
                 result.response,
                 ServerStatusCode.SUCESS_CODE
-            )  
+            )
         }
-        
+
     } catch (error) {
         apiErrorres(
             res,
@@ -32,7 +32,7 @@ const storeAirCommercial = async(req , res) => {
     }
 }
 
-const getColoumnData = async(req , res) => {
+const getColoumnData = async (req, res) => {
     try {
         const result = await airCommericalService.getColoumnDetail(req);
         apiSucessRes(
@@ -52,7 +52,7 @@ const getColoumnData = async(req , res) => {
 }
 
 
-const getRowData = async(req , res) => {
+const getRowData = async (req, res) => {
     try {
         const result = await airCommericalService.getRowDetail(req);
         apiSucessRes(
@@ -71,10 +71,10 @@ const getRowData = async(req , res) => {
     }
 }
 
-const commercialTypeAdd = async(req ,res) => {
+const commercialTypeAdd = async (req, res) => {
     try {
         const result = await airCommericalService.addCommercialType(req);
-        if(result.response == 'All fields are required') {
+        if (result.response == 'All fields are required') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         }
         else {
@@ -83,7 +83,7 @@ const commercialTypeAdd = async(req ,res) => {
                 CrudMessage.AIR_COMMERCIAL_ADD,
                 result.response,
                 ServerStatusCode.SUCESS_CODE
-            )  
+            )
         }
     } catch (error) {
         apiErrorres(
@@ -95,7 +95,7 @@ const commercialTypeAdd = async(req ,res) => {
     }
 }
 
-const commercialDetailList = async(req , res) => {
+const commercialDetailList = async (req, res) => {
     try {
         const result = await airCommericalService.getCommercialDetailList(req);
         apiSucessRes(
@@ -114,10 +114,10 @@ const commercialDetailList = async(req , res) => {
     }
 }
 
-const addRowColoumn = async(req ,res) => {
+const addRowColoumn = async (req, res) => {
     try {
         const result = await airCommericalService.commercialRowColoumnAdd(req);
-        if(result.response == 'Commercial air plan Id field are required') {
+        if (result.response == 'Commercial air plan Id field are required') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         }
         else {
@@ -126,9 +126,9 @@ const addRowColoumn = async(req ,res) => {
                 CrudMessage.AIR_COMMERCIAL_ADD,
                 result.response,
                 ServerStatusCode.SUCESS_CODE
-            )  
+            )
         }
-        
+
     } catch (error) {
         apiErrorres(
             res,
@@ -140,11 +140,11 @@ const addRowColoumn = async(req ,res) => {
 }
 
 
-const updateMatrix = async(req ,res) => {
+const updateMatrix = async (req, res) => {
     try {
-        
+
         const result = await airCommericalService.UpdateMatrixData(req);
-        if(result.response == 'All field are required' || result.response == 'Something went wrong!!') {
+        if (result.response == 'All field are required' || result.response == 'Something went wrong!!') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         }
         else {
@@ -153,9 +153,9 @@ const updateMatrix = async(req ,res) => {
                 CrudMessage.MATRIX_UPDATE,
                 result.response,
                 ServerStatusCode.SUCESS_CODE
-            )  
+            )
         }
-        
+
     } catch (error) {
         apiErrorres(
             res,
@@ -168,22 +168,18 @@ const updateMatrix = async(req ,res) => {
 
 // 
 
-const getAirCommercialListByCommercialId = async(req , res) => {
+const getAirCommercialListByCommercialId = async (req, res) => {
     try {
         try {
             const result = await airCommericalService.getAirCommercialListByAirComId(req);
-            if(result.response == 'Commercial not available') {
-                apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
-            }
-            else {
-                apiSucessRes(
-                    res,
-                    result.response,
-                    result.data,
-                    ServerStatusCode.SUCESS_CODE
-                )  
-            }
-           
+
+            apiSucessRes(
+                res,
+                result.response,
+                result.data,
+                ServerStatusCode.SUCESS_CODE
+            )
+
         } catch (error) {
             apiErrorres(
                 res,
@@ -204,10 +200,10 @@ const getAirCommercialListByCommercialId = async(req , res) => {
 
 
 // Commercial Field for include and exclude
-const addCommercialFilterInEx = async(req, res) => {
+const addCommercialFilterInEx = async (req, res) => {
     try {
         const result = await airCommericalService.addCommercialFilterExcInc(req);
-        if(result.response == 'All fields are required' || result.response == 'Something went wrong, try again later!') {
+        if (result.response == 'All fields are required' || result.response == 'Something went wrong, try again later!') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         }
         else {
@@ -216,7 +212,7 @@ const addCommercialFilterInEx = async(req, res) => {
                 CrudMessage.COMMERCIAL_FILTER,
                 result.response,
                 ServerStatusCode.SUCESS_CODE
-            )  
+            )
         }
     } catch (error) {
         apiErrorres(
@@ -230,10 +226,10 @@ const addCommercialFilterInEx = async(req, res) => {
 
 
 // get commercial Include exclude
-const getCommercialIncExc = async(req ,res) => {
+const getCommercialIncExc = async (req, res) => {
     try {
         const result = await airCommericalService.getComExcIncList(req);
-        if(result.response == 'Commercial include exclude list not available') {
+        if (result.response == 'Commercial include exclude list not available') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         }
         else {
@@ -242,9 +238,9 @@ const getCommercialIncExc = async(req ,res) => {
                 result.data,
                 result.response,
                 ServerStatusCode.SUCESS_CODE
-            )  
+            )
         }
-        
+
     } catch (error) {
         apiErrorres(
             res,
@@ -256,15 +252,15 @@ const getCommercialIncExc = async(req ,res) => {
 }
 
 
-const getComIncExludeList = async(req ,res) => {
+const getComIncExludeList = async (req, res) => {
     try {
         const result = await airCommericalService.getComIncludeExclude(req);
-         apiSucessRes(
-                res,
-                result.data,
-                result.response,
-                ServerStatusCode.SUCESS_CODE
-            )  
+        apiSucessRes(
+            res,
+            result.data,
+            result.response,
+            ServerStatusCode.SUCESS_CODE
+        )
     } catch (error) {
         apiErrorres(
             res,
@@ -276,15 +272,15 @@ const getComIncExludeList = async(req ,res) => {
 }
 
 
-const matrixList = async(req ,res) => {
+const matrixList = async (req, res) => {
     try {
         const result = await airCommericalService.getMatrixList(req);
-         apiSucessRes(
-                res,
-                result.data,
-                result.response,
-                ServerStatusCode.SUCESS_CODE
-            )  
+        apiSucessRes(
+            res,
+            result.data,
+            result.response,
+            ServerStatusCode.SUCESS_CODE
+        )
     } catch (error) {
         apiErrorres(
             res,
@@ -298,20 +294,19 @@ const matrixList = async(req ,res) => {
 
 // Delete process for air commercial 
 
-const deleteAirCommercial = async(req ,res) => {
+const deleteAirCommercial = async (req, res) => {
     try {
         const result = await airCommericalService.deleteAirCommmercialDetail(req);
-        if(result.response == 'Air commercial not deleted , Something went wrong') 
-        {
+        if (result.response == 'Air commercial not deleted , Something went wrong') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
 
-        }else{
+        } else {
             apiSucessRes(
                 res,
                 CrudMessage.COMMERCIAL_DELETE,
                 result.response,
                 ServerStatusCode.SUCESS_CODE
-            )  
+            )
         }
 
     } catch (error) {
@@ -320,20 +315,20 @@ const deleteAirCommercial = async(req ,res) => {
             errorResponse.SOMETHING_WRONG,
             ServerStatusCode.SERVER_ERROR,
             true
-        ) 
+        )
     }
 }
 
 
-const getSingleAirComList = async(req ,res) => {
+const getSingleAirComList = async (req, res) => {
     try {
         const result = await airCommericalService.getSingleAirComList(req);
-         apiSucessRes(
-                res,
-                result.data,
-                result.response,
-                ServerStatusCode.SUCESS_CODE
-            )  
+        apiSucessRes(
+            res,
+            result.data,
+            result.response,
+            ServerStatusCode.SUCESS_CODE
+        )
     } catch (error) {
         apiErrorres(
             res,

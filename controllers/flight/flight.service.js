@@ -1,7 +1,9 @@
+const flightcommercial = require("./flight.commercial");
 const PromoCode = require("../../models/AirlinePromoCode");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
-const UserModule = require('../../models/User');
+const UserModule = require("../../models/User");
+const Role = require("../../models/Role");
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
@@ -55,8 +57,6 @@ const getSearch = async (req, res) => {
       response: "Company or User id field are required",
     };
   }
-  
-
 
   // Check if company Id exists
   const checkCompanyIdExist = await Company.findById(companyId);
@@ -207,7 +207,10 @@ async function handleflight(
   }
 
   // apply commercial function
-  const commercialApplyResult = await commercialApplyHandle(Authentication,commonArray);
+  const commercialApplyResult = await commercialApplyHandle(
+    Authentication,
+    commonArray
+  );
 
   return {
     IsSucess: true,
@@ -454,11 +457,11 @@ const KafilaFun = async (
                   ServiceFees: 0.0,
                   Discount: 0.0,
                   BaseCharges: 0.0,
-                  TaxBreakup: [                    
+                  TaxBreakup: [
                     {
                       TaxType: "YQ",
                       Amount: schedule.Fare.Adt.Yq,
-                    }                   
+                    },
                   ],
                   AirPenalty: [],
                   CommercialBreakup: [],
@@ -483,11 +486,11 @@ const KafilaFun = async (
                   ServiceFees: 0.0,
                   Discount: 0.0,
                   BaseCharges: 0.0,
-                  TaxBreakup: [                    
+                  TaxBreakup: [
                     {
                       TaxType: "YQ",
                       Amount: schedule.Fare.Chd.Yq,
-                    }
+                    },
                   ],
                   AirPenalty: [],
                   CommercialBreakup: [],
@@ -512,12 +515,12 @@ const KafilaFun = async (
                   ServiceFees: 0.0,
                   Discount: 0.0,
                   BaseCharges: 0.0,
-                  TaxBreakup: [ 
+                  TaxBreakup: [
                     {
-                    TaxType: "YQ",
-                    Amount: schedule.Fare.Inf.Yq,
-                  }
-                ],
+                      TaxType: "YQ",
+                      Amount: schedule.Fare.Inf.Yq,
+                    },
+                  ],
                   AirPenalty: [],
                   CommercialBreakup: [],
                   Key: null,
@@ -612,27 +615,38 @@ const KafilaFun = async (
 
 const commercialApplyHandle = async (Authentication, commonArray) => {
   const userDetails = await UserModule.findOne({ _id: Authentication.UserId });
-  if(!userDetails){
+
+  if (!userDetails) {
     return {
-      IsSucess: false,
+      IsSuccess: false,
       response: "User Id Not Available",
     };
   }
-  const companyDetails = await Company.findOne({ _id: userDetails.company_ID }).populate('parent', 'type');
   
-  if(companyDetails.parent.type !== "TMC" && companyDetails.parent.type !== "Distributer"){
-    return {
-      IsSucess: false,
-      response: "Not exists TMC And Distributer",
-    };
-  }
+  // const companyDetails = await Company.findOne({ _id: userDetails.company_ID }).populate('parent', 'type');
   
-  // distubuter or tmc it companyDetails.parent._id if TMC Single commercial rather than apply loop tmc or distubuter
-  // also add markup 
-  return {
-    IsSucess: true,
-    response: commonArray,
-  };
+  // if(companyDetails.type == "Agency" && companyDetails.parent.type == "TMC"){ // TMC-Agency
+  //   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(commonArray);   
+  //   return {
+  //     IsSucess: true,
+  //     response: getApplyAllCommercialVar,
+  //   };
+  // }else if(companyDetails.type == "Agency" && companyDetails.parent.type == "Distributer"){ // TMC-Distributer-Agency
+  //   return {
+  //     IsSucess: true,
+  //     response: "agency DIstributer",
+  //   };
+  // }else if(companyDetails.type == "Distributer" && companyDetails.parent.type == "TMC"){ // Distributer-TMC
+  //   return {
+  //     IsSucess: true,
+  //     response: "TMC DIstributer",
+  //   };
+  // }else{
+  //   return {
+  //     IsSucess: true,
+  //     response: "Else",
+  //   };
+  // }
 };
 
 module.exports = {

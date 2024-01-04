@@ -53,6 +53,7 @@ const addPrivilagePlan = async(req , res) =>{
         // Add privilagePlanHasPermission
         permission.forEach(async(permission) => {
             const permissionId = permission.permissionId;
+            const emulate = permission.emulate;
             const privilagePlanAdd = new privilagePlanHasPermission({
                 privilagePlanId,
                 permissionId,
@@ -172,7 +173,7 @@ const privilagePHPByPrivilageId =async(req ,res) => {
 const privilagePlanPatch = async(req , res) => {
     try {
        
-        const {companyId ,privilagePlanName , productPlanId , permission , status} = req.body;
+        const {companyId ,privilagePlanName , productPlanId , permission , status , emulate} = req.body;
         if(!companyId || !privilagePlanName || !productPlanId || !permission) {
             return {
                 response : 'All field are required'
@@ -224,6 +225,7 @@ const privilagePlanPatch = async(req , res) => {
         // Add privilagePlanHasPermission
         permission.forEach(async(permission) => {
             const permissionId = permission.permissionId;
+            const emulate = permission.emulate;
             const privilagePlanAdd = new privilagePlanHasPermission({
                 privilagePlanId,
                 permissionId,

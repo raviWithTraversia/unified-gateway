@@ -100,6 +100,8 @@ const getEmailConfig = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   getEmailConfig,
   addEmailConfig,

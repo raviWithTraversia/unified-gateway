@@ -109,10 +109,34 @@ const copyIncentiveMaster = async(req ,res) => {
     } 
 }
 
+
+const incentiveDefineIsDefault = async(req ,res) => {
+    try {
+        const result = await IncentiveMasterService.defineIncetiveMasterDefault(req);
+        if (result.response == 'Company Id is required') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        } else {
+            apiSucessRes(
+                res,
+                CrudMessage.INCENTIVE_MASTER_IS_DEFAULT,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )
+        }
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true)
+    }
+}
+
 module.exports = {
     storeIncentiveMaster,
     getIncentiveMasterList,
     updateIncentiveMaster,
     deleteIncentiveMaster,
-    copyIncentiveMaster
+    copyIncentiveMaster,
+    incentiveDefineIsDefault
 }

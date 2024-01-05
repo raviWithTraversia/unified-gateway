@@ -120,6 +120,10 @@ const PLBMasterSchema = new mongoose.Schema({
     isdeleted: {
         type: Boolean,
         default: false
+    },
+    isDefault: {
+        type: Boolean,
+        default: false
     }
 },{
     timestamps : true 

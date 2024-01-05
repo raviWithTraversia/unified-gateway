@@ -9,6 +9,10 @@ const IncentiveGroupMasterSchema = new mongoose.Schema({
     companyId:{
         type: mongoose.Schema.Types.ObjectId,
         'ref' : 'Company'
+    },
+    isDefault:{
+        type : Boolean,
+        default : false
     }
 },{
     timestamps : true 

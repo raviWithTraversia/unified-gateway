@@ -53,6 +53,7 @@ const addPrivilagePlan = async(req , res) =>{
         // Add privilagePlanHasPermission
         permission.forEach(async(permission) => {
             const permissionId = permission.permissionId;
+            const emulate = permission.emulate;
             const privilagePlanAdd = new privilagePlanHasPermission({
                 privilagePlanId,
                 permissionId,
@@ -224,6 +225,7 @@ const privilagePlanPatch = async(req , res) => {
         // Add privilagePlanHasPermission
         permission.forEach(async(permission) => {
             const permissionId = permission.permissionId;
+            const emulate = permission.emulate;
             const privilagePlanAdd = new privilagePlanHasPermission({
                 privilagePlanId,
                 permissionId,

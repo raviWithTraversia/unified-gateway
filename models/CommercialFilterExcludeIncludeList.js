@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const AirCommercialFilterIncExcSchema = new mongoose.Schema({
     commercialAirPlanId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'CommercialAirPlanSchema'
+        ref: 'CommercialAirPlan'
     },
     airCommercialId: {
         type: mongoose.Schema.Types.ObjectId,

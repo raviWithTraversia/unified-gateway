@@ -42,7 +42,7 @@ const emailConfigDescription = [
         const createdEmailConfigDescription = await EmailDiscription.create(emailConfigDescription); // Create the company records in the database
         console.log('createdEmailConfigDescription table seeded successfully.============>>>>>>>>>>>>>>');
       } else {
-        console.log('Companies table already exists. Skipping seeding.');
+        //console.log('Companies table already exists. Skipping seeding.');
       }
     } catch (err) {
       console.error('Error seeding companies table:', err);

@@ -225,7 +225,7 @@ const seedCommercialColumnMaster = async(req, res) => {
           console.log('Air Commercial Column Master table seeded successfully.');     
           
         } else {
-          console.log('Air Commercial Row Column table already exists. Skipping seeding.');
+          //console.log('Air Commercial Row Column table already exists. Skipping seeding.');
         }
       } catch (err) {
         console.error('Error seeding Air Commercial Row Column table:', err);

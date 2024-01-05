@@ -279,7 +279,7 @@ const userInsert = async (req, res) => {
     if(findRole?.name === HOST_ROLE.DISTRIBUTER ){
       const rolesToInsert = [
         { name: DISTRIBUTER_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
-        { name: DISTRIBUTER_ROLE.Staff, companyId:  newCompany._id, type: 'Default' },
+        { name: DISTRIBUTER_ROLE.Staff, companyId:  newCompany._id, type: 'Manual' },
       ];
       const insertedRoles = await Role.insertMany(rolesToInsert);
       console.log("Default Role Created Sucessfully");

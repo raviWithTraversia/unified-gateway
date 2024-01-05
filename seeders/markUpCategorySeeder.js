@@ -21,7 +21,7 @@ const seedMarkUpCategoryData = async () => {
             console.log('markupCategory table table seeded successfully.');
 
         } else {
-            console.log('markupCategory table already exists. Skipping seeding.');
+           // console.log('markupCategory table already exists. Skipping seeding.');
         }
     } catch (err) {
         console.error('Error seeding markupCategory table:', err);

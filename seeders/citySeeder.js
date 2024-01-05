@@ -54766,7 +54766,7 @@ const seedCity = async () => {
             console.log('city table seeded successfully.');
 
         } else {
-            console.log('city table already exists. Skipping seeding.');
+           // console.log('city table already exists. Skipping seeding.');
         }
     } catch (err) {
         console.error('Error seeding city table:', err);

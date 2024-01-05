@@ -241,7 +241,7 @@ const seedPermissions = async () => {
       console.log('Permission table seeded successfully.');     
       
     } else {
-      console.log('Permission table already exists. Skipping seeding.');
+     // console.log('Permission table already exists. Skipping seeding.');
     }
   } catch (err) {
     console.error('Error seeding companies table:', err);

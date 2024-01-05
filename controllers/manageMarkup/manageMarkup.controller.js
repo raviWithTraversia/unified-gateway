@@ -82,7 +82,6 @@ const updateMarkup = async (req, res) => {
       );
     }
 };
-
 const deletedMarkup = async (req, res) => {
     try {
       let result = await manageMarkUpServices.deletedMarkup(req, res);
@@ -117,7 +116,6 @@ const deletedMarkup = async (req, res) => {
       );
     }
 };
-
 const getMarkUp = async (req , res) => {
   try{
     let result = await manageMarkUpServices.getMarkUp(req, res);
@@ -152,10 +150,48 @@ const getMarkUp = async (req , res) => {
       true
     )
   }
+};
+const getMarkUpCatogeryMaster = async (req,res) => {
+  try{
+  const result = await manageMarkUpServices.getMarkUpCatogeryMaster(req,res);
+  if(result.response == 'Markup Catogery Data found Sucessfully'){
+    apiSucessRes(
+      res,
+      result.response,
+      result.data,
+      ServerStatusCode.SUCESS_CODE
+    )
+
+  }else if(result.response == 'Markup Catogery Data Not Found'){
+    apiErrorres(
+      res,
+      result.response,
+      ServerStatusCode.RESOURCE_NOT_FOUND,
+      true
+    )
+  }else{
+    apiErrorres(
+      res,
+      errorResponse.SOME_UNOWN,
+      ServerStatusCode.INVALID_CRED,
+      true
+    );
+  }
+
+
+  }catch(error){
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    )
+  }
 }
 module.exports = {
     addMarkup,
     deletedMarkup,
     updateMarkup,
-    getMarkUp
+    getMarkUp,
+    getMarkUpCatogeryMaster   
 }

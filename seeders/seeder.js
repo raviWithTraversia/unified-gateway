@@ -135,7 +135,7 @@ const seedRoles = async (companyID) => {
       await Role.create(roles);
       console.log('Roles table seeded successfully.');
     } else {
-      console.log('Roles table already exists. Skipping seeding.');
+     // console.log('Roles table already exists. Skipping seeding.');
     }
   } catch (err) {
     console.error('Error seeding Roles table:', err);

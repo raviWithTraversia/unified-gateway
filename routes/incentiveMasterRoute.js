@@ -39,4 +39,12 @@ incentive_master_route.get(
     IncentiveMaster.copyIncentiveMaster
 )
 
+incentive_master_route.patch(
+    '/incentive/define-incentive-master-default/:id',
+    auth,
+    IncentiveMaster.incentiveDefineIsDefault
+)
+
+
+
 module.exports = incentive_master_route;

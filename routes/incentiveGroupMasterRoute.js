@@ -35,4 +35,11 @@ incentive_group_route.get(
     auth,
     IncentiveGroupMaster.getIncGroupHasIncMaster
 )
+
+incentive_group_route.patch(
+    '/incentive/incentive-group-master-define-default/:id',
+    auth,
+    IncentiveGroupMaster.incentiveGroupDefault
+)
+
 module.exports = incentive_group_route;

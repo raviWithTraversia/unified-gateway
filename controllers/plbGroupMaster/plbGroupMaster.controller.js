@@ -103,10 +103,34 @@ const getPLBGroupHasMaster = async(req ,res) => {
 }
 
 
+// PLB Group Master isDefine Default Route
+const isDefaultDefinePLBMaster = async(req ,res) => {
+    try {
+        const result = await PLBGroupMasterService.PLBGroupDefineAsDefault(req);
+        if (result.response == 'Company Id is required') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        } else {
+            apiSucessRes(
+                res,
+                CrudMessage.PLB_GROUP_MASTER_IS_DEFINE_DEFAULT,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )
+        }
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true)
+    }
+}
+
 module.exports = {
     addPLBMasterGroup,
     updatePLBGroup,
     deletePLBGroupMaster,
     getPLBGroupMasterList,
-    getPLBGroupHasMaster
+    getPLBGroupHasMaster,
+    isDefaultDefinePLBMaster
 }

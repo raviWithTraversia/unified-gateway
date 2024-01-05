@@ -40,7 +40,7 @@ const seedStatus = async () => {
       console.log('Status table seeded successfully.');     
       
     } else {
-      console.log('Status table already exists. Skipping seeding.');
+      //console.log('Status table already exists. Skipping seeding.');
     }
   } catch (err) {
     console.error('Error seeding companies table:', err);

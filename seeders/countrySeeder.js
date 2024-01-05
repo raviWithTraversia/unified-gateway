@@ -1012,7 +1012,7 @@ const seedCountry = async () => {
             console.log('country table seeded successfully.');
 
         } else {
-            console.log('country table already exists. Skipping seeding.');
+          //  console.log('country table already exists. Skipping seeding.');
         }
     } catch (err) {
         console.error('Error seeding country table:', err);

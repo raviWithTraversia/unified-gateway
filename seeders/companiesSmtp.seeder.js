@@ -22,7 +22,7 @@ const companySmtp = [
         // Only create companies if none exist
         const createdCompaniesSmtp = await smtp.create(companySmtp); // Create the company records in the database
       } else {
-        console.log('Companies table already exists. Skipping seeding.');
+      //  console.log('Companies table already exists. Skipping seeding.');
       }
     } catch (err) {
       console.error('Error seeding companies table:', err);

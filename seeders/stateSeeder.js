@@ -55954,7 +55954,7 @@ const seedState = async () => {
             console.log('state table seeded successfully.');
 
         } else {
-            console.log('state table already exists. Skipping seeding.');
+           // console.log('state table already exists. Skipping seeding.');
         }
     } catch (err) {
         console.error('Error seeding state table:', err);

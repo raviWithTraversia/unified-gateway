@@ -3622,7 +3622,7 @@ const seedCarrierSeeder = async () => {
         console.log('Carrier table seeded successfully.');     
         
       } else {
-        console.log('Carrier table already exists. Skipping seeding.');
+       // console.log('Carrier table already exists. Skipping seeding.');
       }
     } catch (err) {
       console.error('Error seeding Carrier table:', err);

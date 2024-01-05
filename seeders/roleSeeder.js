@@ -23,7 +23,7 @@ const role = [
         const createdRoles = await roles.create(role); // Create the company records in the database
         console.log('Roles table seeded successfully.============>>>>>>>>>>>>>>');
       } else {
-        console.log(' Roles already exists. Skipping seeding.');
+       // console.log(' Roles already exists. Skipping seeding.');
       }
     } catch (err) {
       console.error('Error seeding Roles table:', err);

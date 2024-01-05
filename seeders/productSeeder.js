@@ -25,7 +25,7 @@ const seedProduct = async () => {
       console.log('product table seeded successfully.');     
       
     } else {
-      console.log('product table already exists. Skipping seeding.');
+     // console.log('product table already exists. Skipping seeding.');
     }
   } catch (err) {
     console.error('Error seeding companies table:', err);

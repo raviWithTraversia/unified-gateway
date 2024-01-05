@@ -38,7 +38,7 @@ const seedFareFamilyMaster = async () => {
       console.log('Family Fare Master  table seeded successfully.');     
       
     } else {
-      console.log('Family Fare Master  table already exists. Skipping seeding.');
+     // console.log('Family Fare Master  table already exists. Skipping seeding.');
     }
   } catch (err) {
     console.error('Error seeding companies table:', err);

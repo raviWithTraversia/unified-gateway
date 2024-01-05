@@ -6,16 +6,16 @@ const airLinePremoSchema = new mongoose.Schema({
        ref : 'company'
     },
     supplierCode : {
-        type : String,
-        default : null
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'SupplierCode'
     },
     airLineCode : {
-        type : String ,
-        default : null
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'AirlineCode'
     },
     fareFamily : {
-        type : String,
-        default : null
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'FareFamilyMaster'
     },
     premoCode :{
         type : String,

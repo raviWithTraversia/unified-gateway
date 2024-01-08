@@ -73,6 +73,10 @@ const CrudMessage = {
     MATRIX_UPDATE : 'Matrix updated successfully',
     COMMERCIAL_FILTER : 'Commercial updated successfully',
     COMMERCIAL_DELETE : 'Air Commercial delete successfully',
+    PLB_MASTER_IS_DEFAULT : 'Plb define as default',
+    PLB_GROUP_MASTER_IS_DEFINE_DEFAULT : 'PLB group master is define default',
+    INCENTIVE_MASTER_IS_DEFAULT : 'incentive master define as default',
+    INCENTIVE_GROUP_MASTER_IS_DEFINE_DEFAULT : 'Incentive group master is define default',
 
 }
 

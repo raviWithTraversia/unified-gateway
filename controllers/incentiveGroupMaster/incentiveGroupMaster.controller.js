@@ -102,11 +102,34 @@ const getIncGroupHasIncMaster = async(req ,res) => {
     }
 }
 
+const incentiveGroupDefault = async(req ,res) => {
+    try {
+        const result = await IncentiveGroupService.defineIncetiveGroupDefault(req);
+        if (result.response == 'Company Id is required') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        } else {
+            apiSucessRes(
+                res,
+                CrudMessage.INCENTIVE_GROUP_MASTER_IS_DEFINE_DEFAULT,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )
+        }
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true)
+    }
+}
+
 
 module.exports = {
     addIncMasterGroup,
     updateIncGroupMaster,
     deleteIncGroupMaster,
     getIncGroupMasterList,
-    getIncGroupHasIncMaster
+    getIncGroupHasIncMaster,
+    incentiveGroupDefault
 }

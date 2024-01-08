@@ -17,9 +17,17 @@ const addIncGroupMaster = async(req ,res) => {
                 response : 'All fields are required'
             }
         }
+        const checkIncentiveMasterExistByComId = await IncentiveGroupMaster.findOne({companyId : companyId});
+        if(checkIncentiveMasterExistByComId){
+            isDefault = false;
+        }else{
+            isDefault = true
+        }
+
         const saveIncGrp = new IncentiveGroupMaster({
             incentiveGroupName,
             companyId,
+            isDefault
         });
         const result = await saveIncGrp.save();
 
@@ -173,10 +181,32 @@ const getIncGroupHasIncMaster = async(req, res) => {
     }
 }
 
+
+const defineIncetiveGroupDefault = async(req , res) => {
+    try {
+        const _id = req.params.id;
+        const {companyId} = req.body;
+        if(!companyId) {
+            return {
+                response : 'Company Id is required'
+            }
+        }
+        await IncentiveGroupMaster.updateMany({ companyId }, { isDefault: false });
+
+        const result = await IncentiveGroupMaster.findByIdAndUpdate( _id , {isDefault : true }, { new: true });
+        return {
+            response : 'Incentive group master define as default'
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
 module.exports = {
     addIncGroupMaster,
     updateIncGroupMaster,
     removeIncGroup,
     getIncGrpMasterList,
-    getIncGroupHasIncMaster
+    getIncGroupHasIncMaster,
+    defineIncetiveGroupDefault
 }

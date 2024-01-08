@@ -132,6 +132,10 @@ const IncentiveMasterSchema = new mongoose.Schema({
     farebasis:{
         type: String,
         default: null 
+    },
+    isDefault:{
+        type: Boolean,
+        default: false 
     }
 },{
     timestamps : true 

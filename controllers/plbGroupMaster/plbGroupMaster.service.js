@@ -4,7 +4,7 @@ const User = require('../../models/User');
 const PLBGroupHasPLBMaster = require('../../models/PLBGroupHasPLBMaster');
 const commonFunction = require('../commonFunctions/common.function');
 
-const addPLBGrpMaster = async(req ,res) => {
+const addPLBGrpMaster = async (req, res) => {
     try {
         const {
             PLBGroupName,
@@ -12,92 +12,101 @@ const addPLBGrpMaster = async(req ,res) => {
             PLBMasterID
         } = req.body;
 
-        if(!companyId || !PLBGroupName || !PLBMasterID) {
+        if (!companyId || !PLBGroupName || !PLBMasterID) {
             return {
-                response : 'All fields are required'
+                response: 'All fields are required'
             }
         }
+        const checkPLBExist = await PLBGroupMaster.findOne({ companyId: companyId });
+        if (checkPLBExist) {
+            isDefault = false;
+        } else {
+            isDefault = true;
+        }
+
+
         const savePLBGrp = new PLBGroupMaster({
             PLBGroupName,
             companyId,
+            isDefault
         });
         const result = await savePLBGrp.save();
 
         // PLBGroupHasPLBMaster add
         const PLBGroupId = result._id
-        PLBMasterID.forEach(async(element) => {
+        PLBMasterID.forEach(async (element) => {
             const PLBMasterId = element.PLBMasterId;
             const addPLBGHasPLBM = new PLBGroupHasPLBMaster({
-                PLBGroupId : PLBGroupId,
+                PLBGroupId: PLBGroupId,
                 PLBMasterId
             });
-           const result = await addPLBGHasPLBM.save();
+            const result = await addPLBGHasPLBM.save();
         });
 
-         // Log add 
-        
-         const doerId = req.user._id;
-         const loginUser = await User.findById(doerId);
-         await commonFunction.eventLogFunction(
-             'PLBMasterGroup' ,
-             doerId ,
-             loginUser.fname ,
-             req.ip , 
-             companyId , 
-             'add PLB Master Group'
-         );
+        // Log add 
+
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+        await commonFunction.eventLogFunction(
+            'PLBMasterGroup',
+            doerId,
+            loginUser.fname,
+            req.ip,
+            companyId,
+            'add PLB Master Group'
+        );
 
         return {
-            response : 'PLB Group master added successfully'
+            response: 'PLB Group master added successfully'
         }
     } catch (error) {
         throw error
     }
 }
 
-const updatePLBGroupMaster = async(req ,res) => {
+const updatePLBGroupMaster = async (req, res) => {
     try {
-    
+
         const _id = req.params.plbGroupId;
-        const {PLBGroupName , PLBMasterID} = req.body;
-        if(!PLBGroupName || !PLBMasterID) {
+        const { PLBGroupName, PLBMasterID } = req.body;
+        if (!PLBGroupName || !PLBMasterID) {
             return {
-                response : 'All fields are required'
+                response: 'All fields are required'
             }
         }
-       
-        const updatePLB =  await PLBGroupMaster.findByIdAndUpdate(_id, {
+
+        const updatePLB = await PLBGroupMaster.findByIdAndUpdate(_id, {
             PLBGroupName
         }, { new: true })
 
-       
+
         // Previous PLBGHasPLBMaster delete
         const result = await PLBGroupHasPLBMaster.deleteMany({ PLBGroupId: _id });
-       
+
         const PLBGroupId = _id;
-        PLBMasterID.forEach(async(element) => {
+        PLBMasterID.forEach(async (element) => {
             const PLBMasterId = element.PLBMasterId;
             const addPLBGHasPLBM = new PLBGroupHasPLBMaster({
-                PLBGroupId : PLBGroupId,
+                PLBGroupId: PLBGroupId,
                 PLBMasterId
             });
-           const result = await addPLBGHasPLBM.save();
+            const result = await addPLBGHasPLBM.save();
         });
 
-         // Log add 
-         const doerId = req.user._id;
-         const loginUser = await User.findById(doerId);
-         await commonFunction.eventLogFunction(
-            'PLBMasterGroup' ,
-            doerId ,
-            loginUser.fname ,
-            req.ip , 
-            loginUser.companyId , 
+        // Log add 
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+        await commonFunction.eventLogFunction(
+            'PLBMasterGroup',
+            doerId,
+            loginUser.fname,
+            req.ip,
+            loginUser.companyId,
             'updated PLB Master Group'
-         );
+        );
 
         return {
-            response : 'PLB Group master updated successfully'
+            response: 'PLB Group master updated successfully'
         }
 
 
@@ -107,7 +116,7 @@ const updatePLBGroupMaster = async(req ,res) => {
 }
 
 
-const removePLBGroup = async(req ,res) => {
+const removePLBGroup = async (req, res) => {
     try {
         const result = await PLBGroupMaster.deleteOne({ _id: req.params.id });
 
@@ -116,15 +125,15 @@ const removePLBGroup = async(req ,res) => {
         const loginUser = await User.findById(doerId);
 
         await commonFunction.eventLogFunction(
-            'PLBMasterGroup' ,
-            doerId ,
-            loginUser.fname ,
-            req.ip , 
-            loginUser.companyId , 
+            'PLBMasterGroup',
+            doerId,
+            loginUser.fname,
+            req.ip,
+            loginUser.companyId,
             'deleted PLB Master Group'
         );
         return {
-            response : 'PLB group master deleted Successfully!'
+            response: 'PLB group master deleted Successfully!'
         }
 
     } catch (error) {
@@ -133,7 +142,7 @@ const removePLBGroup = async(req ,res) => {
 }
 
 
-const getPLBGroupMasterList = async(req , res) => {
+const getPLBGroupMasterList = async (req, res) => {
     try {
         const companyId = req.params.companyId;
         const result = await PLBGroupMaster.find({ companyId: companyId });
@@ -154,7 +163,7 @@ const getPLBGroupMasterList = async(req , res) => {
 }
 
 
-const getPLBGroupHasPLBMaster = async(req, res) => {
+const getPLBGroupHasPLBMaster = async (req, res) => {
     try {
         const PLBGroupId = req.params.PLBGroupId;
         const result = await PLBGroupHasPLBMaster.find({ PLBGroupId: PLBGroupId });
@@ -174,10 +183,31 @@ const getPLBGroupHasPLBMaster = async(req, res) => {
     }
 }
 
+const PLBGroupDefineAsDefault = async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const { companyId } = req.body;
+        if (!companyId) {
+            return {
+                response: 'Company Id is required'
+            }
+        }
+        await PLBGroupMaster.updateMany({ companyId }, { isDefault: false });
+
+        const result = await PLBGroupMaster.findByIdAndUpdate(_id, { isDefault: true }, { new: true });
+        return {
+            response: 'PLB group master define as default'
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
 module.exports = {
     addPLBGrpMaster,
     updatePLBGroupMaster,
     removePLBGroup,
     getPLBGroupMasterList,
-    getPLBGroupHasPLBMaster
+    getPLBGroupHasPLBMaster,
+    PLBGroupDefineAsDefault
 }

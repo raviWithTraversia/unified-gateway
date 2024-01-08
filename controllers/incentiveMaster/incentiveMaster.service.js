@@ -13,9 +13,15 @@ const addIncentiveMaster= async(req, res) => {
                 response : 'Company Id is required'
             }
         }
+        const checkIncentiveMasterExistByComId = await IncentiveMaster.findOne({companyId : companyId});
+        if(checkIncentiveMasterExistByComId){
+            isDefault = false;
+        }else{
+            isDefault = true
+        }
 
         const IncentiveMasterData = new IncentiveMaster({
-            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted ,flightNo, dealcode, farebasis
+            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted ,flightNo, dealcode, farebasis , isDefault
         })
         await IncentiveMasterData.save();
 
@@ -200,10 +206,32 @@ const CopyIncentiveMaster = async(req, res) => {
     }
 }
 
+const defineIncetiveMasterDefault = async(req , res) => {
+    try {
+        const _id = req.params.id;
+        const {companyId} = req.body;
+        if(!companyId) {
+            return {
+                response : 'Company Id is required'
+            }
+        }
+        await IncentiveMaster.updateMany({ companyId }, { isDefault: false });
+
+        const result = await IncentiveMaster.findByIdAndUpdate( _id , {isDefault : true }, { new: true });
+        return {
+            response : 'Incentive master define as default'
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+
 module.exports = {
     addIncentiveMaster,
     getIncentiveMaster,
     incentiveMasterUpdate,
     removeIncentiveMaster,
-    CopyIncentiveMaster
+    CopyIncentiveMaster,
+    defineIncetiveMasterDefault
 }

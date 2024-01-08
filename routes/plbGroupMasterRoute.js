@@ -35,4 +35,10 @@ plb_group_route.get(
     auth,
     PLBGroup.getPLBGroupHasMaster
 )
+
+plb_group_route.patch(
+    '/plb/plb_master_is_define_default/:id',
+    PLBGroup.isDefaultDefinePLBMaster
+)
+
 module.exports = plb_group_route;

@@ -18,7 +18,7 @@ const PLBMasterSchema = new mongoose.Schema({
     },
     supplierCode: {
         type: mongoose.Schema.Types.ObjectId,
-        'ref': 'Supplier',
+        'ref': 'SupplierCode',
         default:null
     },
     airlineCode: {

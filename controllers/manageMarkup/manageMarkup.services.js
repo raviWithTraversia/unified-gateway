@@ -109,7 +109,7 @@ const deletedMarkup = async (req, res) => {
 const getMarkUp = async (req, res) => {
   try {
     let { companyId } = req.query;
-    let data = await manageMarkupModel.findOne({ companyId: companyId }).populate('airlineCodeId').exec();
+    let data = await manageMarkupModel.find({ companyId: companyId }).populate('airlineCodeId').exec();
     console.log("====>>>>>>>>>>>>>>",data, "data");
     if (res) {
       return {

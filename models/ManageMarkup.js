@@ -13,11 +13,11 @@ const markupDataSchema =  new mongoose.Schema ({
   },
   airlineCodeId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true
+    required: 'AirlineCode'
   },
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true
+    required: 'Company'
   },
   createdAt : {
    type : Date

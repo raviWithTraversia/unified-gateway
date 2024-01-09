@@ -19,6 +19,10 @@ const markupDataSchema =  new mongoose.Schema ({
     type: mongoose.Schema.Types.ObjectId,
     required: 'Company'
   },
+  isDefault: {
+    type : Boolean,
+    required : false
+  },
   createdAt : {
    type : Date
   },

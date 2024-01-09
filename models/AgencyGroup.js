@@ -43,16 +43,16 @@ const agencyGroupSchema = new mongoose.Schema(
       ref: "Company",
     },
     modifyBy: {
-      type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
     },
-    name: {
-      type: String,
-    },
+    name : {
+        type : String
+    }
   },
   {
     timestamps: true,

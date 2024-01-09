@@ -1,6 +1,7 @@
 const manageMarkupModel = require("../../models/ManageMarkup");
 const userModel = require("../../models/User");
 const markUpCategoryMasterModels = require("../../models/MarkupCategoryMaster");
+const mongoose = require('mongoose');
 
 const addMarkup = async (req, res) => {
   try {
@@ -109,9 +110,9 @@ const deletedMarkup = async (req, res) => {
 const getMarkUp = async (req, res) => {
   try {
     let { companyId } = req.query;
-    let data = await manageMarkupModel.find({ companyId: companyId }).populate('airlineCodeId').exec();
+     let data = await manageMarkupModel.find({companyId}).populate('airlineCodeId')
     console.log("====>>>>>>>>>>>>>>",data, "data");
-    if (res) {
+    if (data) {
       return {
         response: "Markup Data Fetch Sucessfully",
         data: data,

@@ -55,14 +55,14 @@ const getAgencyGroup = async (req, res) => {
       req,
       res
     );
-    if (result.response == "Fare Rule Fetch Sucessfully") {
+    if (result.response == "Agency Group Fetch Sucessfully") {
       apiSucessRes(
         res,
         result.response,
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    } else if (result.response == "Fare Rule Not Found") {
+    } else if (result.response == "Agency Group Not Found") {
       apiErrorres(
         res,
         result.response,

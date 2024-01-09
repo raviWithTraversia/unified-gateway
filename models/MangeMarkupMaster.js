@@ -6,7 +6,8 @@ markUpCategoryId : {
     ref : 'markUpCategoryModel'
 },
 markupRate : {
-    type : Number
+    type : Number,
+    default : 0
 },
 adultFixed : {
     type : Number,

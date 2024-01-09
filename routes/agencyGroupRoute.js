@@ -8,9 +8,9 @@ const auth = require("../middleware/auth");
 const agencyGroupController = require("./../controllers/agencyGroup/agencyGroup.controller");
 
 agency_group_route.post(
-  "/agencyGroup/getAgencyGroup",
+  "/agencyGroup/addAgencyGroup",
   auth,
-  agencyGroupController.getAgencyGroup
+  agencyGroupController.addAgencyGroup
 );
 agency_group_route.get(
   "/agencyGroup/getAgencyGroup",
@@ -18,7 +18,7 @@ agency_group_route.get(
   agencyGroupController.getAgencyGroup
 );
 agency_group_route.patch(
-  "/agencyGroup/editAgencyGroup/",
+  "/agencyGroup/editAgencyGroup",
   auth,
   agencyGroupController.editAgencyGroup
 );

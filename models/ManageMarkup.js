@@ -33,7 +33,7 @@ const markupDataSchema =  new mongoose.Schema ({
   modifyBy : {
     type : mongoose.Schema.Types.ObjectId,
     ref : 'User'
-  }
+  },
 }, {
     timestamps : true
 });

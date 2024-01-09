@@ -51,11 +51,13 @@ const addAgencyGroup = async (req, res) => {
       createdBy: req.user._id,
       modifyBy: req.user._id,
     });
-    newAgencyGroup = newAgencyGroup.save();
+    newAgencyGroup = await newAgencyGroup.save();
+    console.log(newAgencyGroup, "lllllllllllllllllllllllllllllllllllllllllllllloooooooooooooooooooooo")
+
     if (newAgencyGroup) {
       return {
         response: "Agency Group  Added Sucessfully",
-        data: saveAirlinePromocodeGroupName,
+        data: newAgencyGroup,
       };
     } else {
       return {
@@ -108,22 +110,17 @@ const editAgencyGroup = async (req, res) => {
 
 const getAgencyGroup = async (req, res) => {
   try {
-    let companyId = req.query.companyId;
-    let agencyGroup;
-    agencyGroup = await AirlinePromoCodeGroupModels.find({
-      companyId: companyId,
-    });
-
-    //   for (let i = 0; i < agencyGroupModel?.length; i++) {
-    //     let convertedFareRuleIds = agencyGroup[i].paymentGatewayIds.map(
-    //       (id) => id.toString()
-    //     );
-    //     let documents = await airlinePromoModel
-    //       .find({ _id: { $in: convertedFareRuleIds } })
-    //       .populate("companyId")
-    //       .exec();
-    //       airlinePromoCodeGroup[i].paymentGatewayIds = documents;
-    //   }
+   
+    let agencyGroup = await agencyGroupModel.find().populate('privilagePlanId')
+    .populate('commercialPlanId')
+    .populate('plbGroupId')
+    .populate('incentiveGroupId')
+    .populate('fairRuleGroupId')
+    .populate('diSetupGroupId')
+    .populate('pgChargesGroupId')
+    .populate('airlinePromoCodeGroupId')
+    .populate('companyId')
+   
 
     if (agencyGroup.length > 0) {
       return {

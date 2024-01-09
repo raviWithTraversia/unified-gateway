@@ -33,6 +33,7 @@ const addRegistration = async (req, res) => {
       gstState,
       gstPinCode,
       gstCity,
+      agencyGroupId
     } = req.body;
 
     const fieldNames = [
@@ -143,6 +144,7 @@ const addRegistration = async (req, res) => {
       gstAddress_2: gstAddress_2 || null,
       gstState: gstState || null,
       gstPinCode: gstPinCode || null,
+      agencyGroupId
     });
     let newRegistrationRes = await newRegistration.save();
     console.log(newRegistrationRes);

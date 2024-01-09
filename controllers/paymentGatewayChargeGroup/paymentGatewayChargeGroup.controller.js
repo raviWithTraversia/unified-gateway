@@ -48,14 +48,14 @@ const addPaymentGatewayChargeGroup = async (req, res) => {
 const getPaymentGatewayChargeGroup = async (req, res) => {
   try {
     const result = await paymentGatewayChargeGoupController.getPaymentGatewayChargeGroup(req, res);
-    if (result.response == "Fare Rule Fetch Sucessfully") {
+    if (result.response == "PaymentGateway Group Fetch Sucessfully") {
       apiSucessRes(
         res,
         result.response,
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    } else if (result.response == "Fare Rule Not Found") {
+    } else if (result.response == "PaymentGateway Group Not Found") {
       apiErrorres(
         res,
         result.response,

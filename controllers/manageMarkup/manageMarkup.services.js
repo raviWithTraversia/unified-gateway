@@ -109,14 +109,12 @@ const deletedMarkup = async (req, res) => {
 const getMarkUp = async (req, res) => {
   try {
     let { companyId } = req.query;
-    let data = await manageMarkupModel.find({ companyId: companyId });
-    let res = data.map(({ markupData, ...rest }) => {
-      return { markupData, ...rest };
-    });
+    let data = await manageMarkupModel.findOne({ companyId: companyId }).populate('airlineCodeId').exec();
+    console.log("====>>>>>>>>>>>>>>",data, "data");
     if (res) {
       return {
         response: "Markup Data Fetch Sucessfully",
-        data: res,
+        data: data,
       };
     } else {
       return {

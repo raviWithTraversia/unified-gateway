@@ -37,7 +37,17 @@ const addAirlinePromcodeGroup = async (req, res) => {
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
-    } else {
+      //Airline Promcode all Id should be unique
+    } 
+    else if (result.response == "Airline Promcode all Id should be unique") {
+        apiErrorres(
+          res,
+          result.response,
+          ServerStatusCode.PRECONDITION_FAILED,
+          true
+        );
+      }
+    else {
       apiErrorres(
         res,
         ServerStatusCode.RESOURCE_NOT_FOUND,
@@ -55,7 +65,7 @@ const getAirlinePromoCodeGroup = async (req, res) => {
       req,
       res
     );
-    if (result.response == "Fare Rule Fetch Sucessfully") {
+    if (result.response == "Airline Promo Group Fetch Sucessfully") {
       apiSucessRes(
         res,
         result.response,

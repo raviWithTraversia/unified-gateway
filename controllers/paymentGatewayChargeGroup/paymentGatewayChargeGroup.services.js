@@ -84,7 +84,7 @@ const editPaymentGatewayChargeGroup = async (req, res) => {
     if (updatePaymentGatewayChargeGroupData) {
       return {
         response: "PaymentGatewayChargeGroup Updated Sucessfully",
-        data: updateFareRuleData,
+        data: updatePaymentGatewayChargeGroupData,
       };
     } else {
       return {
@@ -101,8 +101,7 @@ const getPaymentGatewayChargeGroup = async (req, res) => {
   try {
     let companyId = req.query.companyId;
     let gatewayChargeGroup;
-    // let getFareRule;
-    // let getPgCharge;
+  
     gatewayChargeGroup = await paymentGatewayChargeGroupModels.find({
       companyId: companyId,
     });

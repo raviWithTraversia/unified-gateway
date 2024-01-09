@@ -39,17 +39,20 @@ const agencyGroupSchema = new mongoose.Schema(
       default: false,
     },
     companyId: {
-      type: mongoose.Types.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
     },
     modifyBy: {
-      type: mongoose.Types.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
     createdBy: {
-      type: mongoose.Types.Schema.ObjectId,
-      ref: 'User',
-    }
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    name: {
+      type: String,
+    },
   },
   {
     timestamps: true,

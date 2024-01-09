@@ -20,7 +20,6 @@ const addDiSetup = async (req,res) => {
       throw error
     }
 };
-
 const getDiSetup = async (req,res) => {
     try{
         let companyId = req.query.id;
@@ -41,7 +40,6 @@ const getDiSetup = async (req,res) => {
         throw error
     }
 };
-
 const deleteDiSetup = async (req,res) => {
     try{
       let id = req.params.id;

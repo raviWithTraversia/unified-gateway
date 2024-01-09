@@ -24,6 +24,7 @@ const addDiSetupGroup = async (req, res) => {
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
+      //all Id should be unique
     }  else if (result.response == "Disetup  group with the same name already exists for this company") {
       apiErrorres(
         res,
@@ -32,6 +33,14 @@ const addDiSetupGroup = async (req, res) => {
         true
       );
     }
+    else if (result.response == "all Id should be unique") {
+        apiErrorres(
+          res,
+          result.response,
+          ServerStatusCode.PRECONDITION_FAILED,
+          true
+        );
+      }
     else {
       apiErrorres(
         res,

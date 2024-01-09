@@ -14,10 +14,10 @@ const addAirlinePromcodeGroup = async (req, res) => {
         companyId: companyId,
         airlinePromcodeGroupName: airlinePromcodeGroupName
       });
-    console.log(
-        airlinePromcodeGroupNameExist,
-      "<<<<<<<<<<<>>>>>>>>>>>>>>"
-    );
+    // console.log(
+    //     airlinePromcodeGroupNameExist,
+    //   "<<<<<<<<<<<>>>>>>>>>>>>>>"
+    // );
     if (airlinePromcodeGroupNameExist) {
       return {
         response:
@@ -30,6 +30,17 @@ const addAirlinePromcodeGroup = async (req, res) => {
           { companyId },
           { isDefault: false }
         );
+    }
+    function areElementsUnique(arr) {
+        return new Set(arr).size === arr.length;
+    }
+    
+   let checkAllIdIsUnique = areElementsUnique(airlinePromcodeIds);
+   /// console.log(areElementsUnique(airlinePromcodeIds) , "ggggggggggggggggggggg")
+    if(checkAllIdIsUnique == false){
+        return {
+            response : 'Airline Promcode all Id should be unique'
+        }
     }
     const newAirlinePromoCodeGroup = new AirlinePromoCodeGroupModels({
       airlinePromcodeIds,
@@ -77,7 +88,6 @@ const editAirlinePromoCodeGroup = async (req, res) => {
         id,
         {
           $set: updateData,
-          modifyAt: new Date(),
           modifyBy: req.user._id,
         },
         { new: true }
@@ -85,7 +95,7 @@ const editAirlinePromoCodeGroup = async (req, res) => {
     if (updateAirlinePromoGroupData) {
       return {
         response: "Airline Promo Code Group Updated Sucessfully",
-        data: updateFareRuleData,
+        data: updateAirlinePromoGroupData,
       };
     } else {
       return {
@@ -105,16 +115,16 @@ const getAirlinePromoCodeGroup = async (req, res) => {
     airlinePromoCodeGroup = await AirlinePromoCodeGroupModels.find({
       companyId: companyId,
     });
-
+  //  console.log(">>>>",airlinePromoCodeGroup, "<<<===========");
     for (let i = 0; i < airlinePromoCodeGroup?.length; i++) {
-      let convertedFareRuleIds = airlinePromoCodeGroup[i].paymentGatewayIds.map(
+      let convertedIds = airlinePromoCodeGroup[i].airlinePromcodeIds.map(
         (id) => id.toString()
       );
       let documents = await airlinePromoModel
-        .find({ _id: { $in: convertedFareRuleIds } })
-        .populate("companyId")
-        .exec();
-        airlinePromoCodeGroup[i].paymentGatewayIds = documents;
+        .find({ _id: { $in: convertedIds } })
+        // .populate("companyId")
+        // .exec();
+        airlinePromoCodeGroup[i].airlinePromcodeIds = documents;
     }
 
     if (airlinePromoCodeGroup.length > 0) {
@@ -158,5 +168,5 @@ module.exports = {
   addAirlinePromcodeGroup,
   editAirlinePromoCodeGroup,
   getAirlinePromoCodeGroup,
-  deleteAirlinePromCodeGroup,
+  deleteAirlinePromCodeGroup
 };

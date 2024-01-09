@@ -12,11 +12,11 @@ const markupDataSchema =  new mongoose.Schema ({
     default: 'Ticket'
   },
   airlineCodeId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true
   },
   companyId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true
   },
   createdAt : {

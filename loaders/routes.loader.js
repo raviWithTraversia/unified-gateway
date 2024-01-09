@@ -50,7 +50,8 @@ const markupRoute =  require('../routes/manageMarkupRoute');
 const cardDetailRoute = require('../routes/cardDetailsRoute');
 const paymentGatewayGroupRoute = require('../routes/paymentGatewayChargeGroupRoute');
 const airlinePromoCodeGroupRoute = require('../routes/airlinePromoCodeGroupRoute');
-const diSetupGroupRoute = require('../routes/diSetupRoute')
+const diSetupGroupRoute = require('../routes/diSetupGroupRoute');
+const agencyGroupRoute = require('../routes/agencyGroupRoute');
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -212,6 +213,12 @@ class RoutesLoader {
         //diSetupGroupRoute
 
         app.use('/api', diSetupGroupRoute);
+
+        //agencyGroupRoute
+        app.use('/api', agencyGroupRoute);
+
+
+
     }
 }
 

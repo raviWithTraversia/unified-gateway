@@ -11,7 +11,6 @@ diSetupGroup_route.post(
     auth,
     diSetupGroupController.addDiSetupGroup
 );
-
 diSetupGroup_route.get(
     '/diSetupGroup/getDiSetupGroup',
     auth,
@@ -27,7 +26,7 @@ diSetupGroup_route.patch(
     '/diSetupGroup/editDiSetupGroup',
     auth,
     diSetupGroupController.editDiSetupGroup
-)
+);
 
 diSetupGroup_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

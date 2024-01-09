@@ -1,5 +1,5 @@
 const diSetupGroupModels = require("../../models/DiSetupGroup");
-const diSetupModel = require('../../models/AirlinePromoCode');
+const diSetupModel = require('../../models/DiSetup');
 
 const addDiSetupGroup = async (req, res) => {
   try {
@@ -30,10 +30,20 @@ const addDiSetupGroup = async (req, res) => {
           { companyId },
           { isDefault: false }
         );
+    };
+    function areElementsUnique(arr) {
+        return new Set(arr).size === arr.length;
+    }
+    
+   let checkAllIdIsUnique = areElementsUnique(diSetupIds);
+    if(checkAllIdIsUnique == false){
+        return {
+            response : ' all Id should be unique'
+        }
     }
     const newDiSetupGroupName = new diSetupGroupModels({
-        diSetupIds,
-        diSetupGroupName,
+      diSetupIds,
+      diSetupGroupName,
       companyId,
       modifyAt: new Date(),
       modifyBy: req.user._id,
@@ -77,7 +87,6 @@ const editDiSetupGroup = async (req, res) => {
         id,
         {
           $set: updateData,
-          modifyAt: new Date(),
           modifyBy: req.user._id,
         },
         { new: true }

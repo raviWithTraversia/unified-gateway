@@ -139,8 +139,8 @@ const removeIncentiveMaster = async(req , res) => {
 
 const CopyIncentiveMaster = async(req, res) => {
     try {
-        const _id = req.body.id;
-        const IncMaster = IncentiveMaster.findById(_id);
+        const _id = req.params.id;
+        const IncMaster = await IncentiveMaster.findById(_id);
         if(IncMaster) {
             
             const IncDataSave = new IncentiveMaster({

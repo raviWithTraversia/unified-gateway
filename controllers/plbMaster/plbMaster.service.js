@@ -144,8 +144,9 @@ const removePLBMaster = async(req , res) => {
 
 const CopyPLBMaster = async(req, res) => {
     try {
-        const _id = req.body.id;
-        const DataPLB = PLBMaster.findById(_id);
+        const _id = req.params.id;
+        const DataPLB = await PLBMaster.findById(_id);
+
         if(DataPLB) {
             
             const PLBData = new PLBMaster({

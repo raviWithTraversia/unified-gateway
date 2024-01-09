@@ -51,7 +51,7 @@ const getIncentiveMaster = async(req , res) => {
     try {
         const PLBType = req.params.PLBType;
         const companyId = req.params.companyId;
-        const result = await IncentiveMaster.find({ PLBType: PLBType  , companyId: companyId});
+        const result = await IncentiveMaster.find({ PLBType: PLBType  , companyId: companyId}).populate('supplierCode airlineCode cabinClass fareFamily');
         if (result.length > 0) {
             return {
                 data: result
@@ -139,8 +139,8 @@ const removeIncentiveMaster = async(req , res) => {
 
 const CopyIncentiveMaster = async(req, res) => {
     try {
-        const _id = req.body.id;
-        const IncMaster = IncentiveMaster.findById(_id);
+        const _id = req.params.id;
+        const IncMaster = await IncentiveMaster.findById(_id);
         if(IncMaster) {
             
             const IncDataSave = new IncentiveMaster({

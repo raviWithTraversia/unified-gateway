@@ -53,7 +53,7 @@ const getPLBMaterByPLBType = async(req , res) => {
     try {
         const PLBType = req.params.PLBType;
         const companyId = req.params.companyId;
-        const result = await PLBMaster.find({ PLBType: PLBType , companyId: companyId});
+        const result = await PLBMaster.find({ PLBType: PLBType , companyId: companyId}).populate('supplierCode airlineCode cabinClass fareFamily');
         if (result.length > 0) {
             return {
                 data: result
@@ -144,8 +144,9 @@ const removePLBMaster = async(req , res) => {
 
 const CopyPLBMaster = async(req, res) => {
     try {
-        const _id = req.body.id;
-        const DataPLB = PLBMaster.findById(_id);
+        const _id = req.params.id;
+        const DataPLB = await PLBMaster.findById(_id);
+
         if(DataPLB) {
             
             const PLBData = new PLBMaster({

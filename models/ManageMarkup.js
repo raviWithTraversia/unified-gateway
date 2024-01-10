@@ -23,7 +23,7 @@ const markupDataSchema =  new mongoose.Schema ({
   },
   isDefault: {
     type : Boolean,
-    required : false
+    default : false
   },
   createdAt : {
    type : Date

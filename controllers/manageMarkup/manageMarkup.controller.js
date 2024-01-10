@@ -99,7 +99,16 @@ const deletedMarkup = async (req, res) => {
           ServerStatusCode.RESOURCE_NOT_FOUND,
           true
         );
-      } else {
+      }
+      else if(result.response == "You can't delete default markup") {
+        apiErrorres(
+          res,
+          result.response,
+          ServerStatusCode.PRECONDITION_FAILED,
+          true
+        );
+      }
+       else {
         apiErrorres(
           res,
           errorResponse.SOME_UNOWN,

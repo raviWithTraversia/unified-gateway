@@ -12,7 +12,8 @@ const CommercialAirPlan = require('../../models/CommercialAirPlan');
 const agentConfigModel = require('../../models/AgentConfig');
 const privilagePlanModel = require('../../models/PrivilagePlan');
 const commercialPlanModel = require('../../models/CommercialAirPlan');
-const fareRuleGroupModel = require('../../models/FareRuleGroup')
+const fareRuleGroupModel = require('../../models/FareRuleGroup');
+const agencyGroupModel = require('../../models/AgencyGroup')
 
 
 const registerUser = async (req, res) => {
@@ -211,10 +212,10 @@ const userInsert = async (req, res) => {
       isIATA,
       holdPnrAllowed,
       saleInChargeId,
-      privillagePlanId,
       cityId,
       creditBalance,
-      maxCreditLimit
+      maxCreditLimit,
+      agencyGroupId
     } = req.body;
    
     const existingUser = await User.findOne({ email });
@@ -279,7 +280,7 @@ const userInsert = async (req, res) => {
     if(findRole?.name === HOST_ROLE.DISTRIBUTER ){
       const rolesToInsert = [
         { name: DISTRIBUTER_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
-        { name: DISTRIBUTER_ROLE.Staff, companyId:  newCompany._id, type: 'Default' },
+        { name: DISTRIBUTER_ROLE.Staff, companyId:  newCompany._id, type: 'Manual' },
       ];
       const insertedRoles = await Role.insertMany(rolesToInsert);
       console.log("Default Role Created Sucessfully");
@@ -324,18 +325,19 @@ const userInsert = async (req, res) => {
     let privilegePlansIds = await privilagePlanModel.findOne({companyId :parent,IsDefault : true});
     let commercialPlanIds = await commercialPlanModel.findOne({companyId :parent,IsDefault : true});
     let fareRuleGroupIds = await fareRuleGroupModel.findOne({companyId :parent,IsDefault : true});
+    if(!agencyGroupId){
+      let agencyGroupId = await agencyGroupId.findOne({companyId :parent,IsDefault : true});
+    }
     console.log(privilegePlansIds ,commercialPlanIds ,fareRuleGroupIds)
       let agentConfigsInsert = await agentConfigModel.create({
         userId : userCreated._id,
         companyId : savedCompany._id ,
-        privilegePlansIds : privilegePlansIds || null,
         salesInchargeIds : saleInChargeId || null,
         maxcreditLimit : maxCreditLimit,
         holdPNRAllowed : holdPnrAllowed,
         commercialPlanIds : commercialPlanIds || null,
         modifyAt: new Date(),
         modifiedBy : req.user.id || null,
-        fareRuleGroupIds : fareRuleGroupIds || null
         });
         agentConfigsInsert = await agentConfigsInsert.save();
       console.log( 'User Config Insert Sucessfully')

@@ -39,4 +39,10 @@ plb_route.get(
     PLBMaster.copyPLBMaster
 )
 
+// isDefault route for PLB master
+plb_route.patch(
+    '/plb/plb_master_is_default/:id',
+    PLBMaster.PLBDefineIsDefault
+)
+
 module.exports = plb_route;

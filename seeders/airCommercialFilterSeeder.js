@@ -64,7 +64,7 @@ const filter = [
         // Only create filter if none exist
         const createdRoles = await AirCommercialFilter.create(filter); 
       } else {
-        console.log(' Commercial Filter already exists. Skipping seeding.');
+       // console.log(' Commercial Filter already exists. Skipping seeding.');
       }
     } catch (err) {
       console.error('Error seeding Commercial filter table:', err);

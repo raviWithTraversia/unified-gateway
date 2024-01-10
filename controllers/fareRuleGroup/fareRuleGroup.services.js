@@ -52,12 +52,6 @@ const editFareRuleGroup = async (req, res) => {
       ...req.body
     };
 
-    let fareRuleGroupNameExist = await fareRuleGroupModels.findOne({companyId:updateData?.companyId,fareRuleGroupName:updateData?.fareRuleGroupName});
-    if(fareRuleGroupNameExist){
-      return {
-        response :'Fare rule group with the same name already exists for this company'
-      }
-    };
     if(updateData?.isDefault === true){
       let checkIsAnydefaultTrue = await fareRuleGroupModels.updateMany({companyId: updateData.companyId} ,{isDefault : false});
     }

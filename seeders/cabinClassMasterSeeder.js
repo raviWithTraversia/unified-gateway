@@ -29,7 +29,7 @@ const seedCabinClassMaster = async () => {
             const createdCabinClasses = await cabinClassMaster.create(cabinClassData);
             console.log('Cabin class master table seeded successfully.');
         } else {
-            console.log('Cabin class master table already exists. Skipping seeding.');
+           // console.log('Cabin class master table already exists. Skipping seeding.');
         }
     } catch (err) {
         console.error('Error seeding cabin class master table:', err);

@@ -71,6 +71,10 @@ const agentConfigSchema = new mongoose.Schema({
       agency: { type: Boolean },
       series: { type: Boolean },
     },
+    agencyGroupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'agencyGroupModel'
+    },
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

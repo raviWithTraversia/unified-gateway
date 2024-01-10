@@ -93,7 +93,7 @@ air_commercial_route.get(
 
 
 // Delete Commercial Single
-air_commercial_route.get(
+air_commercial_route.delete(
     '/commercial/delete-air-commercial/:airComId',
     auth,
     airCommercialController.deleteAirCommercial

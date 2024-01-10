@@ -19,6 +19,7 @@ const addAgentConfiguration = async (req, res) => {
       addressOnTicketCopy,
       fareTypes,
       UserId,
+      agencyGroupId
     } = req.body;
     let userId = req.user._id;
     let checkIsRole = await userModel
@@ -72,6 +73,7 @@ const addAgentConfiguration = async (req, res) => {
         fareTypes,
         UserId,
         modifyBy: req.user._id,
+        agencyGroupId
       });
       agentConfigsInsert = await agentConfigsInsert.save();
       if (agentConfigsInsert) {
@@ -131,6 +133,7 @@ const getAgentConfig = async (req, res) => {
       .populate("companyId")
       .populate("privilegePlansIds")
       .populate("commercialPlanIds")
+      .populate("agencyGroupId")
     console.log(agentConfigData);
     if (agentConfigData) {
       return {

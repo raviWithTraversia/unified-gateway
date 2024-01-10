@@ -102,6 +102,10 @@ const registrationSchema = new mongoose.Schema({
     roleId : {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Role'
+    },
+    agencyGroupId : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'agencyGroupModel' 
     }
 
 },{

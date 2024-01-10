@@ -13,8 +13,15 @@ const addPLBMaster = async(req, res) => {
                 response : 'Company Id is required'
             }
         }
+        const checkPLBExist = await PLBMaster.findOne({companyId : companyId});
+        if(checkPLBExist) {
+            isDefault = false;
+        }else{
+            isDefault = true;
+        }
+
         const PLBData = new PLBMaster({
-            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted
+            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted,isDefault
         })
         const result =  await PLBData.save();
 
@@ -46,7 +53,7 @@ const getPLBMaterByPLBType = async(req , res) => {
     try {
         const PLBType = req.params.PLBType;
         const companyId = req.params.companyId;
-        const result = await PLBMaster.find({ PLBType: PLBType , companyId: companyId});
+        const result = await PLBMaster.find({ PLBType: PLBType , companyId: companyId}).populate('supplierCode airlineCode cabinClass fareFamily');
         if (result.length > 0) {
             return {
                 data: result
@@ -137,8 +144,9 @@ const removePLBMaster = async(req , res) => {
 
 const CopyPLBMaster = async(req, res) => {
     try {
-        const _id = req.body.id;
-        const DataPLB = PLBMaster.findById(_id);
+        const _id = req.params.id;
+        const DataPLB = await PLBMaster.findById(_id);
+
         if(DataPLB) {
             
             const PLBData = new PLBMaster({
@@ -434,10 +442,35 @@ const PLBMasterUpdateHistory = async(req , PLBMasterId ,res) => {
     }
 }
 
+
+// PLB Master assign isDefault
+
+const PLBMasterIsDefault = async(req , res) => {
+    try {
+        const _id = req.params.id;
+        const {companyId} = req.body;
+        if(!companyId) {
+            return {
+                response : 'Company Id is required'
+            }
+        }
+        await PLBMaster.updateMany({ companyId }, { isDefault: false });
+
+        const result = await PLBMaster.findByIdAndUpdate( _id , {isDefault : true }, { new: true });
+        return {
+            response : 'PLB master define as default'
+        }
+        
+    } catch (error) {
+        throw error;
+    }
+}
+
 module.exports = {
     addPLBMaster,
     getPLBMaterByPLBType,
     PLBMasterUpdate,
     removePLBMaster,
-    CopyPLBMaster
+    CopyPLBMaster,
+    PLBMasterIsDefault
 }

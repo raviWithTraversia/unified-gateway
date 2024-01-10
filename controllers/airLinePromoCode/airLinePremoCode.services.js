@@ -80,7 +80,12 @@ const getPromoCode = async (req,res) => {
           response : 'Invalid Mongo Object Id'
        }
     }
-    let airlinePromoCodeData = await airLinePromo.find({companyId : id});
+    let airlinePromoCodeData;
+    airlinePromoCodeData = await airLinePromo.find({companyId : id}).populate('supplierCode')
+    .populate('airLineCode')
+    .populate('fareFamily');
+   
+   // console.log(airlinePromoCodeData)
     if(airlinePromoCodeData){
         return{
             response : "Data Fetch Sucessfully",

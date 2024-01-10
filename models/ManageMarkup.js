@@ -5,19 +5,25 @@ const markupDataSchema =  new mongoose.Schema ({
   markupData: [markupMasterData.schema],
   markupOn: {
     type: String,
+    enum : ['Domestic', 'International'],
     default: 'Domestic'
   },
   markupFor: {
     type: String,
+    enum : ['Ticket', 'Coupan'],
     default: 'Ticket'
   },
   airlineCodeId: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'AirlineCode'
   },
   companyId: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Company'
+  },
+  isDefault: {
+    type : Boolean,
+    required : false
   },
   createdAt : {
    type : Date
@@ -33,7 +39,7 @@ const markupDataSchema =  new mongoose.Schema ({
   modifyBy : {
     type : mongoose.Schema.Types.ObjectId,
     ref : 'User'
-  }
+  },
 }, {
     timestamps : true
 });

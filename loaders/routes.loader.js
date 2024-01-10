@@ -47,7 +47,11 @@ const emulateRoute = require('../routes/emulateRoute');
 const paymentGatewayChargeRoute = require('../routes/paymentGatewayChargeRoute');
 const agencyConfigRoute = require('../routes/agencyConfigurationRoute');
 const markupRoute =  require('../routes/manageMarkupRoute');
-const cardDetailRoute = require('../routes/cardDetailsRoute')
+const cardDetailRoute = require('../routes/cardDetailsRoute');
+const paymentGatewayGroupRoute = require('../routes/paymentGatewayChargeGroupRoute');
+const airlinePromoCodeGroupRoute = require('../routes/airlinePromoCodeGroupRoute');
+const diSetupGroupRoute = require('../routes/diSetupGroupRoute');
+const agencyGroupRoute = require('../routes/agencyGroupRoute');
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -198,7 +202,23 @@ class RoutesLoader {
         app.use('/api', markupRoute);
 
         //cardDetailRoute
-        app.use('/api',cardDetailRoute)
+        app.use('/api',cardDetailRoute);
+        
+        // paymentGatewayGroupRoute
+        app.use('/api', paymentGatewayGroupRoute);
+
+        // airlinePromoCodeGroupRoute
+        app.use('/api', airlinePromoCodeGroupRoute);
+
+        //diSetupGroupRoute
+
+        app.use('/api', diSetupGroupRoute);
+
+        //agencyGroupRoute
+        app.use('/api', agencyGroupRoute);
+
+
+
     }
 }
 

@@ -17,16 +17,18 @@ const PLBMasterSchema = new mongoose.Schema({
         default : null
     },
     supplierCode: {
-        type: String,
-        required: false,
+        type: mongoose.Schema.Types.ObjectId,
+        'ref': 'SupplierCode',
         default:null
     },
     airlineCode: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        'ref': 'AirlineCode',
         default : null
     },
     cabinClass: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        'ref': 'CabinClassMaster',
         default : null
     },
     rbd: {
@@ -110,14 +112,19 @@ const PLBMasterSchema = new mongoose.Schema({
         default : null
     },
     fareFamily: {
-        type: String,
-        default: null
+        type: mongoose.Schema.Types.ObjectId,
+        'ref': 'FareFamilyMaster',
+        default : null
     },
     deductTDS: {
         type : Boolean,
         default: false
     },
     isdeleted: {
+        type: Boolean,
+        default: false
+    },
+    isDefault: {
         type: Boolean,
         default: false
     }

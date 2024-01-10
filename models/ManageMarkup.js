@@ -5,19 +5,21 @@ const markupDataSchema =  new mongoose.Schema ({
   markupData: [markupMasterData.schema],
   markupOn: {
     type: String,
+    enum : ['Domestic', 'International'],
     default: 'Domestic'
   },
   markupFor: {
     type: String,
+    enum : ['Ticket', 'Coupan'],
     default: 'Ticket'
   },
   airlineCodeId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: 'AirlineCode'
+    ref: 'AirlineCode'
   },
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: 'Company'
+    ref: 'Company'
   },
   isDefault: {
     type : Boolean,

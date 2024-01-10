@@ -127,6 +127,7 @@ async function handleflight(
   const supplierCredentials = await Supplier.find({
     companyId: CompanyId,
     credentialsType: CredentialType,
+    status: true
   })
     .populate({
       path: "supplierCodeId",
@@ -151,6 +152,11 @@ async function handleflight(
       response: "Trace Id Required",
     };
   }
+  const airLinePromoCodeQuery = [
+    { sourceCode: "Kafila", airlineCode: "sg", PromoCode: "KAFILA12254" },
+    { sourceCode: "TBO", airlineCode: "sg", PromoCode: "TBO12254" },
+  ];
+  //airline promo code query here
   // Commertial query call here ( PENDING )
   // Supplier API Integration Start Here ....
   const responsesApi = await Promise.all(
@@ -158,6 +164,7 @@ async function handleflight(
       try {
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
+            // check here airline promoCode if active periority first agent level then group level
             return await KafilaFun(
               Authentication,
               supplier,
@@ -367,7 +374,7 @@ const KafilaFun = async (
         Env: credentialType,
         Module: "B2B",
         OtherInfo: {
-          PromoCode: "KAF2022",
+          PromoCode: "",
           FFlight: "",
           FareType: fareFamilyVal,
           TraceId: Authentication.TraceId,
@@ -622,31 +629,57 @@ const commercialApplyHandle = async (Authentication, commonArray) => {
       response: "User Id Not Available",
     };
   }
-  
-  // const companyDetails = await Company.findOne({ _id: userDetails.company_ID }).populate('parent', 'type');
-  
-  // if(companyDetails.type == "Agency" && companyDetails.parent.type == "TMC"){ // TMC-Agency
-  //   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(commonArray);   
-  //   return {
-  //     IsSucess: true,
-  //     response: getApplyAllCommercialVar,
-  //   };
-  // }else if(companyDetails.type == "Agency" && companyDetails.parent.type == "Distributer"){ // TMC-Distributer-Agency
-  //   return {
-  //     IsSucess: true,
-  //     response: "agency DIstributer",
-  //   };
-  // }else if(companyDetails.type == "Distributer" && companyDetails.parent.type == "TMC"){ // Distributer-TMC
-  //   return {
-  //     IsSucess: true,
-  //     response: "TMC DIstributer",
-  //   };
-  // }else{
-  //   return {
-  //     IsSucess: true,
-  //     response: "Else",
-  //   };
-  // }
+
+  const companyDetails = await Company.findOne({
+    _id: userDetails.company_ID,
+  }).populate("parent", "type");
+
+  if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {
+    // TMC-Agency // // one time apply commertioal
+    const getApplyAllCommercialVar =
+      await flightcommercial.getApplyAllCommercial(
+        "TMC-Agency",
+        companyDetails,
+        Authentication,
+        commonArray
+      );
+    return getApplyAllCommercialVar;
+  } else if (
+    companyDetails.type == "Agency" &&
+    companyDetails.parent.type == "Distributer"
+  ) {
+    // TMC-Distributer-Agency // Two time apply commertioal
+    const getApplyAllCommercialVar =
+      await flightcommercial.getApplyAllCommercial(
+        "TMC-Distributer-Agency",
+        companyDetails,
+        Authentication,
+        commonArray
+      );
+    return getApplyAllCommercialVar;
+  } else if (
+    companyDetails.type == "Distributer" &&
+    companyDetails.parent.type == "TMC"
+  ) {
+    // Distributer-TMC // one time apply commertioal
+    const getApplyAllCommercialVar =
+      await flightcommercial.getApplyAllCommercial(
+        "TMC-Distributer",
+        companyDetails,
+        Authentication,
+        commonArray
+      );
+    return getApplyAllCommercialVar;
+  } else {
+    const getApplyAllCommercialVar =
+      await flightcommercial.getApplyAllCommercial(
+        "TMC",
+        companyDetails,
+        Authentication,
+        commonArray
+      );
+    return getApplyAllCommercialVar;
+  }
 };
 
 module.exports = {

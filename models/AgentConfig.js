@@ -24,22 +24,22 @@ const agentConfigSchema = new mongoose.Schema({
       },
     fareRuleGroupIds: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: " fareRuleGroup",
+        ref: "fareRuleGroup",
         default : null
       },
     salesInchargeIds: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: " User",
+        ref: "User",
         default : null
       },
     plbGroupIds: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: " PLBGroupMaster",
+        ref: "PLBGroupMaster",
         default : null
       },
     incentiveGroupIds: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: " IncentiveGroupMaster",
+        ref: "IncentiveGroupMaster",
         default : null
       },
     portalLedgerAllowed: {

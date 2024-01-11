@@ -17,5 +17,5 @@ const IncentiveGroupMasterSchema = new mongoose.Schema({
 },{
     timestamps : true 
 });
-
-module.exports = mongoose.model('IncentiveGroupMaster' , IncentiveGroupMasterSchema)
+const IncentiveGroupMaster = mongoose.model("IncentiveGroupMaster", IncentiveGroupMasterSchema);
+module.exports = IncentiveGroupMaster;

@@ -134,6 +134,7 @@ const getAgentConfig = async (req, res) => {
       .populate("privilegePlansIds")
       .populate("commercialPlanIds")
       .populate("agencyGroupId")
+      .populate("incentiveGroupIds")
     console.log(agentConfigData);
     if (agentConfigData) {
       return {

@@ -111,14 +111,17 @@ const checkGstin = async (req,res) => {
   
       const apiUrl = Config.GST_URL;
       const headers = Config.GST_TOKEN;
-  
-      const responseData = await axios.post(apiUrl,null,{
+      console.log(apiUrl,"<<<==========", headers, "Code is here 114")
+      const responseData = await axios.post(
+        apiUrl,
+        null,
+        {
         headers,
         params: {
           gst_number: gstNumber
         }
       });
-       
+      console.log(apiUrl,"<<<==========", headers, "Code is here 121")
       if(responseData){
       return {
         response : "Data Fetch Sucessfully",

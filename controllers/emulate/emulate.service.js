@@ -22,18 +22,17 @@ const searchForUserEmulate = async (req, res) => {
             let companiesList = [];
             for (let i = 0; i < getCompaniesDetails.length; i++) {
                 const companyDetails = getCompaniesDetails[i];
-                const populatedCompanyDetails = await UserModule.findOne({ company_ID: companyDetails._id });
+                const populatedCompanyDetails = await UserModule.findOne({ company_ID: companyDetails._id, userStatus:"Active" });
 
                 // Check if populatedCompanyDetails exists before trying to access _id
                 if (populatedCompanyDetails) {
-                    companiesList.push({_id:populatedCompanyDetails._id,name:companyDetails.companyName});
-                   
+                    companiesList.push({_id:populatedCompanyDetails._id,name:companyDetails.companyName});                   
                 }
-                
-                
+                                
             }
             const getUserDetails = await UserModule.find({
                 company_ID: getUserId.company_ID,
+                userStatus:"Active",
                 $or: [
                     { fname: new RegExp(search, 'i') },
                     { lastName: new RegExp(search, 'i') }

@@ -65,25 +65,25 @@ const checkPanCard = async (req, res) => {
       const apiUrl = Config.PAN_URL;
       const headers = Config.HADDER_3RD_PAERT;
   
-      // let responseData = await axios.post(apiUrl,null,{
-      //   headers,
-      //   params: {
-      //     pan_number: panNumber
-      //   }
-      // });
-    let  responseData =  {
-        "data": {
-            "pan_number": "CNAPK1068F",
-            "pan_status": "VALID",
-            "pan_status_desc": "Successfully linked to an Aadhaar",
-            "last_name": "KISHOR",
-            "first_name": "KAUSHAL",
-            "middle_name": "",
-            "pan_holder_title": "Shri",
-            "pan_last_updated": "19/08/2022",
-            "pan_aadhaar_seeding": "Y"
+      let responseData = await axios.post(apiUrl,null,{
+        headers,
+        params: {
+          pan_number: panNumber
         }
-    }
+      });
+    // let  responseData =  {
+    //     "data": {
+    //         "pan_number": "CNAPK1068F",
+    //         "pan_status": "VALID",
+    //         "pan_status_desc": "Successfully linked to an Aadhaar",
+    //         "last_name": "KISHOR",
+    //         "first_name": "KAUSHAL",
+    //         "middle_name": "",
+    //         "pan_holder_title": "Shri",
+    //         "pan_last_updated": "19/08/2022",
+    //         "pan_aadhaar_seeding": "Y"
+    //     }
+    // }
       if(responseData){
         return {
           response : "Data Fetch Sucessfully",

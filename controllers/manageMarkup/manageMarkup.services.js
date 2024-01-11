@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 const addMarkup = async (req, res) => {
   try {
-    let { markupData, airlineCodeId, markupOn, markupFor, companyId } =
+    let { markupData, airlineCodeId, markupOn, markupFor, companyId, isDefault} =
       req.body;
     let userId = "658165afff75194ba3f9f574";
     console.log(userId);
@@ -15,6 +15,13 @@ const addMarkup = async (req, res) => {
       markupFor: markupFor,
       companyId: companyId,
     });
+    if (isDefault === true) {
+      let checkIsAnydefaultTrue =
+        await manageMarkupModel.updateMany(
+          { companyId },
+          { isDefault: false }
+        );
+    }
     console.log(checkMarkupExist, "vvvvvv");
     if (checkMarkupExist?.length > 0) {
       return {
@@ -38,6 +45,7 @@ const addMarkup = async (req, res) => {
         companyId,
         modifyBy: userId,
         createdBy: userId,
+        isDefault
       });
       markupChargeInsert = await markupChargeInsert.save();
       if (markupChargeInsert) {
@@ -89,7 +97,14 @@ const updateMarkup = async (req, res) => {
 const deletedMarkup = async (req, res) => {
   try {
     const { markupId } = req.query;
-    const deleteMarkupDetails = await manageMarkupModel.findByIdAndRemove(
+    let checkForDeleteProtaction = await manageMarkupModel.find({_id : markupId, isDefault : true});
+    console.log(checkForDeleteProtaction , "ppppppppppppppppp")
+    if(checkForDeleteProtaction.length > 0){
+      return {
+        response : "You can't delete default markup"
+      }
+    }
+    const deleteMarkupDetails = await manageMarkupModel.findByIdAndDelete(
       markupId
     );
     if (deleteMarkupDetails) {

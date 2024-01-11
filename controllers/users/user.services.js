@@ -123,6 +123,7 @@ const loginUser = async (req, res) => {
 
 const userInsert = async (req, res) => {
   let savedCompany = null;
+  let newUser = null;
  // console.log(req.user, "lllllllllllllllllllllllllllllllllllll")
   try {
     const requiredFields = [
@@ -157,7 +158,7 @@ const userInsert = async (req, res) => {
         data: `Missing or null fields: ${missingFieldsString}`,
       };
     };
-    const {
+    let {
       companyName,
       parent,
       type,
@@ -287,7 +288,7 @@ const userInsert = async (req, res) => {
     }
     savedCompany = await newCompany.save();
     const securePassword = await commonFunction.securePassword(password);
-    const newUser = new User({
+     newUser = new User({
       userType,
       login_Id,
       email,
@@ -326,9 +327,9 @@ const userInsert = async (req, res) => {
     let commercialPlanIds = await commercialPlanModel.findOne({companyId :parent,IsDefault : true});
     let fareRuleGroupIds = await fareRuleGroupModel.findOne({companyId :parent,IsDefault : true});
     if(!agencyGroupId){
-      let agencyGroupId = await agencyGroupId.findOne({companyId :parent,IsDefault : true});
+      agencyGroupId = await agencyGroupModel.findOne({isDefault : true});
     }
-    console.log(privilegePlansIds ,commercialPlanIds ,fareRuleGroupIds)
+    console.log(privilegePlansIds ,commercialPlanIds ,fareRuleGroupIds,agencyGroupId)
       let agentConfigsInsert = await agentConfigModel.create({
         userId : userCreated._id,
         companyId : savedCompany._id ,
@@ -338,6 +339,7 @@ const userInsert = async (req, res) => {
         commercialPlanIds : commercialPlanIds || null,
         modifyAt: new Date(),
         modifiedBy : req.user.id || null,
+        agencyGroupId : agencyGroupId
         });
         agentConfigsInsert = await agentConfigsInsert.save();
       console.log( 'User Config Insert Sucessfully')
@@ -347,11 +349,12 @@ const userInsert = async (req, res) => {
       data: { newUser, newCompany },
     };
   } catch (error) {
-    if (savedCompany == null) {
+    if (savedCompany == null || newUser == null ) {
       console.log(error);
       throw error;
     }else{
       await Company.deleteOne(savedCompany._id);
+      await User.deleteOne(newUser._id);
       console.log(error);
       throw error;
     }

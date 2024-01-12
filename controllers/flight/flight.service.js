@@ -2,7 +2,6 @@ const flightcommercial = require("./flight.commercial");
 const PromoCode = require("../../models/AirlinePromoCode");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
-const UserModule = require("../../models/User");
 const Role = require("../../models/Role");
 const axios = require("axios");
 const uuid = require("uuid");
@@ -214,14 +213,15 @@ async function handleflight(
   }
 
   // apply commercial function
-  const commercialApplyResult = await commercialApplyHandle(
-    Authentication,
-    commonArray
-  );
+  const getApplyAllCommercialVar =
+      await flightcommercial.getApplyAllCommercial(
+        Authentication,
+        commonArray
+      );  
 
   return {
     IsSucess: true,
-    response: commercialApplyResult,
+    response: getApplyAllCommercialVar,
   };
 }
 
@@ -617,68 +617,6 @@ const KafilaFun = async (
       IsSucess: false,
       response: error.message,
     };
-  }
-};
-
-const commercialApplyHandle = async (Authentication, commonArray) => {
-  const userDetails = await UserModule.findOne({ _id: Authentication.UserId });
-
-  if (!userDetails) {
-    return {
-      IsSuccess: false,
-      response: "User Id Not Available",
-    };
-  }
-
-  const companyDetails = await Company.findOne({
-    _id: userDetails.company_ID,
-  }).populate("parent", "type");
-
-  if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {
-    // TMC-Agency // // one time apply commertioal
-    const getApplyAllCommercialVar =
-      await flightcommercial.getApplyAllCommercial(
-        "TMC-Agency",
-        companyDetails,
-        Authentication,
-        commonArray
-      );
-    return getApplyAllCommercialVar;
-  } else if (
-    companyDetails.type == "Agency" &&
-    companyDetails.parent.type == "Distributer"
-  ) {
-    // TMC-Distributer-Agency // Two time apply commertioal
-    const getApplyAllCommercialVar =
-      await flightcommercial.getApplyAllCommercial(
-        "TMC-Distributer-Agency",
-        companyDetails,
-        Authentication,
-        commonArray
-      );
-    return getApplyAllCommercialVar;
-  } else if (
-    companyDetails.type == "Distributer" &&
-    companyDetails.parent.type == "TMC"
-  ) {
-    // Distributer-TMC // one time apply commertioal
-    const getApplyAllCommercialVar =
-      await flightcommercial.getApplyAllCommercial(
-        "TMC-Distributer",
-        companyDetails,
-        Authentication,
-        commonArray
-      );
-    return getApplyAllCommercialVar;
-  } else {
-    const getApplyAllCommercialVar =
-      await flightcommercial.getApplyAllCommercial(
-        "TMC",
-        companyDetails,
-        Authentication,
-        commonArray
-      );
-    return getApplyAllCommercialVar;
   }
 };
 

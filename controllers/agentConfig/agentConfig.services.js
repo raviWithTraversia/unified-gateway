@@ -126,7 +126,7 @@ const updateAgentConfiguration = async (req, res) => {
 
 const getAgentConfig = async (req, res) => {
   try {
-    let {id} = req.query.id;
+    let {id} = req.query;
     let agentConfigData = await agentConfigsModels
       .findOne({userId  : id})
       .populate("userId")
@@ -134,6 +134,7 @@ const getAgentConfig = async (req, res) => {
       .populate("privilegePlansIds")
       .populate("commercialPlanIds")
       .populate("agencyGroupId")
+      .populate("incentiveGroupIds")
     console.log(agentConfigData);
     if (agentConfigData) {
       return {

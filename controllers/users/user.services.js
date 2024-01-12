@@ -321,8 +321,6 @@ const userInsert = async (req, res) => {
 
     let userCreated = await newUser.save();
     if(userCreated){
-      await Registration.deleteOne({email : email});
-      console.log("Registration details deleted");
     let privilegePlansIds = await privilagePlanModel.findOne({companyId :parent,IsDefault : true});
     let commercialPlanIds = await commercialPlanModel.findOne({companyId :parent,IsDefault : true});
     let fareRuleGroupIds = await fareRuleGroupModel.findOne({companyId :parent,IsDefault : true});
@@ -342,7 +340,9 @@ const userInsert = async (req, res) => {
         agencyGroupId : agencyGroupId
         });
         agentConfigsInsert = await agentConfigsInsert.save();
-      console.log( 'User Config Insert Sucessfully')
+      console.log( 'User Config Insert Sucessfully');
+      await Registration.deleteOne({email : email});
+      console.log("Registration details deleted");
     }
     return {
       response: "User and Company Inserted successfully",

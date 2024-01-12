@@ -144,17 +144,14 @@ async function handleflight(
   //  const getPromoCode = await PromoCode.find({ companyId: CompanyId, supplierCode: supplierCredentials });
   // console.log("aaaaaaaaaaaaaaaaaaaaaaa" + fareTypeVal);
   // return false
-
+  
   if (!TraceId) {
     return {
       IsSucess: false,
       response: "Trace Id Required",
     };
   }
-  const airLinePromoCodeQuery = [
-    { sourceCode: "Kafila", airlineCode: "sg", PromoCode: "KAFILA12254" },
-    { sourceCode: "TBO", airlineCode: "sg", PromoCode: "TBO12254" },
-  ];
+
   //airline promo code query here
   // Commertial query call here ( PENDING )
   // Supplier API Integration Start Here ....
@@ -355,6 +352,7 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
+    console.log(response, "Token Responce")
     if (response.data.Status === "success") {
       let getToken = response.data.Result;
       let requestDataFSearch = {
@@ -392,7 +390,7 @@ const KafilaFun = async (
           },
         }
       );
-
+      console.log(fSearchApiResponse.data, "API Responce")
       if (fSearchApiResponse.data.Status == "failed") {
         return {
           IsSucess: false,

@@ -8,11 +8,12 @@ const Matrix = require('../../models/UpdateAirCommercialMatrix');
 const CommercialFilterExcInd = require('../../models/CommercialFilterExcludeIncludeList');
 const { response } = require('../../routes/airCommercialRoute');
 const AirCommercialFilter = require('../../models/AirCommercialFilter');
+const CommercialHistory = require('../../models/CommercialHistory');
 
 
-const addAirCommercial = async(req , res) => {
+const addAirCommercial = async (req, res) => {
     try {
-        
+
         const {
             commercialAirPlanId,
             travelType,
@@ -23,29 +24,29 @@ const addAirCommercial = async(req , res) => {
             priority,
             companyId
         } = req.body;
-        if(!commercialAirPlanId) {
+        if (!commercialAirPlanId) {
             return {
-                response : 'Commercial air plan Id field are required'
+                response: 'Commercial air plan Id field are required'
             }
         }
-        if(!travelType) {
+        if (!travelType) {
             return {
-                response : 'Travel Type field are required'
+                response: 'Travel Type field are required'
             }
         }
-        if(!carrier) {
+        if (!carrier) {
             return {
-                response : 'Carrier field are required'
+                response: 'Carrier field are required'
             }
         }
-        if(!supplier) {
+        if (!supplier) {
             return {
-                response : 'Supplier field are required'
+                response: 'Supplier field are required'
             }
         }
-        if(!priority) {
+        if (!priority) {
             return {
-                response : 'Priority field are required'
+                response: 'Priority field are required'
             }
         }
         const saveAirCommercial = new AirCommercial({
@@ -58,53 +59,53 @@ const addAirCommercial = async(req , res) => {
             priority,
             companyId
         });
-        
+
         const result = await saveAirCommercial.save();
 
         // Create matrix for commercial when we create commercial detail
-        if(result) {
+        if (result) {
             const getMatrixData = await CommercialType.find();
-            const createCommercialType =  new Matrix({
-                comercialPlanId : commercialAirPlanId,
-                airCommercialPlanId : result._id,
+            const createCommercialType = new Matrix({
+                comercialPlanId: commercialAirPlanId,
+                airCommercialPlanId: result._id,
                 companyId,
-                data : getMatrixData,
+                data: getMatrixData,
             });
             const saveData = await createCommercialType.save();
         }
 
 
         // Create Filter for Matrix............
-        if(result) {
+        if (result) {
             const allFilter = await AirCommercialFilter.find();
             const dataArray = [];
             for (let i = 0; i < allFilter.length; i++) {
                 const object1 = {
-                    commercialFilterId : allFilter[i]._id,
-                    type : "exclude",
-                    value : null,
-                    valueType : allFilter[i].type,
+                    commercialFilterId: allFilter[i]._id,
+                    type: "exclude",
+                    value: null,
+                    valueType: allFilter[i].type,
                 }
                 const object2 = {
-                    commercialFilterId : allFilter[i]._id,
-                    type : "include",
-                    value : null,
-                    valueType : allFilter[i].type,
+                    commercialFilterId: allFilter[i]._id,
+                    type: "include",
+                    value: null,
+                    valueType: allFilter[i].type,
                 }
-                dataArray.push(object1 , object2);
+                dataArray.push(object1, object2);
             }
-            
+
             const createFilter = new CommercialFilterExcInd({
-                commercialAirPlanId : commercialAirPlanId,
-                airCommercialId : result._id,
-                commercialFilter : dataArray
+                commercialAirPlanId: commercialAirPlanId,
+                airCommercialId: result._id,
+                commercialFilter: dataArray
             });
 
             const filterCreated = await createFilter.save();
 
         }
         return {
-            response : 'Air Commercial created successfully'
+            response: 'Air Commercial created successfully'
         }
 
     } catch (error) {
@@ -112,10 +113,10 @@ const addAirCommercial = async(req , res) => {
     }
 }
 
-const getColoumnDetail = async(req , res) => {
+const getColoumnDetail = async (req, res) => {
     try {
         const coloumnData = await AirCommercialColoumnMaster.find();
-        
+
         if (coloumnData.length > 0) {
             return {
                 data: coloumnData,
@@ -132,7 +133,7 @@ const getColoumnDetail = async(req , res) => {
 }
 
 
-const getRowDetail = async(req , res) => {
+const getRowDetail = async (req, res) => {
     try {
         const rowData = await AirCommercialRowMaster.find();
         if (rowData.length > 0) {
@@ -151,20 +152,20 @@ const getRowDetail = async(req , res) => {
 }
 
 
-const addCommercialType = async(req ,res) => {
+const addCommercialType = async (req, res) => {
     try {
         const {
-            airCommercialId, 
+            airCommercialId,
             AirCommertialColumnMasterId,
             AirCommertialRowMasterId,
             companyId,
             textType
         } = req.body;
-        if(!airCommercialId || !AirCommertialColumnMasterId || !AirCommertialRowMasterId || !companyId || !textType){
+        if (!airCommercialId || !AirCommertialColumnMasterId || !AirCommertialRowMasterId || !companyId || !textType) {
             return {
-                response : 'All fields are required'
+                response: 'All fields are required'
             }
-        }else{
+        } else {
 
             // const checkComType =  new CommercialType.findOne({
             //     airCommercialId,
@@ -174,7 +175,7 @@ const addCommercialType = async(req ,res) => {
             // });
 
             // if(checkComType) {
-               
+
             //     const saveResult = await CommercialType.findByIdAndUpdate(
             //         checkComType._id,
             //         {
@@ -192,17 +193,17 @@ const addCommercialType = async(req ,res) => {
             //     }
             // }else{
 
-                const saveResult = new CommercialType({
-                    airCommercialId,
-                    AirCommertialColumnMasterId,
-                    AirCommertialRowMasterId,
-                    companyId,
-                    textType
-                });
-                const result =await saveResult.save();
-                return {
-                    response : "Air commercial type added successfully"
-                }
+            const saveResult = new CommercialType({
+                airCommercialId,
+                AirCommertialColumnMasterId,
+                AirCommertialRowMasterId,
+                companyId,
+                textType
+            });
+            const result = await saveResult.save();
+            return {
+                response: "Air commercial type added successfully"
+            }
             // }
         }
     } catch (error) {
@@ -210,7 +211,7 @@ const addCommercialType = async(req ,res) => {
     }
 }
 
-const getCommercialDetailList = async(req , res) => {
+const getCommercialDetailList = async (req, res) => {
     try {
         const coloumnData = await CommercialType.find();
         if (coloumnData.length > 0) {
@@ -222,7 +223,7 @@ const getCommercialDetailList = async(req , res) => {
                 response: 'Commercial type not available',
                 data: null,
             }
-        }   
+        }
     } catch (error) {
         throw error;
     }
@@ -230,57 +231,56 @@ const getCommercialDetailList = async(req , res) => {
 
 
 
-const commercialRowColoumnAdd = async(req ,res) =>{
-   try {
-    const {name , commercialType , type , modifiedBy} = req.body;
-    if(!name || !commercialType || !type || !modifiedBy) {
-        return {
-            response : 'All fields are required'
+const commercialRowColoumnAdd = async (req, res) => {
+    try {
+        const { name, commercialType, type, modifiedBy } = req.body;
+        if (!name || !commercialType || !type || !modifiedBy) {
+            return {
+                response: 'All fields are required'
+            }
         }
-    }
 
-    const storeData = new AirCommercialColoumnMaster({
-        name,
-        commercialType,
-        type,
-        modifiedBy
-    });
+        const storeData = new AirCommercialColoumnMaster({
+            name,
+            commercialType,
+            type,
+            modifiedBy
+        });
 
-    const result = await storeData.save();
-    return {
-        response : "Commercial row / coloumn created successfully"
-    }    
+        const result = await storeData.save();
+        return {
+            response: "Commercial row / coloumn created successfully"
+        }
 
-   } catch (error) {
+    } catch (error) {
         throw error
-   }
+    }
 }
 
 
-const UpdateMatrixData = async(req , res) => {
+const UpdateMatrixData = async (req, res) => {
     try {
         const {
-            comercialPlanId, 
+            comercialPlanId,
             airCommercialPlanId,
             companyId,
             data,
             commercialFilter,
         } = req.body;
-        console.log(airCommercialPlanId);
 
-        if(!comercialPlanId || !airCommercialPlanId || !companyId ) {
+        if (!comercialPlanId || !airCommercialPlanId || !companyId) {
             return {
-                response : "All field are required",
-            }  
+                response: "All field are required",
+            }
         }
 
         const checkDataExist = await Matrix.findOne({
             airCommercialPlanId: airCommercialPlanId,
             comercialPlanId: comercialPlanId,
         });
-      
-        
-        if(checkDataExist) {
+
+
+        if (checkDataExist) {
 
             // Filter Commercial Data
             const checkExist = await CommercialFilterExcInd.findOne({
@@ -304,46 +304,71 @@ const UpdateMatrixData = async(req , res) => {
                 {
                     comercialPlanId,
                     airCommercialPlanId,
-                    companyId : companyId,
+                    companyId: companyId,
                     data,
                 },
                 { new: true }
             );
-            if(resultAll) {
+            if (resultAll) {
+
+                // Manage History 
+
+                const checkComHistory = await CommercialHistory.findOne({ commercialId: checkExist._id });
+                if (checkComHistory) {
+
+                    let resultAll = await CommercialHistory.findByIdAndUpdate(
+                        checkComHistory._id,
+                        {
+                            newValue: data,
+                            oldValue: checkComHistory.newValue
+                        },
+                        { new: true }
+                    );
+                } else {
+                    const saveHistory = new CommercialHistory({
+                        commercialId: checkExist._id,
+                        newValue: data,
+                        oldValue: data
+
+                    });
+                    const History_result = await saveHistory.save();
+                }
+
+
                 return {
-                    response : "Matrix updated successfully",
-                }  
-            }else{
+                    response: "Matrix updated successfully",
+                }
+            } else {
                 return {
-                    response : "Something went wrong!!",
-                }   
+                    response: "Something went wrong!!",
+                }
             }
 
-        }else{
+        } else {
 
             var resultData = new CommercialFilterExcInd({
                 commercialAirPlanId: comercialPlanId,
                 airCommercialId: airCommercialPlanId,
                 commercialFilter,
             });
-            
+
             let data = await result.save();
             // const rateValueData = req.body.rateValue;
             const saveDataMatrix = new Matrix({
                 comercialPlanId,
                 airCommercialPlanId,
-                companyId : companyId,
+                companyId: companyId,
                 data
             });
             let resultAll = await saveDataMatrix.save();
-            if(!resultAll) {
+            if (!resultAll) {
                 return {
-                    response : "Matrix updated successfully",
-                }  
-            }else{
+                    response: "Matrix updated successfully",
+                }
+            } else {
                 return {
-                    response : "Something went wrong!!",
-                }   
+                    response: "Something went wrong!!",
+                }
             }
         }
 
@@ -353,11 +378,11 @@ const UpdateMatrixData = async(req , res) => {
 }
 
 
-const getAirCommercialListByAirComId = async(req ,res) => {
+const getAirCommercialListByAirComId = async (req, res) => {
     try {
         const airCommercialPlanId = req.params.airCommercialPlanId;
-        const coloumnData = await AirCommercial.find({commercialAirPlanId : airCommercialPlanId}).populate('carrier').populate('supplier').populate('source');
-        
+        const coloumnData = await AirCommercial.find({ commercialAirPlanId: airCommercialPlanId }).populate('carrier').populate('supplier').populate('source');
+
         if (coloumnData.length > 0) {
             return {
                 data: coloumnData,
@@ -410,14 +435,14 @@ const addCommercialFilterExcInc = async (req, res) => {
                 };
             }
         } else {
-            
-            
+
+
             var result = new CommercialFilterExcInd({
                 commercialAirPlanId,
                 airCommercialId,
                 commercialFilter,
             });
-            
+
             let data = await result.save();
             if (data) {
                 return {
@@ -430,16 +455,16 @@ const addCommercialFilterExcInc = async (req, res) => {
             }
         }
 
-        
+
     } catch (error) {
         throw error;
     }
 };
 
-const getComExcIncList = async(req ,res) => {
+const getComExcIncList = async (req, res) => {
     try {
         const comercialIncExc = await AirCommercialFilter.find({})
-        
+
         if (comercialIncExc.length > 0) {
             return {
                 data: comercialIncExc,
@@ -456,25 +481,25 @@ const getComExcIncList = async(req ,res) => {
 }
 
 
-const getComIncludeExclude = async(req ,res) => {
+const getComIncludeExclude = async (req, res) => {
     try {
         // const commercialAirPlanId = req.params.commercialAirPlanId;
         // const airCommercialId = req.params.airCommercialId;
         // console.log(commercialAirPlanId);
         const { commercialAirPlanId, airCommercialId } = req.query;
         const result = await CommercialFilterExcInd.find({
-            commercialAirPlanId : commercialAirPlanId,
-            airCommercialId : airCommercialId
+            commercialAirPlanId: commercialAirPlanId,
+            airCommercialId: airCommercialId
         });
-        
-        if(result.length > 0) {
+
+        if (result.length > 0) {
             return {
-                response : 'Commercial include exclude list',
-                data : result
+                response: 'Commercial include exclude list',
+                data: result
             }
-        }else{
+        } else {
             return {
-                data : []
+                data: []
             }
         }
     } catch (error) {
@@ -484,7 +509,7 @@ const getComIncludeExclude = async(req ,res) => {
 
 
 
-const getMatrixList = async(req ,res) => {
+const getMatrixList = async (req, res) => {
     try {
         const comercialPlanId = req.params.comercialPlanId;
         const airCommercialPlanId = req.params.airCommercialPlanId;
@@ -492,15 +517,15 @@ const getMatrixList = async(req ,res) => {
             comercialPlanId,
             airCommercialPlanId
         });
-        
-        if(result) {
+
+        if (result) {
             return {
-                response : 'Matrix list',
-                data : result
+                response: 'Matrix list',
+                data: result
             }
-        }else{
+        } else {
             return {
-                data : []
+                data: []
             }
         }
     } catch (error) {
@@ -509,15 +534,15 @@ const getMatrixList = async(req ,res) => {
 }
 
 
-const deleteAirCommmercialDetail = async(req ,res) => {
+const deleteAirCommmercialDetail = async (req, res) => {
     try {
-        
+
         const id = req.params.airComId;
-        const removeAirCom = await AirCommercial.findOneAndDelete({_id : id});
+        const removeAirCom = await AirCommercial.findOneAndDelete({ _id: id });
         if (removeAirCom) {
-        return {
-            response: "Air Commercial Deleted Sucessfully",
-        };
+            return {
+                response: "Air Commercial Deleted Sucessfully",
+            };
         } else {
             return {
                 response: "Air commercial not deleted , Something went wrong",
@@ -527,14 +552,14 @@ const deleteAirCommmercialDetail = async(req ,res) => {
     } catch (error) {
         throw error;
     }
-} 
+}
 
 
-const getSingleAirComList = async(req ,res) => {
+const getSingleAirComList = async (req, res) => {
     try {
         const airComId = req.params.airComId;
-        const coloumnData = await AirCommercial.find({_id : airComId}).populate('carrier').populate('supplier').populate('source');
-        
+        const coloumnData = await AirCommercial.find({ _id: airComId }).populate('carrier').populate('supplier').populate('source');
+
         if (coloumnData.length > 0) {
             return {
                 data: coloumnData,
@@ -551,6 +576,26 @@ const getSingleAirComList = async(req ,res) => {
 }
 
 
+const getCommercialHistoryList = async(req , res) => {
+    try {
+        const commercialId = req.params.commercialId;
+        const coloumnData = await CommercialHistory.find({ commercialId: commercialId });
+
+        if (coloumnData.length > 0) {
+            return {
+                data: coloumnData,
+            }
+        } else {
+            return {
+                response: 'Commercial History not available',
+                data: null,
+            }
+        }
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     addAirCommercial,
     getColoumnDetail,
@@ -565,5 +610,6 @@ module.exports = {
     getComIncludeExclude,
     getMatrixList,
     deleteAirCommmercialDetail,
-    getSingleAirComList
+    getSingleAirComList,
+    getCommercialHistoryList
 }

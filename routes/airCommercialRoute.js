@@ -107,4 +107,12 @@ air_commercial_route.get(
 )
 
 
+// Get Commercial log
+air_commercial_route.get(
+    '/commercial/commercial-log/:commercialId',
+    auth,
+    airCommercialController.getCommercialLog
+)
+
+
 module.exports = air_commercial_route;

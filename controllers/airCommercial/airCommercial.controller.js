@@ -340,6 +340,26 @@ const getSingleAirComList = async (req, res) => {
 }
 
 
+const getCommercialLog = async (req, res) => {
+    try {
+        const result = await airCommericalService.getCommercialHistoryList(req);
+        apiSucessRes(
+            res,
+            result.data,
+            result.response,
+            ServerStatusCode.SUCESS_CODE
+        )
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
+
 module.exports = {
     storeAirCommercial,
     getColoumnData,
@@ -354,7 +374,8 @@ module.exports = {
     getComIncExludeList,
     matrixList,
     deleteAirCommercial,
-    getSingleAirComList
+    getSingleAirComList,
+    getCommercialLog
 }
 
 

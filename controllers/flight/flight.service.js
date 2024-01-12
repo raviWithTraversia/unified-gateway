@@ -6,6 +6,8 @@ const Role = require("../../models/Role");
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
+const logger = require("../../logger");
+
 const flightCache = new NodeCache();
 
 const getSearch = async (req, res) => {
@@ -352,7 +354,8 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
-    console.log(response, "Token Responce")
+    logger.info(response);
+    //console.log(response, "Token Responce")
     if (response.data.Status === "success") {
       let getToken = response.data.Result;
       let requestDataFSearch = {
@@ -390,7 +393,8 @@ const KafilaFun = async (
           },
         }
       );
-      console.log(fSearchApiResponse.data, "API Responce")
+      logger.info(fSearchApiResponse.data);
+      //console.log(fSearchApiResponse.data, "API Responce")
       if (fSearchApiResponse.data.Status == "failed") {
         return {
           IsSucess: false,

@@ -42,6 +42,21 @@ const agentConfigSchema = new mongoose.Schema({
         ref: "IncentiveGroupMaster",
         default : null
       },
+    diSetupGroupIds : {
+      type: mongoose.Schema.Types.ObjectId,
+        ref: "diSetupGroupModel",
+        default : null
+    },
+    airlinePromoCodeGroupIds : {
+      type: mongoose.Schema.Types.ObjectId,
+        ref: "airlinePromoCodeGroupModel",
+        default : null
+    },
+  paymentGatewayGroupIds : {
+    type: mongoose.Schema.Types.ObjectId,
+        ref: "paymentGatewayGroupModel",
+        default : null
+  },
     portalLedgerAllowed: {
       type: Boolean
     },

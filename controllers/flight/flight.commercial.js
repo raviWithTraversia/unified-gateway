@@ -19,7 +19,7 @@ const getApplyAllCommercial = async (userTypeString,companyDetails,Authenticatio
     }
     return {
         IsSucess: true,
-        response: getAirCommercials,
+        response: commonArray,
       };
 };
 module.exports = {

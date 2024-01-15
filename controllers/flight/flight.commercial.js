@@ -1,6 +1,12 @@
-const aircommercials = require("../../models/AirCommercial");
 const UserModule = require("../../models/User");
 const Company = require("../../models/Company");
+const agentConfig = require("../../models/AgentConfig");
+const agencyGroup = require("../../models/AgencyGroup");
+const commercialairplans = require("../../models/CommercialAirPlan");
+const aircommercialsList = require("../../models/AirCommercial");
+const aircommercialfilterincexcs = require("../../models/CommercialFilterExcludeIncludeList");
+const updateaircommercialmatrixes = require("../../models/UpdateAirCommercialMatrix");
+
 const getApplyAllCommercial = async (Authentication, commonArray) => {
   const userDetails = await UserModule.findOne({ _id: Authentication.UserId });
   if (!userDetails) {
@@ -14,49 +20,173 @@ const getApplyAllCommercial = async (Authentication, commonArray) => {
     _id: userDetails.company_ID,
   }).populate("parent", "type");
 
-  return {
-    IsSucess: true,
-    response: commonArray,
-  };
-
+  let commercialPlanDetails;
+  let incentivePlanDetails;
+  let aircommercialsList;
   if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {
     // TMC-Agency // // one time apply commertioal
+    commercialPlanDetails = await getAssignCommercial(companyDetails._id);
 
+    return commercialPlanDetails;
   } else if (
     companyDetails.type == "Agency" &&
     companyDetails.parent.type == "Distributer"
   ) {
     // TMC-Distributer-Agency // Two time apply commertioal
+    let commercialPlanDetailsForParent = await getAssignCommercial(
+      companyDetails.parent._id
+    );
+    commercialPlanDetails = await getAssignCommercial(companyDetails._id);
   } else if (
     companyDetails.type == "Distributer" &&
     companyDetails.parent.type == "TMC"
   ) {
     // Distributer-TMC // one time apply commertioal
-  } else {
-    // TMC itself
+    commercialPlanDetails = await getAssignCommercial(companyDetails._id);
+    return commercialPlanDetails;
   }
 
-  // const companyId = companyDetails._id;
-  // const parentId = companyDetails.parent._id;
-  // // Now check agent config and group config
-  // // assign conditions here and get commerciall plan
-  // const commercialPlanId = "659ce88a6cc654ffe95d12d0"; // if not exist then get default
-  // const getAirCommercials = await aircommercials.find({commercialAirPlanId:commercialPlanId}); // commertialplan inside air commertial plan list
-
-  // if(userTypeString === "TMC-Agency" ){ // one time apply commercial,incentive,plb,markup
-
-  // }else if(userTypeString === "TMC-Distributer-Agency"){ // two times apply commercial,incentive,plb,markup
-
-  // }else if(userTypeString === "TMC-Distributer"){ // one time apply commercial,incentive,plb,markup
-
-  // }else{ // only for tmc
-
-  // }
-  // return {
-  //     IsSucess: true,
-  //     response: commonArray,
-  //   };
+  return {
+    IsSucess: true,
+    response: commonArray,
+  };
 };
+
+const getAssignCommercial = async (companyId) => {
+  //// Get Commertial id , plb, incentive so on...
+  let getAgentConfig = await agentConfig.findOne({
+    companyId: companyId,
+  }); // check config
+  //return getAgentConfig;
+  let commercialairplansVar = [];
+  let combineAllCommercialArr = [];
+  let aircommercialListVar;
+  if (!getAgentConfig || getAgentConfig.commercialPlanIds === null) {
+    getAgentConfig = await agencyGroup.findById(getAgentConfig.agencyGroupId);
+    if (getAgentConfig) {
+      // check from group privillage plan id
+      commercialairplansVar = await commercialairplans
+        .findOne({
+          _id: getAgentConfig.commercialPlanId,
+          status: true,
+        })
+        .select("_id commercialPlanName");
+      aircommercialListVar = await aircommercialsList
+        .find({
+          commercialAirPlanId: commercialairplansVar._id,
+        })
+        .populate([
+          {
+            path: "carrier",
+            select: "airlineCode",
+          },
+          {
+            path: "supplier",
+            select: "supplierCode",
+          },
+          {
+            path: "source",
+            select: "supplierCode",
+          },
+        ]);
+      if (aircommercialListVar.length > 0) {
+        let mappingData = aircommercialListVar.map(async (items) => {
+          const aircommercialfilterincexcsVar =
+            await aircommercialfilterincexcs.findOne({
+              airCommercialId: items._id,
+            });
+          const updateaircommercialmatrixesVar =
+            await updateaircommercialmatrixes.findOne({
+              airCommercialPlanId: items._id,
+            });
+
+          return {
+            _id: items._id,
+            travelType: items.travelType,
+            carrier: items.carrier.airlineCode,
+            commercialCategory: items.commercialCategory,
+            supplier: items.supplier.supplierCode,
+            source: items.supplier.supplierCode,
+            priority: items.priority,
+            aircommercialfilterincexcs: aircommercialfilterincexcsVar,
+            updateaircommercialmatrixes: updateaircommercialmatrixesVar,
+          };
+        });
+        mappingData = await Promise.all(mappingData);
+        combineAllCommercialArr.push({
+          plan: commercialairplansVar,
+          commercialFilterList: mappingData,
+        });
+      } else {
+        return { IsSuccess: false, Message: "Commercial Not Available" };
+      }
+    } else {
+      return { IsSuccess: false, Message: "Commercial Not Available" };
+    }
+  } else {
+    // check Manuwal from config
+    commercialairplansVar = await commercialairplans
+      .findOne({
+        _id: getAgentConfig.commercialPlanId,
+        status: true,
+      })
+      .select("_id commercialPlanName");
+    aircommercialListVar = await aircommercialsList
+      .find({
+        commercialAirPlanId: commercialairplansVar._id,
+      })
+      .populate([
+        {
+          path: "carrier",
+          select: "_id airlineCode",
+        },
+        {
+          path: "supplier",
+          select: "supplierCode",
+        },
+        {
+          path: "source",
+          select: "supplierCode",
+        },
+      ]);
+    if (aircommercialListVar.length > 0 ) {
+      let mappingData = aircommercialListVar.map(async (items) => {
+        const aircommercialfilterincexcsVar =
+          await aircommercialfilterincexcs.findOne({
+            airCommercialId: items._id,
+          });
+        const updateaircommercialmatrixesVar =
+          await updateaircommercialmatrixes.findOne({
+            airCommercialPlanId: items._id,
+          });
+
+        return {
+          _id: items._id,
+          travelType: items.travelType,
+          carrier: items.carrier.airlineCode,
+          commercialCategory: items.commercialCategory,
+          supplier: items.supplier.supplierCode,
+          source: items.supplier.supplierCode,
+          priority: items.priority,
+          aircommercialfilterincexcs: aircommercialfilterincexcsVar,
+          updateaircommercialmatrixes: updateaircommercialmatrixesVar,
+        };
+      });
+      mappingData = await Promise.all(mappingData);
+      combineAllCommercialArr.push({
+        plan: commercialairplansVar,
+        commercialFilterList: mappingData,
+      });
+    } else {
+      return { IsSuccess: false, Message: "Commercial Not Available" };
+    }
+  }
+  if (!commercialairplansVar) {
+    return { IsSuccess: false, Message: "No Commercial Air Plan Found" };
+  }
+  return combineAllCommercialArr;
+};
+
 module.exports = {
   getApplyAllCommercial,
 };

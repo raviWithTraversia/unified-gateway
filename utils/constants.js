@@ -51,7 +51,7 @@ const CrudMessage = {
     CREDIT_REJECTED :  'Credit request rejected successfully',
     CREATE_PLBMASTER : 'created PLB master successfully',
     UPDATE_PLBMASTER :  'Updated PLB master successfully',
-    DELETE_PLBMASTER :  'deleted PLB master successfully',
+    DELETE_PLBMASTER :  'deleted PLB master successfully',  
     COPY_PLB : 'Copy PLB Master successfully',
     PLBGROUP_CREATE : 'PLB Group master added successfully',
     LAYOUT_COUNT : 'Layout count fetch sucessfully ',

@@ -167,32 +167,6 @@ const addCommercialType = async (req, res) => {
             }
         } else {
 
-            // const checkComType =  new CommercialType.findOne({
-            //     airCommercialId,
-            //     AirCommertialColumnMasterId,
-            //     AirCommertialRowMasterId,
-            //     companyId
-            // });
-
-            // if(checkComType) {
-
-            //     const saveResult = await CommercialType.findByIdAndUpdate(
-            //         checkComType._id,
-            //         {
-            //         airCommercialId,
-            //         AirCommertialColumnMasterId,
-            //         AirCommertialRowMasterId,
-            //         companyId,
-            //         textType
-            //     },
-            //     { new: true }
-            //     );
-            //     const result =await saveResult.save();
-            //     return {
-            //         response : "Air commercial type added successfully"
-            //     }
-            // }else{
-
             const saveResult = new CommercialType({
                 airCommercialId,
                 AirCommertialColumnMasterId,
@@ -204,7 +178,6 @@ const addCommercialType = async (req, res) => {
             return {
                 response: "Air commercial type added successfully"
             }
-            // }
         }
     } catch (error) {
         throw error;
@@ -320,7 +293,9 @@ const UpdateMatrixData = async (req, res) => {
                         checkComHistory._id,
                         {
                             newValue: data,
-                            oldValue: checkComHistory.newValue
+                            oldValue: checkComHistory.newValue,
+                            commercialFilterNewValue : commercialFilter,
+                            commercialFilterOldValue : checkComHistory.commercialFilterNewValue
                         },
                         { new: true }
                     );
@@ -328,8 +303,9 @@ const UpdateMatrixData = async (req, res) => {
                     const saveHistory = new CommercialHistory({
                         commercialId: checkExist._id,
                         newValue: data,
-                        oldValue: data
-
+                        oldValue: data,
+                        commercialFilterNewValue : commercialFilter,
+                        commercialFilterOldValue : commercialFilter
                     });
                     const History_result = await saveHistory.save();
                 }
@@ -371,6 +347,9 @@ const UpdateMatrixData = async (req, res) => {
                 }
             }
         }
+
+
+        
 
     } catch (error) {
         throw error;
@@ -576,7 +555,7 @@ const getSingleAirComList = async (req, res) => {
 }
 
 
-const getCommercialHistoryList = async(req , res) => {
+const getCommercialHistoryList = async (req, res) => {
     try {
         const commercialId = req.params.commercialId;
         const coloumnData = await CommercialHistory.find({ commercialId: commercialId });
@@ -601,7 +580,7 @@ module.exports = {
     getColoumnDetail,
     getRowDetail,
     addCommercialType,
-    getCommercialDetailList,
+    getCommercialDetailList,    
     commercialRowColoumnAdd,
     UpdateMatrixData,
     getAirCommercialListByAirComId,

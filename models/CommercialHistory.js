@@ -21,6 +21,42 @@ const CommercialHistory = new mongoose.Schema({
             booleanValue: { type: 'boolean' }
         },
     },
+    commercialFilterNewValue: [{
+        commercialFilterId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'AirCommercialFilter'
+        },
+        type: {
+            type: String, // Changed to String
+            enum: ["exclude", "include"]
+        },
+        value: {
+            type: String,
+            default: null
+        },
+        valueType: {
+            type: String,
+            default: null
+        }
+    }],
+    commercialFilterOldValue: [{
+        commercialFilterId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'AirCommercialFilter'
+        },
+        type: {
+            type: String, // Changed to String
+            enum: ["exclude", "include"]
+        },
+        value: {
+            type: String,
+            default: null
+        },
+        valueType: {
+            type: String,
+            default: null
+        }
+    }]
 });
 
 

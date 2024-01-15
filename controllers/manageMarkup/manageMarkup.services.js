@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 const addMarkup = async (req, res) => {
   try {
-    let { markupData, airlineCodeId, markupOn, markupFor, companyId, isDefault} =
+    let { markupData, airlineCodeId, markupOn, markupFor, companyId, isDefault } =
       req.body;
     let userId = "658165afff75194ba3f9f574";
     console.log(userId);
@@ -97,11 +97,11 @@ const updateMarkup = async (req, res) => {
 const deletedMarkup = async (req, res) => {
   try {
     const { markupId } = req.query;
-    let checkForDeleteProtaction = await manageMarkupModel.find({_id : markupId, isDefault : true});
-    console.log(checkForDeleteProtaction , "ppppppppppppppppp")
-    if(checkForDeleteProtaction.length > 0){
+    let checkForDeleteProtaction = await manageMarkupModel.find({ _id: markupId, isDefault: true });
+    console.log(checkForDeleteProtaction, "ppppppppppppppppp")
+    if (checkForDeleteProtaction.length > 0) {
       return {
-        response : "You can't delete default markup"
+        response: "You can't delete default markup"
       }
     }
     const deleteMarkupDetails = await manageMarkupModel.findByIdAndDelete(
@@ -125,8 +125,8 @@ const deletedMarkup = async (req, res) => {
 const getMarkUp = async (req, res) => {
   try {
     let { companyId } = req.query;
-     let data = await manageMarkupModel.find({companyId}).populate('airlineCodeId')
-    console.log("====>>>>>>>>>>>>>>",data, "data");
+    let data = await manageMarkupModel.find({ companyId }).populate('airlineCodeId')
+    console.log("====>>>>>>>>>>>>>>", data, "data");
     if (data) {
       return {
         response: "Markup Data Fetch Sucessfully",
@@ -143,23 +143,23 @@ const getMarkUp = async (req, res) => {
   }
 };
 const getMarkUpCatogeryMaster = async (req, res) => {
-  try{
-     let markupCatogery = await markUpCategoryMasterModels.find();
-     console.log(markupCatogery);
-     if(markupCatogery.length > 0){
+  try {
+    let markupCatogery = await markUpCategoryMasterModels.find();
+    console.log(markupCatogery);
+    if (markupCatogery.length > 0) {
       return {
-        response  : 'Markup Catogery Data found Sucessfully',
-        data : markupCatogery
+        response: 'Markup Catogery Data found Sucessfully',
+        data: markupCatogery
       }
-     }else{
+    } else {
       return {
-        response : 'Markup Catogery Data Not Found'
+        response: 'Markup Catogery Data Not Found'
       }
-     }
+    }
 
-  }catch(error){
-   console.log(error);
-   throw error
+  } catch (error) {
+    console.log(error);
+    throw error
   }
 }
 module.exports = {

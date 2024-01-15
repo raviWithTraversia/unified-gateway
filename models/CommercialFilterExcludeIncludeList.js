@@ -27,10 +27,10 @@ const AirCommercialFilterIncExcSchema = new mongoose.Schema({
             type: String,
             default: null
         }
-}]
+    }]
 });
 
 
-module.exports = mongoose.model('AirCommercialFilterIncExc' , AirCommercialFilterIncExcSchema)
+module.exports = mongoose.model('AirCommercialFilterIncExc', AirCommercialFilterIncExcSchema)
 
 

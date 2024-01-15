@@ -123,7 +123,7 @@ const addRowColoumn = async (req, res) => {
         else {
             apiSucessRes(
                 res,
-                CrudMessage.AIR_COMMERCIAL_ADD,
+                CrudMessage.AIR_COMMERCIAL_ADD, 
                 result.response,
                 ServerStatusCode.SUCESS_CODE
             )

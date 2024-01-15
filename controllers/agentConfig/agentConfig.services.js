@@ -138,6 +138,9 @@ const getAgentConfig = async (req, res) => {
       .populate("fareRuleGroupIds")
       .populate("salesInchargeIds")
       .populate("plbGroupIds")
+      .populate("diSetupIds")
+      .populate("airlinePromocodeIds")// airlinePromocodeIds
+      .populate("paymentGatewayIds")
     console.log(agentConfigData);
     if (agentConfigData) {
       return {

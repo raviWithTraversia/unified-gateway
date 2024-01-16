@@ -117,6 +117,13 @@ const updateIncGroupMaster = async(req ,res) => {
 const removeIncGroup = async(req ,res) => {
     try {
         const result = await IncentiveGroupMaster.deleteOne({ _id: req.params.id });
+        
+        const checkIncentiveGroupHasPermissionExist = await IncentiveGroupHasIncentiveMaster.findOne({ incentiveGroupId: req.params.id });
+
+        if (checkIncentiveGroupHasPermissionExist) {
+
+            await IncentiveGroupHasIncentiveMaster.deleteMany({ incentiveGroupId: req.params.id });
+        }
 
         // Log add 
         const doerId = req.user._id;

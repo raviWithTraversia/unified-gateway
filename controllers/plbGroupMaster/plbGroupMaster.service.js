@@ -120,6 +120,13 @@ const removePLBGroup = async (req, res) => {
     try {
         const result = await PLBGroupMaster.deleteOne({ _id: req.params.id });
 
+        const checkIncentiveGroupHasPermissionExist = await PLBGroupHasPLBMaster.findOne({ PLBMasterId: req.params.id });
+
+        if (checkIncentiveGroupHasPermissionExist) {
+
+            await PLBGroupHasPLBMaster.deleteMany({ PLBMasterId: req.params.id });
+        }
+
         // Log add 
         const doerId = req.user._id;
         const loginUser = await User.findById(doerId);

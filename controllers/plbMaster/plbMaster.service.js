@@ -2,6 +2,7 @@ const PLBMaster = require('../../models/PLBMaster');
 const commonFunction = require('../commonFunctions/common.function');
 const User = require('../../models/User');
 const PLBMasterHistory =require('../../models/PLBMasterHistory');
+const PLBGroupHasPLBMaster = require('../../models/PLBGroupHasPLBMaster');
 
 const addPLBMaster = async(req, res) => {
     try {
@@ -120,6 +121,13 @@ const removePLBMaster = async(req , res) => {
     try {
 
         const result = await PLBMaster.deleteOne({ _id: req.params.id });
+
+        const checkIncentiveGroupHasPermissionExist = await PLBGroupHasPLBMaster.findOne({ PLBMasterId: req.params.id });
+
+        if (checkIncentiveGroupHasPermissionExist) {
+
+            await PLBGroupHasPLBMaster.deleteMany({ PLBMasterId: req.params.id });
+        }
 
               // Log add 
               const doerId = req.user._id;

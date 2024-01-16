@@ -46,6 +46,15 @@ const addPgCharges = async (req, res) => {
     try {
       const id = req.query.id;
       const updateData = req.body;
+      if(updateData?.paymentGatewayProvider || updateData?.paymentMethod){
+         let data = await pgChargesModels.findById(id);
+         const existingPgCharges = await pgChargesModels.findOne({ companyId : data.companyId, paymentGatewayProvider,paymentMethod });
+         if(existingPgCharges){
+          return {
+            response : 'Payment gateway charges for this company and provider already exist'
+          }
+         }
+      }
       const updatedUserData = await pgChargesModels.findByIdAndUpdate(
         id,
         {

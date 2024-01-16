@@ -88,14 +88,13 @@ const updateMarkup = async (req, res) => {
     } else {
 
       // BY ALAM 16-01-2024
-      const getOldValue = await manageMarkupModel.findOne({ markupId: markupId })
+      const getOldValue = await manageMarkupModel.findOne({ _id: markupId })
       const CheckMarkupLogExist = await MarkupLogHistory.findOne({ markupId: markupId });
       if (CheckMarkupLogExist) {
-
-        const updateMarkupLog = await MarkupLogHistory.findByIdAndDelete(
+        const updateMarkupLog = await MarkupLogHistory.findByIdAndUpdate(
           markupId,
           {
-            markupDataNew: dataForUpdate,
+            markupDataNew: req.body.markupData,
             markupDataOld: getOldValue.markupData,
           },
           { new: true }
@@ -104,8 +103,8 @@ const updateMarkup = async (req, res) => {
       } else {
         const addMarkupLog = new MarkupLogHistory({
           markupId,
-          markupDataNew: dataForUpdate,
-          markupDataOld: dataForUpdate,
+          markupDataNew: req.body.markupData,
+          markupDataOld: req.body.markupData,
         });
 
         const saveMarkupLog = await addMarkupLog.save();

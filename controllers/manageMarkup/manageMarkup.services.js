@@ -1,6 +1,7 @@
 const manageMarkupModel = require("../../models/ManageMarkup");
 const userModel = require("../../models/User");
 const markUpCategoryMasterModels = require("../../models/MarkupCategoryMaster");
+const MarkupLogHistory = require('../../models/MarkupLogHistory');
 const mongoose = require('mongoose');
 
 const addMarkup = async (req, res) => {
@@ -85,6 +86,33 @@ const updateMarkup = async (req, res) => {
         response: "MarkUp data not found",
       };
     } else {
+
+      // BY ALAM 16-01-2024
+      const getOldValue = await manageMarkupModel.findOne({ markupId: markupId })
+      const CheckMarkupLogExist = await MarkupLogHistory.findOne({ markupId: markupId });
+      if (CheckMarkupLogExist) {
+
+        const updateMarkupLog = await MarkupLogHistory.findByIdAndDelete(
+          markupId,
+          {
+            markupDataNew: dataForUpdate,
+            markupDataOld: getOldValue.markupData,
+          },
+          { new: true }
+        );
+
+      } else {
+        const addMarkupLog = new MarkupLogHistory({
+          markupId,
+          markupDataNew: dataForUpdate,
+          markupDataOld: dataForUpdate,
+        });
+
+        const saveMarkupLog = await addMarkupLog.save();
+      }
+
+      // End................
+
       return {
         response: "Markup Data updated successfully",
       };

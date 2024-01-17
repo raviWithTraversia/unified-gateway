@@ -82,6 +82,10 @@ const IncentiveMasterSchema = new mongoose.Schema({
         enum : ['percentage' , 'fixed'],
         default : 'fixed'
     },
+    PLBValue:{
+        type: String,
+        default : '0'
+    },
     PLBType: {
         type: String,
         enum : ['incoming' , 'outgoing'],

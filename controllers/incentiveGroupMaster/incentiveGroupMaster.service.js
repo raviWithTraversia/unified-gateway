@@ -152,8 +152,28 @@ const getIncGrpMasterList = async(req , res) => {
         const companyId = req.params.companyId;
         const result = await IncentiveGroupMaster.find({ companyId: companyId });
         if (result.length > 0) {
+            const allData = await Promise.all(result.map(async (IncentiveGroup) => {
+                const newObj = {
+                    "_id": IncentiveGroup._id,
+                    "incentiveGroupName": IncentiveGroup.incentiveGroupName,
+                    "companyId": IncentiveGroup.companyId,
+                    "isDefault": IncentiveGroup.isDefault,
+                    "createdAt": IncentiveGroup.createdAt,
+                    "updatedAt": IncentiveGroup.updatedAt,
+                    "IncentiveGroup": []
+                };
+
+                const IncentiveGroupH = await IncentiveGroupHasIncentiveMaster.find({ incentiveGroupId: IncentiveGroup._id })
+              
+                if (IncentiveGroupH.length > 0) {
+                    newObj.IncentiveGroup.push(...IncentiveGroupH); // Use push with spread operator
+                }
+
+                return newObj;
+            }));
+
             return {
-                data: result
+                data: allData
             }
         } else {
             return {

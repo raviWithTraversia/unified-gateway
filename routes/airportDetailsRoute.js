@@ -13,7 +13,7 @@ airportDetaild_route.post(
 // airportDetaild_route.patch(
   
 // );
-airportDetaild_route.get(
+airportDetaild_route.post(
     '/airportDetails/getAirportDetails',
     airportDetailsController.getAirportDetails
 );

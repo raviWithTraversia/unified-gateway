@@ -87,6 +87,10 @@ const PLBMasterSchema = new mongoose.Schema({
         enum : ['incoming' , 'outgoing'],
         default : 'incoming'
     },
+    PLBValue: {
+        type: String,
+        default : '0'
+    },
     createdBy:{
         type: mongoose.Schema.Types.ObjectId,
         'ref': 'User'

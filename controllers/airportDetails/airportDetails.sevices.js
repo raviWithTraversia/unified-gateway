@@ -93,8 +93,25 @@ const getAirportDetails = async (req, res) => {
                         { Airport_Name: { $regex: regex } }
                     ]
                 }
+            },
+            {
+                $sort: {
+                    Airport_Code: -1,
+                    City_Name: -1,
+                    Airport_Name: -1
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    doc: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$doc" }
             }
         ]);
+        
 
         if (airports.length === 0) {
             return {
@@ -104,7 +121,7 @@ const getAirportDetails = async (req, res) => {
 
         return {
             response: 'Airport Details Found Successfully',
-            data: airports
+            data: airports//.Airport_Code.sort()
         }
 
     } catch (error) {

@@ -120,6 +120,13 @@ const removePLBGroup = async (req, res) => {
     try {
         const result = await PLBGroupMaster.deleteOne({ _id: req.params.id });
 
+        const checkIncentiveGroupHasPermissionExist = await PLBGroupHasPLBMaster.findOne({ PLBMasterId: req.params.id });
+
+        if (checkIncentiveGroupHasPermissionExist) {
+
+            await PLBGroupHasPLBMaster.deleteMany({ PLBMasterId: req.params.id });
+        }
+
         // Log add 
         const doerId = req.user._id;
         const loginUser = await User.findById(doerId);
@@ -147,8 +154,28 @@ const getPLBGroupMasterList = async (req, res) => {
         const companyId = req.params.companyId;
         const result = await PLBGroupMaster.find({ companyId: companyId });
         if (result.length > 0) {
+            const allData = await Promise.all(result.map(async (PlbGroup) => {
+                const newObj = {
+                    "_id": PlbGroup._id,
+                    "PLBGroupName": PlbGroup.PLBGroupName,
+                    "companyId": PlbGroup.companyId,
+                    "isDefault": PlbGroup.isDefault,
+                    "createdAt": PlbGroup.createdAt,
+                    "updatedAt": PlbGroup.updatedAt,
+                    "PlbGroup": []
+                };
+
+                const PLBGroupMaster = await PLBGroupHasPLBMaster.find({ PLBGroupId: PlbGroup._id })
+                console.log(PLBGroupMaster);
+                if (PLBGroupMaster.length > 0) {
+                    newObj.PlbGroup.push(...PLBGroupMaster); // Use push with spread operator
+                }
+
+                return newObj;
+            }));
+
             return {
-                data: result
+                data: allData
             }
         } else {
             return {

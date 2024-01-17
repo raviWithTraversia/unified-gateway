@@ -2,11 +2,12 @@ const PLBMaster = require('../../models/PLBMaster');
 const commonFunction = require('../commonFunctions/common.function');
 const User = require('../../models/User');
 const PLBMasterHistory =require('../../models/PLBMasterHistory');
+const PLBGroupHasPLBMaster = require('../../models/PLBGroupHasPLBMaster');
 
 const addPLBMaster = async(req, res) => {
     try {
         const {
-            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted
+            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted ,
         } = req.body;
         if(!companyId) {
             return {
@@ -21,7 +22,7 @@ const addPLBMaster = async(req, res) => {
         }
 
         const PLBData = new PLBMaster({
-            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted,isDefault
+            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted,isDefault , PLBValue
         })
         const result =  await PLBData.save();
 
@@ -74,7 +75,7 @@ const PLBMasterUpdate = async(req, res) => {
     try {
         const _id = req.params.id;
         const {
-            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted
+            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted,
         } = req.body;
 
         if(!companyId) {
@@ -120,6 +121,13 @@ const removePLBMaster = async(req , res) => {
     try {
 
         const result = await PLBMaster.deleteOne({ _id: req.params.id });
+
+        const checkIncentiveGroupHasPermissionExist = await PLBGroupHasPLBMaster.findOne({ PLBMasterId: req.params.id });
+
+        if (checkIncentiveGroupHasPermissionExist) {
+
+            await PLBGroupHasPLBMaster.deleteMany({ PLBMasterId: req.params.id });
+        }
 
               // Log add 
               const doerId = req.user._id;

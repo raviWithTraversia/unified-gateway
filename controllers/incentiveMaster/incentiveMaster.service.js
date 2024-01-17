@@ -1,42 +1,43 @@
 const IncentiveMaster = require('../../models/IncentiveMaster');
 const commonFunction = require('../commonFunctions/common.function');
 const User = require('../../models/User');
+const IncentiveGroupHasIncentiveMaster = require('../../models/IncentiveGroupHasIncentiveMaster');
 
-const addIncentiveMaster= async(req, res) => {
+const addIncentiveMaster = async (req, res) => {
     try {
         const {
-            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily, deductTDS, isdeleted, flightNo, dealcode, farebasis
+            companyId, origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare, PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes, minPrice, maxPrice, travelDateFrom, travelDateTo, PLBValue, PLBValueType, PLBType, createdBy, modifiedAt, modifiedBy, status, datefIssueFrom, datefIssueTo, fareFamily, deductTDS, isdeleted, flightNo, dealcode, farebasis
         } = req.body;
 
-        if(!companyId) {
+        if (!companyId) {
             return {
-                response : 'Company Id is required'
+                response: 'Company Id is required'
             }
         }
-        const checkIncentiveMasterExistByComId = await IncentiveMaster.findOne({companyId : companyId});
-        if(checkIncentiveMasterExistByComId){
+        const checkIncentiveMasterExistByComId = await IncentiveMaster.findOne({ companyId: companyId });
+        if (checkIncentiveMasterExistByComId) {
             isDefault = false;
-        }else{
+        } else {
             isDefault = true
         }
 
         const IncentiveMasterData = new IncentiveMaster({
-            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted ,flightNo, dealcode, farebasis , isDefault
+            companyId, origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare, PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes, minPrice, maxPrice, travelDateFrom, travelDateTo, PLBValue, PLBValueType, PLBType, createdBy, modifiedAt, modifiedBy, status, datefIssueFrom, datefIssueTo, fareFamily, deductTDS, isdeleted, flightNo, dealcode, farebasis, isDefault
         })
         await IncentiveMasterData.save();
 
-         // Log add 
-         const doerId = req.user._id;
-         const loginUser = await User.findById(doerId);
- 
-         await commonFunction.eventLogFunction(
-             'IncentiveMaster' ,
-             doerId ,
-             loginUser.fname ,
-             req.ip , 
-             companyId , 
-             'add Incentive Master'
-         );
+        // Log add 
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+
+        await commonFunction.eventLogFunction(
+            'IncentiveMaster',
+            doerId,
+            loginUser.fname,
+            req.ip,
+            companyId,
+            'add Incentive Master'
+        );
 
         return {
             response: 'Incentive Master save successfully'
@@ -47,11 +48,11 @@ const addIncentiveMaster= async(req, res) => {
     }
 }
 
-const getIncentiveMaster = async(req , res) => {
+const getIncentiveMaster = async (req, res) => {
     try {
         const PLBType = req.params.PLBType;
         const companyId = req.params.companyId;
-        const result = await IncentiveMaster.find({ PLBType: PLBType  , companyId: companyId}).populate('supplierCode airlineCode cabinClass fareFamily');
+        const result = await IncentiveMaster.find({ PLBType: PLBType, companyId: companyId }).populate('supplierCode airlineCode cabinClass fareFamily');
         if (result.length > 0) {
             return {
                 data: result
@@ -68,41 +69,41 @@ const getIncentiveMaster = async(req , res) => {
     }
 }
 
-const incentiveMasterUpdate = async(req, res) => {
+const incentiveMasterUpdate = async (req, res) => {
     try {
         const _id = req.params.id;
         const {
-            companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted , flightNo, dealcode, farebasis
+            companyId, origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare, PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes, minPrice, maxPrice, travelDateFrom, travelDateTo, PLBValue, PLBValueType, PLBType, createdBy, modifiedAt, modifiedBy, status, datefIssueFrom, datefIssueTo, fareFamily, deductTDS, isdeleted, flightNo, dealcode, farebasis
         } = req.body;
 
-        if(!companyId) {
+        if (!companyId) {
             return {
-                response : 'Company Id is required'
+                response: 'Company Id is required'
             }
-        } 
+        }
 
         const IncentiveMasterUpdate = await IncentiveMaster.findByIdAndUpdate(
-            _id, 
+            _id,
             {
-                companyId,origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare,  PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes,minPrice , maxPrice, travelDateFrom,travelDateTo, PLBValue, PLBValueType,PLBType, createdBy, modifiedAt,modifiedBy, status,datefIssueFrom,datefIssueTo, fareFamily,deductTDS,isdeleted , flightNo, dealcode, farebasis
+                companyId, origin, destination, supplierCode, airlineCode, cabinClass, rbd, PLBApplyOnBasefare, PLBApplyOnYQ, PLBApplyOnYR, PLBApplyOnTotalAmount, PLBApplyOnAllTAxes, minPrice, maxPrice, travelDateFrom, travelDateTo, PLBValue, PLBValueType, PLBType, createdBy, modifiedAt, modifiedBy, status, datefIssueFrom, datefIssueTo, fareFamily, deductTDS, isdeleted, flightNo, dealcode, farebasis
             }, { new: true }
-            )
+        )
 
-             // Log add 
-         const doerId = req.user._id;
-         const loginUser = await User.findById(doerId);
- 
-         await commonFunction.eventLogFunction(
-             'IncentiveMaster' ,
-             doerId ,
-             loginUser.fname ,
-             req.ip , 
-             loginUser.companyId , 
-             'updated Incentive Master'
-         );
+        // Log add 
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+
+        await commonFunction.eventLogFunction(
+            'IncentiveMaster',
+            doerId,
+            loginUser.fname,
+            req.ip,
+            loginUser.companyId,
+            'updated Incentive Master'
+        );
 
         return {
-            response : 'Incentive Master updated successfully'
+            response: 'Incentive Master updated successfully'
         }
 
     } catch (error) {
@@ -111,25 +112,31 @@ const incentiveMasterUpdate = async(req, res) => {
 }
 
 
-const removeIncentiveMaster = async(req , res) => {
+const removeIncentiveMaster = async (req, res) => {
     try {
 
         const result = await IncentiveMaster.deleteOne({ _id: req.params.id });
+        const checkIncentiveGroupHasPermissionExist = await IncentiveGroupHasIncentiveMaster.findOne({ incentiveMasterId: req.params.id });
 
-              // Log add 
-              const doerId = req.user._id;
-              const loginUser = await User.findById(doerId);
-      
-              await commonFunction.eventLogFunction(
-                  'IncentiveMaster' ,
-                  doerId ,
-                  loginUser.fname ,
-                  req.ip , 
-                  loginUser.companyId , 
-                  'deleted Incentive Master'
-              );
+        if (checkIncentiveGroupHasPermissionExist) {
+
+            await IncentiveGroupHasIncentiveMaster.deleteMany({ incentiveMasterId: req.params.id });
+        }
+
+        // Log add 
+        const doerId = req.user._id;
+        const loginUser = await User.findById(doerId);
+
+        await commonFunction.eventLogFunction(
+            'IncentiveMaster',
+            doerId,
+            loginUser.fname,
+            req.ip,
+            loginUser.companyId,
+            'deleted Incentive Master'
+        );
         return {
-            response : 'Incentive Master deleted Successfully!'
+            response: 'Incentive Master deleted Successfully!'
         }
 
     } catch (error) {
@@ -137,67 +144,67 @@ const removeIncentiveMaster = async(req , res) => {
     }
 }
 
-const CopyIncentiveMaster = async(req, res) => {
+const CopyIncentiveMaster = async (req, res) => {
     try {
         const _id = req.params.id;
         const IncMaster = await IncentiveMaster.findById(_id);
-        if(IncMaster) {
-            
+        if (IncMaster) {
+
             const IncDataSave = new IncentiveMaster({
-                companyId : IncMaster.companyId,
-                origin : IncMaster.origin,
-                destination : IncMaster.destination, 
-                supplierCode : IncMaster.supplierCode, 
-                airlineCode : IncMaster.airlineCode, 
-                cabinClass : IncMaster.cabinClass, 
-                rbd : IncMaster.rbd, 
-                PLBApplyOnBasefare : IncMaster.PLBApplyOnBasefare,  
-                PLBApplyOnYQ : IncMaster.PLBApplyOnYQ, 
-                PLBApplyOnYR : IncMaster.PLBApplyOnYR, 
-                PLBApplyOnTotalAmount : IncMaster.PLBApplyOnTotalAmount, 
-                PLBApplyOnAllTAxes : IncMaster.PLBApplyOnAllTAxes,
-                minPrice :IncMaster.minPrice, 
-                maxPrice :IncMaster.maxPrice, 
-                travelDateFrom :IncMaster.travelDateFrom,
-                travelDateTo :IncMaster.travelDateTo, 
-                PLBValue :IncMaster.PLBValue, 
-                PLBValueType :IncMaster.PLBValueType,
-                PLBType :IncMaster.PLBType, 
-                createdBy :IncMaster.createdBy, 
-                modifiedAt :IncMaster.modifiedAt,
-                modifiedBy :IncMaster.modifiedBy, 
-                status :IncMaster.status,
-                datefIssueFrom :IncMaster.datefIssueFrom,
-                datefIssueTo :IncMaster.datefIssueTo, 
-                fareFamily :IncMaster.fareFamily,
-                deductTDS :IncMaster.deductTDS,
-                isdeleted :IncMaster.isdeleted,
-                flightNo : IncMaster.flightNo,
-                dealcode : IncMaster.dealcode,
-                farebasis : IncMaster.farebasis
+                companyId: IncMaster.companyId,
+                origin: IncMaster.origin,
+                destination: IncMaster.destination,
+                supplierCode: IncMaster.supplierCode,
+                airlineCode: IncMaster.airlineCode,
+                cabinClass: IncMaster.cabinClass,
+                rbd: IncMaster.rbd,
+                PLBApplyOnBasefare: IncMaster.PLBApplyOnBasefare,
+                PLBApplyOnYQ: IncMaster.PLBApplyOnYQ,
+                PLBApplyOnYR: IncMaster.PLBApplyOnYR,
+                PLBApplyOnTotalAmount: IncMaster.PLBApplyOnTotalAmount,
+                PLBApplyOnAllTAxes: IncMaster.PLBApplyOnAllTAxes,
+                minPrice: IncMaster.minPrice,
+                maxPrice: IncMaster.maxPrice,
+                travelDateFrom: IncMaster.travelDateFrom,
+                travelDateTo: IncMaster.travelDateTo,
+                PLBValue: IncMaster.PLBValue,
+                PLBValueType: IncMaster.PLBValueType,
+                PLBType: IncMaster.PLBType,
+                createdBy: IncMaster.createdBy,
+                modifiedAt: IncMaster.modifiedAt,
+                modifiedBy: IncMaster.modifiedBy,
+                status: IncMaster.status,
+                datefIssueFrom: IncMaster.datefIssueFrom,
+                datefIssueTo: IncMaster.datefIssueTo,
+                fareFamily: IncMaster.fareFamily,
+                deductTDS: IncMaster.deductTDS,
+                isdeleted: IncMaster.isdeleted,
+                flightNo: IncMaster.flightNo,
+                dealcode: IncMaster.dealcode,
+                farebasis: IncMaster.farebasis
 
             })
             await IncDataSave.save();
-    
-             // Log add 
-             const doerId = req.user._id;
-             const loginUser = await User.findById(doerId);
-     
-             await commonFunction.eventLogFunction(
-                 'IncentiveMaster' ,
-                 doerId ,
-                 loginUser.fname ,
-                 req.ip , 
-                 loginUser.companyId , 
-                 'Copy Incentive Master'
-             );
+
+            // Log add 
+            const doerId = req.user._id;
+            const loginUser = await User.findById(doerId);
+
+            await commonFunction.eventLogFunction(
+                'IncentiveMaster',
+                doerId,
+                loginUser.fname,
+                req.ip,
+                loginUser.companyId,
+                'Copy Incentive Master'
+            );
 
             return {
                 response: 'Incentive Master copy successfully'
             }
-        }else{
+        } else {
             return {
-                response : 'Incentive Master id not exist'
+                response: 'Incentive Master id not exist'
             }
         }
 
@@ -206,20 +213,20 @@ const CopyIncentiveMaster = async(req, res) => {
     }
 }
 
-const defineIncetiveMasterDefault = async(req , res) => {
+const defineIncetiveMasterDefault = async (req, res) => {
     try {
         const _id = req.params.id;
-        const {companyId} = req.body;
-        if(!companyId) {
+        const { companyId } = req.body;
+        if (!companyId) {
             return {
-                response : 'Company Id is required'
+                response: 'Company Id is required'
             }
         }
         await IncentiveMaster.updateMany({ companyId }, { isDefault: false });
 
-        const result = await IncentiveMaster.findByIdAndUpdate( _id , {isDefault : true }, { new: true });
+        const result = await IncentiveMaster.findByIdAndUpdate(_id, { isDefault: true }, { new: true });
         return {
-            response : 'Incentive master define as default'
+            response: 'Incentive master define as default'
         }
     } catch (error) {
         throw error;

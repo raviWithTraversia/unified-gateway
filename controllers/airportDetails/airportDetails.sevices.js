@@ -83,7 +83,6 @@ const getAirportDetails = async (req, res) => {
         }
 
         const regex = new RegExp(`^${inputData}`, 'i');
-
         const airports = await airportModels.aggregate([
             {
                 $match: {
@@ -111,6 +110,12 @@ const getAirportDetails = async (req, res) => {
                 $replaceRoot: { newRoot: "$doc" }
             }
         ]);
+        
+        airports.sort((a,b) => {
+            if(a.Country_Code == 'IN') return -1;
+            if(b.Country_Code == 'IN') return -1;
+            return 0;
+        })
         
 
         if (airports.length === 0) {

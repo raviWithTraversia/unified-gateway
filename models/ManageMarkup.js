@@ -15,7 +15,8 @@ const markupDataSchema =  new mongoose.Schema ({
   },
   airlineCodeId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'AirlineCode'
+    ref: 'AirlineCode',
+    default : null
   },
   companyId: {
     type: mongoose.Schema.Types.ObjectId,

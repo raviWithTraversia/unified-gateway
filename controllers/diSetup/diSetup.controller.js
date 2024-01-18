@@ -1,4 +1,4 @@
-const diServices = require('../../controllers/diSetup/diSetup.services');
+const diServices = require('./diSetup.services');
 const { apiSucessRes, apiErrorres } = require('../../utils/commonResponce');
 const { ServerStatusCode, errorResponse, CrudMessage } = require('../../utils/constants');
 

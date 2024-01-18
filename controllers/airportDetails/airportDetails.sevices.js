@@ -75,15 +75,13 @@ const addAirportDetail = async (req , res)=> {
 const getAirportDetails = async (req, res) => {
     try {
         const { inputData } = req.body;
-
         if (!inputData) {
             return {
                 response: `Input Data is Required`
             }
         }
-
         const regex = new RegExp(`^${inputData}`, 'i');
-        const airports = await airportModels.aggregate([
+        let airports = await airportModels.aggregate([
             {
                 $match: {
                     $or: [
@@ -110,31 +108,31 @@ const getAirportDetails = async (req, res) => {
                 $replaceRoot: { newRoot: "$doc" }
             }
         ]);
-        
-        airports.sort((a,b) => {
-            if(a.Country_Code == 'IN') return -1;
-            if(b.Country_Code == 'IN') return -1;
-            return 0;
-        })
-        
-
+       // console.log("airports =====>>>>>>>>>" , airports);
+        let sortData = airports.sort((a, b) => {
+            if (a.Country_Code === 'IN' && b.Country_Code !== 'IN') {
+              return -1;
+            } else if (a.Country_Code !== 'IN' && b.Country_Code === 'IN') {
+              return 1; 
+            } else {
+              return 0;
+            }
+          });
         if (airports.length === 0) {
             return {
                 response: 'Airport data Not Found'
             }
-        }
-
+        };
+       // console.log("=====>>>>>>>",sortData, "<<<===============")
         return {
             response: 'Airport Details Found Successfully',
-            data: airports//.Airport_Code.sort()
+            data: sortData
         }
-
-    } catch (error) {
+    }catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
 module.exports = {
     addAirportDetail,
     getAirportDetails

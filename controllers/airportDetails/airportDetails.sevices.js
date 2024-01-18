@@ -88,7 +88,6 @@ const getAirportDetails = async (req, res) => {
                     $or: [
                         { Airport_Code: { $regex : regex} },
                         { City_Name: {$regex : regex} },
-                        { Airport_Name: {$regex : regex}}
                     ]
                 }
             }, {

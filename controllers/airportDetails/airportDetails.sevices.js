@@ -81,22 +81,22 @@ const getAirportDetails = async (req, res) => {
             }
         }
         const regex = new RegExp(`^${inputData}`, 'i');
-        let airports = await airportModels.aggregate([
+        let regexParts = inputData.split(/\s+/).map(part => `(?=.*${part})`);
+        let firstPipeLine = [
             {
                 $match: {
                     $or: [
-                        { Airport_Code: { $regex: regex } },
-                        { City_Name: { $regex: regex } },
-                        { Airport_Name: { $regex: regex } }
+                        { Airport_Code: { $regex : regex} },
+                        { City_Name: {$regex : regex} },
+                        { Airport_Name: {$regex : regex}}
                     ]
                 }
-            },
-            {
-                $sort: {
-                    Airport_Code: -1,
-                    City_Name: -1,
-                    Airport_Name: -1
-                }
+            }, {
+              $sort: {
+                Airport_Code: -1,
+                City_Name: -1,
+                Airport_Name: -1
+              }  
             },
             {
                 $group: {
@@ -107,8 +107,23 @@ const getAirportDetails = async (req, res) => {
             {
                 $replaceRoot: { newRoot: "$doc" }
             }
-        ]);
-       // console.log("airports =====>>>>>>>>>" , airports);
+        ];
+        
+      let airports = await airportModels.aggregate(firstPipeLine);
+      if(airports.length == 0){
+        let secondPipeLine = [
+            {
+                $match : {
+                    $or : [
+                        {Airport_Name : new RegExp(regexParts.join(''), 'i') }
+                    ]
+                }
+            }
+        ];
+        airports = await airportModels.aggregate(secondPipeLine);
+      }
+        
+       // console.log("airports =====>>>>>>>>>" , airports); 
         let sortData = airports.sort((a, b) => {
             if (a.Country_Code === 'IN' && b.Country_Code !== 'IN') {
               return -1;
@@ -136,4 +151,5 @@ const getAirportDetails = async (req, res) => {
 module.exports = {
     addAirportDetail,
     getAirportDetails
-}
+};
+

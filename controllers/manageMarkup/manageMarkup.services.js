@@ -9,13 +9,16 @@ const addMarkup = async (req, res) => {
     let { markupData, airlineCodeId, markupOn, markupFor, companyId, isDefault } =
       req.body;
     let userId = "658165afff75194ba3f9f574";
-    console.log(userId);
-    let checkMarkupExist = await manageMarkupModel.find({
-      airlineCodeId: airlineCodeId,
+    //console.log(userId);
+    let query = {
       markupOn: markupOn,
       markupFor: markupFor,
       companyId: companyId,
-    });
+    };
+    if(airlineCodeId){
+      query.airlineCodeId = airlineCodeId;
+    }
+    let checkMarkupExist = await manageMarkupModel.find(query);
     if (isDefault === true) {
       let checkIsAnydefaultTrue =
         await manageMarkupModel.updateMany(
@@ -40,7 +43,7 @@ const addMarkup = async (req, res) => {
     ) {
       let markupChargeInsert = await manageMarkupModel.create({
         markupData,
-        airlineCodeId,
+        airlineCodeId :airlineCodeId || null,
         markupOn,
         markupFor,
         companyId,

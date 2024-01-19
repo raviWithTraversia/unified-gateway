@@ -75,31 +75,27 @@ const addAirportDetail = async (req , res)=> {
 const getAirportDetails = async (req, res) => {
     try {
         const { inputData } = req.body;
-
         if (!inputData) {
             return {
                 response: `Input Data is Required`
             }
         }
-
         const regex = new RegExp(`^${inputData}`, 'i');
-
-        const airports = await airportModels.aggregate([
+        let regexParts = inputData.split(/\s+/).map(part => `(?=.*${part})`);
+        let firstPipeLine = [
             {
                 $match: {
                     $or: [
-                        { Airport_Code: { $regex: regex } },
-                        { City_Name: { $regex: regex } },
-                        { Airport_Name: { $regex: regex } }
+                        { Airport_Code: { $regex : regex} },
+                        { City_Name: {$regex : regex} },
                     ]
                 }
-            },
-            {
-                $sort: {
-                    Airport_Code: -1,
-                    City_Name: -1,
-                    Airport_Name: -1
-                }
+            }, {
+              $sort: {
+                Airport_Code: -1,
+                City_Name: -1,
+                Airport_Name: -1
+              }  
             },
             {
                 $group: {
@@ -110,27 +106,49 @@ const getAirportDetails = async (req, res) => {
             {
                 $replaceRoot: { newRoot: "$doc" }
             }
-        ]);
+        ];
         
-
+      let airports = await airportModels.aggregate(firstPipeLine);
+      if(airports.length == 0){
+        let secondPipeLine = [
+            {
+                $match : {
+                    $or : [
+                        {Airport_Name : new RegExp(regexParts.join(''), 'i') }
+                    ]
+                }
+            }
+        ];
+        airports = await airportModels.aggregate(secondPipeLine);
+      }
+        
+       // console.log("airports =====>>>>>>>>>" , airports); 
+        let sortData = airports.sort((a, b) => {
+            if (a.Country_Code === 'IN' && b.Country_Code !== 'IN') {
+              return -1;
+            } else if (a.Country_Code !== 'IN' && b.Country_Code === 'IN') {
+              return 1; 
+            } else {
+              return 0;
+            }
+          });
         if (airports.length === 0) {
             return {
                 response: 'Airport data Not Found'
             }
-        }
-
+        };
+       // console.log("=====>>>>>>>",sortData, "<<<===============")
         return {
             response: 'Airport Details Found Successfully',
-            data: airports//.Airport_Code.sort()
+            data: sortData
         }
-
-    } catch (error) {
+    }catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
 module.exports = {
     addAirportDetail,
     getAirportDetails
-}
+};
+

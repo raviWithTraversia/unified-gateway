@@ -147,9 +147,43 @@ const deleteAgencyGroup = async (req, res) => {
     apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
   }
 };
+const assignAgencyGroup = async (req, res) => {
+  try {
+    const result = await agencyGoupController.assignAgencyGroup(
+      req,
+      res
+    );
+    if (result.response == "Selected Agency Successfully Assigned To The Group") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else if (result.response == "Selected Agency Not Updated Successfully") {
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    } else {
+      apiErrorres(
+        res,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        errorResponse.SOME_UNOWN,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
+  }
+};
+
 module.exports = {
   addAgencyGroup,
   getAgencyGroup,
   editAgencyGroup,
   deleteAgencyGroup,
+  assignAgencyGroup
 };

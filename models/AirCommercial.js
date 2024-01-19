@@ -12,7 +12,8 @@ const AirCommercialSchema = new mongoose.Schema({
     },
     carrier: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'AirlineCode'
+        ref: 'AirlineCode',
+        default : null,
     },
     commercialCategory: {
         type: String,
@@ -21,11 +22,13 @@ const AirCommercialSchema = new mongoose.Schema({
     },
     supplier: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'SupplierCode'
+        ref: 'SupplierCode',
+        default : null,
     },
     source: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'SupplierCode'
+        ref: 'SupplierCode',
+        default : null,
     },
     priority: {
         type: String,

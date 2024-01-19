@@ -104,12 +104,9 @@ const updatePLBGroupMaster = async (req, res) => {
             loginUser.companyId,
             'updated PLB Master Group'
         );
-
         return {
             response: 'PLB Group master updated successfully'
         }
-
-
     } catch (error) {
         throw error;
     }

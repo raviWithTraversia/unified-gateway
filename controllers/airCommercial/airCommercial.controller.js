@@ -7,8 +7,8 @@ const storeAirCommercial = async (req, res) => {
         const result = await airCommericalService.addAirCommercial(req);
         if (result.response == 'Commercial air plan Id field are required' ||
             result.response == 'Travel Type field are required' ||
-            result.response == 'Carrier field are required' ||
-            result.response == 'Supplier field are required' ||
+            // result.response == 'Carrier field are required' ||
+            // result.response == 'Supplier field are required' ||
             result.response == 'Priority field are required'
         ) {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)

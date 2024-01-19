@@ -59,7 +59,7 @@ const getAllPermission = async (req, res) => {
             }
            
           }
-        } else { // check manucal from cinfig
+        } else { // check Manuwal from cinfig
             let privilageplanhaspermissionsvar = await privilageplanhaspermissions.find({privilagePlanId:getAgentConfig.privilegePlansIds}).populate('permissionId');
             if(privilageplanhaspermissionsvar.length > 0){
                 let allPermissionAssign = privilageplanhaspermissionsvar.map(item => ({

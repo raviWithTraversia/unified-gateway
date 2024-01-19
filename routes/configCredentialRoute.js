@@ -12,15 +12,15 @@ configCredential_route.post(
     configCredentialController.addCredntials
 );
 configCredential_route.get(
-    'configCred/getCredential',
+    '/configCred/getCredential',
     configCredentialController.getCredentialForCompany
 );
 configCredential_route.patch(
-    'configCred/updateCredentail',
+    '/configCred/updateCredentail',
     configCredentialController.updateCredential
 );
 configCredential_route.delete(
-    'configCred/deleteCredential',
+    '/configCred/deleteCredential',
     configCredentialController.deleteCredential
 );
 

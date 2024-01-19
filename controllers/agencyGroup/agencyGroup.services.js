@@ -1,4 +1,5 @@
 const agencyGroupModel = require("../../models/AgencyGroup");
+const agentConfigsModels = require("../../models/AgentConfig");
 
 const addAgencyGroup = async (req, res) => {
   try {
@@ -156,9 +157,39 @@ const deleteAgencyGroup = async (req, res) => {
     throw error;
   }
 };
+
+
+const assignAgencyGroup = async (req, res) => {
+  try {
+    const { userIds, assignAgencyGroup } = req.body;
+
+    const updateResult = await agentConfigsModels.updateMany(
+      { userId: { $in: userIds } },
+      { $set: { agencyGroupId: assignAgencyGroup } },
+      { new: true }
+    );
+
+    if (updateResult) {
+      return {
+        response: 'Selected Agency Successfully Assigned To The Group',
+        data: updateResult,
+      };
+    } else {
+      return {
+        response: 'Selected Agency Not Updated Successfully',
+      };
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+  
 module.exports = {
   addAgencyGroup,
   editAgencyGroup,
   getAgencyGroup,
   deleteAgencyGroup,
+  assignAgencyGroup
 };

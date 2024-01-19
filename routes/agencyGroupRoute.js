@@ -27,5 +27,11 @@ agency_group_route.delete(
   auth,
   agencyGroupController.deleteAgencyGroup
 );
+agency_group_route.patch(
+  "/agencyGroup/assignAgencyGroup",
+  auth,
+  agencyGroupController.assignAgencyGroup
+)
+
 
 module.exports = agency_group_route;

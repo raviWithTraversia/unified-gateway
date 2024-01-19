@@ -235,6 +235,7 @@ const getUserProfile = async (req,res) => {
     throw error
   }
 }
+
 module.exports = {
   addAgentConfiguration,
   updateAgentConfiguration,

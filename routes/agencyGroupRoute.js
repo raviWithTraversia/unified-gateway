@@ -31,7 +31,14 @@ agency_group_route.patch(
   "/agencyGroup/assignAgencyGroup",
   auth,
   agencyGroupController.assignAgencyGroup
-)
+);
+
+agency_group_route.get(
+  "/agencyGroup/getAssignAgencyGroup",
+  auth,
+  agencyGroupController.getAssignAgencyGroup
+);
+
 
 
 module.exports = agency_group_route;

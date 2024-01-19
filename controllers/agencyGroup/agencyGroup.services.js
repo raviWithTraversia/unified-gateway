@@ -185,11 +185,52 @@ const assignAgencyGroup = async (req, res) => {
   }
 };
 
-  
+const getAssignAgencyGroup = async (req,res) => {
+  try{
+    const id = req.query.agencyGroupId;
+    let assignAgency = await agentConfigsModels.find({agencyGroupId :id});
+    let assignUser = [];
+    for(let i = 0; i < assignAgency.length; i++ ){
+      let obj = {};
+      obj._id = assignAgency[i].userId
+      assignUser.push(obj);
+    }
+   // console.log("===>>>>>>>>",assignAgency,"<<<=====>>>>",assignUser,"<<<=========");
+   // return;
+    if(assignAgency.length > 0){
+      return {
+        response : "Data Fetch Sucessfully",
+        data : assignUser
+      }
+    }else{
+      return{
+        response : 'User Data Not Found'
+      }
+    }
+    
+
+  }catch(error){
+    console.log(error);
+    throw error;
+  }
+}
+
+// agencyIds:[
+//   {
+//     _id:6555f84d991eaa63cb171aa9
+//   },
+//   {
+//     _id:6555f84d991eaa63cb171aa8
+//   },
+  // {
+  //    _id: 6555f84d991eaa63cb171aa8
+  // }
+//   ]
 module.exports = {
   addAgencyGroup,
   editAgencyGroup,
   getAgencyGroup,
   deleteAgencyGroup,
-  assignAgencyGroup
+  assignAgencyGroup,
+  getAssignAgencyGroup
 };

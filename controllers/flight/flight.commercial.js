@@ -10,7 +10,13 @@ const incentivegroupmasters = require("../../models/IncentiveGroupMaster");
 const incentivegrouphasincentivemasters = require("../../models/IncentiveGroupHasIncentiveMaster");
 const plbgroupmasters = require("../../models/PLBGroupMaster");
 const plbgrouphasplbmasters = require("../../models/PLBGroupHasPLBMaster");
-const getApplyAllCommercial = async (Authentication, commonArray) => {
+const managemarkupsimport = require("../../models/ManageMarkup");
+
+const getApplyAllCommercial = async (
+  Authentication,
+  TravelType,
+  commonArray
+) => {
   const userDetails = await UserModule.findOne({ _id: Authentication.UserId });
   if (!userDetails) {
     return {
@@ -27,12 +33,53 @@ const getApplyAllCommercial = async (Authentication, commonArray) => {
   let incentivePlanDetails;
   let plbPlanDetails;
   let markupDetails;
+  let applyResponceCommercialArray = [];
   if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {
     // TMC-Agency // // one time apply commertioal
-    commercialPlanDetails = await getAssignCommercial(companyDetails._id);
-    incentivePlanDetails = await getAssignIncentive(companyDetails._id);
-    plbPlanDetails = await getAssignPlb(companyDetails._id);
-    return plbPlanDetails;
+    // commercialPlanDetails = await getAssignCommercial(companyDetails._id);
+    // incentivePlanDetails = await getAssignIncentive(companyDetails._id);
+    // plbPlanDetails = await getAssignPlb(companyDetails._id);
+    // markupDetails = await getAssignMarcup(companyDetails._id);
+
+    const [
+      commercialPlanDetails,
+      incentivePlanDetails,
+      plbPlanDetails,
+      markupDetails,
+    ] = await Promise.all([
+      getAssignCommercial(companyDetails._id),
+      getAssignIncentive(companyDetails._id),
+      getAssignPlb(companyDetails._id),
+      getAssignMarcup(companyDetails._id),
+    ]);
+// Commertial Apply
+    for (const singleFlightDetails of commonArray) {
+      
+       // Check Commertial status
+      if (commercialPlanDetails.IsSuccess === true) {
+       
+        // commercialPlanDetails.data.commercialFilterList.map(
+        //   async (commList) => {
+        //     if (
+        //       TravelType === commList.travelType &&
+        //       commList.carrier === singleFlightDetails.Provider &&
+        //       commList.supplier === singleFlightDetails.Provider &&
+        //       commList.source === singleFlightDetails.Provider &&
+        //       commList.commercialCategory === "Ticket"
+        //     ) {
+
+        //       // apply for all commertial data 
+
+        //     } else {
+
+        //     }
+        //   }
+        // );
+      }
+
+      //singleFlightDetails.Currency = "USA";
+    }
+    return commonArray;
   } else if (
     companyDetails.type == "Agency" &&
     companyDetails.parent.type == "Distributer"
@@ -41,13 +88,16 @@ const getApplyAllCommercial = async (Authentication, commonArray) => {
     let commercialPlanDetailsForParent = await getAssignCommercial(
       companyDetails.parent._id
     );
-    let incentivePlanDetailsForParent = await getAssignIncentive(companyDetails.parent._id);
+    let incentivePlanDetailsForParent = await getAssignIncentive(
+      companyDetails.parent._id
+    );
     let plbPlanDetailsForParent = await getAssignPlb(companyDetails.parent._id);
 
     commercialPlanDetails = await getAssignCommercial(companyDetails._id);
     incentivePlanDetails = await getAssignIncentive(companyDetails._id);
     plbPlanDetails = await getAssignPlb(companyDetails._id);
-    return commercialPlanDetails
+    markupDetails = await getAssignMarcup(companyDetails._id);
+    return commonArray;
   } else if (
     companyDetails.type == "Distributer" &&
     companyDetails.parent.type == "TMC"
@@ -56,7 +106,7 @@ const getApplyAllCommercial = async (Authentication, commonArray) => {
     commercialPlanDetails = await getAssignCommercial(companyDetails._id);
     incentivePlanDetails = await getAssignIncentive(companyDetails._id);
     plbPlanDetails = await getAssignPlb(companyDetails._id);
-    return commercialPlanDetails;
+    return commonArray;
   }
 
   return {
@@ -65,17 +115,18 @@ const getApplyAllCommercial = async (Authentication, commonArray) => {
   };
 };
 
-
-
 const getAssignCommercial = async (companyId) => {
   //// Get Commertial id , plb, incentive so on...
   let getAgentConfig = await agentConfig.findOne({
     companyId: companyId,
   }); // check config
+
   //return getAgentConfig;
+
   let commercialairplansVar = [];
   let combineAllCommercialArr = [];
   let aircommercialListVar;
+
   if (!getAgentConfig || getAgentConfig.commercialPlanIds === null) {
     getAgentConfig = await agencyGroup.findById(getAgentConfig.agencyGroupId);
     if (getAgentConfig) {
@@ -118,10 +169,10 @@ const getAssignCommercial = async (companyId) => {
           return {
             _id: items._id,
             travelType: items.travelType,
-            carrier: items.carrier.airlineCode,
+            carrier: items.carrier ? items.carrier.airlineCode : null,
             commercialCategory: items.commercialCategory,
-            supplier: items.supplier.supplierCode,
-            source: items.supplier.supplierCode,
+            supplier: items.supplier ? items.supplier.supplierCode : null,
+            source: items.supplier ? items.supplier.supplierCode : null,
             priority: items.priority,
             aircommercialfilterincexcs: aircommercialfilterincexcsVar,
             updateaircommercialmatrixes: updateaircommercialmatrixesVar,
@@ -140,9 +191,10 @@ const getAssignCommercial = async (companyId) => {
     }
   } else {
     // check Manuwal from config
+    //return getAgentConfig
     commercialairplansVar = await commercialairplans
       .findOne({
-        _id: getAgentConfig.commercialPlanId,
+        _id: getAgentConfig.commercialPlanIds,
         status: true,
       })
       .select("_id commercialPlanName");
@@ -164,8 +216,10 @@ const getAssignCommercial = async (companyId) => {
           select: "supplierCode",
         },
       ]);
+
     if (aircommercialListVar.length > 0) {
       let mappingData = aircommercialListVar.map(async (items) => {
+        //return items
         const aircommercialfilterincexcsVar =
           await aircommercialfilterincexcs.findOne({
             airCommercialId: items._id,
@@ -178,10 +232,10 @@ const getAssignCommercial = async (companyId) => {
         return {
           _id: items._id,
           travelType: items.travelType,
-          carrier: items.carrier.airlineCode,
+          carrier: items.carrier ? items.carrier.airlineCode : null,
           commercialCategory: items.commercialCategory,
-          supplier: items.supplier.supplierCode,
-          source: items.supplier.supplierCode,
+          supplier: items.supplier ? items.supplier.supplierCode : null,
+          source: items.supplier ? items.supplier.supplierCode : null,
           priority: items.priority,
           aircommercialfilterincexcs: aircommercialfilterincexcsVar,
           updateaircommercialmatrixes: updateaircommercialmatrixesVar,
@@ -219,11 +273,12 @@ const getAssignIncentive = async (companyId) => {
       //     _id: getAgentConfig.incentiveGroupId,
       //   })
       //   .select("_id incentiveGroupName");
-      //return incentivegroupmastersVar;  
+      //return incentivegroupmastersVar;
       incentiveListVar = await incentivegrouphasincentivemasters
         .find({
           incentiveGroupId: getAgentConfig.incentiveGroupId,
-        }).populate('incentiveMasterId');
+        })
+        .populate("incentiveMasterId");
 
       if (incentiveListVar.length > 0) {
         return { IsSuccess: true, data: incentiveListVar };
@@ -246,7 +301,7 @@ const getAssignIncentive = async (companyId) => {
       .find({
         incentiveGroupId: getAgentConfig.incentiveGroupIds,
       })
-      .populate('incentiveMasterId');
+      .populate("incentiveMasterId");
 
     if (incentiveListVar.length > 0) {
       return { IsSuccess: true, data: incentiveListVar };
@@ -254,7 +309,6 @@ const getAssignIncentive = async (companyId) => {
       return { IsSuccess: false, Message: "Incentive Not Available" };
     }
   }
-
 };
 
 const getAssignPlb = async (companyId) => {
@@ -262,7 +316,7 @@ const getAssignPlb = async (companyId) => {
   let getAgentConfig = await agentConfig.findOne({
     companyId: companyId,
   }); // check config
-  //return getAgentConfig;
+  return getAgentConfig;
   let plbgroupmastersVar = [];
   let plbListVar;
   if (!getAgentConfig || getAgentConfig.plbGroupIds === null) {
@@ -274,11 +328,12 @@ const getAssignPlb = async (companyId) => {
       //     _id: getAgentConfig.incentiveGroupId,
       //   })
       //   .select("_id PLBGroupName");
-      //return incentivegroupmastersVar;  
+      //return incentivegroupmastersVar;
       plbListVar = await plbgrouphasplbmasters
         .find({
           PLBGroupId: getAgentConfig.incentiveGroupId,
-        }).populate('PLBMasterId');
+        })
+        .populate("PLBMasterId");
 
       if (plbListVar.length > 0) {
         return { IsSuccess: true, data: plbListVar };
@@ -301,13 +356,25 @@ const getAssignPlb = async (companyId) => {
       .find({
         PLBGroupId: getAgentConfig.plbGroupIds,
       })
-      .populate('PLBMasterId');
+      .populate("PLBMasterId");
 
     if (plbListVar.length > 0) {
       return { IsSuccess: true, data: plbListVar };
     } else {
       return { IsSuccess: false, Message: "PLB Group Not Available" };
     }
+  }
+};
+
+const getAssignMarcup = async (companyId) => {
+  let getmarkupData = await managemarkupsimport.find({
+    companyId: companyId,
+  });
+
+  if (getmarkupData.length > 0) {
+    return { IsSuccess: true, data: getmarkupData };
+  } else {
+    return { IsSuccess: false, Message: "Markup Not Available" };
   }
 };
 

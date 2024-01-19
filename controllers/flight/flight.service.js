@@ -126,7 +126,7 @@ async function handleflight(
   const supplierCredentials = await Supplier.find({
     companyId: CompanyId,
     credentialsType: CredentialType,
-    status: true
+    status: true,
   })
     .populate({
       path: "supplierCodeId",
@@ -144,7 +144,7 @@ async function handleflight(
   //  const getPromoCode = await PromoCode.find({ companyId: CompanyId, supplierCode: supplierCredentials });
   // console.log("aaaaaaaaaaaaaaaaaaaaaaa" + fareTypeVal);
   // return false
-  
+
   if (!TraceId) {
     return {
       IsSucess: false,
@@ -173,7 +173,8 @@ async function handleflight(
               ClassOfService,
               Airlines,
               FareFamily,
-              RefundableOnly
+              RefundableOnly,
+              supplier.supplierCodeId.supplierCode
             );
 
           default:
@@ -210,11 +211,11 @@ async function handleflight(
   }
 
   // apply commercial function
-  const getApplyAllCommercialVar =
-      await flightcommercial.getApplyAllCommercial(
-        Authentication,
-        commonArray
-      );  
+  const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
+    Authentication,
+    TravelType,
+    commonArray
+  );
 
   return {
     IsSucess: true,
@@ -234,7 +235,8 @@ const KafilaFun = async (
   ClassOfService,
   Airlines,
   FareFamily,
-  RefundableOnly
+  RefundableOnly,
+  Provider
 ) => {
   const cacheKey = JSON.stringify({
     supplier,
@@ -248,6 +250,7 @@ const KafilaFun = async (
     Airlines,
     FareFamily,
     RefundableOnly,
+    Provider
   });
 
   const cachedResult = flightCache.get(cacheKey);
@@ -351,7 +354,7 @@ const KafilaFun = async (
       headers: {
         "Content-Type": "application/json",
       },
-    });    
+    });
     if (response.data.Status === "success") {
       let getToken = response.data.Result;
       let requestDataFSearch = {
@@ -429,7 +432,7 @@ const KafilaFun = async (
           SupplierDiscountPercent: 0.0,
           GrandTotal: schedule.Fare.GrandTotal,
           Currency: "INR",
-          FareType: schedule.FareType,
+          FareType: apiResponse.Param.OtherInfo.FareType,
           TourCode: "",
           PricingMethod: "Guaranteed",
           FareFamily: "",
@@ -439,7 +442,7 @@ const KafilaFun = async (
           PromoCodeType: "",
           RefundableFare: schedule.Offer.Refund === "Refundable" ? true : false,
           IndexNumber: index,
-          Provider: schedule.Alias,
+          Provider: Provider,
           ValCarrier: schedule.FCode,
           LastTicketingDate: "",
           TravelTime: schedule.Dur,

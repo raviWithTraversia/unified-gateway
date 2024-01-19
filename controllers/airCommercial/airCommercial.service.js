@@ -34,16 +34,16 @@ const addAirCommercial = async (req, res) => {
                 response: 'Travel Type field are required'
             }
         }
-        if (!carrier) {
-            return {
-                response: 'Carrier field are required'
-            }
-        }
-        if (!supplier) {
-            return {
-                response: 'Supplier field are required'
-            }
-        }
+        // if (!carrier) {
+        //     return {
+        //         response: 'Carrier field are required'
+        //     }
+        // }
+        // if (!supplier) {
+        //     return {
+        //         response: 'Supplier field are required'
+        //     }
+        // }
         if (!priority) {
             return {
                 response: 'Priority field are required'

@@ -52,7 +52,8 @@ const paymentGatewayGroupRoute = require('../routes/paymentGatewayChargeGroupRou
 const airlinePromoCodeGroupRoute = require('../routes/airlinePromoCodeGroupRoute');
 const diSetupGroupRoute = require('../routes/diSetupGroupRoute');
 const agencyGroupRoute = require('../routes/agencyGroupRoute');
-const airportDetailsRoute = require('../routes/airportDetailsRoute')
+const airportDetailsRoute = require('../routes/airportDetailsRoute');
+const couponCodeRoute = require('../routes/coupanCodeRoute');
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -219,7 +220,11 @@ class RoutesLoader {
         app.use('/api', agencyGroupRoute);
 
         //airportDetailsRoute
-        app.use('/api', airportDetailsRoute)
+        app.use('/api', airportDetailsRoute);
+        
+        //couponCodeRoute
+        app.use('/api', couponCodeRoute)
+
 
 
 

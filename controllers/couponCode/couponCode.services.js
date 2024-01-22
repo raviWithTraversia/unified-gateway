@@ -57,10 +57,10 @@ const addCouponCode  = async(req,res) => {
     }
 };
 
-const getCouponCode = async (req,res) => {
+const getCouponCodeByUserId = async (req,res) => {
     try{
     let assignUser = req.query.id;
-    let couponCode = await couponCodeModel.find({assignUser :assignUser});
+    let couponCode = await couponCodeModel.find({assignUser :assignUser, status : "Active"});
     if(couponCode.length > 0){
        return {
         response : 'Coupon Code Data Found Sucessfully',
@@ -87,7 +87,7 @@ const updateCouponCode = async (req,res) => {
             id,
             {
               $set: updateData,
-              modifyBy: req.user._id,
+              modifyBy: req?.user?._id || null,
             },
             { new: true }
           );
@@ -126,10 +126,32 @@ const deleteCoupanCode = async (req,res) => {
         console.log(error);
         throw error
       }
-}
+};
+
+// const getCouponCodeById = async (req,res) => {
+//   try{
+//   let {id} = req.params;
+//   let couponCode = await couponCodeModel.findById({id});
+//   if(couponCode.length > 0){
+//      return {
+//       response : 'Coupon Code Data Found Sucessfully',
+//       data : couponCode
+//      }
+//   }else{
+//       return {
+//         response : 'Coupon Code Data Not Found', 
+//       }
+//   }
+//   }catch(error){
+//     console.log(error);
+//     throw error
+//   }
+// }
+
 module.exports = {
     addCouponCode,
-    getCouponCode,
+    getCouponCodeByUserId,
     updateCouponCode,
-    deleteCoupanCode
+    deleteCoupanCode,
+   // getCouponCodeById
 }

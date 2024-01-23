@@ -52,29 +52,41 @@ const getApplyAllCommercial = async (
       getAssignPlb(companyDetails._id),
       getAssignMarcup(companyDetails._id),
     ]);
-// Commertial Apply
     for (const singleFlightDetails of commonArray) {
       
-       // Check Commertial status
+      // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
-       
-        // commercialPlanDetails.data.commercialFilterList.map(
-        //   async (commList) => {
-        //     if (
-        //       TravelType === commList.travelType &&
-        //       commList.carrier === singleFlightDetails.Provider &&
-        //       commList.supplier === singleFlightDetails.Provider &&
-        //       commList.source === singleFlightDetails.Provider &&
-        //       commList.commercialCategory === "Ticket"
-        //     ) {
+        commercialPlanDetails.data[0].commercialFilterList.map(
+          async (commList) => {
+            if (
+              TravelType === commList.travelType &&
+              commList.carrier === singleFlightDetails.ValCarrier &&
+              //commList.supplier === singleFlightDetails.Provider &&
+              commList.source === singleFlightDetails.Provider &&
+              commList.commercialCategory === "Ticket"
+            ) {
+              const returnDeptDateExclude =
+                commList.aircommercialfilterincexcs.commercialFilter.find(
+                  (filter) =>
+                    filter.commercialFilterId.rowName === "returnDeptDate" &&
+                    filter.type === "exclude" && filter.valueType === "date" && filter.value != null
+                );
+                const returnDeptDateInclude =
+                commList.aircommercialfilterincexcs.commercialFilter.find(
+                  (filter) =>
+                    filter.commercialFilterId.rowName === "returnDeptDate" &&
+                    filter.type === "include" && filter.valueType === "date" && filter.value != null
+                );
 
-        //       // apply for all commertial data 
-
-        //     } else {
-
-        //     }
-        //   }
-        // );
+              if (returnDeptDateExclude && returnDeptDateInclude) {
+                const returnDeptDateExcludeValue = returnDeptDateExclude.value;
+                const returnDeptDateIncludeValue = returnDeptDateInclude.value;
+                
+              }
+              // applyResponceCommercialArray.push({ singleFlightDetails });
+            }
+          }
+        );
       }
 
       //singleFlightDetails.Currency = "USA";
@@ -157,10 +169,11 @@ const getAssignCommercial = async (companyId) => {
         ]);
       if (aircommercialListVar.length > 0) {
         let mappingData = aircommercialListVar.map(async (items) => {
-          const aircommercialfilterincexcsVar =
-            await aircommercialfilterincexcs.findOne({
+          const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
+            .findOne({
               airCommercialId: items._id,
-            });
+            })
+            .populate("commercialFilter.commercialFilterId");
           const updateaircommercialmatrixesVar =
             await updateaircommercialmatrixes.findOne({
               airCommercialPlanId: items._id,
@@ -220,14 +233,15 @@ const getAssignCommercial = async (companyId) => {
     if (aircommercialListVar.length > 0) {
       let mappingData = aircommercialListVar.map(async (items) => {
         //return items
-        const aircommercialfilterincexcsVar =
-          await aircommercialfilterincexcs.findOne({
+        const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
+          .findOne({
             airCommercialId: items._id,
-          });
-        const updateaircommercialmatrixesVar =
-          await updateaircommercialmatrixes.findOne({
-            airCommercialPlanId: items._id,
-          });
+          })
+          .populate("commercialFilter.commercialFilterId");
+        const updateaircommercialmatrixesVar = await updateaircommercialmatrixes
+          .findOne({ airCommercialPlanId: items._id })
+          .populate("data.AirCommertialRowMasterId")
+          .populate("data.AirCommertialColumnMasterId");
 
         return {
           _id: items._id,
@@ -316,7 +330,7 @@ const getAssignPlb = async (companyId) => {
   let getAgentConfig = await agentConfig.findOne({
     companyId: companyId,
   }); // check config
-  return getAgentConfig;
+  //return getAgentConfig;
   let plbgroupmastersVar = [];
   let plbListVar;
   if (!getAgentConfig || getAgentConfig.plbGroupIds === null) {

@@ -17,15 +17,15 @@ couponCode_route.get(
 );
 couponCode_route.patch(
     'configCred/updateCredentail',
-    configCredentialController.updateCredential
+    couponCodeController.updateCouponCode
 );
 couponCode_route.delete(
     'configCred/deleteCredential',
-    configCredentialController.deleteCredential
+    couponCodeController.deleteCouponCode
 );
 
-configCredential_route.get('/test',auth, function(req, res){
+couponCode_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });
 
-module.exports = configCredential_route;
+module.exports = couponCode_route;

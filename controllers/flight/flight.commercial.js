@@ -53,7 +53,7 @@ const getApplyAllCommercial = async (
       getAssignMarcup(companyDetails._id),
     ]);
     for (const singleFlightDetails of commonArray) {
-      
+
       // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
         commercialPlanDetails.data[0].commercialFilterList.map(
@@ -81,7 +81,7 @@ const getApplyAllCommercial = async (
               if (returnDeptDateExclude && returnDeptDateInclude) {
                 const returnDeptDateExcludeValue = returnDeptDateExclude.value;
                 const returnDeptDateIncludeValue = returnDeptDateInclude.value;
-                
+                // loop break and return 
               }
               // applyResponceCommercialArray.push({ singleFlightDetails });
             }

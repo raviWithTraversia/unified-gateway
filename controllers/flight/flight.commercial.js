@@ -11,6 +11,7 @@ const incentivegrouphasincentivemasters = require("../../models/IncentiveGroupHa
 const plbgroupmasters = require("../../models/PLBGroupMaster");
 const plbgrouphasplbmasters = require("../../models/PLBGroupHasPLBMaster");
 const managemarkupsimport = require("../../models/ManageMarkup");
+const moment = require('moment');
 
 const getApplyAllCommercial = async (
   Authentication,
@@ -29,11 +30,12 @@ const getApplyAllCommercial = async (
     _id: userDetails.company_ID,
   }).populate("parent", "type");
 
-  let commercialPlanDetails;
-  let incentivePlanDetails;
-  let plbPlanDetails;
-  let markupDetails;
+  // let commercialPlanDetails;
+  // let incentivePlanDetails;
+  // let plbPlanDetails;
+  // let markupDetails;
   let applyResponceCommercialArray = [];
+  let updateObjofsingleflight = null;
   if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {
     // TMC-Agency // // one time apply commertioal
     // commercialPlanDetails = await getAssignCommercial(companyDetails._id);
@@ -53,45 +55,79 @@ const getApplyAllCommercial = async (
       getAssignMarcup(companyDetails._id),
     ]);
     for (const singleFlightDetails of commonArray) {
-
       // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
-        commercialPlanDetails.data[0].commercialFilterList.map(
-          async (commList) => {
-            if (
-              TravelType === commList.travelType &&
-              commList.carrier === singleFlightDetails.ValCarrier &&
-              //commList.supplier === singleFlightDetails.Provider &&
-              commList.source === singleFlightDetails.Provider &&
-              commList.commercialCategory === "Ticket"
-            ) {
-              const returnDeptDateExclude =
-                commList.aircommercialfilterincexcs.commercialFilter.find(
-                  (filter) =>
-                    filter.commercialFilterId.rowName === "returnDeptDate" &&
-                    filter.type === "exclude" && filter.valueType === "date" && filter.value != null
-                );
-                const returnDeptDateInclude =
-                commList.aircommercialfilterincexcs.commercialFilter.find(
-                  (filter) =>
-                    filter.commercialFilterId.rowName === "returnDeptDate" &&
-                    filter.type === "include" && filter.valueType === "date" && filter.value != null
-                );
+        let bestMatch = null;
+        for (
+          let i = 0;
+          i < commercialPlanDetails.data[0].commercialFilterList.length;
+          i++
+        ) {
+          const commList =
+            commercialPlanDetails.data[0].commercialFilterList[i];
 
-              if (returnDeptDateExclude && returnDeptDateInclude) {
-                const returnDeptDateExcludeValue = returnDeptDateExclude.value;
-                const returnDeptDateIncludeValue = returnDeptDateInclude.value;
-                // loop break and return 
-              }
-              // applyResponceCommercialArray.push({ singleFlightDetails });
+          if (
+            TravelType === commList.travelType &&
+            commList.carrier === singleFlightDetails.ValCarrier &&
+            //commList.supplier === singleFlightDetails.Provider &&
+            commList.source === singleFlightDetails.Provider &&
+            commList.commercialCategory === "Ticket"
+          ) {
+            const returnDeptDateExclude =
+              commList.aircommercialfilterincexcs.commercialFilter.find(
+                (filter) =>
+                  filter.commercialFilterId.rowName === "returnDeptDate" &&
+                  filter.type === "exclude" &&
+                  filter.valueType === "date" &&
+                  filter.value != null &&
+                  filter.value != ""
+              );
+            const returnDeptDateInclude =
+              commList.aircommercialfilterincexcs.commercialFilter.find(
+                (filter) =>
+                  filter.commercialFilterId.rowName === "returnDeptDate" &&
+                  filter.type === "include" &&
+                  filter.valueType === "date" &&
+                  filter.value != null &&
+                  filter.value != ""
+              );
+
+            if (returnDeptDateExclude && returnDeptDateInclude) {
+              const returnDeptDateExcludeValue = returnDeptDateExclude.value;
+              const returnDeptDateIncludeValue = returnDeptDateInclude.value;
+              const [startDateExclude, endDateExclude] = returnDeptDateExcludeValue.split(" - ");
+              const [startDateInclude, endDateInclude] = returnDeptDateIncludeValue.split(" - ");
+             
+              if (moment("2024-02-12", 'YYYY-MM-DD') >= moment(startDateExclude, 'DD/MM/YYYY') && moment("2024-02-12", 'YYYY-MM-DD') <= moment(endDateExclude, 'DD/MM/YYYY')) {
+                // The mandate date is within the range                
+                bestMatch = "The mandate date is within the range - ";
+            } else {
+                // The mandate date is outside the range
+                bestMatch = "The mandate date is outside the range - ";
             }
+             
+              
+              //bestMatch = commList.updateaircommercialmatrixes;
+              break;
+            }
+            // applyResponceCommercialArray.push({ singleFlightDetails });
           }
-        );
+        }
+
+        if(bestMatch){
+          // can be update here object
+          //singleFlightDetails.ExtraCharges = 555;
+          singleFlightDetails.bestMatch = bestMatch;
+          // bestMatch  this is the commertial values and  
+        }
       }
 
-      //singleFlightDetails.Currency = "USA";
+     //  updateObjofsingleflight // this is update object with the apply commertial then apply incentive in below and then last push this update object in applyResponceCommercialArray.push({ updateObjofsingleflight });
+     // this is last update and push function
+     applyResponceCommercialArray.push(singleFlightDetails);
     }
     return commonArray;
+    //return commercialPlanDetails;
   } else if (
     companyDetails.type == "Agency" &&
     companyDetails.parent.type == "Distributer"

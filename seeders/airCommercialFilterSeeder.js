@@ -2,57 +2,57 @@ const AirCommercialFilter = require('../models/AirCommercialFilter');
 
 const filter = [
     {
-        rowName: "AllAirport" ,
-        type : 'text',
-    },
-    {
-        rowName: "bookingDate" ,
+        rowName: "DeptDate",
         type : 'date',
     },
     {
-        rowName: "onTravelDate" ,
+        rowName: "BookingDate",
         type : 'date',
     },
     {
-        rowName: "returnDeptDate" ,
+        rowName: "TravelDate",
         type : 'date',
-    },
+    }, 
     {
-        rowName: "RBD" ,
+        rowName: "AllAirport",
         type : 'text',
     },
     {
-        rowName: "operatingCarrier" ,
+        rowName: "MarketingCarrier(Val)",
         type : 'text',
     },
     {
-        rowName: "marketingCarrier" ,
+        rowName: "OperatingCarrier",
         type : 'text',
     },
     {
-        rowName: "accountCode" ,
+        rowName: "AccountCode",
         type : 'text',
     },
     {
-        rowName: "fareBase" ,
+        rowName: "TourCode",
         type : 'text',
     },
     {
-        rowName: "tourCode" ,
+        rowName: "FareBasis",
         type : 'text',
     },
     {
-        rowName: "fareRange" ,
+        rowName: "RBD",
+        type : 'text',
+    }, 
+    {
+        rowName: "SourceId",
         type : 'text',
     },
     {
-        rowName: "sourceId" ,
+        rowName: "ProductClass",
         type : 'text',
-    },
+    },             
     {
-        rowName: "productClass" ,
+        rowName: "FareRange",
         type : 'text',
-    }
+    }    
    ] ;
 
    const AirCommercialFilterSeeder = async () => {

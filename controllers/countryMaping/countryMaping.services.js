@@ -40,8 +40,29 @@ const getCountryMaping = async (req,res) => {
         console.log(error);
         throw error
     }
+};
+const deleteCountryMaping = async (req,res) => {
+    try{
+    const id = req.query.id;
+    let deletCountryMapindData = await countryMapSchema.findByIdAndDelete(id);
+    if(deletCountryMapindData){
+        return {
+            response : 'Data Deleted Sucessfully',
+            data : []
+        }
+    }else{
+        return {
+            response : 'Data For This Id Is Not Found'
+        }
+    }
+
+    }catch(error){
+        throw error
+        console.log(error)
+    }
 }
 module.exports = {
     addCountryMaping,
-    getCountryMaping
+    getCountryMaping,
+    deleteCountryMaping
 }

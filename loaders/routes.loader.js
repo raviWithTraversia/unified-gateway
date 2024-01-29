@@ -52,7 +52,10 @@ const paymentGatewayGroupRoute = require('../routes/paymentGatewayChargeGroupRou
 const airlinePromoCodeGroupRoute = require('../routes/airlinePromoCodeGroupRoute');
 const diSetupGroupRoute = require('../routes/diSetupGroupRoute');
 const agencyGroupRoute = require('../routes/agencyGroupRoute');
-const airportDetailsRoute = require('../routes/airportDetailsRoute')
+const airportDetailsRoute = require('../routes/airportDetailsRoute');
+const couponCodeRoute = require('../routes/coupanCodeRoute');
+const userPaymentRoute = require('../routes/userPaymentRoute');
+const countryMapRoute = require('../routes/countryMapRoute')
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -144,6 +147,7 @@ class RoutesLoader {
         // layot Route by  shashi
 
         app.use('/api', layoutRoute);
+        
         // PLB Group Master
         app.use('/api' , plbGroupMaster);
 
@@ -219,9 +223,17 @@ class RoutesLoader {
         app.use('/api', agencyGroupRoute);
 
         //airportDetailsRoute
-        app.use('/api', airportDetailsRoute)
+        app.use('/api', airportDetailsRoute);
+        
+        //couponCodeRoute
+        app.use('/api', couponCodeRoute);
 
+       //userPaymentRoute
+       app.use('/api', userPaymentRoute);
 
+       //countryMapRoute
+
+       app.use('/api',countryMapRoute);
 
     }
 }

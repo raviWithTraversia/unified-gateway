@@ -91,6 +91,7 @@ const checkIsValidId =  (Id) => {
   }
 };
 
+
 const removeWWWAndProtocol = async (url) => {
   // Remove "www" from the beginning (if it exists)
   const withoutWWW = url.replace(/^(https?:\/\/)?(www\.)?/, "");

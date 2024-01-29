@@ -98,7 +98,6 @@ const Status = {
     "Inactive" : "Inactive"
 
 }
-
 const ADMIN_USER_TYPE = ['MASTER', 'COMPANY', 'SUB_COMPANY', 'EMPLOYEE'];
 
 const TMC_ROLE= {
@@ -114,7 +113,8 @@ const DISTRIBUTER_ROLE = {
 
 const HOST_ROLE = {
     TMC : "TMC",
-    DISTRIBUTER : "Distributer"
+    DISTRIBUTER : "Distributer",
+    AGENCY : "Agency"
 };
 const OTP_FOR = {
     "Mail": "Email",
@@ -123,8 +123,11 @@ const OTP_FOR = {
 const OTP_TYPE = {
     "Reg" : 'Registration',
     "Login": 'Login'
-}
-
+};
+const RabbitMQTopicQueue = {
+    PAYMENT_REQUEST : "kafila/agent/payment/request",
+  }
+  
 module.exports = {
     ServerStatusCode,
     errorResponse,
@@ -135,5 +138,6 @@ module.exports = {
     DISTRIBUTER_ROLE,
     HOST_ROLE,
     OTP_FOR,
-    OTP_TYPE
+    OTP_TYPE,
+    RabbitMQTopicQueue
 }

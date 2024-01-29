@@ -1,8 +1,8 @@
-const { truncateSync } = require('fs');
+
 const { apiSucessRes, apiErrorres } = require('../../utils/commonResponce');
 const { ServerStatusCode, errorResponse } = require('../../utils/constants');
 const supplierCodeServices = require('./supplierCode.services');
-const { Server } = require('tls');
+
 
 const addSupplierCode = async (req,res) => {
     try{

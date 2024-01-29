@@ -12,17 +12,21 @@ couponCode_route.post(
     couponCodeController.addCouponCode
 );
 couponCode_route.get(
-    'configCred/getCredential',
-    couponCodeController.getCouponCode
+    '/couponCode/getCouponCodeByUserId',
+    couponCodeController.getCouponCodeByUserId
 );
 couponCode_route.patch(
-    'configCred/updateCredentail',
+    '/couponCode/updateCouponCode',
     couponCodeController.updateCouponCode
 );
 couponCode_route.delete(
-    'configCred/deleteCredential',
+    '/couponCode/deleteCouponCode',
     couponCodeController.deleteCouponCode
 );
+// couponCode_route.get(
+//     '/couponCode/getCouponCodeById',
+//     couponCodeController.getCouponCodeById
+// );
 
 couponCode_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

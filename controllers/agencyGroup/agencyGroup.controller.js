@@ -1,4 +1,4 @@
-const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
+const { apiSucessRes, apiErrorres } = require("../../utils/commonResponse");
 const {
   ServerStatusCode,
   errorResponse,

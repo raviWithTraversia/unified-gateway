@@ -38,9 +38,9 @@ const addCouponCode = async (req,res) => {
       }
 };
 
-const getCouponCode = async (req,res) => {
+const getCouponCodeByUserId = async (req,res) => {
     try{
-        const result = await CouponController.getCouponCode(req,res);
+        const result = await CouponController.getCouponCodeByUserId(req,res);
         if(result.response == 'Coupon Code Data Found Sucessfully'){
           apiSucessRes(
               res,
@@ -144,11 +144,49 @@ const deleteCouponCode = async (req,res) => {
               true
             )
       }
-}
+};
+
+//getCouponCodeById
+// const getCouponCodeById = async (req,res) => {
+//   try{
+//       const result = await CouponController.getCouponCodeById(req,res);
+//       if(result.response == 'Coupon Code Data Found Sucessfully'){
+//         apiSucessRes(
+//             res,
+//             result.response,
+//             result.data,
+//             ServerStatusCode.SUCESS_CODE
+//         )
+//       }
+//       else if(result.response == 'Coupon Code Data Not Found'){
+//        apiErrorres(
+//         res,
+//         result.response,
+//         ServerStatusCode.NOT_EXIST_CODE,
+//         true
+//        )
+//       }else{
+//         apiErrorres(
+//             res,
+//             errorResponse.SOME_UNOWN,
+//             ServerStatusCode.INVALID_CRED,
+//             true
+//           )
+//       }
+//     }catch(error){
+//         apiErrorres(
+//             res,
+//             errorResponse.SOME_UNOWN,
+//             ServerStatusCode.INVALID_CRED,
+//             true
+//           )
+//     }
+// };
 
 module.exports = {
     addCouponCode,
-    getCouponCode,
+    getCouponCodeByUserId,
     updateCouponCode,
-    deleteCouponCode
+    deleteCouponCode,
+   // getCouponCodeById
 }

@@ -3,12 +3,12 @@ const countryMapSchema = require('../../models/CountryMapping');
 const addCountryMaping = async (req,res) => {
         try {
            
-            const { countries, ContinentCode } = req.body;
-        
+            const { countries, ContinentCode , companyId } = req.body;
             const newCountryMapping = new countryMapSchema({
               countries,
               ContinentCode,
               modifyBy : req?.user?._id || null,
+              companyId
             });
         
             const result = await newCountryMapping.save(); 

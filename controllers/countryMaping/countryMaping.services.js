@@ -22,6 +22,26 @@ const addCountryMaping = async (req,res) => {
       throw error
     }
 };
+const getCountryMaping = async (req,res) => {
+    try{
+      let companyId = req.query.id;
+      let countryMapingData = await countryMapSchema.find({companyId : companyId}) ;
+      if(countryMapingData.length > 0){
+        return {
+            response : 'Data Found Sucessfully',
+            data : countryMapingData
+        }
+      }else{
+        return {
+            response : 'Data Not Found'
+        }
+      }
+    }catch(error){
+        console.log(error);
+        throw error
+    }
+}
 module.exports = {
-    addCountryMaping 
+    addCountryMaping,
+    getCountryMaping
 }

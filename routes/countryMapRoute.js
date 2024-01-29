@@ -18,4 +18,11 @@ countryMap_route.get(
     auth,
     CountryMap.getCountryMaping
 );
+
+countryMap_route.delete(
+    '/countryMap/deleteCountryMaping' ,
+    auth,
+    CountryMap.deleteCountryMaping
+);
+
 module.exports = countryMap_route

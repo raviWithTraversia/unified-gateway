@@ -7,6 +7,10 @@ const countryMapSchema = new mongoose.Schema(
       ContinentCode : {
         type : String
       },
+      companyId : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
+      },
       modifyBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

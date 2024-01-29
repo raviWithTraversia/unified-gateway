@@ -11,7 +11,7 @@ const incentivegrouphasincentivemasters = require("../../models/IncentiveGroupHa
 const plbgroupmasters = require("../../models/PLBGroupMaster");
 const plbgrouphasplbmasters = require("../../models/PLBGroupHasPLBMaster");
 const managemarkupsimport = require("../../models/ManageMarkup");
-//const countryMaping = require("../../models/");
+const countryMaping = require("../../models/CountryMapping");
 const moment = require("moment");
 
 const getApplyAllCommercial = async (
@@ -830,7 +830,7 @@ const getAssignMarcup = async (companyId) => {
 
 const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
   let bestMatch = true;
-
+  let dataPrint;
   // DeptDate filter start here
   const returnDeptDateExclude =
     commList.aircommercialfilterincexcs.commercialFilter.find(
@@ -838,7 +838,7 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
         filter.commercialFilterId.rowName === "DeptDate" &&
         filter.type === "exclude" &&
         filter.valueType === "date" &&
-        filter.value != null && 
+        filter.value != null &&
         filter.value != ""
     );
   const returnDeptDateInclude =
@@ -847,7 +847,7 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
         filter.commercialFilterId.rowName === "DeptDate" &&
         filter.type === "include" &&
         filter.valueType === "date" &&
-        filter.value != null && 
+        filter.value != null &&
         filter.value != ""
     );
 
@@ -857,9 +857,9 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
       returnDeptDateIncludeValue.split(" - ");
     if (
       moment(singleFlightDetails.Sectors[0].Departure.Date, "YYYY-MM-DD") >=
-      moment(startDateInclude, "DD/MM/YYYY") &&
+        moment(startDateInclude, "DD/MM/YYYY") &&
       moment(singleFlightDetails.Sectors[0].Departure.Date, "YYYY-MM-DD") <=
-      moment(endDateInclude, "DD/MM/YYYY")
+        moment(endDateInclude, "DD/MM/YYYY")
     ) {
       //The mandate date is within the range
       bestMatch = true;
@@ -875,9 +875,9 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
       returnDeptDateExcludeValue.split(" - ");
     if (
       moment(singleFlightDetails.Sectors[0].Departure.Date, "YYYY-MM-DD") >=
-      moment(startDateExclude, "DD/MM/YYYY") &&
+        moment(startDateExclude, "DD/MM/YYYY") &&
       moment(singleFlightDetails.Sectors[0].Departure.Date, "YYYY-MM-DD") <=
-      moment(endDateExclude, "DD/MM/YYYY")
+        moment(endDateExclude, "DD/MM/YYYY")
     ) {
       //The mandate date is within the range
       bestMatch = false;
@@ -894,49 +894,110 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
         filter.commercialFilterId.rowName === "AllAirport" &&
         filter.type === "include" &&
         filter.valueType === "text" &&
-        filter.value != null && 
+        filter.value != null &&
         filter.value != ""
     );
-   
-    const allAirportExclude =
+
+  const allAirportExclude =
     commList.aircommercialfilterincexcs.commercialFilter.find(
       (filter) =>
         filter.commercialFilterId.rowName === "AllAirport" &&
         filter.type === "exclude" &&
         filter.valueType === "text" &&
-        filter.value != null && 
+        filter.value != null &&
         filter.value != ""
-    ); 
-    
-    if (allAirportInclude) {
-      const allAirportIncludeIncludeValue = allAirportInclude.value.split(',');
-      if (allAirportIncludeIncludeValue.includes(singleFlightDetails.Sectors[0].Departure.CountryCode)) { 
-        // country code exists  IN, US
-        bestMatch = true; 
+    );
+
+  if (allAirportInclude) {
+    const allAirportIncludeIncludeValue = allAirportInclude.value.split(",");
+    if (
+      allAirportIncludeIncludeValue.includes(
+        singleFlightDetails.Sectors[0].Departure.CountryCode
+      )
+    ) {
+      // country code exists  IN, US
+      bestMatch = true;
+    } else {
+      // does not exists country code Then Check Airport Code DEL,BOM
+      if (
+        allAirportIncludeIncludeValue.includes(
+          singleFlightDetails.Sectors[0].Departure.Code
+        )
+      ) {
+        // Airport exits
+        bestMatch = true;
       } else {
-        // does not exists country code Then Check Airport Code DEL,BOM
-        if (allAirportIncludeIncludeValue.includes(singleFlightDetails.Sectors[0].Departure.Code)) {
-          // Airport exits
-          bestMatch = true; 
-        }else{
-          // Airport Not exits
-          // Get country group 
-          //countryMaping
-          if (allAirportIncludeIncludeValue.includes(singleFlightDetails.Sectors[0].Departure.CountryCode)) {
+        // Airport Not exits
+        // Get country group
+        const countryMapingVal = await countryMaping.findOne({
+          companyId: companyId,
+          ContinentCode: { $in: allAirportIncludeIncludeValue },
+        });
+        if (countryMapingVal.countries.length > 0) {
+          if (
+            countryMapingVal.countries
+              .split(",")
+              .includes(singleFlightDetails.Sectors[0].Departure.CountryCode)
+          ) {
             // Country Code Group Exists
-            bestMatch = true; 
-          }else{
+            bestMatch = true;
+          } else {
             // Country Code Group Not Exits
-            bestMatch = false; 
+            bestMatch = false;
           }
+        } else {
+          bestMatch = false;
         }
       }
     }
+  }
 
-
+  if (allAirportExclude) {
+    const allAirportExcludeValue = allAirportExclude.value.split(",");
+    if (
+      allAirportExcludeValue.includes(
+        singleFlightDetails.Sectors[0].Departure.CountryCode
+      )
+    ) {
+      // country code exists  IN, US
+      bestMatch = false;
+    } else {
+      // does not exists country code Then Check Airport Code DEL,BOM
+      if (
+        allAirportExcludeValue.includes(
+          singleFlightDetails.Sectors[0].Departure.Code
+        )
+      ) {
+        // Airport exits
+        bestMatch = false;
+      } else {
+        // Airport Not exits
+        // Get country group
+        const countryMapingVal = await countryMaping.findOne({
+          companyId: companyId,
+          ContinentCode: { $in: allAirportExcludeValue },
+        });
+        if (countryMapingVal.countries.length > 0) {
+          if (
+            countryMapingVal.countries
+              .split(",")
+              .includes(singleFlightDetails.Sectors[0].Departure.CountryCode)
+          ) {
+            // Country Code Group Exists
+            bestMatch = false;
+          } else {
+            // Country Code Group Not Exits
+            bestMatch = true;
+          }
+        } else {
+          bestMatch = true;
+        }
+      }
+    }
+  }
   // here send responce true and false if true share with data  if bestmatch is true apply values filters
   if (bestMatch === true) {
-    return { match: true, data: commList };
+    return { match: true, data: "here data" };
   } else {
     return { match: false, data: null };
   }

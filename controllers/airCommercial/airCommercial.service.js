@@ -442,7 +442,7 @@ const addCommercialFilterExcInc = async (req, res) => {
 
 const getComExcIncList = async (req, res) => {
     try {
-        const comercialIncExc = await AirCommercialFilter.find({})
+        const comercialIncExc = await AirCommercialFilter.find({}).sort({ _id: 1 });
 
         if (comercialIncExc.length > 0) {
             return {

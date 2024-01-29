@@ -11,6 +11,7 @@ const incentivegrouphasincentivemasters = require("../../models/IncentiveGroupHa
 const plbgroupmasters = require("../../models/PLBGroupMaster");
 const plbgrouphasplbmasters = require("../../models/PLBGroupHasPLBMaster");
 const managemarkupsimport = require("../../models/ManageMarkup");
+//const countryMaping = require("../../models/");
 const moment = require("moment");
 
 const getApplyAllCommercial = async (
@@ -461,7 +462,8 @@ const getApplyAllCommercial = async (
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
-                singleFlightDetails
+                singleFlightDetails,
+                companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
                 bestMatch = checkInnerFilterfun;
@@ -475,7 +477,8 @@ const getApplyAllCommercial = async (
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
-                singleFlightDetails
+                singleFlightDetails,
+                companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
                 bestMatch = checkInnerFilterfun;
@@ -489,7 +492,8 @@ const getApplyAllCommercial = async (
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
-                singleFlightDetails
+                singleFlightDetails,
+                companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
                 bestMatch = checkInnerFilterfun;
@@ -503,7 +507,8 @@ const getApplyAllCommercial = async (
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
-                singleFlightDetails
+                singleFlightDetails,
+                companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
                 bestMatch = checkInnerFilterfun;
@@ -823,7 +828,7 @@ const getAssignMarcup = async (companyId) => {
   }
 };
 
-const checkInnerFilter = async (commList, singleFlightDetails) => {
+const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
   let bestMatch = true;
 
   // DeptDate filter start here
@@ -883,11 +888,55 @@ const checkInnerFilter = async (commList, singleFlightDetails) => {
   }
 
   // AllAirport filter start here...
+  const allAirportInclude =
+    commList.aircommercialfilterincexcs.commercialFilter.find(
+      (filter) =>
+        filter.commercialFilterId.rowName === "AllAirport" &&
+        filter.type === "include" &&
+        filter.valueType === "text" &&
+        filter.value != null && 
+        filter.value != ""
+    );
+   
+    const allAirportExclude =
+    commList.aircommercialfilterincexcs.commercialFilter.find(
+      (filter) =>
+        filter.commercialFilterId.rowName === "AllAirport" &&
+        filter.type === "exclude" &&
+        filter.valueType === "text" &&
+        filter.value != null && 
+        filter.value != ""
+    ); 
+    
+    if (allAirportInclude) {
+      const allAirportIncludeIncludeValue = allAirportInclude.value.split(',');
+      if (allAirportIncludeIncludeValue.includes(singleFlightDetails.Sectors[0].Departure.CountryCode)) { 
+        // country code exists  IN, US
+        bestMatch = true; 
+      } else {
+        // does not exists country code Then Check Airport Code DEL,BOM
+        if (allAirportIncludeIncludeValue.includes(singleFlightDetails.Sectors[0].Departure.Code)) {
+          // Airport exits
+          bestMatch = true; 
+        }else{
+          // Airport Not exits
+          // Get country group 
+          //countryMaping
+          if (allAirportIncludeIncludeValue.includes(singleFlightDetails.Sectors[0].Departure.CountryCode)) {
+            // Country Code Group Exists
+            bestMatch = true; 
+          }else{
+            // Country Code Group Not Exits
+            bestMatch = false; 
+          }
+        }
+      }
+    }
 
 
   // here send responce true and false if true share with data  if bestmatch is true apply values filters
   if (bestMatch === true) {
-    return { match: true, data: "date here" };
+    return { match: true, data: commList };
   } else {
     return { match: false, data: null };
   }

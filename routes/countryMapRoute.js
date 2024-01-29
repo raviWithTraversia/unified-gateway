@@ -13,4 +13,9 @@ countryMap_route.post(
     auth,
     CountryMap.addCountryMaping
 );
+countryMap_route.get(
+    '/countryMap/getCountryMaping' ,
+    auth,
+    CountryMap.getCountryMaping
+);
 module.exports = countryMap_route

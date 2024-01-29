@@ -23,7 +23,37 @@ const addCountryMaping = async(req, res) => {
             true
         )
     }
+};
+
+const getCountryMaping = async (req,res) => {
+    try{
+    let result = await countryMapServices.getCountryMaping(req,res);
+    if(result.response == 'Data Found Sucessfully'){
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+    }else if(result.response == 'Data Not Found'){
+       apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+       )
+    }
+
+    }catch(error){
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
 }
 
 
-module.exports = {addCountryMaping}
+module.exports = {addCountryMaping,
+    getCountryMaping}

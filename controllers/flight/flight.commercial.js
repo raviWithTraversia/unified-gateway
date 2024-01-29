@@ -895,7 +895,9 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
         filter.type === "include" &&
         filter.valueType === "text" &&
         filter.value != null &&
-        filter.value != ""
+        filter.value != "" &&
+        singleFlightDetails.Sectors[0].Departure.CountryCode != null &&
+        singleFlightDetails.Sectors[0].Departure.CountryCode != ""
     );
 
   const allAirportExclude =
@@ -905,7 +907,9 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
         filter.type === "exclude" &&
         filter.valueType === "text" &&
         filter.value != null &&
-        filter.value != ""
+        filter.value != "" &&
+        singleFlightDetails.Sectors[0].Departure.CountryCode != null &&
+        singleFlightDetails.Sectors[0].Departure.CountryCode != ""
     );
 
   if (allAirportInclude) {
@@ -933,7 +937,7 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
           companyId: companyId,
           ContinentCode: { $in: allAirportIncludeIncludeValue },
         });
-        if (countryMapingVal.countries.length > 0) {
+        if (countryMapingVal && countryMapingVal.countries && countryMapingVal.countries.length > 0) {
           if (
             countryMapingVal.countries
               .split(",")
@@ -977,7 +981,7 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
           companyId: companyId,
           ContinentCode: { $in: allAirportExcludeValue },
         });
-        if (countryMapingVal.countries.length > 0) {
+        if (countryMapingVal && countryMapingVal.countries && countryMapingVal.countries.length > 0) {
           if (
             countryMapingVal.countries
               .split(",")
@@ -995,6 +999,446 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
       }
     }
   }
+ 
+  // Start Booking Date Filter Here
+  const bookingDateExclude =
+    commList.aircommercialfilterincexcs.commercialFilter.find(
+      (filter) =>
+        filter.commercialFilterId.rowName === "BookingDate" &&
+        filter.type === "exclude" &&
+        filter.valueType === "date" &&
+        filter.value != null &&
+        filter.value != ""
+    );
+  const bookingDateInclude =
+    commList.aircommercialfilterincexcs.commercialFilter.find(
+      (filter) =>
+        filter.commercialFilterId.rowName === "BookingDate" &&
+        filter.type === "include" &&
+        filter.valueType === "date" &&
+        filter.value != null &&
+        filter.value != ""
+    );
+
+  if (bookingDateInclude) {
+    const bookingDateIncludeValue = bookingDateInclude.value;
+    const [startBookingDateInclude, endBookingDateInclude] =
+    bookingDateIncludeValue.split(" - ");
+    const currentDate = moment();
+    if (
+      currentDate >=
+        moment(startBookingDateInclude, "DD/MM/YYYY") &&
+        currentDate <=
+        moment(endBookingDateInclude, "DD/MM/YYYY")
+    ) {
+      //The mandate date is within the range
+      bestMatch = true;
+    } else {
+      //The mandate date is outside the range
+      bestMatch = false;
+    }
+  }
+
+  if (bookingDateExclude) {
+    const bookingDateExcludeValue = bookingDateExclude.value;
+    const [startBookingDateExclude, endBookingDateExclude] =
+    bookingDateExcludeValue.split(" - ");
+    const currentDate = moment();
+    if (
+      currentDate >=
+        moment(startBookingDateExclude, "DD/MM/YYYY") &&
+        currentDate <=
+        moment(endBookingDateExclude, "DD/MM/YYYY")
+    ) {
+      //The mandate date is within the range
+      bestMatch = false;
+    } else {
+      //The mandate date is outside the range
+      bestMatch = true;
+    }
+  }
+
+  // Marketing Carrier (ValCarrier) Filter start Here
+  const marketingCarrierInclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "MarketingCarrier(Val)" &&
+      filter.type === "include" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" &&
+      singleFlightDetails.ValCarrier != null &&
+      singleFlightDetails.ValCarrier != ""
+  );
+
+const marketingCarrierExclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "MarketingCarrier(Val)" &&
+      filter.type === "exclude" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" &&
+      singleFlightDetails.ValCarrier != null &&
+      singleFlightDetails.ValCarrier != ""
+  );
+
+  if (marketingCarrierInclude) {
+    const marketingCarrierIncludeValue = marketingCarrierInclude.value.split(",");
+    if (
+      marketingCarrierIncludeValue.includes(
+        singleFlightDetails.ValCarrier
+      )
+    ) {
+      
+      bestMatch = true;
+    } else {
+      
+      bestMatch = false;
+    }
+  }
+
+  if (marketingCarrierExclude) {
+    const marketingCarrierExcludeValue = marketingCarrierExclude.value.split(",");
+    if (
+      marketingCarrierExcludeValue.includes(
+        singleFlightDetails.ValCarrier
+      )
+    ) {
+      
+      bestMatch = false;
+    } else {
+      
+      bestMatch = true;
+    }
+  }
+
+  // Operating Carrier start here
+  const operatingCarrierInclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "OperatingCarrier" &&
+      filter.type === "include" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" && 
+      singleFlightDetails.Sectors[0].OperatingCarrier != null &&
+      singleFlightDetails.Sectors[0].OperatingCarrier != ""
+  );
+
+const operatingCarrierExclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "OperatingCarrier" &&
+      filter.type === "exclude" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" &&
+      singleFlightDetails.Sectors[0].OperatingCarrier != null &&
+      singleFlightDetails.Sectors[0].OperatingCarrier != ""
+  );
+
+  if (operatingCarrierInclude) {
+    const operatingCarrierIncludeValue = operatingCarrierInclude.value.split(",");
+    if (
+      operatingCarrierIncludeValue.includes(
+        singleFlightDetails.Sectors[0].OperatingCarrier
+      )
+    ) {
+      
+      bestMatch = true;
+    } else {
+      
+      bestMatch = false;
+    }
+  }
+
+  if (operatingCarrierExclude) {
+    const operatingCarrierExcludeValue = operatingCarrierExclude.value.split(",");
+    if (
+      operatingCarrierExcludeValue.includes(
+        singleFlightDetails.Sectors[0].OperatingCarrier
+      )
+    ) {
+      
+      bestMatch = false;
+    } else {
+      
+      bestMatch = true;
+    }
+  }	 
+
+  // Tour Code filter here 
+  const tourCodeInclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "TourCode" &&
+      filter.type === "include" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" && 
+      singleFlightDetails.TourCode != null &&
+      singleFlightDetails.TourCode != ""
+  );
+
+const tourCodeExclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "TourCode" &&
+      filter.type === "exclude" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" &&
+      singleFlightDetails.TourCode != null &&
+      singleFlightDetails.TourCode != ""
+  );
+
+  if (tourCodeInclude) {
+    const tourCodeIncludeValue = tourCodeInclude.value.split(",");
+    if (
+      tourCodeIncludeValue.includes(
+        singleFlightDetails.TourCode
+      )
+    ) {
+      
+      bestMatch = true;
+    } else {
+      
+      bestMatch = false;
+    }
+  }
+
+  if (tourCodeExclude) {
+    const tourCodeExcludeValue = tourCodeExclude.value.split(",");
+    if (
+      tourCodeExcludeValue.includes(
+        singleFlightDetails.TourCode
+      )
+    ) {
+      
+      bestMatch = false;
+    } else {
+      
+      bestMatch = true;
+    }
+  }	 
+
+  // Fare Basis Code Filter start Here
+  const fareBasisInclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "FareBasis" &&
+      filter.type === "include" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" && 
+      singleFlightDetails.Sectors[0].FareBasisCode != null &&
+      singleFlightDetails.Sectors[0].FareBasisCode != ""
+  );
+
+const fareBasisExclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "FareBasis" &&
+      filter.type === "exclude" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" &&
+      singleFlightDetails.Sectors[0].FareBasisCode != null &&
+      singleFlightDetails.Sectors[0].FareBasisCode != ""
+  );
+
+  if (fareBasisInclude) {
+    const fareBasisIncludeValue = fareBasisInclude.value.split(",");
+    if (
+      fareBasisIncludeValue.includes(
+        singleFlightDetails.Sectors[0].FareBasisCode
+      )
+    ) {
+      
+      bestMatch = true;
+    } else {
+      
+      bestMatch = false;
+    }
+  }
+
+  if (fareBasisExclude) {
+    const fareBasisExcludeValue = fareBasisExclude.value.split(",");
+    if (
+      fareBasisExcludeValue.includes(
+        singleFlightDetails.Sectors[0].FareBasisCode
+      )
+    ) {
+      
+      bestMatch = false;
+    } else {
+      
+      bestMatch = true;
+    }
+  }
+
+  // RBD Filter Start here
+  const rbdInclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "RBD" &&
+      filter.type === "include" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" && 
+      singleFlightDetails.Sectors[0].FareBasisCode != null &&
+      singleFlightDetails.Sectors[0].FareBasisCode != ""
+  );
+
+const rbdExclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "RBD" &&
+      filter.type === "exclude" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" &&
+      singleFlightDetails.Sectors[0].FareBasisCode != null &&
+      singleFlightDetails.Sectors[0].FareBasisCode != ""
+  );
+
+  if (rbdInclude) {
+    const rbdIncludeValue = rbdInclude.value.split(",");    
+    if (
+      rbdIncludeValue.includes(
+        singleFlightDetails.Sectors[0].FareBasisCode.charAt(0)
+      )
+    ) {
+      
+      bestMatch = true;
+    } else {
+      
+      bestMatch = false;
+    }
+  }
+
+  if (rbdExclude) {
+    const rbdExcludeValue = rbdExclude.value.split(",");
+    if (
+      rbdExcludeValue.includes(
+        singleFlightDetails.Sectors[0].FareBasisCode.charAt(0)
+      )
+    ) {
+      
+      bestMatch = false;
+    } else {
+      
+      bestMatch = true;
+    }
+  }
+  // Product Class Filter Start here
+  const productClassInclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "ProductClass" &&
+      filter.type === "include" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" && 
+      singleFlightDetails.Sectors[0].CabinClass != null &&
+      singleFlightDetails.Sectors[0].CabinClass != ""
+  );
+
+const productClassExclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "ProductClass" &&
+      filter.type === "exclude" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" &&
+      singleFlightDetails.Sectors[0].CabinClass != null &&
+      singleFlightDetails.Sectors[0].CabinClass != ""
+  );
+
+  if (productClassInclude) {
+    const productClassIncludeValue = productClassInclude.value.split(",");    
+    if (
+      productClassIncludeValue.includes(
+        singleFlightDetails.Sectors[0].CabinClass
+      )
+    ) {
+      
+      bestMatch = true;
+    } else {
+      
+      bestMatch = false;
+    }
+  }
+
+  if (productClassExclude) {
+    const productClassExcludeValue = productClassExclude.value.split(",");
+    if (
+      productClassExcludeValue.includes(
+        singleFlightDetails.Sectors[0].CabinClass
+      )
+    ) {
+      
+      bestMatch = false;
+    } else {      
+      bestMatch = true;
+    }
+  }
+
+  // Fare Range Filter Start Here
+  const fareRangeInclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "FareRange" &&
+      filter.type === "include" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" && 
+      singleFlightDetails.GrandTotal != null &&
+      singleFlightDetails.GrandTotal != ""
+  );
+
+const fareRangeExclude =
+  commList.aircommercialfilterincexcs.commercialFilter.find(
+    (filter) =>
+      filter.commercialFilterId.rowName === "FareRange" &&
+      filter.type === "exclude" &&
+      filter.valueType === "text" &&
+      filter.value != null &&
+      filter.value != "" &&
+      singleFlightDetails.GrandTotal != null &&
+      singleFlightDetails.GrandTotal != ""
+  );
+
+  if (fareRangeInclude) {
+    const priceIncludeValues = parseFloat(fareRangeInclude.value);  
+    const totalPrice = parseFloat(singleFlightDetails.GrandTotal); 
+  
+    if ((!isNaN(priceIncludeValues) && totalPrice >= priceIncludeValues)) {     
+      bestMatch = true;
+    } else {
+      // Price is outside the specified range
+      bestMatch = false;
+    }
+  }
+
+  if (fareRangeExclude) {
+    const priceExcludeValues = parseFloat(fareRangeExclude.value);  
+    const totalPrice = parseFloat(singleFlightDetails.GrandTotal); 
+  
+    if ((!isNaN(priceExcludeValues) && priceExcludeValues >= totalPrice)) {     
+      bestMatch = true;
+    } else {
+      // Price is outside the specified range
+      bestMatch = false;
+    }
+  }
+
+ 
+  
+
+
   // here send responce true and false if true share with data  if bestmatch is true apply values filters
   if (bestMatch === true) {
     return { match: true, data: "here data" };

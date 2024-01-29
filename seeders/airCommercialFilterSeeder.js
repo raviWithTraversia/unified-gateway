@@ -9,10 +9,10 @@ const filter = [
         rowName: "BookingDate",
         type : 'date',
     },
-    {
-        rowName: "TravelDate",
-        type : 'date',
-    }, 
+    // {
+    //     rowName: "TravelDate",
+    //     type : 'date',
+    // }, 
     {
         rowName: "AllAirport",
         type : 'text',
@@ -25,10 +25,10 @@ const filter = [
         rowName: "OperatingCarrier",
         type : 'text',
     },
-    {
-        rowName: "AccountCode",
-        type : 'text',
-    },
+    // {
+    //     rowName: "AccountCode",
+    //     type : 'text',
+    // },
     {
         rowName: "TourCode",
         type : 'text',
@@ -41,10 +41,10 @@ const filter = [
         rowName: "RBD",
         type : 'text',
     }, 
-    {
-        rowName: "SourceId",
-        type : 'text',
-    },
+    // {
+    //     rowName: "SourceId",
+    //     type : 'text',
+    // },
     {
         rowName: "ProductClass",
         type : 'text',

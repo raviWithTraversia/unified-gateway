@@ -72,9 +72,46 @@ const getSsrCommercialByCompany = async(req,res) => {
             true 
             ) 
     }
+};
+
+const deleteSsrCommercial = async(req,res) => {
+    try{
+    let result = await ssrCommercialServices.deleteSsrCommercial(req,res);
+    if(result.response == 'Ssr Commercial Data Deleted Sucessfully'){
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+            )
+    }else if(result.response == 'Ssr Commercial Data For This Id Is Not Found'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        )
+    }else{
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        ) 
+    }
+
+    }catch(error){
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true 
+            ) 
+    }
 }
 
 module.exports =  {
     addSsrCommercial,
-    getSsrCommercialByCompany
+    getSsrCommercialByCompany,
+    deleteSsrCommercial
 }

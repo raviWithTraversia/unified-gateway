@@ -1,4 +1,5 @@
 const ssrCommercialModel = require('../../models/SsrCommercial');
+const { response } = require('../../routes/countryMapRoute');
 
 const addSsrCommercial = async(req,res) => {
     try{
@@ -80,7 +81,7 @@ const getSsrCommercialByCompany = async (req,res) => {
 const getSsrCommercialById = async (req,res) => {
     try{
       let id = req.query.id;
-      let ssrData = await ssrCommercialModel.findById(id).populate();
+      let ssrData = await ssrCommercialModel.findById(id).populate('flightCode source');
       if(ssrData){
         return {
             response : ''
@@ -90,9 +91,31 @@ const getSsrCommercialById = async (req,res) => {
         console.log(error);
         throw error;
     }
+};
+
+const deleteSsrCommercial = async (req,res) => {
+    try{
+    let {id} = req.query
+    let deleteSsrCommercial = await ssrCommercialModel.findByIdAndDelete(id)
+    if(deleteSsrCommercial){
+        return {
+            response : 'Ssr Commercial Data Deleted Sucessfully',
+            data : []
+        }
+    }else{
+       return {
+        reponse : `Ssr Commercial Data For This Id Is Not Found`
+       }
+    }
+
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
 }
 module.exports = {
     addSsrCommercial,
     getSsrCommercialByCompany,
-    getSsrCommercialById
+    getSsrCommercialById,
+    deleteSsrCommercial
 }

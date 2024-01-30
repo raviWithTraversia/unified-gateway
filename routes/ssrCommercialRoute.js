@@ -18,11 +18,13 @@ ssrCommercial_route.get(
     ssrCommercial.getSsrCommercialByCompany
 );
 
-// ssrCommercial_route.patch(
-//  '/ssrCommercial/updateSupplier',
-//   // auth,
-//    ssrCommercial.updateSupplier
-// )
+ssrCommercial_route.delete(
+    '/ssrCommercial/deleteSsrCommercial',
+     auth,
+    ssrCommercial.deleteSsrCommercial
+);
+
+
 
 ssrCommercial_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

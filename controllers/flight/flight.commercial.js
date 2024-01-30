@@ -36,7 +36,7 @@ const getApplyAllCommercial = async (
   let checkInnerFilterfun = null;
   let applyResponceCommercialArray = [];
   let groupPriority;
-  let bestMatch = null;
+  let commertialMatrixValueHandle = null;
   if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {
     // TMC-Agency // // one time apply commertioal
     // commercialPlanDetails = await getAssignCommercial(companyDetails._id);
@@ -466,8 +466,8 @@ const getApplyAllCommercial = async (
                 companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
-               const commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
-               singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle;
+               commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
+              // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                //bestMatch = commertialMatrixValueHandle;
                 break;
               }
@@ -476,15 +476,15 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket"
-            ) {
+            ) { 
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
                 singleFlightDetails,
                 companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
-                const commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
-                singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle;
+                commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
+                //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 //bestMatch = commertialMatrixValueHandle;
                 break;
               }
@@ -500,9 +500,9 @@ const getApplyAllCommercial = async (
                 companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
-                const commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
+                commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
                //bestMatch = commertialMatrixValueHandle;
-               singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle;
+               //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 break;
               }
             } else if (
@@ -517,15 +517,15 @@ const getApplyAllCommercial = async (
                 companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
-                const commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
+                commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
                //bestMatch = commertialMatrixValueHandle;
-               singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle;
+              // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 break;
               }
             }
           }
-          if (bestMatch) {
-            singleFlightDetails.bestMatch = bestMatch;
+          if (commertialMatrixValueHandle) {
+            singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
           }
         }
       }
@@ -1459,7 +1459,7 @@ const fareRangeExclude =
 const commertialMatrixValue = async (commList,singleFlightDetails) => {
   // Here Apply matches commertial values  
     // Rate Commertials start here    
-    let serviceRate;
+    let matrixRate = { percentage: {},fixed:{} };
     const serviceFeeRateAllColumn =
   commList.updateaircommercialmatrixes.data.filter(
     (filter) =>
@@ -1490,13 +1490,15 @@ const commertialMatrixValue = async (commList,singleFlightDetails) => {
       );             
       if(onFuleSurchargeSingleColumn && onFuleSurchargeSingleColumn.textType === "checkbox" && onFuleSurchargeSingleColumn.value === true){
         //console.log("singleFlightDetails");
-        return serviceRate;
+        matrixRate.percentage.onFuelSurcharge = serviceRate;       
+        //return serviceRate;
         // get value
         //dataPrint = onFuleSurchargeSingleColumn.textType === "checkbox" ? onFuleSurchargeSingleColumn.value:false;
         
       }else{
-        return 0;
-      }
+        matrixRate.percentage.onFuelSurcharge = 0;
+      }      
+       return matrixRate;      
     }
 };
 

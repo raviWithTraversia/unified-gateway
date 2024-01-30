@@ -60,7 +60,7 @@ const getSsrCommercialByCompany = async (req,res) => {
     const ssrCommercialData = await ssrCommercialModel.find({
         companyId: companyId,
         bookingType: bookingType
-      });
+      }).populate('flightCode source');
     
      // console.log(ssrCommercialData);
     if(ssrCommercialData.length > 0){
@@ -81,7 +81,13 @@ const getSsrCommercialByCompany = async (req,res) => {
 };
 const getSsrCommercialById = async (req,res) => {
     try{
-
+      let id = req.query.id;
+      let ssrData = await ssrCommercialModel.findById(id);
+      if(ssrData){
+        return {
+            response : ''
+        }
+      }
     }catch(error){
         console.log(error);
         throw error;

@@ -3,6 +3,9 @@ const ssrCommercialModel = require('../../models/SsrCommercial');
 const addSsrCommercial = async(req,res) => {
     try{
         const {
+            seat,
+            meal,
+            baggage,
             bookingType,
             flightCode,
             travelType,
@@ -11,11 +14,7 @@ const addSsrCommercial = async(req,res) => {
             validDateTo,
             status,
             description,
-            gst,
-            tds,
-            seat,
-            meal,
-            baggage,
+            modifyBy,
             companyId
           } = req.body;
       
@@ -28,12 +27,11 @@ const addSsrCommercial = async(req,res) => {
             validDateTo,
             status,
             description,
-            gst,
-            tds,
             seat,
             meal,
             baggage,
-            companyId
+            companyId,
+            modifyBy : req?.user?._id || null
           });
       
           const savedServiceRequest = await newServiceRequest.save();
@@ -65,12 +63,12 @@ const getSsrCommercialByCompany = async (req,res) => {
      // console.log(ssrCommercialData);
     if(ssrCommercialData.length > 0){
         return {
-            response : 'Data Found Sucessfully',
+            response : 'Service Request Data Found Sucessfully',
             data : ssrCommercialData
         }
     }else{
         return {
-            response : 'Data Not Found Sucessfully',
+            response : 'Service Request Data Not Found',
         } 
     }
 
@@ -82,7 +80,7 @@ const getSsrCommercialByCompany = async (req,res) => {
 const getSsrCommercialById = async (req,res) => {
     try{
       let id = req.query.id;
-      let ssrData = await ssrCommercialModel.findById(id);
+      let ssrData = await ssrCommercialModel.findById(id).populate();
       if(ssrData){
         return {
             response : ''

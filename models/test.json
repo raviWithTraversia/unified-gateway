@@ -1,0 +1,71 @@
+{
+    "seat": {
+        "markup": {
+            "fixCharge": 50,
+            "percentCharge": 5,
+            "MaxValue": 100
+        },
+        "Bookingfee": {
+            "fixCharge": 50,
+            "percentCharge": 5,
+            "MaxValue": 100,
+        "gst": true
+        },
+        "discount": {
+            "fixCharge": 50,
+            "percentCharge": 5,
+            "MaxValue": 100,
+           "tds": false
+        }
+    },
+    "meal": {
+        "markup": {
+            "fixCharge": 50,
+            "percentCharge": 5,
+            "MaxValue": 100
+        },
+        "Bookingfee": {
+            "fixCharge": 50,
+            "percentCharge": 5,
+            "MaxValue": 100,
+        "gst": true
+        },
+        "discount": {
+            "fixCharge": 50,
+            "percentCharge": 5,
+            "MaxValue": 100,
+           "tds": false
+        }            },
+    "baggage": {
+        "markup": {
+            "fixCharge": 50,
+            "percentCharge": 5,
+            "MaxValue": 100
+        },
+        "Bookingfee": {
+            "fixCharge": 50,
+            "percentCharge": 5,
+            "MaxValue": 100,
+        "gst": true
+        },
+        "discount": {
+            "fixCharge": 50,
+            "percentCharge": 5,
+            "MaxValue": 100,
+           "tds": false
+        }
+    },
+    "_id": "65b89ebe071645fe8c6ba53a",
+    "bookingType": "PreBooking",
+    "flightCode": "6541d69b14bb14ca3fcfa30b" ,
+    "travelType": "Domestic",
+    "source":  "6565a42b5d6ecef169b421c2" ,
+    "validDateFrom": "2024-02-01T00:00:00.000Z",
+    "validDateTo": "2024-02-10T00:00:00.000Z",
+    "status": true,
+    "description": "Sample service request",
+    "createdAt": "2024-01-30T07:01:18.411Z",
+    "updatedAt": "2024-01-30T07:01:18.411Z",
+    "__v": 0,
+    "companyId": "65b8b32d1bb4c3dc2aa124d0"
+}

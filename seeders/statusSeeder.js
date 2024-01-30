@@ -1,4 +1,4 @@
-const status = require("../models/status") ;
+const status = require("../models/Status") ;
 
 const statusData = [
     {

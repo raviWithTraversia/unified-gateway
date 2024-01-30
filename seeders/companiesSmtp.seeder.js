@@ -1,4 +1,4 @@
-const smtp = require('../models/smtp');
+const smtp = require('../models/Smtp');
 const companySmtp = [
     {
       companyId : "1",

@@ -38,15 +38,18 @@ const serviceRequestSchema = new mongoose.Schema(
       tds: Boolean,
       seat: {
         fixCharge: Number,
-        percentCharge: Number
+        percentCharge: Number,
+        maxValue: Number
       },
       meal: {
         fixCharge: Number,
-        percentCharge: Number
+        percentCharge: Number,
+        maxValue: Number
       },
       baggage: {
         fixCharge: Number,
-        percentCharge: Number
+        percentCharge: Number,
+        maxValue: Number
       },
       companyId : {
        type : mongoose.Schema.Types.ObjectId,

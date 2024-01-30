@@ -9,8 +9,23 @@ const CountryMap = require('./../controllers/countryMaping/countryMaping.control
 
 
 countryMap_route.post(
-    '/countryMap/addCountry' ,
+    '/countryMap/addCountry',
     auth,
     CountryMap.addCountryMaping
+);
+countryMap_route.get(
+    '/countryMap/getCountryMaping' ,
+    auth,
+    CountryMap.getCountryMaping
+);
+countryMap_route.patch(
+    '/countryMap/editCountryMaping' ,
+    auth,
+    CountryMap.editCountryMaping
+);
+countryMap_route.delete(
+    '/countryMap/deleteCountryMaping' ,
+    auth,
+    CountryMap.deleteCountryMaping
 );
 module.exports = countryMap_route

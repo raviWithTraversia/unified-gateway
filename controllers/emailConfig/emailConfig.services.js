@@ -1,6 +1,6 @@
 const emailConfig = require("../../models/EmailConfig");
 const emailConfigDes = require("../../models/EmailConfigDiscription");
-const smtp = require("../../models/smtp");
+const smtp = require("../../models/Smtp");
 const user = require("../../models/User");
 const FUNC = require("../../controllers/commonFunctions/common.function");
 

@@ -40,14 +40,14 @@ const addSsrCommercial = async (req,res) => {
 const getSsrCommercialByCompany = async(req,res) => {
     try{
         const result = await ssrCommercialServices.getSsrCommercialByCompany(req,res);
-        if(result.response == 'Data Found Sucessfully'){
+        if(result.response == 'Service Request Data Found Sucessfully'){
             apiSucessRes(
                 res,
                 result.response,
                 result.data,
                 ServerStatusCode.SUCESS_CODE
                 )
-        }else if(result.response == 'Data Not Found Sucessfully'){
+        }else if(result.response == 'Service Request Data Not Found'){
             apiErrorres(
                 res,
                 result.response,

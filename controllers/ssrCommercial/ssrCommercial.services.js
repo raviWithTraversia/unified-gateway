@@ -56,7 +56,7 @@ const addSsrCommercial = async(req,res) => {
 
 const getSsrCommercialByCompany = async (req,res) => {
     try{
-    let {companyId} = req.query;
+    let {companyId, bookingType} = req.query;
     const ssrCommercialData = await ssrCommercialModel.find({
         companyId: companyId,
         bookingType: bookingType

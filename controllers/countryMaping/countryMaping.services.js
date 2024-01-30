@@ -3,10 +3,10 @@ const countryMapSchema = require('../../models/CountryMapping');
 const addCountryMaping = async (req,res) => {
         try {
            
-            const { countries, ContinentCode , companyId } = req.body;
+            const { countries, continentCode , companyId } = req.body;
             const newCountryMapping = new countryMapSchema({
               countries,
-              ContinentCode,
+              continentCode,
               modifyBy : req?.user?._id || null,
               companyId
             });
@@ -70,7 +70,7 @@ const editCountryMaping = async (req,res) => {
         console.log(error);
         throw error
     }
-}
+};
 const deleteCountryMaping = async (req,res) => {
     try{
     const id = req.query.id;
@@ -90,7 +90,7 @@ const deleteCountryMaping = async (req,res) => {
         throw error
         console.log(error)
     }
-}
+};
 module.exports = {
     addCountryMaping,
     getCountryMaping,

@@ -4,7 +4,7 @@ const countryMapSchema = new mongoose.Schema(
       countries : {
          type : String
       },
-      ContinentCode : {
+      continentCode : {
         type : String
       },
       companyId : {

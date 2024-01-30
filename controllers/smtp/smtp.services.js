@@ -1,4 +1,4 @@
-const SmtpConfig = require("../../models/smtp");
+const SmtpConfig = require("../../models/Smtp");
 
 
 const smtpConfig = async (req, res) => {

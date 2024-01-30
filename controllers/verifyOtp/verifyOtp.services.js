@@ -1,6 +1,6 @@
 const varifyOtp = require("../../models/VerifyOtp");
 const FUNC = require("../commonFunctions/common.function");
-const smtpConfig = require("../../models/smtp");
+const smtpConfig = require("../../models/Smtp");
 const moment = require('moment');
 const company = require('../../models/Company');
 const configCred = require('../../models/ConfigCredential')

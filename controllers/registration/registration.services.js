@@ -1,10 +1,10 @@
 const registration = require("../../models/Registration");
 const FUNC = require("../../controllers/commonFunctions/common.function");
-const Smtp = require("../../models/smtp");
+const Smtp = require("../../models/Smtp");
 const { ObjectId } = require("mongodb");
 const configCred = require("../../models/ConfigCredential");
 const { Config } = require("../../configs/config");
-const statusModel = require('../../models/status')
+const statusModel = require('../../models/Status')
 
 const addRegistration = async (req, res) => {
   try {

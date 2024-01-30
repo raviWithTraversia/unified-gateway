@@ -41,6 +41,36 @@ const getCountryMaping = async (req,res) => {
         throw error
     }
 };
+const editCountryMaping = async (req,res) => {
+    try{
+    let id = req.query.id;
+    let dataForUpdate = {
+        ...req.body
+    };
+    
+    let updateCountryMaping = await countryMapSchema.findByIdAndUpdate(
+        id,
+        {
+          $set: dataForUpdate,
+          modifyBy: req?.user?._id || null,
+        },
+        { new: true } 
+      );
+    if(updateCountryMaping){
+        return{
+            response  : 'Data Update Sucessfully',
+            data : [updateCountryMaping]
+        }
+    }else{
+        return {
+            response : 'Data Not Updated'
+        }
+    }
+    }catch(error){
+        console.log(error);
+        throw error
+    }
+}
 const deleteCountryMaping = async (req,res) => {
     try{
     const id = req.query.id;
@@ -64,5 +94,6 @@ const deleteCountryMaping = async (req,res) => {
 module.exports = {
     addCountryMaping,
     getCountryMaping,
-    deleteCountryMaping
+    deleteCountryMaping,
+    editCountryMaping
 }

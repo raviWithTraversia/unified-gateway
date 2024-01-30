@@ -53,6 +53,34 @@ const getCountryMaping = async (req,res) => {
         )
     }
 };
+const editCountryMaping = async(req,res) => {
+    try{
+    let result = await countryMapServices.editCountryMaping(req,res);
+    if(result.response == "Data Update Sucessfully"){
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+    }else if(result.response == 'Data Not Updated'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
+            true
+           )
+    }
+
+    }catch(error){
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
 
 const deleteCountryMaping = async (req,res) => {
     try{
@@ -86,5 +114,6 @@ const deleteCountryMaping = async (req,res) => {
 module.exports = {
     addCountryMaping,
     getCountryMaping,
-    deleteCountryMaping
+    deleteCountryMaping,
+    editCountryMaping
 }

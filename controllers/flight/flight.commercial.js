@@ -466,7 +466,9 @@ const getApplyAllCommercial = async (
                 companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
-                bestMatch = checkInnerFilterfun;
+               const commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
+               singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle;
+               //bestMatch = commertialMatrixValueHandle;
                 break;
               }
             } else if (
@@ -481,7 +483,9 @@ const getApplyAllCommercial = async (
                 companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
-                bestMatch = checkInnerFilterfun;
+                const commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
+                singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle;
+                //bestMatch = commertialMatrixValueHandle;
                 break;
               }
             } else if (
@@ -496,7 +500,9 @@ const getApplyAllCommercial = async (
                 companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
-                bestMatch = checkInnerFilterfun;
+                const commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
+               //bestMatch = commertialMatrixValueHandle;
+               singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle;
                 break;
               }
             } else if (
@@ -511,7 +517,9 @@ const getApplyAllCommercial = async (
                 companyDetails.parent._id
               );
               if (checkInnerFilterfun.match === true) {
-                bestMatch = checkInnerFilterfun;
+                const commertialMatrixValueHandle = await commertialMatrixValue(commList,singleFlightDetails);
+               //bestMatch = commertialMatrixValueHandle;
+               singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle;
                 break;
               }
             }
@@ -1435,16 +1443,61 @@ const fareRangeExclude =
     }
   }
 
- 
+  
   
 
 
   // here send responce true and false if true share with data  if bestmatch is true apply values filters
   if (bestMatch === true) {
-    return { match: true, data: "here data" };
+    
+    return { match: true, data: "tDetails" };
   } else {
     return { match: false, data: null };
   }
+};
+
+const commertialMatrixValue = async (commList,singleFlightDetails) => {
+  // Here Apply matches commertial values  
+    // Rate Commertials start here    
+    let serviceRate;
+    const serviceFeeRateAllColumn =
+  commList.updateaircommercialmatrixes.data.filter(
+    (filter) =>
+      filter.AirCommertialRowMasterId.name === "Service Fee Rate(+)" &&
+      filter.AirCommertialRowMasterId.commercialType === "rate" &&
+      filter.AirCommertialRowMasterId.type === "row"      
+  );
+  
+    if(serviceFeeRateAllColumn.length > 0){      
+      const rateSingleColumn =
+      serviceFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Rate %" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"      
+      );           
+      if(rateSingleColumn){
+        // get value        
+        serviceRate = rateSingleColumn.textType === "number" ? parseFloat(rateSingleColumn.value):0;
+        
+      }
+      const onFuleSurchargeSingleColumn =
+      serviceFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On Fuel Surcharge" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"      
+      );             
+      if(onFuleSurchargeSingleColumn && onFuleSurchargeSingleColumn.textType === "checkbox" && onFuleSurchargeSingleColumn.value === true){
+        //console.log("singleFlightDetails");
+        return serviceRate;
+        // get value
+        //dataPrint = onFuleSurchargeSingleColumn.textType === "checkbox" ? onFuleSurchargeSingleColumn.value:false;
+        
+      }else{
+        return 0;
+      }
+    }
 };
 
 const makePriorityGroup = async (

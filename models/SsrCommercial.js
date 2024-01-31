@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 const markupSchema = new mongoose.Schema({
   fixCharge: Number,
   percentCharge: Number,
-  MaxValue: Number,
+  maxValue: Number,
 });
 
 const BookingfeeSchema = new mongoose.Schema({
   fixCharge: Number,
   percentCharge: Number,
-  MaxValue: Number,
+  maxValue: Number,
   gst:{
     type :Boolean
   }
@@ -18,7 +18,7 @@ const BookingfeeSchema = new mongoose.Schema({
 const discountSchema = new mongoose.Schema({
   fixCharge: Number,
   percentCharge: Number,
-  MaxValue: Number,
+  maxValue: Number,
   tds: {
     type :Boolean
   }

@@ -115,7 +115,7 @@ const addAirCommercial = async (req, res) => {
 
 const getColoumnDetail = async (req, res) => {
     try {
-        const coloumnData = await AirCommercialColoumnMaster.find().sort({_id:-1});
+        const coloumnData = await AirCommercialColoumnMaster.find({status:true}).sort({priority:1});
 
         if (coloumnData.length > 0) {
             return {

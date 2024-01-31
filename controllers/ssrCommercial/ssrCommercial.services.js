@@ -93,9 +93,40 @@ const getSsrCommercialById = async (req,res) => {
     }
 };
 
+const editSsrCommercial = async (req,res) => {
+  try { 
+    let {id} = req.query;
+    let dataForUpdate = {
+        ...req.body
+    };
+  
+    let existingSsrData = await ssrCommercialModel.findByIdAndUpdate(
+        id,
+        {
+          $set: dataForUpdate,
+        },
+        { new: true }
+      );
+    
+    if(existingSsrData){
+        return {
+            response : 'Data Updated Sucessfully',
+            data : existingSsrData
+        }
+    }else{
+        return {
+            response : 'Data Not Updated'
+        }
+    }
+
+}catch(error){
+    console.log(error);
+    throw error
+}
+}
 const deleteSsrCommercial = async (req,res) => {
     try{
-    let {id} = req.query
+    let {id} = req.query;
     let deleteSsrCommercial = await ssrCommercialModel.findByIdAndDelete(id)
     if(deleteSsrCommercial){
         return {
@@ -112,10 +143,13 @@ const deleteSsrCommercial = async (req,res) => {
         console.log(error);
         throw error;
     }
-}
+};
+
+
 module.exports = {
     addSsrCommercial,
     getSsrCommercialByCompany,
     getSsrCommercialById,
-    deleteSsrCommercial
+    deleteSsrCommercial,
+    editSsrCommercial
 }

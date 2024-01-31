@@ -1,7 +1,7 @@
 const manageMarkupModel = require("../../models/ManageMarkup");
 const userModel = require("../../models/User");
 const markUpCategoryMasterModels = require("../../models/MarkupCategoryMaster");
-const MarkupLogHistory = require('../../models/MarkupLogHistory');
+const markupLogHistory = require('../../models/MarkupLogHistory');
 const mongoose = require('mongoose');
 
 const addMarkup = async (req, res) => {
@@ -92,9 +92,9 @@ const updateMarkup = async (req, res) => {
 
       // BY ALAM 16-01-2024
       const getOldValue = await manageMarkupModel.findOne({ _id: markupId })
-      const CheckMarkupLogExist = await MarkupLogHistory.findOne({ markupId: markupId });
+      const CheckMarkupLogExist = await markupLogHistory.findOne({ markupId: markupId });
       if (CheckMarkupLogExist) {
-        const updateMarkupLog = await MarkupLogHistory.findByIdAndUpdate(
+        const updateMarkupLog = await markupLogHistory.findByIdAndUpdate(
           markupId,
           {
             markupDataNew: req.body.markupData,
@@ -104,7 +104,7 @@ const updateMarkup = async (req, res) => {
         );
 
       } else {
-        const addMarkupLog = new MarkupLogHistory({
+        const addMarkupLog = new markupLogHistory({
           markupId,
           markupDataNew: req.body.markupData,
           markupDataOld: req.body.markupData,

@@ -17,6 +17,11 @@ ssrCommercial_route.get(
      auth,
     ssrCommercial.getSsrCommercialByCompany
 );
+ssrCommercial_route.patch(
+    '/ssrCommercial/editSsrCommercial',
+     auth,
+    ssrCommercial.editSsrCommercial
+);
 
 ssrCommercial_route.delete(
     '/ssrCommercial/deleteSsrCommercial',

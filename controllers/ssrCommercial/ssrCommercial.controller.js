@@ -74,6 +74,41 @@ const getSsrCommercialByCompany = async(req,res) => {
     }
 };
 
+const editSsrCommercial = async (req,res) => {
+    try
+    {
+    let result = await ssrCommercialServices.editSsrCommercial(req,res);
+    if(result.response == 'Data Updated Sucessfully'){
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+            )
+    }else if(result.response == 'Data Not Updated'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        )
+    }else{
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        )
+    }
+   }catch(error){
+    apiErrorres(
+        res,
+        errorResponse.SOMETHING_WRONG,
+        ServerStatusCode.SERVER_ERROR,
+        true 
+        ) 
+    }
+}
 const deleteSsrCommercial = async(req,res) => {
     try{
     let result = await ssrCommercialServices.deleteSsrCommercial(req,res);
@@ -113,5 +148,6 @@ const deleteSsrCommercial = async(req,res) => {
 module.exports =  {
     addSsrCommercial,
     getSsrCommercialByCompany,
-    deleteSsrCommercial
+    deleteSsrCommercial,
+    editSsrCommercial
 }

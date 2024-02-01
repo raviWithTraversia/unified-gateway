@@ -173,11 +173,12 @@ const addRegistration = async (req, res) => {
 const getAllRegistration = async (req, res) => {
   try {
     // let getAllRegistartion = await registration.find();
-
     let getAllRegistartion = await registration
       .find()
       .populate("statusId", "name")
       .populate("roleId", "name")
+      .populate("saleInChargeId city")
+      .populate("companyId" , "companyName")
       .exec();
     return {
       response: "All registrationData fetch",

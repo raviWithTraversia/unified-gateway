@@ -44,7 +44,7 @@ const serviceRequestSchema = new mongoose.Schema({
     type : String,
     enum : ['PreBooking', 'PostBooking'],
   },
-  airlineCode: {
+  airlineCodeId: {
     type : mongoose.Schema.Types.ObjectId,
     ref : 'AirlineCode'
   },

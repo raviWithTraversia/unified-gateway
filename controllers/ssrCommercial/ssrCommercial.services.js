@@ -8,9 +8,9 @@ const addSsrCommercial = async(req,res) => {
             meal,
             baggage,
             bookingType,
-            flightCode,
+            airlineCode,
             travelType,
-            source,
+            supplierCode,
             validDateFrom,
             validDateTo,
             status,
@@ -21,9 +21,9 @@ const addSsrCommercial = async(req,res) => {
       
           const newServiceRequest = new ssrCommercialModel({
             bookingType,
-            flightCode,
+            airlineCode,
             travelType,
-            source,
+            supplierCode,
             validDateFrom,
             validDateTo,
             status,
@@ -59,7 +59,7 @@ const getSsrCommercialByCompany = async (req,res) => {
     const ssrCommercialData = await ssrCommercialModel.find({
         companyId: companyId,
         bookingType: bookingType
-      }).populate('flightCode source');
+      }).populate('airlineCode supplierCode');
     
      // console.log(ssrCommercialData);
     if(ssrCommercialData.length > 0){

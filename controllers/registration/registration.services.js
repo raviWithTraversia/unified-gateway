@@ -174,7 +174,7 @@ const getAllRegistration = async (req, res) => {
   try {
     // let getAllRegistartion = await registration.find();
     let getAllRegistartion = await registration
-      .find()
+      .find({})
       .populate("statusId", "name")
       .populate("roleId", "name")
       .populate("saleInChargeId city")
@@ -205,6 +205,8 @@ const getAllRegistrationByCompany = async (req, res) => {
       .find({ comapnyId: comapnyId })
       .populate("statusId", "name")
       .populate("roleId", "name")
+      .populate("saleInChargeId city")
+      .populate("companyId" , "companyName")
       .exec();
 
     if (!aggregrationRes) {

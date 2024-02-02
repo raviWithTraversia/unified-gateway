@@ -120,8 +120,9 @@ const addRegistration = async (req, res) => {
       mailConfig = await Smtp.findById(id);
     }
     let checkCompanyType = await companyModels.findById(companyId);
+    let parent = null
     if(checkCompanyType.type === "Distributer"){
-      parent = checkCompanyType?.parent || null
+       parent = checkCompanyType?.parent || null
     }
     const newRegistration = new registration({
       companyId,
@@ -149,10 +150,10 @@ const addRegistration = async (req, res) => {
       gstState: gstState || null,
       gstPinCode: gstPinCode || null,
       agencyGroupId,
-      parant : parent || null
+      parant : companyId
     });
     let newRegistrationRes = await newRegistration.save();
-    console.log(newRegistrationRes);
+   // console.log(newRegistrationRes);
     let mailText = newRegistrationRes;
     let mailSubject = `New registration created successfully`;
     let smsUrl = await configCred.findOne({ companyId: companyId });

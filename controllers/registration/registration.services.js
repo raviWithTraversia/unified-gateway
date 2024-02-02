@@ -120,7 +120,6 @@ const addRegistration = async (req, res) => {
       mailConfig = await Smtp.findById(id);
     }
     let checkCompanyType = await companyModels.findById(companyId);
-    let parent = null
     if(checkCompanyType.type === "Distributer"){
        parent = checkCompanyType?.parent || null
     }
@@ -204,33 +203,54 @@ const getAllRegistrationByCompany = async (req, res) => {
         response: null,
         message: "Company Id not true",
       };
-    }
-  
-    let aggregationRes = await registration.find({
-      $or: [
-        { companyId: companyId },
-        { parent: companyId }
-      ]
-    })
+    };
+
+    let checkCompayType = await companyModels.findById(companyId);
+    if(checkCompayType.type  === "TMC"){
+      let aggregationRes = await registration.find({
+        $or: [
+          { companyId: companyId },
+          { parent: companyId }
+        ]
+      })
+        .populate("statusId", "name")
+        .populate("roleId", "name")
+        .populate("saleInChargeId", "name")
+        .populate("city", "name")
+        .populate("companyId", "companyName")
+        .exec();
+      if (!aggregationRes) {
+        return {
+          response: null,
+          message: "Registration Data not found by this companyId",
+        };
+      } else {
+        return {
+          response: "Registration data found sucessfully",
+          data: aggregationRes,
+        };
+      }
+    }else{
+      let aggregationRes = await registration
+      .find({companyId: companyId})
       .populate("statusId", "name")
       .populate("roleId", "name")
-      .populate("saleInChargeId", "name")
-      .populate("city", "name")
-      .populate("companyId", "companyName")
+      .populate("saleInChargeId city")
+      .populate("companyId" , "companyName")
       .exec();
-    
-
-    if (!aggregationRes) {
-      return {
-        response: null,
-        message: "Registration Data not found by this companyId",
-      };
-    } else {
-      return {
-        response: "Registration data found sucessfully",
-        data: aggregationRes,
-      };
+      if (!aggregationRes) {
+        return {
+          response: null,
+          message: "Registration Data not found by this companyId",
+        };
+      } else {
+        return {
+          response: "Registration data found sucessfully",
+          data: aggregationRes,
+        };
+      }
     }
+  
   } catch (error) {
     console.log(error);
     throw error;

@@ -351,6 +351,15 @@ const columnData = [
         "status":true
     },
     {
+        "name" : "Per PNR Per Pax",
+        "commercialType" : "fixed",
+        "type" : "coloumn",
+        "modifiedBy" : "6538c0314756928875840820",
+        "modifiedDate" : "",
+        "priority": 39,
+        "status":true
+    },
+    {
         "name" : "GST",
         "commercialType" : "fixed",
         "type" : "coloumn",

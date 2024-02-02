@@ -108,6 +108,7 @@ const getApplyAllCommercial = async (
             RescheduleFees: 0,
             AdminFees: 0,
             TDS: 0,
+            gst: 0.0,
             ServiceFees: 0,
             Discount: 0,
             BaseCharges: 0,
@@ -115,6 +116,15 @@ const getApplyAllCommercial = async (
               {
                 TaxType: "YQ",
                 Amount: 100,
+              },
+
+              {
+                TaxType: "K2",
+                Amount: 55,
+              },
+              {
+                TaxType: "p2",
+                Amount: 322,
               },
             ],
             AirPenalty: [],
@@ -135,6 +145,7 @@ const getApplyAllCommercial = async (
             RescheduleFees: 0,
             AdminFees: 0,
             TDS: 0,
+            gst: 0.0,
             ServiceFees: 0,
             Discount: 0,
             BaseCharges: 0,
@@ -142,6 +153,15 @@ const getApplyAllCommercial = async (
               {
                 TaxType: "YQ",
                 Amount: 0,
+              },
+
+              {
+                TaxType: "K2",
+                Amount: 55,
+              },
+              {
+                TaxType: "p2",
+                Amount: 322,
               },
             ],
             AirPenalty: [],
@@ -329,6 +349,7 @@ const getApplyAllCommercial = async (
             RescheduleFees: 0,
             AdminFees: 0,
             TDS: 0,
+            gst: 0.0,
             ServiceFees: 0,
             Discount: 0,
             BaseCharges: 0,
@@ -336,6 +357,14 @@ const getApplyAllCommercial = async (
               {
                 TaxType: "YQ",
                 Amount: 100,
+              },
+              {
+                TaxType: "K2",
+                Amount: 55,
+              },
+              {
+                TaxType: "p2",
+                Amount: 322,
               },
             ],
             AirPenalty: [],
@@ -356,6 +385,7 @@ const getApplyAllCommercial = async (
             RescheduleFees: 0,
             AdminFees: 0,
             TDS: 0,
+            gst: 0.0,
             ServiceFees: 0,
             Discount: 0,
             BaseCharges: 0,
@@ -363,6 +393,15 @@ const getApplyAllCommercial = async (
               {
                 TaxType: "YQ",
                 Amount: 0,
+              },
+
+              {
+                TaxType: "K2",
+                Amount: 55,
+              },
+              {
+                TaxType: "p2",
+                Amount: 322,
               },
             ],
             AirPenalty: [],
@@ -442,7 +481,7 @@ const getApplyAllCommercial = async (
     ];
 
     //for (const singleFlightDetails of commonArray) {
-    for (const singleFlightDetails of commonArrayDummy) {
+    for (const singleFlightDetails of commonArray) {
       // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
         // get group of priority base
@@ -468,7 +507,8 @@ const getApplyAllCommercial = async (
               if (checkInnerFilterfun.match === true) {
                 commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
-                  singleFlightDetails
+                  singleFlightDetails,
+                  companyDetails._id
                 );
                 // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 //bestMatch = commertialMatrixValueHandle;
@@ -488,7 +528,8 @@ const getApplyAllCommercial = async (
               if (checkInnerFilterfun.match === true) {
                 commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
-                  singleFlightDetails
+                  singleFlightDetails,
+                  companyDetails._id
                 );
                 //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 //bestMatch = commertialMatrixValueHandle;
@@ -508,7 +549,8 @@ const getApplyAllCommercial = async (
               if (checkInnerFilterfun.match === true) {
                 commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
-                  singleFlightDetails
+                  singleFlightDetails,
+                  companyDetails._id
                 );
                 //bestMatch = commertialMatrixValueHandle;
                 //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
@@ -528,7 +570,8 @@ const getApplyAllCommercial = async (
               if (checkInnerFilterfun.match === true) {
                 commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
-                  singleFlightDetails
+                  singleFlightDetails,
+                  companyDetails._id
                 );
                 //bestMatch = commertialMatrixValueHandle;
                 // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
@@ -1430,7 +1473,11 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
   }
 };
 
-const commertialMatrixValue = async (commList, singleFlightDetails) => {
+const commertialMatrixValue = async (
+  commList,
+  singleFlightDetails,
+  companyId
+) => {
   const serviceFeeRateAllColumn =
     commList.updateaircommercialmatrixes.data.filter(
       (filter) =>
@@ -1453,6 +1500,27 @@ const commertialMatrixValue = async (commList, singleFlightDetails) => {
           ? parseFloat(rateSingleColumn.value)
           : 0;
 
+      // Exclude Child and infant finction here
+      const excludeChildSingleColumn = serviceFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Exclude Child" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      const excludeInFantSingleColumn = serviceFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Exclude Infant" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      const isExcludeChildChecked =
+        excludeChildSingleColumn?.textType === "checkbox" &&
+        excludeChildSingleColumn.value;
+      const isExcludeInfantChecked =
+        excludeInFantSingleColumn?.textType === "checkbox" &&
+        excludeInFantSingleColumn.value;
+
+      // Exclude Child and infant finction end
       const applyServiceRateToTax = (tax, type) => {
         if (
           !(Object.keys(tax).length === 0) &&
@@ -1460,7 +1528,7 @@ const commertialMatrixValue = async (commList, singleFlightDetails) => {
         ) {
           const yqTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YQ");
           if (yqTax) {
-            yqTax.Amount += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+            tax.ServiceFees += (parseFloat(serviceRate) / 100) * yqTax.Amount;
           }
         }
       };
@@ -1477,13 +1545,18 @@ const commertialMatrixValue = async (commList, singleFlightDetails) => {
         onFuleSurchargeSingleColumn.value
       ) {
         applyServiceRateToTax(singleFlightDetails.PriceBreakup[0], "ADT");
-        applyServiceRateToTax(singleFlightDetails.PriceBreakup[1], "CHD");
-        applyServiceRateToTax(singleFlightDetails.PriceBreakup[2], "INF");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToTax(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToTax(singleFlightDetails.PriceBreakup[2], "INF");
+        }
       }
 
       const applyServiceRateToBaseFare = (fare) => {
         if (!(Object.keys(fare).length === 0)) {
-          fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+          fare.ServiceFees += (parseFloat(serviceRate) / 100) * fare.BaseFare;
           //fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
         }
       };
@@ -1499,14 +1572,32 @@ const commertialMatrixValue = async (commList, singleFlightDetails) => {
         baseFareSingleColumn.value
       ) {
         applyServiceRateToBaseFare(singleFlightDetails.PriceBreakup[0]);
-        applyServiceRateToBaseFare(singleFlightDetails.PriceBreakup[1]);
-        applyServiceRateToBaseFare(singleFlightDetails.PriceBreakup[2]);
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToBaseFare(
+            singleFlightDetails.PriceBreakup[1],
+            "CHD"
+          );
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToBaseFare(
+            singleFlightDetails.PriceBreakup[2],
+            "INF"
+          );
+        }
       }
       // On other Tax
-      const applyServiceRateToOnOtherTax = (fare) => {
-        if (!(Object.keys(fare).length === 0)) {
-          fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
-          //fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+      const applyServiceRateToOnOtherTax = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          tax.TaxBreakup.forEach((taxItem) => {
+            if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
+              tax.ServiceFees +=
+                (parseFloat(serviceRate) / 100) * taxItem.Amount;
+            }
+          });
         }
       };
 
@@ -1521,12 +1612,890 @@ const commertialMatrixValue = async (commList, singleFlightDetails) => {
         onOtherTaxSingleColumn.value
       ) {
         applyServiceRateToOnOtherTax(singleFlightDetails.PriceBreakup[0]);
-        applyServiceRateToOnOtherTax(singleFlightDetails.PriceBreakup[1]);
-        applyServiceRateToOnOtherTax(singleFlightDetails.PriceBreakup[2]);
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToOnOtherTax(
+            singleFlightDetails.PriceBreakup[1],
+            "CHD"
+          );
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToOnOtherTax(
+            singleFlightDetails.PriceBreakup[2],
+            "INF"
+          );
+        }
       }
 
+      // On YR here
+      const applyServiceRateToOnYR = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          const yrTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YR");
+          if (yrTax) {
+            tax.ServiceFees += (parseFloat(serviceRate) / 100) * yrTax.Amount;
+          }
+        }
+      };
+
+      const onYRSingleColumn = serviceFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On YR" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (onYRSingleColumn?.textType === "checkbox" && onYRSingleColumn.value) {
+        applyServiceRateToOnYR(singleFlightDetails.PriceBreakup[0], "ADT");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToOnYR(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToOnYR(singleFlightDetails.PriceBreakup[2], "INF");
+        }
+      }
+      // on yR end
+      //On Gross here
+      const applyServiceRateToOnGross = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          tax.TaxBreakup.forEach((taxItem) => {
+            tax.ServiceFees += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+          });
+
+          if ("BaseFare" in tax) {
+            tax.ServiceFees += (parseFloat(serviceRate) / 100) * tax.BaseFare;
+          }
+        }
+      };
+
+      const onGrossSingleColumn = serviceFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On Gross" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        onGrossSingleColumn?.textType === "checkbox" &&
+        onGrossSingleColumn.value
+      ) {
+        applyServiceRateToOnGross(singleFlightDetails.PriceBreakup[0], "ADT");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToOnGross(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToOnGross(singleFlightDetails.PriceBreakup[2], "INF");
+        }
+      }
+
+      //on gross end
+
+      // GST Start Here
+      const applyServiceRateToGst = async (tax, type) => {
+        if (tax && Object.keys(tax).length !== 0) {
+          // let getAgentConfig = await agentConfig.findOne({
+          //   companyId: companyId,
+          // });
+          // console.log(getAgentConfig);
+          // if (getAgentConfig) {
+          //  tax.gst += getAgentConfig.discountPercentage
+          // }
+          tax.gst += (parseFloat(18) / 100) * tax.ServiceFees;
+        }
+      };
+
+      const onGstSingleColumn = serviceFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "GST" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        onGstSingleColumn?.textType === "checkbox" &&
+        onGstSingleColumn.value
+      ) {
+        applyServiceRateToGst(singleFlightDetails.PriceBreakup[0], "ADT");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToGst(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToGst(singleFlightDetails.PriceBreakup[2], "INF");
+        }
+      }
+      // GST END
     }
   }
+  // service fee rate end here
+
+  // Discount ( - ) here
+  const discountPersentageAllColumn =
+    commList.updateaircommercialmatrixes.data.filter(
+      (filter) =>
+        filter.AirCommertialRowMasterId.name === "Discount (-)" &&
+        filter.AirCommertialRowMasterId.commercialType === "rate" &&
+        filter.AirCommertialRowMasterId.type === "row"
+    );
+
+  if (discountPersentageAllColumn.length > 0) {
+    const rateSingleColumn = discountPersentageAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Rate %" &&
+        filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (rateSingleColumn) {
+      const serviceRate =
+        rateSingleColumn.textType === "number"
+          ? parseFloat(rateSingleColumn.value)
+          : 0;
+
+      // Exclude Child and infant finction here
+      const excludeChildSingleColumn = discountPersentageAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Exclude Child" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      const excludeInFantSingleColumn = discountPersentageAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Exclude Infant" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      const isExcludeChildChecked =
+        excludeChildSingleColumn?.textType === "checkbox" &&
+        excludeChildSingleColumn.value;
+      const isExcludeInfantChecked =
+        excludeInFantSingleColumn?.textType === "checkbox" &&
+        excludeInFantSingleColumn.value;
+
+      // Exclude Child and infant finction end
+      const applyServiceRateToTax = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          const yqTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YQ");
+          if (yqTax) {
+            tax.Discount += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+          }
+        }
+      };
+
+      const onFuleSurchargeSingleColumn = discountPersentageAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On Fuel Surcharge" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        onFuleSurchargeSingleColumn?.textType === "checkbox" &&
+        onFuleSurchargeSingleColumn.value
+      ) {
+        applyServiceRateToTax(singleFlightDetails.PriceBreakup[0], "ADT");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToTax(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToTax(singleFlightDetails.PriceBreakup[2], "INF");
+        }
+      }
+
+      const applyServiceRateToBaseFare = (fare) => {
+        if (!(Object.keys(fare).length === 0)) {
+          fare.Discount += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+          //fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+        }
+      };
+
+      const baseFareSingleColumn = discountPersentageAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Base Fare" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      if (
+        baseFareSingleColumn?.textType === "checkbox" &&
+        baseFareSingleColumn.value
+      ) {
+        applyServiceRateToBaseFare(singleFlightDetails.PriceBreakup[0]);
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToBaseFare(
+            singleFlightDetails.PriceBreakup[1],
+            "CHD"
+          );
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToBaseFare(
+            singleFlightDetails.PriceBreakup[2],
+            "INF"
+          );
+        }
+      }
+      // On other Tax
+      const applyServiceRateToOnOtherTax = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          tax.TaxBreakup.forEach((taxItem) => {
+            if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
+              tax.Discount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+            }
+          });
+        }
+      };
+
+      const onOtherTaxSingleColumn = discountPersentageAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On Other Tax" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      if (
+        onOtherTaxSingleColumn?.textType === "checkbox" &&
+        onOtherTaxSingleColumn.value
+      ) {
+        applyServiceRateToOnOtherTax(singleFlightDetails.PriceBreakup[0]);
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToOnOtherTax(
+            singleFlightDetails.PriceBreakup[1],
+            "CHD"
+          );
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToOnOtherTax(
+            singleFlightDetails.PriceBreakup[2],
+            "INF"
+          );
+        }
+      }
+
+      // On YR here
+      const applyServiceRateToOnYR = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          const yrTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YR");
+          if (yrTax) {
+            tax.Discount += (parseFloat(serviceRate) / 100) * yrTax.Amount;
+          }
+        }
+      };
+
+      const onYRSingleColumn = discountPersentageAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On YR" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (onYRSingleColumn?.textType === "checkbox" && onYRSingleColumn.value) {
+        applyServiceRateToOnYR(singleFlightDetails.PriceBreakup[0], "ADT");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToOnYR(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToOnYR(singleFlightDetails.PriceBreakup[2], "INF");
+        }
+      }
+      // on yR end
+      //On Gross here
+      const applyServiceRateToOnGross = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          tax.TaxBreakup.forEach((taxItem) => {
+            tax.Discount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+          });
+
+          if ("BaseFare" in tax) {
+            tax.Discount += (parseFloat(serviceRate) / 100) * tax.BaseFare;
+          }
+        }
+      };
+
+      const onGrossSingleColumn = discountPersentageAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On Gross" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        onGrossSingleColumn?.textType === "checkbox" &&
+        onGrossSingleColumn.value
+      ) {
+        applyServiceRateToOnGross(singleFlightDetails.PriceBreakup[0], "ADT");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToOnGross(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToOnGross(singleFlightDetails.PriceBreakup[2], "INF");
+        }
+      }
+
+      //on gross end
+
+      // TDS Start Here
+      const applyServiceRateToTDS = async (tax, type) => {
+        if (tax && Object.keys(tax).length !== 0) {
+          // let getAgentConfig = await agentConfig.findOne({
+          //   companyId: companyId,
+          // });
+          // console.log(getAgentConfig);
+          // if (getAgentConfig) {
+          //  tax.TDS += getAgentConfig.tds
+          // }
+          tax.TDS += (parseFloat(5) / 100) * tax.Discount;
+        }
+      };
+
+      const onTdsSingleColumn = discountPersentageAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Deduct TDS" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        onTdsSingleColumn?.textType === "checkbox" &&
+        onTdsSingleColumn.value
+      ) {
+        applyServiceRateToTDS(singleFlightDetails.PriceBreakup[0], "ADT");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToTDS(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToTDS(singleFlightDetails.PriceBreakup[2], "INF");
+        }
+      }
+      // TDS END
+    }
+  }
+  // Discount ( - ) end here
+
+  // Booking Fee Rate(+) start here
+
+  const bookingFeeRateAllColumn =
+    commList.updateaircommercialmatrixes.data.filter(
+      (filter) =>
+        filter.AirCommertialRowMasterId.name === "Booking Fee Rate(+)" &&
+        filter.AirCommertialRowMasterId.commercialType === "rate" &&
+        filter.AirCommertialRowMasterId.type === "row"
+    );
+
+  if (bookingFeeRateAllColumn.length > 0) {
+    const rateSingleColumn = bookingFeeRateAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Rate %" &&
+        filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (rateSingleColumn) {
+      const serviceRate =
+        rateSingleColumn.textType === "number"
+          ? parseFloat(rateSingleColumn.value)
+          : 0;
+
+      // Exclude Child and infant finction here
+      const excludeChildSingleColumn = bookingFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Exclude Child" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      const excludeInFantSingleColumn = bookingFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Exclude Infant" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      const isExcludeChildChecked =
+        excludeChildSingleColumn?.textType === "checkbox" &&
+        excludeChildSingleColumn.value;
+      const isExcludeInfantChecked =
+        excludeInFantSingleColumn?.textType === "checkbox" &&
+        excludeInFantSingleColumn.value;
+
+      // Exclude Child and infant finction end
+      const applyServiceRateToTax = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          const yqTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YQ");
+          if (yqTax) {
+            tax.BookingFees += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+          }
+        }
+      };
+
+      const onFuleSurchargeSingleColumn = bookingFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On Fuel Surcharge" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        onFuleSurchargeSingleColumn?.textType === "checkbox" &&
+        onFuleSurchargeSingleColumn.value
+      ) {
+        applyServiceRateToTax(singleFlightDetails.PriceBreakup[0], "ADT");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToTax(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToTax(singleFlightDetails.PriceBreakup[2], "INF");
+        }
+      }
+
+      const applyServiceRateToBaseFare = (fare) => {
+        if (!(Object.keys(fare).length === 0)) {
+          fare.BookingFees += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+          //fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+        }
+      };
+
+      const baseFareSingleColumn = bookingFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Base Fare" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      if (
+        baseFareSingleColumn?.textType === "checkbox" &&
+        baseFareSingleColumn.value
+      ) {
+        applyServiceRateToBaseFare(singleFlightDetails.PriceBreakup[0]);
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToBaseFare(
+            singleFlightDetails.PriceBreakup[1],
+            "CHD"
+          );
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToBaseFare(
+            singleFlightDetails.PriceBreakup[2],
+            "INF"
+          );
+        }
+      }
+      // On other Tax
+      const applyServiceRateToOnOtherTax = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          tax.TaxBreakup.forEach((taxItem) => {
+            if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
+              tax.BookingFees +=
+                (parseFloat(serviceRate) / 100) * taxItem.Amount;
+            }
+          });
+        }
+      };
+
+      const onOtherTaxSingleColumn = bookingFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On Other Tax" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      if (
+        onOtherTaxSingleColumn?.textType === "checkbox" &&
+        onOtherTaxSingleColumn.value
+      ) {
+        applyServiceRateToOnOtherTax(singleFlightDetails.PriceBreakup[0]);
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToOnOtherTax(
+            singleFlightDetails.PriceBreakup[1],
+            "CHD"
+          );
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToOnOtherTax(
+            singleFlightDetails.PriceBreakup[2],
+            "INF"
+          );
+        }
+      }
+
+      // On YR here
+      const applyServiceRateToOnYR = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          const yrTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YR");
+          if (yrTax) {
+            tax.BookingFees += (parseFloat(serviceRate) / 100) * yrTax.Amount;
+          }
+        }
+      };
+
+      const onYRSingleColumn = bookingFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On YR" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (onYRSingleColumn?.textType === "checkbox" && onYRSingleColumn.value) {
+        applyServiceRateToOnYR(singleFlightDetails.PriceBreakup[0], "ADT");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToOnYR(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToOnYR(singleFlightDetails.PriceBreakup[2], "INF");
+        }
+      }
+      // on yR end
+      //On Gross here
+      const applyServiceRateToOnGross = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          tax.TaxBreakup.forEach((taxItem) => {
+            tax.BookingFees += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+          });
+
+          if ("BaseFare" in tax) {
+            tax.BookingFees += (parseFloat(serviceRate) / 100) * tax.BaseFare;
+          }
+        }
+      };
+
+      const onGrossSingleColumn = bookingFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On Gross" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        onGrossSingleColumn?.textType === "checkbox" &&
+        onGrossSingleColumn.value
+      ) {
+        applyServiceRateToOnGross(singleFlightDetails.PriceBreakup[0], "ADT");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToOnGross(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToOnGross(singleFlightDetails.PriceBreakup[2], "INF");
+        }
+      }
+
+      //on gross end
+
+      // GST Start Here
+      const applyServiceRateToGst = async (tax, type) => {
+        if (tax && Object.keys(tax).length !== 0) {
+          // let getAgentConfig = await agentConfig.findOne({
+          //   companyId: companyId,
+          // });
+          // console.log(getAgentConfig);
+          // if (getAgentConfig) {
+          //  tax.gst += getAgentConfig.discountPercentage
+          // }
+          tax.gst += (parseFloat(18) / 100) * tax.BookingFees;
+        }
+      };
+
+      const onGstSingleColumn = bookingFeeRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "GST" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        onGstSingleColumn?.textType === "checkbox" &&
+        onGstSingleColumn.value
+      ) {
+        applyServiceRateToGst(singleFlightDetails.PriceBreakup[0], "ADT");
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToGst(singleFlightDetails.PriceBreakup[1], "CHD");
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToGst(singleFlightDetails.PriceBreakup[2], "INF");
+        }
+      }
+      // GST END
+    }
+  }
+
+  // Booking Fee Rate(+) end here
+
+  // Markup Rate start Here
+  const markupRateAllColumn = commList.updateaircommercialmatrixes.data.filter(
+    (filter) =>
+      filter.AirCommertialRowMasterId.name === "Markup Rate(+)" &&
+      filter.AirCommertialRowMasterId.commercialType === "rate" &&
+      filter.AirCommertialRowMasterId.type === "row"
+  );
+
+  if (markupRateAllColumn.length > 0) {
+    const rateSingleColumn = markupRateAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Rate %" &&
+        filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (rateSingleColumn) {
+      const serviceRate =
+        rateSingleColumn.textType === "number"
+          ? parseFloat(rateSingleColumn.value)
+          : 0;
+
+      // Exclude Child and infant finction here
+      const excludeChildSingleColumn = markupRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Exclude Child" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      const excludeInFantSingleColumn = markupRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Exclude Infant" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      const isExcludeChildChecked =
+        excludeChildSingleColumn?.textType === "checkbox" &&
+        excludeChildSingleColumn.value;
+      const isExcludeInfantChecked =
+        excludeInFantSingleColumn?.textType === "checkbox" &&
+        excludeInFantSingleColumn.value;
+
+      // Exclude Child and infant finction end
+
+      const applyServiceRateToBaseFare = (fare) => {
+        if (!(Object.keys(fare).length === 0)) {
+          fare.MarkUp += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+          //fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+        }
+      };
+
+      const baseFareSingleColumn = markupRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Base Fare" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      if (
+        baseFareSingleColumn?.textType === "checkbox" &&
+        baseFareSingleColumn.value
+      ) {
+        applyServiceRateToBaseFare(singleFlightDetails.PriceBreakup[0]);
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToBaseFare(
+            singleFlightDetails.PriceBreakup[1],
+            "CHD"
+          );
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToBaseFare(
+            singleFlightDetails.PriceBreakup[2],
+            "INF"
+          );
+        }
+      }
+      // On other Tax
+      const applyServiceRateToOnOtherTax = (tax, type) => {
+        if (
+          !(Object.keys(tax).length === 0) &&
+          !(Object.keys(tax.TaxBreakup).length === 0)
+        ) {
+          tax.TaxBreakup.forEach((taxItem) => {
+            if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
+              tax.MarkUp += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+            }
+          });
+        }
+      };
+
+      const onOtherTaxSingleColumn = markupRateAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "On Other Tax" &&
+          filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      if (
+        onOtherTaxSingleColumn?.textType === "checkbox" &&
+        onOtherTaxSingleColumn.value
+      ) {
+        applyServiceRateToOnOtherTax(singleFlightDetails.PriceBreakup[0]);
+        if (isExcludeChildChecked != true) {
+          applyServiceRateToOnOtherTax(
+            singleFlightDetails.PriceBreakup[1],
+            "CHD"
+          );
+        }
+
+        if (isExcludeInfantChecked != true) {
+          applyServiceRateToOnOtherTax(
+            singleFlightDetails.PriceBreakup[2],
+            "INF"
+          );
+        }
+      }
+    }
+  }
+
+  // End Markup Rate End here
+
+
+ //Fixed Rate start here
+ //Segment Kickback (-) start here 
+ const segmentKickbackAllColumn =
+ commList.updateaircommercialmatrixes.data.filter(
+   (filter) =>
+     filter.AirCommertialRowMasterId.name === "Segment Kickback (-)" &&
+     filter.AirCommertialRowMasterId.commercialType === "fixed" &&
+     filter.AirCommertialRowMasterId.type === "row"
+ );
+
+if (segmentKickbackAllColumn.length > 0) {
+ const fixedAdultSingleColumn = segmentKickbackAllColumn.find(
+   (filter) =>
+     filter.AirCommertialColumnMasterId.name === "Adult" &&
+     filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+     filter.AirCommertialColumnMasterId.type === "coloumn"
+ );
+ 
+ const fixedChildSingleColumn = segmentKickbackAllColumn.find(
+  (filter) =>
+    filter.AirCommertialColumnMasterId.name === "Child" &&
+    filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+    filter.AirCommertialColumnMasterId.type === "coloumn"
+);
+
+const fixedInfantSingleColumn = segmentKickbackAllColumn.find(
+  (filter) =>
+    filter.AirCommertialColumnMasterId.name === "Infant" &&
+    filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+    filter.AirCommertialColumnMasterId.type === "coloumn"
+);
+
+ if (fixedAdultSingleColumn && fixedChildSingleColumn && fixedInfantSingleColumn) {
+   const fixedAdultRate =
+   fixedAdultSingleColumn.textType === "number"
+       ? parseFloat(fixedAdultSingleColumn.value)
+       : 0;
+       const fixedChildRate =
+       fixedChildSingleColumn.textType === "number"
+           ? parseFloat(fixedChildSingleColumn.value)
+           : 0;
+           
+           const fixedInfantRate =
+           fixedInfantSingleColumn.textType === "number"
+               ? parseFloat(fixedInfantSingleColumn.value)
+               : 0;
+
+  // on word only start here
+   const applySegmentKickbackToOnwardOnly = (tax, type) => {
+     if (tax && Object.keys(tax).length === 0 ) {
+       const yqTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YQ");
+       if (yqTax) {
+         tax.ServiceFees += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+       }
+     }
+   };
+
+   const onwardOnlySingleColumn = serviceFeeRateAllColumn.find(
+     (filter) =>
+       filter.AirCommertialColumnMasterId.name === "Onward Only" &&
+       filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+       filter.AirCommertialColumnMasterId.type === "coloumn"
+   );
+
+   if (
+    onwardOnlySingleColumn?.textType === "checkbox" &&
+    onwardOnlySingleColumn.value
+   ) {
+    applySegmentKickbackToOnwardOnly(singleFlightDetails.PriceBreakup[0], "ADT");     
+    applySegmentKickbackToOnwardOnly(singleFlightDetails.PriceBreakup[1], "CHD");    
+    applySegmentKickbackToOnwardOnly(singleFlightDetails.PriceBreakup[2], "INF");
+     
+   }
+
+   // on word only start End
+
+
+  
+
+   // GST Start Here
+  //  const applyServiceRateToGst = async (tax, type) => {
+  //    if (tax && Object.keys(tax).length !== 0) {
+  //      // let getAgentConfig = await agentConfig.findOne({
+  //      //   companyId: companyId,
+  //      // });
+  //      // console.log(getAgentConfig);
+  //      // if (getAgentConfig) {
+  //      //  tax.gst += getAgentConfig.discountPercentage
+  //      // }
+  //      tax.gst += (parseFloat(18) / 100) * tax.ServiceFees;
+  //    }
+  //  };
+
+  //  const onGstSingleColumn = serviceFeeRateAllColumn.find(
+  //    (filter) =>
+  //      filter.AirCommertialColumnMasterId.name === "GST" &&
+  //      filter.AirCommertialColumnMasterId.commercialType === "rate" &&
+  //      filter.AirCommertialColumnMasterId.type === "coloumn"
+  //  );
+
+  //  if (
+  //    onGstSingleColumn?.textType === "checkbox" &&
+  //    onGstSingleColumn.value
+  //  ) {
+  //    applyServiceRateToGst(singleFlightDetails.PriceBreakup[0], "ADT");
+  //    if (isExcludeChildChecked != true) {
+  //      applyServiceRateToGst(singleFlightDetails.PriceBreakup[1], "CHD");
+  //    }
+
+  //    if (isExcludeInfantChecked != true) {
+  //      applyServiceRateToGst(singleFlightDetails.PriceBreakup[2], "INF");
+  //    }
+  //  }
+   // GST END
+ }
+}
+// Segment Kickback (-) End here
+ // Fixed Rate End here
+
+
 
   return singleFlightDetails.PriceBreakup;
 };

@@ -1,5 +1,4 @@
 const ssrCommercialModel = require('../../models/SsrCommercial');
-const { response } = require('../../routes/countryMapRoute');
 
 const addSsrCommercial = async(req,res) => {
     try{
@@ -8,9 +7,9 @@ const addSsrCommercial = async(req,res) => {
             meal,
             baggage,
             bookingType,
-            flightCode,
+            airlineCodeId,
             travelType,
-            source,
+            supplierCode,
             validDateFrom,
             validDateTo,
             status,
@@ -18,12 +17,27 @@ const addSsrCommercial = async(req,res) => {
             modifyBy,
             companyId
           } = req.body;
-      
+          let query = {
+            supplierCode: supplierCode,
+            companyId: companyId
+          };
+          
+          if (airlineCodeId) {
+            query.airlineCodeId = airlineCodeId;
+          }
+          
+          
+      let checkIsSsrCommercialExist = await ssrCommercialModel.find(query);
+      if(checkIsSsrCommercialExist.length > 0){
+        return {
+            response : 'This Combination Of SSR Commercial Already Exist'
+        }
+      }
           const newServiceRequest = new ssrCommercialModel({
             bookingType,
-            flightCode,
+            airlineCodeId,
             travelType,
-            source,
+            supplierCode,
             validDateFrom,
             validDateTo,
             status,
@@ -59,7 +73,7 @@ const getSsrCommercialByCompany = async (req,res) => {
     const ssrCommercialData = await ssrCommercialModel.find({
         companyId: companyId,
         bookingType: bookingType
-      }).populate('flightCode source');
+      }).populate('airlineCodeId supplierCode');
     
      // console.log(ssrCommercialData);
     if(ssrCommercialData.length > 0){

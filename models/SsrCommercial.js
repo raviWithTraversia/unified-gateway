@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 const markupSchema = new mongoose.Schema({
   fixCharge: Number,
   percentCharge: Number,
-  MaxValue: Number,
+  maxValue: Number,
 });
 
-const BookingfeeSchema = new mongoose.Schema({
+const bookingFeeSchema = new mongoose.Schema({
   fixCharge: Number,
   percentCharge: Number,
-  MaxValue: Number,
+  maxValue: Number,
   gst:{
     type :Boolean
   }
@@ -18,7 +18,7 @@ const BookingfeeSchema = new mongoose.Schema({
 const discountSchema = new mongoose.Schema({
   fixCharge: Number,
   percentCharge: Number,
-  MaxValue: Number,
+  maxValue: Number,
   tds: {
     type :Boolean
   }
@@ -27,24 +27,24 @@ const discountSchema = new mongoose.Schema({
 const serviceRequestSchema = new mongoose.Schema({
   seat: {
     markup: markupSchema,
-    Bookingfee: BookingfeeSchema,
+    bookingFee: bookingFeeSchema,
     discount: discountSchema,
   },
   meal: {
     markup: markupSchema,
-    Bookingfee: BookingfeeSchema,
+    bookingFee: bookingFeeSchema,
     discount: discountSchema,
   },
   baggage: {
     markup: markupSchema,
-    Bookingfee: BookingfeeSchema,
+    bookingFee: bookingFeeSchema,
     discount: discountSchema,
   },
   bookingType: {
     type : String,
     enum : ['PreBooking', 'PostBooking'],
   },
-  flightCode: {
+  airlineCodeId: {
     type : mongoose.Schema.Types.ObjectId,
     ref : 'AirlineCode'
   },
@@ -52,7 +52,7 @@ const serviceRequestSchema = new mongoose.Schema({
     type: String,
     enum: ['Domestic', 'International'],
   },
-  source: {
+  supplierCode: {
    type: mongoose.Schema.Types.ObjectId,
    ref: 'SupplierCode'
   },
@@ -69,8 +69,6 @@ const serviceRequestSchema = new mongoose.Schema({
     ref: 'Company'
   }
 });
-
-
 
 const ssrCommercial = mongoose.model("ssrCommercial", serviceRequestSchema);
 module.exports = ssrCommercial;

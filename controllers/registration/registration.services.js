@@ -173,11 +173,12 @@ const addRegistration = async (req, res) => {
 const getAllRegistration = async (req, res) => {
   try {
     // let getAllRegistartion = await registration.find();
-
     let getAllRegistartion = await registration
-      .find()
+      .find({})
       .populate("statusId", "name")
       .populate("roleId", "name")
+      .populate("saleInChargeId city")
+      .populate("companyId" , "companyName")
       .exec();
     return {
       response: "All registrationData fetch",
@@ -191,8 +192,8 @@ const getAllRegistration = async (req, res) => {
 
 const getAllRegistrationByCompany = async (req, res) => {
   try {
-    const comapnyId = req.params.companyId;
-    if (!comapnyId) {
+    const companyId = req.params.companyId;
+    if (!companyId) {
       return {
         response: null,
         message: "Company Id not true",
@@ -201,9 +202,11 @@ const getAllRegistrationByCompany = async (req, res) => {
     // const registrationData = await registration.find({companyId : comapnyId});
 
     let aggregrationRes = await registration
-      .find({ comapnyId: comapnyId })
+      .find({ companyId: companyId })
       .populate("statusId", "name")
       .populate("roleId", "name")
+      .populate("saleInChargeId city")
+      .populate("companyId" , "companyName")
       .exec();
 
     if (!aggregrationRes) {

@@ -14,6 +14,7 @@ const companySchema = new mongoose.Schema(
     type: {
       type: String,
       required: false,
+      enum : ['Tmc', 'TMC', 'Agency', 'Distributer'],
       default: null,
     },
     companyStatus: {

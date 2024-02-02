@@ -128,7 +128,13 @@ const getApplyAllCommercial = async (
               },
             ],
             AirPenalty: [],
-            CommercialBreakup: [],
+            CommercialBreakup: [{
+              CommercialType: "SegmentKickback",
+              SubCommercialType: null,
+              Amount: 0.0,
+              SupplierId: 3232,
+              SupplierType: "TMC"
+          }],
             Key: null,
           },
           {
@@ -165,7 +171,13 @@ const getApplyAllCommercial = async (
               },
             ],
             AirPenalty: [],
-            CommercialBreakup: [],
+            CommercialBreakup: [{
+              CommercialType: "SegmentKickback",
+              SubCommercialType: null,
+              Amount: 0.0,
+              SupplierId: 1212,
+              SupplierType: "TMC"
+          }],
             Key: null,
           },
           {},
@@ -239,7 +251,7 @@ const getApplyAllCommercial = async (
             CabinClass: "Economy",
             BookingCounts: "",
             NoSeats: 9,
-            FltNum: "587",
+            FltNum: "839",
             EquipType: "359",
             FlyingTime: "0d:1h:10m",
             TravelTime: "0d:1h:10m",
@@ -368,7 +380,13 @@ const getApplyAllCommercial = async (
               },
             ],
             AirPenalty: [],
-            CommercialBreakup: [],
+            CommercialBreakup: [{
+              CommercialType: "SegmentKickback",
+              SubCommercialType: null,
+              Amount: 0.0,
+              SupplierId: 121,
+              SupplierType: "TMC"
+          }],
             Key: null,
           },
           {
@@ -405,7 +423,13 @@ const getApplyAllCommercial = async (
               },
             ],
             AirPenalty: [],
-            CommercialBreakup: [],
+            CommercialBreakup: [{
+              CommercialType: "SegmentKickback",
+              SubCommercialType: null,
+              Amount: 0.0,
+              SupplierId: 232323,
+              SupplierType: "TMC"
+          }],
             Key: null,
           },
           {},
@@ -481,7 +505,7 @@ const getApplyAllCommercial = async (
     ];
 
     //for (const singleFlightDetails of commonArray) {
-    for (const singleFlightDetails of commonArray) {
+    for (const singleFlightDetails of commonArrayDummy) {
       // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
         // get group of priority base
@@ -2385,7 +2409,7 @@ const commertialMatrixValue = async (
      filter.AirCommertialRowMasterId.commercialType === "fixed" &&
      filter.AirCommertialRowMasterId.type === "row"
  );
-
+ 
 if (segmentKickbackAllColumn.length > 0) {
  const fixedAdultSingleColumn = segmentKickbackAllColumn.find(
    (filter) =>
@@ -2424,29 +2448,48 @@ const fixedInfantSingleColumn = segmentKickbackAllColumn.find(
                : 0;
 
   // on word only start here
-   const applySegmentKickbackToOnwardOnly = (tax, type) => {
-     if (tax && Object.keys(tax).length === 0 ) {
-       const yqTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YQ");
-       if (yqTax) {
-         tax.ServiceFees += (parseFloat(serviceRate) / 100) * yqTax.Amount;
-       }
+   const applySegmentKickbackToperairlineperpax = (singleFlightDetails,tax, type) => {
+     if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {      
+      
+      const fltNumCount = {};
+
+      singleFlightDetails.Sectors.forEach((sector) => {
+        const fltNum = sector.FltNum;
+        const encounteredFltNums = new Set();
+  
+        if (fltNum && !encounteredFltNums.has(fltNum)) {
+          if (fltNumCount[fltNum] === undefined) {
+            fltNumCount[fltNum] = 1;
+          } else {
+            fltNumCount[fltNum]++;
+          }
+  
+          encounteredFltNums.add(fltNum);
+        }
+      });
+      //tax.ServiceFees += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+      const countAirline = tax.CommercialBreakup.find((commercial) => commercial.CommercialType === "SegmentKickback");
+      if (countAirline) {
+        const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+        countAirline.Amount = totalCount;
+      }
      }
    };
 
-   const onwardOnlySingleColumn = serviceFeeRateAllColumn.find(
+   const perairlineperpaxSingleColumn = segmentKickbackAllColumn.find(
      (filter) =>
-       filter.AirCommertialColumnMasterId.name === "Onward Only" &&
+       filter.AirCommertialColumnMasterId.name === "Per Airline Per Pax" &&
        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
        filter.AirCommertialColumnMasterId.type === "coloumn"
    );
-
+  
    if (
-    onwardOnlySingleColumn?.textType === "checkbox" &&
-    onwardOnlySingleColumn.value
+    perairlineperpaxSingleColumn?.textType === "checkbox" &&
+    perairlineperpaxSingleColumn.value
    ) {
-    applySegmentKickbackToOnwardOnly(singleFlightDetails.PriceBreakup[0], "ADT");     
-    applySegmentKickbackToOnwardOnly(singleFlightDetails.PriceBreakup[1], "CHD");    
-    applySegmentKickbackToOnwardOnly(singleFlightDetails.PriceBreakup[2], "INF");
+    applySegmentKickbackToperairlineperpax(singleFlightDetails,singleFlightDetails.PriceBreakup[0], "ADT");     
+    applySegmentKickbackToperairlineperpax(singleFlightDetails,singleFlightDetails.PriceBreakup[1], "CHD");    
+    applySegmentKickbackToperairlineperpax(singleFlightDetails,singleFlightDetails.PriceBreakup[2], "INF");
      
    }
 

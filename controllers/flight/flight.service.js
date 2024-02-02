@@ -473,7 +473,13 @@ const KafilaFun = async (
                     },
                   ],
                   AirPenalty: [],
-                  CommercialBreakup: [],
+                  CommercialBreakup: [{
+                    CommercialType: "SegmentKickback",
+                    SubCommercialType: null,
+                    Amount: 0.0,
+                    SupplierId: supplier._id,
+                    SupplierType: "TMC"
+                }],
                   Key: null,
                 }
               : {},
@@ -503,7 +509,13 @@ const KafilaFun = async (
                     },
                   ],
                   AirPenalty: [],
-                  CommercialBreakup: [],
+                  CommercialBreakup: [{
+                    CommercialType: "SegmentKickback",
+                    SubCommercialType: null,
+                    Amount: 0.0,
+                    SupplierId: supplier._id,
+                    SupplierType: "TMC"
+                }],
                   Key: null,
                 }
               : {},
@@ -533,7 +545,13 @@ const KafilaFun = async (
                     },
                   ],
                   AirPenalty: [],
-                  CommercialBreakup: [],
+                  CommercialBreakup: [{
+                    CommercialType: "SegmentKickback",
+                    SubCommercialType: null,
+                    Amount: 0.0,
+                    SupplierId: supplier._id,
+                    SupplierType: "TMC"
+                }],
                   Key: null,
                 }
               : {},

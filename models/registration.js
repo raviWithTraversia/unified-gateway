@@ -106,6 +106,10 @@ const registrationSchema = new mongoose.Schema({
     agencyGroupId : {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'agencyGroupModel' 
+    },
+    parent : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Company'
     }
 
 },{

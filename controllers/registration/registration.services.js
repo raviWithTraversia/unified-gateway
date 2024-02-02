@@ -4,7 +4,7 @@ const Smtp = require("../../models/Smtp");
 const { ObjectId } = require("mongodb");
 const configCred = require("../../models/ConfigCredential");
 const { Config } = require("../../configs/config");
-const statusModel = require('../../models/Status')
+const companyModels = require('../../models/Company');
 
 const addRegistration = async (req, res) => {
   try {
@@ -68,6 +68,7 @@ const addRegistration = async (req, res) => {
     let iscountry = FUNC.checkIsValidId(country);
     let isState = FUNC.checkIsValidId(state);
     let isroleId = FUNC.checkIsValidId(roleId);
+    let iscompanyId = FUNC.checkIsValidId(companyId);
 
     if (saleInChargeId == "" || saleInChargeId == "" || !saleInChargeId) {
       saleInChargeId = null;
@@ -79,9 +80,9 @@ const addRegistration = async (req, res) => {
       };
     }
 
-    if (isState === "Invalid Mongo Object Id") {
+    if (isState === "Invalid Mongo Object Id" || iscompanyId === "Invalid Mongo Object Id") {
       return {
-        response: "State Id is not valid",
+        response: `${isState ||iscompanyId } Id is not valid`,
       };
     }
 
@@ -118,7 +119,10 @@ const addRegistration = async (req, res) => {
       let id = Config.MAIL_CONFIG_ID;
       mailConfig = await Smtp.findById(id);
     }
-
+    let checkCompanyType = await companyModels.findById(companyId);
+    if(checkCompanyType.type === "Distributer"){
+      parent = checkCompanyType?.parent || null
+    }
     const newRegistration = new registration({
       companyId,
       companyName,
@@ -144,7 +148,8 @@ const addRegistration = async (req, res) => {
       gstAddress_2: gstAddress_2 || null,
       gstState: gstState || null,
       gstPinCode: gstPinCode || null,
-      agencyGroupId
+      agencyGroupId,
+      parant : parent || null
     });
     let newRegistrationRes = await newRegistration.save();
     console.log(newRegistrationRes);
@@ -199,17 +204,22 @@ const getAllRegistrationByCompany = async (req, res) => {
         message: "Company Id not true",
       };
     }
-    // const registrationData = await registration.find({companyId : comapnyId});
-
-    let aggregrationRes = await registration
-      .find({ companyId: companyId })
+  
+    let aggregationRes = await registration.find({
+      $or: [
+        { companyId: companyId },
+        { parent: companyId }
+      ]
+    })
       .populate("statusId", "name")
       .populate("roleId", "name")
-      .populate("saleInChargeId city")
-      .populate("companyId" , "companyName")
+      .populate("saleInChargeId", "name")
+      .populate("city", "name")
+      .populate("companyId", "companyName")
       .exec();
+    
 
-    if (!aggregrationRes) {
+    if (!aggregationRes) {
       return {
         response: null,
         message: "Registration Data not found by this companyId",
@@ -217,7 +227,7 @@ const getAllRegistrationByCompany = async (req, res) => {
     } else {
       return {
         response: "Registration data found sucessfully",
-        data: aggregrationRes,
+        data: aggregationRes,
       };
     }
   } catch (error) {

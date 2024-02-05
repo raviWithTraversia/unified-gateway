@@ -86,23 +86,18 @@ const getSsrCommercialGroup = async (req, res) => {
     let documents
     try {
       getSsrCommercial = await ssrCommercialGroupModels.find({ companyId: companyId });
-     // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getSsrCommercial, "<<<<<<<<<<<")
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getSsrCommercial, "<<<<<<<<<<<")
      
       for (let i = 0; i < getSsrCommercial.length; i++) {      
           let converteSsrCommercialIds = getSsrCommercial[i].ssrCommercialIds.map(id => id.toString());
-        //  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",converteSsrCommercialIds)
+          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",converteSsrCommercialIds)
       
            documents = await ssrCommercial.find({ _id: { $in: converteSsrCommercialIds } })
               .exec();      
           getSsrCommercial[i].fareRuleIds = documents;
-         // console.log("[[[[[[[[[[[[[[[[[[[",documents)
+         console.log("[[[[[[[[[[[[[[[[[[[",documents)
       }
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",documents, "<<<<<<<<<<<")
-      return;
-   
-    } catch (err) {
-      console.error(err);
-    }
+      console.log("[[[[[[[[[[[[[[[[[[[",documents, "]]]]]]]]]]]]]]]]]]")
     if (documents) {
       return {
         response: "Ssr Commercial Group Fetch Sucessfully",
@@ -113,11 +108,13 @@ const getSsrCommercialGroup = async (req, res) => {
         response: "Ssr Commercial Group Not Found",
       };
     }
-  } catch (error) {
-    console.log(error);
-    throw error;
+  } catch(error){
+    throw error
   }
-};
+}catch(error){
+
+}
+}
 
 const deleteSsrCommercialGroup = async (req, res) => {
   try {
@@ -144,4 +141,4 @@ module.exports = {
     editSsrCommercialGroup,
     getSsrCommercialGroup,
     deleteSsrCommercialGroup,
-};
+}

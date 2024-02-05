@@ -2,14 +2,20 @@ const registration = require('../../models/Registration');
 const creditRequest = require('../../models/CreditRequest');
 const axios = require('axios');
 const { Config } = require("../../configs/config");
-const axiosRetry = require('axios-retry');
+const registrationServices = require('../../controllers/registration/registration.services')
+
 
 
 const dashBoardCount  = async (req,res) => {
     try{
     let  {companyId} = req.query;
     let data = {};
-    let newRegistrationCount = await registration.find({companyId : companyId});
+    let req1 = {
+      params : {
+        companyId : companyId
+      }
+    };
+    let newRegistrationCount = await registrationServices.getAllRegistrationByCompany(req1,res)
     let creditReqCount = await creditRequest.find({companyId : companyId});
     let pending = 0;
     let hold = 0;
@@ -21,7 +27,7 @@ const dashBoardCount  = async (req,res) => {
     let depositRequest = 0;
     let amendement = 0;
 
-    newRegistrationCount = newRegistrationCount.length || 0;
+    newRegistrationCount = newRegistrationCount?.data?.length || 0;
     creditReqCount = creditReqCount.length || 0;
     data['New RegistrationCount'] = newRegistrationCount;
     data['Temp Credit Requests'] = creditReqCount;

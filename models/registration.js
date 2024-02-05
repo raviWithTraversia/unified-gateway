@@ -109,7 +109,8 @@ const registrationSchema = new mongoose.Schema({
     },
     parent : {
         type : mongoose.Schema.Types.ObjectId,
-        ref: 'Company'
+        ref: 'Company',
+        default : null
     },
 },{
     timestamps : true  //Add created_at and updated_at coloumn

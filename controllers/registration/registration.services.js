@@ -120,8 +120,9 @@ const addRegistration = async (req, res) => {
       mailConfig = await Smtp.findById(id);
     }
     let checkCompanyType = await companyModels.findById(companyId);
+    let parent;
     if(checkCompanyType.type === "Distributer"){
-       parent = checkCompanyType?.parent || null
+       parent = checkCompanyType?.parent 
     }
     const newRegistration = new registration({
       companyId,
@@ -149,7 +150,7 @@ const addRegistration = async (req, res) => {
       gstState: gstState || null,
       gstPinCode: gstPinCode || null,
       agencyGroupId,
-      parant : companyId
+      parent 
     });
     let newRegistrationRes = await newRegistration.save();
    // console.log(newRegistrationRes);

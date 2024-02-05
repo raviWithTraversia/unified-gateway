@@ -81,9 +81,83 @@ const getSsrCommercialGroup = async (req,res) => {
                 true 
                 )
     }
+};
+const editSsrCommercialGroup = async (req,res) => {
+    try{
+    let result = await ssrCommercialGroupServices.editSsrCommercialGroup(req,res);
+    if(result.response == "Ssr Commercial Group Updated Sucessfully"){
+       apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+       )
+    }else if(result.response == "Ssr Commercial Group Not Updated"){
+    apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.CONTENT_NOT_FOUND,
+        true
+    )
+
+    }else{
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        )
+    }
+}
+    catch(error){
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true 
+            )
+    }
+};
+const deleteSsrCommercialGroup = async (req,res) => {
+    try{
+        let result = await ssrCommercialGroupServices.deleteSsrCommercialGroup(req,res);
+        if(result.response == "Ssr Commercial deleted sucessfully"){
+          apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE,
+
+          )
+        }
+        else if(result.response == "Ssr Commercial data not found for this id"){
+         apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.CONTENT_NOT_FOUND,
+            true
+         )
+        }else{
+            apiErrorres(
+                res,
+                errorResponse.SOMETHING_WRONG,
+                ServerStatusCode.SERVER_ERROR,
+                true 
+                )
+        }
+    }catch(error){
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true 
+            )
+    }
 }
 
 module.exports = {
     addSsrCommercialGroup,
-    getSsrCommercialGroup
+    getSsrCommercialGroup,
+    editSsrCommercialGroup,
+    deleteSsrCommercialGroup
 }

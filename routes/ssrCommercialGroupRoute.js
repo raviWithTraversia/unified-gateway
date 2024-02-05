@@ -17,17 +17,17 @@ ssrCommercialGroup_route.get(
      auth,
     ssrCommercialGroupController.getSsrCommercialGroup
 );
-// ssrCommercialGroup_route.patch(
-//     '/ssrCommercialGroup/editSsrCommercial',
-//      auth,
-//     ssrCommercialGroupController.editSsrCommercial
-// );
+ssrCommercialGroup_route.patch(
+    '/ssrCommercialGroup/editSsrCommercialGroup',
+     auth,
+    ssrCommercialGroupController.editSsrCommercialGroup
+);
 
-// ssrCommercialGroup_route.delete(
-//     '/ssrCommercialGroup/deleteSsrCommercial',
-//      auth,
-//     ssrCommercialGroupController.deleteSsrCommercial
-// );
+ssrCommercialGroup_route.delete(
+    '/ssrCommercialGroup/deleteSsrCommercialGroup',
+     auth,
+    ssrCommercialGroupController.deleteSsrCommercialGroup
+);
 
 
 

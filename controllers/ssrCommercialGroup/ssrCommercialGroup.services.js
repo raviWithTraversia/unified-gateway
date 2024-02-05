@@ -94,7 +94,7 @@ const getSsrCommercialGroup = async (req, res) => {
       getSsrCommercial = await ssrCommercialGroupModels.find({
         companyId: companyId,
       });
-      //console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getSsrCommercial, "<<<<<<<<<<<")
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getSsrCommercial, "<<<<<<<<<<<")
 
       for (let i = 0; i < getSsrCommercial.length; i++) {
         let converteSsrCommercialIds = getSsrCommercial[i].ssrCommercialIds.map(
@@ -109,7 +109,7 @@ const getSsrCommercialGroup = async (req, res) => {
         getSsrCommercial[i].ssrCommercialIds = documents;
         //console.log("[[[[[[[[[[[[[[[[[[[",documents)
       }
-      // console.log("[[[[[[[[[[[[[[[[[[[",getSsrCommercial, "]]]]]]]]]]]]]]]]]]")
+       console.log("[[[[[[[[[[[[[[[[[[[",getSsrCommercial, "]]]]]]]]]]]]]]]]]]")
       if (getSsrCommercial) {
         return {
           response: "Ssr Commercial Group Fetch Sucessfully",

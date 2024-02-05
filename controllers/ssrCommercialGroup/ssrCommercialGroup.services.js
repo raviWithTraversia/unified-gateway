@@ -12,7 +12,8 @@ const addSsrCommercialGroup = async (req, res) => {
     let ssrCommercialGroupNameExist = await ssrCommercialGroupModels.findOne({companyId,ssrCommercialName});
     if(ssrCommercialGroupNameExist){
       return {
-        response :'Fare rule group with the same name already exists for this company'
+        response :'Ssr Commercial Group With The Same Name Already Exists For This Company',
+        data : []
       }
     };
     if(isDefault === true){
@@ -30,7 +31,7 @@ const addSsrCommercialGroup = async (req, res) => {
     if (saveFareRuleGroup) {
       return {
         response: "Ssr Commercial Group Added Sucessfully",
-        data: saveFareRuleGroup,
+        data: [],
       };
     } else {
       return {

@@ -94,7 +94,6 @@ const deleteFareRule = async (req, res) => {
     apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
   }
 };
-
 const updateFareRule = async (req, res) => {
   try {
     const result = await fareRuleController.updateFareRule(req, res);
@@ -124,9 +123,42 @@ const updateFareRule = async (req, res) => {
     apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
   }
 };
+const getCustomFareRule = async (req,res) => {
+  try{
+  const result = await fareRuleController.getCustomFareRule(req,res);
+  if(result.response == "Fare Rule Fetch Sucessfully"){
+    apiSucessRes(
+      res,
+      result.response,
+      result.data,
+      ServerStatusCode.SUCESS_CODE
+    );
+  }
+  else if(result.response == "Fare Rule Not Found"){
+    apiErrorres(
+      res,
+      result.response,
+      ServerStatusCode.RESOURCE_NOT_FOUND,
+      true
+    );
+  }else{
+    apiErrorres(
+      res,
+      ServerStatusCode.RESOURCE_NOT_FOUND,
+      errorResponse.SOME_UNOWN,
+      true
+    );
+  }
+
+  }catch(error){
+     apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
+
+  }
+}
 module.exports = {
   addfareRule,
   getFareRule,
   deleteFareRule,
-  updateFareRule
+  updateFareRule,
+  getCustomFareRule
 };

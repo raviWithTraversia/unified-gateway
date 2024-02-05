@@ -70,8 +70,6 @@ const getSsrCommercialByCompany = async(req,res) => {
                 true
             )
         }
-    
-
     }catch(error){
         apiErrorres(
             res,

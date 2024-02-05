@@ -30,6 +30,13 @@ fareRules_route.delete(
   fareRuleController.deleteFareRule
 );
 
+fareRules_route.post(
+  '/fareRule/getCustomFareRule',
+  auth,
+  fareRuleController.getCustomFareRule
+);
+
+
 fareRules_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

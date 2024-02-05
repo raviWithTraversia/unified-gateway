@@ -46,6 +46,44 @@ const addSsrCommercialGroup = async (req,res) => {
     }
 };
 
+const getSsrCommercialGroup = async (req,res) => {
+    try{
+    const result = await ssrCommercialGroupServices.getSsrCommercialGroup(req,res);
+    if(result.response == 'Ssr Commercial Group Fetch Sucessfully'){
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+          )
+    }else if(result.response == 'Ssr Commercial Group Not Found'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.ALREADY_EXIST,
+            true
+          )
+    }else{
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        )
+    }
+
+    }catch(error){
+     
+            apiErrorres(
+                res,
+                errorResponse.SOMETHING_WRONG,
+                ServerStatusCode.SERVER_ERROR,
+                true 
+                )
+    }
+}
+
 module.exports = {
-    addSsrCommercialGroup
+    addSsrCommercialGroup,
+    getSsrCommercialGroup
 }

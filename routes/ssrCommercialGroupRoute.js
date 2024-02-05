@@ -7,27 +7,27 @@ const auth = require("../middleware/auth");
 const ssrCommercialGroupController = require('../controllers/ssrCommercialGroup/ssrCommercialGroup.controller');
 
 ssrCommercialGroup_route.post(
-    '/ssrCommercialGroup/addSupplier',
+    '/ssrCommercialGroup/addSsrCommercialGroup',
     auth,
-    ssrCommercialGroupController.addSsrCommercial
+    ssrCommercialGroupController.addSsrCommercialGroup
 );
 
 ssrCommercialGroup_route.get(
-    '/ssrCommercialGroup/getSsrCommercialByCompany',
+    '/ssrCommercialGroup/getSsrCommercialGroup',
      auth,
-    ssrCommercialGroupController.getSsrCommercialByCompany
+    ssrCommercialGroupController.getSsrCommercialGroup
 );
-ssrCommercialGroup_route.patch(
-    '/ssrCommercialGroup/editSsrCommercial',
-     auth,
-    ssrCommercialGroupController.editSsrCommercial
-);
+// ssrCommercialGroup_route.patch(
+//     '/ssrCommercialGroup/editSsrCommercial',
+//      auth,
+//     ssrCommercialGroupController.editSsrCommercial
+// );
 
-ssrCommercialGroup_route.delete(
-    '/ssrCommercialGroup/deleteSsrCommercial',
-     auth,
-    ssrCommercialGroupController.deleteSsrCommercial
-);
+// ssrCommercialGroup_route.delete(
+//     '/ssrCommercialGroup/deleteSsrCommercial',
+//      auth,
+//     ssrCommercialGroupController.deleteSsrCommercial
+// );
 
 
 

@@ -142,6 +142,7 @@ const deleteFareRuleGroup = async (req, res) => {
   }
 };
 
+
 module.exports = {
   addFareRuleGroup,
   editFareRuleGroup,

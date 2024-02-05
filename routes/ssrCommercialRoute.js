@@ -7,7 +7,7 @@ const auth = require("../middleware/auth");
 const ssrCommercial = require('../controllers/ssrCommercial/ssrCommercial.controller');
 
 ssrCommercial_route.post(
-    '/ssrCommercial/addSupplier',
+    '/ssrCommercial/addSsrCommercial',
     auth,
     ssrCommercial.addSsrCommercial
 );
@@ -28,6 +28,8 @@ ssrCommercial_route.delete(
      auth,
     ssrCommercial.deleteSsrCommercial
 );
+
+
 
 
 

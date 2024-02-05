@@ -81,34 +81,36 @@ const editSsrCommercialGroup = async (req, res) => {
 
 const getSsrCommercialGroup = async (req, res) => {
   try {
-    const { ObjectId } = require('mongoose').Types; 
     let companyId = req.query.companyId;
     let getSsrCommercial;
+    let documents
     try {
       getSsrCommercial = await ssrCommercialGroupModels.find({ companyId: companyId });
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getSsrCommercial, "<<<<<<<<<<<")
-
+     // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getSsrCommercial, "<<<<<<<<<<<")
+     
       for (let i = 0; i < getSsrCommercial.length; i++) {      
-          let converteSsrCommercialIds = getSsrCommercial[i].fareRuleIds.map(id => id.toString());
-          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",converteSsrCommercialIds)
+          let converteSsrCommercialIds = getSsrCommercial[i].ssrCommercialIds.map(id => id.toString());
+        //  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",converteSsrCommercialIds)
       
-          let documents = await ssrCommercial.find({ _id: { $in: converteSsrCommercialIds } })
+           documents = await ssrCommercial.find({ _id: { $in: converteSsrCommercialIds } })
               .exec();      
           getSsrCommercial[i].fareRuleIds = documents;
+         // console.log("[[[[[[[[[[[[[[[[[[[",documents)
       }
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",documents, "<<<<<<<<<<<")
+      return;
    
     } catch (err) {
-      retur
       console.error(err);
     }
-    if (getSsrCommercial) {
+    if (documents) {
       return {
-        response: "Ssr Commercial Fetch Sucessfully",
-        data: getSsrCommercial,
+        response: "Ssr Commercial Group Fetch Sucessfully",
+        data: documents
       };
     } else {
       return {
-        response: "Ssr Commercial Not Found",
+        response: "Ssr Commercial Group Not Found",
       };
     }
   } catch (error) {

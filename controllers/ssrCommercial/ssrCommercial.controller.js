@@ -19,7 +19,15 @@ const addSsrCommercial = async (req,res) => {
             ServerStatusCode.PRECONDITION_FAILED,
             true
         )
-    }else{
+    }else if(result.response == "This Combination Of SSR Commercial Already Exist"){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        )
+    }
+    else{
         apiErrorres(
             res,
             errorResponse.SOME_UNOWN,
@@ -62,8 +70,6 @@ const getSsrCommercialByCompany = async(req,res) => {
                 true
             )
         }
-    
-
     }catch(error){
         apiErrorres(
             res,

@@ -4,7 +4,7 @@ const Smtp = require("../../models/Smtp");
 const { ObjectId } = require("mongodb");
 const configCred = require("../../models/ConfigCredential");
 const { Config } = require("../../configs/config");
-const statusModel = require('../../models/Status')
+const companyModels = require('../../models/Company');
 
 const addRegistration = async (req, res) => {
   try {
@@ -68,6 +68,7 @@ const addRegistration = async (req, res) => {
     let iscountry = FUNC.checkIsValidId(country);
     let isState = FUNC.checkIsValidId(state);
     let isroleId = FUNC.checkIsValidId(roleId);
+    let iscompanyId = FUNC.checkIsValidId(companyId);
 
     if (saleInChargeId == "" || saleInChargeId == "" || !saleInChargeId) {
       saleInChargeId = null;
@@ -79,9 +80,9 @@ const addRegistration = async (req, res) => {
       };
     }
 
-    if (isState === "Invalid Mongo Object Id") {
+    if (isState === "Invalid Mongo Object Id" || iscompanyId === "Invalid Mongo Object Id") {
       return {
-        response: "State Id is not valid",
+        response: `${isState ||iscompanyId } Id is not valid`,
       };
     }
 
@@ -118,7 +119,11 @@ const addRegistration = async (req, res) => {
       let id = Config.MAIL_CONFIG_ID;
       mailConfig = await Smtp.findById(id);
     }
-
+    let checkCompanyType = await companyModels.findById(companyId);
+    let parent;
+    if(checkCompanyType.type === "Distributer"){
+       parent = checkCompanyType?.parent 
+    }
     const newRegistration = new registration({
       companyId,
       companyName,
@@ -144,10 +149,11 @@ const addRegistration = async (req, res) => {
       gstAddress_2: gstAddress_2 || null,
       gstState: gstState || null,
       gstPinCode: gstPinCode || null,
-      agencyGroupId
+      agencyGroupId,
+      parent 
     });
     let newRegistrationRes = await newRegistration.save();
-    console.log(newRegistrationRes);
+   // console.log(newRegistrationRes);
     let mailText = newRegistrationRes;
     let mailSubject = `New registration created successfully`;
     let smsUrl = await configCred.findOne({ companyId: companyId });
@@ -198,28 +204,54 @@ const getAllRegistrationByCompany = async (req, res) => {
         response: null,
         message: "Company Id not true",
       };
-    }
-    // const registrationData = await registration.find({companyId : comapnyId});
+    };
 
-    let aggregrationRes = await registration
-      .find({ companyId: companyId })
+    let checkCompayType = await companyModels.findById(companyId);
+    if(checkCompayType.type  === "TMC"){
+      let aggregationRes = await registration.find({
+        $or: [
+          { companyId: companyId },
+          { parent: companyId }
+        ]
+      })
+        .populate("statusId", "name")
+        .populate("roleId", "name")
+        .populate("saleInChargeId", "name")
+        .populate("city", "name")
+        .populate("companyId", "companyName")
+        .exec();
+      if (!aggregationRes) {
+        return {
+          response: null,
+          message: "Registration Data not found by this companyId",
+        };
+      } else {
+        return {
+          response: "Registration data found sucessfully",
+          data: aggregationRes,
+        };
+      }
+    }else{
+      let aggregationRes = await registration
+      .find({companyId: companyId})
       .populate("statusId", "name")
       .populate("roleId", "name")
       .populate("saleInChargeId city")
       .populate("companyId" , "companyName")
       .exec();
-
-    if (!aggregrationRes) {
-      return {
-        response: null,
-        message: "Registration Data not found by this companyId",
-      };
-    } else {
-      return {
-        response: "Registration data found sucessfully",
-        data: aggregrationRes,
-      };
+      if (!aggregationRes) {
+        return {
+          response: null,
+          message: "Registration Data not found by this companyId",
+        };
+      } else {
+        return {
+          response: "Registration data found sucessfully",
+          data: aggregationRes,
+        };
+      }
     }
+  
   } catch (error) {
     console.log(error);
     throw error;

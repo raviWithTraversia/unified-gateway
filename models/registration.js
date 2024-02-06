@@ -106,8 +106,12 @@ const registrationSchema = new mongoose.Schema({
     agencyGroupId : {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'agencyGroupModel' 
-    }
-
+    },
+    parent : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref: 'Company',
+        default : null
+    },
 },{
     timestamps : true  //Add created_at and updated_at coloumn
 });

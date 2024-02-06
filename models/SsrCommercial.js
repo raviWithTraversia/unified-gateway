@@ -42,7 +42,7 @@ const serviceRequestSchema = new mongoose.Schema({
   },
   bookingType: {
     type : String,
-    enum : ['PreBooking', 'PostBooking'],
+    enum : ['AtIssuance', 'PostBooking'],
   },
   airlineCodeId: {
     type : mongoose.Schema.Types.ObjectId,

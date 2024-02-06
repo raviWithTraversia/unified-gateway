@@ -43,7 +43,8 @@ let ancl = {
         "Des": "BLR",
         "OI": "QEhxZ0TqWDKAzLGqmAAAAA==",
         "Leg": 0
-           },{
+           },
+           {
             "Trip" : 0,
             "FCode" : "AI",
             "FNo" : "514",
@@ -55,7 +56,13 @@ let ancl = {
             "Avlt" : true,
             "SeatRow" : 4,
             "Currency" : "INR",
-            "SsrDesc" : ""
+            "SsrDesc" : "Front of cabin class/compartment",
+            "Price" : 1000,
+            "DDate": "2024-03-25",
+            "Src" : "DEL",
+            "Des" : "BLR",
+            "OI"  : "QEhxZ0TqWDKAzLGqmAAAAA==",
+            "Leg" : 0
            }
         ],
         [

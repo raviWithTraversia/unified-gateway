@@ -88,7 +88,7 @@ const editSsrCommercialGroup = async (req, res) => {
 
 const getSsrCommercialGroup = async (req, res) => {
   try {
-    let companyId = req.query.companyId;
+    let {companyId , bookingType} = req.query;
     let getSsrCommercial;
     try {
       getSsrCommercial = await ssrCommercialGroupModels.find({
@@ -103,8 +103,11 @@ const getSsrCommercialGroup = async (req, res) => {
         // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",converteSsrCommercialIds)
 
         let documents = await ssrCommercial
-          .find({ _id: { $in: converteSsrCommercialIds } })
-          .exec();
+        .find({
+          _id: { $in: converteSsrCommercialIds }, 
+          bookingType: { $in: bookingType }      
+        })
+        .exec();
         // console.log("==>>>",documents)
         getSsrCommercial[i].ssrCommercialIds = documents;
         //console.log("[[[[[[[[[[[[[[[[[[[",documents)

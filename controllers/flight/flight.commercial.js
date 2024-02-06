@@ -134,7 +134,7 @@ const getApplyAllCommercial = async (
               Amount: 0.0,
               SupplierId: 3232,
               SupplierType: "TMC"
-          }],
+            }],
             Key: null,
           },
           {
@@ -177,7 +177,7 @@ const getApplyAllCommercial = async (
               Amount: 0.0,
               SupplierId: 1212,
               SupplierType: "TMC"
-          }],
+            }],
             Key: null,
           },
           {},
@@ -191,7 +191,7 @@ const getApplyAllCommercial = async (
             CabinClass: "Economy",
             BookingCounts: "",
             NoSeats: 9,
-            FltNum: "839",
+            FltNum: "831",
             EquipType: "32N",
             FlyingTime: "0d:2h:15m",
             TravelTime: "0d:2h:15m",
@@ -386,7 +386,7 @@ const getApplyAllCommercial = async (
               Amount: 0.0,
               SupplierId: 121,
               SupplierType: "TMC"
-          }],
+            }],
             Key: null,
           },
           {
@@ -429,7 +429,7 @@ const getApplyAllCommercial = async (
               Amount: 0.0,
               SupplierId: 232323,
               SupplierType: "TMC"
-          }],
+            }],
             Key: null,
           },
           {},
@@ -505,7 +505,7 @@ const getApplyAllCommercial = async (
     ];
 
     //for (const singleFlightDetails of commonArray) {
-    for (const singleFlightDetails of commonArrayDummy) {
+    for (const singleFlightDetails of commonArray) {
       // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
         // get group of priority base
@@ -609,7 +609,10 @@ const getApplyAllCommercial = async (
         }
       }
 
-      //  updateObjofsingleflight // this is update object with the apply commertial then apply incentive in below and then last push this update object in applyResponceCommercialArray.push({ updateObjofsingleflight });
+      // Check Incentive status and  Apply Incentive
+      if (incentivePlanDetails.IsSuccess === true) {
+
+      } 
       // this is last update and push function
       applyResponceCommercialArray.push(singleFlightDetails);
     }
@@ -944,9 +947,9 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
       returnDeptDateIncludeValue.split(" - ");
     if (
       moment(singleFlightDetails.Sectors[0].Departure.Date, "YYYY-MM-DD") >=
-        moment(startDateInclude, "DD/MM/YYYY") &&
+      moment(startDateInclude, "DD/MM/YYYY") &&
       moment(singleFlightDetails.Sectors[0].Departure.Date, "YYYY-MM-DD") <=
-        moment(endDateInclude, "DD/MM/YYYY")
+      moment(endDateInclude, "DD/MM/YYYY")
     ) {
       //The mandate date is within the range
       bestMatch = true;
@@ -962,9 +965,9 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
       returnDeptDateExcludeValue.split(" - ");
     if (
       moment(singleFlightDetails.Sectors[0].Departure.Date, "YYYY-MM-DD") >=
-        moment(startDateExclude, "DD/MM/YYYY") &&
+      moment(startDateExclude, "DD/MM/YYYY") &&
       moment(singleFlightDetails.Sectors[0].Departure.Date, "YYYY-MM-DD") <=
-        moment(endDateExclude, "DD/MM/YYYY")
+      moment(endDateExclude, "DD/MM/YYYY")
     ) {
       //The mandate date is within the range
       bestMatch = false;
@@ -1518,7 +1521,7 @@ const commertialMatrixValue = async (
         filter.AirCommertialColumnMasterId.type === "coloumn"
     );
 
-    if (rateSingleColumn) {
+    if (rateSingleColumn && rateSingleColumn.textType === "number" && rateSingleColumn.value != "0") {      
       const serviceRate =
         rateSingleColumn.textType === "number"
           ? parseFloat(rateSingleColumn.value)
@@ -1777,7 +1780,7 @@ const commertialMatrixValue = async (
         filter.AirCommertialColumnMasterId.type === "coloumn"
     );
 
-    if (rateSingleColumn) {
+    if (rateSingleColumn && rateSingleColumn.textType === "number" && rateSingleColumn.value != "0") {
       const serviceRate =
         rateSingleColumn.textType === "number"
           ? parseFloat(rateSingleColumn.value)
@@ -2036,7 +2039,7 @@ const commertialMatrixValue = async (
         filter.AirCommertialColumnMasterId.type === "coloumn"
     );
 
-    if (rateSingleColumn) {
+    if (rateSingleColumn && rateSingleColumn.textType === "number" && rateSingleColumn.value != "0") {
       const serviceRate =
         rateSingleColumn.textType === "number"
           ? parseFloat(rateSingleColumn.value)
@@ -2295,7 +2298,7 @@ const commertialMatrixValue = async (
         filter.AirCommertialColumnMasterId.type === "coloumn"
     );
 
-    if (rateSingleColumn) {
+    if (rateSingleColumn && rateSingleColumn.textType === "number" && rateSingleColumn.value != "0") {
       const serviceRate =
         rateSingleColumn.textType === "number"
           ? parseFloat(rateSingleColumn.value)
@@ -2400,143 +2403,1348 @@ const commertialMatrixValue = async (
   // End Markup Rate End here
 
 
- //Fixed Rate start here
- //Segment Kickback (-) start here 
- const segmentKickbackAllColumn =
- commList.updateaircommercialmatrixes.data.filter(
-   (filter) =>
-     filter.AirCommertialRowMasterId.name === "Segment Kickback (-)" &&
-     filter.AirCommertialRowMasterId.commercialType === "fixed" &&
-     filter.AirCommertialRowMasterId.type === "row"
- );
- 
-if (segmentKickbackAllColumn.length > 0) {
- const fixedAdultSingleColumn = segmentKickbackAllColumn.find(
-   (filter) =>
-     filter.AirCommertialColumnMasterId.name === "Adult" &&
-     filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
-     filter.AirCommertialColumnMasterId.type === "coloumn"
- );
- 
- const fixedChildSingleColumn = segmentKickbackAllColumn.find(
-  (filter) =>
-    filter.AirCommertialColumnMasterId.name === "Child" &&
-    filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
-    filter.AirCommertialColumnMasterId.type === "coloumn"
-);
+  //Fixed Rate start here
+  //Segment Kickback (-) start here 
+  const segmentKickbackAllColumn =
+    commList.updateaircommercialmatrixes.data.filter(
+      (filter) =>
+        filter.AirCommertialRowMasterId.name === "Segment Kickback (-)" &&
+        filter.AirCommertialRowMasterId.commercialType === "fixed" &&
+        filter.AirCommertialRowMasterId.type === "row"
+    );
 
-const fixedInfantSingleColumn = segmentKickbackAllColumn.find(
-  (filter) =>
-    filter.AirCommertialColumnMasterId.name === "Infant" &&
-    filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
-    filter.AirCommertialColumnMasterId.type === "coloumn"
-);
+  if (segmentKickbackAllColumn.length > 0) {
+    const fixedAdultSingleColumn = segmentKickbackAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Adult" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
 
- if (fixedAdultSingleColumn && fixedChildSingleColumn && fixedInfantSingleColumn) {
-   const fixedAdultRate =
-   fixedAdultSingleColumn.textType === "number"
-       ? parseFloat(fixedAdultSingleColumn.value)
-       : 0;
-       const fixedChildRate =
-       fixedChildSingleColumn.textType === "number"
-           ? parseFloat(fixedChildSingleColumn.value)
-           : 0;
-           
-           const fixedInfantRate =
-           fixedInfantSingleColumn.textType === "number"
-               ? parseFloat(fixedInfantSingleColumn.value)
-               : 0;
+    const fixedChildSingleColumn = segmentKickbackAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Child" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
 
-  // on word only start here
-   const applySegmentKickbackToperairlineperpax = (singleFlightDetails,tax, type) => {
-     if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {      
-      
-      const fltNumCount = {};
+    const fixedInfantSingleColumn = segmentKickbackAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Infant" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
 
-      singleFlightDetails.Sectors.forEach((sector) => {
-        const fltNum = sector.FltNum;
-        const encounteredFltNums = new Set();
-  
-        if (fltNum && !encounteredFltNums.has(fltNum)) {
-          if (fltNumCount[fltNum] === undefined) {
-            fltNumCount[fltNum] = 1;
-          } else {
-            fltNumCount[fltNum]++;
+    if (fixedAdultSingleColumn && fixedChildSingleColumn && fixedInfantSingleColumn && (fixedAdultSingleColumn.value !=0 || fixedChildSingleColumn.value !=0 || fixedInfantSingleColumn.value !=0)) {
+      const fixedAdultRate =
+        fixedAdultSingleColumn.textType === "number"
+          ? parseFloat(fixedAdultSingleColumn.value)
+          : 0;
+      const fixedChildRate =
+        fixedChildSingleColumn.textType === "number"
+          ? parseFloat(fixedChildSingleColumn.value)
+          : 0;
+
+      const fixedInfantRate =
+        fixedInfantSingleColumn.textType === "number"
+          ? parseFloat(fixedInfantSingleColumn.value)
+          : 0;
+
+      // on word only start here
+      const applySegmentKickbackToperairlineperpax = (singleFlightDetails, tax, type) => {
+        if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {
+
+          const fltNumCount = {};
+          const encounteredFltNums = new Set();
+
+          singleFlightDetails.Sectors.forEach((sector) => {
+            const fltNum = sector.FltNum;
+
+            if (fltNum && !encounteredFltNums.has(fltNum)) {
+              if (fltNumCount[fltNum] === undefined) {
+                fltNumCount[fltNum] = 1;
+              } else {
+                fltNumCount[fltNum]++;
+              }
+
+              encounteredFltNums.add(fltNum);
+            }
+          });
+          //tax.ServiceFees += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+          const countAirline = tax.CommercialBreakup.find((commercial) => commercial.CommercialType === "SegmentKickback");
+          if (countAirline) {
+            const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+            if (type === "ADT") {
+              countAirline.Amount += totalCount * fixedAdultRate;              
+            } else if (type === "CHD") {
+              countAirline.Amount += totalCount * fixedChildRate;              
+            } else if (type === "INF") {
+              countAirline.Amount += totalCount * fixedInfantRate;              
+            }
           }
-  
-          encounteredFltNums.add(fltNum);
         }
-      });
-      //tax.ServiceFees += (parseFloat(serviceRate) / 100) * yqTax.Amount;
-      const countAirline = tax.CommercialBreakup.find((commercial) => commercial.CommercialType === "SegmentKickback");
-      if (countAirline) {
-        const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
-        countAirline.Amount = totalCount;
+      };
+
+      const perairlineperpaxSingleColumn = segmentKickbackAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Per Airline Per Pax" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        perairlineperpaxSingleColumn?.textType === "checkbox" &&
+        perairlineperpaxSingleColumn.value
+      ) {
+        applySegmentKickbackToperairlineperpax(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applySegmentKickbackToperairlineperpax(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applySegmentKickbackToperairlineperpax(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
       }
-     }
-   };
 
-   const perairlineperpaxSingleColumn = segmentKickbackAllColumn.find(
-     (filter) =>
-       filter.AirCommertialColumnMasterId.name === "Per Airline Per Pax" &&
-       filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
-       filter.AirCommertialColumnMasterId.type === "coloumn"
-   );
+      // on word only start End
+
+      //  Per Pax Per Sector Start Here
+      const applySegmentKickbackToperpaxperSector = (singleFlightDetails, tax, type) => {
+        if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {
+
+          
+         
+          const countAirline = tax.CommercialBreakup.find((commercial) => commercial.CommercialType === "SegmentKickback");
+          if (countAirline) {
+            
+            if (type === "ADT") {
+              countAirline.Amount += fixedAdultRate;              
+            } else if (type === "CHD") {              
+              countAirline.Amount += fixedAdultRate; 
+            } else if (type === "INF") {
+              countAirline.Amount += fixedInfantRate;              
+            }
+          }
+        }
+      };
+
+      const perPAxperSectorSingleColumn = segmentKickbackAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Per Pax Per Sector" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        perPAxperSectorSingleColumn?.textType === "checkbox" &&
+        perPAxperSectorSingleColumn.value
+      ) {
+        applySegmentKickbackToperpaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applySegmentKickbackToperpaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applySegmentKickbackToperpaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+      }
+      // Per Pax Per Sector End Here
+
+      // Per Flight Per Pax Start HERE
+      const applySegmentKickbackToperFlightPerPax = (singleFlightDetails, tax, type) => {
+        if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {        
+          const countAirline = tax.CommercialBreakup.find((commercial) => commercial.CommercialType === "SegmentKickback");
+          if (countAirline) {
+            const fltNumCount = {};
+            const encounteredFltNums = new Set();
+            singleFlightDetails.Sectors.forEach((sector) => {
+              const AirlineCode = sector.AirlineCode;
   
-   if (
-    perairlineperpaxSingleColumn?.textType === "checkbox" &&
-    perairlineperpaxSingleColumn.value
-   ) {
-    applySegmentKickbackToperairlineperpax(singleFlightDetails,singleFlightDetails.PriceBreakup[0], "ADT");     
-    applySegmentKickbackToperairlineperpax(singleFlightDetails,singleFlightDetails.PriceBreakup[1], "CHD");    
-    applySegmentKickbackToperairlineperpax(singleFlightDetails,singleFlightDetails.PriceBreakup[2], "INF");
+              if (AirlineCode && !encounteredFltNums.has(AirlineCode)) {
+                if (fltNumCount[AirlineCode] === undefined) {
+                  fltNumCount[AirlineCode] = 1;
+                } else {
+                  fltNumCount[AirlineCode]++;
+                }
+  
+                encounteredFltNums.add(AirlineCode);
+              }
+            });
+            const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+  
+            if (type === "ADT") {
+              countAirline.Amount += totalCount * fixedAdultRate;              
+            } else if (type === "CHD") {              
+              countAirline.Amount += totalCount * fixedAdultRate; 
+            } else if (type === "INF") {
+              countAirline.Amount += totalCount * fixedInfantRate;              
+            }
+          }
+        }
+      };
+
+      const perFlightPerPaxSingleColumn = segmentKickbackAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Per Flight Per Pax" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        perFlightPerPaxSingleColumn?.textType === "checkbox" &&
+        perFlightPerPaxSingleColumn.value
+      ) {
+        applySegmentKickbackToperFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applySegmentKickbackToperFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applySegmentKickbackToperFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+      }
+      // Per Flight Per Pax END HERE 
+
+      // Per PNR Per Pax START HERE
+      const applySegmentKickbackToperPNRPerPax = (singleFlightDetails, tax, type) => {
+        if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {        
+          const countAirline = tax.CommercialBreakup.find((commercial) => commercial.CommercialType === "SegmentKickback");
+          if (countAirline) {            
+            if (type === "ADT") {
+              countAirline.Amount += fixedAdultRate;              
+            } else if (type === "CHD") {              
+              countAirline.Amount += fixedAdultRate; 
+            } else if (type === "INF") {
+              countAirline.Amount += fixedInfantRate;              
+            }
+          }
+        }
+      };
+
+      const perPNRPerPaxSingleColumn = segmentKickbackAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Per PNR Per Pax" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        perPNRPerPaxSingleColumn?.textType === "checkbox" &&
+        perPNRPerPaxSingleColumn.value
+      ) {
+        applySegmentKickbackToperPNRPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applySegmentKickbackToperPNRPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applySegmentKickbackToperPNRPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+      }
+      // Per PNR Per Pax END HERE
+
+      // TDS START HERE
+      const applySegmentKickbackToTDS = (singleFlightDetails, tax, type) => {
+        if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {        
+          const countAirline = tax.CommercialBreakup.find((commercial) => commercial.CommercialType === "SegmentKickback");
+          if (countAirline) {            
+            if (type === "ADT") {
+              tax.TDS += (parseFloat(5) / 100) * countAirline.Amount;              
+            } else if (type === "CHD") {              
+              tax.TDS += (parseFloat(5) / 100) * countAirline.Amount; 
+            } else if (type === "INF") {
+              tax.TDS += (parseFloat(5) / 100) * countAirline.Amount;              
+            }
+          }
+        }
+      };
+
+      const tdsSingleColumn = segmentKickbackAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Deduct TDS" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        tdsSingleColumn?.textType === "checkbox" &&
+        tdsSingleColumn.value
+      ) {
+        applySegmentKickbackToTDS(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applySegmentKickbackToTDS(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applySegmentKickbackToTDS(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+      }
+      // TDS END HERE
+
+
+
+    }
+  }
+  // Segment Kickback (-) End here
+
+  // Fixed Booking Fee start Here
+  const fixedBookingFeeAllColumn =
+    commList.updateaircommercialmatrixes.data.filter(
+      (filter) =>
+        filter.AirCommertialRowMasterId.name === "Fixed Booking Fee" &&
+        filter.AirCommertialRowMasterId.commercialType === "fixed" &&
+        filter.AirCommertialRowMasterId.type === "row"
+    );
+
+  if (fixedBookingFeeAllColumn.length > 0) {
+    const fixedAdultSingleColumn = fixedBookingFeeAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Adult" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    const fixedChildSingleColumn = fixedBookingFeeAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Child" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    const fixedInfantSingleColumn = fixedBookingFeeAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Infant" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (fixedAdultSingleColumn && fixedChildSingleColumn && fixedInfantSingleColumn && (fixedAdultSingleColumn.value !=0 || fixedChildSingleColumn.value !=0 || fixedInfantSingleColumn.value !=0)) {
+      const fixedAdultRate =
+        fixedAdultSingleColumn.textType === "number"
+          ? parseFloat(fixedAdultSingleColumn.value)
+          : 0;
+      const fixedChildRate =
+        fixedChildSingleColumn.textType === "number"
+          ? parseFloat(fixedChildSingleColumn.value)
+          : 0;
+
+      const fixedInfantRate =
+        fixedInfantSingleColumn.textType === "number"
+          ? parseFloat(fixedInfantSingleColumn.value)
+          : 0;
+
+      // on word only start here
+      const applyFixedBookingFeeToOnWardOnly = (singleFlightDetails, tax, type) => {
+        if (tax) {      
+          if (type === "ADT") {
+            tax.BookingFees += fixedAdultRate;              
+          } else if (type === "CHD") {
+            tax.BookingFees += fixedChildRate;              
+          } else if (type === "INF") {
+            tax.BookingFees += fixedInfantRate;              
+          } 
+          
+        }
+      };
+
+      const onWardOnlySingleColumn = fixedBookingFeeAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Onward Only" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        onWardOnlySingleColumn?.textType === "checkbox" &&
+        onWardOnlySingleColumn.value
+      ) {
+        applyFixedBookingFeeToOnWardOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applyFixedBookingFeeToOnWardOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applyFixedBookingFeeToOnWardOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+      }
+
+      // on word only start End
+
+      // Non Zero Only Start Here
+      const applyFixedBookingFeeToNonZeroOnly = (singleFlightDetails, tax, type) => {
+        if (tax) {      
+         
+          // const countAirline = tax.CommercialBreakup.find((commercial) => commercial.CommercialType === "SegmentKickback");
+          // if (countAirline) {
+          //   const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+          //   if (type === "ADT") {
+          //     countAirline.Amount = totalCount * fixedAdultRate;
+          //     tax.TDS += (parseFloat(5) / 100) * (totalCount * fixedAdultRate);
+          //   } else if (type === "CHD") {
+          //     countAirline.Amount = totalCount * fixedChildRate;
+          //     tax.TDS += (parseFloat(5) / 100) * (totalCount * fixedChildRate);
+          //   } else if (type === "INF") {
+          //     countAirline.Amount = totalCount * fixedInfantRate;
+          //     tax.TDS += (parseFloat(5) / 100) * (totalCount * fixedInfantRate);
+          //   }
+          // }
+        }
+      };
+
+      const nonZeroOnlySingleColumn = fixedBookingFeeAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Non Zero Only" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        nonZeroOnlySingleColumn?.textType === "checkbox" &&
+        nonZeroOnlySingleColumn.value
+      ) {
+        applyFixedBookingFeeToNonZeroOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applyFixedBookingFeeToNonZeroOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applyFixedBookingFeeToNonZeroOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+      }
+      // Non Zero Only End Here
+
+      // Per Airline Per Pax Start Here
+      const applyFixedBookingFeeToPerAirlinePerPax = (singleFlightDetails, tax, type) => {
+        if (tax) {
+          const fltNumCount = {};
+          const encounteredFltNums = new Set();
+
+          singleFlightDetails.Sectors.forEach((sector) => {
+            const fltNum = sector.FltNum;
+
+            if (fltNum && !encounteredFltNums.has(fltNum)) {
+              if (fltNumCount[fltNum] === undefined) {
+                fltNumCount[fltNum] = 1;
+              } else {
+                fltNumCount[fltNum]++;
+              }
+
+              encounteredFltNums.add(fltNum);
+            }
+          }); 
+          
+            const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+            if (type === "ADT") {
+              tax.BookingFees += totalCount * fixedAdultRate;              
+            } else if (type === "CHD") {
+              tax.BookingFees += totalCount * fixedChildRate;              
+            } else if (type === "INF") {
+              tax.BookingFees += totalCount * fixedInfantRate;              
+            } 
+        }
+      };
+
+      const perAirlinePerPaxSingleColumn = fixedBookingFeeAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Per Airline Per Pax" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        perAirlinePerPaxSingleColumn?.textType === "checkbox" &&
+        perAirlinePerPaxSingleColumn.value
+      ) {
+        applyFixedBookingFeeToPerAirlinePerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applyFixedBookingFeeToPerAirlinePerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applyFixedBookingFeeToPerAirlinePerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+      }
+      // Per Airline Per Pax End Here
+
+      // Per PNR PER Ticket start Here
+      const applyFixedBookingFeeToPerPnrPerTicket = (singleFlightDetails, tax, type) => {
+        if (tax) {
+            if (type === "ADT") {
+              tax.BookingFees += fixedAdultRate;              
+            } else if (type === "CHD") {
+              tax.BookingFees += fixedChildRate;              
+            } else if (type === "INF") {
+              tax.BookingFees += fixedInfantRate;              
+            } 
+        }
+      };
+
+      const perPntperTicketSingleColumn = fixedBookingFeeAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Per Pnr Per Ticket" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        perPntperTicketSingleColumn?.textType === "checkbox" &&
+        perPntperTicketSingleColumn.value
+      ) {
+        applyFixedBookingFeeToPerPnrPerTicket(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applyFixedBookingFeeToPerPnrPerTicket(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applyFixedBookingFeeToPerPnrPerTicket(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+      }
+      // Per PNR per Ticket End Here
+
+      // Per Pax per sector start here
+      const applyFixedBookingFeeToPerPaxperSector = (singleFlightDetails, tax, type) => {
+        if (tax) {
+            if (type === "ADT") {
+              tax.BookingFees += fixedAdultRate;              
+            } else if (type === "CHD") {
+              tax.BookingFees += fixedChildRate;              
+            } else if (type === "INF") {
+              tax.BookingFees += fixedInfantRate;              
+            } 
+        }
+      };
+
+      const perPaxPerSectorSingleColumn = fixedBookingFeeAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Per Pax Per Sector" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        perPaxPerSectorSingleColumn?.textType === "checkbox" &&
+        perPaxPerSectorSingleColumn.value
+      ) {
+        applyFixedBookingFeeToPerPaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applyFixedBookingFeeToPerPaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applyFixedBookingFeeToPerPaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+      }
+      // per pax per sector end here
+      
+      // Per FLight Per Pax Start Here
+      const applyFixedBookingFeeToPerFlightPerPax = (singleFlightDetails, tax, type) => {
+        if (tax) {
+          
+          const fltNumCount = {};
+          const encounteredFltNums = new Set();
+          singleFlightDetails.Sectors.forEach((sector) => {
+            const AirlineCode = sector.AirlineCode;
+
+            if (AirlineCode && !encounteredFltNums.has(AirlineCode)) {
+              if (fltNumCount[AirlineCode] === undefined) {
+                fltNumCount[AirlineCode] = 1;
+              } else {
+                fltNumCount[AirlineCode]++;
+              }
+
+              encounteredFltNums.add(AirlineCode);
+            }
+          });
+          const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+
+            if (type === "ADT") {
+              tax.BookingFees += totalCount * fixedAdultRate;              
+            } else if (type === "CHD") {
+              tax.BookingFees += totalCount * fixedChildRate;              
+            } else if (type === "INF") {
+              tax.BookingFees += totalCount * fixedInfantRate;              
+            } 
+        }
+      };
+
+      const perFlightPerPaxSingleColumn = fixedBookingFeeAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Per Flight Per Pax" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        perFlightPerPaxSingleColumn?.textType === "checkbox" &&
+        perFlightPerPaxSingleColumn.value
+      ) {
+        applyFixedBookingFeeToPerFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applyFixedBookingFeeToPerFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applyFixedBookingFeeToPerFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+      }
+      // Per flight per pax end here
+
+      // Per PNR Per Pax Start Here
+      const applyFixedBookingFeeToPerPNRPerPax = (singleFlightDetails, tax, type) => {
+        if (tax) {      
+
+            if (type === "ADT") {
+              tax.BookingFees += fixedAdultRate;              
+            } else if (type === "CHD") {
+              tax.BookingFees += fixedChildRate;              
+            } else if (type === "INF") {
+              tax.BookingFees += fixedInfantRate;              
+            } 
+        }
+      };
+
+      const perPNRPerPaxSingleColumn = fixedBookingFeeAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "Per PNR Per Pax" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        perPNRPerPaxSingleColumn?.textType === "checkbox" &&
+        perPNRPerPaxSingleColumn.value
+      ) {
+        applyFixedBookingFeeToPerPNRPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+        applyFixedBookingFeeToPerPNRPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applyFixedBookingFeeToPerPNRPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+      }
+      // Per PNR Per Pax End Here
+
+      // GST START HERE
+      const applyFixedBookingFeeToGst = async (singleFlightDetails,tax, type) => {
+        if (tax && Object.keys(tax).length !== 0) {
+          // let getAgentConfig = await agentConfig.findOne({
+          //   companyId: companyId,
+          // });
+          // console.log(getAgentConfig);
+          // if (getAgentConfig) {
+          //  tax.gst += getAgentConfig.discountPercentage
+          // }
+          tax.gst += (parseFloat(18) / 100) * tax.BookingFees;
+        }
+      };
+
+      const gstSingleColumn = fixedBookingFeeAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "GST" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+
+      if (
+        gstSingleColumn?.textType === "checkbox" &&
+        gstSingleColumn.value
+      ) {
+        applyFixedBookingFeeToGst(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");       
+        applyFixedBookingFeeToGst(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+        applyFixedBookingFeeToGst(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+       
+      }
+      // GST END HERE
+
+    }
+  }
+
+  // Fixed Booking Fee End here
+
+  // Fixed Markup ( + ) START HERE
+  const fixedMarkupAllColumn =
+  commList.updateaircommercialmatrixes.data.filter(
+    (filter) =>
+      filter.AirCommertialRowMasterId.name === "Fixed Markup (+)" &&
+      filter.AirCommertialRowMasterId.commercialType === "fixed" &&
+      filter.AirCommertialRowMasterId.type === "row"
+  );
+
+if (fixedMarkupAllColumn.length > 0) {
+  const fixedAdultSingleColumn = fixedMarkupAllColumn.find(
+    (filter) =>
+      filter.AirCommertialColumnMasterId.name === "Adult" &&
+      filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+      filter.AirCommertialColumnMasterId.type === "coloumn"
+  );
+
+  const fixedChildSingleColumn = fixedMarkupAllColumn.find(
+    (filter) =>
+      filter.AirCommertialColumnMasterId.name === "Child" &&
+      filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+      filter.AirCommertialColumnMasterId.type === "coloumn"
+  );
+
+  const fixedInfantSingleColumn = fixedMarkupAllColumn.find(
+    (filter) =>
+      filter.AirCommertialColumnMasterId.name === "Infant" &&
+      filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+      filter.AirCommertialColumnMasterId.type === "coloumn"
+  );
+
+  if (fixedAdultSingleColumn && fixedChildSingleColumn && fixedInfantSingleColumn && (fixedAdultSingleColumn.value !=0 || fixedChildSingleColumn.value !=0 || fixedInfantSingleColumn.value !=0)) {
+    const fixedAdultRate =
+      fixedAdultSingleColumn.textType === "number"
+        ? parseFloat(fixedAdultSingleColumn.value)
+        : 0;
+    const fixedChildRate =
+      fixedChildSingleColumn.textType === "number"
+        ? parseFloat(fixedChildSingleColumn.value)
+        : 0;
+
+    const fixedInfantRate =
+      fixedInfantSingleColumn.textType === "number"
+        ? parseFloat(fixedInfantSingleColumn.value)
+        : 0;
+
+    // on word only start here
+    const applyFixedMarkupToOnWardOnly = (singleFlightDetails, tax, type) => {
+      if (tax) {      
+        if (type === "ADT") {
+          tax.MarkUp += fixedAdultRate;              
+        } else if (type === "CHD") {
+          tax.MarkUp += fixedChildRate;              
+        } else if (type === "INF") {
+          tax.MarkUp += fixedInfantRate;              
+        }        
+      }
+    };
+
+    const onWardOnlySingleColumn = fixedMarkupAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Onward Only" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      onWardOnlySingleColumn?.textType === "checkbox" &&
+      onWardOnlySingleColumn.value
+    ) {
+      applyFixedMarkupToOnWardOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedMarkupToOnWardOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedMarkupToOnWardOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+
+    // on word only start End
+
+    // Non Zero Only Start Here
+    const applyFixedMarkupFeeToNonZeroOnly = (singleFlightDetails, tax, type) => {
+      if (tax) {      
+       
+        // const countAirline = tax.CommercialBreakup.find((commercial) => commercial.CommercialType === "SegmentKickback");
+        // if (countAirline) {
+        //   const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+        //   if (type === "ADT") {
+        //     countAirline.Amount = totalCount * fixedAdultRate;
+        //     tax.TDS += (parseFloat(5) / 100) * (totalCount * fixedAdultRate);
+        //   } else if (type === "CHD") {
+        //     countAirline.Amount = totalCount * fixedChildRate;
+        //     tax.TDS += (parseFloat(5) / 100) * (totalCount * fixedChildRate);
+        //   } else if (type === "INF") {
+        //     countAirline.Amount = totalCount * fixedInfantRate;
+        //     tax.TDS += (parseFloat(5) / 100) * (totalCount * fixedInfantRate);
+        //   }
+        // }
+      }
+    };
+
+    const nonZeroOnlySingleColumn = fixedMarkupAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Non Zero Only" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      nonZeroOnlySingleColumn?.textType === "checkbox" &&
+      nonZeroOnlySingleColumn.value
+    ) {
+      applyFixedMarkupFeeToNonZeroOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedMarkupFeeToNonZeroOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedMarkupFeeToNonZeroOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+    // Non Zero Only End Here
+
+    // Per Airline Per Pax Start Here
+    const applyFixedMarkupFeeToPerAirlinePerPax = (singleFlightDetails, tax, type) => {
+      if (tax) {
+        const fltNumCount = {};
+        const encounteredFltNums = new Set();
+
+        singleFlightDetails.Sectors.forEach((sector) => {
+          const fltNum = sector.FltNum;
+
+          if (fltNum && !encounteredFltNums.has(fltNum)) {
+            if (fltNumCount[fltNum] === undefined) {
+              fltNumCount[fltNum] = 1;
+            } else {
+              fltNumCount[fltNum]++;
+            }
+
+            encounteredFltNums.add(fltNum);
+          }
+        }); 
+        
+          const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+          if (type === "ADT") {
+            tax.MarkUp += totalCount * fixedAdultRate;              
+          } else if (type === "CHD") {
+            tax.MarkUp += totalCount * fixedChildRate;              
+          } else if (type === "INF") {
+            tax.MarkUp += totalCount * fixedInfantRate;              
+          } 
+      }
+    };
+
+    const perAirlinePerPaxSingleColumn = fixedMarkupAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Per Airline Per Pax" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      perAirlinePerPaxSingleColumn?.textType === "checkbox" &&
+      perAirlinePerPaxSingleColumn.value
+    ) {
+      applyFixedMarkupFeeToPerAirlinePerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedMarkupFeeToPerAirlinePerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedMarkupFeeToPerAirlinePerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+    // Per Airline Per Pax End Here
+
+    // Per PNR PER Ticket start Here
+    const applyFixedMarkupFeeToPerPnrPerTicket = (singleFlightDetails, tax, type) => {
+      if (tax) {
+          if (type === "ADT") {
+            tax.MarkUp += fixedAdultRate;              
+          } else if (type === "CHD") {
+            tax.MarkUp += fixedChildRate;              
+          } else if (type === "INF") {
+            tax.MarkUp += fixedInfantRate;              
+          } 
+      }
+    };
+
+    const perPntperTicketSingleColumn = fixedMarkupAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Per Pnr Per Ticket" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      perPntperTicketSingleColumn?.textType === "checkbox" &&
+      perPntperTicketSingleColumn.value
+    ) {
+      applyFixedMarkupFeeToPerPnrPerTicket(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedMarkupFeeToPerPnrPerTicket(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedMarkupFeeToPerPnrPerTicket(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+    // Per PNR per Ticket End Here
+
+    // Per Pax per sector start here
+    const applyFixedMarkupFeeToPerPaxperSector = (singleFlightDetails, tax, type) => {
+      if (tax) {
+          if (type === "ADT") {
+            tax.MarkUp += fixedAdultRate;              
+          } else if (type === "CHD") {
+            tax.MarkUp += fixedChildRate;              
+          } else if (type === "INF") {
+            tax.MarkUp += fixedInfantRate;              
+          } 
+      }
+    };
+
+    const perPaxPerSectorSingleColumn = fixedMarkupAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Per Pax Per Sector" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      perPaxPerSectorSingleColumn?.textType === "checkbox" &&
+      perPaxPerSectorSingleColumn.value
+    ) {
+      applyFixedMarkupFeeToPerPaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedMarkupFeeToPerPaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedMarkupFeeToPerPaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+    // per pax per sector end here
+    
+    // Per FLight Per Pax Start Here
+    const applyFixedMarkupFeeToPerFlightPerPax = (singleFlightDetails, tax, type) => {
+      if (tax) {
+        
+        const fltNumCount = {};
+        const encounteredFltNums = new Set();
+        singleFlightDetails.Sectors.forEach((sector) => {
+          const AirlineCode = sector.AirlineCode;
+
+          if (AirlineCode && !encounteredFltNums.has(AirlineCode)) {
+            if (fltNumCount[AirlineCode] === undefined) {
+              fltNumCount[AirlineCode] = 1;
+            } else {
+              fltNumCount[AirlineCode]++;
+            }
+
+            encounteredFltNums.add(AirlineCode);
+          }
+        });
+        const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+
+          if (type === "ADT") {
+            tax.MarkUp += totalCount * fixedAdultRate;              
+          } else if (type === "CHD") {
+            tax.MarkUp += totalCount * fixedChildRate;              
+          } else if (type === "INF") {
+            tax.MarkUp += totalCount * fixedInfantRate;              
+          } 
+      }
+    };
+
+    const perFlightPerPaxSingleColumn = fixedMarkupAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Per Flight Per Pax" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      perFlightPerPaxSingleColumn?.textType === "checkbox" &&
+      perFlightPerPaxSingleColumn.value
+    ) {
+      applyFixedMarkupFeeToPerFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedMarkupFeeToPerFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedMarkupFeeToPerFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+    // Per Flight Per Pax End Here
+
+    // Base Other Taxes START HERE
+    const applyFixedMarkupFeeToBaseOtherTaxes = async (singleFlightDetails,values,tax, type) => {
+      if (tax && values != "tax") {
+        if (type === "ADT") {
+          if (!(Object.keys(singleFlightDetails.PriceBreakup[0]).length === 0) && !(Object.keys(singleFlightDetails.PriceBreakup[0].TaxBreakup).length === 0)) {
+            const K2TaxADT = singleFlightDetails.PriceBreakup[0].TaxBreakup.find(tax => tax.TaxType === 'K2');
+            if(K2TaxADT){              
+              K2TaxADT.Amount += (parseFloat(values) / 100) * fixedAdultRate;
+            }else{
+              tax.gst += (parseFloat(values) / 100) * fixedAdultRate;
+            }
+    
+          }
+                     
+        } else if (type === "CHD") {
+          if (singleFlightDetails.PriceBreakup[1] && singleFlightDetails.PriceBreakup[1].TaxBreakup && singleFlightDetails.PriceBreakup[1].TaxBreakup.length > 0) {
+            const K2TaxADT = singleFlightDetails.PriceBreakup[1].TaxBreakup.find(tax => tax.TaxType === 'K2');
+            if(K2TaxADT){              
+              K2TaxADT.Amount += (parseFloat(values) / 100) * fixedChildRate;
+            }else{
+              tax.gst += (parseFloat(values) / 100) * fixedChildRate;
+            }
+    
+          }             
+        } else if (type === "INF") {
+          if (singleFlightDetails.PriceBreakup[2] && singleFlightDetails.PriceBreakup[2].TaxBreakup && singleFlightDetails.PriceBreakup[2].TaxBreakup.length > 0) {
+            const K2TaxADT = singleFlightDetails.PriceBreakup[2].TaxBreakup.find(tax => tax.TaxType === 'K2');
+            if(K2TaxADT){              
+              K2TaxADT.Amount += (parseFloat(values) / 100) * fixedInfantRate;
+            }else{
+              tax.gst += (parseFloat(values) / 100) * fixedInfantRate;
+            }              
+          }      
+        }
+      }else{
+        if (type === "ADT") {
+          if (!(Object.keys(singleFlightDetails.PriceBreakup[0]).length === 0) && !(Object.keys(singleFlightDetails.PriceBreakup[0].TaxBreakup).length === 0)) {
+            const K2TaxADT = singleFlightDetails.PriceBreakup[0].TaxBreakup.find(tax => tax.TaxType != 'K2');
+            // if(K2TaxADT){              
+            //   K2TaxADT.Amount += (parseFloat(values) / 100) * fixedAdultRate;
+            // }else{
+            //   tax.gst += (parseFloat(values) / 100) * fixedAdultRate;
+            // }
+    
+          }
+                     
+        } else if (type === "CHD") {
+          if (!(Object.keys(singleFlightDetails.PriceBreakup[1]).length === 0) && !(Object.keys(singleFlightDetails.PriceBreakup[1].TaxBreakup).length === 0)) {
+            const K2TaxADT = singleFlightDetails.PriceBreakup[1].TaxBreakup.find(tax => tax.TaxType != 'K2');
+            // if(K2TaxADT){              
+            //   K2TaxADT.Amount += (parseFloat(values) / 100) * fixedChildRate;
+            // }else{
+            //   tax.gst += (parseFloat(values) / 100) * fixedChildRate;
+            // }
+    
+          }             
+        } else if (type === "INF") {
+          if (!(Object.keys(singleFlightDetails.PriceBreakup[2]).length === 0) && !(Object.keys(singleFlightDetails.PriceBreakup[2].TaxBreakup).length === 0)) {
+            const K2TaxADT = singleFlightDetails.PriceBreakup[2].TaxBreakup.find(tax => tax.TaxType != 'K2');
+            // if(K2TaxADT){              
+            //   K2TaxADT.Amount += (parseFloat(values) / 100) * fixedInfantRate;
+            // }else{
+            //   tax.gst += (parseFloat(values) / 100) * fixedInfantRate;
+            // }              
+          }      
+        }
+      }
+    };
+
+    const baseOtherTaxesSingleColumn = fixedMarkupAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Base / Other Taxes" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      baseOtherTaxesSingleColumn?.textType === "dropdown" &&
+      baseOtherTaxesSingleColumn.value === "Base"
+    ) {
+      const gstPersentageSingleColumn = fixedMarkupAllColumn.find(
+        (filter) =>
+          filter.AirCommertialColumnMasterId.name === "GST" &&
+          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+          filter.AirCommertialColumnMasterId.type === "coloumn"
+      );
+      if(gstPersentageSingleColumn?.textType === "number" &&
+      baseOtherTaxesSingleColumn.value != "0"){ //apply on base on k2 or gst
+      applyFixedMarkupFeeToBaseOtherTaxes(singleFlightDetails,baseOtherTaxesSingleColumn.value, singleFlightDetails.PriceBreakup[0], "ADT");       
+      applyFixedMarkupFeeToBaseOtherTaxes(singleFlightDetails,baseOtherTaxesSingleColumn.value, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedMarkupFeeToBaseOtherTaxes(singleFlightDetails,baseOtherTaxesSingleColumn.value, singleFlightDetails.PriceBreakup[2], "INF");
+      }
+      
      
-   }
+    }else{ // apply to other tax ( ot )
+      applyFixedMarkupFeeToBaseOtherTaxes(singleFlightDetails,"tax", singleFlightDetails.PriceBreakup[0], "ADT");       
+      applyFixedMarkupFeeToBaseOtherTaxes(singleFlightDetails, "tax", singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedMarkupFeeToBaseOtherTaxes(singleFlightDetails,"tax", singleFlightDetails.PriceBreakup[2], "INF");
+    }
+    // Base Other Taxes END HERE
 
-   // on word only start End
-
-
-  
-
-   // GST Start Here
-  //  const applyServiceRateToGst = async (tax, type) => {
-  //    if (tax && Object.keys(tax).length !== 0) {
-  //      // let getAgentConfig = await agentConfig.findOne({
-  //      //   companyId: companyId,
-  //      // });
-  //      // console.log(getAgentConfig);
-  //      // if (getAgentConfig) {
-  //      //  tax.gst += getAgentConfig.discountPercentage
-  //      // }
-  //      tax.gst += (parseFloat(18) / 100) * tax.ServiceFees;
-  //    }
-  //  };
-
-  //  const onGstSingleColumn = serviceFeeRateAllColumn.find(
-  //    (filter) =>
-  //      filter.AirCommertialColumnMasterId.name === "GST" &&
-  //      filter.AirCommertialColumnMasterId.commercialType === "rate" &&
-  //      filter.AirCommertialColumnMasterId.type === "coloumn"
-  //  );
-
-  //  if (
-  //    onGstSingleColumn?.textType === "checkbox" &&
-  //    onGstSingleColumn.value
-  //  ) {
-  //    applyServiceRateToGst(singleFlightDetails.PriceBreakup[0], "ADT");
-  //    if (isExcludeChildChecked != true) {
-  //      applyServiceRateToGst(singleFlightDetails.PriceBreakup[1], "CHD");
-  //    }
-
-  //    if (isExcludeInfantChecked != true) {
-  //      applyServiceRateToGst(singleFlightDetails.PriceBreakup[2], "INF");
-  //    }
-  //  }
-   // GST END
- }
+  }
 }
-// Segment Kickback (-) End here
- // Fixed Rate End here
+  // FIXED MARKUP ( + ) END HERE
+
+  // FIXED SERVICE FEE (+) START HERE
+  const fixedServiceFeeAllColumn =
+  commList.updateaircommercialmatrixes.data.filter(
+    (filter) =>
+      filter.AirCommertialRowMasterId.name === "Fixed Service Fee(+)" &&
+      filter.AirCommertialRowMasterId.commercialType === "fixed" &&
+      filter.AirCommertialRowMasterId.type === "row"
+  );
+
+if (fixedServiceFeeAllColumn.length > 0) {
+  const fixedAdultSingleColumn = fixedServiceFeeAllColumn.find(
+    (filter) =>
+      filter.AirCommertialColumnMasterId.name === "Adult" &&
+      filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+      filter.AirCommertialColumnMasterId.type === "coloumn"
+  );
+
+  const fixedChildSingleColumn = fixedServiceFeeAllColumn.find(
+    (filter) =>
+      filter.AirCommertialColumnMasterId.name === "Child" &&
+      filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+      filter.AirCommertialColumnMasterId.type === "coloumn"
+  );
+
+  const fixedInfantSingleColumn = fixedServiceFeeAllColumn.find(
+    (filter) =>
+      filter.AirCommertialColumnMasterId.name === "Infant" &&
+      filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+      filter.AirCommertialColumnMasterId.type === "coloumn"
+  );
+
+  if (fixedAdultSingleColumn && fixedChildSingleColumn && fixedInfantSingleColumn && (fixedAdultSingleColumn.value !=0 || fixedChildSingleColumn.value !=0 || fixedInfantSingleColumn.value !=0)) {
+    const fixedAdultRate =
+      fixedAdultSingleColumn.textType === "number"
+        ? parseFloat(fixedAdultSingleColumn.value)
+        : 0;
+    const fixedChildRate =
+      fixedChildSingleColumn.textType === "number"
+        ? parseFloat(fixedChildSingleColumn.value)
+        : 0;
+
+    const fixedInfantRate =
+      fixedInfantSingleColumn.textType === "number"
+        ? parseFloat(fixedInfantSingleColumn.value)
+        : 0;
+
+    // on word only start here
+    const applyFixedServiceFeeToOnWardOnly = (singleFlightDetails, tax, type) => {
+      if (tax) {      
+        if (type === "ADT") {
+          tax.ServiceFees += fixedAdultRate;              
+        } else if (type === "CHD") {
+          tax.ServiceFees += fixedChildRate;              
+        } else if (type === "INF") {
+          tax.ServiceFees += fixedInfantRate;              
+        } 
+        
+      }
+    };
+
+    const onWardOnlySingleColumn = fixedServiceFeeAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Onward Only" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      onWardOnlySingleColumn?.textType === "checkbox" &&
+      onWardOnlySingleColumn.value
+    ) {
+      applyFixedServiceFeeToOnWardOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedServiceFeeToOnWardOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedServiceFeeToOnWardOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+
+    // on word only start End
+
+    // Non Zero Only Start Here
+    const applyFixedServiceFeeToNonZeroOnly = (singleFlightDetails, tax, type) => {
+      if (tax) {      
+       
+        // const countAirline = tax.CommercialBreakup.find((commercial) => commercial.CommercialType === "SegmentKickback");
+        // if (countAirline) {
+        //   const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+        //   if (type === "ADT") {
+        //     countAirline.Amount = totalCount * fixedAdultRate;
+        //     tax.TDS += (parseFloat(5) / 100) * (totalCount * fixedAdultRate);
+        //   } else if (type === "CHD") {
+        //     countAirline.Amount = totalCount * fixedChildRate;
+        //     tax.TDS += (parseFloat(5) / 100) * (totalCount * fixedChildRate);
+        //   } else if (type === "INF") {
+        //     countAirline.Amount = totalCount * fixedInfantRate;
+        //     tax.TDS += (parseFloat(5) / 100) * (totalCount * fixedInfantRate);
+        //   }
+        // }
+      }
+    };
+
+    const nonZeroOnlySingleColumn = fixedServiceFeeAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Non Zero Only" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      nonZeroOnlySingleColumn?.textType === "checkbox" &&
+      nonZeroOnlySingleColumn.value
+    ) {
+      applyFixedServiceFeeToNonZeroOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedServiceFeeToNonZeroOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedServiceFeeToNonZeroOnly(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+    // Non Zero Only End Here
+
+    // Per Airline Per Pax Start Here
+    const applyFixedServiceFeeToPerAirlinePerPax = (singleFlightDetails, tax, type) => {
+      if (tax) {
+        const fltNumCount = {};
+        const encounteredFltNums = new Set();
+
+        singleFlightDetails.Sectors.forEach((sector) => {
+          const fltNum = sector.FltNum;
+
+          if (fltNum && !encounteredFltNums.has(fltNum)) {
+            if (fltNumCount[fltNum] === undefined) {
+              fltNumCount[fltNum] = 1;
+            } else {
+              fltNumCount[fltNum]++;
+            }
+
+            encounteredFltNums.add(fltNum);
+          }
+        }); 
+        
+          const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+          if (type === "ADT") {
+            tax.ServiceFees += totalCount * fixedAdultRate;              
+          } else if (type === "CHD") {
+            tax.ServiceFees += totalCount * fixedChildRate;              
+          } else if (type === "INF") {
+            tax.ServiceFees += totalCount * fixedInfantRate;              
+          } 
+      }
+    };
+
+    const perAirlinePerPaxSingleColumn = fixedServiceFeeAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Per Airline Per Pax" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      perAirlinePerPaxSingleColumn?.textType === "checkbox" &&
+      perAirlinePerPaxSingleColumn.value
+    ) {
+      applyFixedServiceFeeToPerAirlinePerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedServiceFeeToPerAirlinePerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedServiceFeeToPerAirlinePerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+    // Per Airline Per Pax End Here
+
+    // Per PNR PER Ticket start Here
+    const applyFixedServiceFeeToPerPnrPerTicket = (singleFlightDetails, tax, type) => {
+      if (tax) {
+          if (type === "ADT") {
+            tax.ServiceFees += fixedAdultRate;              
+          } else if (type === "CHD") {
+            tax.ServiceFees += fixedChildRate;              
+          } else if (type === "INF") {
+            tax.ServiceFees += fixedInfantRate;              
+          } 
+      }
+    };
+
+    const perPntperTicketSingleColumn = fixedServiceFeeAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Per Pnr Per Ticket" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      perPntperTicketSingleColumn?.textType === "checkbox" &&
+      perPntperTicketSingleColumn.value
+    ) {
+      applyFixedServiceFeeToPerPnrPerTicket(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedServiceFeeToPerPnrPerTicket(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedServiceFeeToPerPnrPerTicket(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+    // Per PNR per Ticket End Here
+
+    // Per Pax per sector start here
+    const applyFixedServiceFeeToPerPaxperSector = (singleFlightDetails, tax, type) => {
+      if (tax) {
+          if (type === "ADT") {
+            tax.ServiceFees += fixedAdultRate;              
+          } else if (type === "CHD") {
+            tax.ServiceFees += fixedChildRate;              
+          } else if (type === "INF") {
+            tax.ServiceFees += fixedInfantRate;              
+          } 
+      }
+    };
+
+    const perPaxPerSectorSingleColumn = fixedServiceFeeAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Per Pax Per Sector" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      perPaxPerSectorSingleColumn?.textType === "checkbox" &&
+      perPaxPerSectorSingleColumn.value
+    ) {
+      applyFixedServiceFeeToPerPaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedServiceFeeToPerPaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedServiceFeeToPerPaxperSector(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+    // per pax per sector end here
+    
+    // Per FLight Per Pax Start Here
+    const applyFixedServiceFeeToPerFlightPerPax = (singleFlightDetails, tax, type) => {
+      if (tax) {
+        
+        const fltNumCount = {};
+        const encounteredFltNums = new Set();
+        singleFlightDetails.Sectors.forEach((sector) => {
+          const AirlineCode = sector.AirlineCode;
+
+          if (AirlineCode && !encounteredFltNums.has(AirlineCode)) {
+            if (fltNumCount[AirlineCode] === undefined) {
+              fltNumCount[AirlineCode] = 1;
+            } else {
+              fltNumCount[AirlineCode]++;
+            }
+
+            encounteredFltNums.add(AirlineCode);
+          }
+        });
+        const totalCount = Object.values(fltNumCount).reduce((sum, count) => sum + count, 0);
+
+          if (type === "ADT") {
+            tax.ServiceFees += totalCount * fixedAdultRate;              
+          } else if (type === "CHD") {
+            tax.ServiceFees += totalCount * fixedChildRate;              
+          } else if (type === "INF") {
+            tax.ServiceFees += totalCount * fixedInfantRate;              
+          } 
+      }
+    };
+
+    const perFlightPerPaxSingleColumn = fixedServiceFeeAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Per Flight Per Pax" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      perFlightPerPaxSingleColumn?.textType === "checkbox" &&
+      perFlightPerPaxSingleColumn.value
+    ) {
+      applyFixedServiceFeeToPerFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedServiceFeeToPerFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedServiceFeeToPerFlightPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+    // Per flight per pax end here
+
+    // Per PNR Per Pax Start Here
+    const applyFixedServiceFeeToPerPNRPerPax = (singleFlightDetails, tax, type) => {
+      if (tax) {      
+
+          if (type === "ADT") {
+            tax.ServiceFees += fixedAdultRate;              
+          } else if (type === "CHD") {
+            tax.ServiceFees += fixedChildRate;              
+          } else if (type === "INF") {
+            tax.ServiceFees += fixedInfantRate;              
+          } 
+      }
+    };
+
+    const perPNRPerPaxSingleColumn = fixedServiceFeeAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "Per PNR Per Pax" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      perPNRPerPaxSingleColumn?.textType === "checkbox" &&
+      perPNRPerPaxSingleColumn.value
+    ) {
+      applyFixedServiceFeeToPerPNRPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");
+      applyFixedServiceFeeToPerPNRPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedServiceFeeToPerPNRPerPax(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+
+    }
+    // Per PNR Per Pax End Here
+
+    // GST START HERE
+    const applyFixedServiceFeeToGst = async (singleFlightDetails,tax, type) => {
+      if (tax && Object.keys(tax).length !== 0) {
+        // let getAgentConfig = await agentConfig.findOne({
+        //   companyId: companyId,
+        // });
+        // console.log(getAgentConfig);
+        // if (getAgentConfig) {
+        //  tax.gst += getAgentConfig.discountPercentage
+        // }
+        tax.gst += (parseFloat(18) / 100) * tax.BookingFees;
+      }
+    };
+
+    const gstSingleColumn = fixedServiceFeeAllColumn.find(
+      (filter) =>
+        filter.AirCommertialColumnMasterId.name === "GST" &&
+        filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+        filter.AirCommertialColumnMasterId.type === "coloumn"
+    );
+
+    if (
+      gstSingleColumn?.textType === "checkbox" &&
+      gstSingleColumn.value
+    ) {
+      applyFixedServiceFeeToGst(singleFlightDetails, singleFlightDetails.PriceBreakup[0], "ADT");       
+      applyFixedServiceFeeToGst(singleFlightDetails, singleFlightDetails.PriceBreakup[1], "CHD");
+      applyFixedServiceFeeToGst(singleFlightDetails, singleFlightDetails.PriceBreakup[2], "INF");
+     
+    }
+    // GST END HERE
+
+  }
+}
+  // FIXED SERVICE FEE (+) END HERE 
+
+
+
+  // Fixed Rate End here
 
 
 

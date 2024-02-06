@@ -71,6 +71,7 @@ const getSsrCommercialByCompany = async (req,res) => {
     try{
     let {companyId, bookingType} = req.query;
     let query = {};
+    query.status = true;
     if(companyId){
       query.companyId = companyId   
     }

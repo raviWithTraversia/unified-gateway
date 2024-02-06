@@ -73,7 +73,7 @@ const editSsrCommercialGroup = async (req, res) => {
     if (updateSsrCommercialData) {
       return {
         response: "Ssr Commercial Group Updated Sucessfully",
-        data: updateFareRuleData,
+        data: updateSsrCommercialData,
       };
     } else {
       return {

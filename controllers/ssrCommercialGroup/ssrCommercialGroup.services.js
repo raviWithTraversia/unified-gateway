@@ -89,44 +89,88 @@ const editSsrCommercialGroup = async (req, res) => {
 const getSsrCommercialGroup = async (req, res) => {
   try {
     let {companyId , bookingType} = req.query;
+   
     let getSsrCommercial;
-    try {
-      getSsrCommercial = await ssrCommercialGroupModels.find({
-        companyId: companyId,
-      });
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getSsrCommercial, "<<<<<<<<<<<")
-
-      for (let i = 0; i < getSsrCommercial.length; i++) {
-        let converteSsrCommercialIds = getSsrCommercial[i].ssrCommercialIds.map(
-          (id) => id.toString()
-        );
-        // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",converteSsrCommercialIds)
-
-        let documents = await ssrCommercial
-        .find({
-          _id: { $in: converteSsrCommercialIds }, 
-          bookingType: { $in: bookingType }      
-        })
-        .exec();
-        // console.log("==>>>",documents)
-        getSsrCommercial[i].ssrCommercialIds = documents;
-        //console.log("[[[[[[[[[[[[[[[[[[[",documents)
+    if(!bookingType){
+      try {
+        getSsrCommercial = await ssrCommercialGroupModels.find({
+          companyId: companyId,
+        });
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getSsrCommercial, "<<<<<<<<<<<")
+  
+        for (let i = 0; i < getSsrCommercial.length; i++) {
+          let converteSsrCommercialIds = getSsrCommercial[i].ssrCommercialIds.map(
+            (id) => id.toString()
+          );
+          // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",converteSsrCommercialIds)
+  
+          let documents = await ssrCommercial
+          .find({
+            _id: { $in: converteSsrCommercialIds }, 
+           // bookingType: { $in: bookingType }      
+          })
+          .exec();
+          // console.log("==>>>",documents)
+          getSsrCommercial[i].ssrCommercialIds = documents;
+          //console.log("[[[[[[[[[[[[[[[[[[[",documents)
+        }
+         console.log("[[[[[[[[[[[[[[[[[[[",getSsrCommercial, "]]]]]]]]]]]]]]]]]]")
+        if (getSsrCommercial) {
+          return {
+            response: "Ssr Commercial Group Fetch Sucessfully",
+            data: getSsrCommercial,
+          };
+        } else {
+          return {
+            response: "Ssr Commercial Group Not Found",
+          };
+        }
+      } catch (error) {
+        throw error;
       }
-       console.log("[[[[[[[[[[[[[[[[[[[",getSsrCommercial, "]]]]]]]]]]]]]]]]]]")
-      if (getSsrCommercial) {
-        return {
-          response: "Ssr Commercial Group Fetch Sucessfully",
-          data: getSsrCommercial,
-        };
-      } else {
-        return {
-          response: "Ssr Commercial Group Not Found",
-        };
+    }else{
+      try {
+        getSsrCommercial = await ssrCommercialGroupModels.find({
+          companyId: companyId,
+        });
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getSsrCommercial, "<<<<<<<<<<<")
+  
+        for (let i = 0; i < getSsrCommercial.length; i++) {
+          let converteSsrCommercialIds = getSsrCommercial[i].ssrCommercialIds.map(
+            (id) => id.toString()
+          );
+          // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",converteSsrCommercialIds)
+  
+          let documents = await ssrCommercial
+          .find({
+            _id: { $in: converteSsrCommercialIds }, 
+            bookingType: { $in: bookingType }      
+          })
+          .exec();
+          // console.log("==>>>",documents)
+          getSsrCommercial[i].ssrCommercialIds = documents;
+          //console.log("[[[[[[[[[[[[[[[[[[[",documents)
+        }
+         console.log("[[[[[[[[[[[[[[[[[[[",getSsrCommercial, "]]]]]]]]]]]]]]]]]]")
+        if (getSsrCommercial) {
+          return {
+            response: "Ssr Commercial Group Fetch Sucessfully",
+            data: getSsrCommercial,
+          };
+        } else {
+          return {
+            response: "Ssr Commercial Group Not Found",
+          };
+        }
+      } catch (error) {
+        throw error;
       }
-    } catch (error) {
-      throw error;
     }
-  } catch (error) {}
+    
+  } catch (error) {
+    console.log(error);
+    throw error
+  }
 };
 
 const deleteSsrCommercialGroup = async (req, res) => {

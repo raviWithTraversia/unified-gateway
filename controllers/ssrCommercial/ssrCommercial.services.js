@@ -70,10 +70,14 @@ const addSsrCommercial = async(req,res) => {
 const getSsrCommercialByCompany = async (req,res) => {
     try{
     let {companyId, bookingType} = req.query;
-    const ssrCommercialData = await ssrCommercialModel.find({
-        companyId: companyId,
-        bookingType: bookingType
-      }).populate('airlineCodeId supplierCode');
+    let query = {};
+    if(companyId){
+      query.companyId = companyId   
+    }
+    if(bookingType){
+        query.bookingType = bookingType
+    }
+    const ssrCommercialData = await ssrCommercialModel.find(query).populate('airlineCodeId supplierCode');
     
      // console.log(ssrCommercialData);
     if(ssrCommercialData.length > 0){

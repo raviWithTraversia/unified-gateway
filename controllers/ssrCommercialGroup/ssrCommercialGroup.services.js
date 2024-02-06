@@ -88,7 +88,7 @@ const editSsrCommercialGroup = async (req, res) => {
 
 const getSsrCommercialGroup = async (req, res) => {
   try {
-    let {companyId , bookingType} = req.query.companyId;
+    let {companyId , bookingType} = req.query;
     let getSsrCommercial;
     try {
       getSsrCommercial = await ssrCommercialGroupModels.find({

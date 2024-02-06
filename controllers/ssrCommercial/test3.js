@@ -1,3 +1,3 @@
-let obj1 = {
+let seat = {
     
 }

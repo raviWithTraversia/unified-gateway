@@ -2,11 +2,31 @@ const autoTicketingModel = require("../../models/AutoTicketing");
 
 const addAutoTicketingConfig = async (req, res) => {
   try {
+    req.body.modifyBy = req?.user?._id;
+    let query = {};
+    if(req.body.provider){
+      query.provider = req.body.provider
+    }
+    if(req.body.airLineList){
+      query.airLineList = req.body.airLineList
+    }
+    if(req.body.companyId){
+      query.companyId = req.body.companyId
+    }
+    if(req.body.travelType){
+      query.travelType = req.body.travelType
+    }
+    let checkIsautoTicketingDataExist = await autoTicketingModel.find(query);
+    if(checkIsautoTicketingDataExist.length > 0){
+      return {
+        response : 'This Auto Tickerting Data Is Already Exist'
+      }
+    }
     const autoTicketingData = await autoTicketingModel.create(req.body);
     if (autoTicketingData) {
       return {
         response: "Auto Ticketing Configuration is created",
-        data: autoTicketingData,
+        data: [autoTicketingData],
       };
     } else {
       return {
@@ -21,9 +41,9 @@ const addAutoTicketingConfig = async (req, res) => {
 
 const getAutoTicketingConfig = async (req, res) => {
   try {
-    let userId = req.query.id;
-    let autoTicketingData = await autoTicketingModel.find({ userId: userId });
-    if (autoTicketingData) {
+    let companyId = req.query.companyId;
+    let autoTicketingData = await autoTicketingModel.find({ companyId: companyId })
+    if (autoTicketingData.length > 0) {
       return {
         response: "Auto Ticketing Configuration Data sucessfully Fetch",
         data: autoTicketingData,

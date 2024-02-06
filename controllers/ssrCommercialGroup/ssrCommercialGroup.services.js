@@ -89,7 +89,6 @@ const editSsrCommercialGroup = async (req, res) => {
 const getSsrCommercialGroup = async (req, res) => {
   try {
     let {companyId , bookingType} = req.query;
-   
     let getSsrCommercial;
     if(!bookingType){
       try {
@@ -165,8 +164,7 @@ const getSsrCommercialGroup = async (req, res) => {
       } catch (error) {
         throw error;
       }
-    }
-    
+    }  
   } catch (error) {
     console.log(error);
     throw error

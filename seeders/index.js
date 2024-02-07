@@ -20,27 +20,27 @@ const { AirCommercialFilterSeeder } = require('../seeders/airCommercialFilterSee
 const { seedMarkUpCategoryData }  = require('../seeders/markUpCategorySeeder')
 async function runSeeders() {
   try {
-    await seedCompanies();
-    await seedPermissions(); 
-    await seedProduct(); 
-    await seedProductPlan();
-    await productPlanHasProductSeeder();
+   // await seedCompanies();
+  //   await seedPermissions(); 
+  //   await seedProduct(); 
+  //   await seedProductPlan();
+  //   await productPlanHasProductSeeder();
 
-    await seedPermissions();
-    await seedCompaniesSmtp();
-    await seedEmailConfigDescription();  
-    await seedCountry();
-    await seedState();
-    await seedCity();
-    await seedCabinClassMaster();
-    await seedStatus();
-    await seedRoles();
-    await seedFareFamilyMaster();
-    await seedCarrierSeeder();
-    // await seedAirCommercialRowMaster();
-    await seedCommercialColumnMaster();
-    await AirCommercialFilterSeeder();
-    await seedMarkUpCategoryData();
+  //  // await seedPermissions();
+  //   await seedCompaniesSmtp();
+  //   await seedEmailConfigDescription();  
+  //   await seedCountry();
+  //   await seedState();
+  //   await seedCity();
+  //   await seedCabinClassMaster();
+  //   await seedStatus();
+  //   await seedRoles();
+  //   await seedFareFamilyMaster();
+  //   await seedCarrierSeeder();
+  //   // await seedAirCommercialRowMaster();
+  //   await seedCommercialColumnMaster();
+  //   await AirCommercialFilterSeeder();
+  //   await seedMarkUpCategoryData();
     console.log('All seeders completed.');
   } catch (err) {
     console.error('Error running seeders:', err);

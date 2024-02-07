@@ -28,6 +28,14 @@ const addAutoTicketingConfig = async (req,res) => {
          true
         )
        }
+      else if(result.response == 'Supplier is not Active'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.INVALID_CRED,
+            true
+          )
+      }
       else{
         apiErrorres(
             res,

@@ -1,274 +1,2930 @@
-let AirSegment = {
-    "SeatRows": [
+let result = {
+    "AirSegments": [
         {
-            "Number": "1",
-            "Facilities": [
+            "SeatRows": [
                 {
-                    "Type": "Seat",
-                    "SeatCode": "1A",
-                    "Availability": "Open",
-                    "Paid": true,
-                    "Characteristics": [
-                        "WINDOW"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 850.0,
-                    "ProviderDefinedType": null
+                    "Number": "1",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "1A",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 850.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "1B",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 600.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "1C",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 850.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "1D",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 850.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "1E",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 600.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "1F",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 850.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
                 },
                 {
-                    "Type": "Seat",
-                    "SeatCode": "1B",
-                    "Availability": "Open",
-                    "Paid": true,
-                    "Characteristics": null,
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 600.0,
-                    "ProviderDefinedType": null
+                    "Number": "2",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "2A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "2B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "2C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "2D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "2E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "2F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
                 },
                 {
-                    "Type": "Seat",
-                    "SeatCode": "1C",
-                    "Availability": "Open",
-                    "Paid": true,
-                    "Characteristics": [
-                        "AISLE"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 850.0,
-                    "ProviderDefinedType": null
+                    "Number": "3",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "3A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "3B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "3C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "3D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "3E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "3F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
                 },
                 {
-                    "Type": "Aisle",
-                    "SeatCode": null,
-                    "Availability": null,
-                    "Paid": false,
-                    "Characteristics": null,
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
+                    "Number": "4",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
                 },
                 {
-                    "Type": "Seat",
-                    "SeatCode": "1D",
-                    "Availability": "Open",
-                    "Paid": true,
-                    "Characteristics": [
-                        "AISLE"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 850.0,
-                    "ProviderDefinedType": null
+                    "Number": "5",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
                 },
                 {
-                    "Type": "Seat",
-                    "SeatCode": "1E",
-                    "Availability": "Open",
-                    "Paid": true,
-                    "Characteristics": null,
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 600.0,
-                    "ProviderDefinedType": null
+                    "Number": "6",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
                 },
                 {
-                    "Type": "Seat",
-                    "SeatCode": "1F",
-                    "Availability": "Open",
-                    "Paid": true,
-                    "Characteristics": [
-                        "WINDOW"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 850.0,
-                    "ProviderDefinedType": null
+                    "Number": "7",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "8",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "9",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "10",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "11",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "12",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "13",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "13A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "13B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "13C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "14",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "RECLINE",
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "RECLINE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE",
+                                "RECLINE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE",
+                                "RECLINE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "RECLINE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "RECLINE",
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "15",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15A",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "EXITROW",
+                                "RECLINE",
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 600.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15B",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "EXITROW",
+                                "RECLINE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 400.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15C",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "AISLE",
+                                "EXITROW",
+                                "RECLINE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 600.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15D",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "AISLE",
+                                "EXITROW",
+                                "RECLINE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 600.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15E",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "EXITROW",
+                                "RECLINE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 400.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15F",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "EXITROW",
+                                "RECLINE",
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 600.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "16",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16A",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "EXITROW",
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 600.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16B",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "EXITROW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 400.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16C",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "AISLE",
+                                "EXITROW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 600.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16D",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "AISLE",
+                                "EXITROW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 600.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16E",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "EXITROW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 400.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16F",
+                            "Availability": "Open",
+                            "Paid": true,
+                            "Characteristics": [
+                                "EXITROW",
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 600.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "17",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "18",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "19",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "20",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "21",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "22",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "23",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "24",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "25",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "26",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "27",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "28",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "29",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "30",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "31",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "32",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32A",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32B",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32C",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32D",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "AISLE"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32E",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32F",
+                            "Availability": "Open",
+                            "Paid": false,
+                            "Characteristics": [
+                                "WINDOW"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
                 }
-            ]
-        },
-        {
-            "Number": "2",
-            "Facilities": [
-                {
-                    "Type": "Seat",
-                    "SeatCode": "2A",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": [
-                        "WINDOW"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Seat",
-                    "SeatCode": "2B",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": null,
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Seat",
-                    "SeatCode": "2C",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": [
-                        "AISLE"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Aisle",
-                    "SeatCode": null,
-                    "Availability": null,
-                    "Paid": false,
-                    "Characteristics": null,
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Seat",
-                    "SeatCode": "2D",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": [
-                        "AISLE"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Seat",
-                    "SeatCode": "2E",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": null,
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Seat",
-                    "SeatCode": "2F",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": [
-                        "WINDOW"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                }
-            ]
-        },
-        {
-            "Number": "3",
-            "Facilities": [
-                {
-                    "Type": "Seat",
-                    "SeatCode": "3A",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": [
-                        "WINDOW"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Seat",
-                    "SeatCode": "3B",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": null,
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Seat",
-                    "SeatCode": "3C",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": [
-                        "AISLE"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Aisle",
-                    "SeatCode": null,
-                    "Availability": null,
-                    "Paid": false,
-                    "Characteristics": null,
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Seat",
-                    "SeatCode": "3D",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": [
-                        "AISLE"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Seat",
-                    "SeatCode": "3E",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": null,
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                },
-                {
-                    "Type": "Seat",
-                    "SeatCode": "3F",
-                    "Availability": "Open",
-                    "Paid": false,
-                    "Characteristics": [
-                        "WINDOW"
-                    ],
-                    "Key": null,
-                    "Currency": null,
-                    "TotalPrice": 0.0,
-                    "ProviderDefinedType": null
-                }
-            ]
-        },
-    ]
+            ],
+            "IsConnect": false,
+            "AirlineCode": "QP",
+            "AirlineName": "Akasa Air",
+            "Class": "",
+            "CabinClass": "",
+            "BookingCounts": "",
+            "NoSeats": 0,
+            "FltNum": "1607",
+            "EquipType": "7MA",
+            "FlyingTime": null,
+            "TravelTime": null,
+            "TechStopOver": 0,
+            "Status": "",
+            "OperatingCarrier": null,
+            "MarketingCarrier": null,
+            "BaggageInfo": "",
+            "HandBaggage": "7 KG",
+            "TransitTime": null,
+            "MealCode": null,
+            "Key": "",
+            "Distance": "",
+            "ETicket": "",
+            "ChangeOfPlane": "",
+            "ParticipantLevel": "",
+            "OptionalServicesIndicator": false,
+            "AvailabilitySource": "",
+            "Group": "",
+            "LinkAvailability": "",
+            "PolledAvailabilityOption": "",
+            "FareBasisCode": "",
+            "HostTokenRef": "",
+            "APISRequirementsRef": "",
+            "Departure": {
+                "Terminal": null,
+                "Date": "28/02/2024",
+                "Time": "11:35",
+                "Day": null,
+                "DateTimeStamp": null,
+                "Code": "DEL",
+                "Name": "Indira Gandhi International Airport",
+                "CityCode": "DEL",
+                "CityName": "Delhi",
+                "CountryCode": "IN",
+                "CountryName": "India"
+            },
+            "Arrival": {
+                "Terminal": null,
+                "Date": "28/02/2024",
+                "Time": "12:55",
+                "Day": null,
+                "DateTimeStamp": null,
+                "Code": "AYJ",
+                "Name": "Maharishi Valmiki International Airport Ayodhya Dham",
+                "CityCode": "",
+                "CityName": "Ayodhya",
+                "CountryCode": "IN",
+                "CountryName": "India"
+            }
+        }
+    ],
+    "Provider": null,
+    "Messages": null
 }

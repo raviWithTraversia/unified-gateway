@@ -1,8 +1,17 @@
 const autoTicketingModel = require("../../models/AutoTicketing");
-
+const supplierCodeModel = require("../../models/supplierCode")
 const addAutoTicketingConfig = async (req, res) => {
   try {
     req.body.modifyBy = req?.user?._id;
+    if(req.body.provider){
+      let checkIsSupplierActive = await supplierCodeModel.find({_id : req.body.provider});
+    // console.log("===>>>>>>>>", checkIsSupplierActive);
+     if(checkIsSupplierActive[0].status == false){
+      return {
+        response : 'Supplier is not Active'
+      }
+     }
+    }
     let query = {};
     if(req.body.provider){
       query.provider = req.body.provider
@@ -42,7 +51,8 @@ const addAutoTicketingConfig = async (req, res) => {
 const getAutoTicketingConfig = async (req, res) => {
   try {
     let companyId = req.query.companyId;
-    let autoTicketingData = await autoTicketingModel.find({ companyId: companyId })
+    let autoTicketingData = await autoTicketingModel.find({ companyId: companyId }).populate('provider');
+   // console.log("===>>>>>>>>>>",autoTicketingData)
     if (autoTicketingData.length > 0) {
       return {
         response: "Auto Ticketing Configuration Data sucessfully Fetch",

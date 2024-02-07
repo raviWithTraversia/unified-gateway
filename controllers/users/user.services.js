@@ -268,7 +268,7 @@ const userInsert = async (req, res) => {
     });
     let createdComapanyId = newCompany._id;
     let findRole = await Role.findOne({_id : roleId })
-  //  console.log(findRole.name, "=====================");
+    console.log(findRole.name, "=====================");
     if(findRole?.name === HOST_ROLE.TMC){
       const rolesToInsert = [
         { name: TMC_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },

@@ -1,5 +1,5 @@
 const autoTicketingModel = require("../../models/AutoTicketing");
-const supplierCodeModel = require("../../models/supplierCode")
+const supplierCodeModel = require("../../models/supplierCode");
 const addAutoTicketingConfig = async (req, res) => {
   try {
     req.body.modifyBy = req?.user?._id;
@@ -47,7 +47,6 @@ const addAutoTicketingConfig = async (req, res) => {
     throw error;
   }
 };
-
 const getAutoTicketingConfig = async (req, res) => {
   try {
     let companyId = req.query.companyId;
@@ -68,7 +67,6 @@ const getAutoTicketingConfig = async (req, res) => {
     throw error;
   }
 };
-
 const editAutoTicketingConfig = async (req, res) => {
   try {
     let id = req.query.id;
@@ -94,7 +92,6 @@ const editAutoTicketingConfig = async (req, res) => {
     throw error;
   }
 };
-
 const deleteAutoTicketingConfig = async (req, res) => {
   try {
     let id = req.query.id;
@@ -113,7 +110,6 @@ const deleteAutoTicketingConfig = async (req, res) => {
     throw error;
   }
 };
-
 module.exports = {
   addAutoTicketingConfig,
   getAutoTicketingConfig,

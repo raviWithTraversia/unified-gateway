@@ -13,7 +13,7 @@ const markPassportDetailsModels = require('./../controllers/makePassportDetail/m
 // );
 
 makePassportDetailMandatory_route.patch(
-    '/makePassportDetailMandatory/updateMarkup',
+    '/makePassportDetailMandatory/updatePassportDetailForAirline',
     auth,
     markPassportDetailsModels.updatePassportDetailForAirline 
 );

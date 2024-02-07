@@ -57,7 +57,8 @@ const couponCodeRoute = require('../routes/coupanCodeRoute');
 const userPaymentRoute = require('../routes/userPaymentRoute');
 const countryMapRoute = require('../routes/countryMapRoute');
 const ssrCommercialRoute = require('../routes/ssrCommercialRoute');
-const ssrCommercialGroupRoute = require('../routes/ssrCommercialGroupRoute')
+const ssrCommercialGroupRoute = require('../routes/ssrCommercialGroupRoute');
+const mskePassportDetailMandatoryRoute = require('../routes/makePassportDetailRoute')
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -241,7 +242,11 @@ class RoutesLoader {
        app.use('/api', ssrCommercialRoute);
 
        //ssrCommercialGroupRoute
-       app.use('/api', ssrCommercialGroupRoute)
+       app.use('/api', ssrCommercialGroupRoute);
+
+
+       //mskePassportDetailMandatoryRoute
+       app.use('/api', mskePassportDetailMandatoryRoute)
     }
 }
 

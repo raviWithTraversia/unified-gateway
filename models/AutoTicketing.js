@@ -5,7 +5,8 @@ const autoTicketingConfig = new mongoose.Schema({
        type : String
     },
     provider : {
-       type : String
+      type : mongoose.Schema.Types.ObjectId,
+      ref : 'SupplierCode'
     },
     travelType : {
        type : String

@@ -31,15 +31,50 @@ const addAirlineCred = async (req,res) => {
 };
 const updateAirlineCred = async (req,res) => {
     try{
-   // let {id} = req.
-   
+        const companyId = req.query.id;
+        const updateData = req.body;
+        const updatedPassportDetail = await manageAirlineCredentialModel.findOneAndUpdate(
+                { companyId: companyId },
+                { $set: updateData },
+                { new: true }
+                )
+            if (!updatedPassportDetail) {
+                return{
+                  response : 'Data not Updated' 
+                }   
+            }else{
+                return {
+                    response : 'Data Updated Sucessfully',
+                    data: []
+                }
+            }
 
     }catch(error){
         console.log(error);
         throw error
     }
 };
+const getAirlineCred = async (req,res) => {
+    try{
+        let data = await manageAirlineCredentialModel.find();
+        if(data){
+            return {
+                response : 'Data Found Sucessfully',
+                data : data
+            }
+        }else{
+            return {
+                response : "Data Not Found"
+            }
+        }  
+    }catch(error){
+        console.log(error);
+        throw error
+    }
+};
+
 module.exports = {
     addAirlineCred,
-    updateAirlineCred
+    updateAirlineCred,
+    getAirlineCred
 }

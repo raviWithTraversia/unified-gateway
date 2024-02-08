@@ -58,7 +58,8 @@ const userPaymentRoute = require('../routes/userPaymentRoute');
 const countryMapRoute = require('../routes/countryMapRoute');
 const ssrCommercialRoute = require('../routes/ssrCommercialRoute');
 const ssrCommercialGroupRoute = require('../routes/ssrCommercialGroupRoute');
-const mskePassportDetailMandatoryRoute = require('../routes/makePassportDetailRoute')
+const makePassportDetailMandatoryRoute = require('../routes/makePassportDetailRoute');
+const manageAirlineCredentailRoute = require('../routes/manageAirlineCredRoute') ;
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -246,7 +247,10 @@ class RoutesLoader {
 
 
        //mskePassportDetailMandatoryRoute
-       app.use('/api', mskePassportDetailMandatoryRoute)
+       app.use('/api', makePassportDetailMandatoryRoute);
+
+       //manageAirlineCredentailRoute
+       app.use('/api', manageAirlineCredentailRoute)
     }
 }
 

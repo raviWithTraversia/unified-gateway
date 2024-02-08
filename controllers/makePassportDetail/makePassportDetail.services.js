@@ -61,10 +61,16 @@ const updatePassportDetailForAirline = async (req,res) => {
 const getPassportDetailForAirline = async (req,res) => {
     try{
         let data = await passportDetailsModel.find();
+        if(data) {
         return {
             response : 'Data Found Sucessfully',
             data : data
         }
+    }else{
+        return {
+            response : "Data Not Found"
+        }
+    }
 
     }catch(error){
         console.log(error);

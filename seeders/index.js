@@ -17,30 +17,32 @@ const { seedCarrierSeeder} = require('../seeders/carrierSeeder');
 const { seedAirCommercialRowMaster } = require('../seeders/airCommertialRowMasterSeeder');
 const { seedCommercialColumnMaster } = require('../seeders/airCommertialColumnMasterSeeder');
 const { AirCommercialFilterSeeder } = require('../seeders/airCommercialFilterSeeder');
-const { seedMarkUpCategoryData }  = require('../seeders/markUpCategorySeeder')
+const { seedMarkUpCategoryData }  = require('../seeders/markUpCategorySeeder');
+const { seedPassportDetailMandatoryForAirline } = require('../seeders/makePassportDetailForAirlineSeeder')
 async function runSeeders() {
   try {
-    await seedCompanies();
-    await seedPermissions(); 
-    await seedProduct(); 
-    await seedProductPlan();
-    await productPlanHasProductSeeder();
+   // await seedCompanies();
+  //   await seedPermissions(); 
+  //   await seedProduct(); 
+  //   await seedProductPlan();
+  //   await productPlanHasProductSeeder();
 
-    await seedPermissions();
-    await seedCompaniesSmtp();
-    await seedEmailConfigDescription();  
-    await seedCountry();
-    await seedState();
-    await seedCity();
-    await seedCabinClassMaster();
-    await seedStatus();
-    await seedRoles();
-    await seedFareFamilyMaster();
-    await seedCarrierSeeder();
-    // await seedAirCommercialRowMaster();
-    await seedCommercialColumnMaster();
-    await AirCommercialFilterSeeder();
-    await seedMarkUpCategoryData();
+  //  // await seedPermissions();
+  //   await seedCompaniesSmtp();
+  //   await seedEmailConfigDescription();  
+  //   await seedCountry();
+  //   await seedState();
+  //   await seedCity();
+  //   await seedCabinClassMaster();
+  //   await seedStatus();
+  //   await seedRoles();
+  //   await seedFareFamilyMaster();
+  //   await seedCarrierSeeder();
+  //   // await seedAirCommercialRowMaster();
+  //   await seedCommercialColumnMaster();
+  //   await AirCommercialFilterSeeder();
+  //   await seedMarkUpCategoryData();
+  await seedPassportDetailMandatoryForAirline();
     console.log('All seeders completed.');
   } catch (err) {
     console.error('Error running seeders:', err);

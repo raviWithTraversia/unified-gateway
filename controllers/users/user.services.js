@@ -129,7 +129,7 @@ const userInsert = async (req, res) => {
     const requiredFields = [
       "companyName",
       "parent",
-      "type",
+      // "type",
       "companyStatus",
       "pan_Number",
       "login_Id",
@@ -233,8 +233,11 @@ const userInsert = async (req, res) => {
         response: "Company with this companyName already exists",
         data: null,
       };
+    };
+    let findRole = await Role.findOne({_id : roleId })
+    if(!type){
+      type = findRole?.name || null
     }
-    console.log(req.user)
     const newCompany = new Company({
       companyName,
       parent,
@@ -267,8 +270,8 @@ const userInsert = async (req, res) => {
       holdPnrAllowed : holdPnrAllowed || false
     });
     let createdComapanyId = newCompany._id;
-    let findRole = await Role.findOne({_id : roleId })
-  //  console.log(findRole.name, "=====================");
+  
+    console.log(findRole.name, "=====================");
     if(findRole?.name === HOST_ROLE.TMC){
       const rolesToInsert = [
         { name: TMC_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },

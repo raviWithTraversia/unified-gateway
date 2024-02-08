@@ -19,13 +19,13 @@ const makePassportDetailSchema = new mongoose.Schema({
         type : Boolean,
         default : false
     },
-    createdBy: {
-      type : mongoose.Schema.Types.ObjectId,
-      ref : 'User'
-    },
     updatedBy: {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User'
+    },
+    companyId: {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Company'
     }
 
 }, {

@@ -20,7 +20,23 @@ const addAutoTicketingConfig = async (req,res) => {
         ServerStatusCode.NOT_EXIST_CODE,
         true
        )
-      }else{
+      }  else if(result.response == 'This Auto Tickerting Data Is Already Exist'){
+        apiErrorres(
+         res,
+         result.response,
+         ServerStatusCode.NOT_EXIST_CODE,
+         true
+        )
+       }
+      else if(result.response == 'Supplier is not Active'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.INVALID_CRED,
+            true
+          )
+      }
+      else{
         apiErrorres(
             res,
             errorResponse.SOME_UNOWN,

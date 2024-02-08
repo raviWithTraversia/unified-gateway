@@ -6,12 +6,13 @@ const getFareFamilyMaster = async(req , res) => {
         const result = await FareFamilyMaster.find({companyId : companyId});
         if (result.length > 0) {
             return {
+                response: 'Fare Family available',
                 data: result
             }
         } else {
             return {
                 response: 'Fare Family not available',
-                data: null
+                data: []
             }
         }
         

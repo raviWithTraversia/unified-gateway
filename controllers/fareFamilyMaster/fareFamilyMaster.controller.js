@@ -5,13 +5,28 @@ const { ServerStatusCode, errorResponse, CrudMessage } = require('../../utils/co
 const getFareFamilyListData = async(req, res) => {
     try {
         const result = await fareFamilyMasterService.getFareFamilyMaster(req);
+        if(result.response == 'Fare Family available' ){
         apiSucessRes(
             res,
             result.response,
             result.data,
             ServerStatusCode.SUCESS_CODE
         )
-        
+        }else if(result.response == 'Fare Family not available'){
+            apiErrorres(
+                res,
+                result.data,
+                result.response,
+                true
+            )
+        }else{
+            apiErrorres(
+                res,
+                errorResponse.SOMETHING_WRONG,
+                ServerStatusCode.CONTENT_NOT_FOUND,
+                true
+            )
+        } 
     } catch (error) {
         apiErrorres(
             res,

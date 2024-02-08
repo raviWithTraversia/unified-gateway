@@ -8,9 +8,9 @@ const getAllCountry = async(req , res) => {
             const countryB = b.country.toUpperCase();
         
             if (countryA < countryB) {
-                return 1; 
-            } else if (countryA > countryB) {
                 return -1; 
+            } else if (countryA > countryB) {
+                return 1; 
             } else {
                 return 0;
             }

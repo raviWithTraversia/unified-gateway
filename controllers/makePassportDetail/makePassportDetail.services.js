@@ -30,17 +30,16 @@ const passportDetailsModel = require('../../models/PassPortDetailForAirline');
 //     }
 // };
 const updatePassportDetailForAirline = async (req,res) => {
-    const passportDetailId = req.query.id;
+    const companyId = req.query.id;
     const updateData = req.body;
 
     try {
        
-        const updatedPassportDetail = await passportDetailsModel.findByIdAndUpdate(
-            passportDetailId,
-            updateData,
-            { new: true } 
-        );
-
+        const updatedPassportDetail = await passportDetailsModel.findOneAndUpdate(
+            { companyId: companyId },
+            { $set: updateData },
+            { new: true }
+            )
         if (!updatedPassportDetail) {
             return{
               response : 'PassportDetail not found' 

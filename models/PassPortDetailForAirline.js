@@ -22,6 +22,10 @@ const makePassportDetailSchema = new mongoose.Schema({
     updatedBy: {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User'
+    },
+    companyId: {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Company'
     }
 
 }, {

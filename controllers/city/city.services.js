@@ -9,9 +9,9 @@ const getCityByState = async(req , res) => {
             const cityB = b.name.toUpperCase();
         
             if (cityA < cityB) {
-                return 1; 
-            } else if (cityA > cityB) {
                 return -1; 
+            } else if (cityA > cityB) {
+                return 1; 
             } else {
                 return 0; 
             }

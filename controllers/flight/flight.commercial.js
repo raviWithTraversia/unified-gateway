@@ -185,7 +185,51 @@ const getApplyAllCommercial = async (
             ],
             Key: null,
           },
-          {},
+          {
+            PassengerType: "INF",
+            NoOfPassenger: 1,
+            Tax: 222,
+            BaseFare: 3000,
+            MarkUp: 0,
+            TaxMarkUp: 0,
+            Commission: 0,
+            Fees: 0,
+            BookingFees: 0,
+            CancellationFees: 0,
+            RescheduleFees: 0,
+            AdminFees: 0,
+            TDS: 0,
+            gst: 0.0,
+            ServiceFees: 0,
+            Discount: 0,
+            BaseCharges: 0,
+            TaxBreakup: [
+              {
+                TaxType: "YQ",
+                Amount: 0,
+              },
+
+              {
+                TaxType: "K2",
+                Amount: 55,
+              },
+              {
+                TaxType: "p2",
+                Amount: 322,
+              },
+            ],
+            AirPenalty: [],
+            CommercialBreakup: [
+              {
+                CommercialType: "SegmentKickback",
+                SubCommercialType: null,
+                Amount: 0.0,
+                SupplierId: 1212,
+                SupplierType: "TMC",
+              },
+            ],
+            Key: null,
+          },
         ],
         Sectors: [
           {
@@ -348,7 +392,7 @@ const getApplyAllCommercial = async (
         RefundableFare: true,
         IndexNumber: 1,
         Provider: "Kafila",
-        ValCarrier: "SS",
+        ValCarrier: "SG",
         LastTicketingDate: "",
         TravelTime: "0d:2h:55m",
         PriceBreakup: [
@@ -441,7 +485,51 @@ const getApplyAllCommercial = async (
             ],
             Key: null,
           },
-          {},
+          {
+            PassengerType: "INF",
+            NoOfPassenger: 1,
+            Tax: 322,
+            BaseFare: 2000,
+            MarkUp: 0,
+            TaxMarkUp: 0,
+            Commission: 0,
+            Fees: 0,
+            BookingFees: 0,
+            CancellationFees: 0,
+            RescheduleFees: 0,
+            AdminFees: 0,
+            TDS: 0,
+            gst: 0.0,
+            ServiceFees: 0,
+            Discount: 0,
+            BaseCharges: 0,
+            TaxBreakup: [
+              {
+                TaxType: "YQ",
+                Amount: 0,
+              },
+
+              {
+                TaxType: "K2",
+                Amount: 55,
+              },
+              {
+                TaxType: "p2",
+                Amount: 322,
+              },
+            ],
+            AirPenalty: [],
+            CommercialBreakup: [
+              {
+                CommercialType: "SegmentKickback",
+                SubCommercialType: null,
+                Amount: 0.0,
+                SupplierId: 1212,
+                SupplierType: "TMC",
+              },
+            ],
+            Key: null,
+          },
         ],
         Sectors: [
           {
@@ -513,8 +601,8 @@ const getApplyAllCommercial = async (
       },
     ];
 
-    //for (const singleFlightDetails of commonArray) {
-    for (const singleFlightDetails of commonArrayDummy) {
+     for (const singleFlightDetails of commonArray) {
+   // for (const singleFlightDetails of commonArrayDummy) {
       // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
         // get group of priority base
@@ -628,6 +716,18 @@ const getApplyAllCommercial = async (
         
         singleFlightDetails.PriceBreakup = checkIncentiveFilterfun.PriceBreakup; 
       }
+
+      // CHeck PLB STatus And Apply PLB
+      // if (incentivePlanDetails.IsSuccess === true) {
+      //   checkPLBFilterfun = await checkPLBFilter(
+      //     plbPlanDetails.data,
+      //     singleFlightDetails,
+      //     companyDetails.parent._id
+      //   );
+        
+      //   singleFlightDetails.PriceBreakup = checkPLBFilterfun.PriceBreakup; 
+      // }
+      
       // this is last update and push function
       applyResponceCommercialArray.push(singleFlightDetails);
     }
@@ -661,6 +761,9 @@ const getApplyAllCommercial = async (
     plbPlanDetails = await getAssignPlb(companyDetails._id);
     return commonArray;
   }
+  // else if(companyDetails.parent.type == "TMC"){
+  //   return singleFlightDetails;
+  // }
 
   return {
     IsSucess: true,
@@ -1958,8 +2061,8 @@ const checkIncentiveFilter = async (
               }
 
               if (
-                singleFlightDetails.PriceBreakup &&
-                singleFlightDetails.PriceBreakup.length === 1
+                singleFlightDetails.PriceBreakup[0] &&
+                singleFlightDetails.PriceBreakup[0].CommercialBreakup
               ) {
                 singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                   CommercialType: "Incentive",
@@ -1968,8 +2071,8 @@ const checkIncentiveFilter = async (
                 });
               }
               if (
-                singleFlightDetails.PriceBreakup &&
-                singleFlightDetails.PriceBreakup.length === 2
+                singleFlightDetails.PriceBreakup[1] &&
+                singleFlightDetails.PriceBreakup[1].CommercialBreakup
               ) {
                 singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                   CommercialType: "Incentive",
@@ -1978,8 +2081,8 @@ const checkIncentiveFilter = async (
                 });
               }
               if (
-                singleFlightDetails.PriceBreakup &&
-                singleFlightDetails.PriceBreakup.length === 3
+                singleFlightDetails.PriceBreakup[2] &&
+                singleFlightDetails.PriceBreakup[2].CommercialBreakup
               ) {
                 singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                   CommercialType: "Incentive",
@@ -1988,6 +2091,7 @@ const checkIncentiveFilter = async (
                 });
               }
             } else {
+              
               const totalIncentiveVal = commList.incentiveMasterId.PLBValue;
               // check min or max
 
@@ -1998,21 +2102,25 @@ const checkIncentiveFilter = async (
                     totalIncentiveVal <= commList.incentiveMasterId.maxPrice
                   )
                 ) {
+                  
                   continue;
                 }
               } else if (checkminPrice) {
                 if (
                   !(totalIncentiveVal >= commList.incentiveMasterId.minPrice)
                 ) {
+                 
                   continue;
                 }
               } else if (checkmaxPrice) {
                 if (
                   !(totalIncentiveVal <= commList.incentiveMasterId.maxPrice)
                 ) {
+                  
                   continue;
                 }
               }
+             
               if (
                 singleFlightDetails.PriceBreakup[0] &&
                 singleFlightDetails.PriceBreakup[0].CommercialBreakup
@@ -2049,6 +2157,7 @@ const checkIncentiveFilter = async (
           }
           //bestMatch = true;
         } else {
+          
           // persentage condition here
           const checkPLBValue =
             commList.incentiveMasterId.PLBValue &&
@@ -2061,15 +2170,18 @@ const checkIncentiveFilter = async (
               const persentageValue =
                 parseFloat(commList.incentiveMasterId.PLBValue) / 100;
               //let totalIncentiveVal = 0;
-              if (commList.incentiveMasterId.PLBApplyOnBasefare) {
+              if (commList.incentiveMasterId.PLBApplyOnBasefare) { 
+                
+                            
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 1
-                ) {
+                  singleFlightDetails.PriceBreakup[0]
+                ) {    
+                               
                   const totalIncentiveVal =
                    ( singleFlightDetails.PriceBreakup[0].BaseFare *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(5) / 100;                     
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -2083,24 +2195,25 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
-                  } else if (checkminPrice) {
+                  } else if (checkminPrice) {                    
                     if (
                       totalIncentiveVal >= commList.incentiveMasterId.minPrice
                     ) {
+                     
                       const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
                       if (existingIncentiveIndex !== -1) {
                           // Update the Amount if 'Incentive' already exists
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2117,18 +2230,31 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
                   }
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 2
+                  singleFlightDetails.PriceBreakup[1]
                 ) {
                   const totalIncentiveVal =
                     (singleFlightDetails.PriceBreakup[1].BaseFare *
@@ -2146,7 +2272,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2163,7 +2289,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2180,18 +2306,31 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
                   }
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 3
+                  singleFlightDetails.PriceBreakup[2]
                 ) {
                   const totalIncentiveVal =
                     (singleFlightDetails.PriceBreakup[2].BaseFare *
@@ -2202,38 +2341,72 @@ const checkIncentiveFilter = async (
                       totalIncentiveVal >=
                         commList.incentiveMasterId.minPrice &&
                       totalIncentiveVal <= commList.incentiveMasterId.maxPrice
-                    ) {
-                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
-                        {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
-                          Amount: totalIncentiveVal,
-                        }
-                      );
+                    ) {              
+
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+
+
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.incentiveMasterId.minPrice
                     ) {
-                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
-                        {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
-                          Amount: totalIncentiveVal,
-                        }
-                      );
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.incentiveMasterId.maxPrice
                     ) {
-                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
-                        {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
-                          Amount: totalIncentiveVal,
-                        }
-                      );
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
                     }
                   }
                 }
@@ -2241,7 +2414,7 @@ const checkIncentiveFilter = async (
               if (commList.incentiveMasterId.PLBApplyOnYQ) {
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 1
+                  singleFlightDetails.PriceBreakup[0]
                 ) {
                   let yqval = 0;
                   const yqTax = singleFlightDetails.PriceBreakup[0].TaxBreakup.find((tax) => tax.TaxType === "YQ");
@@ -2262,7 +2435,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2279,7 +2452,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2296,7 +2469,23 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2307,7 +2496,7 @@ const checkIncentiveFilter = async (
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 2
+                  singleFlightDetails.PriceBreakup[1]
                 ) {
 
                   let yqval = 0;
@@ -2331,7 +2520,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2348,7 +2537,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2365,18 +2554,34 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
                   }
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 3
+                  singleFlightDetails.PriceBreakup[2]
                 ) {
                   const yqTax = singleFlightDetails.PriceBreakup[2].TaxBreakup.find((tax) => tax.TaxType === "YQ");
                   if (yqTax) {
@@ -2424,13 +2629,21 @@ const checkIncentiveFilter = async (
                         }
                       );
                     }
+                  }else{
+                    singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
+                      {
+                        CommercialType: "Incentive",
+                        SubCommercialType: null,
+                        Amount: totalIncentiveVal,
+                      }
+                    );
                   }
                 }
               }
               if (commList.incentiveMasterId.PLBApplyOnYR) {
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 1
+                  singleFlightDetails.PriceBreakup[0]
                 ) {
                   let yrval = 0;
                   const yrTax = singleFlightDetails.PriceBreakup[0].TaxBreakup.find((tax) => tax.TaxType === "YR");
@@ -2451,7 +2664,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2468,7 +2681,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2485,18 +2698,34 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
                   }
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 2
+                  singleFlightDetails.PriceBreakup[1]
                 ) {
 
                   let yrval = 0;
@@ -2520,7 +2749,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2537,7 +2766,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2554,7 +2783,24 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2565,7 +2811,7 @@ const checkIncentiveFilter = async (
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 3
+                  singleFlightDetails.PriceBreakup[2]
                 ) {
                   let yrval = 0;
                   const yrTax = singleFlightDetails.PriceBreakup[2].TaxBreakup.find((tax) => tax.TaxType === "YR");
@@ -2588,7 +2834,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2605,7 +2851,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2622,7 +2868,24 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2632,10 +2895,10 @@ const checkIncentiveFilter = async (
                   }
                 }
               }
-              if (commList.incentiveMasterId.PLBApplyOnYR) {
+              if (commList.incentiveMasterId.PLBApplyOnAllTAxes) {
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 1
+                  singleFlightDetails.PriceBreakup[0]
                 ) {
                   let allTaxes = 0;
                   singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach((taxItem) => {
@@ -2657,7 +2920,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2674,7 +2937,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2691,7 +2954,24 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2702,7 +2982,7 @@ const checkIncentiveFilter = async (
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 2
+                  singleFlightDetails.PriceBreakup[1]
                 ) {
 
                   let allTaxes = 0;
@@ -2727,7 +3007,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2744,7 +3024,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2761,7 +3041,24 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2772,7 +3069,7 @@ const checkIncentiveFilter = async (
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 3
+                  singleFlightDetails.PriceBreakup[2]
                 ) {
                   let allTaxes = 0;
                   singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach((taxItem) => {
@@ -2796,7 +3093,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2813,7 +3110,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2830,13 +3127,30 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
                   }
                 }
               }
@@ -2846,10 +3160,11 @@ const checkIncentiveFilter = async (
                 parseFloat(commList.incentiveMasterId.PLBValue) / 100;
               //let totalIncentiveVal = 0;
               if (commList.incentiveMasterId.PLBApplyOnBasefare) {
+                
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 1
-                ) {
+                  singleFlightDetails.PriceBreakup[0]
+                ) {                  
                   const totalIncentiveVal =
                    singleFlightDetails.PriceBreakup[0].BaseFare *
                       persentageValue;
@@ -2866,7 +3181,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2883,7 +3198,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2900,18 +3215,34 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                   }
                   }
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 2
+                  singleFlightDetails.PriceBreakup[1]
                 ) {
                   const totalIncentiveVal =
                     singleFlightDetails.PriceBreakup[1].BaseFare *
@@ -2928,7 +3259,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2945,7 +3276,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -2962,18 +3293,34 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    } 
                   }
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 3
+                  singleFlightDetails.PriceBreakup[2]
                 ) {
                   const totalIncentiveVal =
                     singleFlightDetails.PriceBreakup[2].BaseFare *
@@ -2984,52 +3331,84 @@ const checkIncentiveFilter = async (
                         commList.incentiveMasterId.minPrice &&
                       totalIncentiveVal <= commList.incentiveMasterId.maxPrice
                     ) {
-                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
-                        {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
-                          Amount: totalIncentiveVal,
-                        }
-                      );
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.incentiveMasterId.minPrice
                     ) {
-                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
-                        {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
-                          Amount: totalIncentiveVal,
-                        }
-                      );
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.incentiveMasterId.maxPrice
                     ) {
-                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
-                        {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
-                          Amount: totalIncentiveVal,
-                        }
-                      );
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
                     }
                   }
                 }
               }
               if (commList.incentiveMasterId.PLBApplyOnYQ) {
+               
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 1
-                ) {
+                  singleFlightDetails.PriceBreakup[0]
+                ) {                  
                   let yqval = 0;
                   const yqTax = singleFlightDetails.PriceBreakup[0].TaxBreakup.find((tax) => tax.TaxType === "YQ");
                   if (yqTax) {
                     yqval = yqTax.Amount;
                   }
-
+                  
                   const totalIncentiveVal =  yqval * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -3043,7 +3422,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3060,7 +3439,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3077,18 +3456,34 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
                   }
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 2
+                  singleFlightDetails.PriceBreakup[1]
                 ) {
 
                   let yqval = 0;
@@ -3111,7 +3506,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3128,7 +3523,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3145,18 +3540,34 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
                   }
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 3
+                  singleFlightDetails.PriceBreakup[2]
                 ) {
                   const yqTax = singleFlightDetails.PriceBreakup[2].TaxBreakup.find((tax) => tax.TaxType === "YQ");
                   if (yqTax) {
@@ -3171,37 +3582,52 @@ const checkIncentiveFilter = async (
                         commList.incentiveMasterId.minPrice &&
                       totalIncentiveVal <= commList.incentiveMasterId.maxPrice
                     ) {
-                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
-                        {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
-                          Amount: totalIncentiveVal,
-                        }
-                      );
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.incentiveMasterId.minPrice
                     ) {
-                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
-                        {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
-                          Amount: totalIncentiveVal,
-                        }
-                      );
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.incentiveMasterId.maxPrice
                     ) {
-                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
-                        {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
-                          Amount: totalIncentiveVal,
-                        }
-                      );
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
                     }
                   }
                 }
@@ -3209,7 +3635,7 @@ const checkIncentiveFilter = async (
               if (commList.incentiveMasterId.PLBApplyOnYR) {
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 1
+                  singleFlightDetails.PriceBreakup[0]
                 ) {
                   let yrval = 0;
                   const yrTax = singleFlightDetails.PriceBreakup[0].TaxBreakup.find((tax) => tax.TaxType === "YR");
@@ -3230,7 +3656,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3247,7 +3673,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3264,7 +3690,23 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3275,7 +3717,7 @@ const checkIncentiveFilter = async (
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 2
+                  singleFlightDetails.PriceBreakup[1]
                 ) {
 
                   let yrval = 0;
@@ -3298,7 +3740,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3315,7 +3757,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3332,7 +3774,23 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "Incentive",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3343,7 +3801,7 @@ const checkIncentiveFilter = async (
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 3
+                  singleFlightDetails.PriceBreakup[2]
                 ) {
                   let yrval = 0;
                   const yrTax = singleFlightDetails.PriceBreakup[2].TaxBreakup.find((tax) => tax.TaxType === "YR");
@@ -3365,7 +3823,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3382,7 +3840,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3399,20 +3857,36 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
                   }
                 }
               }
-              if (commList.incentiveMasterId.PLBApplyOnYR) {
+              if (commList.incentiveMasterId.PLBApplyOnAllTAxes) {
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 1
+                  singleFlightDetails.PriceBreakup[0]
                 ) {
                   let allTaxes = 0;
                   singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach((taxItem) => {
@@ -3434,7 +3908,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3451,7 +3925,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3468,18 +3942,34 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
                   }
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 2
+                  singleFlightDetails.PriceBreakup[1]
                 ) {
 
                   let allTaxes = 0;
@@ -3503,7 +3993,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3520,7 +4010,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3537,18 +4027,34 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
                   }
                 }
                 if (
                   singleFlightDetails.PriceBreakup &&
-                  singleFlightDetails.PriceBreakup.length === 3
+                  singleFlightDetails.PriceBreakup[2]
                 ) {
                   let allTaxes = 0;
                   singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach((taxItem) => {
@@ -3571,7 +4077,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3588,7 +4094,7 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
@@ -3605,13 +4111,2508 @@ const checkIncentiveFilter = async (
                           singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
                       } else {
                           // Push a new 'Incentive' object if it doesn't exist
-                          priceBreakup.CommercialBreakup.push({
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
                               CommercialType: "Incentive",
                               SubCommercialType: null,
                               Amount: totalIncentiveVal,
                           });
                       }
                     }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                            CommercialType: "Incentive",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
+                  }
+                }
+              }
+            }
+          } else {
+            continue;
+          }
+        }
+      }
+      
+    }    
+   
+  }
+  
+  return await singleFlightDetails;
+};
+
+
+const checkPLBFilter = async (
+  plbData,
+  singleFlightDetails,
+  companyId
+) => {
+  let bestMatch = true;
+  let matchesData = null;
+  if (plbData.length > 0) {
+    for (let i = 0; i < plbData.length; i++) {
+      const commList = plbData[i];      
+      if (commList.PLBMasterId.status != true) {
+        continue;
+      }
+      
+      // origin and destination
+      const checkOrigin =
+        commList.PLBMasterId &&
+        commList.PLBMasterId.origin != null &&
+        commList.PLBMasterId.origin !== "";
+      const checkDestination =
+        commList.PLBMasterId &&
+        commList.PLBMasterId.destination != null &&
+        commList.PLBMasterId.destination !== "";
+                
+      if (checkOrigin) {        
+        const allCountryValue = commList.PLBMasterId.origin.split(",");
+        
+        if (
+          allCountryValue.includes(
+            singleFlightDetails.Sectors[0].Departure.CountryCode
+          )
+        ) {          
+          // country code exists  IN, US
+          bestMatch = true;
+        } else {
+              
+          // does not exists country code Then Check Country Mapping Code
+          const countryMapingVal = await countryMaping.findOne({
+            companyId: companyId,
+            ContinentCode: { $in: allCountryValue },
+          });
+          
+          if (
+            countryMapingVal &&
+            countryMapingVal.countries &&
+            countryMapingVal.countries.length > 0
+          ) {
+            
+            if (
+              countryMapingVal.countries
+                .split(",")
+                .includes(singleFlightDetails.Sectors[0].Departure.CountryCode)
+            ) {
+              // Country Code Group Exists
+              bestMatch = true;
+            } else {
+               
+              if (
+                allCountryValue.includes(
+                  singleFlightDetails.Sectors[0].Departure.CityCode
+                )
+              ) {          
+                // City  DEL, BOM
+                bestMatch = true;
+              } else { // city  Code  Not Exits
+                continue;
+              
+              }
+             
+            }
+          } else {
+            if (
+              allCountryValue.includes(
+                singleFlightDetails.Sectors[0].Departure.CityCode
+              )
+            ) {          
+              // City  DEL, BOM
+              bestMatch = true;
+            } else { // city  Code  Not Exits
+              continue;
+            
+            }
+          }
+        }
+      }       
+      
+      if (checkDestination) {
+        const allCountryValue =
+          commList.PLBMasterId.destination.split(",");
+        const lastSectorIndex = singleFlightDetails.Sectors.length - 1;
+        if (
+          allCountryValue.includes(
+            singleFlightDetails.Sectors[lastSectorIndex].Arrival.CountryCode
+          )
+        ) {
+          // country code exists  IN, US
+          bestMatch = true;
+        } else {
+          // does not exists country code Then Check Country Mapping Code
+          const countryMapingVal = await countryMaping.findOne({
+            companyId: companyId,
+            ContinentCode: { $in: allCountryValue },
+          });
+          if (
+            countryMapingVal &&
+            countryMapingVal.countries &&
+            countryMapingVal.countries.length > 0
+          ) {
+            if (
+              countryMapingVal.countries
+                .split(",")
+                .includes(
+                  singleFlightDetails.Sectors[lastSectorIndex].Arrival
+                    .CountryCode
+                )
+            ) {
+              // Country Code Group Exists
+              bestMatch = true;
+            } else {
+              if (
+                allCountryValue.includes(
+                  singleFlightDetails.Sectors[0].Arrival.CityCode
+                )
+              ) {          
+                // City  DEL, BOM
+                bestMatch = true;
+              } else { // city  Code  Not Exits
+                continue;
+              
+              }
+            }
+          } else {
+           
+            if (
+              allCountryValue.includes(
+                singleFlightDetails.Sectors[0].Arrival.CityCode
+              )
+            ) {          
+              // City  DEL, BOM
+              bestMatch = true;
+            } else { // city  Code  Not Exits
+              continue;            
+            }
+          }
+        }
+      }
+     
+      // Supplier Code
+      const checksupplierCode =
+        commList.PLBMasterId.supplierCode &&
+        commList.PLBMasterId.supplierCode != null &&
+        commList.PLBMasterId.supplierCode !== "";
+
+      if (checksupplierCode) {
+        if (
+          commList.PLBMasterId.supplierCode.supplierCode ===
+          singleFlightDetails.Provider
+        ) {
+          bestMatch = true;
+        } else {
+          continue;
+        }
+      }
+       
+      // Airline check
+      const checkairlineCode =
+        commList.PLBMasterId.airlineCode &&
+        commList.PLBMasterId.airlineCode != null &&
+        commList.PLBMasterId.airlineCode !== "";
+
+      if (checkairlineCode) {
+        if (
+          commList.PLBMasterId.airlineCode.airlineCode ===
+          singleFlightDetails.ValCarrier
+        ) {
+          bestMatch = true;
+        } else {
+          continue;
+        }
+      }
+      
+      // fare Family
+      const checkfareFamily =
+        commList.PLBMasterId.fareFamily &&
+        commList.PLBMasterId.fareFamily != null &&
+        commList.PLBMasterId.fareFamily !== "";
+
+      if (checkfareFamily) {
+        if (
+          commList.PLBMasterId.fareFamily.fareFamilyCode ===
+          singleFlightDetails.FareFamily
+        ) {
+          bestMatch = true;
+        } else {
+          continue;
+        }
+      }
+      // Cabin class
+      const checkcabinClass =
+        commList.PLBMasterId.cabinClass &&
+        commList.PLBMasterId.cabinClass != null &&
+        commList.PLBMasterId.cabinClass !== "";
+
+      if (checkcabinClass) {
+        if (
+          commList.PLBMasterId.cabinClass.cabinClassCode ===
+          singleFlightDetails.FareType
+        ) {
+          bestMatch = true;
+        } else {
+          continue;
+        }
+      }
+      //RBD
+      const checkrbd =
+        commList.PLBMasterId.rbd &&
+        commList.PLBMasterId.rbd != null &&
+        commList.PLBMasterId.rbd !== "";
+
+      if (checkrbd) {
+        if (
+          commList.PLBMasterId.rbd ===
+          singleFlightDetails.Sectors[0].FareBasisCode.charAt(0)
+        ) {
+          bestMatch = true;
+        } else {
+          continue;
+        }
+      }
+      
+      // FareBasis
+      const checkFareBasis =
+        commList.PLBMasterId.farebasis &&
+        commList.PLBMasterId.farebasis != null &&
+        commList.PLBMasterId.farebasis !== "";
+
+      if (checkFareBasis) {
+        if (
+          commList.PLBMasterId.farebasis ===
+          singleFlightDetails.Sectors[0].FareBasisCode
+        ) {
+          bestMatch = true;
+        } else {
+          continue;
+        }
+      }
+
+      // Flight No
+      const checkFlightNo =
+        commList.PLBMasterId.flightNo &&
+        commList.PLBMasterId.flightNo != null &&
+        commList.PLBMasterId.flightNo !== "";
+
+      if (checkFlightNo) {
+        if (
+          commList.PLBMasterId.flightNo ===
+            singleFlightDetails.Sectors[0].FltNum &&
+          !singleFlightDetails.Sectors[1]
+        ) {
+          bestMatch = true;
+        } else {
+          continue;
+        }
+      }
+      
+      // Date Issue From
+      const checkDateIssueFrom =
+        commList.PLBMasterId.datefIssueFrom &&
+        commList.PLBMasterId.datefIssueFrom != null &&
+        commList.PLBMasterId.datefIssueFrom !== "";
+      const currentDate = moment();
+      if (checkDateIssueFrom) {
+        if (
+          currentDate >=
+          moment(commList.PLBMasterId.datefIssueFrom, "YYYY-MM-DD")
+        ) {
+          bestMatch = true;
+        } else {
+          continue;
+        }
+      }
+      
+      // Date Issue To
+      const checkDateIssueTo =
+        commList.PLBMasterId.datefIssueTo &&
+        commList.PLBMasterId.datefIssueTo != null &&
+        commList.PLBMasterId.datefIssueTo !== "";
+
+      if (checkDateIssueTo) {
+        if (
+          currentDate >=
+          moment(commList.PLBMasterId.datefIssueTo, "YYYY-MM-DD")
+        ) {
+          bestMatch = true;
+        } else {
+          continue;
+        }
+      }
+
+      // Travel Date From
+      const checkTravelDateFrom =
+        commList.PLBMasterId.travelDateFrom &&
+        commList.PLBMasterId.travelDateFrom != null &&
+        commList.PLBMasterId.travelDateFrom !== "";
+      if (checkTravelDateFrom) {
+        if (
+          moment(singleFlightDetails.Sectors[0].Departure.Date, "YYYY-MM-DD") >=
+          moment(commList.PLBMasterId.travelDateFrom, "YYYY-MM-DD")
+        ) {
+          bestMatch = true;
+        } else {
+          continue;
+        }
+      }
+
+      // Travel Date To
+      const checkTravelDateTo =
+        commList.PLBMasterId.travelDateTo &&
+        commList.PLBMasterId.travelDateTo != null &&
+        commList.PLBMasterId.travelDateTo !== "";
+      if (checkTravelDateTo) {
+        if (
+          moment(singleFlightDetails.Sectors[0].Departure.Date, "YYYY-MM-DD") >=
+          moment(commList.PLBMasterId.travelDateTo, "YYYY-MM-DD")
+        ) {
+          bestMatch = true;
+        } else {
+          continue;
+        }
+      }
+      
+      // Min Price
+      const checkminPrice =
+        commList.PLBMasterId.minPrice &&
+        commList.PLBMasterId.minPrice != null &&
+        commList.PLBMasterId.minPrice !== "";
+
+      // Max Price
+      const checkmaxPrice =
+        commList.PLBMasterId.maxPrice &&
+        commList.PLBMasterId.maxPrice != null &&
+        commList.PLBMasterId.maxPrice !== "";
+       
+      // PLB Value Type
+      const checkPlbValueType =
+        commList.PLBMasterId.PLBValueType &&
+        commList.PLBMasterId.PLBValueType != null &&
+        commList.PLBMasterId.PLBValueType !== "";        
+      if (checkPlbValueType) {
+        if (commList.PLBMasterId.PLBValueType == "fixed") {
+          const checkPLBValue =
+            commList.PLBMasterId.PLBValue &&
+            commList.PLBMasterId.PLBValue != null &&
+            commList.PLBMasterId.PLBValue !== "" &&
+            commList.PLBMasterId.PLBValue !== 0;
+
+          if (checkPLBValue) {
+            if (commList.PLBMasterId.deductTDS) {
+              const tdsdeduct =
+                (parseFloat(5) / 100) * commList.PLBMasterId.PLBValue;
+              const totalIncentiveVal =
+                commList.PLBMasterId.PLBValue - tdsdeduct;
+              // check min or max
+
+              if (checkminPrice && checkmaxPrice) {
+                if (
+                  !(
+                    totalIncentiveVal >= commList.PLBMasterId.minPrice &&
+                    totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                  )
+                ) {
+                  continue;
+                }
+              } else if (checkminPrice) {
+                if (
+                  !(totalIncentiveVal >= commList.PLBMasterId.minPrice)
+                ) {
+                  continue;
+                }
+              } else if (checkmaxPrice) {
+                if (
+                  !(totalIncentiveVal <= commList.PLBMasterId.maxPrice)
+                ) {
+                  continue;
+                }
+              }
+
+              if (
+                singleFlightDetails.PriceBreakup[0] &&
+                singleFlightDetails.PriceBreakup[0].CommercialBreakup
+              ) {
+                singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                  CommercialType: "PLB",
+                  SubCommercialType: null,
+                  Amount: totalIncentiveVal,
+                });
+              }
+              if (
+                singleFlightDetails.PriceBreakup[1] &&
+                singleFlightDetails.PriceBreakup[1].CommercialBreakup
+              ) {
+                singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                  CommercialType: "PLB",
+                  SubCommercialType: null,
+                  Amount: totalIncentiveVal,
+                });
+              }
+              if (
+                singleFlightDetails.PriceBreakup[2] &&
+                singleFlightDetails.PriceBreakup[2].CommercialBreakup
+              ) {
+                singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                  CommercialType: "PLB",
+                  SubCommercialType: null,
+                  Amount: totalIncentiveVal,
+                });
+              }
+            } else {
+              
+              const totalIncentiveVal = commList.PLBMasterId.PLBValue;
+              // check min or max
+
+              if (checkminPrice && checkmaxPrice) {
+                if (
+                  !(
+                    totalIncentiveVal >= commList.PLBMasterId.minPrice &&
+                    totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                  )
+                ) {
+                  
+                  continue;
+                }
+              } else if (checkminPrice) {
+                if (
+                  !(totalIncentiveVal >= commList.PLBMasterId.minPrice)
+                ) {
+                 
+                  continue;
+                }
+              } else if (checkmaxPrice) {
+                if (
+                  !(totalIncentiveVal <= commList.PLBMasterId.maxPrice)
+                ) {
+                  
+                  continue;
+                }
+              }
+             
+              if (
+                singleFlightDetails.PriceBreakup[0] &&
+                singleFlightDetails.PriceBreakup[0].CommercialBreakup
+              ) {
+                singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                  CommercialType: "PLB",
+                  SubCommercialType: null,
+                  Amount: totalIncentiveVal,
+                });
+              }
+              if (
+                singleFlightDetails.PriceBreakup[1] &&
+                singleFlightDetails.PriceBreakup[1].CommercialBreakup
+              ) {
+                singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                  CommercialType: "PLB",
+                  SubCommercialType: null,
+                  Amount: totalIncentiveVal,
+                });
+              }
+              if (
+                singleFlightDetails.PriceBreakup[2] &&
+                singleFlightDetails.PriceBreakup[2].CommercialBreakup
+              ) {
+                singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                  CommercialType: "PLB",
+                  SubCommercialType: null,
+                  Amount: totalIncentiveVal,
+                });
+              }
+            }
+          } else {
+            continue;
+          }
+          //bestMatch = true;
+        } else {
+          
+          // persentage condition here
+          const checkPLBValue =
+            commList.PLBMasterId.PLBValue &&
+            commList.PLBMasterId.PLBValue != null &&
+            commList.PLBMasterId.PLBValue !== "" &&
+            commList.PLBMasterId.PLBValue !== 0;
+
+          if (checkPLBValue) {
+            if (commList.PLBMasterId.deductTDS) {
+              const persentageValue =
+                parseFloat(commList.PLBMasterId.PLBValue) / 100;
+              //let totalIncentiveVal = 0;
+              if (commList.PLBMasterId.PLBApplyOnBasefare) { 
+                
+                            
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[0]
+                ) {    
+                               
+                  const totalIncentiveVal =
+                   ( singleFlightDetails.PriceBreakup[0].BaseFare *
+                      persentageValue) -
+                    parseFloat(5) / 100;                     
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {                    
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                     
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[1]
+                ) {
+                  const totalIncentiveVal =
+                    (singleFlightDetails.PriceBreakup[1].BaseFare *
+                      persentageValue) -
+                    parseFloat(5) / 100;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[2]
+                ) {
+                  const totalIncentiveVal =
+                    (singleFlightDetails.PriceBreakup[2].BaseFare *
+                      persentageValue) -
+                    parseFloat(5) / 100;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {              
+
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+
+
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }
+                }
+              }
+              if (commList.PLBMasterId.PLBApplyOnYQ) {
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[0]
+                ) {
+                  let yqval = 0;
+                  const yqTax = singleFlightDetails.PriceBreakup[0].TaxBreakup.find((tax) => tax.TaxType === "YQ");
+                  if (yqTax) {
+                    yqval = yqTax.Amount;
+                  }
+
+                  const totalIncentiveVal =  (yqval * persentageValue) - parseFloat(5) / 100;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[1]
+                ) {
+
+                  let yqval = 0;
+                  const yqTax = singleFlightDetails.PriceBreakup[1].TaxBreakup.find((tax) => tax.TaxType === "YQ");
+                  if (yqTax) {
+                    yqval = yqTax.Amount;
+                  }
+                  const totalIncentiveVal =
+                  (yqval *
+                      persentageValue) -
+                    parseFloat(5) / 100;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[2]
+                ) {
+                  const yqTax = singleFlightDetails.PriceBreakup[2].TaxBreakup.find((tax) => tax.TaxType === "YQ");
+                  if (yqTax) {
+                    yqval = yqTax.Amount;
+                  }
+                  const totalIncentiveVal =
+                  (yqval *
+                      persentageValue) -
+                    parseFloat(5) / 100;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
+                        {
+                          CommercialType: "PLB",
+                          SubCommercialType: null,
+                          Amount: totalIncentiveVal,
+                        }
+                      );
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
+                        {
+                          CommercialType: "PLB",
+                          SubCommercialType: null,
+                          Amount: totalIncentiveVal,
+                        }
+                      );
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
+                        {
+                          CommercialType: "PLB",
+                          SubCommercialType: null,
+                          Amount: totalIncentiveVal,
+                        }
+                      );
+                    }
+                  }else{
+                    singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
+                      {
+                        CommercialType: "PLB",
+                        SubCommercialType: null,
+                        Amount: totalIncentiveVal,
+                      }
+                    );
+                  }
+                }
+              }
+              if (commList.PLBMasterId.PLBApplyOnYR) {
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[0]
+                ) {
+                  let yrval = 0;
+                  const yrTax = singleFlightDetails.PriceBreakup[0].TaxBreakup.find((tax) => tax.TaxType === "YR");
+                  if (yrTax) {
+                    yrval = yrTax.Amount;
+                  }
+
+                  const totalIncentiveVal =  (yrval * persentageValue) - parseFloat(5) / 100;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[1]
+                ) {
+
+                  let yrval = 0;
+                  const yrTax = singleFlightDetails.PriceBreakup[1].TaxBreakup.find((tax) => tax.TaxType === "YR");
+                  if (yrTax) {
+                    yrval = yrTax.Amount;
+                  }
+                  const totalIncentiveVal =
+                  (yrval *
+                      persentageValue) -
+                    parseFloat(5) / 100;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[2]
+                ) {
+                  let yrval = 0;
+                  const yrTax = singleFlightDetails.PriceBreakup[2].TaxBreakup.find((tax) => tax.TaxType === "YR");
+                  if (yrTax) {
+                    yrval = yrTax.Amount;
+                  }
+                  const totalIncentiveVal =
+                  (yrTax *
+                      persentageValue) -
+                    parseFloat(5) / 100;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }
+                }
+              }
+              if (commList.PLBMasterId.PLBApplyOnAllTAxes) {
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[0]
+                ) {
+                  let allTaxes = 0;
+                  singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach((taxItem) => {
+                    if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
+                      allTaxes += taxItem.Amount;
+                    }
+                  });
+
+                  const totalIncentiveVal =  (allTaxes * persentageValue) - parseFloat(5) / 100;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[1]
+                ) {
+
+                  let allTaxes = 0;
+                  singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach((taxItem) => {
+                    if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
+                      allTaxes += taxItem.Amount;
+                    }
+                  });
+                  const totalIncentiveVal =
+                  (allTaxes *
+                      persentageValue) -
+                    parseFloat(5) / 100;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[2]
+                ) {
+                  let allTaxes = 0;
+                  singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach((taxItem) => {
+                    if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
+                      allTaxes += taxItem.Amount;
+                    }
+                  });
+                  const totalIncentiveVal =
+                  (allTaxes *
+                      persentageValue) -
+                    parseFloat(5) / 100;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
+                  }
+                }
+              }
+
+            } else {
+              const persentageValue =
+                parseFloat(commList.PLBMasterId.PLBValue) / 100;
+              //let totalIncentiveVal = 0;
+              if (commList.PLBMasterId.PLBApplyOnBasefare) {
+                
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[0]
+                ) {                  
+                  const totalIncentiveVal =
+                   singleFlightDetails.PriceBreakup[0].BaseFare *
+                      persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                   }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[1]
+                ) {
+                  const totalIncentiveVal =
+                    singleFlightDetails.PriceBreakup[1].BaseFare *
+                      persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    } 
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[2]
+                ) {
+                  const totalIncentiveVal =
+                    singleFlightDetails.PriceBreakup[2].BaseFare *
+                      persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }
+                }
+              }
+              if (commList.PLBMasterId.PLBApplyOnYQ) {
+               
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[0]
+                ) {                  
+                  let yqval = 0;
+                  const yqTax = singleFlightDetails.PriceBreakup[0].TaxBreakup.find((tax) => tax.TaxType === "YQ");
+                  if (yqTax) {
+                    yqval = yqTax.Amount;
+                  }
+                  
+                  const totalIncentiveVal =  yqval * persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[1]
+                ) {
+
+                  let yqval = 0;
+                  const yqTax = singleFlightDetails.PriceBreakup[1].TaxBreakup.find((tax) => tax.TaxType === "YQ");
+                  if (yqTax) {
+                    yqval = yqTax.Amount;
+                  }
+                  const totalIncentiveVal =
+                  yqval *
+                      persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[2]
+                ) {
+                  const yqTax = singleFlightDetails.PriceBreakup[2].TaxBreakup.find((tax) => tax.TaxType === "YQ");
+                  if (yqTax) {
+                    yqval = yqTax.Amount;
+                  }
+                  const totalIncentiveVal =
+                  yqval *
+                      persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }
+                }
+              }
+              if (commList.PLBMasterId.PLBApplyOnYR) {
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[0]
+                ) {
+                  let yrval = 0;
+                  const yrTax = singleFlightDetails.PriceBreakup[0].TaxBreakup.find((tax) => tax.TaxType === "YR");
+                  if (yrTax) {
+                    yrval = yrTax.Amount;
+                  }
+
+                  const totalIncentiveVal =  yrval * persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[1]
+                ) {
+
+                  let yrval = 0;
+                  const yrTax = singleFlightDetails.PriceBreakup[1].TaxBreakup.find((tax) => tax.TaxType === "YR");
+                  if (yrTax) {
+                    yrval = yrTax.Amount;
+                  }
+                  const totalIncentiveVal =
+                  yrval *
+                      persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[2]
+                ) {
+                  let yrval = 0;
+                  const yrTax = singleFlightDetails.PriceBreakup[2].TaxBreakup.find((tax) => tax.TaxType === "YR");
+                  if (yrTax) {
+                    yrval = yrTax.Amount;
+                  }
+                  const totalIncentiveVal =
+                  yrTax *
+                      persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
+                  }
+                }
+              }
+              if (commList.PLBMasterId.PLBApplyOnAllTAxes) {
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[0]
+                ) {
+                  let allTaxes = 0;
+                  singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach((taxItem) => {
+                    if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
+                      allTaxes += taxItem.Amount;
+                    }
+                  });
+
+                  const totalIncentiveVal =  allTaxes * persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[0].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[0].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[1]
+                ) {
+
+                  let allTaxes = 0;
+                  singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach((taxItem) => {
+                    if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
+                      allTaxes += taxItem.Amount;
+                    }
+                  });
+                  const totalIncentiveVal =
+                  allTaxes *
+                      persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[1].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[1].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
+                  }
+                }
+                if (
+                  singleFlightDetails.PriceBreakup &&
+                  singleFlightDetails.PriceBreakup[2]
+                ) {
+                  let allTaxes = 0;
+                  singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach((taxItem) => {
+                    if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
+                      allTaxes += taxItem.Amount;
+                    }
+                  });
+                  const totalIncentiveVal =
+                  allTaxes *
+                      persentageValue;
+                  if (checkminPrice && checkmaxPrice) {
+                    if (
+                      totalIncentiveVal >=
+                        commList.PLBMasterId.minPrice &&
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkminPrice) {
+                    if (
+                      totalIncentiveVal >= commList.PLBMasterId.minPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  } else if (checkmaxPrice) {
+                    if (
+                      totalIncentiveVal <= commList.PLBMasterId.maxPrice
+                    ) {
+                      const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                      if (existingIncentiveIndex !== -1) {
+                          // Update the Amount if 'Incentive' already exists
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                      } else {
+                          // Push a new 'Incentive' object if it doesn't exist
+                          singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                              CommercialType: "PLB",
+                              SubCommercialType: null,
+                              Amount: totalIncentiveVal,
+                          });
+                      }
+                    }
+                  }else{
+                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(commercialBreakup){
+                    const existingIncentiveIndex = singleFlightDetails.PriceBreakup[2].CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+                    if (existingIncentiveIndex !== -1) {
+                        // Update the Amount if 'Incentive' already exists
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+                    } else {
+                        // Push a new 'Incentive' object if it doesn't exist
+                        singleFlightDetails.PriceBreakup[2].CommercialBreakup.push({
+                            CommercialType: "PLB",
+                            SubCommercialType: null,
+                            Amount: totalIncentiveVal,
+                        });
+                    }
+                  }
                   }
                 }
               }

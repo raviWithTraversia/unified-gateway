@@ -44,7 +44,7 @@ const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig , use
     to: recipientEmail,
     subject: "Password Reset Request",
     text: `Click the following link to reset your password:
-             ${basrUrl}/user/varifyToken?token=${resetToken}&userId=${user._id}`,
+             ${basrUrl}/auth/verifyToken?token=${resetToken}&userId=${user._id}`,
   };
 
   // Send the email
@@ -315,14 +315,43 @@ const sendSMS = async (mobileno, otp) => {
   }
 };
 
-// const checkRole = async () => {
-  try{
+const sendPasswordResetEmailLink = async (recipientEmail,resetToken,mailConfig , user, password,baseUrl) => {
+  // Create a Nodemailer transporter using your email service provider's SMTP settings
+  const transporter = nodemailer.createTransport({
+    host: mailConfig.host, 
+    port: mailConfig.port, 
+    secure: false, 
+    auth: {
+      user: mailConfig.userName,
+      pass: mailConfig.password, 
+    },
+  });
+  const htmlContent = `
+  <p>Click the following link to reset your password: <a href="${baseUrl}/user/verifyToken?token=${resetToken}&userId=${user._id}">${baseUrl}/user/verifyToken?token=${resetToken}&userId=${user._id}</a></p>
+    <p>Temporary Password :${password} </p> `;
+  const mailOptions = {
+    from: mailConfig.emailFrom,
+    to: recipientEmail,
+    subject: "Password Reset Request",
+    text: `Click the following link to reset your password: ${baseUrl}/user/verifyToken?token=${resetToken}&userId=${user._id}`,
+    html: htmlContent, 
+  };
 
+  // Send the email
+  try {
+    await transporter.sendMail(mailOptions);
+    return {
+      response : `Password reset email sent `,
+      data : true
+    }
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    return {
+      response : "Error sending password reset email:",
+       data : error
+    }
   }
-  catch(error){
-
-  }
-// }
+};
 
 module.exports = {
   createToken,
@@ -341,5 +370,6 @@ module.exports = {
   sendOtpOnPhone,
   commonEmailFunction,
   commonEmailFunctionOnRegistrationUpdate,
-  sendSMS
+  sendSMS,
+  sendPasswordResetEmailLink
 };

@@ -421,7 +421,8 @@ const forgotPassword = async (req, res) => {
     if(!baseUrl){
       let cId = '6555f84c991eaa63cb171a9f'
       baseUrl = await webMaster.find({companyId : cId});
-      baseUrl = baseUrl?.websiteURL || 'http://localhost:3111/api';
+      console.log("==========>>>>>>>>>", baseUrl, "llllllllllllllllllllllllllllllllllllll");
+      baseUrl = baseUrl[0].websiteURL || 'http://localhost:3111/api';
     }
     console.log(baseUrl, "llllllllllllllllllllllllllllllllllllll");
   

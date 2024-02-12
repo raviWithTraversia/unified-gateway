@@ -96,6 +96,7 @@ app.use("/b2b/api-docs", basicAuth({
 }), swaggerUI.serve, swaggerUI.setup(swaggerDocs,swaggerUiOptions));
 
 const port = process.env.PORT || 3111;
+//let host = '192.168.1.8'
 app.listen(port, function(){
     console.log(`Server is running on port ${port}`);  
 })

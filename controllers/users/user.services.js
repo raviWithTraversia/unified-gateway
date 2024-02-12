@@ -86,6 +86,7 @@ const loginUser = async (req, res) => {
     }
     // Compare the provided password with the stored hashed password
     const isPasswordValid = bcryptjs.compare(password, user.password);
+    console.log(isPasswordValid)
     if (!isPasswordValid) {
       return {
         response: "Invalid password",
@@ -286,6 +287,9 @@ const userInsert = async (req, res) => {
       console.log("Default Role Created Sucessfully");
     }
     savedCompany = await newCompany.save();
+    if(password == null || password == undefined){
+     password = commonFunction.generateRandomPassword(6)     
+    }
     const securePassword = await commonFunction.securePassword(password);
     const resetToken = Math.random().toString(36).slice(2);
      newUser = new User({
@@ -330,7 +334,7 @@ const userInsert = async (req, res) => {
     if(!baseUrl){
       let cId = '6555f84c991eaa63cb171a9f'
       baseUrl = await webMaster.find({companyId : cId});
-      baseUrl = baseUrl[0]?.websiteURL || 'http://localhost:3111/api';
+      baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'http://localhost:3111/api';
     }
     if(userCreated){
       let resetTempPassword = await commonFunction.sendPasswordResetEmailLink(
@@ -404,7 +408,6 @@ const forgotPassword = async (req, res) => {
     }
     const comapnyIds = !companyId ? user?.company_ID : companyId;
     let mailConfig = await Smtp.findOne({ companyId : comapnyIds });
-    // if not mailconfig then we send their parant mail config
     if(!mailConfig){
       let parentCompanyId = await Company.findById({_id : comapnyIds});
       parentCompanyId = parentCompanyId.parent;
@@ -415,12 +418,8 @@ const forgotPassword = async (req, res) => {
     if(!baseUrl){
       let cId = '6555f84c991eaa63cb171a9f'
       baseUrl = await webMaster.find({companyId : cId});
-      console.log("==========>>>>>>>>>", baseUrl, "llllllllllllllllllllllllllllllllllllll");
-      baseUrl = baseUrl[0].websiteURL || 'http://localhost:3111/api';
+      baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'http://localhost:3111/api';
     }
-    console.log(baseUrl, "llllllllllllllllllllllllllllllllllllll");
-  
-  // console.log(basrUrl, "nnnnnnnnnnnnnnnnnnnnnnn")
     const forgetPassWordMail = await commonFunction.sendPasswordResetEmail(
       email,
       resetToken,
@@ -436,8 +435,7 @@ const forgotPassword = async (req, res) => {
     }
     else if(forgetPassWordMail.response === "forgetPassWordMail"){
       return {
-      response : "Error sending password reset email"
-        
+      response : "Error sending password reset email"    
       }
     }
   } catch (error) {
@@ -472,20 +470,13 @@ const varifyTokenForForgetPassword = async(req,res) => {
 const resetPassword = async (req, res) => {
   try {
     const { userId,  newPassword } = req.body;
-
-    // Find the user by email and check the reset token
     const user = await User.findOne({ _id:userId , resetToken  : "verify"});
     if (!user) {
       return {
         response: "Inavalid User or User not found",
       };
     }
-
-    // Hash the new password
     const spassword = await commonFunction.securePassword(newPassword);
-   // console.log(spassword);
-
-    // Update the user's password and reset the resetToken
     await User.findOneAndUpdate(
       { _id : userId },
       { $set: { password: spassword, resetToken: null } }
@@ -659,7 +650,7 @@ const editUser = async (req,res) => {
      console.log(error);
      throw error
   }
-}
+};
 
 const getUser = async (req,res) => {
   try{
@@ -689,7 +680,7 @@ const getUser = async (req,res) => {
     console.log(error);
     throw error
   }
-}
+};
 
 const getAllAgencyAndDistributer = async (req,res) => {
   try{
@@ -732,7 +723,7 @@ const getAllAgencyAndDistributer = async (req,res) => {
      console.log(error);
      throw error
   }
-}
+};
 
 module.exports = {
   registerUser,

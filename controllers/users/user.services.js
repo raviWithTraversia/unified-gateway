@@ -226,8 +226,8 @@ const userInsert = async (req, res) => {
         data: null
       };
     }
-    
-    const existingCompany = await Company.findOne({ companyName });
+    console.log("[[[[[[[[[[[", companyName, "}}}}}}}}}}}}}}}}}}}")
+    const existingCompany = await Company.findOne({companyName: companyName });
     if (existingCompany) {
       return {
         response: "Company with this companyName already exists",
@@ -319,7 +319,7 @@ const userInsert = async (req, res) => {
       personalPanCardUpload,
       roleId,
       company_ID: savedCompany._id,
-      modifiedBy : req.user.id || null, 
+      modifiedBy : req?.user?.id || null, 
       cityId,
       resetToken : resetToken
     });
@@ -366,7 +366,7 @@ const userInsert = async (req, res) => {
         holdPNRAllowed : holdPnrAllowed,
         commercialPlanIds : commercialPlanIds || null,
         modifyAt: new Date(),
-        modifiedBy : req.user.id || null,
+        modifiedBy : req?.user?.id || null,
         agencyGroupId : agencyGroupId
         });
         agentConfigsInsert = await agentConfigsInsert.save();
@@ -395,9 +395,7 @@ const userInsert = async (req, res) => {
 const forgotPassword = async (req, res) => {
   const { email, companyId } = req.body;
   try {
-    // Find the user by email
     const resetToken = Math.random().toString(36).slice(2);
-    // Find the user by email and update the reset token
     const user = await User.findOneAndUpdate(
       { email },
       { $set: { resetToken } },

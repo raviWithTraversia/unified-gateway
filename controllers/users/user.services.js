@@ -124,19 +124,16 @@ const loginUser = async (req, res) => {
 const userInsert = async (req, res) => {
   let savedCompany = null;
   let newUser = null;
- // console.log(req.user, "lllllllllllllllllllllllllllllllllllll")
   try {
     const requiredFields = [
       "companyName",
       "parent",
-      // "type",
       "companyStatus",
       "pan_Number",
       "login_Id",
       "email",
       "fname",
       "lastName",
-      "password",
       "phoneNumber",
       "userStatus",
       "userPanName",
@@ -226,8 +223,7 @@ const userInsert = async (req, res) => {
         data: null
       };
     }
-    
-    const existingCompany = await Company.findOne({ companyName });
+    const existingCompany = await Company.findOne({companyName: companyName });
     if (existingCompany) {
       return {
         response: "Company with this companyName already exists",
@@ -291,6 +287,7 @@ const userInsert = async (req, res) => {
     }
     savedCompany = await newCompany.save();
     const securePassword = await commonFunction.securePassword(password);
+    const resetToken = Math.random().toString(36).slice(2);
      newUser = new User({
       userType,
       login_Id,
@@ -318,12 +315,38 @@ const userInsert = async (req, res) => {
       personalPanCardUpload,
       roleId,
       company_ID: savedCompany._id,
-      modifiedBy : req.user.id || null, 
-      cityId
+      modifiedBy : req?.user?.id || null, 
+      cityId,
+      resetToken : resetToken
     });
 
     let userCreated = await newUser.save();
+    let mailConfig = await Smtp.findOne({ companyId: parent});
+    if (!mailConfig) {
+      let id = Config.MAIL_CONFIG_ID;
+      mailConfig = await Smtp.findById(id);
+    };
+    let baseUrl = await webMaster.findOne({companyId : savedCompany._id});
+    if(!baseUrl){
+      let cId = '6555f84c991eaa63cb171a9f'
+      baseUrl = await webMaster.find({companyId : cId});
+      baseUrl = baseUrl[0]?.websiteURL || 'http://localhost:3111/api';
+    }
     if(userCreated){
+      let resetTempPassword = await commonFunction.sendPasswordResetEmailLink(
+        email,
+        resetToken,
+        mailConfig,
+        newUser,
+        password,
+        baseUrl
+      );
+      if (resetTempPassword.response == "Password reset email sent"||  resetTempPassword.data == true) {
+        console.log( "Password reset email sent");
+      }
+      else if(resetTempPassword.response === "forgetPassWordMail"){
+        console.log("Error sending password reset email");
+      }
     let privilegePlansIds = await privilagePlanModel.findOne({companyId :parent,IsDefault : true});
     let commercialPlanIds = await commercialPlanModel.findOne({companyId :parent,IsDefault : true});
     let fareRuleGroupIds = await fareRuleGroupModel.findOne({companyId :parent,IsDefault : true});
@@ -339,7 +362,7 @@ const userInsert = async (req, res) => {
         holdPNRAllowed : holdPnrAllowed,
         commercialPlanIds : commercialPlanIds || null,
         modifyAt: new Date(),
-        modifiedBy : req.user.id || null,
+        modifiedBy : req?.user?.id || null,
         agencyGroupId : agencyGroupId
         });
         agentConfigsInsert = await agentConfigsInsert.save();
@@ -368,9 +391,7 @@ const userInsert = async (req, res) => {
 const forgotPassword = async (req, res) => {
   const { email, companyId } = req.body;
   try {
-    // Find the user by email
     const resetToken = Math.random().toString(36).slice(2);
-    // Find the user by email and update the reset token
     const user = await User.findOneAndUpdate(
       { email },
       { $set: { resetToken } },
@@ -390,16 +411,22 @@ const forgotPassword = async (req, res) => {
       mailConfig = await Smtp.find({ companyId: parentCompanyId });
       mailConfig = mailConfig[0];
     }
-    let basrUrl = await webMaster.findOne({companyId : comapnyIds});
-    console.log(basrUrl, "llllllllllllllllllllllllllllllllllllll");
-    basrUrl = basrUrl?.websiteURL || 'http://localhost:3111/api';
+    let baseUrl = await webMaster.findOne({companyId : comapnyIds});
+    if(!baseUrl){
+      let cId = '6555f84c991eaa63cb171a9f'
+      baseUrl = await webMaster.find({companyId : cId});
+      console.log("==========>>>>>>>>>", baseUrl, "llllllllllllllllllllllllllllllllllllll");
+      baseUrl = baseUrl[0].websiteURL || 'http://localhost:3111/api';
+    }
+    console.log(baseUrl, "llllllllllllllllllllllllllllllllllllll");
+  
   // console.log(basrUrl, "nnnnnnnnnnnnnnnnnnnnnnn")
     const forgetPassWordMail = await commonFunction.sendPasswordResetEmail(
       email,
       resetToken,
       mailConfig,
       user,
-      basrUrl
+      baseUrl
     );
     if (forgetPassWordMail.response == "Password reset email sent"||  forgetPassWordMail.data == true) {
       return {
@@ -452,7 +479,6 @@ const resetPassword = async (req, res) => {
       return {
         response: "Inavalid User or User not found",
       };
-      //  return res.status(401).json({ message: 'Invalid reset token' });
     }
 
     // Hash the new password

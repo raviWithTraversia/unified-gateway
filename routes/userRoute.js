@@ -122,7 +122,7 @@ user_route.post(
 user_route.post(
     '/user/userInsert', 
   // userValidatior.userInsert,
-   auth,
+   //auth,
    userController.userInsert 
     );
 
@@ -182,7 +182,6 @@ user_route.post(
 user_route.post(
     '/user/forgot-password',
     //userValidatior.userForgetPassword,
-    auth,
     userController.forgotPassword
 )
 

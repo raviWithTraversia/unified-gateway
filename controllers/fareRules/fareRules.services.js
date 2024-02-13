@@ -85,7 +85,7 @@ const getFareRule = async (req, res) => {
 const deleteFareRule = async (req, res) => {
   try {
     let id = req.params.id;
-    const removeFareRule = await fareRulesModel.findOneAndRemove(id);
+    const removeFareRule = await fareRulesModel.findByIdAndDelete(id);
     if (removeFareRule) {
       return {
         response: "Fare Rule Deleted Sucessfully",

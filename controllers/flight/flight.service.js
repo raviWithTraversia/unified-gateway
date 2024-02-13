@@ -204,6 +204,7 @@ async function handleflight(
   });
   // make common before commercial
   let commonArray = [];
+  
   for (let key in combineResponseObj) {
     if (combineResponseObj[key].IsSucess) {
       commonArray.push(...combineResponseObj[key].response);

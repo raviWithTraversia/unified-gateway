@@ -101,7 +101,7 @@ const authenticate = async (req, res) => {
                 };
 
                 await UserModule.findOneAndUpdate({ _id: user._id }, updatedUser);
-
+                console.log("=====>>",user)
                 // Prepare user details to be sent in the response
                 const userDetails = {
                     _id: user._id,
@@ -111,6 +111,7 @@ const authenticate = async (req, res) => {
                     companyId: user.company_ID,
                     roleId: user?.roleId || null,
                     token: token,
+                    lastLogInDate : user?.last_LoginDate || null
                 };
 
                 return {

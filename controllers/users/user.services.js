@@ -85,7 +85,7 @@ const loginUser = async (req, res) => {
       };
     }
     // Compare the provided password with the stored hashed password
-    const isPasswordValid = bcryptjs.compare(password, user.password);
+    const isPasswordValid = await user.isPasswordCorrect(password)
     console.log(isPasswordValid)
     if (!isPasswordValid) {
       return {
@@ -299,7 +299,7 @@ const userInsert = async (req, res) => {
       title,
       fname,
       lastName,
-      password: securePassword,
+      password,
       securityStamp,
       phoneNumber,
       twoFactorEnabled,
@@ -469,19 +469,22 @@ const varifyTokenForForgetPassword = async(req,res) => {
 }
 const resetPassword = async (req, res) => {
   try {
-    const { userId,  newPassword } = req.body;
-    const user = await User.findOne({ _id:userId , resetToken  : "verify"});
+    const { userId,  newPassword,oldPassword } = req.body;
+    let user = await User.findOne({ _id:userId , resetToken  : "verify"});
     if (!user) {
       return {
         response: "Inavalid User or User not found",
       };
-    }
-    const spassword = await commonFunction.securePassword(newPassword);
-    await User.findOneAndUpdate(
-      { _id : userId },
-      { $set: { password: spassword, resetToken: null } }
-    );
-    console.log("password reset sucessfully");
+    };
+
+    user.password = newPassword
+    await user.save({validateBeforeSave: false})
+  //  const spassword = await commonFunction.securePassword(newPassword);
+    // await User.findOneAndUpdate(
+    //   { _id : userId },
+    //   { $set: { password: spassword, resetToken: null } }
+    // );
+    // console.log("password reset sucessfully");
 
     return {
       response: "Password reset successful",

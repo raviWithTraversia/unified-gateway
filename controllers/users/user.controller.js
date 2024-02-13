@@ -167,7 +167,7 @@ const resetPassword = async (req, res) => {
 const changePassword = async (req, res) => {
   try {
     const result = await userServices.changePassword(req, res);
-    if (result.response === "Your current password is not valid") {
+    if (result.response === "Invalid Current Password") {
       apiErrorres(
         res,
         result.response,
@@ -188,7 +188,15 @@ const changePassword = async (req, res) => {
         result.response,
         ServerStatusCode.SUCESS_CODE
       );
-    } else {
+    } else if(result.response == 'User Dont Have Permision To Chnage Password Without Current Password'){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.PRECONDITION_FAILED,
+        true
+      );
+    }
+     else {
       apiErrorres(
         res,
         errorResponse.NOT_AVALIABLE,

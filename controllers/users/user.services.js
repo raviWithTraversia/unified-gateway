@@ -13,7 +13,8 @@ const agentConfigModel = require('../../models/AgentConfig');
 const privilagePlanModel = require('../../models/PrivilagePlan');
 const commercialPlanModel = require('../../models/CommercialAirPlan');
 const fareRuleGroupModel = require('../../models/FareRuleGroup');
-const agencyGroupModel = require('../../models/AgencyGroup')
+const agencyGroupModel = require('../../models/AgencyGroup');
+const { response } = require("../../routes/userRoute");
 
 
 const registerUser = async (req, res) => {
@@ -288,7 +289,7 @@ const userInsert = async (req, res) => {
     }
     savedCompany = await newCompany.save();
     if(password == null || password == undefined){
-     password = commonFunction.generateRandomPassword(6)     
+     password = commonFunction.generateRandomPassword(10)     
     }
     const securePassword = await commonFunction.securePassword(password);
     const resetToken = Math.random().toString(36).slice(2);
@@ -497,23 +498,35 @@ const resetPassword = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    const { currentPassword, newPassword, email } = req.body;
-    const user = await User.findOne({ email });
+    let { currentPassword, newPassword, email, id } = req.body;
+    let user = await User.findOne({ $or : [{email : email}, {_id : id}]});
     if (user) {
-      const isCurrentPasswordIsValid = await commonFunction.comparePassword(
-        currentPassword,
-        user.password
-      );
-      if (isCurrentPasswordIsValid) {
-        user.password = await commonFunction.securePassword(newPassword);
-        await user.save();
+      if(currentPassword){
+        const isPasswordCorrect = await user.isPasswordCorrect(currentPassword);
+        if(!isPasswordCorrect){
+          return {
+            response : 'Invalid Current Password'
+          }
+        }
+        user.password = newPassword;
+        await user.save({validateBeforeSave: false});
         return {
-          response: "Password Change Sucessfully",
-        };
-      } else {
-        return {
-          response: "Your current password is not valid",
-        };
+          response : 'Password Change Sucessfully'
+        }
+      }else{
+        let findUser = await User.findById(req?.user._id);
+        let findRole = await Role.findOne({_id : findUser?.roleId });
+        if(findRole?.name == 'TMC' ||findRole?.name == 'Distributer'||findRole?.name == 'Distributor'||findRole?.name == 'Supplier'){
+          user.password = newPassword;
+          await user.save({validateBeforeSave: false});
+          return {
+            response : 'Password Change Sucessfully'
+          }
+        }else{
+          return {
+            response : 'User Dont Have Permision To Chnage Password Without Current Password'
+          }
+        }
       }
     } else {
       return {

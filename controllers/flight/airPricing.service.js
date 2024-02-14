@@ -8,7 +8,7 @@ const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
 
-const getSearch = async (req, res) => {
+const airPricing = async (req, res) => {
   const {
     Authentication,
     TypeOfTrip,
@@ -21,6 +21,7 @@ const getSearch = async (req, res) => {
     Airlines,
     FareFamily,
     RefundableOnly,
+    Itinerary
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -34,6 +35,7 @@ const getSearch = async (req, res) => {
     "Airlines",
     "FareFamily",
     "RefundableOnly",
+    "Itinerary"
   ];
   const missingFields = fieldNames.filter(
     (fieldName) =>
@@ -85,7 +87,8 @@ const getSearch = async (req, res) => {
       ClassOfService,
       Airlines,
       FareFamily,
-      RefundableOnly
+      RefundableOnly,
+      Itinerary
     );
   }
 
@@ -112,7 +115,8 @@ async function handleflight(
   ClassOfService,
   Airlines,
   FareFamily,
-  RefundableOnly
+  RefundableOnly,
+  Itinerary
 ) {
   // International
   // Check LIVE and TEST
@@ -174,7 +178,8 @@ async function handleflight(
               Airlines,
               FareFamily,
               RefundableOnly,
-              supplier.supplierCodeId.supplierCode
+              supplier.supplierCodeId.supplierCode,
+              Itinerary
             );
 
           default:
@@ -237,27 +242,10 @@ const KafilaFun = async (
   Airlines,
   FareFamily,
   RefundableOnly,
-  Provider
+  Provider,
+  Itinerary
 ) => {
-  const cacheKey = JSON.stringify({
-    supplier,
-    TypeOfTrip,
-    Segments,
-    PaxDetail,
-    TravelType,
-    Flexi,
-    Direct,
-    ClassOfService,
-    Airlines,
-    FareFamily,
-    RefundableOnly,
-    Provider
-  });
-
-  const cachedResult = flightCache.get(cacheKey);
-  if (cachedResult) {
-    return cachedResult;
-  }
+ 
   let createTokenUrl;
   let flightSearchUrl;
   // Apply APi for Type of trip ( ONEWAY / ROUNDTRIP / MULTYCITY )
@@ -273,11 +261,11 @@ const KafilaFun = async (
     // Live Url here
     credentialType = "P";
     createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
-    flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FSearch`;
+    flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FFareCheck`;
   } else {
     // Test Url here
     createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
-    flightSearchUrl = `http://stage1.ksofttechnology.com/api/FSearch`;
+    flightSearchUrl = `http://stage1.ksofttechnology.com/api/FFareCheck`;
   }
 
   let tripTypeValue;
@@ -334,7 +322,6 @@ const KafilaFun = async (
   // Fare Family Array
   let fareFamilyVal =
     FareFamily && FareFamily.length > 0 ? FareFamily.join(",") : "";
-
   const segmentsArray = Segments.map((segment) => ({
     Src: segment.Origin,
     Des: segment.Destination,
@@ -358,7 +345,7 @@ const KafilaFun = async (
     });
     if (response.data.Status === "success") {
       let getToken = response.data.Result;
-      let requestDataFSearch = {
+      let requestDataFSearch = {Param: {
         Trip: tripTypeValue,
         Adt: PaxDetail.Adults,
         Chd: PaxDetail.Child,
@@ -382,7 +369,127 @@ const KafilaFun = async (
           IsUnitTesting: false,
           TPnr: false,
         },
-      };
+      },   SelectedFlights: [
+        {
+            PId: 0,
+            Id: 0,
+            TId: 0,
+            Src: "DEL",
+            Des: "BLR",
+            FCode: "6E",
+            FName: "GoIndigo",
+            FNo: "2375",
+            DDate: "2023-11-30T03:00:00",
+            ADate: "2023-11-30T05:50:00",
+            Dur: "0d:2h:50m",
+            Stop: "0",
+            Seat: 38,
+            Sector: "DEL,BLR",
+            Itinerary: [
+                {
+                    Id: 0,
+                    Src: "DEL",
+                    SrcName: "Delhi",
+                    Des: "BLR",
+                    DesName: "Bengaluru",
+                    FLogo: "0 -123px",
+                    FCode: "6E",
+                    FName: "GoIndigo",
+                    FNo: "2375",
+                    DDate: "2023-11-30T03:00:00",
+                    ADate: "2023-11-30T05:50:00",
+                    DTrmnl: "2",
+                    ATrmnl: "1",
+                    DArpt: "Delhi Indira Gandhi Intl",
+                    AArpt: "Bengaluru Intl Arpt",
+                    Dur: "0d:2h:50m",
+                    layover: "",
+                    Seat: 38,
+                    FClass: "R",
+                    PClass: "A",
+                    FBasis: "RFIP",
+                    FlightType: "320",
+                    OI: [
+                        "SSK=6E~2375~ ~~DEL~11/30/2023 03:00~BLR~11/30/2023 05:50~~"
+                    ]
+                }
+            ],
+            Fare: {
+                GrandTotal: 13964,
+                BasicTotal: 11060,
+                YqTotal: 0,
+                TaxesTotal: 2904,
+                Adt: {
+                    Basic: 5530,
+                    Yq: 0,
+                    Taxes: 1452,
+                    Total: 6982
+                },
+                Chd: null,
+                Inf: null,
+                OI: [
+                    {
+                        FAT: "Route",
+                        FSK: "0~R~~6E~RFIP~4301~~0~60~~X"
+                    }
+                ]
+            },
+            FareRule: {
+                CBNBG: "7KG",
+                CHKNBG: "15KG",
+                CBH: "96HRS",
+                CWBH: "96HRS-4HRS",
+                RBH: "96HRS",
+                RWBH: "96HRS-4HRS",
+                CBHA: 3000,
+                CWBHA: 3600,
+                RBHA: 2850,
+                RWBHA: 3350,
+                SF: 50.00
+            },
+            Alias: "MAIN",
+            FareType: null,
+            PFClass: "A-R",
+            Offer: {
+                Msg: "",
+                Refund: "Refundable",
+                IsPromoAvailable: true,
+                IsGstMandatory: false,
+                IsLcc: true
+            },
+            OI: {
+                Jsk: "6E~2375~ ~~DEL~11/30/2023 03:00~BLR~11/30/2023 05:50~~",
+                Pcc: "364549474E3030303346447E4D41494E",
+                Security: "NA"
+            },
+            Deal: {
+                NETFARE: 13439,
+                TDISC: 553,
+                TDS: 28,
+                GST: 100,
+                DISCOUNT: {
+                    DIS: 553,
+                    SF: 0,
+                    PDIS: 0,
+                    CB: 0
+                }
+            }
+        }
+    ],
+    GstData: {
+        IsGst: false,
+        GstDetails: {
+            Name: "Kafila Hospitality and Travels Pvt Ltd",
+            Address: "10185-c, Arya samaj Road, Karolbagh",
+            Email: "admin@kafilatravel.in",
+            Mobile: "9899911993",
+            Pin: "110005",
+            State: "Delhi",
+            Type: "",
+            Gstn: "07AAACD3853F1ZW"
+        }
+    }
+    };
 
       let fSearchApiResponse = await axios.post(
         flightSearchUrl,
@@ -471,7 +578,7 @@ const KafilaFun = async (
                     {
                       TaxType: "YQ",
                       Amount: schedule.Fare.Adt.Yq,
-                    }                    
+                    },
                   ],
                   AirPenalty: [],
                   CommercialBreakup: [{
@@ -659,5 +766,5 @@ const KafilaFun = async (
 };
 
 module.exports = {
-  getSearch,
+    airPricing,
 };

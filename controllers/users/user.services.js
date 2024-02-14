@@ -514,7 +514,7 @@ const changePassword = async (req, res) => {
           response : 'Password Change Sucessfully'
         }
       }else{
-        let findUser = await User.findById(req?.user._id);
+        let findUser = await User.findById(id);
         let findRole = await Role.findOne({_id : findUser?.roleId });
         if(findRole?.name == 'TMC' ||findRole?.name == 'Distributer'||findRole?.name == 'Distributor'||findRole?.name == 'Supplier'){
           user.password = newPassword;

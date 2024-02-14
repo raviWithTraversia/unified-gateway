@@ -9,9 +9,27 @@ const flightSerchSchema = new mongoose.Schema({
     type : mongoose.Schema.Types.ObjectId,
     ref : 'User'
    },
-   creationDate : {
-     type : Date,
-     default : Date.now
+   origin : {
+     type : String
+   },
+   destination : {
+    type : String
+   },
+   travelType : {
+    type : String
+   },
+   classOfService : {
+     type : String
+   },
+   paxDetail : {
+     type : Object
+   },
+   AirlineCode : {
+    type : mongoose.Schema.Types.ObjectId,
+    ref : 'AirlineCode'
+   },
+   departureDate : {
+    type : Date
    }
 }, {
     timestamps : true

@@ -13,7 +13,8 @@ const agentConfigModel = require('../../models/AgentConfig');
 const privilagePlanModel = require('../../models/PrivilagePlan');
 const commercialPlanModel = require('../../models/CommercialAirPlan');
 const fareRuleGroupModel = require('../../models/FareRuleGroup');
-const agencyGroupModel = require('../../models/AgencyGroup')
+const agencyGroupModel = require('../../models/AgencyGroup');
+const { response } = require("../../routes/userRoute");
 
 
 const registerUser = async (req, res) => {
@@ -85,7 +86,7 @@ const loginUser = async (req, res) => {
       };
     }
     // Compare the provided password with the stored hashed password
-    const isPasswordValid = bcryptjs.compare(password, user.password);
+    const isPasswordValid = await user.isPasswordCorrect(password)
     console.log(isPasswordValid)
     if (!isPasswordValid) {
       return {
@@ -288,7 +289,7 @@ const userInsert = async (req, res) => {
     }
     savedCompany = await newCompany.save();
     if(password == null || password == undefined){
-     password = commonFunction.generateRandomPassword(6)     
+     password = commonFunction.generateRandomPassword(10)     
     }
     const securePassword = await commonFunction.securePassword(password);
     const resetToken = Math.random().toString(36).slice(2);
@@ -299,7 +300,7 @@ const userInsert = async (req, res) => {
       title,
       fname,
       lastName,
-      password: securePassword,
+      password,
       securityStamp,
       phoneNumber,
       twoFactorEnabled,
@@ -469,19 +470,22 @@ const varifyTokenForForgetPassword = async(req,res) => {
 }
 const resetPassword = async (req, res) => {
   try {
-    const { userId,  newPassword } = req.body;
-    const user = await User.findOne({ _id:userId , resetToken  : "verify"});
+    const { userId,  newPassword,oldPassword } = req.body;
+    let user = await User.findOne({ _id:userId , resetToken  : "verify"});
     if (!user) {
       return {
         response: "Inavalid User or User not found",
       };
-    }
-    const spassword = await commonFunction.securePassword(newPassword);
-    await User.findOneAndUpdate(
-      { _id : userId },
-      { $set: { password: spassword, resetToken: null } }
-    );
-    console.log("password reset sucessfully");
+    };
+
+    user.password = newPassword
+    await user.save({validateBeforeSave: false})
+  //  const spassword = await commonFunction.securePassword(newPassword);
+    // await User.findOneAndUpdate(
+    //   { _id : userId },
+    //   { $set: { password: spassword, resetToken: null } }
+    // );
+    // console.log("password reset sucessfully");
 
     return {
       response: "Password reset successful",
@@ -494,23 +498,35 @@ const resetPassword = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    const { currentPassword, newPassword, email } = req.body;
-    const user = await User.findOne({ email });
+    let { currentPassword, newPassword, email, id } = req.body;
+    let user = await User.findOne({ $or : [{email : email}, {_id : id}]});
     if (user) {
-      const isCurrentPasswordIsValid = await commonFunction.comparePassword(
-        currentPassword,
-        user.password
-      );
-      if (isCurrentPasswordIsValid) {
-        user.password = await commonFunction.securePassword(newPassword);
-        await user.save();
+      if(currentPassword){
+        const isPasswordCorrect = await user.isPasswordCorrect(currentPassword);
+        if(!isPasswordCorrect){
+          return {
+            response : 'Invalid Current Password'
+          }
+        }
+        user.password = newPassword;
+        await user.save({validateBeforeSave: false});
         return {
-          response: "Password Change Sucessfully",
-        };
-      } else {
-        return {
-          response: "Your current password is not valid",
-        };
+          response : 'Password Change Sucessfully'
+        }
+      }else{
+        let findUser = await User.findById(id);
+        let findRole = await Role.findOne({_id : findUser?.roleId });
+        if(findRole?.name == 'TMC' ||findRole?.name == 'Distributer'||findRole?.name == 'Distributor'||findRole?.name == 'Supplier'){
+          user.password = newPassword;
+          await user.save({validateBeforeSave: false});
+          return {
+            response : 'Password Change Sucessfully'
+          }
+        }else{
+          return {
+            response : 'User Dont Have Permision To Chnage Password Without Current Password'
+          }
+        }
       }
     } else {
       return {

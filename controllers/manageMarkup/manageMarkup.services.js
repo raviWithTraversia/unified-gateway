@@ -14,10 +14,8 @@ const addMarkup = async (req, res) => {
       markupOn: markupOn,
       markupFor: markupFor,
       companyId: companyId,
+      airlineCodeId: airlineCodeId
     };
-    if(airlineCodeId){
-      query.airlineCodeId = airlineCodeId;
-    }
     let checkMarkupExist = await manageMarkupModel.find(query);
     if (isDefault === true) {
       let checkIsAnydefaultTrue =
@@ -26,7 +24,7 @@ const addMarkup = async (req, res) => {
           { isDefault: false }
         );
     }
-    console.log(checkMarkupExist, "vvvvvv");
+   // console.log(checkMarkupExist, "vvvvvv");
     if (checkMarkupExist?.length > 0) {
       return {
         response: "This Markup already exists!",

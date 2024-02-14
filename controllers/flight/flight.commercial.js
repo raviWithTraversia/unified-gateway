@@ -141,6 +141,11 @@ const getApplyAllCommercial = async (
                 SupplierType: "TMC",
               },
             ],
+            AgentMarkupBreakup: {
+              BookingFee: 0.0,
+              Basic: 0.0,
+              Tax: 0.0,                  
+          },
             Key: null,
           },
           {
@@ -186,6 +191,11 @@ const getApplyAllCommercial = async (
                 SupplierType: "TMC",
               },
             ],
+            AgentMarkupBreakup: {
+              BookingFee: 0.0,
+              Basic: 0.0,
+              Tax: 0.0,                  
+          },
             Key: null,
           },
           {
@@ -231,6 +241,11 @@ const getApplyAllCommercial = async (
                 SupplierType: "TMC",
               },
             ],
+            AgentMarkupBreakup: {
+              BookingFee: 0.0,
+              Basic: 0.0,
+              Tax: 0.0,                  
+          },
             Key: null,
           },
         ],
@@ -395,7 +410,7 @@ const getApplyAllCommercial = async (
         RefundableFare: true,
         IndexNumber: 1,
         Provider: "Kafila",
-        ValCarrier: "SG",
+        ValCarrier: "AI",
         LastTicketingDate: "",
         TravelTime: "0d:2h:55m",
         PriceBreakup: [
@@ -441,6 +456,11 @@ const getApplyAllCommercial = async (
                 SupplierType: "TMC",
               },
             ],
+            AgentMarkupBreakup: {
+              BookingFee: 0.0,
+              Basic: 0.0,
+              Tax: 0.0,                  
+          },
             Key: null,
           },
           {
@@ -486,6 +506,11 @@ const getApplyAllCommercial = async (
                 SupplierType: "TMC",
               },
             ],
+            AgentMarkupBreakup: {
+              BookingFee: 0.0,
+              Basic: 0.0,
+              Tax: 0.0,                  
+          },
             Key: null,
           },
           {
@@ -521,6 +546,7 @@ const getApplyAllCommercial = async (
                 Amount: 322,
               },
             ],
+            
             AirPenalty: [],
             CommercialBreakup: [
               {
@@ -531,6 +557,11 @@ const getApplyAllCommercial = async (
                 SupplierType: "TMC",
               },
             ],
+            AgentMarkupBreakup: {
+              BookingFee: 0.0,
+              Basic: 0.0,
+              Tax: 0.0,                  
+          },
             Key: null,
           },
         ],
@@ -604,8 +635,8 @@ const getApplyAllCommercial = async (
       },
     ];
 
-     for (const singleFlightDetails of commonArray) {
-   // for (const singleFlightDetails of commonArrayDummy) {
+     //for (const singleFlightDetails of commonArray) {
+    for (const singleFlightDetails of commonArrayDummy) {
       // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
         // get group of priority base
@@ -735,51 +766,71 @@ const getApplyAllCommercial = async (
       }
 
       // Check MArkup HERE
-      // if (markupDetails.IsSuccess === true) {
+      if (markupDetails.IsSuccess === true) {
 
-      //   if (markupDetails.data.length > 0) {          
-      //     const checkAllMarkup = markupDetails.data.find(
-      //       (filter) => 
-      //         filter.markupOn === TravelType &&
-      //         filter.airlineCodeId.airlineCode === singleFlightDetails.ValCarrier &&
-      //         filter.markupFor === "Ticket" 
-      //     );
-      //     //console.log(checkAllMarkup);          
-         
-      //     if (!checkAllMarkup) {
-      //       const checkSpecificMarkupArr = markupDetails.data.find(
-      //         (filter) =>
-      //           filter.markupOn === TravelType &&             
-      //           filter.markupFor === "Ticket" 
-      //       );
+        if (markupDetails.data.length > 0) {          
+          const checkAllMarkup = markupDetails.data.find(
+            (filter) => 
+                filter.markupOn === TravelType &&
+                (filter.airlineCodeId === null ? 
+                    false :
+                    filter.airlineCodeId.airlineCode === singleFlightDetails.ValCarrier
+                ) &&
+                filter.markupFor === "Ticket" 
+        );
+                   
+         //console.log(checkAllMarkup);
+          if (!checkAllMarkup) {
+            const checkSpecificMarkupArr = markupDetails.data.find(
+              (filter) =>
+                filter.markupOn === TravelType && 
+                (filter.airlineCodeId === null ? 
+                  true :
+                  filter.airlineCodeId.airlineCode === null
+              )  &&           
+                filter.markupFor === "Ticket" 
+            );
             
            
-      //       if (checkSpecificMarkupArr) {
-      //         singleFlightDetails.checkMarkup = checkSpecificMarkupArr;
-      //       }
-      //     } else {
+            if (checkSpecificMarkupArr) {
+              checkMarkupValuefun = await checkMarkupValue(
+                checkSpecificMarkupArr,
+                singleFlightDetails,
+                companyDetails.parent._id
+                
+              );
+              
+              singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;
+              
+            }
+          } else {
+            checkMarkupValuefun = await checkMarkupValue(
+              checkAllMarkup,
+              singleFlightDetails,
+              companyDetails.parent._id              
+            );
             
-      //       singleFlightDetails.checkMarkup = checkAllMarkup;
-      //     }
+            singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;            
+          }
 
-      //   }
+        }
 
 
 
-      //   // checkMarkupFilterfun = await checkMarkupFilter(
-      //   //   markupDetails.data,
-      //   //   singleFlightDetails,
-      //   //   companyDetails.parent._id           
-      //   // );
+        // checkMarkupFilterfun = await checkMarkupFilter(
+        //   markupDetails.data,
+        //   singleFlightDetails,
+        //   companyDetails.parent._id           
+        // );
         
-      //   // singleFlightDetails.PriceBreakup = checkPLBFilterfun.checkMarkupFilterfun; 
-      // }
+        // singleFlightDetails.PriceBreakup = checkPLBFilterfun.checkMarkupFilterfun; 
+      }
       
       // this is last update and push function
       applyResponceCommercialArray.push(singleFlightDetails);
     }
     return applyResponceCommercialArray.sort((a, b) => a.TotalPrice - b.TotalPrice);
-    // return commercialPlanDetails;
+     //return applyResponceCommercialArray;
   } else if (
     companyDetails.type == "Agency" &&
     companyDetails.parent.type == "Distributer"
@@ -1106,7 +1157,7 @@ const getAssignPlb = async (companyId) => {
 const getAssignMarcup = async (companyId) => {
   let getmarkupData = await managemarkupsimport.find({
     companyId: companyId,
-  }).populate("airlineCodeId");
+  }).populate("airlineCodeId").populate("markupData.markUpCategoryId");
 
   if (getmarkupData.length > 0) {
     return { IsSuccess: true, data: getmarkupData };
@@ -7561,13 +7612,158 @@ const makePriorityGroup = async (
   return mergedArray;
 };
 
-// const checkMarkupFilter = async (
-//   markupDetails.data,
-//   singleFlightDetails,
-//   companyDetails.parent._id
-// ) => {
+const checkMarkupValue = async (
+  markupData,
+  singleFlightDetails,
+  companyId,
+) => {  
+  // first check Basic 
+  const checkBasic = markupData.markupData.find(
+    (filter) =>
+      filter.markUpCategoryId.markUpCategoryName === "Basic" 
+  );
 
-// };
+  if(checkBasic){
+    const applyBasicTo = (wise, markupRate, maxMarkup, paxVal, tax, type) => {
+      if (wise === "sectorWise") {
+        if ( tax && tax.AgentMarkupBreakup ) {
+          if(singleFlightDetails.Sectors[0].Group == 0){
+            console.log(singleFlightDetails.Sectors[0].Group);
+            const countAirline = tax.AgentMarkupBreakup;
+             const maxAmount = paxVal;
+        
+              if(maxMarkup != 0 && maxMarkup != null){
+                if(maxAmount <= maxMarkup){
+                  countAirline.Basic += maxAmount;
+                  if(markupRate != 0 && markupRate != null){
+                    countAirline.Basic += (markupRate / 100) * tax.BaseFare;
+                  }
+                   
+                }  
+              }else{
+                countAirline.Basic += maxAmount;
+                if(markupRate != 0 && markupRate != null){
+                  countAirline.Basic += (markupRate / 100) * tax.BaseFare;
+                }
+              }
+              
+          }
+          
+        }
+      }else if(wise === "flightWise"){
+        if ( tax && tax.AgentMarkupBreakup ) {
+          const fltNumCount = {};
+          const encounteredFltNums = new Set();
+
+          singleFlightDetails.Sectors.forEach((sector) => {
+            const fltNum = sector.FltNum;
+
+            if (fltNum && !encounteredFltNums.has(fltNum)) {
+              if (fltNumCount[fltNum] === undefined) {
+                fltNumCount[fltNum] = 1;
+              } else {
+                fltNumCount[fltNum]++;
+              }
+
+              encounteredFltNums.add(fltNum);
+            }
+          });
+          const countAirline = tax.AgentMarkupBreakup;
+          if (countAirline) {
+            const totalCount = Object.values(fltNumCount).reduce(
+              (sum, count) => sum + count,
+              0
+            );
+            
+              const maxAmount = totalCount * paxVal;
+              if(maxMarkup != 0 && maxMarkup != null){
+              if(maxAmount <= maxMarkup){
+                countAirline.Basic += maxAmount;
+                if(markupRate != 0 && markupRate != null){
+                  countAirline.Basic += (markupRate / 100) * tax.BaseFare;
+                }
+              } 
+            }else{
+              countAirline.Basic += maxAmount;
+              if(markupRate != 0 && markupRate != null){
+                countAirline.Basic += (markupRate / 100) * tax.BaseFare;
+              }
+            }  
+            
+          }
+
+        }
+      }else{
+        
+        if ( tax && tax.AgentMarkupBreakup ) {          
+        const countAirline = tax.AgentMarkupBreakup;
+        const maxAmount = paxVal;
+        
+              if(maxMarkup != 0 && maxMarkup != null){
+                if(maxAmount <= maxMarkup){
+                  countAirline.Basic += maxAmount;
+                  if(markupRate != 0 && markupRate != null){
+                    countAirline.Basic += (markupRate / 100) * tax.BaseFare;
+                  }
+                }  
+              }else{
+                countAirline.Basic += maxAmount;
+                if(markupRate != 0 && markupRate != null){
+                  countAirline.Basic += (markupRate / 100) * tax.BaseFare;
+                }
+              }
+              
+        }
+      }
+    };
+    if(checkBasic.sectorWise){
+      if(checkBasic.adultFixed != 0){
+        applyBasicTo("sectorWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT");
+      }
+      if(checkBasic.childFixed != 0){
+        applyBasicTo("sectorWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.childFixed, singleFlightDetails.PriceBreakup[1], "CHD");
+      }
+      if(checkBasic.infantFixed != 0){
+        applyBasicTo("sectorWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.infantFixed, singleFlightDetails.PriceBreakup[2], "INF");
+      }
+    }else if(checkBasic.flightWise){
+      if(checkBasic.adultFixed != 0){
+        applyBasicTo("flightWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT");
+      }
+      if(checkBasic.childFixed != 0){
+        applyBasicTo("flightWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.childFixed, singleFlightDetails.PriceBreakup[1], "CHD");
+      }
+      if(checkBasic.infantFixed != 0){
+        applyBasicTo("flightWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.infantFixed, singleFlightDetails.PriceBreakup[2], "INF");
+      }
+
+    }else{
+      if(checkBasic.adultFixed != 0){
+        applyBasicTo("",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT");
+      }
+      if(checkBasic.childFixed != 0){
+        applyBasicTo("", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.childFixed, singleFlightDetails.PriceBreakup[1], "CHD");
+      }
+      if(checkBasic.infantFixed != 0){
+        applyBasicTo("", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.infantFixed, singleFlightDetails.PriceBreakup[2], "INF");
+      }
+    }
+  }
+  
+   // first check BookingFee 
+  // const checkBookingFee = markupData.markupData.find(
+  //   (filter) =>
+  //     filter.markUpCategoryId.markUpCategoryName === "Basic" 
+  // );
+  //   // first check Tax
+  // const checkTax = markupData.markupData.find(
+  //   (filter) =>
+  //     filter.markUpCategoryId.markUpCategoryName === "Basic" 
+  // );
+
+    
+  return singleFlightDetails;
+};
 
 
 module.exports = {

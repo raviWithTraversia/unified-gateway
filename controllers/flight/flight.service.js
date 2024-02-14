@@ -481,6 +481,11 @@ const KafilaFun = async (
                     SupplierId: supplier._id,
                     SupplierType: "TMC"
                 }],
+                AgentMarkupBreakup: {
+                  BookingFee: 0.0,
+                  Basic: 0.0,
+                  Tax: 0.0,                  
+              },
                   Key: null,
                 }
               : {},
@@ -517,6 +522,11 @@ const KafilaFun = async (
                     SupplierId: supplier._id,
                     SupplierType: "TMC"
                 }],
+                AgentMarkupBreakup: {
+                  BookingFee: 0.0,
+                  Basic: 0.0,
+                  Tax: 0.0,                  
+              },
                   Key: null,
                 }
               : {},
@@ -553,6 +563,11 @@ const KafilaFun = async (
                     SupplierId: supplier._id,
                     SupplierType: "TMC"
                 }],
+                AgentMarkupBreakup: {
+                  BookingFee: 0.0,
+                  Basic: 0.0,
+                  Tax: 0.0,                  
+              },
                   Key: null,
                 }
               : {},

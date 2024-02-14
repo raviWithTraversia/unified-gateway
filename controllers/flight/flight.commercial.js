@@ -3158,9 +3158,6 @@ function updateOrPushIncentive(commercialBreakup, totalIncentiveVal) {
   }
 }
 
-
-
-
 const checkPLBFilter = async (
   incentiveData,
   singleFlightDetails,

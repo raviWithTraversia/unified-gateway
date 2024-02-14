@@ -9,6 +9,12 @@ const flightSerchSchema = new mongoose.Schema({
     type : mongoose.Schema.Types.ObjectId,
     ref : 'User'
    },
+   credentialType : {
+    type : String
+   },
+   salesChannel : {
+    type : String
+   },
    origin : {
      type : String
    },
@@ -24,12 +30,15 @@ const flightSerchSchema = new mongoose.Schema({
    paxDetail : {
      type : Object
    },
-   AirlineCode : {
-    type : mongoose.Schema.Types.ObjectId,
-    ref : 'AirlineCode'
-   },
+   airlines: {
+    type: Array,
+    of: String
+  },
    departureDate : {
     type : Date
+   },
+   traceId : {
+    type : String
    }
 }, {
     timestamps : true

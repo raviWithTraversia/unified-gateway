@@ -42,6 +42,7 @@ const getSearch = async (req, res) => {
 
   if (missingFields.length > 0) {
     const missingFieldsString = missingFields.join(", ");
+
     return {
       response: null,
       isSometingMissing: true,

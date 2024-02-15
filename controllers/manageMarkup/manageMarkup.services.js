@@ -8,8 +8,8 @@ const addMarkup = async (req, res) => {
   try {
     let { markupData, airlineCodeId, markupOn, markupFor, companyId, isDefault } =
       req.body;
-    let userId = "658165afff75194ba3f9f574";
-    //console.log(userId);
+    let userId = req.user._id
+    console.log(userId);
     let query = {
       markupOn: markupOn,
       markupFor: markupFor,
@@ -30,6 +30,7 @@ const addMarkup = async (req, res) => {
         response: "This Markup already exists!",
       };
     }
+    console.log(userId)
     let checkIsRole = await userModel
       .findById(userId)
       .populate("roleId")

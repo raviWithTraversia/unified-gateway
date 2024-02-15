@@ -60,6 +60,7 @@ const ssrCommercialRoute = require('../routes/ssrCommercialRoute');
 const ssrCommercialGroupRoute = require('../routes/ssrCommercialGroupRoute');
 const makePassportDetailMandatoryRoute = require('../routes/makePassportDetailRoute');
 const manageAirlineCredentailRoute = require('../routes/manageAirlineCredRoute') ;
+const flightSerchLogRoute = require('../routes/flightSearchLogRoute');
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -250,7 +251,10 @@ class RoutesLoader {
        app.use('/api', makePassportDetailMandatoryRoute);
 
        //manageAirlineCredentailRoute
-       app.use('/api', manageAirlineCredentailRoute)
+       app.use('/api', manageAirlineCredentailRoute);
+
+       //flightSerchLogRoute
+       app.use('/api', flightSerchLogRoute);
     }
 }
 

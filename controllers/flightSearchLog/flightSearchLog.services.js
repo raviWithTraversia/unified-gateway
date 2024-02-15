@@ -1,29 +1,22 @@
 const flightSerchLogModel = require('../../models/FlightSearchLog');
 const addFlightSerchReport = async (req,res) => {
   try{ 
-    let { 
-    companyId,
-    userId, 
-    origin,
-    destination,
-    classOfService,
-    paxDetail,
-    airlines,
-    departureDate, 
-    travelType,
-    traceId
-} = req.body;
+   // console.log("====>>>",req.body, "<<<<=========");
+    let data = {...req.body};
+  
 let newFlightSearchLog = new flightSerchLogModel({
-    companyId,
-    userId, 
-    origin,
-    destination,
-    travelType,
-    classOfService,
-    paxDetail,
-    departureDate, 
-    airlines,
-    traceId
+    companyId : data?.Authentication?.CompanyId || null,
+    userId : data?.Authentication?.UserId || null, 
+    origin : data.Segments[0].OriginName,
+    destination : data.Segments[0].DestinationName,
+    travelType : data.TravelType,
+    classOfService:data.Segments[0].ClassOfService,
+    paxDetail : data?.paxDetail,
+    departureDate: data.Segments[0].DepartureDate, 
+    airlines : data.Airlines,
+    traceId: data.Authentication.TraceId,
+    fareFamily : data.FareFamily,
+    typeOfTrip : data.TypeOfTrip
 });
 newFlightSearchLog = await newFlightSearchLog.save();
 console.log("Data Inserted")
@@ -39,19 +32,12 @@ const getFlightSerchReport = async (req,res) => {
       let { userId, toDate, fromDate } = req.body;
       const fromDateObj = new Date(fromDate);
       const toDateObj = new Date(toDate);
-  
-      if (isNaN(fromDateObj.valueOf()) || isNaN(toDateObj.valueOf())) {
-        return res.status(400).json({
-          response: 'Bad Request',
-          error: 'Invalid date format. Please provide valid date strings.'
-        });
-      }
       let searchResult = await flightSerchLogModel.find({
         userId: userId,
         createdAt: { $gte: fromDateObj, $lte: toDateObj }
       }).populate('userId');
   
-    //console.log(searchResult)
+   // console.log(searchResult)
     if(searchResult.length > 0){
          return {
             response : 'Data Found Sucessfully',

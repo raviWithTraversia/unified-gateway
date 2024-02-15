@@ -31,6 +31,7 @@ const flightSerchSchema = new mongoose.Schema({
      type : Object
    },
    airlines: [String],
+   fareFamily : [String],
    departureDate : {
     type : Date
    },
@@ -40,6 +41,9 @@ const flightSerchSchema = new mongoose.Schema({
    createdDate : {
     type : Date,
     default : Date.now
+   },
+   typeOfTrip : {
+    type : String
    }
 }, {
     timestamps : true

@@ -3,14 +3,19 @@ const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
   errorResponse,
-  CrudMessage,
+  CrudMessage
 } = require("../../utils/constants");
 
 let getFlightSerchReport =  async (req,res) => {
     try{
     const result = await flightSearchReport.getFlightSerchReport(req,res);
     if(result.response == 'Data Found Sucessfully'){
-     apiSucessRes()
+     apiSucessRes(
+      res,
+      result.response,
+      result.data,
+      ServerStatusCode.SUCESS_CODE
+     )
     }else if(result.response == 'Flight Search Data Not Available'){
         apiErrorres(
             res,
@@ -42,8 +47,8 @@ let addFlightSerchReport = async (req,res) => {
   }catch(error){
 
   }
-}
+};
 module.exports = {
-    getFlightSerchReport ,
+    getFlightSerchReport,
     addFlightSerchReport
 }

@@ -30,15 +30,16 @@ const flightSerchSchema = new mongoose.Schema({
    paxDetail : {
      type : Object
    },
-   airlines: {
-    type: Array,
-    of: String
-  },
+   airlines: [String],
    departureDate : {
     type : Date
    },
    traceId : {
     type : String
+   },
+   createdDate : {
+    type : Date,
+    default : Date.now
    }
 }, {
     timestamps : true

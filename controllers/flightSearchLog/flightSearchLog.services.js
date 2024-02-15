@@ -1,5 +1,4 @@
 const flightSerchLogModel = require('../../models/FlightSearchLog');
-
 const addFlightSerchReport = async (req,res) => {
   try{ 
     let { 
@@ -14,8 +13,6 @@ const addFlightSerchReport = async (req,res) => {
     travelType,
     traceId
 } = req.body;
-
-
 let newFlightSearchLog = new flightSerchLogModel({
     companyId,
     userId, 
@@ -25,7 +22,7 @@ let newFlightSearchLog = new flightSerchLogModel({
     classOfService,
     paxDetail,
     departureDate, 
-    airlineCode : airlines,
+    airlines,
     traceId
 });
 newFlightSearchLog = await newFlightSearchLog.save();
@@ -39,11 +36,22 @@ console.log("Data Inserted")
 };
 const getFlightSerchReport = async (req,res) => {
     try{
-    let { userId , companyId, toDate , fromDate} = req.query;
-    let searchResult = await  flightSerchLogModel.find({
-      userId: userId,
-      createdAt: { $gte: toDate, $lte: fromDate }
-    });
+      let { userId, toDate, fromDate } = req.body;
+      const fromDateObj = new Date(fromDate);
+      const toDateObj = new Date(toDate);
+  
+      if (isNaN(fromDateObj.valueOf()) || isNaN(toDateObj.valueOf())) {
+        return res.status(400).json({
+          response: 'Bad Request',
+          error: 'Invalid date format. Please provide valid date strings.'
+        });
+      }
+      let searchResult = await flightSerchLogModel.find({
+        userId: userId,
+        createdAt: { $gte: fromDateObj, $lte: toDateObj }
+      }).populate('userId');
+  
+    //console.log(searchResult)
     if(searchResult.length > 0){
          return {
             response : 'Data Found Sucessfully',
@@ -53,34 +61,12 @@ const getFlightSerchReport = async (req,res) => {
       return {
         response : 'Flight Search Data Not Available'
       }
-    }
-     
+    } 
     }catch(error){
         console.log(error);
         throw error
     }
 };
-
-
-// let data = {
-//     "companyId": "658173c8fc3c021e15a5f7e0", 
-//     "userId": "658173c8fc3c021e15a5f7e4", 
-//     "credentialType": "API",
-//     "salesChannel": "Online",
-//     "origin": "New York",
-//     "destination": "Los Angeles",
-//     "travelType": "Round Trip",
-//     "classOfService": "Business",
-//     "paxDetail": {
-//       "adults": 2,
-//       "children": 1,
-//       "infants": 0
-//     },
-//     "Airlines": ["Z7", "KI", "JP"],
-//     "departureDate": "2023-03-15T08:00:00.000Z"
-//   }
-//   let res = await addFlightSerchReport(data);
-//   console.log(res);
 module.exports = {
     addFlightSerchReport,
     getFlightSerchReport

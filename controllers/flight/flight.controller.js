@@ -5,6 +5,7 @@ const {
   errorResponse,
   CrudMessage,
 } = require("../../utils/constants");
+const flightSerchLogServices = require('../../controllers/flightSearchLog/flightSearchLog.services')
 
 const getSearch = async (req, res) => {
     try {
@@ -20,6 +21,7 @@ const getSearch = async (req, res) => {
             result.data,
             ServerStatusCode.SUCESS_CODE
           );
+          await flightSerchLogServices.addFlightSerchReport(req)
         }else {
           apiErrorres(
             res,

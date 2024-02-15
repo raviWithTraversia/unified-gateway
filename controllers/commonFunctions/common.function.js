@@ -327,7 +327,7 @@ const sendPasswordResetEmailLink = async (recipientEmail,resetToken,mailConfig ,
     },
   });
   const htmlContent = `
-  <p>Click the following link to reset your password: <a href="${baseUrl}/user/verifyToken?token=${resetToken}&userId=${user._id}">${baseUrl}/user/verifyToken?token=${resetToken}&userId=${user._id}</a></p>
+  <p>Click the following link to reset your password: <a href="${baseUrl}/auth/verifyToken?token=${resetToken}&userId=${user._id}">${baseUrl}/user/verifyToken?token=${resetToken}&userId=${user._id}</a></p>
     <p>Temporary Password :${password} </p> `;
   const mailOptions = {
     from: mailConfig.emailFrom,

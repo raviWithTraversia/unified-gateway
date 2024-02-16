@@ -15,7 +15,7 @@ const commercialPlanModel = require('../../models/CommercialAirPlan');
 const fareRuleGroupModel = require('../../models/FareRuleGroup');
 const agencyGroupModel = require('../../models/AgencyGroup');
 const { response } = require("../../routes/userRoute");
-
+const {Config} = require("../../configs/config")
 
 const registerUser = async (req, res) => {
   try {

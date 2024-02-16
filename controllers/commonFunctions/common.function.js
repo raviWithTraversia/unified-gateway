@@ -24,7 +24,6 @@ const securePassword = async (password) => {
     return error.message;
   }
 };
-
 // Function to send a password reset email
 const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig , user, baseUrl) => {
   // Create a Nodemailer transporter using your email service provider's SMTP settings

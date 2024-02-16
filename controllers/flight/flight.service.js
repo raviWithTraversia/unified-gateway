@@ -188,7 +188,7 @@ async function handleflight(
       }
     })
   );
-
+  
   // Combine the responses here
   const combineResponseObj = {};
   supplierCredentials.forEach((supplier, index) => {
@@ -221,7 +221,7 @@ async function handleflight(
 
   return {
     IsSucess: true,
-    response: getApplyAllCommercialVar,
+    response: getApplyAllCommercialVar.IsSucess ? getApplyAllCommercialVar.response : getApplyAllCommercialVar,
   };
 }
 

@@ -41,13 +41,25 @@ const seriesDepartureSchema = new mongoose.Schema({
   flightNumber: {
     type: String,
   },
-  originAirportCode: {},
-  originAirportTerminal: {},
+  originAirportCode: {
+    
+  },
+  originAirportTerminal: {
+    type : String
+  },
   destinationAirportCode: {},
-  destinationAirportTerminal: {},
-  departureDate: {},
-  departureTime: {},
-  arrivalDate: {},
+  destinationAirportTerminal: {
+    type : String
+  },
+  departureDate: {
+    type : Date
+  },
+  departureTime: {
+    type : Time
+  },
+  arrivalDate: {
+    type : Date
+  },
   arrivaltime: {},
   Distance: {
     type : Number
@@ -113,7 +125,36 @@ const seriesDepartureSchema = new mongoose.Schema({
   isActive : {
     type : Boolean
   },
-  baseAmountConstant : {
+  baseAmountConst : {
     type : Number
+  },
+  fuleSurchargeConst : {
+    type : Number
+  },
+  taxAmountConst : {
+    type : Number
+  },
+  baseAmountChildConst : {
+    type : Number
+  },
+  fuleSurchargeChildConst : {
+    type : Number
+  },
+  taxAmountChildConst : {
+    type : Number
+  },
+  baseAmountInftConst : {
+    type : Number
+  },
+  fuleSurchargeInftConst : {
+    type : Number
+  },
+  taxAmountInftConst : {
+    type : Number
+  },
+  airLineDetails : {
+    type : Object
   }
+
+
 });

@@ -383,8 +383,8 @@ const KafilaFun = async (
           IsUnitTesting: false,
           TPnr: false,
         },
-      };
-
+      };      
+           
       let fSearchApiResponse = await axios.post(
         flightSearchUrl,
         requestDataFSearch,
@@ -405,11 +405,12 @@ const KafilaFun = async (
             fSearchApiResponse.data.WarningMessage,
         };
       }
+      
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;
       let apiResponseCommon = [];
       for (let index = 0; index < apiResponse.Schedules[0].length; index++) {
-        let schedule = apiResponse.Schedules[0][index];
+        let schedule = apiResponse.Schedules[0][index];        
         let randomUID = uuid.v4();
         // apiResponseCommon.push(schedule);
         apiResponseCommon.push({
@@ -488,6 +489,7 @@ const KafilaFun = async (
                   Tax: 0.0,                  
               },
                   Key: null,
+                  OI:schedule.Fare.OI
                 }
               : {},
             PaxDetail.Child > 0
@@ -529,6 +531,7 @@ const KafilaFun = async (
                   Tax: 0.0,                  
               },
                   Key: null,
+                  OI:schedule.Fare.OI
                 }
               : {},
             PaxDetail.Infants > 0
@@ -570,6 +573,7 @@ const KafilaFun = async (
                   Tax: 0.0,                  
               },
                   Key: null,
+                  OI:schedule.Fare.OI
                 }
               : {},
           ],
@@ -632,12 +636,14 @@ const KafilaFun = async (
               CountryCode: "IN",
               CountryName: "India",
             },
+            OI:sector.OI
           })),
           HostTokens: null,
           Key: "",
           SearchID: "",
           TRCNumber: null,
-          TraceId: Authentication.TraceId,
+          TraceId: apiResponse.Param.OtherInfo.TraceId,
+          OI:schedule.OI ?? null
         });
       }
 

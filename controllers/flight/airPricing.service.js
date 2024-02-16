@@ -192,7 +192,11 @@ async function handleflight(
       }
     })
   );
-
+  // delete this one
+  // return {
+  //   IsSucess: true,
+  //   response: responsesApi,
+  // };
   // Combine the responses here
   const combineResponseObj = {};
   supplierCredentials.forEach((supplier, index) => {
@@ -344,8 +348,127 @@ const KafilaFun = async (
       },
     });
     if (response.data.Status === "success") {
+      
+        
+      const newArray = Itinerary.map(item => {                 
+        const sectorsall = item.Sectors.map(sector => ({          
+          Id: 0,
+          Src: sector.Departure.Code,
+          SrcName: sector.Departure.CityName,
+          Des: sector.Arrival.Code,
+          DesName: sector.Arrival.CityName,
+          FLogo: "",
+          FCode: sector.AirlineCode,
+          FName: sector.AirlineName,
+          FNo: sector.FltNum,
+          DDate: sector.Departure.Date,
+          ADate: sector.Arrival.Date,
+          DTrmnl: sector.Departure.Terminal,
+          ATrmnl: sector.Arrival.Terminal,
+          DArpt: sector.Departure.Name,
+          AArpt: sector.Arrival.Name,
+          Dur: sector.FlyingTime,
+          layover: "",
+          Seat: 0,
+          FClass: sector.Class,
+          PClass: sector.CabinClass,
+          FBasis: sector.FareBasisCode,
+          FlightType: sector.EquipType,
+          OI:sector.OI
+        }));    
+        
+        const Adt = item.PriceBreakup[1] ? {
+          Basic: item.PriceBreakup[0]?.BaseFare || 0,
+          Yq: item.PriceBreakup[0]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0,
+          Taxes: item.PriceBreakup[0]?.Tax || 0,
+          Total: (item.PriceBreakup[0]?.BaseFare || 0) + (item.PriceBreakup[0]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[0]?.Tax || 0)
+        } : null;
+        
+        const Chd = Object.keys(item.PriceBreakup[1]).length !== 0
+        ? {
+          Basic: item.PriceBreakup[1]?.BaseFare || 0,
+          Yq: item.PriceBreakup[1]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0,
+          Taxes: item.PriceBreakup[1]?.Tax || 0,
+          Total: (item.PriceBreakup[1]?.BaseFare || 0) + (item.PriceBreakup[1]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[1]?.Tax || 0)
+        } : null;
+                
+        const Inf = Object.keys(item.PriceBreakup[2]).length !== 0
+        ? {
+          Basic: item.PriceBreakup[2]?.BaseFare || 0,
+          Yq: item.PriceBreakup[2]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0,
+          Taxes: item.PriceBreakup[2]?.Tax || 0,
+          Total: (item.PriceBreakup[2]?.BaseFare || 0) + (item.PriceBreakup[2]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[2]?.Tax || 0)
+        } : null;        
+            
+        return {
+          PId: 0,
+          Id: 0,
+          TId: 0,
+          Src: Segments[0].Origin,
+          Des: Segments[0].Destination,
+          FCode: item.ValCarrier,
+          FName: "",
+          FNo: "",
+          DDate: "",
+          ADate: "",
+          Dur: "",
+          Stop: "",
+          Seat: 0,
+          Sector: "",
+          Itinerary: sectorsall,
+          Fare: {
+            GrandTotal: item.TotalPrice,
+            BasicTotal: item.BaseFare,
+            YqTotal: 0,
+            TaxesTotal: item.Taxes,
+            Adt: Adt,
+            Chd: Chd,
+            Inf: Inf,
+            OI: item.PriceBreakup[0]?.OI || null,
+          },
+          FareRule: {
+            CBNBG: "7KG",
+            CHKNBG: "15KG",
+            CBH: "96HRS",
+            CWBH: "96HRS-4HRS",
+            RBH: "96HRS",
+            RWBH: "96HRS-4HRS",
+            CBHA: 3000,
+            CWBHA: 3600,
+            RBHA: 2850,
+            RWBHA: 3350,
+            SF: 50.00
+          },
+          Alias: item.FareFamily,
+          FareType: item.FareType,
+          PFClass: "A-R",
+          Offer: {
+            Msg: "",
+            Refund: "",
+            IsPromoAvailable: true,
+            IsGstMandatory: false,
+            IsLcc: true
+          },
+          OI: item.OI,
+          Deal: {
+            NETFARE: 13439,
+            TDISC: 553,
+            TDS: 28,
+            GST: 100,
+            DISCOUNT: {
+              DIS: 553,
+              SF: 0,
+              PDIS: 0,
+              CB: 0
+            }
+          }
+        };        
+      });      
+      
+      
+
       let getToken = response.data.Result;
-      let requestDataFSearch = {Param: {
+      let requestDataFSearch = { Param: {
         Trip: tripTypeValue,
         Adt: PaxDetail.Adults,
         Chd: PaxDetail.Child,
@@ -369,113 +492,7 @@ const KafilaFun = async (
           IsUnitTesting: false,
           TPnr: false,
         },
-      },   SelectedFlights: [
-        {
-            PId: 0,
-            Id: 0,
-            TId: 0,
-            Src: "DEL",
-            Des: "BLR",
-            FCode: "6E",
-            FName: "GoIndigo",
-            FNo: "2375",
-            DDate: "2023-11-30T03:00:00",
-            ADate: "2023-11-30T05:50:00",
-            Dur: "0d:2h:50m",
-            Stop: "0",
-            Seat: 38,
-            Sector: "DEL,BLR",
-            Itinerary: [
-                {
-                    Id: 0,
-                    Src: "DEL",
-                    SrcName: "Delhi",
-                    Des: "BLR",
-                    DesName: "Bengaluru",
-                    FLogo: "0 -123px",
-                    FCode: "6E",
-                    FName: "GoIndigo",
-                    FNo: "2375",
-                    DDate: "2023-11-30T03:00:00",
-                    ADate: "2023-11-30T05:50:00",
-                    DTrmnl: "2",
-                    ATrmnl: "1",
-                    DArpt: "Delhi Indira Gandhi Intl",
-                    AArpt: "Bengaluru Intl Arpt",
-                    Dur: "0d:2h:50m",
-                    layover: "",
-                    Seat: 38,
-                    FClass: "R",
-                    PClass: "A",
-                    FBasis: "RFIP",
-                    FlightType: "320",
-                    OI: [
-                        "SSK=6E~2375~ ~~DEL~11/30/2023 03:00~BLR~11/30/2023 05:50~~"
-                    ]
-                }
-            ],
-            Fare: {
-                GrandTotal: 13964,
-                BasicTotal: 11060,
-                YqTotal: 0,
-                TaxesTotal: 2904,
-                Adt: {
-                    Basic: 5530,
-                    Yq: 0,
-                    Taxes: 1452,
-                    Total: 6982
-                },
-                Chd: null,
-                Inf: null,
-                OI: [
-                    {
-                        FAT: "Route",
-                        FSK: "0~R~~6E~RFIP~4301~~0~60~~X"
-                    }
-                ]
-            },
-            FareRule: {
-                CBNBG: "7KG",
-                CHKNBG: "15KG",
-                CBH: "96HRS",
-                CWBH: "96HRS-4HRS",
-                RBH: "96HRS",
-                RWBH: "96HRS-4HRS",
-                CBHA: 3000,
-                CWBHA: 3600,
-                RBHA: 2850,
-                RWBHA: 3350,
-                SF: 50.00
-            },
-            Alias: "MAIN",
-            FareType: null,
-            PFClass: "A-R",
-            Offer: {
-                Msg: "",
-                Refund: "Refundable",
-                IsPromoAvailable: true,
-                IsGstMandatory: false,
-                IsLcc: true
-            },
-            OI: {
-                Jsk: "6E~2375~ ~~DEL~11/30/2023 03:00~BLR~11/30/2023 05:50~~",
-                Pcc: "364549474E3030303346447E4D41494E",
-                Security: "NA"
-            },
-            Deal: {
-                NETFARE: 13439,
-                TDISC: 553,
-                TDS: 28,
-                GST: 100,
-                DISCOUNT: {
-                    DIS: 553,
-                    SF: 0,
-                    PDIS: 0,
-                    CB: 0
-                }
-            }
-        }
-    ],
+      },   SelectedFlights: newArray,
     GstData: {
         IsGst: false,
         GstDetails: {
@@ -490,7 +507,8 @@ const KafilaFun = async (
         }
     }
     };
-
+   
+    //console.log(requestDataFSearch, "API Responce")
       let fSearchApiResponse = await axios.post(
         flightSearchUrl,
         requestDataFSearch,
@@ -501,6 +519,7 @@ const KafilaFun = async (
         }
       );
       //logger.info(fSearchApiResponse.data);
+      
       //console.log(fSearchApiResponse.data, "API Responce")
       if (fSearchApiResponse.data.Status == "failed") {
         return {
@@ -511,15 +530,17 @@ const KafilaFun = async (
             fSearchApiResponse.data.WarningMessage,
         };
       }
+      //console.log(fSearchApiResponse.data);
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;
       let apiResponseCommon = [];
-      for (let index = 0; index < apiResponse.Schedules[0].length; index++) {
-        let schedule = apiResponse.Schedules[0][index];
-        let randomUID = uuid.v4();
+      
+      for (let index = 0; index < apiResponse.SelectedFlight.length; index++) {
+        let schedule = apiResponse.SelectedFlight[index];        
+         //let oldItinerary = Itinerary[index];         
         // apiResponseCommon.push(schedule);
         apiResponseCommon.push({
-          UID: randomUID,
+          UID: Itinerary[index].UID,
           BaseFare: schedule.Fare.BasicTotal,
           Taxes: schedule.Fare.TaxesTotal,
           TotalPrice: schedule.Fare.GrandTotal,
@@ -594,6 +615,7 @@ const KafilaFun = async (
                   Tax: 0.0,                  
               },
                   Key: null,
+                  OI:schedule.Fare.OI
                 }
               : {},
             PaxDetail.Child > 0
@@ -635,6 +657,7 @@ const KafilaFun = async (
                   Tax: 0.0,                  
               },
                   Key: null,
+                  OI:schedule.Fare.OI
                 }
               : {},
             PaxDetail.Infants > 0
@@ -676,6 +699,7 @@ const KafilaFun = async (
                   Tax: 0.0,                  
               },
                   Key: null,
+                  OI:schedule.Fare.OI
                 }
               : {},
           ],
@@ -714,8 +738,8 @@ const KafilaFun = async (
             APISRequirementsRef: "",
             Departure: {
               Terminal: sector.DTrmnl,
-              Date: sector.DDate.split("T")[0],
-              Time: sector.DDate.split("T")[1].substring(0, 5),
+               Date: sector.DDate,
+               Time: sector.DDate,
               Day: null,
               DateTimeStamp: sector.DDate,
               Code: sector.Src,
@@ -727,8 +751,8 @@ const KafilaFun = async (
             },
             Arrival: {
               Terminal: sector.ATrmnl,
-              Date: sector.ADate.split("T")[0],
-              Time: sector.ADate.split("T")[1].substring(0, 5),
+               Date: sector.ADate,
+               Time: sector.ADate,
               Day: null,
               DateTimeStamp: sector.ADate,
               Code: sector.Des,
@@ -738,12 +762,15 @@ const KafilaFun = async (
               CountryCode: "IN",
               CountryName: "India",
             },
+            OI:sector.OI
           })),
+          FareDifference:apiResponse.FareBreakup,
           HostTokens: null,
           Key: "",
           SearchID: "",
           TRCNumber: null,
           TraceId: Authentication.TraceId,
+          OI:schedule.OI ?? null
         });
       }
 

@@ -21,7 +21,7 @@ const { seedMarkUpCategoryData }  = require('../seeders/markUpCategorySeeder');
 const { seedPassportDetailMandatoryForAirline } = require('../seeders/makePassportDetailForAirlineSeeder')
 async function runSeeders() {
   try {
-   // await seedCompanies();
+  //  await seedCompanies();
   //   await seedPermissions(); 
   //   await seedProduct(); 
   //   await seedProductPlan();
@@ -42,7 +42,7 @@ async function runSeeders() {
   //   await seedCommercialColumnMaster();
   //   await AirCommercialFilterSeeder();
   //   await seedMarkUpCategoryData();
-  await seedPassportDetailMandatoryForAirline();
+  // await seedPassportDetailMandatoryForAirline();
     console.log('All seeders completed.');
   } catch (err) {
     console.error('Error running seeders:', err);

@@ -42,12 +42,16 @@ const seriesDepartureSchema = new mongoose.Schema({
     type: String,
   },
   originAirportCode: {
-    
+    type : mongoose.Schema.Types.ObjectId,
+    ref : 'airport'
   },
   originAirportTerminal: {
     type : String
   },
-  destinationAirportCode: {},
+  destinationAirportCode: {
+    type : mongoose.Schema.Types.ObjectId,
+    ref : 'airport'
+  },
   destinationAirportTerminal: {
     type : String
   },
@@ -55,12 +59,14 @@ const seriesDepartureSchema = new mongoose.Schema({
     type : Date
   },
   departureTime: {
-    type : Time
+    type : Date
   },
   arrivalDate: {
     type : Date
   },
-  arrivaltime: {},
+  arrivaltime: {
+    type : Date
+  },
   Distance: {
     type : Number
   },
@@ -155,6 +161,8 @@ const seriesDepartureSchema = new mongoose.Schema({
   airLineDetails : {
     type : Object
   }
-
-
+}, {
+    timestamps : true
 });
+const seriesDeparture = mongoose.model("seriesDeparture", seriesDepartureSchema);
+module.exports = seriesDeparture;

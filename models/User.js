@@ -156,11 +156,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre("save", async function (next) {
     console.log("===>>>>>>>",this.password, "<<<<<<<================");
     if(!this.isModified("password")) return next();
-    this.password = await bcrypt.hash(this.password, 10);
-    if(this.isModified(login_Id)){
-        const highestUserId = await this.constructor.findOne({}, { login_Id: 1 }).sort({ login_Id: -1 });
-        this.login_Id = highestUserId ? highestUserId.login_Id + 1 : 1001; 
-    }
+    this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 userSchema.methods.isPasswordCorrect = async function(password){

@@ -6,7 +6,7 @@ const { connectionMongoDb } = require("./connection");
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
 const basicAuth = require('express-basic-auth');
-connectionMongoDb(Config.MONGODB_URL);
+connectionMongoDb(Config.MONGODB_URL_2);
 
 // const { migrate } = require("./migrations/userMigration");
 // migrate();

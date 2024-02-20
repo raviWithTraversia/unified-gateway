@@ -8,8 +8,9 @@ const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
 
-const airPricing = async (req, res) => {
+const startBooking = async (req, res) => {
   const {
+    SearchRequest: {
     Authentication,
     TypeOfTrip,
     Segments,
@@ -20,8 +21,10 @@ const airPricing = async (req, res) => {
     ClassOfService,
     Airlines,
     FareFamily,
-    RefundableOnly,
-    Itinerary
+    RefundableOnly,    
+    },
+    PassengerPreferences,
+    ItineraryPriceCheckResponses
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -35,13 +38,14 @@ const airPricing = async (req, res) => {
     "Airlines",
     "FareFamily",
     "RefundableOnly",
-    "Itinerary"
+    "PassengerPreferences",
+    "ItineraryPriceCheckResponses",    
   ];
-  const missingFields = fieldNames.filter(
-    (fieldName) =>
-      req.body[fieldName] === null || req.body[fieldName] === undefined
-  );
-
+//   const missingFields = fieldNames.filter(
+//     (fieldName) =>
+//       req.body.SearchRequest[fieldName] === null || req.body.SearchRequest[fieldName] === undefined
+//   );
+  const missingFields = fieldNames.filter(field => field === null || field === undefined);
   if (missingFields.length > 0) {
     const missingFieldsString = missingFields.join(", ");
     return {
@@ -49,8 +53,8 @@ const airPricing = async (req, res) => {
       isSometingMissing: true,
       data: `Missing or null fields: ${missingFieldsString}`,
     };
-  }
-
+  }  
+  
   let companyId = Authentication.CompanyId;
   let UserId = Authentication.UserId;
   if (!companyId || !UserId) {
@@ -88,7 +92,8 @@ const airPricing = async (req, res) => {
       Airlines,
       FareFamily,
       RefundableOnly,
-      Itinerary
+      PassengerPreferences,
+      ItineraryPriceCheckResponses
     );
   }
 
@@ -116,7 +121,8 @@ async function handleflight(
   Airlines,
   FareFamily,
   RefundableOnly,
-  Itinerary
+  PassengerPreferences,
+  ItineraryPriceCheckResponses  
 ) {
   // International
   // Check LIVE and TEST
@@ -179,7 +185,9 @@ async function handleflight(
               FareFamily,
               RefundableOnly,
               supplier.supplierCodeId.supplierCode,
-              Itinerary
+              PassengerPreferences,
+              ItineraryPriceCheckResponses
+              
             );
 
           default:
@@ -193,10 +201,10 @@ async function handleflight(
     })
   );
   // delete this one
-  // return {
-  //   IsSucess: true,
-  //   response: responsesApi,
-  // };
+  return {
+    IsSucess: true,
+    response: responsesApi,
+  };
   // Combine the responses here
   const combineResponseObj = {};
   supplierCredentials.forEach((supplier, index) => {
@@ -221,15 +229,15 @@ async function handleflight(
   }
 
   // apply commercial function
-  const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
-    Authentication,
-    TravelType,
-    commonArray
-  );
+//   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
+//     Authentication,
+//     TravelType,
+//     commonArray
+//   );
 
   return {
     IsSucess: true,
-    response: getApplyAllCommercialVar,
+    response: commonArray,
   };
 }
 
@@ -247,7 +255,8 @@ const KafilaFun = async (
   FareFamily,
   RefundableOnly,
   Provider,
-  Itinerary
+  PassengerPreferences,
+  ItineraryPriceCheckResponses
 ) => {
  
   let createTokenUrl;
@@ -265,11 +274,11 @@ const KafilaFun = async (
     // Live Url here
     credentialType = "P";
     createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
-    flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FFareCheck`;
+    //flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FPNR`;
   } else {
     // Test Url here
     createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
-    flightSearchUrl = `http://stage1.ksofttechnology.com/api/FFareCheck`;
+    flightSearchUrl = `http://stage1.ksofttechnology.com/api/FPNR`;
   }
 
   let tripTypeValue;
@@ -350,7 +359,7 @@ const KafilaFun = async (
     if (response.data.Status === "success") {
       
         
-      const newArray = Itinerary.map(item => {                 
+      const newArray = ItineraryPriceCheckResponses.map(item => {                 
         const sectorsall = item.Sectors.map(sector => ({          
           Id: 0,
           Src: sector.Departure.Code,
@@ -369,7 +378,7 @@ const KafilaFun = async (
           AArpt: sector.Arrival.Name,
           Dur: sector.FlyingTime,
           layover: "",
-          Seat: 0,
+          Seat: sector.NoSeats,
           FClass: sector.Class,
           PClass: sector.CabinClass,
           FBasis: sector.FareBasisCode,
@@ -413,7 +422,7 @@ const KafilaFun = async (
           ADate: "",
           Dur: "",
           Stop: "",
-          Seat: item.Sectors[0].NoSeats,
+          Seat: 0,
           Sector: "",
           Itinerary: sectorsall,
           Fare: {
@@ -468,46 +477,19 @@ const KafilaFun = async (
       
 
       let getToken = response.data.Result;
-      let requestDataFSearch = { Param: {
-        Trip: tripTypeValue,
-        Adt: PaxDetail.Adults,
-        Chd: PaxDetail.Child,
-        Inf: PaxDetail.Infants,
-        Sector: segmentsArray,
-        PF: Airlines.length > 0 ? Airlines.join(",") : "",
-        PC: classOfServiceVal,
-        Routing: "ALL",
-        Ver: "1.0.0.0",
-        Auth: {
-          AgentId: supplier.supplierWsapSesssion,
-          Token: getToken,
-        },
-        Env: credentialType,
-        Module: "B2B",
-        OtherInfo: {
-          PromoCode: "",
-          FFlight: "",
-          FareType: fareFamilyVal,
-          TraceId: Authentication.TraceId,
-          IsUnitTesting: false,
-          TPnr: false,
-        },
-      },   SelectedFlights: newArray,
-    GstData: {
-        IsGst: false,
-        GstDetails: {
-            Name: "Kafila Hospitality and Travels Pvt Ltd",
-            Address: "10185-c, Arya samaj Road, Karolbagh",
-            Email: "admin@kafilatravel.in",
-            Mobile: "9899911993",
-            Pin: "110005",
-            State: "Delhi",
-            Type: "",
-            Gstn: "07AAACD3853F1ZW"
-        }
-    }
-    };
-   
+      let requestDataFSearch = { FareChkRes: {
+        Error:ItineraryPriceCheckResponses[0].Error,
+        IsFareUpdate: ItineraryPriceCheckResponses[0].IsFareUpdate,
+        IsAncl: ItineraryPriceCheckResponses[0].IsAncl,
+        Param: ItineraryPriceCheckResponses[0].Param,   
+        SelectedFlight: [ItineraryPriceCheckResponses[0].SelectedFlight],
+        FareBreakup:ItineraryPriceCheckResponses[0].FareDifference,
+      GstData:ItineraryPriceCheckResponses[0].GstData,
+      Ancl: null 
+    },
+    PaxInfo:PassengerPreferences,
+};
+
     //console.log(requestDataFSearch, "API Responce")
       let fSearchApiResponse = await axios.post(
         flightSearchUrl,
@@ -519,7 +501,7 @@ const KafilaFun = async (
         }
       );
       //logger.info(fSearchApiResponse.data);
-      
+     
       //console.log(fSearchApiResponse.data, "API Responce")
       if (fSearchApiResponse.data.Status == "failed") {
         return {
@@ -531,6 +513,10 @@ const KafilaFun = async (
         };
       }
       //console.log(fSearchApiResponse.data);
+      return {
+        IsSucess: true,
+        response: fSearchApiResponse.data,
+    };
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;
       let apiResponseCommon = [];
@@ -539,8 +525,6 @@ const KafilaFun = async (
         let schedule = apiResponse.SelectedFlight[index];        
          //let oldItinerary = Itinerary[index];         
         // apiResponseCommon.push(schedule);
-        
-        
         apiResponseCommon.push({
           UID: Itinerary[index].UID,
           BaseFare: schedule.Fare.BasicTotal,
@@ -705,14 +689,14 @@ const KafilaFun = async (
                 }
               : {},
           ],
-          Sectors: schedule.Itinerary.map((sector,index) => ({
+          Sectors: schedule.Itinerary.map((sector) => ({
             IsConnect: false,
             AirlineCode: sector.FCode,
             AirlineName: sector.FName,
             Class: sector.FClass,
             CabinClass: sector.PClass,
             BookingCounts: "",
-            NoSeats: Itinerary[index].Sectors[index].NoSeats,
+            NoSeats: sector.Seat,
             FltNum: sector.FNo,
             EquipType: sector.FlightType,
             FlyingTime: sector.Dur,
@@ -767,24 +751,6 @@ const KafilaFun = async (
             OI:sector.OI
           })),
           FareDifference:apiResponse.FareBreakup,
-          Error:apiResponse.Error,
-          IsFareUpdate: apiResponse.IsFareUpdate,
-          IsAncl: apiResponse.IsAncl,
-          Param:apiResponse.Param,
-          GstData: {
-            IsGst: false,
-            GstDetails: {
-                Name: "Kafila Hospitality and Travels Pvt Ltd",
-                Address: "10185-c, Arya samaj Road, Karolbagh",
-                Email: "admin@kafilatravel.in",
-                Mobile: "9899911993",
-                Pin: "110005",
-                State: "Delhi",
-                Type: "",
-                Gstn: "07AAACD3853F1ZW"
-            }
-        },
-        SelectedFlight:apiResponse.SelectedFlight[0],
           HostTokens: null,
           Key: "",
           SearchID: "",
@@ -813,5 +779,5 @@ const KafilaFun = async (
 };
 
 module.exports = {
-    airPricing,
+    startBooking,
 };

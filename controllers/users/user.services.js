@@ -1,6 +1,5 @@
 const User = require("../../models/User");
 const Company = require("../../models/Company");
-const bcryptjs = require("bcryptjs");
 const commonFunction = require("../commonFunctions/common.function");
 const { Status } = require("../../utils/constants");
 const Smtp = require("../../models/Smtp");
@@ -8,7 +7,6 @@ const Role = require("../../models/Role");
 const {TMC_ROLE ,DISTRIBUTER_ROLE,HOST_ROLE} = require("../../utils/constants");
 const webMaster = require("../../models/WebsiteManager");
 const Registration = require('../../models/Registration');
-const CommercialAirPlan = require('../../models/CommercialAirPlan');
 const agentConfigModel = require('../../models/AgentConfig');
 const privilagePlanModel = require('../../models/PrivilagePlan');
 const commercialPlanModel = require('../../models/CommercialAirPlan');
@@ -16,7 +14,6 @@ const fareRuleGroupModel = require('../../models/FareRuleGroup');
 const agencyGroupModel = require('../../models/AgencyGroup');
 const { response } = require("../../routes/userRoute");
 const {Config} = require("../../configs/config");
-const { userSchemaInsert } = require("../../validation/user.schema");
 
 const registerUser = async (req, res) => {
   try {
@@ -394,7 +391,6 @@ const userInsert = async (req, res) => {
    
   }
 };
-
 const forgotPassword = async (req, res) => {
   const { email, companyId } = req.body;
   try {
@@ -446,7 +442,6 @@ const forgotPassword = async (req, res) => {
     throw error;
   }
 };
-
 const varifyTokenForForgetPassword = async(req,res) => {
   try{
     let { userId , token } = req.query;
@@ -469,7 +464,7 @@ const varifyTokenForForgetPassword = async(req,res) => {
     console.log(error);
     throw error
   }
-}
+};
 const resetPassword = async (req, res) => {
   try {
     const { userId,  newPassword,oldPassword } = req.body;
@@ -497,7 +492,6 @@ const resetPassword = async (req, res) => {
     throw error
   }
 };
-
 const changePassword = async (req, res) => {
   try {
     let { currentPassword, newPassword, email, id } = req.body;
@@ -540,7 +534,6 @@ const changePassword = async (req, res) => {
     throw error;
   }
 };
-
 const addUser = async (req,res) => {
   try{
     let requiredFeild = [
@@ -643,7 +636,6 @@ const addUser = async (req,res) => {
      throw error
   }
 };
-
 const editUser = async (req,res) => {
   try{
     const userId = req.query.id;

@@ -47,11 +47,7 @@ const addwebsiteManager = async (req, res) => {
             instaURL,
             websiteURL,  
         } = req.body;
-
-       
-        
         if(!domainName) {
-            
             return {
                 response : 'Domain name field are required'
             }

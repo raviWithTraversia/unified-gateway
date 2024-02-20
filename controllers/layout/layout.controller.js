@@ -11,7 +11,15 @@ const dashBoardCount = async (req , res) => {
             result.data,
             ServerStatusCode.SUCESS_CODE  
         )
-      }else{
+      }else if(result.response === 'Data Found Sucessfully'){
+        apiSucessRes(
+          res,
+          result.response,
+          result.data,
+          ServerStatusCode.SUCESS_CODE  
+      )
+      }
+      else{
         apiErrorres(
             res,
             errorResponse.NOT_AVALIABLE,

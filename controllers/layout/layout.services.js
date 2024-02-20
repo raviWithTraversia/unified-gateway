@@ -48,7 +48,8 @@ const dashBoardCount  = async (req,res) => {
         }
     }else{
         return {
-            response : '0' 
+            response : 'Data Found Sucessfully' ,
+            data : data
         }
     }
       

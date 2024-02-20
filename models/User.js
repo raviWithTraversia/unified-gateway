@@ -148,23 +148,51 @@ const userSchema = new mongoose.Schema({
     ip_address : String,
     refreshToken : {
         type : String
-    }
+    },
+    userId: {
+        type: Number,
+        unique: true,
+      },
 }, {
     timestamps: true 
   });
+  const counterSchema = new mongoose.Schema({
+    _id: { type: String, required: true },
+    seq: { type: Number, default: 1000 },
+  });
+  
+  const Counter = mongoose.model("Counter", counterSchema);
 
 userSchema.pre("save", async function (next) {
     console.log("===>>>>>>>",this.password, "<<<<<<<================");
     if(!this.isModified("password")) return next();
     this.password = await bcrypt.hash(this.password, 10)
     next()
-})
+});
+userSchema.pre("save", async function (next) {
+    if (!this.isNew) return next();
+  
+    try {
+      const counter = await Counter.findByIdAndUpdate(
+        { _id: "userId" },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true }
+      );
+  console.log("====>>>>", counter,)
+      this.userId = counter.seq;
+  console.log(this.userId)
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
+
 userSchema.methods.isPasswordCorrect = async function(password){
     console.log(this.password)
     let res =  await bcrypt.compare(password, this.password);
     console.log("========>", res , "p???????????????????")
     return await bcrypt.compare(password, this.password)
-}
+};
 userSchema.methods.generateAccessToken = function(){
     return jwt.sign(
         {
@@ -178,7 +206,7 @@ userSchema.methods.generateAccessToken = function(){
             expiresIn: process.env.ACCESS_TOKEN_EXPIRY
         }
     )
-}
+};
 userSchema.methods.generateRefreshToken = function(){
     return jwt.sign(
         {
@@ -190,7 +218,7 @@ userSchema.methods.generateRefreshToken = function(){
             expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }
     )
-}
+};
 
 const User = mongoose.model("User", userSchema);
 

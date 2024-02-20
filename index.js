@@ -1,6 +1,5 @@
 const { ExpressLoader } = require('./loaders/express.loader');
 const { RoutesLoader } = require('./loaders/routes.loader');
-const { MiddlewareLoader } = require('./loaders/middleware.loader');
 const { Config } = require('./configs/config');
 const { connectionMongoDb } = require("./connection");
 const swaggerJSDoc = require("swagger-jsdoc");
@@ -8,9 +7,6 @@ const swaggerUI = require("swagger-ui-express");
 const basicAuth = require('express-basic-auth');
 connectionMongoDb(Config.MONGODB_URL);
 
-// const { migrate } = require("./migrations/userMigration");
-// migrate();
-// load express
 const app = ExpressLoader.init();
 
 const runSeeders = require("./seeders");

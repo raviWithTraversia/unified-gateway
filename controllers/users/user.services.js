@@ -15,7 +15,8 @@ const commercialPlanModel = require('../../models/CommercialAirPlan');
 const fareRuleGroupModel = require('../../models/FareRuleGroup');
 const agencyGroupModel = require('../../models/AgencyGroup');
 const { response } = require("../../routes/userRoute");
-const {Config} = require("../../configs/config")
+const {Config} = require("../../configs/config");
+const { userSchemaInsert } = require("../../validation/user.schema");
 
 const registerUser = async (req, res) => {
   try {
@@ -72,6 +73,7 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, phoneNumber, password } = req.body;
+    let data = await User.find();
     let user = await User.findOne({
       $or: [{ email: email }, { phoneNumber: phoneNumber }],
     });
@@ -415,12 +417,12 @@ const forgotPassword = async (req, res) => {
       mailConfig = await Smtp.find({ companyId: parentCompanyId });
       mailConfig = mailConfig[0];
     }
-    let baseUrl = await webMaster.findOne({companyId : comapnyIds});
+    let baseUrl = await webMaster.find({companyId : comapnyIds});
     if(!baseUrl){
       let cId = '6555f84c991eaa63cb171a9f'
       baseUrl = await webMaster.find({companyId : cId});
-      baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'http://localhost:3111/api';
-    }
+    };
+    baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'http://localhost:3111/api';
     const forgetPassWordMail = await commonFunction.sendPasswordResetEmail(
       email,
       resetToken,
@@ -724,10 +726,19 @@ const getAllAgencyAndDistributer = async (req,res) => {
         select: 'companyName type'
       }
     }).exec();
+//console.log("=======>>>", users);
+    let data = [];
+    for(let i = 0;i < users.length; i++){
+      if(users[i].roleId.name == 'Staff' ){
+        continue;
+      }else{
+        data.push(users[i])
+      }
+    }
     if(users.length != 0){
       return {
         response : 'Agency Data fetch Sucessfully',
-        data : users
+        data : data
       }
     }else{
       return {

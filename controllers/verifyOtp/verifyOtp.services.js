@@ -29,7 +29,7 @@ const sendEmailOtp = async (req, res) => {
     const currentTime = new Date();
    let deletePreviousResult  = await varifyOtp.deleteMany({otpExpireTime: { $lt: currentTime } ,otpFor : type, typeName : typeName, status : true });
    let otpSent = await FUNC.sendOtpOnEmail(typeName, generateOtp, smtpDetails);
-   console.log(otpSent , "===========================")
+   //console.log(otpSent , "===========================")
     const saveOtpData = new varifyOtp({
       otpFor: type,
       typeName: typeName,
@@ -59,9 +59,9 @@ const varifyOtpEmailOtp = async (req, res) => {
     const otpData = await varifyOtp.findOne({
       typeName,
       otpFor: type,
-      status: true,
+      status: true
     });
-    //console.log(otpData, "<<<================>>>")
+ //   console.log(otpData, "<<<================>>>")
     if(!otpData){
       return {
         response : 'Please send otp again'
@@ -74,14 +74,14 @@ const varifyOtpEmailOtp = async (req, res) => {
       return {
         response: "OTP has expired",
       };
-    } else if (otpData.otp === otp) {
+    } else if (otpData.otp == otp) {
       otpData.status = false;
       await otpData.save();
       return {
         response: "Email OTP verified successfully",
       };
     } else {
-      // Invalid OTP
+     
       return {
         response: "Invalid OTP",
       };

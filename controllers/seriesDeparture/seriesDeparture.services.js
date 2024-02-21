@@ -7,9 +7,13 @@ const addFixedDepartureTicket = async (req,res) => {
         const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
-        console.log("[[[[[[[[[===>>" , data, "<<<====]]]]]]]]]]]]]]]]]]]]");
-        const camelCaseData = data.map(convertToCamelCase);
-        console.log("[[[[[[[[[===>>1111" , camelCaseData, "<<<====]]]]]]]]]]]]]]]]]]]]");
+       // console.log("[[[[[[[[[===>>" , data, "<<<====]]]]]]]]]]]]]]]]]]]]");
+
+        for(let i = 0; i < data.length; i++){
+                
+        }
+     // console.log("====>>", data,)
+ 
         return {
             response : 'Ticket Data Insert Sucessfully'
         }

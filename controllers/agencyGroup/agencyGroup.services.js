@@ -109,7 +109,7 @@ const getAgencyGroup = async (req, res) => {
     .populate('commercialPlanId')
     .populate('plbGroupId')
     .populate('incentiveGroupId')
-    .populate('fairRuleGroupId')
+    .populate('fareRuleGroupId')
     .populate('diSetupGroupId')
     .populate('pgChargesGroupId')
     .populate('airlinePromoCodeGroupId')

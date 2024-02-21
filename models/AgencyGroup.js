@@ -18,7 +18,7 @@ const agencyGroupSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "IncentiveGroupMaster",
     },
-    fairRuleGroupId: {
+    fareRuleGroupId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "fareRuleGroup",
     },

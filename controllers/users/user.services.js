@@ -66,7 +66,6 @@ const registerUser = async (req, res) => {
     throw error;
   }
 };
-
 const loginUser = async (req, res) => {
   try {
     const { email, phoneNumber, password } = req.body;
@@ -121,7 +120,6 @@ const loginUser = async (req, res) => {
     throw error;
   }
 };
-
 const userInsert = async (req, res) => {
   let savedCompany = null;
   let newUser = null;
@@ -418,7 +416,7 @@ const forgotPassword = async (req, res) => {
       let cId = '6555f84c991eaa63cb171a9f'
       baseUrl = await webMaster.find({companyId : cId});
     };
-    baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'http://localhost:3111/api';
+    baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL :'http://localhost:3111/api';
     const forgetPassWordMail = await commonFunction.sendPasswordResetEmail(
       email,
       resetToken,
@@ -494,7 +492,7 @@ const resetPassword = async (req, res) => {
 };
 const changePassword = async (req, res) => {
   try {
-    let { currentPassword, newPassword, email, id } = req.body;
+    let { currentPassword, newPassword, email, id,parentId } = req.body;
     let user = await User.findOne({ $or : [{email : email}, {_id : id}]});
     if (user) {
       if(currentPassword){
@@ -510,7 +508,7 @@ const changePassword = async (req, res) => {
           response : 'Password Change Sucessfully'
         }
       }else{
-        let findUser = await User.findById(id);
+        let findUser = await User.findById(parentId);
         let findRole = await Role.findOne({_id : findUser?.roleId });
         if(findRole?.name == 'TMC' ||findRole?.name == 'Distributer'||findRole?.name == 'Distributor'||findRole?.name == 'Supplier'){
           user.password = newPassword;
@@ -661,7 +659,6 @@ const editUser = async (req,res) => {
      throw error
   }
 };
-
 const getUser = async (req,res) => {
   try{
   let {companyId} = req.query;
@@ -691,7 +688,6 @@ const getUser = async (req,res) => {
     throw error
   }
 };
-
 const getAllAgencyAndDistributer = async (req,res) => {
   try{
     let parentId = req.query.id;
@@ -743,7 +739,6 @@ const getAllAgencyAndDistributer = async (req,res) => {
      throw error
   }
 };
-
 module.exports = {
   registerUser,
   loginUser,
@@ -757,3 +752,4 @@ module.exports = {
   getUser,
   getAllAgencyAndDistributer
 };
+

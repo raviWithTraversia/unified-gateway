@@ -3,7 +3,7 @@ const { apiSucessRes, apiErrorres } = require('../../utils/commonResponce');
 const { ServerStatusCode, errorResponse, CrudMessage } = require('../../utils/constants');
 const getCountryDialCode = async(req, res) => {
     try {
-        const result = await countryServices.getCountryDialCode(req);
+        const result = await countryServices.getCountryDialCode(req, res);
         apiSucessRes(
             res,
             result.response,

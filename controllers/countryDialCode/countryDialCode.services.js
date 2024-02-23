@@ -3,9 +3,10 @@ const countryDialCodeModel = require('../../models/CountryDialCode');
 const getCountryDialCode = async (req,res) => {
     try{
         const result = await countryDialCodeModel.find();
+       // console.log("=========>", result)
         result.sort((a, b) => {
-            const countryA = a.country.toUpperCase(); 
-            const countryB = b.country.toUpperCase();
+            const countryA = a.name.toUpperCase(); 
+            const countryB = b.name.toUpperCase();
         
             if (countryA < countryB) {
                 return -1; 

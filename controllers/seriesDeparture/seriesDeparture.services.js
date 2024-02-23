@@ -114,7 +114,58 @@ function transformData(input, companyId, userId) {
   return output;
 };
 
+const getFixedDepartureTicket = async (req,res) => {
+  try{
+    let {userId} = req.query;
+    let ticketDetail = await seriesDepartureModel.find({userId}).populate('userId companyId');
+    if(ticketDetail.length > 0){
+     return {
+      response : "Ticket Detail Found Sucessfully",
+      data : ticketDetail
+     }
+    }
+    return{
+      response : 'Ticket Data Not Found'
+    }
+  }catch(error){
+     console.log(error);
+     throw error
+  }
+};
+
+const updateFixedDepartureTicket = async (req,res) => {
+  try{
+  let id = req.query.id;
+  const updates = req.body;
+
+  if (!updates.pnr || !updates.airline_code) {
+    return  {
+     response : 'Missing required fields' 
+  }
+}
+
+  const updatedSeriesDeparture = await seriesDepartureModel.findByIdAndUpdate(id, updates, {
+    new: true 
+  });
+
+  if (!updatedSeriesDeparture) {
+    return{
+     response :'Series departure not found' 
+    }
+  }
+  return {
+    response : 'Series departure updated successfully',
+    data: updatedSeriesDeparture
+  }
+ 
+  }catch(error){
+    console.log(error);
+    throw error
+  }
+}
 
 module.exports = {
-    addFixedDepartureTicket 
+    addFixedDepartureTicket,
+    getFixedDepartureTicket,
+    updateFixedDepartureTicket
 }

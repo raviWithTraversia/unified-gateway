@@ -8,6 +8,7 @@ const agencyGroup = require("../../models/AgencyGroup");
 
 const getAllPermission = async (req, res) => {
   try {
+  //  console.log(req.user)
     const userId = req.user;
     const checkUser = await User.findById(userId);
     if (checkUser) {
@@ -28,12 +29,12 @@ const getAllPermission = async (req, res) => {
       } else if (getRoleId.name === "Agency" || getRoleId.name === "Distributer") {       
         let getAgentConfig = await agentConfig.findOne({
           companyId: checkUser.company_ID,
-        }); // check config        
+        });         
         if (!getAgentConfig || getAgentConfig.privilegePlansIds === null) {
           getAgentConfig = await agencyGroup.findById(
             getAgentConfig.agencyGroupId
           );         
-          if (getAgentConfig) { // check from group privillage plan id
+          if (getAgentConfig) { 
             
             let privilageplanhaspermissionsvar = await privilageplanhaspermissions.find({privilagePlanId:getAgentConfig.privilagePlanId}).populate('permissionId'); 
               
@@ -84,6 +85,7 @@ const getAllPermission = async (req, res) => {
         }
       } else {
         let addRoleHasPermissionVar = await addRoleHasPermission.find({roleId:checkUser.roleId}).populate('permissionId'); 
+        
         if(addRoleHasPermissionVar.length > 0){
             let allPermissionAssign = addRoleHasPermissionVar.map(item => ({
                 emulate: item.emulate,
@@ -116,7 +118,6 @@ const getAllPermission = async (req, res) => {
     throw error;
   }
 };
-
 const storePermission = async (req, res) => {
   try {
     const {
@@ -170,7 +171,6 @@ const storePermission = async (req, res) => {
     throw error;
   }
 };
-
 module.exports = {
   getAllPermission,
   storePermission,

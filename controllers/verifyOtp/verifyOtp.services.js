@@ -78,7 +78,7 @@ const varifyOtpEmailOtp = async (req, res) => {
       otpData.status = false;
       await otpData.save();
       return {
-        response: "Email OTP verified successfully",
+        response: "Email and Phone OTP verified successfully",
       };
     } else {
      

@@ -6,7 +6,7 @@ const roleHasPermissionsSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref : 'Permission'
     },
-    roleId: { // web or mob
+    roleId: { 
       type: mongoose.Schema.Types.ObjectId,
       ref : 'Role'
     },

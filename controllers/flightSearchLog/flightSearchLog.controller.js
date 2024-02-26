@@ -9,7 +9,7 @@ const {
 let getFlightSerchReport =  async (req,res) => {
     try{
     const result = await flightSearchReport.getFlightSerchReport(req,res);
-    if(result.response == 'Data Found Sucessfully'){
+    if(result.response == 'Data Found Successfully'){
      apiSucessRes(
       res,
       result.response,
@@ -23,7 +23,22 @@ let getFlightSerchReport =  async (req,res) => {
             ServerStatusCode.RESOURCE_NOT_FOUND,
             true
           );
-    }else{
+    }else if(result.response == 'Invalid date format. Please use YYYY-MM-DD.'){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.NOT_EXIST_CODE,
+        true
+      );
+    }else if(result.response == 'fromDate must be less than or equal to toDate'){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.NOT_EXIST_CODE,
+        true
+      );
+    }
+    else{
         apiErrorres(
             res,
             ServerStatusCode.RESOURCE_NOT_FOUND,

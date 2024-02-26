@@ -2,12 +2,13 @@ const seriesDepartureGroupModel = require('../../models/SeriesDepartureGroup');
 
 const addSeriesDepartureGroup = async (req,res) => {
     try{
-        if (!req.body.seriesDepartureIds || !req.body.groupId  ) {
+        if ( !req.body.groupName ) {
             return {
                  response: 'Missing required fields in request body'
           }
-        }
-        let count = req.body.seriesDepartureIds.length;
+        };
+        let count = 0;
+         count = req?.body?.seriesDepartureIds?.length;
         req.body.count = count;
           const newSeriesDepartureGroup = new seriesDepartureGroupModel(req.body);
           await newSeriesDepartureGroup.save();

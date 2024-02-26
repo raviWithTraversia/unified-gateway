@@ -29,25 +29,41 @@ console.log("Data Inserted")
 };
 const getFlightSerchReport = async (req,res) => {
     try{
-      let { userId, toDate, fromDate } = req.body;
-      const fromDateObj = new Date(fromDate);
-      const toDateObj = new Date(toDate);
-      let searchResult = await flightSerchLogModel.find({
-        userId: userId,
-        createdAt: { $gte: fromDateObj, $lte: toDateObj }
-      }).populate('userId');
-  
-   // console.log(searchResult)
-    if(searchResult.length > 0){
-         return {
-            response : 'Data Found Sucessfully',
-            data : searchResult
-         }
-    } else{
+      const { userId, fromDate, toDate } = req.query;
+
+    if (fromDate && toDate) {
+      const isValidDate = (date) => {
+        return !isNaN(new Date(date).getTime());
+      };
+
+      if (!isValidDate(fromDate) || !isValidDate(toDate)) {
+        return res.status(400).json({ message: 'Invalid date format. Please use YYYY-MM-DD.' });
+      }
+    }
+    const query = {};
+    if (userId) {
+      query.userId = mongoose.Types.ObjectId(userId);
+    }
+    if (fromDate && toDate) {
+      query.createdDate = {
+        $gte: new Date(fromDate), 
+        $lte: new Date(toDate)
+      };
+    }
+
+    const reports = await flightSerchLogModel.find(query);
+    console.log(reports.length)
+
+    if (!reports.length) {
       return {
         response : 'Flight Search Data Not Available'
       }
-    } 
+    }
+
+  return {
+    response : 'Data Found Sucessfully',
+    data : reports
+  }
     }catch(error){
         console.log(error);
         throw error

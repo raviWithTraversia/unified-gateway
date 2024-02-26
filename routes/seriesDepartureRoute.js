@@ -15,22 +15,12 @@ seriesDeparture_route.post(
   ssrCommercialGroupController.addFixedDepartureTicket
 );
 
-// seriesDeparture_route.get(
-//   "/ssrCommercialGroup/getSsrCommercialGroup",
-//   auth,
-//   ssrCommercialGroupController.getSsrCommercialGroup
-// );
-// seriesDeparture_route.patch(
-//   "/ssrCommercialGroup/editSsrCommercialGroup",
-//   auth,
-//   ssrCommercialGroupController.editSsrCommercialGroup
-// );
+seriesDeparture_route.get(
+  "/seriesDeparture/getFixedDepartureTicket",
+  ssrCommercialGroupController.getFixedDepartureTicket
+);
 
-// seriesDeparture_route.delete(
-//   "/ssrCommercialGroup/deleteSsrCommercialGroup",
-//   auth,
-//   ssrCommercialGroupController.deleteSsrCommercialGroup
-// );
+
 
 seriesDeparture_route.get("/test", auth, function (req, res) {
   res.status(200).json({ status: "success", msg: "this is test responce" });

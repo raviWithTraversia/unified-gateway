@@ -8,7 +8,7 @@ const addAgencyGroup = async (req, res) => {
       commercialPlanId,
       plbGroupId,
       incentiveGroupId,
-      fairRuleGroupId,
+      fareRuleGroupId,
       diSetupGroupId,
       airlinePromoCodeGroupId,
       pgChargesGroupId,
@@ -21,10 +21,6 @@ const addAgencyGroup = async (req, res) => {
       companyId: companyId,
       name
     });
-  console.log(
-    agencyGroupNameExist,
-    "<<<<<<<<<<<>>>>>>>>>>>>>>"
-  );
   if (agencyGroupNameExist) {
     return {
       response:
@@ -42,7 +38,7 @@ const addAgencyGroup = async (req, res) => {
       commercialPlanId,
       plbGroupId,
       incentiveGroupId,
-      fairRuleGroupId,
+      fareRuleGroupId,
       diSetupGroupId,
       airlinePromoCodeGroupId,
       pgChargesGroupId,
@@ -53,8 +49,6 @@ const addAgencyGroup = async (req, res) => {
       modifyBy: req.user._id,
     });
     newAgencyGroup = await newAgencyGroup.save();
-    console.log(newAgencyGroup, "lllllllllllllllllllllllllllllllllllllllllllllloooooooooooooooooooooo")
-
     if (newAgencyGroup) {
       return {
         response: "Agency Group  Added Sucessfully",
@@ -70,7 +64,6 @@ const addAgencyGroup = async (req, res) => {
     throw error;
   }
 };
-
 const editAgencyGroup = async (req, res) => {
   try {
     let { id } = req.query;
@@ -116,13 +109,11 @@ const getAgencyGroup = async (req, res) => {
     .populate('commercialPlanId')
     .populate('plbGroupId')
     .populate('incentiveGroupId')
-    .populate('fairRuleGroupId')
+    .populate('fareRuleGroupId')
     .populate('diSetupGroupId')
     .populate('pgChargesGroupId')
     .populate('airlinePromoCodeGroupId')
     .populate('companyId')
-   
-
     if (agencyGroup.length > 0) {
       return {
         response: "Agency Group Fetch Sucessfully",
@@ -138,7 +129,6 @@ const getAgencyGroup = async (req, res) => {
     throw error;
   }
 };
-
 const deleteAgencyGroup = async (req, res) => {
   try {
     let id = req.query.id;
@@ -157,8 +147,6 @@ const deleteAgencyGroup = async (req, res) => {
     throw error;
   }
 };
-
-
 const assignAgencyGroup = async (req, res) => {
   try {
     const { userIds, assignAgencyGroup } = req.body;

@@ -28,7 +28,7 @@ const parmissionSchema = new mongoose.Schema({
     }
 
 }, {
-  timestamps: true // Adds created_at and updated_at fields
+  timestamps: true 
 });
 
 module.exports = mongoose.model('Permission', parmissionSchema);

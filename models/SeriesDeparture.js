@@ -1,168 +1,86 @@
 const mongoose = require("mongoose");
 
 const seriesDepartureSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-  companyId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Company",
-  },
-  pnr: {
-    type: String,
-    unique: true,
-  },
-  accountCode: {
-    type: Number,
-  },
-  flightType: {
-    type: String,
-    enum: ["D", "I"],
-  },
-  cabinClass: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "CabinClassMaster",
-  },
-  tripType: {
-    type: String,
-    enum: ["O", "R"],
-  },
-  fareName: {
-    type: String,
-  },
-  aircraftType: {
-    type: String,
-  },
-  airLineCode: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "AirlineCode",
-  },
-  flightNumber: {
-    type: String,
-  },
-  originAirportCode: {
+  pnr: String,
+  account_code: String,
+  flight_type: String,
+  cabin_class: String,
+  trip_type: String,
+  fare_name: String,
+  aircraft_type: String,
+  airline_code: String,
+  flight_number: Number,
+  origin_airport_code: String,
+  origin_airport_terminal: String,
+  destination_airport_code: String,
+  destination_airport_terminal: String,
+  departure_date: String,
+  departure_time: String,
+  arrival_date: String,
+  arrival_time: String,
+  distance: Number,
+  travel_time: String,
+  stops: Number,
+  total_seats: Number,
+  available_seats: Number,
+  rbd: String,
+  baseamount: Number,
+  fuelsurchg: Number,
+  taxamount: Number,
+  baseamountchd: Number,
+  fuelsurchgchd: Number,
+  taxamountchd: Number,
+  baseamountinf: Number,
+  fuelsurchginf: Number,
+  taxamountinf: Number,
+  carryonallowance: String,
+  baggageallowance: String,
+  isrefundable: Number,
+  cancelpenalty: String,
+  changepenalty: String,
+  isactive: Number,
+  baseamountcost: Number,
+  fuelsurchgcost: Number,
+  taxamountcost: Number,
+  baseamountchdcost: Number,
+  fuelsurchgchdcost: Number,
+  taxamountchdcost: Number,
+  baseamountinfcost: Number,
+  fuelsurchginfcost: Number,
+  taxamountinfcost: Number,
+  flights: [
+      {
+          airline_code: String,
+          boundtype: Number,
+          flightnumber: Number,
+          origin: String,
+          oterm: String,
+          destination: String,
+          dterm: String,
+          departuredate: String,
+          departuretime: String,
+          arrivaldate: String,
+          arrivaltime: String,
+          flyingtime: String,
+          distance: Number,
+          baggage: {
+              name: String,
+              charge: Number
+          },
+          meal: {
+              type: String,
+              charge: Number
+          }
+      }
+  ],
+  userId : {
     type : mongoose.Schema.Types.ObjectId,
-    ref : 'airport'
+    'ref': 'User'
   },
-  originAirportTerminal: {
-    type : String
-  },
-  destinationAirportCode: {
+  companyId : {
     type : mongoose.Schema.Types.ObjectId,
-    ref : 'airport'
-  },
-  destinationAirportTerminal: {
-    type : String
-  },
-  departureDate: {
-    type : Date
-  },
-  departureTime: {
-    type : Date
-  },
-  arrivalDate: {
-    type : Date
-  },
-  arrivaltime: {
-    type : Date
-  },
-  Distance: {
-    type : Number
-  },
-  travelTime: {
-    type : Number
-  },
-  stops: {
-    type : Number
-  },
-  totalSeats: {
-    type : Number
-  },
-  availableSeats: {
-    type : Number
-  },
-  rbd: {
-    type: String,
-    enum: ["Y", "N"],
-  },
-  baseAmount: {
-    type: Number,
-  },
-  fuleSurcharge: {
-    type: Number,
-  },
-  taxAmount: {
-    type: Number,
-  },
-  baseAmountChd: {
-    type: Number,
-  },
-  fuleSurchargeChd: {
-    type: Number,
-  },
-  taxAmountChd: {
-    type: Number,
-  },
-  baseAmountInf: {
-    type: Number,
-  },
-  fuleSurchargeInf: {
-    type: Number,
-  },
-  taxAmountInf: {
-    type: Number,
-  },
-  carryOnAllowance : {
-    type : String
-  },
-  baggageAllowance : {
-    type : String
-  },
-  isRefundable : {
-    type : Boolean
-  },
-  canclePenalty : {
-    type : String
-  },
-  changePenalty : {
-    type : String
-  },
-  isActive : {
-    type : Boolean
-  },
-  baseAmountConst : {
-    type : Number
-  },
-  fuleSurchargeConst : {
-    type : Number
-  },
-  taxAmountConst : {
-    type : Number
-  },
-  baseAmountChildConst : {
-    type : Number
-  },
-  fuleSurchargeChildConst : {
-    type : Number
-  },
-  taxAmountChildConst : {
-    type : Number
-  },
-  baseAmountInftConst : {
-    type : Number
-  },
-  fuleSurchargeInftConst : {
-    type : Number
-  },
-  taxAmountInftConst : {
-    type : Number
-  },
-  airLineDetails : {
-    type : Object
+    'ref': 'Company'
   }
-}, {
-    timestamps : true
 });
 const seriesDeparture = mongoose.model("seriesDeparture", seriesDepartureSchema);
 module.exports = seriesDeparture;

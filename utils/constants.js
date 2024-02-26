@@ -44,7 +44,7 @@ const CrudMessage = {
     PRIVILAGE_PLAN_UPDATE : 'Privilage plan updated successfully',
     PRIVILAGE_PLAN_ISDEFAULT : 'Privilage plan IsDefault assign successfully',
     OTP_EMAIL : 'Otp send',
-    OTP_VARIFIED : 'OTP varified sucessfully',
+    OTP_VARIFIED : 'OTP verified sucessfully',
     AIR_COMMERCIAL_ADD : 'Air commerical created successfully',
     ROLE_HAS_PERMISSION_CREATE : 'Role has permission created successfully',
     ROLE_HAS_PERMISSION_UPDATE : 'Role has permission updated successfully',

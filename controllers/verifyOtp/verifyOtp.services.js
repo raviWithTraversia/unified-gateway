@@ -33,7 +33,7 @@ const sendEmailOtp = async (req, res) => {
       otpFor: type,
       typeName: typeName,
       otp: generateOtp,
-      otpExpireTime : moment().add(2,'minute'),
+      otpExpireTime : moment().add(10,'minute'),
       status: true,
     });
     let otpRes = await saveOtpData.save();
@@ -54,37 +54,42 @@ const sendEmailOtp = async (req, res) => {
 
 const varifyOtpEmailOtp = async (req, res) => {
   try {
-    const { otp, typeName,type } = req.body;
-    const otpData = await varifyOtpModel.findOne({
+    const { otp, typeName, type } = req.body;
+
+    const otpData = await varifyOtpModel.find({
       typeName,
       otpFor: type,
-      status: true
-    });
-    if(!otpData){
+      status: true,
+    }).sort({ _id: -1 });
+
+    if (otpData.length === 0) {
       return {
-        response : 'Please send otp again'
-      }
+        response: 'Please send otp again',
+      };
     }
+
+    console.log(otpData);
     const currentTimestamp = moment();
-    if (moment(currentTimestamp).isAfter(moment(otpData?.otpExpireTime))) {
-      otpData.status = false;
-      await otpData.save();
+
+    if (moment(currentTimestamp).isAfter(moment(otpData[0]?.otpExpireTime))) {
+      otpData[0].status = false;
+      await otpData[0].save(); 
       return {
         response: "OTP has expired",
       };
-    } else if (otpData.otp == otp) {
-      otpData.status = false;
-      await otpData.save();
+    } else if (otpData[0].otp == otp) {
+      otpData[0].status = false;
+      await otpData[0].save(); 
       return {
         response: "Email and Phone OTP verified successfully",
       };
-    }else {
+    } else {
       return {
         response: "Invalid OTP",
       };
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
 };

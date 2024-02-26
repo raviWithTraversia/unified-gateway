@@ -12,26 +12,13 @@ const addFixedDepartureTicket = async (req,res) => {
        data = changeArrKeys(data)
        data = transformData(data, companyId,userId)
        console.log(data);
-     
-      try {
-        let newFlightTicket = await seriesDepartureModel.insertMany(data);
+        let result = await insertOrUpdateSeriesDeparture(data);
+       // console.log("===>>>",result, "<<<=========")
         return {
           response: 'Ticket Data Insert Successfully',
-          data: newFlightTicket
+          data: result
         };
-      } catch (error) {
-        if (error.code === 11000) {
-          return {
-            response: 'Duplicate key error. Ensure unique values for the "pnr" field.',
-            data: []
-          };
-        } else {
-          return {
-            response: 'An error occurred during insertion.',
-            data: []
-          };
-        }
-      }
+      
 
     }else{
       let documents = {...req.body}
@@ -117,7 +104,14 @@ function transformData(input, companyId, userId) {
 const getFixedDepartureTicket = async (req,res) => {
   try{
     let {userId} = req.query;
-    let ticketDetail = await seriesDepartureModel.find({userId}).populate('userId companyId');
+    let ticketDetail = await seriesDepartureModel.find({userId}).populate({
+      path: 'userId',
+      select: 'fname lastName', 
+    })
+    .populate({
+      path: 'companyId',
+      select: 'companyName', 
+    });
     if(ticketDetail.length > 0){
      return {
       response : "Ticket Detail Found Sucessfully",
@@ -162,7 +156,31 @@ const updateFixedDepartureTicket = async (req,res) => {
     console.log(error);
     throw error
   }
+};
+
+async function insertOrUpdateSeriesDeparture(data) {
+  for (const key of data) {
+    try {
+      const existingDocument = await seriesDepartureModel.findOne({ pnr: key.pnr });
+      if (existingDocument) {
+        await seriesDepartureModel.updateOne({ pnr: key.pnr }, { $set: key });
+        console.log(`Updated document with PNR: ${key.pnr}`);
+      } else {
+        const newSeriesDeparture = new seriesDepartureModel(key);
+        await newSeriesDeparture.save();
+        console.log(`Inserted document with PNR: ${key.pnr}`);
+      }
+    } catch (error) {
+      console.error(`Error processing document with PNR: ${key.pnr}`, error);
+    }
+  }
+
+  return {
+    response: 'Ticket Data Insert Successfully',
+    data: data
+  };
 }
+
 
 module.exports = {
     addFixedDepartureTicket,

@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 seriesDeparture_route.use(bodyParser.json());
 seriesDeparture_route.use(bodyParser.urlencoded({ extended: true }));
 const auth = require("../middleware/auth");
-const ssrCommercialGroupController = require("../controllers/seriesDeparture/seriesDeparture.controller");
+const seriesDepartureGroupController = require("../controllers/seriesDeparture/seriesDeparture.controller");
 const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -12,12 +12,12 @@ seriesDeparture_route.post(
   "/seriesDeparture/addFixedDepartureTicket",
   upload.single('ticket'),
  // auth,
-  ssrCommercialGroupController.addFixedDepartureTicket
+  seriesDepartureGroupController.addFixedDepartureTicket
 );
 
 seriesDeparture_route.get(
   "/seriesDeparture/getFixedDepartureTicket",
-  ssrCommercialGroupController.getFixedDepartureTicket
+  seriesDepartureGroupController.getFixedDepartureTicket
 );
 
 

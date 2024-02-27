@@ -10,19 +10,20 @@ const addFixedDepartureTicket = async (req,res) => {
         const sheetName = workbook.SheetNames[0];
         let data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
        data = changeArrKeys(data)
-       data = transformData(data, companyId,userId)
-       console.log(data);
-     
-      try {
-        let newFlightTicket = await seriesDepartureModel.insertMany(data);
+       data = transformData(data, companyId,userId);
+       try {
+        let newFlightTicket = await seriesDepartureModel.insertMany(data, { ordered: false , maxTimeMS: 30000 });
         return {
           response: 'Ticket Data Insert Successfully',
           data: newFlightTicket
         };
       } catch (error) {
         if (error.code === 11000) {
+          const duplicateKey = error.keyPattern ? Object.keys(error.keyPattern) : null;
           return {
-            response: 'Duplicate key error. Ensure unique values for the "pnr" field.',
+            response: duplicateKey
+              ? `Duplicate key error. The "${duplicateKey}" field must have unique values.`
+              : 'Duplicate key error. Unique values must be enforced.',
             data: []
           };
         } else {

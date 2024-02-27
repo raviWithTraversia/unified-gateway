@@ -1,9 +1,8 @@
-const varifyOtp = require("../../models/VerifyOtp");
+const varifyOtpModel = require("../../models/VerifyOtp");
 const FUNC = require("../commonFunctions/common.function");
 const smtpConfig = require("../../models/Smtp");
 const moment = require('moment');
 const company = require('../../models/Company');
-const configCred = require('../../models/ConfigCredential')
 
 const sendEmailOtp = async (req, res) => {
   try {
@@ -27,14 +26,14 @@ const sendEmailOtp = async (req, res) => {
     }
    
     const currentTime = new Date();
-   let deletePreviousResult  = await varifyOtp.deleteMany({otpExpireTime: { $lt: currentTime } ,otpFor : type, typeName : typeName, status : true });
+   let deletePreviousResult  = await varifyOtpModel.deleteMany({otpExpireTime: { $lt: currentTime } ,otpFor : type, typeName : typeName, status : true });
    let otpSent = await FUNC.sendOtpOnEmail(typeName, generateOtp, smtpDetails);
    //console.log(otpSent , "===========================")
-    const saveOtpData = new varifyOtp({
+    const saveOtpData = new varifyOtpModel({
       otpFor: type,
       typeName: typeName,
       otp: generateOtp,
-      otpExpireTime : moment().add(2,'minute'),
+      otpExpireTime : moment().add(10,'minute'),
       status: true,
     });
     let otpRes = await saveOtpData.save();
@@ -55,39 +54,42 @@ const sendEmailOtp = async (req, res) => {
 
 const varifyOtpEmailOtp = async (req, res) => {
   try {
-    const { otp, typeName,type } = req.body;
-    const otpData = await varifyOtp.findOne({
+    const { otp, typeName, type } = req.body;
+
+    const otpData = await varifyOtpModel.find({
       typeName,
       otpFor: type,
-      status: true
-    });
- //   console.log(otpData, "<<<================>>>")
-    if(!otpData){
+      status: true,
+    }).sort({ _id: -1 });
+
+    if (otpData.length === 0) {
       return {
-        response : 'Please send otp again'
-      }
+        response: 'Please send otp again',
+      };
     }
+
+    console.log(otpData);
     const currentTimestamp = moment();
-    if (moment(currentTimestamp).isAfter(moment(otpData?.otpExpireTime))) {
-      otpData.status = false;
-      await otpData.save();
+
+    if (moment(currentTimestamp).isAfter(moment(otpData[0]?.otpExpireTime))) {
+      otpData[0].status = false;
+      await otpData[0].save(); 
       return {
         response: "OTP has expired",
       };
-    } else if (otpData.otp == otp) {
-      otpData.status = false;
-      await otpData.save();
+    } else if (otpData[0].otp == otp) {
+      otpData[0].status = false;
+      await otpData[0].save(); 
       return {
         response: "Email and Phone OTP verified successfully",
       };
     } else {
-     
       return {
         response: "Invalid OTP",
       };
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
 };
@@ -100,10 +102,10 @@ const sendPhoneOtp = async (req, res) => {
     //host,port,user,pass
    
     const currentTime = new Date();
-   let deletePreviousResult  = await varifyOtp.deleteMany({otpExpireTime: { $lt: currentTime } ,otpFor : type, typeName : typeName, status : true });
+   let deletePreviousResult  = await varifyOtpModel.deleteMany({otpExpireTime: { $lt: currentTime } ,otpFor : type, typeName : typeName, status : true });
    let otpSent = await FUNC.sendSMS(typeName,otp);
     console.log(otpSent , "===========================")
-    const saveOtpData = new varifyOtp({
+    const saveOtpData = new varifyOtpModel({
       otpFor: type,
       typeName: typeName,
       otp: generateOtp,

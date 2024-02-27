@@ -62,7 +62,8 @@ const makePassportDetailMandatoryRoute = require('../routes/makePassportDetailRo
 const manageAirlineCredentailRoute = require('../routes/manageAirlineCredRoute') ;
 const flightSerchLogRoute = require('../routes/flightSearchLogRoute');
 const seriesDepartureRoute = require('../routes/seriesDepartureRoute');
-const countryDialRoute = require('../routes/countryDialCodeRoute')
+const countryDialRoute = require('../routes/countryDialCodeRoute');
+const seriesDepartureGroup = require('../routes/seriesDepartureGroupRoute')
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -263,6 +264,10 @@ class RoutesLoader {
 
        //countryDialRoute
        app.use('/api', countryDialRoute);
+
+       //seriesDepartureGroup
+       app.use('/api', seriesDepartureGroup )
+
     }
 }
 

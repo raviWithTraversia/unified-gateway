@@ -47,7 +47,7 @@ const varifyOtpEmailOtp = async (req, res) => {
         ServerStatusCode.PRECONDITION_FAILED,
         true
       );
-    } else if (result.response === "Email OTP verified successfully") {
+    } else if (result.response == "Email and Phone OTP verified successfully") {
       apiSucessRes(
         res,
         CrudMessage.OTP_VARIFIED,

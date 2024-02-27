@@ -2,6 +2,7 @@ const flightcommercial = require("./flight.commercial");
 const PromoCode = require("../../models/AirlinePromoCode");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
+const AirportsDetails = require("../../models/AirportDetail");
 const Role = require("../../models/Role");
 const axios = require("axios");
 const uuid = require("uuid");
@@ -145,6 +146,21 @@ async function handleflight(
   //  const getPromoCode = await PromoCode.find({ companyId: CompanyId, supplierCode: supplierCredentials });
   // console.log("aaaaaaaaaaaaaaaaaaaaaaa" + fareTypeVal);
   // return false
+  let airportDetails;
+  try {
+      airportDetails = await AirportsDetails.find({
+          $or: [
+              { Airport_Code: Segments[0].Origin },
+              { Airport_Code: Segments[0].Destination }
+          ]
+      });
+  } catch (error) {
+      console.error("Error fetching airport details:", error);
+      airportDetails = null;
+  }
+
+
+
 
   if (!TraceId) {
     return {
@@ -175,7 +191,8 @@ async function handleflight(
               Airlines,
               FareFamily,
               RefundableOnly,
-              supplier.supplierCodeId.supplierCode
+              supplier.supplierCodeId.supplierCode,
+              airportDetails
             );
 
           default:
@@ -238,7 +255,8 @@ const KafilaFun = async (
   Airlines,
   FareFamily,
   RefundableOnly,
-  Provider
+  Provider,
+  airportDetails
 ) => {
   const cacheKey = JSON.stringify({
     supplier,
@@ -252,7 +270,8 @@ const KafilaFun = async (
     Airlines,
     FareFamily,
     RefundableOnly,
-    Provider
+    Provider,
+    airportDetails
   });
 
   const cachedResult = flightCache.get(cacheKey);
@@ -620,8 +639,8 @@ const KafilaFun = async (
               Name: sector.DArpt,
               CityCode: sector.Src,
               CityName: sector.SrcName,
-              CountryCode: "IN",
-              CountryName: "India",
+              CountryCode: findCountryCodeByCode(airportDetails,sector.Src),
+              CountryName: findCountryNameByCode(airportDetails,sector.Src),
             },
             Arrival: {
               Terminal: sector.ATrmnl,
@@ -633,8 +652,8 @@ const KafilaFun = async (
               Name: sector.AArpt,
               CityCode: sector.Des,
               CityName: sector.DesName,
-              CountryCode: "IN",
-              CountryName: "India",
+              CountryCode: findCountryCodeByCode(airportDetails,sector.Des),
+              CountryName: findCountryNameByCode(airportDetails,sector.Des),
             },
             OI:sector.OI
           })),
@@ -663,6 +682,15 @@ const KafilaFun = async (
       response: error.message,
     };
   }
+};
+const findCountryNameByCode = (airportDetails,countryCode) => {
+  const airport = airportDetails.find(airport => airport.Airport_Code === countryCode);
+  return airport ? airport.Country_Name : null;
+};
+
+const findCountryCodeByCode = (airportDetails,countryCode) => {
+  const airport = airportDetails.find(airport => airport.Airport_Code === countryCode);
+  return airport ? airport.Country_Code : null;
 };
 
 module.exports = {

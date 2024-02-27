@@ -45,13 +45,14 @@ const getApplyAllCommercial = async (
       incentivePlanDetails,
       plbPlanDetails,
       markupDetails,
+      congifDetails
     ] = await Promise.all([
       getAssignCommercial(companyDetails._id),
       getAssignIncentive(companyDetails._id),
       getAssignPlb(companyDetails._id),
       getAssignMarcup(companyDetails._id),
-    ]);
-
+      getAssignCongifDetails(companyDetails._id),
+    ]);    
     const countryMapingVal = await countryMaping.find({
       companyId: companyDetails.parent._id,
       //ContinentCode: { $in: allCountryValue },
@@ -134,8 +135,7 @@ const getApplyAllCommercial = async (
             AirPenalty: [],
             CommercialBreakup: [
               {
-                CommercialType: "SegmentKickback",
-                SubCommercialType: null,
+                CommercialType: "SegmentKickback",                
                 Amount: 0.0,
                 SupplierId: 3232,
                 SupplierType: "TMC",
@@ -184,8 +184,7 @@ const getApplyAllCommercial = async (
             AirPenalty: [],
             CommercialBreakup: [
               {
-                CommercialType: "SegmentKickback",
-                SubCommercialType: null,
+                CommercialType: "SegmentKickback",                
                 Amount: 0.0,
                 SupplierId: 1212,
                 SupplierType: "TMC",
@@ -234,8 +233,7 @@ const getApplyAllCommercial = async (
             AirPenalty: [],
             CommercialBreakup: [
               {
-                CommercialType: "SegmentKickback",
-                SubCommercialType: null,
+                CommercialType: "SegmentKickback",                
                 Amount: 0.0,
                 SupplierId: 1212,
                 SupplierType: "TMC",
@@ -449,8 +447,7 @@ const getApplyAllCommercial = async (
             AirPenalty: [],
             CommercialBreakup: [
               {
-                CommercialType: "SegmentKickback",
-                SubCommercialType: null,
+                CommercialType: "SegmentKickback",                
                 Amount: 0.0,
                 SupplierId: 121,
                 SupplierType: "TMC",
@@ -499,8 +496,7 @@ const getApplyAllCommercial = async (
             AirPenalty: [],
             CommercialBreakup: [
               {
-                CommercialType: "SegmentKickback",
-                SubCommercialType: null,
+                CommercialType: "SegmentKickback",                
                 Amount: 0.0,
                 SupplierId: 232323,
                 SupplierType: "TMC",
@@ -550,8 +546,7 @@ const getApplyAllCommercial = async (
             AirPenalty: [],
             CommercialBreakup: [
               {
-                CommercialType: "SegmentKickback",
-                SubCommercialType: null,
+                CommercialType: "SegmentKickback",                
                 Amount: 0.0,
                 SupplierId: 1212,
                 SupplierType: "TMC",
@@ -645,10 +640,9 @@ const getApplyAllCommercial = async (
           singleFlightDetails,
           commercialPlanDetails
         );
-        if (groupPriority.length > 0) {
-         
+        if (groupPriority.length > 0) {          
           for (let i = 0; i < groupPriority.length; i++) {
-            const commList = groupPriority[i];
+            const commList = groupPriority[i];            
             if (
               TravelType === commList.travelType &&
               commList.carrier === singleFlightDetails.ValCarrier &&
@@ -658,13 +652,14 @@ const getApplyAllCommercial = async (
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
                 singleFlightDetails,
-                companyDetails.parent._id
+                companyDetails.parent._id                
               );
               if (checkInnerFilterfun.match === true) {
                 commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
                   singleFlightDetails,
-                  companyDetails._id
+                  companyDetails._id,
+                  congifDetails
                 );
                 // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 //bestMatch = commertialMatrixValueHandle;
@@ -685,7 +680,8 @@ const getApplyAllCommercial = async (
                 commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
                   singleFlightDetails,
-                  companyDetails._id
+                  companyDetails._id,
+                  congifDetails
                 );
                 //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 //bestMatch = commertialMatrixValueHandle;
@@ -706,7 +702,8 @@ const getApplyAllCommercial = async (
                 commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
                   singleFlightDetails,
-                  companyDetails._id
+                  companyDetails._id,
+                  congifDetails
                 );
                 //bestMatch = commertialMatrixValueHandle;
                 //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
@@ -717,7 +714,7 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === null &&
               commList.commercialCategory === "Ticket"
-            ) {
+            ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
                 singleFlightDetails,
@@ -727,7 +724,8 @@ const getApplyAllCommercial = async (
                 commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
                   singleFlightDetails,
-                  companyDetails._id
+                  companyDetails._id,
+                  congifDetails
                 );
                 //bestMatch = commertialMatrixValueHandle;
                 // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
@@ -747,7 +745,8 @@ const getApplyAllCommercial = async (
           incentivePlanDetails.data,
           singleFlightDetails,
           companyDetails.parent._id,
-          countryMapingVal
+          countryMapingVal,
+          congifDetails
         );
         
         singleFlightDetails.PriceBreakup = checkIncentiveFilterfun.PriceBreakup; 
@@ -759,7 +758,8 @@ const getApplyAllCommercial = async (
           plbPlanDetails.data,
           singleFlightDetails,
           companyDetails.parent._id,
-           countryMapingVal
+           countryMapingVal,
+           congifDetails
         );
         
         singleFlightDetails.PriceBreakup = checkPLBFilterfun.PriceBreakup; 
@@ -796,8 +796,8 @@ const getApplyAllCommercial = async (
               checkMarkupValuefun = await checkMarkupValue(
                 checkSpecificMarkupArr,
                 singleFlightDetails,
-                companyDetails.parent._id
-                
+                companyDetails.parent._id,
+                congifDetails
               );
               
               singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;
@@ -807,7 +807,8 @@ const getApplyAllCommercial = async (
             checkMarkupValuefun = await checkMarkupValue(
               checkAllMarkup,
               singleFlightDetails,
-              companyDetails.parent._id              
+              companyDetails.parent._id,
+              congifDetails              
             );
             
             singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;            
@@ -830,7 +831,7 @@ const getApplyAllCommercial = async (
       applyResponceCommercialArray.push(singleFlightDetails);
     }
     return applyResponceCommercialArray.sort((a, b) => a.TotalPrice - b.TotalPrice);
-     //return applyResponceCommercialArray;
+     //return congifDetails;
   } else if (
     companyDetails.type == "Agency" &&
     companyDetails.parent.type == "Distributer"
@@ -858,7 +859,7 @@ const getApplyAllCommercial = async (
 
     
     for (const singleFlightDetails of commonArray) {
-      //for (const singleFlightDetails of commonArrayDummy) {
+    //  for (const singleFlightDetails of commonArrayDummy) {
         // Check Commertial status and Commertial Apply
         if (commercialPlanDetails.IsSuccess === true) {
           // get group of priority base
@@ -989,13 +990,8 @@ const getApplyAllCommercial = async (
         
         // this is last update and push function
         applyResponceCommercialArray.push(singleFlightDetails);
-      }
-
-    //   commercialPlanDetails = await getAssignCommercial(companyDetails._id);
-    // incentivePlanDetails = await getAssignIncentive(companyDetails._id);
-    // plbPlanDetails = await getAssignPlb(companyDetails._id);
-    // markupDetails = await getAssignMarcup(companyDetails._id);
-
+      }  
+      
       return applyResponceCommercialArray.sort((a, b) => a.TotalPrice - b.TotalPrice);
       
   } else if (
@@ -1530,6 +1526,21 @@ const getAssignMarcup = async (companyId) => {
     return { IsSuccess: false, Message: "Markup Not Available" };
   }
 };
+
+const getAssignCongifDetails = async (companyId) => {
+  let getAgentConfig = await agentConfig.findOne({
+    companyId: companyId,
+  }); 
+
+  if (getAgentConfig) {
+    return { IsSuccess: true, data: getAgentConfig };
+  } else {
+    return { IsSuccess: false, Message: "Agent Config Not Available" };
+  }
+
+};
+
+
 
 const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
   let bestMatch = true;
@@ -2140,7 +2151,8 @@ const checkIncentiveFilter = async (
   incentiveData,
   singleFlightDetails,
   companyId,
-  countryMapingVal
+  countryMapingVal,
+  configDetails
 ) => {
   let bestMatch = true;  
   if (incentiveData.length > 0) {
@@ -2487,8 +2499,9 @@ const checkIncentiveFilter = async (
 
           if (checkPLBValue) {
             if (commList.incentiveMasterId.deductTDS) {
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
               const tdsdeduct =
-                (parseFloat(5) / 100) * commList.incentiveMasterId.PLBValue;
+                (parseFloat(tdsCheckFromConfig) / 100) * commList.incentiveMasterId.PLBValue;
               const totalIncentiveVal =
                 commList.incentiveMasterId.PLBValue - tdsdeduct;
               // check min or max
@@ -2575,11 +2588,11 @@ const checkIncentiveFilter = async (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[0]
                 ) {    
-                               
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;             
                   const totalIncentiveVal =
                    ( singleFlightDetails.PriceBreakup[0].BaseFare *
                       persentageValue) -
-                    parseFloat(5) / 100;                     
+                    parseFloat(tdsCheckFromConfig) / 100;                     
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -2610,10 +2623,11 @@ const checkIncentiveFilter = async (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[1]
                 ) {
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                     (singleFlightDetails.PriceBreakup[1].BaseFare *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -2642,10 +2656,11 @@ const checkIncentiveFilter = async (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[2]
                 ) {
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                     (singleFlightDetails.PriceBreakup[2].BaseFare *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -2686,8 +2701,8 @@ const checkIncentiveFilter = async (
                   if (yqTax) {
                     yqval = yqTax.Amount;
                   }
-
-                  const totalIncentiveVal =  (yqval * persentageValue) - parseFloat(5) / 100;
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+                  const totalIncentiveVal =  (yqval * persentageValue) - parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -2725,10 +2740,11 @@ const checkIncentiveFilter = async (
                   if (yqTax) {
                     yqval = yqTax.Amount;
                   }
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (yqval *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -2764,10 +2780,11 @@ const checkIncentiveFilter = async (
                   if (yqTax) {
                     yqval = yqTax.Amount;
                   }
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (yqval *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -2776,8 +2793,7 @@ const checkIncentiveFilter = async (
                     ) {
                       singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
                         {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
+                          CommercialType: "Incentive",                          
                           Amount: totalIncentiveVal,
                         }
                       );
@@ -2788,8 +2804,7 @@ const checkIncentiveFilter = async (
                     ) {
                       singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
                         {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
+                          CommercialType: "Incentive",                          
                           Amount: totalIncentiveVal,
                         }
                       );
@@ -2800,8 +2815,7 @@ const checkIncentiveFilter = async (
                     ) {
                       singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
                         {
-                          CommercialType: "Incentive",
-                          SubCommercialType: null,
+                          CommercialType: "Incentive",                          
                           Amount: totalIncentiveVal,
                         }
                       );
@@ -2809,8 +2823,7 @@ const checkIncentiveFilter = async (
                   }else{
                     singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
                       {
-                        CommercialType: "Incentive",
-                        SubCommercialType: null,
+                        CommercialType: "Incentive",                       
                         Amount: totalIncentiveVal,
                       }
                     );
@@ -2827,8 +2840,8 @@ const checkIncentiveFilter = async (
                   if (yrTax) {
                     yrval = yrTax.Amount;
                   }
-
-                  const totalIncentiveVal =  (yrval * persentageValue) - parseFloat(5) / 100;
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+                  const totalIncentiveVal =  (yrval * persentageValue) - parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -2866,10 +2879,11 @@ const checkIncentiveFilter = async (
                   if (yrTax) {
                     yrval = yrTax.Amount;
                   }
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (yrval *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -2907,10 +2921,11 @@ const checkIncentiveFilter = async (
                   if (yrTax) {
                     yrval = yrTax.Amount;
                   }
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (yrTax *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -2951,8 +2966,8 @@ const checkIncentiveFilter = async (
                       allTaxes += taxItem.Amount;
                     }
                   });
-
-                  const totalIncentiveVal =  (allTaxes * persentageValue) - parseFloat(5) / 100;
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+                  const totalIncentiveVal =  (allTaxes * persentageValue) - parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -2992,10 +3007,11 @@ const checkIncentiveFilter = async (
                       allTaxes += taxItem.Amount;
                     }
                   });
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (allTaxes *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -3034,10 +3050,11 @@ const checkIncentiveFilter = async (
                       allTaxes += taxItem.Amount;
                     }
                   });
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (allTaxes *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -3551,8 +3568,7 @@ const addIncentiveToBreakup = (priceBreakup, totalIncentiveVal) => {
   priceBreakup.forEach(price => {
       if (price && price.CommercialBreakup) {
           price.CommercialBreakup.push({
-              CommercialType: "Incentive",
-              SubCommercialType: null,
+              CommercialType: "Incentive",              
               Amount: totalIncentiveVal
           });
       }
@@ -3567,8 +3583,7 @@ function updateOrPushIncentive(commercialBreakup, totalIncentiveVal) {
   } else {
       // Push a new 'Incentive' object if it doesn't exist
       commercialBreakup.push({
-          CommercialType: "Incentive",
-          SubCommercialType: null,
+          CommercialType: "Incentive",          
           Amount: totalIncentiveVal,
       });
   }
@@ -3578,7 +3593,8 @@ const checkPLBFilter = async (
   incentiveData,
   singleFlightDetails,
   companyId,
-  countryMapingVal
+  countryMapingVal,
+  configDetails
 ) => {
   let bestMatch = true;  
   if (incentiveData.length > 0) {
@@ -3925,8 +3941,9 @@ const checkPLBFilter = async (
 
           if (checkPLBValue) {
             if (commList.PLBMasterId.deductTDS) {
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
               const tdsdeduct =
-                (parseFloat(5) / 100) * commList.PLBMasterId.PLBValue;
+                (parseFloat(tdsCheckFromConfig) / 100) * commList.PLBMasterId.PLBValue;
               const totalIncentiveVal =
                 commList.PLBMasterId.PLBValue - tdsdeduct;
               // check min or max
@@ -4013,11 +4030,11 @@ const checkPLBFilter = async (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[0]
                 ) {    
-                               
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;             
                   const totalIncentiveVal =
                    ( singleFlightDetails.PriceBreakup[0].BaseFare *
                       persentageValue) -
-                    parseFloat(5) / 100;                     
+                    parseFloat(tdsCheckFromConfig) / 100;                     
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4048,10 +4065,11 @@ const checkPLBFilter = async (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[1]
                 ) {
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5; 
                   const totalIncentiveVal =
                     (singleFlightDetails.PriceBreakup[1].BaseFare *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4080,10 +4098,11 @@ const checkPLBFilter = async (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[2]
                 ) {
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                     (singleFlightDetails.PriceBreakup[2].BaseFare *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4124,8 +4143,8 @@ const checkPLBFilter = async (
                   if (yqTax) {
                     yqval = yqTax.Amount;
                   }
-
-                  const totalIncentiveVal =  (yqval * persentageValue) - parseFloat(5) / 100;
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+                  const totalIncentiveVal =  (yqval * persentageValue) - parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4163,10 +4182,11 @@ const checkPLBFilter = async (
                   if (yqTax) {
                     yqval = yqTax.Amount;
                   }
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (yqval *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4202,10 +4222,11 @@ const checkPLBFilter = async (
                   if (yqTax) {
                     yqval = yqTax.Amount;
                   }
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (yqval *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4214,8 +4235,7 @@ const checkPLBFilter = async (
                     ) {
                       singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
                         {
-                          CommercialType: "PLB",
-                          SubCommercialType: null,
+                          CommercialType: "PLB",                          
                           Amount: totalIncentiveVal,
                         }
                       );
@@ -4226,8 +4246,7 @@ const checkPLBFilter = async (
                     ) {
                       singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
                         {
-                          CommercialType: "PLB",
-                          SubCommercialType: null,
+                          CommercialType: "PLB",                          
                           Amount: totalIncentiveVal,
                         }
                       );
@@ -4238,8 +4257,7 @@ const checkPLBFilter = async (
                     ) {
                       singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
                         {
-                          CommercialType: "PLB",
-                          SubCommercialType: null,
+                          CommercialType: "PLB",                          
                           Amount: totalIncentiveVal,
                         }
                       );
@@ -4247,8 +4265,7 @@ const checkPLBFilter = async (
                   }else{
                     singleFlightDetails.PriceBreakup[2].CommercialBreakup.push(
                       {
-                        CommercialType: "PLB",
-                        SubCommercialType: null,
+                        CommercialType: "PLB",                        
                         Amount: totalIncentiveVal,
                       }
                     );
@@ -4265,8 +4282,8 @@ const checkPLBFilter = async (
                   if (yrTax) {
                     yrval = yrTax.Amount;
                   }
-
-                  const totalIncentiveVal =  (yrval * persentageValue) - parseFloat(5) / 100;
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+                  const totalIncentiveVal =  (yrval * persentageValue) - parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4304,10 +4321,11 @@ const checkPLBFilter = async (
                   if (yrTax) {
                     yrval = yrTax.Amount;
                   }
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (yrval *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4345,10 +4363,11 @@ const checkPLBFilter = async (
                   if (yrTax) {
                     yrval = yrTax.Amount;
                   }
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (yrTax *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4389,8 +4408,8 @@ const checkPLBFilter = async (
                       allTaxes += taxItem.Amount;
                     }
                   });
-
-                  const totalIncentiveVal =  (allTaxes * persentageValue) - parseFloat(5) / 100;
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+                  const totalIncentiveVal =  (allTaxes * persentageValue) - parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4430,10 +4449,11 @@ const checkPLBFilter = async (
                       allTaxes += taxItem.Amount;
                     }
                   });
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (allTaxes *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4472,10 +4492,11 @@ const checkPLBFilter = async (
                       allTaxes += taxItem.Amount;
                     }
                   });
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
                   const totalIncentiveVal =
                   (allTaxes *
                       persentageValue) -
-                    parseFloat(5) / 100;
+                    parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
                     if (
                       totalIncentiveVal >=
@@ -4989,8 +5010,7 @@ const addPLBToBreakup = (priceBreakup, totalIncentiveVal) => {
   priceBreakup.forEach(price => {
       if (price && price.CommercialBreakup) {
           price.CommercialBreakup.push({
-              CommercialType: "PLB",
-              SubCommercialType: null,
+              CommercialType: "PLB",              
               Amount: totalIncentiveVal
           });
       }
@@ -5005,8 +5025,7 @@ function updateOrPushPLB(commercialBreakup, totalIncentiveVal) {
   } else {
       // Push a new 'Incentive' object if it doesn't exist
       commercialBreakup.push({
-          CommercialType: "PLB",
-          SubCommercialType: null,
+          CommercialType: "PLB",          
           Amount: totalIncentiveVal,
       });
   }
@@ -5015,7 +5034,8 @@ function updateOrPushPLB(commercialBreakup, totalIncentiveVal) {
 const commertialMatrixValue = async (
   commList,
   singleFlightDetails,
-  companyId
+  companyId,
+  configDetails
 ) => {
   const serviceFeeRateAllColumn =
     commList.updateaircommercialmatrixes.data.filter(
@@ -5512,7 +5532,8 @@ const commertialMatrixValue = async (
           // if (getAgentConfig) {
           //  tax.TDS += getAgentConfig.tds
           // }
-          tax.TDS += (parseFloat(5) / 100) * tax.Discount;
+          const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+          tax.TDS += (parseFloat(tdsCheckFromConfig) / 100) * tax.Discount;
         }
       };
 
@@ -5597,7 +5618,16 @@ const commertialMatrixValue = async (
         ) {
           const yqTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YQ");
           if (yqTax) {
-            tax.BookingFees += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+            
+            const existingBookingFeesIndex = tax.commercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');
+            if (existingBookingFeesIndex !== -1) {                
+              tax.commercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+            } else {                
+              tax.commercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: (parseFloat(serviceRate) / 100) * yqTax.Amount,
+                });
+            }            
           }
         }
       };
@@ -6238,11 +6268,14 @@ const commertialMatrixValue = async (
           );
           if (countAirline) {
             if (type === "ADT") {
-              tax.TDS += (parseFloat(5) / 100) * countAirline.Amount;
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+              tax.TDS += (parseFloat(tdsCheckFromConfig) / 100) * countAirline.Amount;
             } else if (type === "CHD") {
-              tax.TDS += (parseFloat(5) / 100) * countAirline.Amount;
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+              tax.TDS += (parseFloat(tdsCheckFromConfig) / 100) * countAirline.Amount;
             } else if (type === "INF") {
-              tax.TDS += (parseFloat(5) / 100) * countAirline.Amount;
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+              tax.TDS += (parseFloat(tdsCheckFromConfig) / 100) * countAirline.Amount;
             }
           }
         }
@@ -7978,6 +8011,7 @@ const checkMarkupValue = async (
   markupData,
   singleFlightDetails,
   companyId,
+  configDetails
 ) => {  
   // first check Basic 
   const checkBasic = markupData.markupData.find(

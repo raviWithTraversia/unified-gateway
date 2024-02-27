@@ -23,9 +23,9 @@ const addSeriesDepartureGroup = async (req,res) => {
 };
 const getSeriesDepartureGroup = async (req ,res) =>{
   try{
-    const seriesDepartureGroup = await seriesDepartureGroupModel.findById(req.query.id).populate('seriesDepartureIds').populate({
+    const seriesDepartureGroup = await seriesDepartureGroupModel.find({userId :req.query.id}).populate({
       path: 'userId',
-      select: 'fname lastName', 
+      select: 'fname lastName email', 
     }); 
     if(seriesDepartureGroup){
         return {

@@ -134,12 +134,7 @@ const getApplyAllCommercial = async (
             ],
             AirPenalty: [],
             CommercialBreakup: [
-              {
-                CommercialType: "SegmentKickback",                
-                Amount: 0.0,
-                SupplierId: 3232,
-                SupplierType: "TMC",
-              },
+              
             ],
             AgentMarkupBreakup: {
               BookingFee: 0.0,
@@ -182,14 +177,8 @@ const getApplyAllCommercial = async (
               },
             ],
             AirPenalty: [],
-            CommercialBreakup: [
-              {
-                CommercialType: "SegmentKickback",                
-                Amount: 0.0,
-                SupplierId: 1212,
-                SupplierType: "TMC",
-              },
-            ],
+            CommercialBreakup: [],
+              
             AgentMarkupBreakup: {
               BookingFee: 0.0,
               Basic: 0.0,
@@ -232,12 +221,7 @@ const getApplyAllCommercial = async (
             ],
             AirPenalty: [],
             CommercialBreakup: [
-              {
-                CommercialType: "SegmentKickback",                
-                Amount: 0.0,
-                SupplierId: 1212,
-                SupplierType: "TMC",
-              },
+              
             ],
             AgentMarkupBreakup: {
               BookingFee: 0.0,
@@ -446,12 +430,7 @@ const getApplyAllCommercial = async (
             ],
             AirPenalty: [],
             CommercialBreakup: [
-              {
-                CommercialType: "SegmentKickback",                
-                Amount: 0.0,
-                SupplierId: 121,
-                SupplierType: "TMC",
-              },
+              
             ],
             AgentMarkupBreakup: {
               BookingFee: 0.0,
@@ -495,12 +474,7 @@ const getApplyAllCommercial = async (
             ],
             AirPenalty: [],
             CommercialBreakup: [
-              {
-                CommercialType: "SegmentKickback",                
-                Amount: 0.0,
-                SupplierId: 232323,
-                SupplierType: "TMC",
-              },
+             
             ],
             AgentMarkupBreakup: {
               BookingFee: 0.0,
@@ -545,12 +519,7 @@ const getApplyAllCommercial = async (
             
             AirPenalty: [],
             CommercialBreakup: [
-              {
-                CommercialType: "SegmentKickback",                
-                Amount: 0.0,
-                SupplierId: 1212,
-                SupplierType: "TMC",
-              },
+             
             ],
             AgentMarkupBreakup: {
               BookingFee: 0.0,
@@ -2684,8 +2653,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -2724,8 +2693,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -2766,8 +2735,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -2795,6 +2764,7 @@ const checkIncentiveFilter = async (
                         {
                           CommercialType: "Incentive",                          
                           Amount: totalIncentiveVal,
+                          SupplierType:"TMC"
                         }
                       );
                     }
@@ -2806,6 +2776,7 @@ const checkIncentiveFilter = async (
                         {
                           CommercialType: "Incentive",                          
                           Amount: totalIncentiveVal,
+                          SupplierType:"TMC"
                         }
                       );
                     }
@@ -2817,6 +2788,7 @@ const checkIncentiveFilter = async (
                         {
                           CommercialType: "Incentive",                          
                           Amount: totalIncentiveVal,
+                          SupplierType:"TMC"
                         }
                       );
                     }
@@ -2825,6 +2797,7 @@ const checkIncentiveFilter = async (
                       {
                         CommercialType: "Incentive",                       
                         Amount: totalIncentiveVal,
+                        SupplierType:"TMC"
                       }
                     );
                   }
@@ -2863,8 +2836,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -2905,9 +2878,9 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
 
-                    if(commercialBreakup){
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -2947,9 +2920,9 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
 
-                    if(commercialBreakup){
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -2989,9 +2962,9 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
 
-                    if(commercialBreakup){
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -3033,9 +3006,9 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
 
-                    if(commercialBreakup){
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -3076,9 +3049,9 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
 
-                    if(commercialBreakup){
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -3120,8 +3093,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                    }
                   }
@@ -3154,8 +3127,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     } 
                   }
@@ -3188,8 +3161,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -3229,8 +3202,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -3269,8 +3242,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -3342,8 +3315,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -3382,8 +3355,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -3421,8 +3394,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -3462,8 +3435,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -3503,8 +3476,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -3543,8 +3516,8 @@ const checkIncentiveFilter = async (
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushIncentive(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -3569,22 +3542,24 @@ const addIncentiveToBreakup = (priceBreakup, totalIncentiveVal) => {
       if (price && price.CommercialBreakup) {
           price.CommercialBreakup.push({
               CommercialType: "Incentive",              
-              Amount: totalIncentiveVal
+              Amount: totalIncentiveVal,
+              SupplierType:"TMC"
           });
       }
   });
 };
 
-function updateOrPushIncentive(commercialBreakup, totalIncentiveVal) {
-  const existingIncentiveIndex = commercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
+function updateOrPushIncentive(CommercialBreakup, totalIncentiveVal) {
+  const existingIncentiveIndex = CommercialBreakup.findIndex(item => item.CommercialType === 'Incentive');
   if (existingIncentiveIndex !== -1) {
       // Update the Amount if 'Incentive' already exists
-      commercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+      CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
   } else {
       // Push a new 'Incentive' object if it doesn't exist
-      commercialBreakup.push({
+      CommercialBreakup.push({
           CommercialType: "Incentive",          
           Amount: totalIncentiveVal,
+          SupplierType:"TMC"
       });
   }
 }
@@ -4126,8 +4101,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -4166,8 +4141,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -4208,8 +4183,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -4237,6 +4212,7 @@ const checkPLBFilter = async (
                         {
                           CommercialType: "PLB",                          
                           Amount: totalIncentiveVal,
+                          SupplierType:"TMC"
                         }
                       );
                     }
@@ -4248,6 +4224,7 @@ const checkPLBFilter = async (
                         {
                           CommercialType: "PLB",                          
                           Amount: totalIncentiveVal,
+                          SupplierType:"TMC"
                         }
                       );
                     }
@@ -4259,6 +4236,7 @@ const checkPLBFilter = async (
                         {
                           CommercialType: "PLB",                          
                           Amount: totalIncentiveVal,
+                          SupplierType:"TMC"
                         }
                       );
                     }
@@ -4267,6 +4245,7 @@ const checkPLBFilter = async (
                       {
                         CommercialType: "PLB",                        
                         Amount: totalIncentiveVal,
+                        SupplierType:"TMC"
                       }
                     );
                   }
@@ -4305,8 +4284,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -4347,9 +4326,9 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
 
-                    if(commercialBreakup){
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -4389,9 +4368,9 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
 
-                    if(commercialBreakup){
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -4431,9 +4410,9 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
 
-                    if(commercialBreakup){
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -4475,9 +4454,9 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
 
-                    if(commercialBreakup){
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -4518,9 +4497,9 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
 
-                    if(commercialBreakup){
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -4562,8 +4541,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                    }
                   }
@@ -4596,8 +4575,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     } 
                   }
@@ -4630,8 +4609,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -4671,8 +4650,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -4711,8 +4690,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -4784,8 +4763,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -4824,8 +4803,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }
@@ -4863,8 +4842,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -4904,8 +4883,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -4945,8 +4924,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -4985,8 +4964,8 @@ const checkPLBFilter = async (
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                     }
                   }else{
-                    const commercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
-                    if(commercialBreakup){
+                    const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
+                    if(CommercialBreakup){
                       updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
                   }
                   }
@@ -5011,22 +4990,24 @@ const addPLBToBreakup = (priceBreakup, totalIncentiveVal) => {
       if (price && price.CommercialBreakup) {
           price.CommercialBreakup.push({
               CommercialType: "PLB",              
-              Amount: totalIncentiveVal
+              Amount: totalIncentiveVal,
+              SupplierType:"TMC"
           });
       }
   });
 };
 
-function updateOrPushPLB(commercialBreakup, totalIncentiveVal) {
-  const existingIncentiveIndex = commercialBreakup.findIndex(item => item.CommercialType === 'PLB');
+function updateOrPushPLB(CommercialBreakup, totalIncentiveVal) {
+  const existingIncentiveIndex = CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
   if (existingIncentiveIndex !== -1) {
       // Update the Amount if 'Incentive' already exists
-      commercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
+      CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
   } else {
       // Push a new 'Incentive' object if it doesn't exist
-      commercialBreakup.push({
+      CommercialBreakup.push({
           CommercialType: "PLB",          
           Amount: totalIncentiveVal,
+          SupplierType:"TMC"
       });
   }
 }
@@ -5091,7 +5072,16 @@ const commertialMatrixValue = async (
         ) {
           const yqTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YQ");
           if (yqTax) {
-            tax.ServiceFees += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');    
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: (parseFloat(serviceRate) / 100) * yqTax.Amount,
+                    SupplierType: "TMC"
+                });
+            }            
           }
         }
       };
@@ -5119,7 +5109,17 @@ const commertialMatrixValue = async (
 
       const applyServiceRateToBaseFare = (fare) => {
         if (!(Object.keys(fare).length === 0)) {
-          fare.ServiceFees += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+          const existingBookingFeesIndex = fare.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');    
+            if (existingBookingFeesIndex !== -1) {                
+              fare.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+            } else {                
+              fare.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: (parseFloat(serviceRate) / 100) * fare.BaseFare,
+                    SupplierType: "TMC"
+                });
+            }
+          
           //fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
         }
       };
@@ -5157,8 +5157,17 @@ const commertialMatrixValue = async (
         ) {
           tax.TaxBreakup.forEach((taxItem) => {
             if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
-              tax.ServiceFees +=
-                (parseFloat(serviceRate) / 100) * taxItem.Amount;
+              const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');    
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
+                    SupplierType: "TMC"
+                });
+            }
+              
             }
           });
         }
@@ -5198,7 +5207,17 @@ const commertialMatrixValue = async (
         ) {
           const yrTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YR");
           if (yrTax) {
-            tax.ServiceFees += (parseFloat(serviceRate) / 100) * yrTax.Amount;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');    
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * yrTax.Amount;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: (parseFloat(serviceRate) / 100) * yrTax.Amount,
+                    SupplierType: "TMC"
+                });
+            }
+            
           }
         }
       };
@@ -5228,11 +5247,31 @@ const commertialMatrixValue = async (
           !(Object.keys(tax.TaxBreakup).length === 0)
         ) {
           tax.TaxBreakup.forEach((taxItem) => {
-            tax.ServiceFees += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');    
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
+                    SupplierType: "TMC"
+                });
+            }
+            
           });
 
           if ("BaseFare" in tax) {
-            tax.ServiceFees += (parseFloat(serviceRate) / 100) * tax.BaseFare;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');    
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * tax.BaseFare;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: (parseFloat(serviceRate) / 100) * tax.BaseFare,
+                    SupplierType: "TMC"
+                });
+            }
+            
           }
         }
       };
@@ -5270,7 +5309,34 @@ const commertialMatrixValue = async (
           // if (getAgentConfig) {
           //  tax.gst += getAgentConfig.discountPercentage
           // }
-          tax.gst += (parseFloat(18) / 100) * tax.ServiceFees;
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');    
+            if (existingBookingFeesIndex !== -1) {
+              
+            const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
+            if (existingGSTIndex !== -1) {                
+              tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "GST",          
+                    Amount: (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                    SupplierType: "TMC"
+                });
+            }
+              
+            } else {   
+              const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
+            if (existingGSTIndex !== -1) {                
+              tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * 0;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "GST",          
+                    Amount: (parseFloat(18) / 100) * 0,
+                    SupplierType: "TMC"
+                });
+            }             
+              
+            }
+          
         }
       };
 
@@ -5354,7 +5420,17 @@ const commertialMatrixValue = async (
         ) {
           const yqTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YQ");
           if (yqTax) {
-            tax.Discount += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'Discount');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "Discount",          
+                    Amount: (parseFloat(serviceRate) / 100) * yqTax.Amount,
+                    SupplierType: "TMC"
+                });
+            }
+            
           }
         }
       };
@@ -5382,7 +5458,17 @@ const commertialMatrixValue = async (
 
       const applyServiceRateToBaseFare = (fare) => {
         if (!(Object.keys(fare).length === 0)) {
-          fare.Discount += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+          const existingBookingFeesIndex = fare.CommercialBreakup.findIndex(item => item.CommercialType === 'Discount');             
+          if (existingBookingFeesIndex !== -1) {                
+            fare.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+          } else {                
+            fare.CommercialBreakup.push({
+                  CommercialType: "Discount",          
+                  Amount: (parseFloat(serviceRate) / 100) * fare.BaseFare,
+                  SupplierType: "TMC"
+              });
+          }
+          
           //fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
         }
       };
@@ -5420,7 +5506,17 @@ const commertialMatrixValue = async (
         ) {
           tax.TaxBreakup.forEach((taxItem) => {
             if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
-              tax.Discount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+              const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'Discount');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "Discount",          
+                    Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
+                    SupplierType: "TMC"
+                });
+            }
+              
             }
           });
         }
@@ -5460,7 +5556,17 @@ const commertialMatrixValue = async (
         ) {
           const yrTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YR");
           if (yrTax) {
-            tax.Discount += (parseFloat(serviceRate) / 100) * yrTax.Amount;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'Discount');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * yrTax.Amount;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "Discount",          
+                    Amount: (parseFloat(serviceRate) / 100) * yrTax.Amount,
+                    SupplierType: "TMC"
+                });
+            }
+            
           }
         }
       };
@@ -5490,11 +5596,31 @@ const commertialMatrixValue = async (
           !(Object.keys(tax.TaxBreakup).length === 0)
         ) {
           tax.TaxBreakup.forEach((taxItem) => {
-            tax.Discount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'Discount');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "Discount",          
+                    Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
+                    SupplierType: "TMC"
+                });
+            }
+            
           });
 
           if ("BaseFare" in tax) {
-            tax.Discount += (parseFloat(serviceRate) / 100) * tax.BaseFare;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'Discount');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * tax.BaseFare;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "Discount",          
+                    Amount: (parseFloat(serviceRate) / 100) * tax.BaseFare,
+                    SupplierType: "TMC"
+                });
+            }
+            
           }
         }
       };
@@ -5533,7 +5659,34 @@ const commertialMatrixValue = async (
           //  tax.TDS += getAgentConfig.tds
           // }
           const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
-          tax.TDS += (parseFloat(tdsCheckFromConfig) / 100) * tax.Discount;
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'Discount');             
+          if (existingBookingFeesIndex !== -1) {                
+            tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * tax.BaseFare;
+            const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'TDS');             
+            if (existingTDSIndex !== -1) {                
+              tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "TDS",          
+                    Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                    SupplierType: "TMC"
+                });
+            }            
+            
+          } else {    
+            const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'TDS');             
+            if (existingTDSIndex !== -1) {                
+              tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * 0;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "TDS",          
+                    Amount: (parseFloat(tdsCheckFromConfig) / 100) * 0,
+                    SupplierType: "TMC"
+                });
+            }           
+            
+          }
+          
         }
       };
 
@@ -5617,15 +5770,15 @@ const commertialMatrixValue = async (
           !(Object.keys(tax.TaxBreakup).length === 0)
         ) {
           const yqTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YQ");
-          if (yqTax) {
-            
-            const existingBookingFeesIndex = tax.commercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');
+          if (yqTax) {            
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');
             if (existingBookingFeesIndex !== -1) {                
-              tax.commercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * yqTax.Amount;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * yqTax.Amount;
             } else {                
-              tax.commercialBreakup.push({
+              tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: (parseFloat(serviceRate) / 100) * yqTax.Amount,
+                    SupplierType: "TMC"
                 });
             }            
           }
@@ -5655,8 +5808,17 @@ const commertialMatrixValue = async (
 
       const applyServiceRateToBaseFare = (fare) => {
         if (!(Object.keys(fare).length === 0)) {
-          fare.BookingFees += (parseFloat(serviceRate) / 100) * fare.BaseFare;
-          //fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+          const existingBookingFeesIndex = fare.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');
+          if (existingBookingFeesIndex !== -1) {                
+            fare.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+          } else {                
+            fare.CommercialBreakup.push({
+                  CommercialType: "BookingFees",          
+                  Amount: (parseFloat(serviceRate) / 100) * fare.BaseFare,
+                  SupplierType: "TMC"
+              });
+          }  
+          
         }
       };
 
@@ -5693,8 +5855,18 @@ const commertialMatrixValue = async (
         ) {
           tax.TaxBreakup.forEach((taxItem) => {
             if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
-              tax.BookingFees +=
-                (parseFloat(serviceRate) / 100) * taxItem.Amount;
+              
+              const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');
+              if (existingBookingFeesIndex !== -1) {                
+                tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+              } else {                
+                tax.CommercialBreakup.push({
+                      CommercialType: "BookingFees",          
+                      Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
+                      SupplierType: "TMC"
+                  });
+              }            
+              
             }
           });
         }
@@ -5734,7 +5906,16 @@ const commertialMatrixValue = async (
         ) {
           const yrTax = tax.TaxBreakup.find((tax) => tax.TaxType === "YR");
           if (yrTax) {
-            tax.BookingFees += (parseFloat(serviceRate) / 100) * yrTax.Amount;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');
+              if (existingBookingFeesIndex !== -1) {                
+                tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * yrTax.Amount;
+              } else {                
+                tax.CommercialBreakup.push({
+                      CommercialType: "BookingFees",          
+                      Amount: (parseFloat(serviceRate) / 100) * yrTax.Amount,
+                      SupplierType: "TMC"
+                  });
+              }            
           }
         }
       };
@@ -5764,11 +5945,30 @@ const commertialMatrixValue = async (
           !(Object.keys(tax.TaxBreakup).length === 0)
         ) {
           tax.TaxBreakup.forEach((taxItem) => {
-            tax.BookingFees += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');
+              if (existingBookingFeesIndex !== -1) {                
+                tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+              } else {                
+                tax.CommercialBreakup.push({
+                      CommercialType: "BookingFees",          
+                      Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
+                      SupplierType: "TMC"
+                  });
+              }   
+            
           });
 
           if ("BaseFare" in tax) {
-            tax.BookingFees += (parseFloat(serviceRate) / 100) * tax.BaseFare;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * tax.BaseFare;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: (parseFloat(serviceRate) / 100) * tax.BaseFare,
+                    SupplierType: "TMC"
+                });
+            }            
           }
         }
       };
@@ -5806,7 +6006,33 @@ const commertialMatrixValue = async (
           // if (getAgentConfig) {
           //  tax.gst += getAgentConfig.discountPercentage
           // }
-          tax.gst += (parseFloat(18) / 100) * tax.BookingFees;
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
+                    if (existingBookingFeesIndex !== -1) {  
+                      const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
+                      if (existingGSTIndex !== -1) {                
+                        tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+                      } else {                
+                        tax.CommercialBreakup.push({
+                              CommercialType: "GST",          
+                              Amount: (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                              SupplierType: "TMC"
+                          });
+                      }                   
+                      
+                    } else {
+                      const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
+                      if (existingGSTIndex !== -1) {                
+                        tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * 0;
+                      } else {                
+                        tax.CommercialBreakup.push({
+                              CommercialType: "GST",          
+                              Amount: (parseFloat(18) / 100) * 0,
+                              SupplierType: "TMC"
+                          });
+                      }
+                      
+                    }    
+          
         }
       };
 
@@ -6038,21 +6264,49 @@ const commertialMatrixValue = async (
             }
           });
           //tax.ServiceFees += (parseFloat(serviceRate) / 100) * yqTax.Amount;
-          const countAirline = tax.CommercialBreakup.find(
-            (commercial) => commercial.CommercialType === "SegmentKickback"
-          );
-          if (countAirline) {
+          // const countAirline = tax.CommercialBreakup.find(
+          //   (commercial) => commercial.CommercialType === "SegmentKickback"
+          // );
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'SegmentKickback'); 
+          if (existingBookingFeesIndex !== -1) {
             const totalCount = Object.values(fltNumCount).reduce(
               (sum, count) => sum + count,
               0
             );
             if (type === "ADT") {
-              countAirline.Amount += totalCount * fixedAdultRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
             } else if (type === "CHD") {
-              countAirline.Amount += totalCount * fixedChildRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
             } else if (type === "INF") {
-              countAirline.Amount += totalCount * fixedInfantRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
             }
+          }else {  
+            const totalCount = Object.values(fltNumCount).reduce(
+              (sum, count) => sum + count,
+              0
+            );
+            if (type === "ADT") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: totalCount * fixedAdultRate,
+                SupplierType: "TMC"
+            });
+              
+            } else if (type === "CHD") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: totalCount * fixedChildRate,
+                SupplierType: "TMC"
+            });
+              
+            } else if (type === "INF") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: totalCount * fixedInfantRate,
+                SupplierType: "TMC"
+            });              
+            }              
+            
           }
         }
       };
@@ -6094,16 +6348,40 @@ const commertialMatrixValue = async (
         type
       ) => {
         if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {
-          const countAirline = tax.CommercialBreakup.find(
-            (commercial) => commercial.CommercialType === "SegmentKickback"
-          );
-          if (countAirline) {
+          // const countAirline = tax.CommercialBreakup.find(
+          //   (commercial) => commercial.CommercialType === "SegmentKickback"
+          // );
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'SegmentKickback'); 
+          if (existingBookingFeesIndex !== -1) {
             if (type === "ADT") {
-              countAirline.Amount += fixedAdultRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
             } else if (type === "CHD") {
-              countAirline.Amount += fixedAdultRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
             } else if (type === "INF") {
-              countAirline.Amount += fixedInfantRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+            }
+          }else{
+            if (type === "ADT") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: fixedAdultRate,
+                SupplierType: "TMC"
+            });
+              
+            } else if (type === "CHD") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: fixedChildRate,
+                SupplierType: "TMC"
+            });
+              
+            } else if (type === "INF") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: fixedInfantRate,
+                SupplierType: "TMC"
+            });
+              
             }
           }
         }
@@ -6145,10 +6423,11 @@ const commertialMatrixValue = async (
         type
       ) => {
         if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {
-          const countAirline = tax.CommercialBreakup.find(
-            (commercial) => commercial.CommercialType === "SegmentKickback"
-          );
-          if (countAirline) {
+          // const countAirline = tax.CommercialBreakup.find(
+          //   (commercial) => commercial.CommercialType === "SegmentKickback"
+          // );
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'SegmentKickback'); 
+          if (existingBookingFeesIndex !== -1) {
             const fltNumCount = {};
             const encounteredFltNums = new Set();
             singleFlightDetails.Sectors.forEach((sector) => {
@@ -6170,11 +6449,54 @@ const commertialMatrixValue = async (
             );
 
             if (type === "ADT") {
-              countAirline.Amount += totalCount * fixedAdultRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
             } else if (type === "CHD") {
-              countAirline.Amount += totalCount * fixedAdultRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
             } else if (type === "INF") {
-              countAirline.Amount += totalCount * fixedInfantRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
+            }
+          }else{
+            const fltNumCount = {};
+            const encounteredFltNums = new Set();
+            singleFlightDetails.Sectors.forEach((sector) => {
+              const AirlineCode = sector.AirlineCode;
+
+              if (AirlineCode && !encounteredFltNums.has(AirlineCode)) {
+                if (fltNumCount[AirlineCode] === undefined) {
+                  fltNumCount[AirlineCode] = 1;
+                } else {
+                  fltNumCount[AirlineCode]++;
+                }
+
+                encounteredFltNums.add(AirlineCode);
+              }
+            });
+            const totalCount = Object.values(fltNumCount).reduce(
+              (sum, count) => sum + count,
+              0
+            );
+
+            if (type === "ADT") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: totalCount * fixedAdultRate,
+                SupplierType: "TMC"
+            });
+              
+            } else if (type === "CHD") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: totalCount * fixedChildRate,
+                SupplierType: "TMC"
+            });
+              
+            } else if (type === "INF") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: totalCount * fixedInfantRate,
+                SupplierType: "TMC"
+            });
+              
             }
           }
         }
@@ -6216,16 +6538,39 @@ const commertialMatrixValue = async (
         type
       ) => {
         if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {
-          const countAirline = tax.CommercialBreakup.find(
-            (commercial) => commercial.CommercialType === "SegmentKickback"
-          );
-          if (countAirline) {
+          // const countAirline = tax.CommercialBreakup.find(
+          //   (commercial) => commercial.CommercialType === "SegmentKickback"
+          // );
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'SegmentKickback');  
+          if (existingBookingFeesIndex !== -1) {
             if (type === "ADT") {
-              countAirline.Amount += fixedAdultRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
             } else if (type === "CHD") {
-              countAirline.Amount += fixedAdultRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
             } else if (type === "INF") {
-              countAirline.Amount += fixedInfantRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+            }
+          }else{
+            if (type === "ADT") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: fixedAdultRate,
+                SupplierType: "TMC"
+            });
+              
+            } else if (type === "CHD") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: fixedChildRate,
+                SupplierType: "TMC"
+            });
+              
+            } else if (type === "INF") {
+              tax.CommercialBreakup.push({
+                CommercialType: "SegmentKickback",          
+                Amount: fixedInfantRate,
+                SupplierType: "TMC"
+            });              
             }
           }
         }
@@ -6263,19 +6608,50 @@ const commertialMatrixValue = async (
       // TDS START HERE
       const applySegmentKickbackToTDS = (singleFlightDetails, tax, type) => {
         if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {
-          const countAirline = tax.CommercialBreakup.find(
-            (commercial) => commercial.CommercialType === "SegmentKickback"
-          );
-          if (countAirline) {
+          // const countAirline = tax.CommercialBreakup.find(
+          //   (commercial) => commercial.CommercialType === "SegmentKickback"
+          // );
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'SegmentKickback');  
+          if (existingBookingFeesIndex !== -1) {
             if (type === "ADT") {
               const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
-              tax.TDS += (parseFloat(tdsCheckFromConfig) / 100) * countAirline.Amount;
+              const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'TDS');             
+              if (existingTDSIndex !== -1) {                
+                tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+              } else {                
+                tax.CommercialBreakup.push({
+                      CommercialType: "TDS",          
+                      Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                      SupplierType: "TMC"
+                  });
+              }
+              
             } else if (type === "CHD") {
               const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
-              tax.TDS += (parseFloat(tdsCheckFromConfig) / 100) * countAirline.Amount;
+              const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'TDS');             
+              if (existingTDSIndex !== -1) {                
+                tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+              } else {                
+                tax.CommercialBreakup.push({
+                      CommercialType: "TDS",          
+                      Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                      SupplierType: "TMC"
+                  });
+              }
+              
             } else if (type === "INF") {
               const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
-              tax.TDS += (parseFloat(tdsCheckFromConfig) / 100) * countAirline.Amount;
+              const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'TDS');             
+              if (existingTDSIndex !== -1) {                
+                tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+              } else {                
+                tax.CommercialBreakup.push({
+                      CommercialType: "TDS",          
+                      Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                      SupplierType: "TMC"
+                  });
+              }
+              
             }
           }
         }
@@ -6371,11 +6747,39 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            tax.BookingFees += fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            }            
           } else if (type === "CHD") {
-            tax.BookingFees += fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            }   
+            
           } else if (type === "INF") {
-            tax.BookingFees += fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            }            
           }
         }
       };
@@ -6492,11 +6896,39 @@ const commertialMatrixValue = async (
             0
           );
           if (type === "ADT") {
-            tax.BookingFees += totalCount * fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: totalCount * fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "CHD") {
-            tax.BookingFees += totalCount * fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: totalCount * fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            }            
           } else if (type === "INF") {
-            tax.BookingFees += totalCount * fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: totalCount * fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            }            
           }
         }
       };
@@ -6538,11 +6970,39 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            tax.BookingFees += fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            }             
           } else if (type === "CHD") {
-            tax.BookingFees += fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            }               
           } else if (type === "INF") {
-            tax.BookingFees += fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            } 
+            
           }
         }
       };
@@ -6584,11 +7044,39 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            tax.BookingFees += fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            }             
           } else if (type === "CHD") {
-            tax.BookingFees += fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            }   
+           
           } else if (type === "INF") {
-            tax.BookingFees += fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            }            
           }
         }
       };
@@ -6650,11 +7138,40 @@ const commertialMatrixValue = async (
           );
 
           if (type === "ADT") {
-            tax.BookingFees += totalCount * fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: totalCount * fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            } 
+            
           } else if (type === "CHD") {
-            tax.BookingFees += totalCount * fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: totalCount * fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            } 
+            
           } else if (type === "INF") {
-            tax.BookingFees += totalCount * fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: totalCount * fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            }            
           }
         }
       };
@@ -6696,11 +7213,41 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            tax.BookingFees += fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            }  
+            
           } else if (type === "CHD") {
-            tax.BookingFees += fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            }  
+            
           } else if (type === "INF") {
-            tax.BookingFees += fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');             
+           
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "BookingFees",          
+                    Amount: fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            }            
           }
         }
       };
@@ -6748,7 +7295,33 @@ const commertialMatrixValue = async (
           // if (getAgentConfig) {
           //  tax.gst += getAgentConfig.discountPercentage
           // }
-          tax.gst += (parseFloat(18) / 100) * tax.BookingFees;
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
+            if (existingBookingFeesIndex !== -1) {   
+              const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
+              if (existingGSTIndex !== -1) {                
+                tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+              } else {                
+                tax.CommercialBreakup.push({
+                      CommercialType: "GST",          
+                      Amount: (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                      SupplierType: "TMC"
+                  });
+              }          
+              
+            } else {  
+              const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
+              if (existingGSTIndex !== -1) {                
+                tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * 0;
+              } else {                
+                tax.CommercialBreakup.push({
+                      CommercialType: "GST",          
+                      Amount: (parseFloat(18) / 100) * 0,
+                      SupplierType: "TMC"
+                  });
+              }              
+             
+            }
+          
         }
       };
 
@@ -7180,7 +7753,17 @@ const commertialMatrixValue = async (
               if (K2TaxADT) {
                 K2TaxADT.Amount += (parseFloat(values) / 100) * fixedAdultRate;
               } else {
-                tax.gst += (parseFloat(values) / 100) * fixedAdultRate;
+                const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
+                if (existingGSTIndex !== -1) {                
+                  tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(values) / 100) * fixedAdultRate;
+                } else {                
+                  tax.CommercialBreakup.push({
+                        CommercialType: "GST",          
+                        Amount: (parseFloat(values) / 100) * fixedAdultRate,
+                        SupplierType: "TMC"
+                    });
+                }
+                
               }
             }
           } else if (type === "CHD") {
@@ -7196,7 +7779,17 @@ const commertialMatrixValue = async (
               if (K2TaxADT) {
                 K2TaxADT.Amount += (parseFloat(values) / 100) * fixedChildRate;
               } else {
-                tax.gst += (parseFloat(values) / 100) * fixedChildRate;
+                const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
+                if (existingGSTIndex !== -1) {                
+                  tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(values) / 100) * fixedChildRate;
+                } else {                
+                  tax.CommercialBreakup.push({
+                        CommercialType: "GST",          
+                        Amount: (parseFloat(values) / 100) * fixedChildRate,
+                        SupplierType: "TMC"
+                    });
+                }
+                
               }
             }
           } else if (type === "INF") {
@@ -7212,7 +7805,17 @@ const commertialMatrixValue = async (
               if (K2TaxADT) {
                 K2TaxADT.Amount += (parseFloat(values) / 100) * fixedInfantRate;
               } else {
-                tax.gst += (parseFloat(values) / 100) * fixedInfantRate;
+                const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
+                if (existingGSTIndex !== -1) {                
+                  tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(values) / 100) * fixedInfantRate;
+                } else {                
+                  tax.CommercialBreakup.push({
+                        CommercialType: "GST",          
+                        Amount: (parseFloat(values) / 100) * fixedInfantRate,
+                        SupplierType: "TMC"
+                    });
+                }
+                
               }
             }
           }
@@ -7409,11 +8012,40 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            tax.ServiceFees += fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "CHD") {
-            tax.ServiceFees += fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "INF") {
-            tax.ServiceFees += fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            }            
           }
         }
       };
@@ -7530,11 +8162,40 @@ const commertialMatrixValue = async (
             0
           );
           if (type === "ADT") {
-            tax.ServiceFees += totalCount * fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: totalCount * fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "CHD") {
-            tax.ServiceFees += totalCount * fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: totalCount * fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "INF") {
-            tax.ServiceFees += totalCount * fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: totalCount * fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            }            
           }
         }
       };
@@ -7576,11 +8237,40 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            tax.ServiceFees += fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            }
+           
           } else if (type === "CHD") {
-            tax.ServiceFees += fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "INF") {
-            tax.ServiceFees += fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            }            
           }
         }
       };
@@ -7622,11 +8312,41 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            tax.ServiceFees += fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "CHD") {
-            tax.ServiceFees += fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "INF") {
-            tax.ServiceFees += fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           }
         }
       };
@@ -7688,11 +8408,40 @@ const commertialMatrixValue = async (
           );
 
           if (type === "ADT") {
-            tax.ServiceFees += totalCount * fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: totalCount * fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "CHD") {
-            tax.ServiceFees += totalCount * fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: totalCount * fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "INF") {
-            tax.ServiceFees += totalCount * fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: totalCount * fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            }           
           }
         }
       };
@@ -7734,11 +8483,40 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            tax.ServiceFees += fixedAdultRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedAdultRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "CHD") {
-            tax.ServiceFees += fixedChildRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedChildRate,
+                    SupplierType: "TMC"
+                });
+            }
+            
           } else if (type === "INF") {
-            tax.ServiceFees += fixedInfantRate;
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'ServiceFees');             
+            if (existingBookingFeesIndex !== -1) {                
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+            } else {                
+              tax.CommercialBreakup.push({
+                    CommercialType: "ServiceFees",          
+                    Amount: fixedInfantRate,
+                    SupplierType: "TMC"
+                });
+            }            
           }
         }
       };
@@ -7786,7 +8564,33 @@ const commertialMatrixValue = async (
           // if (getAgentConfig) {
           //  tax.gst += getAgentConfig.discountPercentage
           // }
-          tax.gst += (parseFloat(18) / 100) * tax.BookingFees;
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
+            if (existingBookingFeesIndex !== -1) { 
+              const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
+              if (existingGSTIndex !== -1) {                
+                tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+              } else {                
+                tax.CommercialBreakup.push({
+                      CommercialType: "GST",          
+                      Amount: (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                      SupplierType: "TMC"
+                  });
+              }            
+              
+            } else {   
+              const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
+              if (existingGSTIndex !== -1) {                
+                tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * 0;
+              } else {                
+                tax.CommercialBreakup.push({
+                      CommercialType: "GST",          
+                      Amount: (parseFloat(18) / 100) * 0,
+                      SupplierType: "TMC"
+                  });
+              }              
+              
+            }
+          
         }
       };
 
@@ -8162,13 +8966,24 @@ const checkMarkupValue = async (
                 if(maxAmount <= maxMarkup){
                   countAirline.BookingFee += maxAmount;
                   if(markupRate != 0 && markupRate != null){
-                    countAirline.BookingFee += (markupRate / 100) * tax.BookingFees;
+                    const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
+                    if (existingBookingFeesIndex !== -1) {                     
+                      countAirline.BookingFee += (markupRate / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+                    } else {                
+                      countAirline.BookingFee += (markupRate / 100) * 0;
+                    }
+                    
                   }                   
                 }  
               }else{
                 countAirline.BookingFee += maxAmount;
                 if(markupRate != 0 && markupRate != null){
-                  countAirline.BookingFee += (markupRate / 100) * tax.BookingFees;
+                  const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
+                    if (existingBookingFeesIndex !== -1) {                     
+                      countAirline.BookingFee += (markupRate / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+                    } else {                
+                      countAirline.BookingFee += (markupRate / 100) * 0;
+                    }                  
                 }
               }
               
@@ -8205,13 +9020,24 @@ const checkMarkupValue = async (
               if(maxAmount <= maxMarkup){
                 countAirline.BookingFee += maxAmount;
                 if(markupRate != 0 && markupRate != null){
-                  countAirline.BookingFee += (markupRate / 100) * tax.BookingFees;
+                  const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
+                    if (existingBookingFeesIndex !== -1) {                     
+                      countAirline.BookingFee += (markupRate / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+                    } else {                
+                      countAirline.BookingFee += (markupRate / 100) * 0;
+                    }   
+                  
                 }
               } 
             }else{
               countAirline.BookingFee += maxAmount;
               if(markupRate != 0 && markupRate != null){
-                countAirline.BookingFee += (markupRate / 100) * tax.BookingFees;
+                const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
+                    if (existingBookingFeesIndex !== -1) {                     
+                      countAirline.BookingFee += (markupRate / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+                    } else {                
+                      countAirline.BookingFee += (markupRate / 100) * 0;
+                    }                 
               }
             }  
             
@@ -8228,13 +9054,24 @@ const checkMarkupValue = async (
                 if(maxAmount <= maxMarkup){
                   countAirline.BookingFee += maxAmount;
                   if(markupRate != 0 && markupRate != null){
-                    countAirline.BookingFee += (markupRate / 100) * tax.BookingFees;
+                    const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
+                    if (existingBookingFeesIndex !== -1) {                     
+                      countAirline.BookingFee += (markupRate / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+                    } else {                
+                      countAirline.BookingFee += (markupRate / 100) * 0;
+                    }    
+                    
                   }
                 }  
               }else{
                 countAirline.BookingFee += maxAmount;
                 if(markupRate != 0 && markupRate != null){
-                  countAirline.BookingFee += (markupRate / 100) * tax.BookingFees;
+                  const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
+                    if (existingBookingFeesIndex !== -1) {                     
+                      countAirline.BookingFee += (markupRate / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+                    } else {                
+                      countAirline.BookingFee += (markupRate / 100) * 0;
+                    }                  
                 }
               }
               

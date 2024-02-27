@@ -588,13 +588,7 @@ const KafilaFun = async (
                     },
                   ],
                   AirPenalty: [],
-                  CommercialBreakup: [{
-                    CommercialType: "SegmentKickback",
-                    SubCommercialType: null,
-                    Amount: 0.0,
-                    SupplierId: supplier._id,
-                    SupplierType: "TMC"
-                }],
+                  CommercialBreakup: [],
                 AgentMarkupBreakup: {
                   BookingFee: 0.0,
                   Basic: 0.0,
@@ -630,13 +624,7 @@ const KafilaFun = async (
                     },
                   ],
                   AirPenalty: [],
-                  CommercialBreakup: [{
-                    CommercialType: "SegmentKickback",
-                    SubCommercialType: null,
-                    Amount: 0.0,
-                    SupplierId: supplier._id,
-                    SupplierType: "TMC"
-                }],
+                  CommercialBreakup: [],
                 AgentMarkupBreakup: {
                   BookingFee: 0.0,
                   Basic: 0.0,
@@ -672,13 +660,7 @@ const KafilaFun = async (
                     },
                   ],
                   AirPenalty: [],
-                  CommercialBreakup: [{
-                    CommercialType: "SegmentKickback",
-                    SubCommercialType: null,
-                    Amount: 0.0,
-                    SupplierId: supplier._id,
-                    SupplierType: "TMC"
-                }],
+                  CommercialBreakup: [],
                 AgentMarkupBreakup: {
                   BookingFee: 0.0,
                   Basic: 0.0,

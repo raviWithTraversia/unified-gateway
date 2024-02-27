@@ -1,9 +1,7 @@
 const mongoose = require("mongoose");
 
 const seriesDepartureSchema = new mongoose.Schema({
-  pnr: {
-    type :  String
-  },
+  pnr: String,
   account_code: String,
   flight_type: String,
   cabin_class: String,

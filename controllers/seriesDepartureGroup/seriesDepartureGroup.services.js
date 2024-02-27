@@ -41,7 +41,6 @@ const getSeriesDepartureGroup = async (req ,res) =>{
         throw error;
   }
 };
-
 const updatedSeriesDepartureGroup = async (req,res) => {
     try {
         const updatedSeriesDepartureGroup = await seriesDepartureGroupModel.findByIdAndUpdate(
@@ -69,8 +68,7 @@ const updatedSeriesDepartureGroup = async (req,res) => {
           throw error
         }
       }
-}
-
+};
 module.exports = {
     addSeriesDepartureGroup,
     getSeriesDepartureGroup ,

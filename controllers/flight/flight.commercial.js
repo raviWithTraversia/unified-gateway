@@ -2584,7 +2584,7 @@ const checkIncentiveFilter = async (
                   continue;
                 }
               }
-              addIncentiveToBreakup(singleFlightDetails.PriceBreakup, totalIncentiveVal);
+              addIncentiveToBreakup(singleFlightDetails.PriceBreakup, totalIncentiveVal,supplierTypeFor);
              
             } else {
               
@@ -2616,7 +2616,7 @@ const checkIncentiveFilter = async (
                   continue;
                 }
               }
-              addIncentiveToBreakup(singleFlightDetails.PriceBreakup, totalIncentiveVal);
+              addIncentiveToBreakup(singleFlightDetails.PriceBreakup, totalIncentiveVal,supplierTypeFor);
             
             }
           } else {
@@ -3624,7 +3624,7 @@ const checkIncentiveFilter = async (
   return singleFlightDetails;
 };
 
-const addIncentiveToBreakup = (priceBreakup, totalIncentiveVal) => {
+const addIncentiveToBreakup = (priceBreakup, totalIncentiveVal,supplierTypeFor) => {
   priceBreakup.forEach(price => {
       if (price && price.CommercialBreakup) {
           price.CommercialBreakup.push({

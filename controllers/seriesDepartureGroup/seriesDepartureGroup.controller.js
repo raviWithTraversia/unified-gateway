@@ -19,7 +19,15 @@ const addSeriesDepartureGroup = async (req,res) => {
         ServerStatusCode.PRECONDITION_FAILED,
         true
     )
-  }else{
+  }else if(result.response == 'Group Name Already Exist'){
+    apiErrorres(
+      res,
+      result.response,
+      ServerStatusCode.PRECONDITION_FAILED,
+      true
+  )
+  }
+  else{
     apiErrorres(
         res,
         result.response,
@@ -75,7 +83,38 @@ const getSeriesDepartureGroup = async (req,res) => {
 };
 
 const updatedSeriesDepartureGroup = async (req,res) => {
-
+  try{
+    const result = await seriesDepartureGroupServices.updatedSeriesDepartureGroup(req,res);
+    if(result.response == 'Series Departure Group updated successfully'){
+       apiSucessRes(
+           res,
+           result.response,
+           result.data,
+           ServerStatusCode.SUCESS_CODE
+       )
+    }else if(result.response == 'Series Departure Group not found'){
+       apiErrorres(
+           res,
+           result.response,
+           ServerStatusCode.PRECONDITION_FAILED,
+           true
+       )
+    }else{
+       apiErrorres(
+           res,
+           result.response,
+           ServerStatusCode.PRECONDITION_FAILED,
+           true
+       ) 
+    }
+     }catch(error){
+       apiErrorres(
+           res,
+           error,
+           ServerStatusCode.SERVER_ERROR,
+           true 
+           )
+     }
 };
 
 module.exports = {

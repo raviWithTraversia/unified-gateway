@@ -7,6 +7,12 @@ const addSeriesDepartureGroup = async (req,res) => {
                  response: 'Missing required fields in request body'
           }
         };
+        let checkGroupNameAlreadyExist = await seriesDepartureGroupModel.find({groupName : req.body.groupName});
+        if(checkGroupNameAlreadyExist.length > 0){
+          return {
+            response : 'Group Name Already Exist'
+          }
+        }
         let count = 0;
          count = req?.body?.seriesDepartureIds?.length;
         req.body.count = count;
@@ -44,7 +50,7 @@ const getSeriesDepartureGroup = async (req ,res) =>{
 const updatedSeriesDepartureGroup = async (req,res) => {
     try {
         const updatedSeriesDepartureGroup = await seriesDepartureGroupModel.findByIdAndUpdate(
-          req.qery.id,
+          req.query.id,
           req.body,
           { new: true, runValidators: true } 
         );

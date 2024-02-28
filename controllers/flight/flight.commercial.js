@@ -38,7 +38,7 @@ const getApplyAllCommercial = async (
   let applyResponceCommercialArray = [];
   let groupPriority;
   let commertialMatrixValueHandle = null;
-  if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {
+  if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {    
     // TMC-Agency // // one time apply commertioal
     const [
       commercialPlanDetails,
@@ -628,7 +628,8 @@ const getApplyAllCommercial = async (
                   commList,
                   singleFlightDetails,
                   companyDetails._id,
-                  congifDetails
+                  congifDetails,
+                  "TMC"
                 );
                 // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 //bestMatch = commertialMatrixValueHandle;
@@ -650,7 +651,8 @@ const getApplyAllCommercial = async (
                   commList,
                   singleFlightDetails,
                   companyDetails._id,
-                  congifDetails
+                  congifDetails,
+                  "TMC"
                 );
                 //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 //bestMatch = commertialMatrixValueHandle;
@@ -672,7 +674,8 @@ const getApplyAllCommercial = async (
                   commList,
                   singleFlightDetails,
                   companyDetails._id,
-                  congifDetails
+                  congifDetails,
+                  "TMC"
                 );
                 //bestMatch = commertialMatrixValueHandle;
                 //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
@@ -694,7 +697,8 @@ const getApplyAllCommercial = async (
                   commList,
                   singleFlightDetails,
                   companyDetails._id,
-                  congifDetails
+                  congifDetails,
+                  "TMC"
                 );
                 //bestMatch = commertialMatrixValueHandle;
                 // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
@@ -715,7 +719,8 @@ const getApplyAllCommercial = async (
           singleFlightDetails,
           companyDetails.parent._id,
           countryMapingVal,
-          congifDetails
+          congifDetails,
+          "TMC"
         );
         
         singleFlightDetails.PriceBreakup = checkIncentiveFilterfun.PriceBreakup; 
@@ -728,7 +733,8 @@ const getApplyAllCommercial = async (
           singleFlightDetails,
           companyDetails.parent._id,
            countryMapingVal,
-           congifDetails
+           congifDetails,
+           "TMC"
         );
         
         singleFlightDetails.PriceBreakup = checkPLBFilterfun.PriceBreakup; 
@@ -766,7 +772,8 @@ const getApplyAllCommercial = async (
                 checkSpecificMarkupArr,
                 singleFlightDetails,
                 companyDetails.parent._id,
-                congifDetails
+                congifDetails,
+                "TMC"
               );
               
               singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;
@@ -777,7 +784,8 @@ const getApplyAllCommercial = async (
               checkAllMarkup,
               singleFlightDetails,
               companyDetails.parent._id,
-              congifDetails              
+              congifDetails,
+              "TMC"              
             );
             
             singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;            
@@ -811,157 +819,224 @@ const getApplyAllCommercial = async (
       incentivePlanDetails,
       plbPlanDetails,
       markupDetails,
+      congifDetails
     ] = await Promise.all([
       getAssignCommercial(companyDetails.parent._id),
       getAssignIncentive(companyDetails.parent._id),
       getAssignPlb(companyDetails.parent._id),
-      getAssignMarcup(companyDetails.parent._id),
-    ]);
 
+      //getAssignMarcup(companyDetails._id),
+      getAssignCongifDetails(companyDetails.parent._id),
+    ]);    
     const countryMapingVal = await countryMaping.find({
       companyId: companyDetails.parent._id,
       //ContinentCode: { $in: allCountryValue },
     },{
       countries: 1,
       _id: 0 // Exclude _id field
-    });  
-
-    
-    for (const singleFlightDetails of commonArray) {
-    //  for (const singleFlightDetails of commonArrayDummy) {
-        // Check Commertial status and Commertial Apply
-        if (commercialPlanDetails.IsSuccess === true) {
-          // get group of priority base
-          groupPriority = await makePriorityGroup(
-            TravelType,
-            singleFlightDetails,
-            commercialPlanDetails
-          );
-          if (groupPriority.length > 0) {
-           
-            for (let i = 0; i < groupPriority.length; i++) {
-              const commList = groupPriority[i];
-              if (
-                TravelType === commList.travelType &&
-                commList.carrier === singleFlightDetails.ValCarrier &&
-                commList.source === singleFlightDetails.Provider &&
-                commList.commercialCategory === "Ticket"
-              ) {
-                checkInnerFilterfun = await checkInnerFilter(
+    });
+   
+     for (const singleFlightDetails of commonArray) {
+    //for (const singleFlightDetails of commonArrayDummy) {
+      // Check Commertial status and Commertial Apply
+      if (commercialPlanDetails.IsSuccess === true) {
+        // get group of priority base
+        groupPriority = await makePriorityGroup(
+          TravelType,
+          singleFlightDetails,
+          commercialPlanDetails
+        );
+        if (groupPriority.length > 0) {          
+          for (let i = 0; i < groupPriority.length; i++) {
+            const commList = groupPriority[i];            
+            if (
+              TravelType === commList.travelType &&
+              commList.carrier === singleFlightDetails.ValCarrier &&
+              commList.source === singleFlightDetails.Provider &&
+              commList.commercialCategory === "Ticket"
+            ) {
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id                
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
                   singleFlightDetails,
-                  companyDetails.parent._id
+                  companyDetails._id,
+                  congifDetails,
+                  "TMC"
                 );
-                if (checkInnerFilterfun.match === true) {
-                  commertialMatrixValueHandle = await commertialMatrixValue(
-                    commList,
-                    singleFlightDetails,
-                    companyDetails._id
-                  );
-                  // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
-                  //bestMatch = commertialMatrixValueHandle;
-                  break;
-                }
-              } else if (
-                TravelType === commList.travelType &&
-                commList.carrier === null &&
-                commList.source === singleFlightDetails.Provider &&
-                commList.commercialCategory === "Ticket"
-              ) {
-                checkInnerFilterfun = await checkInnerFilter(
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                //bestMatch = commertialMatrixValueHandle;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === null &&
+              commList.source === singleFlightDetails.Provider &&
+              commList.commercialCategory === "Ticket"
+            ) {
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
                   singleFlightDetails,
-                  companyDetails.parent._id
+                  companyDetails._id,
+                  congifDetails,
+                  "TMC"
                 );
-                if (checkInnerFilterfun.match === true) {
-                  commertialMatrixValueHandle = await commertialMatrixValue(
-                    commList,
-                    singleFlightDetails,
-                    companyDetails._id
-                  );
-                  //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
-                  //bestMatch = commertialMatrixValueHandle;
-                  break;
-                }
-              } else if (
-                TravelType === commList.travelType &&
-                commList.carrier === null &&
-                commList.source === singleFlightDetails.ValCarrier &&
-                commList.commercialCategory === "Ticket"
-              ) {
-                checkInnerFilterfun = await checkInnerFilter(
+                //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                //bestMatch = commertialMatrixValueHandle;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === null &&
+              commList.source === singleFlightDetails.ValCarrier &&
+              commList.commercialCategory === "Ticket"
+            ) {
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
                   singleFlightDetails,
-                  companyDetails.parent._id
+                  companyDetails._id,
+                  congifDetails,
+                  "TMC"
                 );
-                if (checkInnerFilterfun.match === true) {
-                  commertialMatrixValueHandle = await commertialMatrixValue(
-                    commList,
-                    singleFlightDetails,
-                    companyDetails._id
-                  );
-                  //bestMatch = commertialMatrixValueHandle;
-                  //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
-                  break;
-                }
-              } else if (
-                TravelType === commList.travelType &&
-                commList.carrier === null &&
-                commList.source === null &&
-                commList.commercialCategory === "Ticket"
-              ) {
-                checkInnerFilterfun = await checkInnerFilter(
+                //bestMatch = commertialMatrixValueHandle;
+                //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === null &&
+              commList.source === null &&
+              commList.commercialCategory === "Ticket"
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
                   commList,
                   singleFlightDetails,
-                  companyDetails.parent._id
+                  companyDetails._id,
+                  congifDetails,
+                  "TMC"
                 );
-                if (checkInnerFilterfun.match === true) {
-                  commertialMatrixValueHandle = await commertialMatrixValue(
-                    commList,
-                    singleFlightDetails,
-                    companyDetails._id
-                  );
-                  //bestMatch = commertialMatrixValueHandle;
-                  // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
-                  break;
-                }
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
               }
             }
-            if (commertialMatrixValueHandle) {
-              singleFlightDetails.PriceBreakup = commertialMatrixValueHandle;
-            }
+          }
+          if (commertialMatrixValueHandle) {
+            singleFlightDetails.PriceBreakup = commertialMatrixValueHandle;
           }
         }
-  
-        // Check Incentive status and  Apply Incentive
-        if (incentivePlanDetails.IsSuccess === true) {
-          checkIncentiveFilterfun = await checkIncentiveFilter(
-            incentivePlanDetails.data,
-            singleFlightDetails,
-            companyDetails.parent._id,
-            countryMapingVal
-          );
-          
-          singleFlightDetails.PriceBreakup = checkIncentiveFilterfun.PriceBreakup; 
-        }
-  
-        // CHeck PLB STatus And Apply PLB
-        if (plbPlanDetails.IsSuccess === true) {
-          checkPLBFilterfun = await checkPLBFilter(
-            plbPlanDetails.data,
-            singleFlightDetails,
-            companyDetails.parent._id,
-             countryMapingVal
-          );
-          
-          singleFlightDetails.PriceBreakup = checkPLBFilterfun.PriceBreakup; 
-        }    
+      }
+
+      // Check Incentive status and  Apply Incentive
+      if (incentivePlanDetails.IsSuccess === true) {
+        checkIncentiveFilterfun = await checkIncentiveFilter(
+          incentivePlanDetails.data,
+          singleFlightDetails,
+          companyDetails.parent._id,
+          countryMapingVal,
+          congifDetails,
+          "TMC"
+        );
         
-        // this is last update and push function
-        applyResponceCommercialArray.push(singleFlightDetails);
-      }  
+        singleFlightDetails.PriceBreakup = checkIncentiveFilterfun.PriceBreakup; 
+      }
+
+      // CHeck PLB STatus And Apply PLB
+      if (plbPlanDetails.IsSuccess === true) {
+        checkPLBFilterfun = await checkPLBFilter(
+          plbPlanDetails.data,
+          singleFlightDetails,
+          companyDetails.parent._id,
+           countryMapingVal,
+           congifDetails,
+           "TMC"
+        );
+        
+        singleFlightDetails.PriceBreakup = checkPLBFilterfun.PriceBreakup; 
+      }
+
+      // Check MArkup HERE
+      if (markupDetails.IsSuccess === true) {
+
+        if (markupDetails.data.length > 0) {          
+          const checkAllMarkup = markupDetails.data.find(
+            (filter) => 
+                filter.markupOn === TravelType &&
+                (filter.airlineCodeId === null ? 
+                    false :
+                    filter.airlineCodeId.airlineCode === singleFlightDetails.ValCarrier
+                ) &&
+                filter.markupFor === "Ticket" 
+        );
+                   
+         //console.log(checkAllMarkup);
+          if (!checkAllMarkup) {
+            const checkSpecificMarkupArr = markupDetails.data.find(
+              (filter) =>
+                filter.markupOn === TravelType && 
+                (filter.airlineCodeId === null ? 
+                  true :
+                  filter.airlineCodeId.airlineCode === null
+              )  &&           
+                filter.markupFor === "Ticket" 
+            );
+            
+           
+            if (checkSpecificMarkupArr) {
+              checkMarkupValuefun = await checkMarkupValue(
+                checkSpecificMarkupArr,
+                singleFlightDetails,
+                companyDetails.parent._id,
+                congifDetails,
+                "TMC"
+              );
+              
+              singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;
+              
+            }
+          } else {
+            checkMarkupValuefun = await checkMarkupValue(
+              checkAllMarkup,
+              singleFlightDetails,
+              companyDetails.parent._id,
+              congifDetails,
+              "TMC"              
+            );
+            
+            singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;            
+          }
+
+        }
+
+      }
       
-      return applyResponceCommercialArray.sort((a, b) => a.TotalPrice - b.TotalPrice);
+      // this is last update and push function
+      applyResponceCommercialArray.push(singleFlightDetails);
+    }
+
+    return applyResponceCommercialArray.sort((a, b) => a.TotalPrice - b.TotalPrice);
       
   } else if (
     companyDetails.type == "Distributer" &&
@@ -973,13 +1048,14 @@ const getApplyAllCommercial = async (
       incentivePlanDetails,
       plbPlanDetails,
       markupDetails,
+      congifDetails
     ] = await Promise.all([
       getAssignCommercial(companyDetails._id),
       getAssignIncentive(companyDetails._id),
       getAssignPlb(companyDetails._id),
       getAssignMarcup(companyDetails._id),
-    ]);
-
+      getAssignCongifDetails(companyDetails._id),
+    ]);    
     const countryMapingVal = await countryMaping.find({
       companyId: companyDetails.parent._id,
       //ContinentCode: { $in: allCountryValue },
@@ -987,206 +1063,216 @@ const getApplyAllCommercial = async (
       countries: 1,
       _id: 0 // Exclude _id field
     });
-
-    for (const singleFlightDetails of commonArray) {
-      //for (const singleFlightDetails of commonArrayDummy) {
-        // Check Commertial status and Commertial Apply
-        if (commercialPlanDetails.IsSuccess === true) {
-          // get group of priority base
-          groupPriority = await makePriorityGroup(
-            TravelType,
-            singleFlightDetails,
-            commercialPlanDetails
-          );
-          if (groupPriority.length > 0) {
-           
-            for (let i = 0; i < groupPriority.length; i++) {
-              const commList = groupPriority[i];
-              if (
-                TravelType === commList.travelType &&
-                commList.carrier === singleFlightDetails.ValCarrier &&
-                commList.source === singleFlightDetails.Provider &&
-                commList.commercialCategory === "Ticket"
-              ) {
-                checkInnerFilterfun = await checkInnerFilter(
-                  commList,
-                  singleFlightDetails,
-                  companyDetails.parent._id
-                );
-                if (checkInnerFilterfun.match === true) {
-                  commertialMatrixValueHandle = await commertialMatrixValue(
-                    commList,
-                    singleFlightDetails,
-                    companyDetails._id
-                  );
-                  // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
-                  //bestMatch = commertialMatrixValueHandle;
-                  break;
-                }
-              } else if (
-                TravelType === commList.travelType &&
-                commList.carrier === null &&
-                commList.source === singleFlightDetails.Provider &&
-                commList.commercialCategory === "Ticket"
-              ) {
-                checkInnerFilterfun = await checkInnerFilter(
-                  commList,
-                  singleFlightDetails,
-                  companyDetails.parent._id
-                );
-                if (checkInnerFilterfun.match === true) {
-                  commertialMatrixValueHandle = await commertialMatrixValue(
-                    commList,
-                    singleFlightDetails,
-                    companyDetails._id
-                  );
-                  //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
-                  //bestMatch = commertialMatrixValueHandle;
-                  break;
-                }
-              } else if (
-                TravelType === commList.travelType &&
-                commList.carrier === null &&
-                commList.source === singleFlightDetails.ValCarrier &&
-                commList.commercialCategory === "Ticket"
-              ) {
-                checkInnerFilterfun = await checkInnerFilter(
-                  commList,
-                  singleFlightDetails,
-                  companyDetails.parent._id
-                );
-                if (checkInnerFilterfun.match === true) {
-                  commertialMatrixValueHandle = await commertialMatrixValue(
-                    commList,
-                    singleFlightDetails,
-                    companyDetails._id
-                  );
-                  //bestMatch = commertialMatrixValueHandle;
-                  //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
-                  break;
-                }
-              } else if (
-                TravelType === commList.travelType &&
-                commList.carrier === null &&
-                commList.source === null &&
-                commList.commercialCategory === "Ticket"
-              ) {
-                checkInnerFilterfun = await checkInnerFilter(
-                  commList,
-                  singleFlightDetails,
-                  companyDetails.parent._id
-                );
-                if (checkInnerFilterfun.match === true) {
-                  commertialMatrixValueHandle = await commertialMatrixValue(
-                    commList,
-                    singleFlightDetails,
-                    companyDetails._id
-                  );
-                  //bestMatch = commertialMatrixValueHandle;
-                  // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
-                  break;
-                }
-              }
-            }
-            if (commertialMatrixValueHandle) {
-              singleFlightDetails.PriceBreakup = commertialMatrixValueHandle;
-            }
-          }
-        }
-  
-        // Check Incentive status and  Apply Incentive
-        if (incentivePlanDetails.IsSuccess === true) {
-          checkIncentiveFilterfun = await checkIncentiveFilter(
-            incentivePlanDetails.data,
-            singleFlightDetails,
-            companyDetails.parent._id,
-            countryMapingVal
-          );
-          
-          singleFlightDetails.PriceBreakup = checkIncentiveFilterfun.PriceBreakup; 
-        }
-  
-        // CHeck PLB STatus And Apply PLB
-        if (plbPlanDetails.IsSuccess === true) {
-          checkPLBFilterfun = await checkPLBFilter(
-            plbPlanDetails.data,
-            singleFlightDetails,
-            companyDetails.parent._id,
-             countryMapingVal
-          );
-          
-          singleFlightDetails.PriceBreakup = checkPLBFilterfun.PriceBreakup; 
-        }
-  
-        // Check MArkup HERE
-        if (markupDetails.IsSuccess === true) {
-  
-          if (markupDetails.data.length > 0) {          
-            const checkAllMarkup = markupDetails.data.find(
-              (filter) => 
-                  filter.markupOn === TravelType &&
-                  (filter.airlineCodeId === null ? 
-                      false :
-                      filter.airlineCodeId.airlineCode === singleFlightDetails.ValCarrier
-                  ) &&
-                  filter.markupFor === "Ticket" 
-          );
-                     
-           //console.log(checkAllMarkup);
-            if (!checkAllMarkup) {
-              const checkSpecificMarkupArr = markupDetails.data.find(
-                (filter) =>
-                  filter.markupOn === TravelType && 
-                  (filter.airlineCodeId === null ? 
-                    true :
-                    filter.airlineCodeId.airlineCode === null
-                )  &&           
-                  filter.markupFor === "Ticket" 
-              );
-              
-             
-              if (checkSpecificMarkupArr) {
-                checkMarkupValuefun = await checkMarkupValue(
-                  checkSpecificMarkupArr,
-                  singleFlightDetails,
-                  companyDetails.parent._id
-                  
-                );
-                
-                singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;
-                
-              }
-            } else {
-              checkMarkupValuefun = await checkMarkupValue(
-                checkAllMarkup,
+   
+     for (const singleFlightDetails of commonArray) {
+    //for (const singleFlightDetails of commonArrayDummy) {
+      // Check Commertial status and Commertial Apply
+      if (commercialPlanDetails.IsSuccess === true) {
+        // get group of priority base
+        groupPriority = await makePriorityGroup(
+          TravelType,
+          singleFlightDetails,
+          commercialPlanDetails
+        );
+        if (groupPriority.length > 0) {          
+          for (let i = 0; i < groupPriority.length; i++) {
+            const commList = groupPriority[i];            
+            if (
+              TravelType === commList.travelType &&
+              commList.carrier === singleFlightDetails.ValCarrier &&
+              commList.source === singleFlightDetails.Provider &&
+              commList.commercialCategory === "Ticket"
+            ) {
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
                 singleFlightDetails,
-                companyDetails.parent._id              
+                companyDetails.parent._id                
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails._id,
+                  congifDetails,
+                  "TMC"
+                );
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                //bestMatch = commertialMatrixValueHandle;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === null &&
+              commList.source === singleFlightDetails.Provider &&
+              commList.commercialCategory === "Ticket"
+            ) {
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails._id,
+                  congifDetails,
+                  "TMC"
+                );
+                //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                //bestMatch = commertialMatrixValueHandle;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === null &&
+              commList.source === singleFlightDetails.ValCarrier &&
+              commList.commercialCategory === "Ticket"
+            ) {
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails._id,
+                  congifDetails,
+                  "TMC"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                //singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === null &&
+              commList.source === null &&
+              commList.commercialCategory === "Ticket"
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails._id,
+                  congifDetails,
+                  "TMC"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            }
+          }
+          if (commertialMatrixValueHandle) {
+            singleFlightDetails.PriceBreakup = commertialMatrixValueHandle;
+          }
+        }
+      }
+
+      // Check Incentive status and  Apply Incentive
+      if (incentivePlanDetails.IsSuccess === true) {
+        checkIncentiveFilterfun = await checkIncentiveFilter(
+          incentivePlanDetails.data,
+          singleFlightDetails,
+          companyDetails.parent._id,
+          countryMapingVal,
+          congifDetails,
+          "TMC"
+        );
+        
+        singleFlightDetails.PriceBreakup = checkIncentiveFilterfun.PriceBreakup; 
+      }
+
+      // CHeck PLB STatus And Apply PLB
+      if (plbPlanDetails.IsSuccess === true) {
+        checkPLBFilterfun = await checkPLBFilter(
+          plbPlanDetails.data,
+          singleFlightDetails,
+          companyDetails.parent._id,
+           countryMapingVal,
+           congifDetails,
+           "TMC"
+        );
+        
+        singleFlightDetails.PriceBreakup = checkPLBFilterfun.PriceBreakup; 
+      }
+
+      // Check MArkup HERE
+      if (markupDetails.IsSuccess === true) {
+
+        if (markupDetails.data.length > 0) {          
+          const checkAllMarkup = markupDetails.data.find(
+            (filter) => 
+                filter.markupOn === TravelType &&
+                (filter.airlineCodeId === null ? 
+                    false :
+                    filter.airlineCodeId.airlineCode === singleFlightDetails.ValCarrier
+                ) &&
+                filter.markupFor === "Ticket" 
+        );
+                   
+         //console.log(checkAllMarkup);
+          if (!checkAllMarkup) {
+            const checkSpecificMarkupArr = markupDetails.data.find(
+              (filter) =>
+                filter.markupOn === TravelType && 
+                (filter.airlineCodeId === null ? 
+                  true :
+                  filter.airlineCodeId.airlineCode === null
+              )  &&           
+                filter.markupFor === "Ticket" 
+            );
+            
+           
+            if (checkSpecificMarkupArr) {
+              checkMarkupValuefun = await checkMarkupValue(
+                checkSpecificMarkupArr,
+                singleFlightDetails,
+                companyDetails.parent._id,
+                congifDetails,
+                "TMC"
               );
               
-              singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;            
+              singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;
+              
             }
-  
+          } else {
+            checkMarkupValuefun = await checkMarkupValue(
+              checkAllMarkup,
+              singleFlightDetails,
+              companyDetails.parent._id,
+              congifDetails,
+              "TMC"              
+            );
+            
+            singleFlightDetails.PriceBreakup = checkMarkupValuefun.PriceBreakup;            
           }
-  
-  
-  
-          // checkMarkupFilterfun = await checkMarkupFilter(
-          //   markupDetails.data,
-          //   singleFlightDetails,
-          //   companyDetails.parent._id           
-          // );
-          
-          // singleFlightDetails.PriceBreakup = checkPLBFilterfun.checkMarkupFilterfun; 
+
         }
+
+
+
+        // checkMarkupFilterfun = await checkMarkupFilter(
+        //   markupDetails.data,
+        //   singleFlightDetails,
+        //   companyDetails.parent._id           
+        // );
         
-        // this is last update and push function
-        applyResponceCommercialArray.push(singleFlightDetails);
+        // singleFlightDetails.PriceBreakup = checkPLBFilterfun.checkMarkupFilterfun; 
       }
-      return applyResponceCommercialArray.sort((a, b) => a.TotalPrice - b.TotalPrice);
       
-
-
-
+      // this is last update and push function
+      applyResponceCommercialArray.push(singleFlightDetails);
+    }
+    return applyResponceCommercialArray.sort((a, b) => a.TotalPrice - b.TotalPrice);
 
   }
   // else if(companyDetails.parent.type == "TMC"){
@@ -2121,7 +2207,8 @@ const checkIncentiveFilter = async (
   singleFlightDetails,
   companyId,
   countryMapingVal,
-  configDetails
+  configDetails,
+  supplierTypeFor
 ) => {
   let bestMatch = true;  
   if (incentiveData.length > 0) {
@@ -2764,7 +2851,7 @@ const checkIncentiveFilter = async (
                         {
                           CommercialType: "Incentive",                          
                           Amount: totalIncentiveVal,
-                          SupplierType:"TMC"
+                          SupplierType:supplierTypeFor
                         }
                       );
                     }
@@ -2776,7 +2863,7 @@ const checkIncentiveFilter = async (
                         {
                           CommercialType: "Incentive",                          
                           Amount: totalIncentiveVal,
-                          SupplierType:"TMC"
+                          SupplierType:supplierTypeFor
                         }
                       );
                     }
@@ -2788,7 +2875,7 @@ const checkIncentiveFilter = async (
                         {
                           CommercialType: "Incentive",                          
                           Amount: totalIncentiveVal,
-                          SupplierType:"TMC"
+                          SupplierType:supplierTypeFor
                         }
                       );
                     }
@@ -2797,7 +2884,7 @@ const checkIncentiveFilter = async (
                       {
                         CommercialType: "Incentive",                       
                         Amount: totalIncentiveVal,
-                        SupplierType:"TMC"
+                        SupplierType:supplierTypeFor
                       }
                     );
                   }
@@ -3543,7 +3630,7 @@ const addIncentiveToBreakup = (priceBreakup, totalIncentiveVal) => {
           price.CommercialBreakup.push({
               CommercialType: "Incentive",              
               Amount: totalIncentiveVal,
-              SupplierType:"TMC"
+              SupplierType:supplierTypeFor
           });
       }
   });
@@ -3559,7 +3646,7 @@ function updateOrPushIncentive(CommercialBreakup, totalIncentiveVal) {
       CommercialBreakup.push({
           CommercialType: "Incentive",          
           Amount: totalIncentiveVal,
-          SupplierType:"TMC"
+          SupplierType:supplierTypeFor
       });
   }
 }
@@ -3569,7 +3656,8 @@ const checkPLBFilter = async (
   singleFlightDetails,
   companyId,
   countryMapingVal,
-  configDetails
+  configDetails,
+  supplierTypeFor
 ) => {
   let bestMatch = true;  
   if (incentiveData.length > 0) {
@@ -3945,7 +4033,7 @@ const checkPLBFilter = async (
                   continue;
                 }
               }
-              addPLBToBreakup(singleFlightDetails.PriceBreakup, totalIncentiveVal);
+              addPLBToBreakup(singleFlightDetails.PriceBreakup, totalIncentiveVal,supplierTypeFor);
              
             } else {
               
@@ -3977,7 +4065,7 @@ const checkPLBFilter = async (
                   continue;
                 }
               }
-              addPLBToBreakup(singleFlightDetails.PriceBreakup, totalIncentiveVal);
+              addPLBToBreakup(singleFlightDetails.PriceBreakup, totalIncentiveVal,supplierTypeFor);
             
             }
           } else {
@@ -4016,7 +4104,7 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                       
                     }
                   } else if (checkminPrice) {                    
@@ -4024,16 +4112,16 @@ const checkPLBFilter = async (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
                      
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
-                    updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                    updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                   }
                 }
                 if (
@@ -4051,22 +4139,22 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
-                    updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                    updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                   }
                 }
                 if (
@@ -4085,25 +4173,25 @@ const checkPLBFilter = async (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {              
 
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
 
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }
                 }
@@ -4126,24 +4214,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }
                 }
@@ -4168,24 +4256,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                   }
                   }
                 }
@@ -4212,7 +4300,7 @@ const checkPLBFilter = async (
                         {
                           CommercialType: "PLB",                          
                           Amount: totalIncentiveVal,
-                          SupplierType:"TMC"
+                          SupplierType:supplierTypeFor
                         }
                       );
                     }
@@ -4224,7 +4312,7 @@ const checkPLBFilter = async (
                         {
                           CommercialType: "PLB",                          
                           Amount: totalIncentiveVal,
-                          SupplierType:"TMC"
+                          SupplierType:supplierTypeFor
                         }
                       );
                     }
@@ -4236,7 +4324,7 @@ const checkPLBFilter = async (
                         {
                           CommercialType: "PLB",                          
                           Amount: totalIncentiveVal,
-                          SupplierType:"TMC"
+                          SupplierType:supplierTypeFor
                         }
                       );
                     }
@@ -4245,7 +4333,7 @@ const checkPLBFilter = async (
                       {
                         CommercialType: "PLB",                        
                         Amount: totalIncentiveVal,
-                        SupplierType:"TMC"
+                        SupplierType:supplierTypeFor
                       }
                     );
                   }
@@ -4269,24 +4357,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                   }
                   }
                 }
@@ -4311,25 +4399,25 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
 
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }
                 }
@@ -4353,25 +4441,25 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
 
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }
                 }
@@ -4395,25 +4483,25 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
 
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }
                 }
@@ -4439,25 +4527,25 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
 
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }
                 }
@@ -4482,25 +4570,25 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
 
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                   }
                   }
                 }
@@ -4526,24 +4614,24 @@ const checkPLBFilter = async (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
 
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                    }
                   }
                 }
@@ -4560,24 +4648,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     } 
                   }
                 }
@@ -4594,24 +4682,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }
                 }
@@ -4635,24 +4723,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                   }
                   }
                 }
@@ -4675,24 +4763,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                   }
                   }
                 }
@@ -4713,7 +4801,7 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
@@ -4725,7 +4813,7 @@ const checkPLBFilter = async (
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }
                 }
@@ -4748,24 +4836,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }
                 }
@@ -4788,24 +4876,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }
                 }
@@ -4827,24 +4915,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                   }
                   }
                 }
@@ -4868,24 +4956,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[0].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[0].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                   }
                   }
                 }
@@ -4909,24 +4997,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[1].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[1].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                   }
                   }
                 }
@@ -4949,24 +5037,24 @@ const checkPLBFilter = async (
                         commList.PLBMasterId.minPrice &&
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkminPrice) {
                     if (
                       totalIncentiveVal >= commList.PLBMasterId.minPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   } else if (checkmaxPrice) {
                     if (
                       totalIncentiveVal <= commList.PLBMasterId.maxPrice
                     ) {
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                     }
                   }else{
                     const CommercialBreakup = singleFlightDetails.PriceBreakup[2].CommercialBreakup;
                     if(CommercialBreakup){
-                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal);
+                      updateOrPushPLB(singleFlightDetails.PriceBreakup[2].CommercialBreakup, totalIncentiveVal,supplierTypeFor);
                   }
                   }
                 }
@@ -4985,19 +5073,19 @@ const checkPLBFilter = async (
   return singleFlightDetails;
 };
 
-const addPLBToBreakup = (priceBreakup, totalIncentiveVal) => {
+const addPLBToBreakup = (priceBreakup, totalIncentiveVal,supplierTypeFor) => {
   priceBreakup.forEach(price => {
       if (price && price.CommercialBreakup) {
           price.CommercialBreakup.push({
               CommercialType: "PLB",              
               Amount: totalIncentiveVal,
-              SupplierType:"TMC"
+              SupplierType:supplierTypeFor
           });
       }
   });
 };
 
-function updateOrPushPLB(CommercialBreakup, totalIncentiveVal) {
+function updateOrPushPLB(CommercialBreakup, totalIncentiveVal,supplierTypeFor) {
   const existingIncentiveIndex = CommercialBreakup.findIndex(item => item.CommercialType === 'PLB');
   if (existingIncentiveIndex !== -1) {
       // Update the Amount if 'Incentive' already exists
@@ -5007,7 +5095,7 @@ function updateOrPushPLB(CommercialBreakup, totalIncentiveVal) {
       CommercialBreakup.push({
           CommercialType: "PLB",          
           Amount: totalIncentiveVal,
-          SupplierType:"TMC"
+          SupplierType:supplierTypeFor
       });
   }
 }
@@ -5016,7 +5104,8 @@ const commertialMatrixValue = async (
   commList,
   singleFlightDetails,
   companyId,
-  configDetails
+  configDetails,
+  supplierTypeFor
 ) => {
   const serviceFeeRateAllColumn =
     commList.updateaircommercialmatrixes.data.filter(
@@ -5079,7 +5168,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: (parseFloat(serviceRate) / 100) * yqTax.Amount,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -5116,7 +5205,7 @@ const commertialMatrixValue = async (
               fare.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: (parseFloat(serviceRate) / 100) * fare.BaseFare,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
           
@@ -5164,7 +5253,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
               
@@ -5214,7 +5303,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: (parseFloat(serviceRate) / 100) * yrTax.Amount,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -5254,7 +5343,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -5268,7 +5357,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: (parseFloat(serviceRate) / 100) * tax.BaseFare,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -5313,25 +5402,28 @@ const commertialMatrixValue = async (
             if (existingBookingFeesIndex !== -1) {
               
             const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
-            if (existingGSTIndex !== -1) {                
-              tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
-            } else {                
+            if (existingGSTIndex !== -1) {
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
+              tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+            } else { 
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;               
               tax.CommercialBreakup.push({
                     CommercialType: "GST",          
-                    Amount: (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
-                    SupplierType: "TMC"
+                    Amount: tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                    SupplierType: supplierTypeFor
                 });
             }
               
             } else {   
               const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
-            if (existingGSTIndex !== -1) {                
-              tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * 0;
+            if (existingGSTIndex !== -1) {
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
+              tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * 0 : 0;
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "GST",          
                     Amount: (parseFloat(18) / 100) * 0,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }             
               
@@ -5427,7 +5519,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "Discount",          
                     Amount: (parseFloat(serviceRate) / 100) * yqTax.Amount,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -5465,7 +5557,7 @@ const commertialMatrixValue = async (
             fare.CommercialBreakup.push({
                   CommercialType: "Discount",          
                   Amount: (parseFloat(serviceRate) / 100) * fare.BaseFare,
-                  SupplierType: "TMC"
+                  SupplierType: supplierTypeFor
               });
           }
           
@@ -5513,7 +5605,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "Discount",          
                     Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
               
@@ -5563,7 +5655,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "Discount",          
                     Amount: (parseFloat(serviceRate) / 100) * yrTax.Amount,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -5603,7 +5695,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "Discount",          
                     Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -5617,7 +5709,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "Discount",          
                     Amount: (parseFloat(serviceRate) / 100) * tax.BaseFare,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -5669,7 +5761,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "TDS",          
                     Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
             
@@ -5681,7 +5773,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "TDS",          
                     Amount: (parseFloat(tdsCheckFromConfig) / 100) * 0,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }           
             
@@ -5778,7 +5870,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: (parseFloat(serviceRate) / 100) * yqTax.Amount,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -5815,7 +5907,7 @@ const commertialMatrixValue = async (
             fare.CommercialBreakup.push({
                   CommercialType: "BookingFees",          
                   Amount: (parseFloat(serviceRate) / 100) * fare.BaseFare,
-                  SupplierType: "TMC"
+                  SupplierType: supplierTypeFor
               });
           }  
           
@@ -5863,7 +5955,7 @@ const commertialMatrixValue = async (
                 tax.CommercialBreakup.push({
                       CommercialType: "BookingFees",          
                       Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
-                      SupplierType: "TMC"
+                      SupplierType: supplierTypeFor
                   });
               }            
               
@@ -5913,7 +6005,7 @@ const commertialMatrixValue = async (
                 tax.CommercialBreakup.push({
                       CommercialType: "BookingFees",          
                       Amount: (parseFloat(serviceRate) / 100) * yrTax.Amount,
-                      SupplierType: "TMC"
+                      SupplierType: supplierTypeFor
                   });
               }            
           }
@@ -5952,7 +6044,7 @@ const commertialMatrixValue = async (
                 tax.CommercialBreakup.push({
                       CommercialType: "BookingFees",          
                       Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
-                      SupplierType: "TMC"
+                      SupplierType: supplierTypeFor
                   });
               }   
             
@@ -5966,7 +6058,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: (parseFloat(serviceRate) / 100) * tax.BaseFare,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -6009,25 +6101,28 @@ const commertialMatrixValue = async (
           const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
                     if (existingBookingFeesIndex !== -1) {  
                       const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
-                      if (existingGSTIndex !== -1) {                
-                        tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
-                      } else {                
+                      if (existingGSTIndex !== -1) {
+                        const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                 
+                        tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount :tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+                      } else {   
+                        const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;             
                         tax.CommercialBreakup.push({
                               CommercialType: "GST",          
-                              Amount: (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
-                              SupplierType: "TMC"
+                              Amount: tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                              SupplierType: supplierTypeFor
                           });
                       }                   
                       
                     } else {
                       const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
-                      if (existingGSTIndex !== -1) {                
-                        tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * 0;
+                      if (existingGSTIndex !== -1) { 
+                        const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;               
+                        tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * 0:0;
                       } else {                
                         tax.CommercialBreakup.push({
                               CommercialType: "GST",          
                               Amount: (parseFloat(18) / 100) * 0,
-                              SupplierType: "TMC"
+                              SupplierType: supplierTypeFor
                           });
                       }
                       
@@ -6289,21 +6384,21 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: totalCount * fixedAdultRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });
               
             } else if (type === "CHD") {
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: totalCount * fixedChildRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });
               
             } else if (type === "INF") {
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: totalCount * fixedInfantRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });              
             }              
             
@@ -6365,21 +6460,21 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: fixedAdultRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });
               
             } else if (type === "CHD") {
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: fixedChildRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });
               
             } else if (type === "INF") {
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: fixedInfantRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });
               
             }
@@ -6480,21 +6575,21 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: totalCount * fixedAdultRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });
               
             } else if (type === "CHD") {
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: totalCount * fixedChildRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });
               
             } else if (type === "INF") {
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: totalCount * fixedInfantRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });
               
             }
@@ -6555,21 +6650,21 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: fixedAdultRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });
               
             } else if (type === "CHD") {
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: fixedChildRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });
               
             } else if (type === "INF") {
               tax.CommercialBreakup.push({
                 CommercialType: "SegmentKickback",          
                 Amount: fixedInfantRate,
-                SupplierType: "TMC"
+                SupplierType: supplierTypeFor
             });              
             }
           }
@@ -6622,7 +6717,7 @@ const commertialMatrixValue = async (
                 tax.CommercialBreakup.push({
                       CommercialType: "TDS",          
                       Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
-                      SupplierType: "TMC"
+                      SupplierType: supplierTypeFor
                   });
               }
               
@@ -6635,7 +6730,7 @@ const commertialMatrixValue = async (
                 tax.CommercialBreakup.push({
                       CommercialType: "TDS",          
                       Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
-                      SupplierType: "TMC"
+                      SupplierType: supplierTypeFor
                   });
               }
               
@@ -6648,7 +6743,7 @@ const commertialMatrixValue = async (
                 tax.CommercialBreakup.push({
                       CommercialType: "TDS",          
                       Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
-                      SupplierType: "TMC"
+                      SupplierType: supplierTypeFor
                   });
               }
               
@@ -6754,7 +6849,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           } else if (type === "CHD") {
@@ -6765,7 +6860,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }   
             
@@ -6777,7 +6872,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -6903,7 +6998,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: totalCount * fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -6915,7 +7010,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: totalCount * fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           } else if (type === "INF") {
@@ -6926,7 +7021,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: totalCount * fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -6977,7 +7072,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }             
           } else if (type === "CHD") {
@@ -6988,7 +7083,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }               
           } else if (type === "INF") {
@@ -6999,7 +7094,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             } 
             
@@ -7051,7 +7146,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }             
           } else if (type === "CHD") {
@@ -7062,7 +7157,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }   
            
@@ -7074,7 +7169,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -7145,7 +7240,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: totalCount * fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             } 
             
@@ -7157,7 +7252,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: totalCount * fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             } 
             
@@ -7169,7 +7264,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: totalCount * fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -7220,7 +7315,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }  
             
@@ -7232,7 +7327,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }  
             
@@ -7245,7 +7340,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "BookingFees",          
                     Amount: fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -7298,13 +7393,15 @@ const commertialMatrixValue = async (
           const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
             if (existingBookingFeesIndex !== -1) {   
               const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
-              if (existingGSTIndex !== -1) {                
-                tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
-              } else {                
+              if (existingGSTIndex !== -1) {
+                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
+                tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount :tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+              } else { 
+                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
                 tax.CommercialBreakup.push({
                       CommercialType: "GST",          
-                      Amount: (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
-                      SupplierType: "TMC"
+                      Amount: tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount :tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                      SupplierType: supplierTypeFor
                   });
               }          
               
@@ -7316,7 +7413,7 @@ const commertialMatrixValue = async (
                 tax.CommercialBreakup.push({
                       CommercialType: "GST",          
                       Amount: (parseFloat(18) / 100) * 0,
-                      SupplierType: "TMC"
+                      SupplierType: supplierTypeFor
                   });
               }              
              
@@ -7760,7 +7857,7 @@ const commertialMatrixValue = async (
                   tax.CommercialBreakup.push({
                         CommercialType: "GST",          
                         Amount: (parseFloat(values) / 100) * fixedAdultRate,
-                        SupplierType: "TMC"
+                        SupplierType: supplierTypeFor
                     });
                 }
                 
@@ -7786,7 +7883,7 @@ const commertialMatrixValue = async (
                   tax.CommercialBreakup.push({
                         CommercialType: "GST",          
                         Amount: (parseFloat(values) / 100) * fixedChildRate,
-                        SupplierType: "TMC"
+                        SupplierType: supplierTypeFor
                     });
                 }
                 
@@ -7812,7 +7909,7 @@ const commertialMatrixValue = async (
                   tax.CommercialBreakup.push({
                         CommercialType: "GST",          
                         Amount: (parseFloat(values) / 100) * fixedInfantRate,
-                        SupplierType: "TMC"
+                        SupplierType: supplierTypeFor
                     });
                 }
                 
@@ -8019,7 +8116,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8031,7 +8128,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8043,7 +8140,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -8169,7 +8266,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: totalCount * fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8181,7 +8278,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: totalCount * fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8193,7 +8290,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: totalCount * fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -8244,7 +8341,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
            
@@ -8256,7 +8353,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8268,7 +8365,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -8319,7 +8416,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8331,7 +8428,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8343,7 +8440,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8415,7 +8512,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: totalCount * fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8427,7 +8524,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: totalCount * fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8439,7 +8536,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: totalCount * fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }           
           }
@@ -8490,7 +8587,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedAdultRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8502,7 +8599,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedChildRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }
             
@@ -8514,7 +8611,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup.push({
                     CommercialType: "ServiceFees",          
                     Amount: fixedInfantRate,
-                    SupplierType: "TMC"
+                    SupplierType: supplierTypeFor
                 });
             }            
           }
@@ -8567,13 +8664,15 @@ const commertialMatrixValue = async (
           const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'BookingFees');           
             if (existingBookingFeesIndex !== -1) { 
               const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.CommercialType === 'GST');             
-              if (existingGSTIndex !== -1) {                
-                tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
-              } else {                
+              if (existingGSTIndex !== -1) {
+                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
+                tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount :tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+              } else { 
+                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
                 tax.CommercialBreakup.push({
                       CommercialType: "GST",          
-                      Amount: (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
-                      SupplierType: "TMC"
+                      Amount: tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount :tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                      SupplierType: supplierTypeFor
                   });
               }            
               
@@ -8585,7 +8684,7 @@ const commertialMatrixValue = async (
                 tax.CommercialBreakup.push({
                       CommercialType: "GST",          
                       Amount: (parseFloat(18) / 100) * 0,
-                      SupplierType: "TMC"
+                      SupplierType: supplierTypeFor
                   });
               }              
               
@@ -8815,7 +8914,8 @@ const checkMarkupValue = async (
   markupData,
   singleFlightDetails,
   companyId,
-  configDetails
+  configDetails,
+  supplierTypeFor
 ) => {  
   // first check Basic 
   const checkBasic = markupData.markupData.find(

@@ -48,6 +48,27 @@ const seriesDepartureSchema = new mongoose.Schema({
   baseamountinfcost: Number,
   fuelsurchginfcost: Number,
   taxamountinfcost: Number,
+  seriesId : {
+    type :String,
+    unique : true
+  },
+  status : {
+    type : String,
+    enum : ['Pending','Approved','Rejected'],
+    default : "Pending"
+  },
+  isActive : {
+    type : Boolean,
+    default : false
+  },
+  autoTicketing : {
+    type : Boolean,
+    default : false
+  },
+  nonRefundable : {
+    type : Boolean,
+    default : false
+  },
   flights: [
       {
           airline_code: String,

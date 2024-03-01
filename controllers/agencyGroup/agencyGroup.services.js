@@ -1,6 +1,97 @@
 const agencyGroupModel = require("../../models/AgencyGroup");
 const agentConfigsModels = require("../../models/AgentConfig");
+const privilagePlanModel = require("../../models/PrivilagePlan");
+const commercialPlanModel = require("../../models/CommercialAirPlan");
+const PLBGroupMasterModel = require('../../models/PLBGroupMaster');
+const IncentiveGroupMasterModel = require('../../models/IncentiveGroupMaster');
+const fareRuleGroupModel = require('../../models/FareRuleGroup');
+const diSetupGroupModel = require('../../models/DiSetupGroup');
+const paymentGatewayGroupModel = require('../../models/paymentGatewayChargesGroup');
+const airlinePromoCodeGroupModel = require('../../models/AirlinePromoCodeGroup');
 
+
+const createDefaultDistributerGroup = async (companyId, isDefault, name) => {
+  try {
+    const [
+      privilagePlan,
+      commercialPlan,
+      plbGroup,
+      IncentiveGroupMaster,
+      fareRuleGroup,
+      diSetupGroup,
+      paymentGatewayGroup,
+      airlinePromoCodeGroup
+    ] = await Promise.all([
+      privilagePlanModel.findOne({ isDefault: true }),
+      commercialPlanModel.findOne({ isDefault: true }),
+      PLBGroupMasterModel.findOne({ isDefault: true }),
+      IncentiveGroupMasterModel.findOne({ isDefault: true }),
+      fareRuleGroupModel.findOne({ isDefault: true }),
+      diSetupGroupModel.findOne({ isDefault: true }),
+      paymentGatewayGroupModel.findOne({ isDefault: true }),
+      airlinePromoCodeGroupModel.findOne({ isDefault: true })
+    ]);
+
+    let privilagePlanId = privilagePlan ? privilagePlan._id : null;
+    let commercialPlanId = commercialPlan ? commercialPlan._id : null;
+    let plbGroupId = plbGroup ? plbGroup._id : null;
+    let incentiveGroupId = IncentiveGroupMaster ? IncentiveGroupMaster._id : null;
+    let fareRuleGroupId = fareRuleGroup ? fareRuleGroup._id : null;
+    let diSetupGroupId = diSetupGroup ? diSetupGroup._id : null;
+    let pgChargesGroupId = paymentGatewayGroup ? paymentGatewayGroup._id : null;
+    let airlinePromoCodeGroupId = airlinePromoCodeGroup ? airlinePromoCodeGroup._id : null;
+
+    let agencyGroupNameExist = await agencyGroupModel.findOne({
+      companyId: companyId,
+      name: name
+    });
+
+    if (agencyGroupNameExist) {
+      return {
+        response: "Agency group with the same name already exists for this company"
+      };
+    }
+
+    if (isDefault === true) {
+      let checkIsAnyDefaultTrue = await agencyGroupModel.updateMany(
+        { companyId },
+        { isDefault: false }
+      );
+    }
+
+    let newAgencyGroup = new agencyGroupModel({
+      privilagePlanId,
+      commercialPlanId,
+      plbGroupId,
+      incentiveGroupId,
+      fareRuleGroupId,
+      diSetupGroupId,
+      airlinePromoCodeGroupId,
+      pgChargesGroupId,
+      isDefault,
+      companyId,
+      name,
+      createdBy: null,
+      modifyBy:  null
+    });
+
+    newAgencyGroup = await newAgencyGroup.save();
+
+    if (newAgencyGroup) {
+      return {
+        response: "Agency Group Added Successfully",
+        data: newAgencyGroup,
+      };
+    } else {
+      return {
+        response: "Agency Group Not Added",
+      };
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
 const addAgencyGroup = async (req, res) => {
   try {
     let {
@@ -101,7 +192,6 @@ const editAgencyGroup = async (req, res) => {
     throw error;
   }
 };
-
 const getAgencyGroup = async (req, res) => {
   try {
    
@@ -172,7 +262,6 @@ const assignAgencyGroup = async (req, res) => {
     throw error;
   }
 };
-
 const getAssignAgencyGroup = async (req,res) => {
   try{
     const id = req.query.agencyGroupId;
@@ -201,24 +290,13 @@ const getAssignAgencyGroup = async (req,res) => {
     console.log(error);
     throw error;
   }
-}
-
-// agencyIds:[
-//   {
-//     _id:6555f84d991eaa63cb171aa9
-//   },
-//   {
-//     _id:6555f84d991eaa63cb171aa8
-//   },
-  // {
-  //    _id: 6555f84d991eaa63cb171aa8
-  // }
-//   ]
+};
 module.exports = {
   addAgencyGroup,
   editAgencyGroup,
   getAgencyGroup,
   deleteAgencyGroup,
   assignAgencyGroup,
-  getAssignAgencyGroup
+  getAssignAgencyGroup,
+  createDefaultDistributerGroup
 };

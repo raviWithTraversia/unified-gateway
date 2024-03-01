@@ -14,6 +14,7 @@ const fareRuleGroupModel = require('../../models/FareRuleGroup');
 const agencyGroupModel = require('../../models/AgencyGroup');
 const { response } = require("../../routes/userRoute");
 const {Config} = require("../../configs/config");
+const agencyGroupServices = require("../../controllers/agencyGroup/agencyGroup.services");
 
 const registerUser = async (req, res) => {
   try {
@@ -265,8 +266,8 @@ const userInsert = async (req, res) => {
       holdPnrAllowed : holdPnrAllowed || false
     });
     let createdComapanyId = newCompany._id;
-  
-    console.log(findRole.name, "=====================");
+    savedCompany = await newCompany.save();
+    console.log(createdComapanyId, "=====================");
     if(findRole?.name === HOST_ROLE.TMC){
       const rolesToInsert = [
         { name: TMC_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
@@ -277,6 +278,7 @@ const userInsert = async (req, res) => {
       console.log("Default Role Created Sucessfully")
     }
     if(findRole?.name === HOST_ROLE.DISTRIBUTER ){
+      let createDefaultDistributerGroup = await agencyGroupServices.createDefaultDistributerGroup(savedCompany._id,true,savedCompany.companyName);
       const rolesToInsert = [
         { name: DISTRIBUTER_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
         { name: DISTRIBUTER_ROLE.Staff, companyId:  newCompany._id, type: 'Manual' },
@@ -284,7 +286,6 @@ const userInsert = async (req, res) => {
       const insertedRoles = await Role.insertMany(rolesToInsert);
       console.log("Default Role Created Sucessfully");
     }
-    savedCompany = await newCompany.save();
     if(password == null || password == undefined){
      password = commonFunction.generateRandomPassword(10)     
     }
@@ -353,8 +354,20 @@ const userInsert = async (req, res) => {
     let commercialPlanIds = await commercialPlanModel.findOne({companyId :parent,IsDefault : true});
     let fareRuleGroupIds = await fareRuleGroupModel.findOne({companyId :parent,IsDefault : true});
     if(!agencyGroupId){
-      agencyGroupId = await agencyGroupModel.findOne({isDefault : true});
-    }
+      // check agency parent is distributer or TMC
+      let findParentRoleId = await User.findOne({company_ID : parent});
+      let findParentRole = await Role.findOne({_id : findParentRoleId.roleId });
+      if(findParentRole.name == "TMC"){
+      // if agencyParent is tmc then find agencyGroup by their parentCompany id and isdefault true and assign that agent
+      agencyGroupId = await agencyGroupModel.findOne({companyId : parent, isDefault : true});
+      }else if(findParentRole.name == "Distributer"){
+      // if agencyParent is distributer then find agencyGroup by their distributerparent and assign that agency
+      agencyGroupId = await agencyGroupModel.findOne({companyId : parent, isDefault : true});
+      }else{
+        agencyGroupId = await agencyGroupModel.findOne({isDefault : true});
+      }
+    };
+
     console.log(privilegePlansIds ,commercialPlanIds ,fareRuleGroupIds,agencyGroupId)
       let agentConfigsInsert = await agentConfigModel.create({
         userId : userCreated._id,

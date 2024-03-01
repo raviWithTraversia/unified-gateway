@@ -6450,7 +6450,7 @@ const commertialMatrixValue = async (
       //on gross end
 
       // GST Start Here
-      const applyServiceRateToGst = async (tax, type) => {
+      const applyServiceRateToGst = async (tax, type,supplierTypeFor) => {
         if (tax && Object.keys(tax).length !== 0) {
           // let getAgentConfig = await agentConfig.findOne({
           //   companyId: companyId,
@@ -6464,13 +6464,16 @@ const commertialMatrixValue = async (
               
             const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
             if (existingGSTIndex !== -1) {
-              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
-              tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : tax.CommercialBreakup[existingBookingFeesIndex].Amount;
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;
+                            
+              tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : tax.CommercialBreakup[existingGSTIndex].Amount;
+             
             } else { 
+              
               const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;               
               tax.CommercialBreakup.push({
                     CommercialType: "GST",          
-                    Amount: tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                    Amount: tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : 0,
                     SupplierType: supplierTypeFor
                 });
             }
@@ -6504,13 +6507,13 @@ const commertialMatrixValue = async (
         onGstSingleColumn?.textType === "checkbox" &&
         onGstSingleColumn.value
       ) {
-        applyServiceRateToGst(singleFlightDetails.PriceBreakup[0], "ADT");
+        applyServiceRateToGst(singleFlightDetails.PriceBreakup[0], "ADT",supplierTypeFor);
         if (isExcludeChildChecked != true) {
-          applyServiceRateToGst(singleFlightDetails.PriceBreakup[1], "CHD");
+          applyServiceRateToGst(singleFlightDetails.PriceBreakup[1], "CHD",supplierTypeFor);
         }
 
         if (isExcludeInfantChecked != true) {
-          applyServiceRateToGst(singleFlightDetails.PriceBreakup[2], "INF");
+          applyServiceRateToGst(singleFlightDetails.PriceBreakup[2], "INF",supplierTypeFor);
         }
       }
       // GST END
@@ -6818,12 +6821,13 @@ const commertialMatrixValue = async (
             const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS');             
             if (existingTDSIndex !== -1) {                
               //tax.CommercialBreakup[existingBookingFeesIndex].Amount = tax.CommercialBreakup[existingBookingFeesIndex].Amount - (parseFloat(tdsCheckFromConfig) / 100) ;
-              tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100);
+              //tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100);
+              tax.CommercialBreakup[existingTDSIndex].Amount += tdsCheckFromConfig;
             } else { 
               //tax.CommercialBreakup[existingBookingFeesIndex].Amount = tax.CommercialBreakup[existingBookingFeesIndex].Amount - (parseFloat(tdsCheckFromConfig) / 100) ;               
               tax.CommercialBreakup.push({
                     CommercialType: "TDS",          
-                    Amount: (parseFloat(tdsCheckFromConfig) / 100),
+                    Amount: tdsCheckFromConfig,
                     SupplierType: supplierTypeFor
                 });
             }            
@@ -7153,7 +7157,7 @@ const commertialMatrixValue = async (
       //on gross end
 
       // GST Start Here
-      const applyServiceRateToGst = async (tax, type) => {
+      const applyServiceRateToGst = async (tax, type, supplierTypeFor) => {
         if (tax && Object.keys(tax).length !== 0) {
           // let getAgentConfig = await agentConfig.findOne({
           //   companyId: companyId,
@@ -7206,13 +7210,13 @@ const commertialMatrixValue = async (
         onGstSingleColumn?.textType === "checkbox" &&
         onGstSingleColumn.value
       ) {
-        applyServiceRateToGst(singleFlightDetails.PriceBreakup[0], "ADT");
+        applyServiceRateToGst(singleFlightDetails.PriceBreakup[0], "ADT",supplierTypeFor);
         if (isExcludeChildChecked != true) {
-          applyServiceRateToGst(singleFlightDetails.PriceBreakup[1], "CHD");
+          applyServiceRateToGst(singleFlightDetails.PriceBreakup[1], "CHD",supplierTypeFor);
         }
 
         if (isExcludeInfantChecked != true) {
-          applyServiceRateToGst(singleFlightDetails.PriceBreakup[2], "INF");
+          applyServiceRateToGst(singleFlightDetails.PriceBreakup[2], "INF",supplierTypeFor);
         }
       }
       // GST END

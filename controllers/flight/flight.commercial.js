@@ -6822,12 +6822,12 @@ const commertialMatrixValue = async (
             if (existingTDSIndex !== -1) {                
               //tax.CommercialBreakup[existingBookingFeesIndex].Amount = tax.CommercialBreakup[existingBookingFeesIndex].Amount - (parseFloat(tdsCheckFromConfig) / 100) ;
               //tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100);
-              tax.CommercialBreakup[existingTDSIndex].Amount += tdsCheckFromConfig;
+              tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
             } else { 
               //tax.CommercialBreakup[existingBookingFeesIndex].Amount = tax.CommercialBreakup[existingBookingFeesIndex].Amount - (parseFloat(tdsCheckFromConfig) / 100) ;               
               tax.CommercialBreakup.push({
                     CommercialType: "TDS",          
-                    Amount: tdsCheckFromConfig,
+                    Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
                     SupplierType: supplierTypeFor
                 });
             }            

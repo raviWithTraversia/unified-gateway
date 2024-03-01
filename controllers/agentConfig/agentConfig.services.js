@@ -97,6 +97,7 @@ const updateAgentConfiguration = async (req, res) => {
     const id = req.query.id;
     const updates = req.body;
     const existingConfig = await agentConfigsModels.findById(id);
+   /// console.log("====>", existingConfig);
 
     if (!existingConfig) {
       return {

@@ -48,6 +48,7 @@ const seriesDepartureSchema = new mongoose.Schema({
   baseamountinfcost: Number,
   fuelsurchginfcost: Number,
   taxamountinfcost: Number,
+  supplierCode : String,
   seriesId : {
     type :String,
     unique : true
@@ -101,6 +102,10 @@ const seriesDepartureSchema = new mongoose.Schema({
   companyId : {
     type : mongoose.Schema.Types.ObjectId,
     'ref': 'Company'
+  },
+  groupId : {
+    type : mongoose.Schema.Types.ObjectId,
+    'ref': 'seriesDepartureGroup'
   }
 });
 const seriesDeparture = mongoose.model("seriesDeparture", seriesDepartureSchema);

@@ -4,26 +4,23 @@ const xlsx = require("xlsx");
 const addFixedDepartureTicket = async (req, res) => {
   try {
     if (req.file) {
-      let { userId, companyId } = req.body;
+      let { userId, companyId,groupId } = req.body;
       const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
       const sheetName = workbook.SheetNames[0];
       let data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
       data = changeArrKeys(data);
      // console.log("==========>data1", data);
-      data = transformData(data, companyId, userId);
+      data = transformData(data, companyId, userId,groupId);
       let seriesCounter = await seriesDepartureCounter.findOne();
       seriesCounter = seriesCounter.counter;
-      console.log(seriesCounter)
-     // console.log(typeOf(seriesCounter))
       for(let i = 0; i < data.length; i++){
         seriesCounter = seriesCounter + 1;
         data[i].seriesId =`SE00${seriesCounter}`;
-        data[i].isActive = true,
-        data[i].status = 'Pending',
-        data[i].autoTicketing = false
+        data[i].isActive = true;
+        data[i].status = 'Pending';
+        data[i].autoTicketing = false;
+        data[i] = data[i].isrefundable === 0 ? false : true;
       };
-     // console.log("==========>data2", data);
-    //  console.log(seriesCounter);
       let updateCounter = await seriesDepartureCounter.findOneAndUpdate({_id :seriesCounter._id ,counter : seriesCounter })
       try {
         let newFlightTicket = await seriesDepartureModel.insertMany(data, {
@@ -119,6 +116,7 @@ function transformData(input, companyId, userId) {
       acc[item.pnr].companyId = companyId;
       acc[item.pnr].userId = userId;
       acc[item.pnr].flights.push(flightInfo);
+      acc[item.pnr].groupId = groupId;
     }
     return acc;
   }, {});

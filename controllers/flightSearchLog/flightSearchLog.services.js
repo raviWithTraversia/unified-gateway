@@ -2,9 +2,7 @@ const flightSerchLogModel = require("../../models/FlightSearchLog");
 const { ObjectId } = require("mongoose").Types;
 const addFlightSerchReport = async (req, res) => {
   try {
-    // console.log("====>>>",req.body, "<<<<=========");
     let data = { ...req.body };
-
     let newFlightSearchLog = new flightSerchLogModel({
       companyId: data?.Authentication?.CompanyId || null,
       userId: data?.Authentication?.UserId || null,

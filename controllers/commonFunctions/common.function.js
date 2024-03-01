@@ -361,7 +361,11 @@ const generateRandomPassword = (length)  => {
   }
 
   return password;
-}
+};
+
+
+
+
 
 module.exports = {
   createToken,

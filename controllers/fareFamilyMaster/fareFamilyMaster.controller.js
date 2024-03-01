@@ -15,7 +15,7 @@ const getFareFamilyListData = async(req, res) => {
         }else if(result.response == 'Fare Family not available'){
             apiErrorres(
                 res,
-                result.response,
+                result.data,
                 ServerStatusCode.NOT_EXIST_CODE,
                 true
             )

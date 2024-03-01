@@ -5291,17 +5291,17 @@ const commertialMatrixValue = async (
         const applyServiceRateToBaseFare = (fare) => {
           if (!(Object.keys(fare).length === 0)) {
             const existingBookingFeesIndex = fare.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Base Fare');    
-            if (existingBookingFeesIndex !== -1) {  
-              fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;              
+            if (existingBookingFeesIndex !== -1) {                            
               fare.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * fare.BaseFare;
-            } else { 
-              fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;               
+              fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
+            } else {                             
               fare.CommercialBreakup.push({
                     CommercialType: "Markup",
                     onCommercialApply: "Base Fare",          
                     Amount: (parseFloat(serviceRate) / 100) * fare.BaseFare,
                     SupplierType: supplierTypeFor
                 });
+              fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
             }
             //fare.MarkUp += (parseFloat(serviceRate) / 100) * fare.BaseFare;
             //fare.BaseFare += (parseFloat(serviceRate) / 100) * fare.BaseFare;
@@ -5342,17 +5342,17 @@ const commertialMatrixValue = async (
             tax.TaxBreakup.forEach((taxItem) => {
               if (taxItem.TaxType !== "YQ" && taxItem.TaxType !== "YR") {
                 const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'On Other Tax');    
-                  if (existingBookingFeesIndex !== -1) { 
-                    taxItem.Amount += (parseFloat(serviceRate) / 100) * taxItem.Amount;               
+                  if (existingBookingFeesIndex !== -1) {                                   
                     tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
-                  } else { 
-                    taxItem.Amount += (parseFloat(serviceRate) / 100) * taxItem.Amount;               
+                    taxItem.Amount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
+                  } else {                                   
                     tax.CommercialBreakup.push({
                           CommercialType: "Markup",
                           onCommercialApply: "On Other Tax",           
                           Amount: (parseFloat(serviceRate) / 100) * taxItem.Amount,
                           SupplierType: supplierTypeFor
                       });
+                    taxItem.Amount += (parseFloat(serviceRate) / 100) * taxItem.Amount;
                   }
                 //tax.MarkUp += (parseFloat(serviceRate) / 100) * taxItem.Amount;
               }
@@ -6800,31 +6800,34 @@ const commertialMatrixValue = async (
           const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
           const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'Discount');             
           if (existingBookingFeesIndex !== -1) {                
-            tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * tax.BaseFare;
+            //tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * tax.BaseFare;
             const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS');             
             if (existingTDSIndex !== -1) {                
-              tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
-            } else {                
+              //tax.CommercialBreakup[existingBookingFeesIndex].Amount = tax.CommercialBreakup[existingBookingFeesIndex].Amount - (parseFloat(tdsCheckFromConfig) / 100) ;
+              tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100);
+            } else { 
+              //tax.CommercialBreakup[existingBookingFeesIndex].Amount = tax.CommercialBreakup[existingBookingFeesIndex].Amount - (parseFloat(tdsCheckFromConfig) / 100) ;               
               tax.CommercialBreakup.push({
                     CommercialType: "TDS",          
-                    Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
+                    Amount: (parseFloat(tdsCheckFromConfig) / 100),
                     SupplierType: supplierTypeFor
                 });
             }            
             
-          } else {    
-            const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS');             
-            if (existingTDSIndex !== -1) {                
-              tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * 0;
-            } else {                
-              tax.CommercialBreakup.push({
-                    CommercialType: "TDS",          
-                    Amount: (parseFloat(tdsCheckFromConfig) / 100) * 0,
-                    SupplierType: supplierTypeFor
-                });
-            }           
+          } 
+          // else {    
+          //   const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS');             
+          //   if (existingTDSIndex !== -1) {                
+          //     tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * 0;
+          //   } else {                
+          //     tax.CommercialBreakup.push({
+          //           CommercialType: "TDS",          
+          //           Amount: (parseFloat(tdsCheckFromConfig) / 100) * 0,
+          //           SupplierType: supplierTypeFor
+          //       });
+          //   }           
             
-          }
+          // }
           
         }
       };
@@ -9624,8 +9627,7 @@ const checkMarkupValue = async (
               if(markupRate != 0 && markupRate != null){
                 countAirline.Tax += (markupRate / 100) * tax.Tax;
               }
-            }  
-            
+            }            
           }
 
         }

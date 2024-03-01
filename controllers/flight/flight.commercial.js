@@ -5443,23 +5443,28 @@ const commertialMatrixValue = async (
           : 0;
 
       // on word only start here
-      const applyFixedMarkupToOnWardOnly = (singleFlightDetails, tax, type) => {
+      const applyFixedMarkupToOnWardOnly = (singleFlightDetails, tax, type,supplierTypeFor) => {
         if (tax) {
-          if (type === "ADT") {
-            const existingBookingFeesIndex = fare.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Onward Only');    
+          if (type === "ADT") {           
+            if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0) {
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Onward Only');    
             if (existingBookingFeesIndex !== -1) {
                               
-              fare.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
+              tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
             } else {                
-              fare.CommercialBreakup.push({
+              tax.CommercialBreakup.push({
                     CommercialType: "Markup",
                     onCommercialApply: "Onward Only",          
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
                 });
             }
+          }
+          
             //tax.MarkUp += fixedAdultRate;
           } else if (type === "CHD") {
+            
+            if (singleFlightDetails.PriceBreakup[1] && Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0) {
             const existingBookingFeesIndex = fare.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Onward Only');    
             if (existingBookingFeesIndex !== -1) {                
               fare.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
@@ -5471,8 +5476,12 @@ const commertialMatrixValue = async (
                     SupplierType: supplierTypeFor
                 });
             }
+          }
+          
            // tax.MarkUp += fixedChildRate;
           } else if (type === "INF") {
+            
+            if (singleFlightDetails.PriceBreakup[2] && Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0) {
             const existingBookingFeesIndex = fare.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Onward Only');    
             if (existingBookingFeesIndex !== -1) {                
               fare.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
@@ -5484,6 +5493,8 @@ const commertialMatrixValue = async (
                     SupplierType: supplierTypeFor
                 });
             }
+          }
+          
             //tax.MarkUp += fixedInfantRate;
           }
         }
@@ -5503,17 +5514,20 @@ const commertialMatrixValue = async (
         applyFixedMarkupToOnWardOnly(
           singleFlightDetails,
           singleFlightDetails.PriceBreakup[0],
-          "ADT"
+          "ADT",
+          supplierTypeFor
         );
         applyFixedMarkupToOnWardOnly(
           singleFlightDetails,
           singleFlightDetails.PriceBreakup[1],
-          "CHD"
+          "CHD",
+          supplierTypeFor
         );
         applyFixedMarkupToOnWardOnly(
           singleFlightDetails,
           singleFlightDetails.PriceBreakup[2],
-          "INF"
+          "INF",
+          supplierTypeFor
         );
       }
 
@@ -7766,10 +7780,11 @@ const commertialMatrixValue = async (
       const applyFixedBookingFeeToOnWardOnly = (
         singleFlightDetails,
         tax,
-        type
+        type,
+        supplierTypeFor
       ) => {
         if (tax) {
-          if (type === "ADT") {
+          if (type === "ADT") {            
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
@@ -7813,26 +7828,35 @@ const commertialMatrixValue = async (
           filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
           filter.AirCommertialColumnMasterId.type === "coloumn"
       );
-
+        
       if (
         onWardOnlySingleColumn?.textType === "checkbox" &&
         onWardOnlySingleColumn.value
       ) {
+        if(singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0){
         applyFixedBookingFeeToOnWardOnly(
           singleFlightDetails,
           singleFlightDetails.PriceBreakup[0],
-          "ADT"
+          "ADT",
+          supplierTypeFor
         );
+        }
+        if(singleFlightDetails.PriceBreakup[1] && Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0){
         applyFixedBookingFeeToOnWardOnly(
           singleFlightDetails,
           singleFlightDetails.PriceBreakup[1],
-          "CHD"
+          "CHD",
+          supplierTypeFor
         );
+        }
+        if(singleFlightDetails.PriceBreakup[2] && Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0){
         applyFixedBookingFeeToOnWardOnly(
           singleFlightDetails,
           singleFlightDetails.PriceBreakup[2],
-          "INF"
+          "INF",
+          supplierTypeFor
         );
+        }
       }
 
       // on word only start End
@@ -8441,6 +8465,7 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
+            if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0) {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
@@ -8451,8 +8476,9 @@ const commertialMatrixValue = async (
                     SupplierType: supplierTypeFor
                 });
             }
-            
+           }
           } else if (type === "CHD") {
+            if (singleFlightDetails.PriceBreakup[1] && Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0) {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
@@ -8463,8 +8489,9 @@ const commertialMatrixValue = async (
                     SupplierType: supplierTypeFor
                 });
             }
-            
+           }
           } else if (type === "INF") {
+            if (singleFlightDetails.PriceBreakup[2] && Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0) {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
@@ -8474,7 +8501,8 @@ const commertialMatrixValue = async (
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
                 });
-            }            
+            }
+           }            
           }
         }
       };

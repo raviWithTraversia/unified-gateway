@@ -70,6 +70,14 @@ const seriesDepartureSchema = new mongoose.Schema({
     type : Boolean,
     default : false
   },
+  baggage : [{
+    name: String,
+    charge: Number
+  }],
+  meal : [{
+    name: String,
+    charge: Number
+  }],
   flights: [
       {
           airline_code: String,
@@ -84,15 +92,7 @@ const seriesDepartureSchema = new mongoose.Schema({
           arrivaldate: String,
           arrivaltime: String,
           flyingtime: String,
-          distance: Number,
-          baggage: {
-              name: String,
-              charge: Number
-          },
-          meal: {
-              type: String,
-              charge: Number
-          }
+          distance: Number
       }
   ],
   userId : {

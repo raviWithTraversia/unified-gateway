@@ -1,16 +1,38 @@
 const seriesDepartureModel = require("../../models/SeriesDeparture");
 const seriesDepartureCounter = require("../../models/seriesDepartureCounter");
 const xlsx = require("xlsx");
+
 const addFixedDepartureTicket = async (req, res) => {
   try {
     if (req.file) {
       let { userId, companyId,groupId } = req.body;
       const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
       const sheetName = workbook.SheetNames[0];
-      let data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+      groupId = '1'
+      const options = {
+        sheet: sheetName,
+        header: 1, 
+        blankrows: true,
+      };
+      
+      let data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName],options);
+      console.log(data);
+     // changeObject(data);
+     const result = data.slice(1).map(row => {
+      const obj = {};
+      data[0].forEach((key, index) => {
+        obj[key] = row[index] || null;
+      });
+      return obj;
+    });
+      
+    data = result
       data = changeArrKeys(data);
-     // console.log("==========>data1", data);
+   ///  data = transformDataF(data);
+      console.log("==========>data1", data);
       data = transformData(data, companyId, userId,groupId);
+      console.log("==========>data2", data);
+      return;
       let seriesCounter = await seriesDepartureCounter.findOne();
       seriesCounter = seriesCounter.counter;
       for(let i = 0; i < data.length; i++){
@@ -82,42 +104,50 @@ function changeArrKeys(arr) {
   }
   return newArr;
 };
-function transformData(input, companyId, userId) {
+function transformData(input, companyId, userId,groupId) {
   const output = [];
   const groupedByPnr = input.reduce((acc, item) => {
     if (!acc[item.pnr]) {
-      acc[item.pnr] = { ...item, flights: [] };
+      acc[item.pnr] = { ...item, flights: [], baggage: [], 
+      meal: [], };
     }
     for (let i = 0; ; i++) {
       const airlineCodeProp = `airline_code_${i}`;
       if (!item[airlineCodeProp]) {
         break;
       }
-      const flightInfo = {
-        airline_code: item[airlineCodeProp],
-        boundtype: item[`boundtype_${i}`],
-        flightnumber: item[`flightnumber_${i}`],
-        origin: item[`origin_${i}`],
-        oterm: item[`oterm_${i}`],
-        destination: item[`destination_${i}`],
-        dterm: item[`dterm_${i}`],
-        departuredate: item[`departuredate_${i}`],
-        departuretime: item[`departuretime_${i}`],
-        arrivaldate: item[`arrivaldate_${i}`],
-        arrivaltime: item[`arrivaltime_${i}`],
-        flyingtime: item[`flyingtime_${i}`],
-        distance: item[`distance_${i}`],
-        baggage: {
-          name: item[`baggage_name_${i}`],
-          charge: item[`baggage_charge_${i}`],
-        },
-        meal: item[`meal_${i}`],
+      const baggageInfo = {
+        name: item[`baggage_name_${i}`] || null,
+        charge: item[`baggage_charge_${i}`] || null,
       };
+      const mealInfo = {
+        name: item[`meal_${i}`] || null,
+        charge: item[`meal_charge_${i}`] || null,
+      };
+      const flightInfo = {
+        airline_code: item[airlineCodeProp] || null,
+        boundtype: item[`boundtype_${i}`] || null,
+        flightnumber: item[`flightnumber_${i}`] || null,
+        origin: item[`origin_${i}`] || null,
+        oterm: item[`oterm_${i}`] || null,
+        destination: item[`destination_${i}`] || null,
+        dterm: item[`dterm_${i}`] || null,
+        departuredate: item[`departuredate_${i}`] || null,
+        departuretime: item[`departuretime_${i}`] || null,
+        arrivaldate: item[`arrivaldate_${i}`] || null,
+        arrivaltime: item[`arrivaltime_${i}`] || null,
+        flyingtime: item[`flyingtime_${i}`] || null,
+        distance: item[`distance_${i}`] || null,
+      };
+      //console.log("====>>>",baggageInfo)
       acc[item.pnr].companyId = companyId;
       acc[item.pnr].userId = userId;
       acc[item.pnr].flights.push(flightInfo);
       acc[item.pnr].groupId = groupId;
+      acc[item.pnr].baggage.push(baggageInfo);
+      acc[item.pnr].meal.push(mealInfo)
     }
+    console.log("===>>>", acc)
     return acc;
   }, {});
   for (const pnr in groupedByPnr) {
@@ -125,6 +155,29 @@ function transformData(input, companyId, userId) {
   }
   return output;
 };
+function transformDataF(inputData) {
+  const transformedData = inputData.map((item) => {
+    const keys = Object.keys(item);
+
+    // Iterate through keys and add corresponding null properties
+    keys.forEach((key) => {
+      if (item[key] === null) {
+        const index = key.match(/\d+/); // Extract index from key, e.g., airline_code_2
+        const baseKey = key.replace(`_${index}`, ''); // Remove index from key
+        item[`${baseKey}_0`] = null;
+        item[`${baseKey}_1`] = null;
+        item[`${baseKey}_2`] = null;
+        item[`${baseKey}_3`] = null;
+        item[`${baseKey}_4`] = null;
+        item[`${baseKey}_5`] = null;
+      }
+    });
+
+    return item;
+  });
+
+  return transformedData;
+}
 const getFixedDepartureTicket = async (req, res) => {
   try {
     let { userId } = req.query;
@@ -175,6 +228,8 @@ const updateFixedDepartureTicket = async (req, res) => {
     throw error;
   }
 };
+
+
 
 module.exports = {
   addFixedDepartureTicket,

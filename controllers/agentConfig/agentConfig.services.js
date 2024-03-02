@@ -124,7 +124,6 @@ const updateAgentConfiguration = async (req, res) => {
     throw error;
   }
 };
-
 const getAgentConfig = async (req, res) => {
   try {
     let {id} = req.query;
@@ -158,7 +157,6 @@ const getAgentConfig = async (req, res) => {
     throw error;
   }
 };
-
 const updateAgencyProfile = async (req,res) => {
     try{
         let uploadDataId = req.query.id;
@@ -206,7 +204,6 @@ const updateAgencyProfile = async (req,res) => {
       throw error
     }
 };
-
 const getUserProfile = async (req,res) => {
   try{
   let {userId} = req.query;
@@ -236,7 +233,6 @@ const getUserProfile = async (req,res) => {
     throw error
   }
 }
-
 module.exports = {
   addAgentConfiguration,
   updateAgentConfiguration,

@@ -97,6 +97,10 @@ const agentConfigSchema = new mongoose.Schema({
     modifyAt: {
       type: Date,
       default: Date.now(),
+    },
+    discountPercentage : {
+      type : Number,
+      default : 0
     }
   },
   {

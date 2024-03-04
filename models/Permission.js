@@ -25,6 +25,10 @@ const parmissionSchema = new mongoose.Schema({
     emulate : {
       type: Boolean,
       default : false
+    },
+    allow : {
+      type : Boolean,
+      default : true
     }
 
 }, {

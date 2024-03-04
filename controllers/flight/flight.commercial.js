@@ -40,6 +40,7 @@ const getApplyAllCommercial = async (
   let commertialMatrixValueHandle = null;
   if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {    
     // TMC-Agency // // one time apply commertioal
+    //console.log(companyDetails.data.discountPercentage);
     const [
       commercialPlanDetails,
       incentivePlanDetails,
@@ -51,7 +52,7 @@ const getApplyAllCommercial = async (
       getAssignIncentive(companyDetails._id),
       getAssignPlb(companyDetails._id),
       getAssignMarcup(companyDetails._id),
-      getAssignCongifDetails(companyDetails._id),
+      getAssignCongifDetails(companyDetails.parent._id),
     ]);    
     const countryMapingVal = await countryMaping.find({
       companyId: companyDetails.parent._id,
@@ -598,9 +599,10 @@ const getApplyAllCommercial = async (
         TraceId: "12343253",
       },
     ];
-
+    
      for (const singleFlightDetails of commonArray) {
     //for (const singleFlightDetails of commonArrayDummy) {
+      
       // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
         // get group of priority base
@@ -989,7 +991,7 @@ const getApplyAllCommercial = async (
       getAssignIncentive(companyDetails._id),
       getAssignPlb(companyDetails._id),
       getAssignMarcup(companyDetails._id),
-      getAssignCongifDetails(companyDetails._id),
+      getAssignCongifDetails(companyDetails.parent._id),
     ]);    
     const countryMapingValDistibuter = await countryMaping.find({
       companyId: companyDetails.parent._id,
@@ -1223,7 +1225,7 @@ const getApplyAllCommercial = async (
       getAssignCommercial(companyDetails._id),
       getAssignIncentive(companyDetails._id),
       getAssignPlb(companyDetails._id),      
-      getAssignCongifDetails(companyDetails._id),
+      getAssignCongifDetails(companyDetails.parent._id),
     ]);    
     const countryMapingVal = await countryMaping.find({
       companyId: companyDetails.parent._id,
@@ -1686,16 +1688,22 @@ const getAssignMarcup = async (companyId) => {
 };
 
 const getAssignCongifDetails = async (companyId) => {
-  let getAgentConfig = await agentConfig.findOne({
-    companyId: companyId,
-  }); 
+  try {
+    let getAgentConfig = await agentConfig.findOne({
+      companyId: companyId,
+    });
 
-  if (getAgentConfig) {
-    return { IsSuccess: true, data: getAgentConfig };
-  } else {
-    return { IsSuccess: false, Message: "Agent Config Not Available" };
+    //console.log(getAgentConfig);
+
+    if (getAgentConfig) {
+      return { IsSuccess: true, data: getAgentConfig };
+    } else {
+      return { IsSuccess: false, Message: "Agent Config Not Available" };
+    }
+  } catch (error) {
+    console.error("Error fetching agent config:", error);
+    return { IsSuccess: false, Message: "Error fetching agent config" };
   }
-
 };
 
 
@@ -6459,18 +6467,20 @@ const commertialMatrixValue = async (
           // if (getAgentConfig) {
           //  tax.gst += getAgentConfig.discountPercentage
           // }
+           //console.log(configDetails.data.discountPercentage);
+
           const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees');    
             if (existingBookingFeesIndex !== -1) {
               
             const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
             if (existingGSTIndex !== -1) {
-              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 !== undefined ? configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 : 0 || 0) : 0;
                             
               tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : tax.CommercialBreakup[existingGSTIndex].Amount;
              
             } else { 
               
-              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;               
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;               
               tax.CommercialBreakup.push({
                     CommercialType: "GST",          
                     Amount: tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : 0,
@@ -6481,7 +6491,7 @@ const commertialMatrixValue = async (
             } else {   
               const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
             if (existingGSTIndex !== -1) {
-              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
+              const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;                
               tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * 0 : 0;
             } else {                
               tax.CommercialBreakup.push({
@@ -7170,10 +7180,10 @@ const commertialMatrixValue = async (
                     if (existingBookingFeesIndex !== -1) {  
                       const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
                       if (existingGSTIndex !== -1) {
-                        const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                 
+                        const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;                 
                         tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount :tax.CommercialBreakup[existingBookingFeesIndex].Amount;
                       } else {   
-                        const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;             
+                        const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;             
                         tax.CommercialBreakup.push({
                               CommercialType: "GST",          
                               Amount: tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : tax.CommercialBreakup[existingBookingFeesIndex].Amount,
@@ -7184,7 +7194,7 @@ const commertialMatrixValue = async (
                     } else {
                       const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
                       if (existingGSTIndex !== -1) { 
-                        const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;               
+                        const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;               
                         tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * 0:0;
                       } else {                
                         tax.CommercialBreakup.push({
@@ -8350,10 +8360,10 @@ const commertialMatrixValue = async (
             if (existingBookingFeesIndex !== -1) {   
               const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
               if (existingGSTIndex !== -1) {
-                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
+                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;                
                 tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount :tax.CommercialBreakup[existingBookingFeesIndex].Amount;
               } else { 
-                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
+                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;                
                 tax.CommercialBreakup.push({
                       CommercialType: "GST",          
                       Amount: tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount :tax.CommercialBreakup[existingBookingFeesIndex].Amount,
@@ -9029,10 +9039,10 @@ const commertialMatrixValue = async (
             if (existingBookingFeesIndex !== -1) { 
               const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
               if (existingGSTIndex !== -1) {
-                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
+                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;                
                 tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount :tax.CommercialBreakup[existingBookingFeesIndex].Amount;
               } else { 
-                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage || 0) : 0;                
+                const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;                
                 tax.CommercialBreakup.push({
                       CommercialType: "GST",          
                       Amount: tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount :tax.CommercialBreakup[existingBookingFeesIndex].Amount,

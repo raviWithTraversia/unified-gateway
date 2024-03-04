@@ -126,6 +126,7 @@ const storePermission = async (req, res) => {
       permissionName,
       permissionDescription,
       emulate,
+      allow
     } = req.body;
 
     const CheckPermissionName = await Permission.findOne({
@@ -139,6 +140,7 @@ const storePermission = async (req, res) => {
         permissionName,
         permissionDescription,
         emulate,
+        allow
       });
       const permissionSave = await savePermission.save();
 

@@ -19,7 +19,8 @@ const addAgentConfiguration = async (req, res) => {
       addressOnTicketCopy,
       fareTypes,
       UserId,
-      agencyGroupId
+      agencyGroupId,
+      discountPercentage
     } = req.body;
     let userId = req.user._id;
     let checkIsRole = await userModel
@@ -43,6 +44,7 @@ const addAgentConfiguration = async (req, res) => {
         addressOnTicketCopy,
         fareTypes,
         UserId,
+        discountPercentage,
         modifyBy: req.user._id,
       });
       agentConfigsInsert = await agentConfigsInsert.save();
@@ -73,7 +75,8 @@ const addAgentConfiguration = async (req, res) => {
         fareTypes,
         UserId,
         modifyBy: req.user._id,
-        agencyGroupId
+        agencyGroupId,
+        discountPercentage
       });
       agentConfigsInsert = await agentConfigsInsert.save();
       if (agentConfigsInsert) {
@@ -98,13 +101,11 @@ const updateAgentConfiguration = async (req, res) => {
     const updates = req.body;
     const existingConfig = await agentConfigsModels.findById(id);
    /// console.log("====>", existingConfig);
-
     if (!existingConfig) {
       return {
         response: "Config not found",
       };
     }
-
     for (let key in updates) {
       if (existingConfig[key] !== updates[key]) {
         existingConfig[key] = updates[key];
@@ -139,7 +140,7 @@ const getAgentConfig = async (req, res) => {
       .populate("salesInchargeIds")
       .populate("plbGroupIds")
       .populate("diSetupIds")
-      .populate("airlinePromocodeIds")// airlinePromocodeIds
+      .populate("airlinePromocodeIds")
       .populate("paymentGatewayIds")
     console.log(agentConfigData);
     if (agentConfigData) {

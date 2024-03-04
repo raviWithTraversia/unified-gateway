@@ -8,7 +8,6 @@ const addFixedDepartureTicket = async (req, res) => {
       let { userId, companyId,groupId } = req.body;
       const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
       const sheetName = workbook.SheetNames[0];
-      groupId = '1'
       const options = {
         sheet: sheetName,
         header: 1, 
@@ -16,33 +15,43 @@ const addFixedDepartureTicket = async (req, res) => {
       };
       
       let data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName],options);
-      console.log(data);
+     // console.log(data);
      // changeObject(data);
      const result = data.slice(1).map(row => {
       const obj = {};
       data[0].forEach((key, index) => {
-        obj[key] = row[index] || null;
+       // console.log(key);
+        if(row[index] == undefined){
+          obj[key] = null
+        }else if(key == "ISREFUNDABLE" || key == "ISACTIVE" || key == "AUTOTICKETING"){
+          if(row[index] == 1){
+            row[index] = true
+          }else{
+            row[index] = false
+          }
+          obj[key] = row[index]
+        }
+        else{
+        obj[key] = row[index] ;
+        }
       });
       return obj;
     });
-      
     data = result
       data = changeArrKeys(data);
    ///  data = transformDataF(data);
       console.log("==========>data1", data);
       data = transformData(data, companyId, userId,groupId);
       console.log("==========>data2", data);
-      return;
       let seriesCounter = await seriesDepartureCounter.findOne();
       seriesCounter = seriesCounter.counter;
       for(let i = 0; i < data.length; i++){
         seriesCounter = seriesCounter + 1;
         data[i].seriesId =`SE00${seriesCounter}`;
-        data[i].isActive = true;
         data[i].status = 'Pending';
         data[i].autoTicketing = false;
-        data[i] = data[i].isrefundable === 0 ? false : true;
       };
+     
       let updateCounter = await seriesDepartureCounter.findOneAndUpdate({_id :seriesCounter._id ,counter : seriesCounter })
       try {
         let newFlightTicket = await seriesDepartureModel.insertMany(data, {
@@ -112,6 +121,7 @@ function transformData(input, companyId, userId,groupId) {
       meal: [], };
     }
     for (let i = 0; ; i++) {
+     // console.log(i);
       const airlineCodeProp = `airline_code_${i}`;
       if (!item[airlineCodeProp]) {
         break;
@@ -139,7 +149,7 @@ function transformData(input, companyId, userId,groupId) {
         flyingtime: item[`flyingtime_${i}`] || null,
         distance: item[`distance_${i}`] || null,
       };
-      //console.log("====>>>",baggageInfo)
+    //  console.log("====>>>",baggageInfo)
       acc[item.pnr].companyId = companyId;
       acc[item.pnr].userId = userId;
       acc[item.pnr].flights.push(flightInfo);
@@ -147,7 +157,7 @@ function transformData(input, companyId, userId,groupId) {
       acc[item.pnr].baggage.push(baggageInfo);
       acc[item.pnr].meal.push(mealInfo)
     }
-    console.log("===>>>", acc)
+  //  console.log("===>>>", acc)
     return acc;
   }, {});
   for (const pnr in groupedByPnr) {
@@ -155,29 +165,6 @@ function transformData(input, companyId, userId,groupId) {
   }
   return output;
 };
-function transformDataF(inputData) {
-  const transformedData = inputData.map((item) => {
-    const keys = Object.keys(item);
-
-    // Iterate through keys and add corresponding null properties
-    keys.forEach((key) => {
-      if (item[key] === null) {
-        const index = key.match(/\d+/); // Extract index from key, e.g., airline_code_2
-        const baseKey = key.replace(`_${index}`, ''); // Remove index from key
-        item[`${baseKey}_0`] = null;
-        item[`${baseKey}_1`] = null;
-        item[`${baseKey}_2`] = null;
-        item[`${baseKey}_3`] = null;
-        item[`${baseKey}_4`] = null;
-        item[`${baseKey}_5`] = null;
-      }
-    });
-
-    return item;
-  });
-
-  return transformedData;
-}
 const getFixedDepartureTicket = async (req, res) => {
   try {
     let { userId } = req.query;

@@ -35,10 +35,10 @@ const seriesDepartureSchema = new mongoose.Schema({
   taxamountinf: Number,
   carryonallowance: String,
   baggageallowance: String,
-  isrefundable: Number,
+  isrefundable: Boolean,
   cancelpenalty: String,
   changepenalty: String,
-  isactive: Number,
+  isactive: Boolean,
   baseamountcost: Number,
   fuelsurchgcost: Number,
   taxamountcost: Number,
@@ -48,65 +48,60 @@ const seriesDepartureSchema = new mongoose.Schema({
   baseamountinfcost: Number,
   fuelsurchginfcost: Number,
   taxamountinfcost: Number,
-  supplierCode : String,
-  seriesId : {
-    type :String,
-    unique : true
-  },
-  status : {
-    type : String,
-    enum : ['Pending','Approved','Rejected'],
-    default : "Pending"
-  },
-  isActive : {
-    type : Boolean,
-    default : false
-  },
-  autoTicketing : {
-    type : Boolean,
-    default : false
-  },
-  nonRefundable : {
-    type : Boolean,
-    default : false
-  },
-  baggage : [{
-    name: String,
-    charge: Number
+  airline_code_0: String,
+  boundtype_0: Number,
+  flightnumber_0: Number,
+  origin_0: String,
+  oterm_0: String,
+  destination_0: String,
+  dterm_0: String,
+  departuredate_0: String,
+  departuretime_0: String,
+  arrivaldate_0: String,
+  arrivaltime_0: String,
+  flyingtime_0: String,
+  distance_0: Number,
+  baggage_name_0: String,
+  baggage_charge_0: Number,
+  meal_0: String,
+  meal_charge_0: Number,
+  flights: [{
+      airline_code: String,
+      boundtype: Number,
+      flightnumber: Number,
+      origin: String,
+      oterm: String,
+      destination: String,
+      dterm: String,
+      departuredate: String,
+      departuretime: String,
+      arrivaldate: String,
+      arrivaltime: String,
+      flyingtime: String,
+      distance: Number,
   }],
-  meal : [{
-    name: String,
-    charge: Number
+  baggage: [{
+      name: String,
+      charge: Number,
   }],
-  flights: [
-      {
-          airline_code: String,
-          boundtype: Number,
-          flightnumber: Number,
-          origin: String,
-          oterm: String,
-          destination: String,
-          dterm: String,
-          departuredate: String,
-          departuretime: String,
-          arrivaldate: String,
-          arrivaltime: String,
-          flyingtime: String,
-          distance: Number
-      }
-  ],
-  userId : {
-    type : mongoose.Schema.Types.ObjectId,
-    'ref': 'User'
+  meal: [{
+      name: String,
+      charge: Number,
+  }],
+  companyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref : 'Company'
   },
-  companyId : {
-    type : mongoose.Schema.Types.ObjectId,
-    'ref': 'Company'
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref : 'User'
   },
-  groupId : {
-    type : mongoose.Schema.Types.ObjectId,
-    'ref': 'seriesDepartureGroup'
-  }
+  groupId: {
+   type : String
+  },
+  seriesId: String,
+  status: Boolean,
+  autoTicketing: Boolean
 });
 const seriesDeparture = mongoose.model("seriesDeparture", seriesDepartureSchema);
 module.exports = seriesDeparture;

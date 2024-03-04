@@ -368,7 +368,7 @@ const userInsert = async (req, res) => {
       }
     };
 
-    console.log(privilegePlansIds ,commercialPlanIds ,fareRuleGroupIds,agencyGroupId)
+  //  console.log(privilegePlansIds ,commercialPlanIds ,fareRuleGroupIds,agencyGroupId)
       let agentConfigsInsert = await agentConfigModel.create({
         userId : userCreated._id,
         companyId : savedCompany._id ,
@@ -593,18 +593,18 @@ const addUser = async (req,res) => {
 
       let company = await User.findOne({_id: req.user._id});
       let companyId = company.company_ID;
-      const securePassword = await commonFunction.securePassword(password);
+     // const securePassword = await commonFunction.securePassword(password);
       const newUser = new User({
         company_ID : companyId,
         title , 
-        fname :firstName , 
-        lastName ,
+        fname :firstName, 
+        lastName,
         email, 
         phoneNumber, 
-        sales_In_Charge ,
+        sales_In_Charge,
         isMailSent, 
         type,
-        password :securePassword,
+        password,
         userStatus : "Active",
         roleId,
 
@@ -730,7 +730,7 @@ const getAllAgencyAndDistributer = async (req,res) => {
 //console.log("=======>>>", users);
     let data = [];
     for(let i = 0;i < users.length; i++){
-      if(users[i].roleId.name == 'Staff' ){
+      if(users[i].roleId.type == 'Manual'){
         continue;
       }else{
         data.push(users[i])

@@ -611,8 +611,10 @@ const getApplyAllCommercial = async (
           singleFlightDetails,
           commercialPlanDetails
         );
-        if (groupPriority.length > 0) {          
-          for (let i = 0; i < groupPriority.length; i++) {
+        if (groupPriority.length > 0) { 
+          //console.log('carrier', groupPriority);
+              //console.log('valcarr',singleFlightDetails.ValCarrier);         
+          for (let i = 0; i < groupPriority.sort((a, b) => a.priority - b.priority).length; i++) {
             const commList = groupPriority[i];            
             if (
               TravelType === commList.travelType &&
@@ -620,6 +622,7 @@ const getApplyAllCommercial = async (
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket"
             ) {
+              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
                 singleFlightDetails,

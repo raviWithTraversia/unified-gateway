@@ -1,11 +1,11 @@
 const seriesDepartureModel = require("../../models/SeriesDeparture");
 const seriesDepartureCounter = require("../../models/seriesDepartureCounter");
+const seriesDepartureGroupServices = require("../seriesDepartureGroup/seriesDepartureGroup.services");
 const xlsx = require("xlsx");
-
 const addFixedDepartureTicket = async (req, res) => {
   try {
     if (req.file) {
-      let { userId, companyId,groupId } = req.body;
+      let { userId, companyId,groupId} = req.body;
       const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
       const sheetName = workbook.SheetNames[0];
       const options = {
@@ -13,14 +13,10 @@ const addFixedDepartureTicket = async (req, res) => {
         header: 1, 
         blankrows: true,
       };
-      
       let data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName],options);
-     // console.log(data);
-     // changeObject(data);
      const result = data.slice(1).map(row => {
       const obj = {};
       data[0].forEach((key, index) => {
-       // console.log(key);
         if(row[index] == undefined){
           obj[key] = null
         }else if(key == "ISREFUNDABLE" || key == "ISACTIVE" || key == "AUTOTICKETING"){
@@ -40,18 +36,20 @@ const addFixedDepartureTicket = async (req, res) => {
     data = result
       data = changeArrKeys(data);
    ///  data = transformDataF(data);
-      //console.log("==========>data1", data);
+      console.log("==========>data1", data);
       data = transformData(data, companyId, userId,groupId);
       //console.log("==========>data2", data);
       let seriesCounter = await seriesDepartureCounter.findOne();
       seriesCounter = seriesCounter.counter;
       for(let i = 0; i < data.length; i++){
-        seriesCounter = seriesCounter + 1;
+        seriesCounter = seriesCounter;
         data[i].seriesId =`SE00${seriesCounter}`;
         data[i].status = 'Pending';
         data[i].autoTicketing = false;
       };
-     
+      req.body.count = data.length
+
+      await seriesDepartureGroupServices.updatedSeriesDepartureGroup(req)
       let updateCounter = await seriesDepartureCounter.findOneAndUpdate({_id :seriesCounter._id ,counter : seriesCounter })
       try {
         let newFlightTicket = await seriesDepartureModel.insertMany(data, {
@@ -81,8 +79,14 @@ const addFixedDepartureTicket = async (req, res) => {
         }
       }
     } else {
+      let seriesCounter = await seriesDepartureCounter.findOne();
+      seriesCounter = seriesCounter.counter + 1;
+      seriesId =`SE00${seriesCounter}`;
+      req.body.seriesId = seriesId;
       const newFlightData = new seriesDepartureModel(req.body);
       const savedData = await newFlightData.save();
+      req.body.count = 1;
+      await seriesDepartureGroupServices.updatedSeriesDepartureGroup(req)
       if(savedData){
         return {
           response : "Ticket Data Insert Successfully",
@@ -161,9 +165,9 @@ function transformData(input, companyId, userId,groupId) {
 };
 const getFixedDepartureTicket = async (req, res) => {
   try {
-    let { userId } = req.query;
+    let { groupId } = req.query;
     let ticketDetail = await seriesDepartureModel
-      .find({ userId })
+      .find({ groupId })
       .populate("userId companyId");
     if (ticketDetail.length > 0) {
       return {
@@ -209,9 +213,6 @@ const updateFixedDepartureTicket = async (req, res) => {
     throw error;
   }
 };
-
-
-
 module.exports = {
   addFixedDepartureTicket,
   getFixedDepartureTicket,

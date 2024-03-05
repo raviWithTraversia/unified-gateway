@@ -30,6 +30,11 @@ const AirCommercialSchema = new mongoose.Schema({
         ref: 'SupplierCode',
         default : null,
     },
+    fareFamily: {
+        type: mongoose.Schema.Types.ObjectId,
+        'ref': 'FareFamilyMaster',
+        default : null
+    },
     priority: {
         type: String,
         required: false,

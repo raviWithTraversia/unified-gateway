@@ -432,6 +432,7 @@ const KafilaFun = async (
         let schedule = apiResponse.Schedules[0][index];        
         let randomUID = uuid.v4();
         // apiResponseCommon.push(schedule);
+        //console.log(schedule.Itinerary)
         apiResponseCommon.push({
           UID: randomUID,
           BaseFare: schedule.Fare.BasicTotal,

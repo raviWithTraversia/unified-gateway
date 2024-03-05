@@ -1802,6 +1802,8 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
     if (
       allAirportIncludeIncludeValue.includes(
         singleFlightDetails.Sectors[0].Departure.CountryCode
+      ) ||  allAirportIncludeIncludeValue.includes(
+        singleFlightDetails.Sectors[0].Arrival.CountryCode
       )
     ) {
       // country code exists  IN, US
@@ -1811,6 +1813,8 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
       if (
         allAirportIncludeIncludeValue.includes(
           singleFlightDetails.Sectors[0].Departure.Code
+        ) || allAirportIncludeIncludeValue.includes(
+          singleFlightDetails.Sectors[0].Arrival.Code
         )
       ) {
         // Airport exits
@@ -1830,7 +1834,9 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
           if (
             countryMapingVal.countries
               .split(",")
-              .includes(singleFlightDetails.Sectors[0].Departure.CountryCode)
+              .includes(singleFlightDetails.Sectors[0].Departure.CountryCode) || countryMapingVal.countries
+              .split(",")
+              .includes(singleFlightDetails.Sectors[0].Arrival.CountryCode)
           ) {
             // Country Code Group Exists
             bestMatch = true;
@@ -1852,6 +1858,8 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
     if (
       allAirportExcludeValue.includes(
         singleFlightDetails.Sectors[0].Departure.CountryCode
+      ) ||  allAirportExcludeValue.includes(
+        singleFlightDetails.Sectors[0].Arrival.CountryCode
       )
     ) {
       // country code exists  IN, US
@@ -1862,6 +1870,8 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
       if (
         allAirportExcludeValue.includes(
           singleFlightDetails.Sectors[0].Departure.Code
+        ) || allAirportExcludeValue.includes(
+          singleFlightDetails.Sectors[0].Arrival.Code
         )
       ) {
         // Airport exits
@@ -1882,7 +1892,9 @@ const checkInnerFilter = async (commList, singleFlightDetails, companyId) => {
           if (
             countryMapingVal.countries
               .split(",")
-              .includes(singleFlightDetails.Sectors[0].Departure.CountryCode)
+              .includes(singleFlightDetails.Sectors[0].Departure.CountryCode) || countryMapingVal.countries
+              .split(",")
+              .includes(singleFlightDetails.Sectors[0].Arrival.CountryCode)
           ) {
             // Country Code Group Exists
             bestMatch = false;

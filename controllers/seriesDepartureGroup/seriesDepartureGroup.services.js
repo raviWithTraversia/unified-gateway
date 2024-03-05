@@ -13,9 +13,9 @@ const addSeriesDepartureGroup = async (req,res) => {
             response : 'Group Name Already Exist'
           }
         }
-        let count = 0;
+         let count = 0;
          count = req?.body?.seriesDepartureIds?.length;
-        req.body.count = count;
+         req.body.count = count;
           const newSeriesDepartureGroup = new seriesDepartureGroupModel(req.body);
           await newSeriesDepartureGroup.save();
           return{
@@ -49,6 +49,25 @@ const getSeriesDepartureGroup = async (req ,res) =>{
 };
 const updatedSeriesDepartureGroup = async (req,res) => {
     try {
+        if(req.body.groupId){
+          groupId = +req.body.groupId;
+          let count = await seriesDepartureGroupModel.findOne({groupId : groupId});
+          count = count.count + req.body.count;
+          const updatedSeriesDepartureGroup = await seriesDepartureGroupModel.findOneAndUpdate(
+           {groupId :groupId},
+          { count : count},
+            { new: true, runValidators: true } 
+          );
+          if (!updatedSeriesDepartureGroup) {
+            return {
+              response : 'Series Departure Group not found' 
+            }
+          }
+          return {
+              response : 'Series Departure Group updated successfully',
+              data: updatedSeriesDepartureGroup
+          }
+        }else{
         const updatedSeriesDepartureGroup = await seriesDepartureGroupModel.findByIdAndUpdate(
           req.query.id,
           req.body,
@@ -63,6 +82,7 @@ const updatedSeriesDepartureGroup = async (req,res) => {
             response : 'Series Departure Group updated successfully',
             data: updatedSeriesDepartureGroup
         }
+      }
       } catch (error) {
         if (error.name === 'ValidationError') { 
             return {

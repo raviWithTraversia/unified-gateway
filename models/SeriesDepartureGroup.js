@@ -12,7 +12,8 @@ const seriesDepartureGroupSchema = new mongoose.Schema({
         type : String
       },
       count : {
-        type : Number
+        type : Number,
+        default : 0,
       },
       userId : {
         type : mongoose.Schema.Types.ObjectId,
@@ -33,7 +34,6 @@ const groupCounterSchema = new mongoose.Schema({
 const GroupCounter = mongoose.model("GroupCounter", groupCounterSchema);
 seriesDepartureGroupSchema.pre("save", async function (next) {
   if (!this.isNew) return next();
-
   try {
     const counter = await GroupCounter.findByIdAndUpdate(
       { _id: "groupId" },

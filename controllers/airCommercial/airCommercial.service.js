@@ -22,6 +22,7 @@ const addAirCommercial = async (req, res) => {
             supplier,
             source,
             priority,
+            fareFamily,
             companyId
         } = req.body;
         if (!commercialAirPlanId) {
@@ -56,6 +57,7 @@ const addAirCommercial = async (req, res) => {
             commercialCategory,
             supplier,
             source,
+            fareFamily,
             priority,
             companyId
         });

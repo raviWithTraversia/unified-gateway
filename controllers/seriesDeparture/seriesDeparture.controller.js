@@ -5,6 +5,7 @@ const {ServerStatusCode, errorResponse, ADMIN_USER_TYPE, CrudMessage}  = require
 const addFixedDepartureTicket = async (req,res) => {
     try {
     const result = await seriesDepartureServices.addFixedDepartureTicket(req,res);
+   // console.log(result.data);
     if(result.response == 'Ticket Data Insert Successfully'){
         apiSucessRes(
             res,

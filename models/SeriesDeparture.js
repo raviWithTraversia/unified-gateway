@@ -101,7 +101,8 @@ const seriesDepartureSchema = new mongoose.Schema({
   },
   seriesId: String,
   status: Boolean,
-  autoTicketing: Boolean
+  autoTicketing: Boolean,
+  supplierCode : String
 });
 const seriesDeparture = mongoose.model("seriesDeparture", seriesDepartureSchema);
 module.exports = seriesDeparture;

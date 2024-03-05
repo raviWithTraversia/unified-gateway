@@ -40,9 +40,9 @@ const addFixedDepartureTicket = async (req, res) => {
     data = result
       data = changeArrKeys(data);
    ///  data = transformDataF(data);
-      console.log("==========>data1", data);
+      //console.log("==========>data1", data);
       data = transformData(data, companyId, userId,groupId);
-      console.log("==========>data2", data);
+      //console.log("==========>data2", data);
       let seriesCounter = await seriesDepartureCounter.findOne();
       seriesCounter = seriesCounter.counter;
       for(let i = 0; i < data.length; i++){
@@ -81,19 +81,13 @@ const addFixedDepartureTicket = async (req, res) => {
         }
       }
     } else {
-      let documents = { ...req.body };
-      let newFlightTicket = new seriesDepartureModel(req.body);
-      newFlightTicket = await newFlightTicket.save();
-      if (newFlightTicket) {
+      const newFlightData = new seriesDepartureModel(req.body);
+      const savedData = await newFlightData.save();
+      if(savedData){
         return {
-          response: "Ticket Data Insert Sucessfully",
-          data: newFlightTicket,
-        };
-      } else {
-        return {
-          response: "Ticket Data Not Insert",
-          data: [],
-        };
+          response : "Ticket Data Insert Successfully",
+          data : savedData 
+        }
       }
     }
   } catch (error) {

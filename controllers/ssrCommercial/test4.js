@@ -888,5 +888,6 @@ let res = {
 }
 
 function changeResponse (data) {
-
+    let dataForReq  = data.seat
+   
 }

@@ -111,7 +111,8 @@ const authenticate = async (req, res) => {
                     companyId: user.company_ID,
                     roleId: user?.roleId || null,
                     token: token,
-                    lastLogInDate : user?.last_LoginDate || null
+                    lastLogInDate : user?.last_LoginDate || null,
+                    userId : user?.userId || ""
                 };
 
                 return {

@@ -1,169 +1,4 @@
-const ssrCommercialModel = require('../../models/SsrCommercial');
-
-const addSsrCommercial = async(req,res) => {
-    try{
-        const {
-            seat,
-            meal,
-            baggage,
-            bookingType,
-            airlineCodeId,
-            travelType,
-            supplierCode,
-            validDateFrom,
-            validDateTo,
-            status,
-            description,
-            modifyBy,
-            companyId
-          } = req.body;
-          let query = {
-            supplierCode: supplierCode,
-            companyId: companyId
-          };
-          
-          if (airlineCodeId) {
-            query.airlineCodeId = airlineCodeId;
-          }
-          
-          
-      let checkIsSsrCommercialExist = await ssrCommercialModel.find(query);
-      if(checkIsSsrCommercialExist.length > 0){
-        return {
-            response : 'This Combination Of SSR Commercial Already Exist'
-        }
-      }
-          const newServiceRequest = new ssrCommercialModel({
-            bookingType,
-            airlineCodeId,
-            travelType,
-            supplierCode,
-            validDateFrom,
-            validDateTo,
-            status,
-            description,
-            seat,
-            meal,
-            baggage,
-            companyId,
-            modifyBy : req?.user?._id || null
-          });
-      
-          const savedServiceRequest = await newServiceRequest.save();
-          if(savedServiceRequest){
-            return {
-                response : 'Service request added successfully',
-                data: savedServiceRequest,
-            }
-          }
-         else{
-            return {
-                response : 'Service request not added'
-            }
-         }
-    }catch(error){
-        console.log(error);
-        throw error
-    }
-};
-
-const getSsrCommercialByCompany = async (req,res) => {
-    try{
-    let {companyId, bookingType} = req.query;
-    let query = {};
-    query.status = true;
-    if(companyId){
-      query.companyId = companyId   
-    }
-    if(bookingType){
-        query.bookingType = bookingType
-    }
-    const ssrCommercialData = await ssrCommercialModel.find(query).populate('airlineCodeId supplierCode');
-    
-     // console.log(ssrCommercialData);
-    if(ssrCommercialData.length > 0){
-        return {
-            response : 'Service Request Data Found Sucessfully',
-            data : ssrCommercialData
-        }
-    }else{
-        return {
-            response : 'Service Request Data Not Found',
-        } 
-    }
-
-    }catch(error){
-        console.log(error);
-        throw error;
-    }
-};
-const getSsrCommercialById = async (req,res) => {
-    try{
-      let id = req.query.id;
-      let ssrData = await ssrCommercialModel.findById(id).populate('flightCode source');
-      if(ssrData){
-        return {
-            response : ''
-        }
-      }
-    }catch(error){
-        console.log(error);
-        throw error;
-    }
-};
-
-const editSsrCommercial = async (req,res) => {
-  try { 
-    let {id} = req.query;
-    let dataForUpdate = {
-        ...req.body
-    };
-  
-    let existingSsrData = await ssrCommercialModel.findByIdAndUpdate(
-        id,
-        {
-          $set: dataForUpdate,
-        },
-        { new: true }
-      );
-    
-    if(existingSsrData){
-        return {
-            response : 'Data Updated Sucessfully',
-            data : existingSsrData
-        }
-    }else{
-        return {
-            response : 'Data Not Updated'
-        }
-    }
-
-}catch(error){
-    console.log(error);
-    throw error
-}
-}
-const deleteSsrCommercial = async (req,res) => {
-    try{
-    let {id} = req.query;
-    let deleteSsrCommercial = await ssrCommercialModel.findByIdAndDelete(id)
-    if(deleteSsrCommercial){
-        return {
-            response : 'Ssr Commercial Data Deleted Sucessfully',
-            data : []
-        }
-    }else{
-       return {
-        reponse : `Ssr Commercial Data For This Id Is Not Found`
-       }
-    }
-
-    }catch(error){
-        console.log(error);
-        throw error;
-    }
-};
-let data =   {
+let reqObj =  {
     "UID": "108210e8-895c-4065-8b5b-2efb4746bd55",
     "BaseFare": 1566,
     "Taxes": 651,
@@ -580,17 +415,235 @@ let data =   {
         "Pcc": "49354F5441494E4B4146494C447E4D41494E",
         "Security": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkb3RSRVogQVBJIiwianRpIjoiMjlhNzhkZDAtOTEyZS03YzBiLWM1MGYtNDUxMDg2ZjUxMjlhIiwiaXNzIjoiZG90UkVaIEFQSSJ9.H2S04zCoNdFRYxmhgourbqH_dHHgQ3xdU2isKbDWDm0"
     }
-}
+};
 
-function makeReqForAncl (data) {
-    
-
-}
-
-module.exports = {
-    addSsrCommercial,
-    getSsrCommercialByCompany,
-    getSsrCommercialById,
-    deleteSsrCommercial,
-    editSsrCommercial
+let resObj = {
+    "Error": {
+        "Status": null,
+        "Result": null,
+        "ErrorMessage": "",
+        "ErrorCode": null,
+        "Location": "SELL",
+        "WarningMessage": "",
+        "IsError": false,
+        "IsWarning": false
+    },
+    "IsFareUpdate": false,
+    "IsAncl": false,
+    "Param": {
+        "Trip": "D1",
+        "Adt": 2,
+        "Chd": 0,
+        "Inf": 0,
+        "Sector": [
+            {
+                "Src": "DEL",
+                "Des": "BLR",
+                "DDate": "2024-03-25"
+            }
+        ],
+        "PF": "",
+        "PC": "",
+        "Routing": "ALL",
+        "Ver": "1.0.0.0",
+        "Auth": {
+            "AgentId": "675923",
+            "Token": "fd58e3d2b1e517f4ee46063ae176eee1"
+        },
+        "Env": "D",
+        "Module": "B2B",
+        "OtherInfo": {
+            "PromoCode": "",
+            "FFlight": "",
+            "FareType": "",
+            "TraceId": "65e556b5e819b88dab5296e7",
+            "IsUnitTesting": false,
+            "TPnr": false,
+            "FAlias": null,
+            "IsLca": false
+        }
+    },
+    "SelectedFlight": [
+        {
+            "PId": 0,
+            "Id": 0,
+            "TId": 0,
+            "Src": "DEL",
+            "Des": "BLR",
+            "FCode": "6E",
+            "FName": "GoIndigo",
+            "FNo": "2375",
+            "DDate": "2024-03-25T03:00:00",
+            "ADate": "2024-03-25T05:50:00",
+            "Dur": "0d:2h:50m",
+            "Stop": "0",
+            "Seat": 88,
+            "Sector": "DEL,BLR",
+            "Itinerary": [
+                {
+                    "Id": 0,
+                    "Src": "DEL",
+                    "SrcName": "Delhi",
+                    "Des": "BLR",
+                    "DesName": "Bengaluru",
+                    "FLogo": "0 -123px",
+                    "FCode": "6E",
+                    "FName": "GoIndigo",
+                    "FNo": "2375",
+                    "DDate": "2024-03-25T03:00:00",
+                    "ADate": "2024-03-25T05:50:00",
+                    "DTrmnl": "2",
+                    "ATrmnl": "1",
+                    "DArpt": "Delhi Indira Gandhi Intl",
+                    "AArpt": "Bengaluru Intl Arpt",
+                    "Dur": "0d:2h:50m",
+                    "layover": "",
+                    "Seat": 88,
+                    "FClass": "R",
+                    "PClass": "R",
+                    "FBasis": "R0IP",
+                    "FlightType": "321",
+                    "OI": [
+                        "SSK=6E~2375~ ~~DEL~03/25/2024 03:00~BLR~03/25/2024 05:50~~"
+                    ]
+                }
+            ],
+            "Fare": {
+                "GrandTotal": 13006,
+                "BasicTotal": 11060,
+                "YqTotal": 0,
+                "TaxesTotal": 1946,
+                "Adt": {
+                    "Basic": 5530,
+                    "Yq": 0,
+                    "Taxes": 973,
+                    "Total": 6503
+                },
+                "Chd": null,
+                "Inf": null,
+                "OI": [
+                    {
+                        "FAT": "Route",
+                        "FSK": "0~R~~6E~R0IP~1057~~0~83~~X"
+                    }
+                ]
+            },
+            "FareRule": {
+                "CBNBG": null,
+                "CHKNBG": null,
+                "CBH": null,
+                "CWBH": null,
+                "RBH": null,
+                "RWBH": null,
+                "CBHA": 0,
+                "CWBHA": 0,
+                "RBHA": 0,
+                "RWBHA": 0,
+                "SF": 50.00
+            },
+            "Alias": "MAIN",
+            "FareType": null,
+            "PFClass": "R-R",
+            "Offer": {
+                "Msg": "",
+                "Refund": "Refundable",
+                "IsPromoAvailable": true,
+                "IsGstMandatory": false,
+                "IsLcc": true
+            },
+            "OI": {
+                "Jsk": "6E~2375~ ~~DEL~03/25/2024 03:00~BLR~03/25/2024 05:50~~",
+                "Pcc": "36454F5449303236447E4D41494E",
+                "Security": "NA"
+            },
+            "Deal": {
+                "NETFARE": 13006,
+                "TDISC": 0,
+                "TDS": 0,
+                "GST": 0,
+                "DISCOUNT": {
+                    "DIS": 0,
+                    "SF": 0,
+                    "PDIS": 0,
+                    "CB": 0
+                }
+            }
+        }
+    ],
+    "FareBreakup": {
+        "FareDifference": 0.0000,
+        "NewFare": 13006.0000,
+        "OldFare": 13006,
+        "Journeys": [
+            {
+                "Security": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5MmU0OTUzOS1hMTFlLTRjMTYtYmZhNy0zYWFhYmUwYjBhNjMiLCJzZXNzaW9uSUQiOiI5NjQzNjkzIiwiYWdlbnRJRCI6IjE4Mzk2OTU2IiwiZG9tYWluQ29kZSI6IldXVyIsImFnZW50TmFtZSI6Ik9USTAyNiIsIm9yZ2FuaXphdGlvbkNvZGUiOiJPVEkwMjYiLCJyb2xlQ29kZSI6IlJDVFQiLCJjaGFubmVsVHlwZSI6IkFQSSIsInN5c3RlbVR5cGUiOiJXZWJTZXJ2aWNlc0FQSSIsImNsaWVudE5hbWUiOiJXZWJTZXJ2aWNlc0FQSSIsImN1bHR1cmVDb2RlIjoiZW4tVVMiLCJjdXJyZW5jeUNvZGUiOiJJTlIiLCJsb2NhdGlvbkNvZGUiOiJXV1ciLCJwZXJzb25JRCI6IjE4NDI2NDk5IiwicGVyc29uVHlwZSI6IjIiLCJhZ2VudFF1ZXVlQ29kZSI6IiIsIm9yZ2FuaXphdGlvblF1ZXVlQ29kZSI6IiIsImV4cCI6MTc0MTA2NDk0MX0.bWBFlkNB4l4FNSM2cbrchy8k-q7L_UOU1oClELxM5BnZKNVQ2FAFnd4UauW_OIt2snC20Eph5bfa9r6O4GCq1DPutXhwCEwsIzITSOGKGxq2sfF6M16rYX4RQQD4IvZlsvh7G8HBSHh6sNp7qKzvLgBq0eHQh99m1lkZ1izF_Eq_-NubQeUwGTfxFKsTMzcAO4bi6dzrqWVnLkn56JnIIUyTvYhKUkBm7-ZAKdNKSAbzYoXclHFNrfidopj7VblTk7uo90FdYdE5JFFdXG5BKEgvaZ5E958r1JhgbKYqdawH31IKXE6xXJrbh8OcGP7dhuRJ4cqIx4If6CuY4qDegVXL-1kwMuLkCz6QYel8bR0hDjdkqZIDcw8t16SKhTR8k-eFgFbedC8lmo-h6QxkYNVArg1OLtwT8iyjH-CKXFPZRlb6daURQR3T1VEFCpCbwYRSeKLsD8jGTsGLpcPSmQw2SVCc41VCI2XQFa_onE8Xw1zhdXIpEQtZZxVBJGZL",
+                "IPaxkey": null,
+                "TotalFare": 13006.0000,
+                "BasicTotal": 11060.0000,
+                "YqTotal": 0,
+                "TaxTotal": 1946,
+                "Segments": [
+                    {
+                        "PaxType": "ADT",
+                        "TaxBreakup": [
+                            {
+                                "CType": "FarePrice",
+                                "CCode": "",
+                                "Amt": 5530.0000
+                            },
+                            {
+                                "CType": "TravelFee",
+                                "CCode": "PHF",
+                                "Amt": 50
+                            },
+                            {
+                                "CType": "TravelFee",
+                                "CCode": "RCF",
+                                "Amt": 50
+                            },
+                            {
+                                "CType": "Tax",
+                                "CCode": "TTF",
+                                "Amt": 194
+                            },
+                            {
+                                "CType": "TravelFee",
+                                "CCode": "ASF",
+                                "Amt": 236
+                            },
+                            {
+                                "CType": "TravelFee",
+                                "CCode": "PSF",
+                                "Amt": 91
+                            },
+                            {
+                                "CType": "TravelFee",
+                                "CCode": "UDF",
+                                "Amt": 61
+                            },
+                            {
+                                "CType": "Tax",
+                                "CCode": "07GST",
+                                "Amt": 291
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "GstData": {
+        "IsGst": false,
+        "GstDetails": {
+            "Name": "Kafila Hospitality and Travels Pvt Ltd",
+            "Address": "10185-c, Arya samaj Road, Karolbagh",
+            "Email": "admin@kafilatravel.in",
+            "Mobile": "9899911993",
+            "Pin": "110005",
+            "State": "Delhi",
+            "Type": "",
+            "Gstn": "07AAACD3853F1ZW"
+        }
+    },
+    "Ancl": null
 }

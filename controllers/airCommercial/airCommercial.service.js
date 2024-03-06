@@ -559,7 +559,6 @@ const getCommercialHistoryList = async (req, res) => {
     try {
         const commercialId = req.params.commercialId;
         const coloumnData = await CommercialHistory.find({ commercialId: commercialId });
-
         if (coloumnData.length > 0) {
             return {
                 data: coloumnData,
@@ -573,6 +572,33 @@ const getCommercialHistoryList = async (req, res) => {
     } catch (error) {
         throw error
     }
+}
+
+const UpdateAirCommercialFilter = async (req,res) => {
+  try{
+    const id = req.params.airComId;
+    const updates = req.body;
+    const updatedAirCommercial = await AirCommercial.findByIdAndUpdate(
+      id,
+      updates,
+      {
+        new: true,
+      }
+    );
+    if(updatedAirCommercial){
+       return {
+        response : "AirCommercial Data Upadted Sucessfully",
+        data : updatedAirCommercial
+       } 
+    }else{
+        return {
+            response : "AirCommercial Data Not Updated"
+        }
+    }
+  }catch(error){
+    console.log(error);
+    throw error
+  }
 }
 
 module.exports = {
@@ -590,5 +616,6 @@ module.exports = {
     getMatrixList,
     deleteAirCommmercialDetail,
     getSingleAirComList,
-    getCommercialHistoryList
+    getCommercialHistoryList,
+    UpdateAirCommercialFilter
 }

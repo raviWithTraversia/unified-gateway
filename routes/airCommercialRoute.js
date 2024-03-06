@@ -114,5 +114,10 @@ air_commercial_route.get(
     airCommercialController.getCommercialLog
 )
 
+air_commercial_route.patch(
+    '/commercial/update-air-commercial-filter/:commercialId',
+    auth,
+    airCommercialController.UpdateAirCommercialFilter
+)
 
 module.exports = air_commercial_route;

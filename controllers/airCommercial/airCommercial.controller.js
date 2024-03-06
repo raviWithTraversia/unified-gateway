@@ -359,6 +359,42 @@ const getCommercialLog = async (req, res) => {
     }
 }
 
+const UpdateAirCommercialFilter = async (req,res) => {
+    try{
+    let result = await airCommericalService.UpdateAirCommercialFilter(req,res);
+    if(result.response == 'AirCommercial Data Upadted Sucessfully'){
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+            )
+    }else if(result.response == 'AirCommercial Data Not Updated'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        )
+    }else{
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        )  
+    }
+
+    }catch(error){
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+
 
 module.exports = {
     storeAirCommercial,
@@ -375,7 +411,8 @@ module.exports = {
     matrixList,
     deleteAirCommercial,
     getSingleAirComList,
-    getCommercialLog
+    getCommercialLog,
+    UpdateAirCommercialFilter
 }
 
 

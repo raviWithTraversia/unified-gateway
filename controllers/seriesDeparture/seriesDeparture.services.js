@@ -251,6 +251,12 @@ const updateFixedDepartureTicket = async (req, res) => {
   try {
     let id = req.query.id;
     const updates = req.body;
+    // if(req.body.flights || req.body.baggage || req.body.meal){
+    //   let updatedSeriesDepartureData = await seriesDepartureModel.findById(id);
+    //   let createSeriesDepartureData = {
+
+    //   }
+    // }
     const updatedSeriesDeparture = await seriesDepartureModel.findByIdAndUpdate(
       id,
       updates,
@@ -265,7 +271,7 @@ const updateFixedDepartureTicket = async (req, res) => {
     }
     return {
       response: "Series departure updated successfully",
-      data: updatedSeriesDeparture,
+      data: updatedSeriesDeparture
     };
   } catch (error) {
     console.log(error);

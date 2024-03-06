@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
 
+
 const seriesDepartureSchema = new mongoose.Schema({
-  pnr: String,
+  pnr: { type: String, unique : true },
   account_code: String,
-  flight_type: String,
+  flight_type: { type: String, enum: ['I', 'O'] },
   cabin_class: String,
-  trip_type: String,
+  trip_type: String, 
   fare_name: String,
   aircraft_type: String,
   airline_code: String,
@@ -14,9 +15,9 @@ const seriesDepartureSchema = new mongoose.Schema({
   origin_airport_terminal: String,
   destination_airport_code: String,
   destination_airport_terminal: String,
-  departure_date: String,
+  departure_date: Date,
   departure_time: String,
-  arrival_date: String,
+  arrival_date: Date,
   arrival_time: String,
   distance: Number,
   travel_time: String,
@@ -48,61 +49,44 @@ const seriesDepartureSchema = new mongoose.Schema({
   baseamountinfcost: Number,
   fuelsurchginfcost: Number,
   taxamountinfcost: Number,
-  airline_code_0: String,
-  boundtype_0: Number,
-  flightnumber_0: Number,
-  origin_0: String,
-  oterm_0: String,
-  destination_0: String,
-  dterm_0: String,
-  departuredate_0: String,
-  departuretime_0: String,
-  arrivaldate_0: String,
-  arrivaltime_0: String,
-  flyingtime_0: String,
-  distance_0: Number,
-  baggage_name_0: String,
-  baggage_charge_0: Number,
-  meal_0: String,
-  meal_charge_0: Number,
-  flights: [{
+  flights: [
+    {
       airline_code: String,
-      boundtype: Number,
+      boundtype: Number, // 0 - Outbound, 1 - Inbound
       flightnumber: Number,
       origin: String,
-      oterm: String,
+      oterm: String, // Origin terminal
       destination: String,
-      dterm: String,
-      departuredate: String,
+      dterm: String, // Destination terminal
+      departuredate: Date,
       departuretime: String,
-      arrivaldate: String,
+      arrivaldate: Date,
       arrivaltime: String,
       flyingtime: String,
       distance: Number,
-  }],
-  baggage: [{
+      rbd: String,
+      carryonallowance: String,
+      baggageallowance: String,
+    },
+  ],
+  baggage: [
+    {
       name: String,
       charge: Number,
-  }],
-  meal: [{
+    },
+  ],
+  meal: [
+    {
       name: String,
       charge: Number,
-  }],
-  companyId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref : 'Company'
-  },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref : 'User'
-  },
-  groupId: {
-   type : String
-  },
+    },
+  ],
+  companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  groupId: String,
   seriesId: String,
-  status: Boolean,
+  status: String,
   autoTicketing: Boolean,
-  supplierCode : String
 });
 const seriesDeparture = mongoose.model("seriesDeparture", seriesDepartureSchema);
 module.exports = seriesDeparture;

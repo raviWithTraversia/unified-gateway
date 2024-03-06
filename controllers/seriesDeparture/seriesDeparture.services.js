@@ -2,10 +2,18 @@ const seriesDepartureModel = require("../../models/SeriesDeparture");
 const seriesDepartureCounter = require("../../models/seriesDepartureCounter");
 const seriesDepartureGroupServices = require("../seriesDepartureGroup/seriesDepartureGroup.services");
 const xlsx = require("xlsx");
+const mongoose = require('mongoose');
 const addFixedDepartureTicket = async (req, res) => {
   try {
     if (req.file) {
+     // console.log(req)
       let { userId, companyId,groupId} = req.body;
+      console.log(typeof companyId);
+        // companyId = new ObjectId(companyId);
+        // userId = new ObjectId(userId);
+        companyId = new mongoose.Types.ObjectId(companyId);
+        userId = new mongoose.Types.ObjectId(userId);
+        console.log(typeof companyId);
       const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
       const sheetName = workbook.SheetNames[0];
       const options = {
@@ -14,6 +22,7 @@ const addFixedDepartureTicket = async (req, res) => {
         blankrows: true,
       };
       let data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName],options);
+      //console.log(data);
      const result = data.slice(1).map(row => {
       const obj = {};
       data[0].forEach((key, index) => {
@@ -36,21 +45,24 @@ const addFixedDepartureTicket = async (req, res) => {
     data = result
       data = changeArrKeys(data);
    ///  data = transformDataF(data);
-      console.log("==========>data1", data);
-      data = transformData(data, companyId, userId,groupId);
-      //console.log("==========>data2", data);
+      // console.log("==========>data1", data);
+       data = transformFlightData(data);
+     // data = transformData(data, companyId, userId,groupId);
+    //  console.log("==========>data2", data);
       let seriesCounter = await seriesDepartureCounter.findOne();
       seriesCounter = seriesCounter.counter;
       for(let i = 0; i < data.length; i++){
-        seriesCounter = seriesCounter;
+        seriesCounter = seriesCounter +1;
         data[i].seriesId =`SE00${seriesCounter}`;
         data[i].status = 'Pending';
         data[i].autoTicketing = false;
-      };
-      req.body.count = data.length
-
-      await seriesDepartureGroupServices.updatedSeriesDepartureGroup(req)
-      let updateCounter = await seriesDepartureCounter.findOneAndUpdate({_id :seriesCounter._id ,counter : seriesCounter })
+        data[i].companyId = companyId;
+        data[i].userId = userId
+            };
+     req.body.count = data.length
+     let updateCounterInGroup= await seriesDepartureGroupServices.updatedSeriesDepartureGroup(req);
+      let updateCounter = await seriesDepartureCounter.findOneAndUpdate({_id :seriesCounter._id ,counter : seriesCounter });
+   //  console.log(data);
       try {
         let newFlightTicket = await seriesDepartureModel.insertMany(data, {
           ordered: false,
@@ -111,58 +123,118 @@ function changeArrKeys(arr) {
   }
   return newArr;
 };
-function transformData(input, companyId, userId,groupId) {
-  const output = [];
-  const groupedByPnr = input.reduce((acc, item) => {
-    if (!acc[item.pnr]) {
-      acc[item.pnr] = { ...item, flights: [], baggage: [], 
-      meal: [], };
-    }
-    for (let i = 0; ; i++) {
-     // console.log(i);
-      const airlineCodeProp = `airline_code_${i}`;
-      if (!item[airlineCodeProp]) {
-        break;
+function transformFlightData(request) {
+  let transformedResponse = [];
+
+  request.forEach((item) => {
+      let flightItem = {
+          pnr: item.pnr,
+          account_code: item.account_code,
+          flight_type: item.flight_type,
+          cabin_class: item.cabin_class,
+          trip_type: item.trip_type,
+          fare_name: item.fare_name,
+          aircraft_type: item.aircraft_type,
+          airline_code: item.airline_code,
+          flight_number: item.flight_number,
+          origin_airport_code: item.origin_airport_code,
+          origin_airport_terminal: item.origin_airport_terminal,
+          destination_airport_code: item.destination_airport_code,
+          destination_airport_terminal: item.destination_airport_terminal,
+          departure_date: convertToDate(item.departure_date),
+          departure_time: item.departure_time,
+          arrival_date: convertToDate(item.arrival_date),
+          arrival_time: item.arrival_time,
+          distance: item.distance,
+          travel_time: item.travel_time,
+          stops: item.stops,
+          total_seats: item.total_seats,
+          available_seats: item.available_seats,
+          rbd: item.rbd,
+          baseamount: item.baseamount,
+          fuelsurchg: item.fuelsurchg,
+          taxamount: item.taxamount,
+          baseamountchd: item.baseamountchd,
+          fuelsurchgchd: item.fuelsurchgchd,
+          taxamountchd: item.taxamountchd,
+          baseamountinf: item.baseamountinf,
+          fuelsurchginf: item.fuelsurchginf,
+          taxamountinf: item.taxamountinf,
+          carryonallowance: item.carryonallowance,
+          baggageallowance: item.baggageallowance,
+          isrefundable: item.isrefundable,
+          cancelpenalty: item.cancelpenalty,
+          changepenalty: item.changepenalty,
+          isactive: item.isactive,
+          baseamountcost: item.baseamountcost,
+          fuelsurchgcost: item.fuelsurchgcost,
+          taxamountcost: item.taxamountcost,
+          baseamountchdcost: item.baseamountchdcost,
+          fuelsurchgchdcost: item.fuelsurchgchdcost,
+          taxamountchdcost: item.taxamountchdcost,
+          baseamountinfcost: item.baseamountinfcost,
+          fuelsurchginfcost: item.fuelsurchginfcost,
+          taxamountinfcost: item.taxamountinfcost,
+          flights: [],
+          baggage: [],
+          meal: [],
+          companyId: item.companyId,
+          userId: item.userId,
+          groupId: item.groupId,
+          seriesId: item.seriesId,
+          status: item.status,
+          autoTicketing: item.autoTicketing
+      };
+
+      // Process flights
+      for (let i = 0; i < 6; i++) {
+          if (item[`airline_code_${i}`]) {
+              flightItem.flights.push({
+                  airline_code: item[`airline_code_${i}`],
+                  boundtype: item[`boundtype_${i}`],
+                  flightnumber: item[`flightnumber_${i}`],
+                  origin: item[`origin_${i}`],
+                  oterm: item[`oterm_${i}`],
+                  destination: item[`destination_${i}`],
+                  dterm: item[`dterm_${i}`],
+                  departuredate: convertToDate(item[`departuredate_${i}`]),
+                  departuretime: item[`departuretime_${i}`],
+                  arrivaldate: convertToDate(item[`arrivaldate_${i}`]),
+                  arrivaltime: item[`arrivaltime_${i}`],
+                  flyingtime: item[`flyingtime_${i}`],
+                  distance: item[`distance_${i}`],
+                  rbd: item.rbd,
+                  carryonallowance: item.carryonallowance,
+                  baggageallowance: item.baggageallowance
+              });
+          }
       }
-      const baggageInfo = {
-        name: item[`baggage_name_${i}`] || null,
-        charge: item[`baggage_charge_${i}`] || null,
-      };
-      const mealInfo = {
-        name: item[`meal_${i}`] || null,
-        charge: item[`meal_charge_${i}`] || null,
-      };
-      const flightInfo = {
-        airline_code: item[airlineCodeProp] || null,
-        boundtype: item[`boundtype_${i}`] || null,
-        flightnumber: item[`flightnumber_${i}`] || null,
-        origin: item[`origin_${i}`] || null,
-        oterm: item[`oterm_${i}`] || null,
-        destination: item[`destination_${i}`] || null,
-        dterm: item[`dterm_${i}`] || null,
-        departuredate: item[`departuredate_${i}`] || null,
-        departuretime: item[`departuretime_${i}`] || null,
-        arrivaldate: item[`arrivaldate_${i}`] || null,
-        arrivaltime: item[`arrivaltime_${i}`] || null,
-        flyingtime: item[`flyingtime_${i}`] || null,
-        distance: item[`distance_${i}`] || null,
-      };
-    //  console.log("====>>>",baggageInfo)
-      acc[item.pnr].companyId = companyId;
-      acc[item.pnr].userId = userId;
-      acc[item.pnr].flights.push(flightInfo);
-      acc[item.pnr].groupId = groupId;
-      acc[item.pnr].baggage.push(baggageInfo);
-      acc[item.pnr].meal.push(mealInfo)
-    }
-  //  console.log("===>>>", acc)
-    return acc;
-  }, {});
-  for (const pnr in groupedByPnr) {
-    output.push(groupedByPnr[pnr]);
-  }
-  return output;
-};
+
+      // Process baggage
+      for (let i = 0; i < 6; i++) {
+          if (item[`baggage_name_${i}`]) {
+              flightItem.baggage.push({
+                  name: item[`baggage_name_${i}`],
+                  charge: item[`baggage_charge_${i}`]
+              });
+          }
+      }
+
+      // Process meal
+      for (let i = 0; i < 6; i++) {
+          if (item[`meal_${i}`]) {
+              flightItem.meal.push({
+                  name: item[`meal_${i}`],
+                  charge: item[`meal_charge_${i}`]
+              });
+          }
+      }
+
+      transformedResponse.push(flightItem);
+  });
+
+  return transformedResponse;
+}
 const getFixedDepartureTicket = async (req, res) => {
   try {
     let { groupId } = req.query;
@@ -213,6 +285,16 @@ const updateFixedDepartureTicket = async (req, res) => {
     throw error;
   }
 };
+function convertToDate(dateString) {
+  const [day, month, year] = dateString.split('/');
+  return new Date(`${month}/${day}/${year}`);
+}
+
+// Helper function to convert time strings to JavaScript Date objects
+function convertToTime(timeString) {
+  const [hours, minutes] = timeString.split(':');
+  return new Date().setHours(Number(hours), Number(minutes));
+}
 module.exports = {
   addFixedDepartureTicket,
   getFixedDepartureTicket,

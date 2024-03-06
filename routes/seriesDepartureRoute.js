@@ -20,6 +20,10 @@ seriesDeparture_route.get(
   seriesDepartureGroupController.getFixedDepartureTicket
 );
 
+seriesDeparture_route.patch(
+  "/seriesDeparture/updateFixedDepartureTicket",
+  seriesDepartureGroupController.updateFixedDepartureTicket
+);
 
 
 seriesDeparture_route.get("/test", auth, function (req, res) {

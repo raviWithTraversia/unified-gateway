@@ -6,11 +6,7 @@ const mongoose = require('mongoose');
 const addFixedDepartureTicket = async (req, res) => {
   try {
     if (req.file) {
-     // console.log(req)
       let { userId, companyId,groupId} = req.body;
-      console.log(typeof companyId);
-        // companyId = new ObjectId(companyId);
-        // userId = new ObjectId(userId);
         companyId = new mongoose.Types.ObjectId(companyId);
         userId = new mongoose.Types.ObjectId(userId);
         console.log(typeof companyId);
@@ -22,7 +18,6 @@ const addFixedDepartureTicket = async (req, res) => {
         blankrows: true,
       };
       let data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName],options);
-      //console.log(data);
      const result = data.slice(1).map(row => {
       const obj = {};
       data[0].forEach((key, index) => {
@@ -44,11 +39,7 @@ const addFixedDepartureTicket = async (req, res) => {
     });
     data = result
       data = changeArrKeys(data);
-   ///  data = transformDataF(data);
-      // console.log("==========>data1", data);
        data = transformFlightData(data);
-     // data = transformData(data, companyId, userId,groupId);
-    //  console.log("==========>data2", data);
       let seriesCounter = await seriesDepartureCounter.findOne();
       seriesCounter = seriesCounter.counter;
       for(let i = 0; i < data.length; i++){
@@ -68,6 +59,7 @@ const addFixedDepartureTicket = async (req, res) => {
           ordered: false,
           maxTimeMS: 3000,
         });
+
         return {
           response: "Ticket Data Insert Successfully",
           data: newFlightTicket,
@@ -234,7 +226,7 @@ function transformFlightData(request) {
   });
 
   return transformedResponse;
-}
+};
 const getFixedDepartureTicket = async (req, res) => {
   try {
     let { groupId } = req.query;
@@ -259,11 +251,6 @@ const updateFixedDepartureTicket = async (req, res) => {
   try {
     let id = req.query.id;
     const updates = req.body;
-    if (!updates.pnr || !updates.airline_code) {
-      return {
-        response: "Missing required fields",
-      }
-    }
     const updatedSeriesDeparture = await seriesDepartureModel.findByIdAndUpdate(
       id,
       updates,
@@ -288,13 +275,8 @@ const updateFixedDepartureTicket = async (req, res) => {
 function convertToDate(dateString) {
   const [day, month, year] = dateString.split('/');
   return new Date(`${month}/${day}/${year}`);
-}
+};
 
-// Helper function to convert time strings to JavaScript Date objects
-function convertToTime(timeString) {
-  const [hours, minutes] = timeString.split(':');
-  return new Date().setHours(Number(hours), Number(minutes));
-}
 module.exports = {
   addFixedDepartureTicket,
   getFixedDepartureTicket,

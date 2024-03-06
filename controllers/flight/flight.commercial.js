@@ -1498,7 +1498,7 @@ const getAssignCommercial = async (companyId) => {
       ]);
 
     if (aircommercialListVar.length > 0) {
-      //console.log(aircommercialListVar.fareFamily);
+      //console.log(aircommercialListVar);
       let mappingData = aircommercialListVar.map(async (items) => {
         //return items
         const aircommercialfilterincexcsVar = await aircommercialfilterincexcs

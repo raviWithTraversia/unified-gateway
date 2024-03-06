@@ -88,8 +88,43 @@ const getFixedDepartureTicket = async (req,res) => {
             true 
             )
     }
+};
+const updateFixedDepartureTicket = async (req, res) => {
+    try{
+    const result = await seriesDepartureServices.updateFixedDepartureTicket(req,res);
+    if(result.response == 'Series departure updated successfully'){
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+            )
+    }else if(result.response == 'Series departure not found'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        )
+    }else{
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true
+        )  
+    }
+    }catch(error){
+        apiErrorres(
+            res,
+            error,
+            ServerStatusCode.SERVER_ERROR,
+            true 
+            )
+    }
 }
 module.exports = {
     addFixedDepartureTicket,
-    getFixedDepartureTicket
+    getFixedDepartureTicket,
+    updateFixedDepartureTicket
 }

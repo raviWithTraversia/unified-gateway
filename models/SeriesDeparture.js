@@ -52,12 +52,12 @@ const seriesDepartureSchema = new mongoose.Schema({
   flights: [
     {
       airline_code: String,
-      boundtype: Number, // 0 - Outbound, 1 - Inbound
+      boundtype: Number,
       flightnumber: Number,
       origin: String,
-      oterm: String, // Origin terminal
+      oterm: String, 
       destination: String,
-      dterm: String, // Destination terminal
+      dterm: String, 
       departuredate: Date,
       departuretime: String,
       arrivaldate: Date,
@@ -87,6 +87,7 @@ const seriesDepartureSchema = new mongoose.Schema({
   seriesId: String,
   status: String,
   autoTicketing: Boolean,
+  archive : Boolean
 });
 const seriesDeparture = mongoose.model("seriesDeparture", seriesDepartureSchema);
 module.exports = seriesDeparture;

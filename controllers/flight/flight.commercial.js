@@ -5,6 +5,7 @@ const agencyGroup = require("../../models/AgencyGroup");
 const commercialairplans = require("../../models/CommercialAirPlan");
 const aircommercialsList = require("../../models/AirCommercial");
 const aircommercialfilterincexcs = require("../../models/CommercialFilterExcludeIncludeList");
+const fareFamilyMaster = require("../../models/FareFamilyMaster");
 const updateaircommercialmatrixes = require("../../models/UpdateAirCommercialMatrix");
 const incentivegroupmasters = require("../../models/IncentiveGroupMaster");
 const incentivegrouphasincentivemasters = require("../../models/IncentiveGroupHasIncentiveMaster");
@@ -53,7 +54,8 @@ const getApplyAllCommercial = async (
       getAssignPlb(companyDetails._id),
       getAssignMarcup(companyDetails._id),
       getAssignCongifDetails(companyDetails.parent._id),
-    ]);    
+    ]);   
+
     const countryMapingVal = await countryMaping.find({
       companyId: companyDetails.parent._id,
       //ContinentCode: { $in: allCountryValue },
@@ -1432,9 +1434,19 @@ const getAssignCommercial = async (companyId) => {
             path: "source",
             select: "supplierCode",
           },
+          {
+            path: "fareFamily",
+            select: "fareFamilyName fareFamilyCode",
+          }, 
         ]);
       if (aircommercialListVar.length > 0) {
+        const fareFamilyMasterGet = await fareFamilyMaster.find({});
         let mappingData = aircommercialListVar.map(async (items) => {
+
+          const matchedFareFamilyCodes = fareFamilyMasterGet
+          .filter(item => item.fareFamilyName === items.fareFamily.fareFamilyName)
+          .map(item => item.fareFamilyCode);
+
           const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
             .findOne({
               airCommercialId: items._id,
@@ -1444,7 +1456,7 @@ const getAssignCommercial = async (companyId) => {
             await updateaircommercialmatrixes.findOne({
               airCommercialPlanId: items._id,
             });
-
+              
           return {
             _id: items._id,
             travelType: items.travelType,
@@ -1455,6 +1467,7 @@ const getAssignCommercial = async (companyId) => {
             priority: items.priority,
             aircommercialfilterincexcs: aircommercialfilterincexcsVar,
             updateaircommercialmatrixes: updateaircommercialmatrixesVar,
+            fareFamily: matchedFareFamilyCodes
           };
         });
         mappingData = await Promise.all(mappingData);
@@ -1493,12 +1506,22 @@ const getAssignCommercial = async (companyId) => {
         {
           path: "source",
           select: "supplierCode",
-        },
+        }, 
+        {
+          path: "fareFamily",
+          select: "fareFamilyName fareFamilyCode",
+        },       
       ]);
-
+      //console.log(aircommercialListVar);
     if (aircommercialListVar.length > 0) {
+      const fareFamilyMasterGet = await fareFamilyMaster.find({});     
+      
       let mappingData = aircommercialListVar.map(async (items) => {
-        //return items
+        //return items       
+        const matchedFareFamilyCodes = fareFamilyMasterGet
+        .filter(item => item.fareFamilyName === items.fareFamily.fareFamilyName)
+        .map(item => item.fareFamilyCode);
+        
         const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
           .findOne({
             airCommercialId: items._id,
@@ -1508,7 +1531,7 @@ const getAssignCommercial = async (companyId) => {
           .findOne({ airCommercialPlanId: items._id })
           .populate("data.AirCommertialRowMasterId")
           .populate("data.AirCommertialColumnMasterId");
-
+          
         return {
           _id: items._id,
           travelType: items.travelType,
@@ -1519,6 +1542,7 @@ const getAssignCommercial = async (companyId) => {
           priority: items.priority,
           aircommercialfilterincexcs: aircommercialfilterincexcsVar,
           updateaircommercialmatrixes: updateaircommercialmatrixesVar,
+          fareFamily: matchedFareFamilyCodes
         };
       });
       mappingData = await Promise.all(mappingData);
@@ -9511,7 +9535,8 @@ const makePriorityGroup = async (
       TravelType === commList.travelType &&
       commList.carrier === singleFlightDetails.ValCarrier &&
       commList.source === singleFlightDetails.Provider &&
-      commList.commercialCategory === "Ticket"
+      commList.commercialCategory === "Ticket" &&
+      commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.carrier}-${commList.source}-${commList.commercialCategory}`;
 
@@ -9525,7 +9550,8 @@ const makePriorityGroup = async (
       TravelType === commList.travelType &&
       commList.carrier === null &&
       commList.source === singleFlightDetails.Provider &&
-      commList.commercialCategory === "Ticket"
+      commList.commercialCategory === "Ticket" && 
+      commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.source}-${commList.commercialCategory}`;
 
@@ -9539,7 +9565,8 @@ const makePriorityGroup = async (
       TravelType === commList.travelType &&
       commList.carrier === singleFlightDetails.ValCarrier &&
       commList.source === null &&
-      commList.commercialCategory === "Ticket"
+      commList.commercialCategory === "Ticket" &&
+      commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.carrier}-${commList.commercialCategory}`;
 
@@ -9553,7 +9580,8 @@ const makePriorityGroup = async (
       TravelType === commList.travelType &&
       commList.carrier === null &&
       commList.source === null &&
-      commList.commercialCategory === "Ticket"
+      commList.commercialCategory === "Ticket" &&
+      commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.commercialCategory}`;
 
@@ -9563,7 +9591,98 @@ const makePriorityGroup = async (
 
       // Add the item to the group
       groupedMatches[groupKey].push(commList);
-    }
+    } else if (
+      TravelType === commList.travelType &&
+      commList.carrier === singleFlightDetails.ValCarrier &&
+      commList.source === singleFlightDetails.Provider &&
+      commList.commercialCategory === "Ticket" &&
+      !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+    ) {
+      const groupKey = `${TravelType}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
+
+      if (!groupedMatches[groupKey]) {
+        groupedMatches[groupKey] = [];
+      }
+
+      // Add the item to the group
+      groupedMatches[groupKey].push(commList);
+    } else if (
+      TravelType === commList.travelType &&
+      commList.carrier === null &&
+      commList.source === singleFlightDetails.Provider &&
+      commList.commercialCategory === "Ticket" &&
+      !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+    ) {
+      const groupKey = `${commList.carrier}-${TravelType}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
+
+      if (!groupedMatches[groupKey]) {
+        groupedMatches[groupKey] = [];
+      }
+
+      // Add the item to the group
+      groupedMatches[groupKey].push(commList);
+    } else if (
+      TravelType === commList.travelType &&
+      commList.carrier === singleFlightDetails.ValCarrier &&
+      commList.source === null &&
+      commList.commercialCategory === "Ticket" &&
+      !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+    ) {
+      const groupKey = `${commList.source}-${TravelType}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
+
+      if (!groupedMatches[groupKey]) {
+        groupedMatches[groupKey] = [];
+      }
+
+      // Add the item to the group
+      groupedMatches[groupKey].push(commList);
+    } else if (
+      TravelType === commList.travelType &&
+      commList.carrier === null &&
+      commList.source === null &&
+      commList.commercialCategory === "Ticket" &&
+      !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+    ) {
+      const groupKey = `${singleFlightDetails.FareFamily}-${commList.source}-${TravelType}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
+
+      if (!groupedMatches[groupKey]) {
+        groupedMatches[groupKey] = [];
+      }
+
+      // Add the item to the group
+      groupedMatches[groupKey].push(commList);
+    } else if (
+      TravelType === commList.travelType &&
+      commList.carrier === null &&
+      commList.source === singleFlightDetails.Provider &&
+      commList.commercialCategory === "Ticket" &&
+      commList.fareFamily.includes(singleFlightDetails.FareFamily)
+    ) {
+      const groupKey = `${singleFlightDetails.FareFamily}-${TravelType}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
+
+      if (!groupedMatches[groupKey]) {
+        groupedMatches[groupKey] = [];
+      }
+
+      // Add the item to the group
+      groupedMatches[groupKey].push(commList);
+    } else if (
+      TravelType === commList.travelType &&
+      commList.carrier === singleFlightDetails.ValCarrier &&
+      commList.source === null &&
+      commList.commercialCategory === "Ticket" &&
+      commList.fareFamily.includes(singleFlightDetails.FareFamily)
+    ) {
+      const groupKey = `sourcenull-${TravelType}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
+
+      if (!groupedMatches[groupKey]) {
+        groupedMatches[groupKey] = [];
+      }
+
+      // Add the item to the group
+      groupedMatches[groupKey].push(commList);
+    } 
+
   }
 
   let mergedArray = [];

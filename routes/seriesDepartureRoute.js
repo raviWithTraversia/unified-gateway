@@ -11,7 +11,6 @@ const upload = multer({ storage: storage });
 seriesDeparture_route.post(
   "/seriesDeparture/addFixedDepartureTicket",
   upload.single('ticket'),
- // auth,
   seriesDepartureGroupController.addFixedDepartureTicket
 );
 

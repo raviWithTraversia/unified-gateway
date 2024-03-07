@@ -359,9 +359,9 @@ const getCommercialLog = async (req, res) => {
     }
 }
 
-const UpdateAirCommercialFilter = async (req,res) => {
+const updateAirCommercialFilter = async (req,res) => {
     try{
-    let result = await airCommericalService.UpdateAirCommercialFilter(req,res);
+    let result = await airCommericalService.updateAirCommercialFilter(req,res);
     if(result.response == 'AirCommercial Data Upadted Sucessfully'){
         apiSucessRes(
             res,
@@ -412,7 +412,7 @@ module.exports = {
     deleteAirCommercial,
     getSingleAirComList,
     getCommercialLog,
-    UpdateAirCommercialFilter
+    updateAirCommercialFilter
 }
 
 

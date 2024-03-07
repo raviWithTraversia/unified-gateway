@@ -39,7 +39,13 @@ const addFixedDepartureTicket = async (req, res) => {
     });
     data = result
       data = changeArrKeys(data);
-       data = transformFlightData(data);
+      data = transformFlightData(data);
+      console.log(data);
+      return {
+        response: "Ticket Data Insert Successfully",
+        data: data,
+      };
+      return;
       let seriesCounter = await seriesDepartureCounter.findOne();
       seriesCounter = seriesCounter.counter;
       for(let i = 0; i < data.length; i++){
@@ -282,7 +288,6 @@ function convertToDate(dateString) {
   const [day, month, year] = dateString.split('/');
   return new Date(`${month}/${day}/${year}`);
 };
-
 module.exports = {
   addFixedDepartureTicket,
   getFixedDepartureTicket,

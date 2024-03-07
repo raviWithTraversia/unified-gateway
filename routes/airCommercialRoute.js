@@ -115,9 +115,9 @@ air_commercial_route.get(
 )
 
 air_commercial_route.patch(
-    '/commercial/update-air-commercial-filter/:commercialId',
+    '/commercial/updateAirCommercialFilter',
     auth,
-    airCommercialController.UpdateAirCommercialFilter
+    airCommercialController.updateAirCommercialFilter
 )
 
 module.exports = air_commercial_route;

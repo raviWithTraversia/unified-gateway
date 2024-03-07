@@ -789,7 +789,7 @@ const getApplyAllCommercial = async (
               }
             } else if (
               TravelType === commList.travelType &&
-              commList.carrier === null &&
+              commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
               !commList.fareFamily.includes(singleFlightDetails.FareFamily)
@@ -957,8 +957,10 @@ const getApplyAllCommercial = async (
               TravelType === commList.travelType &&
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
-              commList.commercialCategory === "Ticket"
+              commList.commercialCategory === "Ticket" &&
+              commList.fareFamily.includes(singleFlightDetails.FareFamily)
             ) {
+              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
                 singleFlightDetails,
@@ -980,7 +982,8 @@ const getApplyAllCommercial = async (
               TravelType === commList.travelType &&
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
-              commList.commercialCategory === "Ticket"
+              commList.commercialCategory === "Ticket" &&
+              commList.fareFamily.includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1001,9 +1004,10 @@ const getApplyAllCommercial = async (
               }
             } else if (
               TravelType === commList.travelType &&
-              commList.carrier === null &&
-              commList.source === singleFlightDetails.ValCarrier &&
-              commList.commercialCategory === "Ticket"
+              commList.carrier === singleFlightDetails.ValCarrier &&
+              commList.source === null &&
+              commList.commercialCategory === "Ticket" &&
+              commList.fareFamily.includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1026,7 +1030,104 @@ const getApplyAllCommercial = async (
               TravelType === commList.travelType &&
               commList.carrier === null &&
               commList.source === null &&
-              commList.commercialCategory === "Ticket"
+              commList.commercialCategory === "Ticket" &&
+              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails.parent._id,
+                  congifDetails,
+                  "TMC"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === singleFlightDetails.ValCarrier &&
+              commList.source === singleFlightDetails.Provider &&
+              commList.commercialCategory === "Ticket" &&
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails.parent._id,
+                  congifDetails,
+                  "TMC"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === null &&
+              commList.source === singleFlightDetails.Provider &&
+              commList.commercialCategory === "Ticket" &&
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails.parent._id,
+                  congifDetails,
+                  "TMC"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === singleFlightDetails.ValCarrier &&
+              commList.source === null &&
+              commList.commercialCategory === "Ticket" &&
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails.parent._id,
+                  congifDetails,
+                  "TMC"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === null &&
+              commList.source === null &&
+              commList.commercialCategory === "Ticket" &&
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1123,7 +1224,8 @@ const getApplyAllCommercial = async (
               TravelType === commList.travelType &&
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
-              commList.commercialCategory === "Ticket"
+              commList.commercialCategory === "Ticket" &&
+              commList.fareFamily.includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1146,7 +1248,8 @@ const getApplyAllCommercial = async (
               TravelType === commList.travelType &&
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
-              commList.commercialCategory === "Ticket"
+              commList.commercialCategory === "Ticket" &&
+              commList.fareFamily.includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1167,9 +1270,10 @@ const getApplyAllCommercial = async (
               }
             } else if (
               TravelType === commList.travelType &&
-              commList.carrier === null &&
-              commList.source === singleFlightDetails.ValCarrier &&
-              commList.commercialCategory === "Ticket"
+              commList.carrier === singleFlightDetails.ValCarrier &&
+              commList.source === null &&
+              commList.commercialCategory === "Ticket" &&
+              commList.fareFamily.includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1192,7 +1296,104 @@ const getApplyAllCommercial = async (
               TravelType === commList.travelType &&
               commList.carrier === null &&
               commList.source === null &&
-              commList.commercialCategory === "Ticket"
+              commList.commercialCategory === "Ticket" &&
+              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails._id,
+                  congifDetailsDistibuter,
+                  "Distributer"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === singleFlightDetails.ValCarrier &&
+              commList.source === singleFlightDetails.Provider &&
+              commList.commercialCategory === "Ticket" &&
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails._id,
+                  congifDetailsDistibuter,
+                  "Distributer"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === null &&
+              commList.source === singleFlightDetails.Provider &&
+              commList.commercialCategory === "Ticket" &&
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails._id,
+                  congifDetailsDistibuter,
+                  "Distributer"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === singleFlightDetails.ValCarrier &&
+              commList.source === null &&
+              commList.commercialCategory === "Ticket" &&
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails._id,
+                  congifDetailsDistibuter,
+                  "Distributer"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (
+              TravelType === commList.travelType &&
+              commList.carrier === null &&
+              commList.source === null &&
+              commList.commercialCategory === "Ticket" &&
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,

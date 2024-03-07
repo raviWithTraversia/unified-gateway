@@ -7687,7 +7687,8 @@ const commertialMatrixValue = async (
       (fixedAdultSingleColumn.value != 0 ||
         fixedChildSingleColumn.value != 0 ||
         fixedInfantSingleColumn.value != 0)
-    ) {
+    ) {   
+      
       const fixedAdultRate =
         fixedAdultSingleColumn.textType === "number"
           ? parseFloat(fixedAdultSingleColumn.value)
@@ -7709,7 +7710,7 @@ const commertialMatrixValue = async (
         type,
         supplierTypeFor
       ) => {
-        if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {
+        if (tax) {
           const fltNumCount = {};
           const encounteredFltNums = new Set();
 
@@ -7736,7 +7737,7 @@ const commertialMatrixValue = async (
               (sum, count) => sum + count,
               0
             );
-            if (type === "ADT") {
+            if (type === "ADT") {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
             } else if (type === "CHD") {
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
@@ -7820,7 +7821,7 @@ const commertialMatrixValue = async (
         type,
         supplierTypeFor
       ) => {
-        if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {
+        if (tax) {
           // const countAirline = tax.CommercialBreakup.find(
           //   (commercial) => commercial.CommercialType === "SegmentKickback"
           // );
@@ -7905,7 +7906,7 @@ const commertialMatrixValue = async (
         type,
         supplierTypeFor
       ) => {
-        if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {
+        if (tax) {
           // const countAirline = tax.CommercialBreakup.find(
           //   (commercial) => commercial.CommercialType === "SegmentKickback"
           // );
@@ -8030,7 +8031,7 @@ const commertialMatrixValue = async (
         type,
         supplierTypeFor
       ) => {
-        if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {
+        if (tax) {
           // const countAirline = tax.CommercialBreakup.find(
           //   (commercial) => commercial.CommercialType === "SegmentKickback"
           // );
@@ -8109,7 +8110,9 @@ const commertialMatrixValue = async (
 
       // TDS START HERE
       const applySegmentKickbackToTDS = (singleFlightDetails, tax, type,supplierTypeFor) => {
+        
         if (tax && tax.CommercialBreakup && tax.CommercialBreakup.length > 0) {
+          
           // const countAirline = tax.CommercialBreakup.find(
           //   (commercial) => commercial.CommercialType === "SegmentKickback"
           // );
@@ -8165,9 +8168,10 @@ const commertialMatrixValue = async (
           filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
           filter.AirCommertialColumnMasterId.type === "coloumn"
       );
-
-      if (tdsSingleColumn?.textType === "checkbox" && tdsSingleColumn.value) {
+      
+      if (tdsSingleColumn?.textType === "checkbox" && tdsSingleColumn.value) {        
         if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length > 0) {
+           
         applySegmentKickbackToTDS(
           singleFlightDetails,
           singleFlightDetails.PriceBreakup[0],

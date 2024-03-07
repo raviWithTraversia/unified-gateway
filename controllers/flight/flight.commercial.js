@@ -1744,9 +1744,9 @@ const getAssignCommercial = async (companyId) => {
         const fareFamilyMasterGet = await fareFamilyMaster.find({});
         let mappingData = aircommercialListVar.map(async (items) => {
 
-          const matchedFareFamilyCodes = fareFamilyMasterGet
+          const matchedFareFamilyCodes = items.fareFamily?.fareFamilyName != null ? fareFamilyMasterGet
           .filter(item => item.fareFamilyName === items.fareFamily.fareFamilyName)
-          .map(item => item.fareFamilyCode);
+          .map(item => item.fareFamilyCode) :  [];
 
           const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
             .findOne({
@@ -1819,9 +1819,9 @@ const getAssignCommercial = async (companyId) => {
       
       let mappingData = aircommercialListVar.map(async (items) => {
         //return items       
-        const matchedFareFamilyCodes = fareFamilyMasterGet
+        const matchedFareFamilyCodes = items.fareFamily?.fareFamilyName != null ? fareFamilyMasterGet
         .filter(item => item.fareFamilyName === items.fareFamily.fareFamilyName)
-        .map(item => item.fareFamilyCode);
+        .map(item => item.fareFamilyCode) : [];
         
         const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
           .findOne({

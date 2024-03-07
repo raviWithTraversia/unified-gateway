@@ -457,9 +457,7 @@ const getComExcIncList = async (req, res) => {
     } catch (error) {
         throw error
     }
-}
-
-
+};
 const getComIncludeExclude = async (req, res) => {
     try {
         // const commercialAirPlanId = req.params.commercialAirPlanId;
@@ -484,10 +482,7 @@ const getComIncludeExclude = async (req, res) => {
     } catch (error) {
         throw error
     }
-}
-
-
-
+};
 const getMatrixList = async (req, res) => {
     try {
         const comercialPlanId = req.params.comercialPlanId;
@@ -510,9 +505,7 @@ const getMatrixList = async (req, res) => {
     } catch (error) {
         throw error
     }
-}
-
-
+};
 const deleteAirCommmercialDetail = async (req, res) => {
     try {
 
@@ -531,9 +524,7 @@ const deleteAirCommmercialDetail = async (req, res) => {
     } catch (error) {
         throw error;
     }
-}
-
-
+};
 const getSingleAirComList = async (req, res) => {
     try {
         const airComId = req.params.airComId;
@@ -552,9 +543,7 @@ const getSingleAirComList = async (req, res) => {
     } catch (error) {
         throw error
     }
-}
-
-
+};
 const getCommercialHistoryList = async (req, res) => {
     try {
         const commercialId = req.params.commercialId;
@@ -572,19 +561,20 @@ const getCommercialHistoryList = async (req, res) => {
     } catch (error) {
         throw error
     }
-}
-
-const UpdateAirCommercialFilter = async (req,res) => {
+};
+const updateAirCommercialFilter = async (req,res) => {
   try{
-    const id = req.params.airComId;
-    const updates = req.body;
-    const updatedAirCommercial = await AirCommercial.findByIdAndUpdate(
-      id,
-      updates,
-      {
-        new: true,
-      }
-    );
+    const { id } = req.query;
+   const updates = req.body;
+ let data = await AirCommercial.find({_id : id});
+//console.log(data);
+const updatedAirCommercial = await AirCommercial.findOneAndUpdate(
+   { _id : id},
+    updates,
+    {
+      new: true,
+    }
+  );
     if(updatedAirCommercial){
        return {
         response : "AirCommercial Data Upadted Sucessfully",
@@ -599,8 +589,7 @@ const UpdateAirCommercialFilter = async (req,res) => {
     console.log(error);
     throw error
   }
-}
-
+};
 module.exports = {
     addAirCommercial,
     getColoumnDetail,
@@ -617,5 +606,5 @@ module.exports = {
     deleteAirCommmercialDetail,
     getSingleAirComList,
     getCommercialHistoryList,
-    UpdateAirCommercialFilter
+    updateAirCommercialFilter
 }

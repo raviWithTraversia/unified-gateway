@@ -602,8 +602,8 @@ const getApplyAllCommercial = async (
       },
     ];
     
-     //for (const singleFlightDetails of commonArray) {
-    for (const singleFlightDetails of commonArrayDummy) {
+     for (const singleFlightDetails of commonArray) {
+   // for (const singleFlightDetails of commonArrayDummy) {
       
       // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {

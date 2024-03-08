@@ -6486,11 +6486,11 @@ const commertialMatrixValue = async (
                 if (existingGSTIndex !== -1) {                
                   tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(values) / 100) * fixedAdultRate;
                 } else {                
-                  tax.CommercialBreakup.push({
-                        CommercialType: "GST",          
-                        Amount: (parseFloat(values) / 100) * fixedAdultRate,
-                        SupplierType: supplierTypeFor
-                    });
+                  // tax.CommercialBreakup.push({
+                  //       CommercialType: "GST",                                                     
+                  //       Amount: (parseFloat(values) / 100) * fixedAdultRate,
+                  //       SupplierType: supplierTypeFor
+                  //   });
                 }
                 
               }
@@ -6512,11 +6512,11 @@ const commertialMatrixValue = async (
                 if (existingGSTIndex !== -1) {                
                   tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(values) / 100) * fixedChildRate;
                 } else {                
-                  tax.CommercialBreakup.push({
-                        CommercialType: "GST",          
-                        Amount: (parseFloat(values) / 100) * fixedChildRate,
-                        SupplierType: supplierTypeFor
-                    });
+                  // tax.CommercialBreakup.push({
+                  //       CommercialType: "GST",          
+                  //       Amount: (parseFloat(values) / 100) * fixedChildRate,
+                  //       SupplierType: supplierTypeFor
+                  //   });
                 }
                 
               }
@@ -6538,11 +6538,11 @@ const commertialMatrixValue = async (
                 if (existingGSTIndex !== -1) {                
                   tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(values) / 100) * fixedInfantRate;
                 } else {                
-                  tax.CommercialBreakup.push({
-                        CommercialType: "GST",          
-                        Amount: (parseFloat(values) / 100) * fixedInfantRate,
-                        SupplierType: supplierTypeFor
-                    });
+                  // tax.CommercialBreakup.push({
+                  //       CommercialType: "GST",          
+                  //       Amount: (parseFloat(values) / 100) * fixedInfantRate,
+                  //       SupplierType: supplierTypeFor
+                  //   });
                 }
                 
               }
@@ -6634,6 +6634,7 @@ const commertialMatrixValue = async (
           gstPersentageSingleColumn?.textType === "number" &&
           baseOtherTaxesSingleColumn.value != "0"
         ) {
+          
           //apply on base on k2 or gst
           if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length > 0) {
           applyFixedMarkupFeeToBaseOtherTaxes(

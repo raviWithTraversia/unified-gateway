@@ -3,6 +3,7 @@ const PromoCode = require("../../models/AirlinePromoCode");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const AirportsDetails = require("../../models/AirportDetail");
+const fareFamilyMaster = require("../../models/FareFamilyMaster");
 const Role = require("../../models/Role");
 const axios = require("axios");
 const uuid = require("uuid");
@@ -352,8 +353,12 @@ const KafilaFun = async (
   let classOfServiceVal = classOfServiceMap[ClassOfService] || "";
 
   // Fare Family Array
+  let fareFamilyMasterGet = [];
+  if (FareFamily && FareFamily.length > 0) {
+      fareFamilyMasterGet = await fareFamilyMaster.distinct("fareFamilyCode", { fareFamilyName: { $in: FareFamily } });
+  }  
   let fareFamilyVal =
-    FareFamily && FareFamily.length > 0 ? FareFamily.join(",") : "";
+  fareFamilyMasterGet && fareFamilyMasterGet.length > 0 ? fareFamilyMasterGet.join(",") : "";
 
   const segmentsArray = Segments.map((segment) => ({
     Src: segment.Origin,

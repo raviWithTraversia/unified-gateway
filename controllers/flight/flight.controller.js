@@ -55,7 +55,8 @@ const airPricing = async(req, res) => {
         res,
         result.response,
         result.data,
-        ServerStatusCode.SUCESS_CODE
+        ServerStatusCode.SUCESS_CODE,
+        result.apiReq
       );
     }else {
       apiErrorres(

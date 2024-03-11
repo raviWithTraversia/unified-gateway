@@ -207,6 +207,7 @@ async function handleflight(
       }
     })
   );
+  
   // delete this one
   // return {
   //   IsSucess: true,
@@ -530,7 +531,7 @@ const KafilaFun = async (
     }
     };
    
-    //console.log(requestDataFSearch, "API Responce")
+   //console.log(requestDataFSearch, "Request")
       let fSearchApiResponse = await axios.post(
         flightSearchUrl,
         requestDataFSearch,
@@ -552,7 +553,7 @@ const KafilaFun = async (
             fSearchApiResponse.data.WarningMessage,
         };
       }
-      //console.log(fSearchApiResponse.data);
+      //console.log('apiData',fSearchApiResponse.data);
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;
       let apiResponseCommon = [];
@@ -744,8 +745,8 @@ const KafilaFun = async (
             APISRequirementsRef: "",
             Departure: {
               Terminal: sector.DTrmnl,
-               Date: sector.DDate,
-               Time: sector.DDate,
+              Date: sector.DDate.split("T")[0],
+              Time: sector.DDate.split("T")[1].substring(0, 5),
               Day: null,
               DateTimeStamp: sector.DDate,
               Code: sector.Src,
@@ -757,8 +758,8 @@ const KafilaFun = async (
             },
             Arrival: {
               Terminal: sector.ATrmnl,
-               Date: sector.ADate,
-               Time: sector.ADate,
+              Date: sector.ADate.split("T")[0],
+              Time: sector.ADate.split("T")[1].substring(0, 5),
               Day: null,
               DateTimeStamp: sector.ADate,
               Code: sector.Des,

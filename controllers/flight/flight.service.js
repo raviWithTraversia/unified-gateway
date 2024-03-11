@@ -2,6 +2,7 @@ const flightcommercial = require("./flight.commercial");
 const PromoCode = require("../../models/AirlinePromoCode");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
+const seriesdeparturegroups = require("../../models/SeriesDepartureGroup");
 const AirportsDetails = require("../../models/AirportDetail");
 const fareFamilyMaster = require("../../models/FareFamilyMaster");
 const Role = require("../../models/Role");
@@ -207,6 +208,9 @@ async function handleflight(
     })
   );
   
+    // Check Series Booking 
+  //const series = await seriesdeparturegroups.find({});
+
   // Combine the responses here
   const combineResponseObj = {};
   supplierCredentials.forEach((supplier, index) => {
@@ -419,7 +423,7 @@ const KafilaFun = async (
         }
       );
       //logger.info(fSearchApiResponse.data);
-      //console.log(fSearchApiResponse.data, "API Responce")
+      // console.log(fSearchApiResponse.data, "API Responce")
       if (fSearchApiResponse.data.Status == "failed") {
         return {
           IsSucess: false,

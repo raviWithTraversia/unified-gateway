@@ -553,7 +553,8 @@ const KafilaFun = async (
             fSearchApiResponse.data.WarningMessage,
         };
       }
-      //console.log('apiData',fSearchApiResponse.data);
+      //console.log('apiData',fSearchApiResponse.data); 
+          
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;
       let apiResponseCommon = [];
@@ -561,8 +562,7 @@ const KafilaFun = async (
       for (let index = 0; index < apiResponse.SelectedFlight.length; index++) {
         let schedule = apiResponse.SelectedFlight[index];        
          //let oldItinerary = Itinerary[index];         
-        // apiResponseCommon.push(schedule);
-        
+        // apiResponseCommon.push(schedule);       
         
         apiResponseCommon.push({
           UID: Itinerary[index].UID,
@@ -710,14 +710,14 @@ const KafilaFun = async (
                 }
               : {},
           ],
-          Sectors: schedule.Itinerary.map((sector,index) => ({
+          Sectors: schedule.Itinerary.map((sector,indexcount) => ({
             IsConnect: false,
             AirlineCode: sector.FCode,
             AirlineName: sector.FName,
             Class: sector.FClass,
             CabinClass: sector.PClass,
             BookingCounts: "",
-            NoSeats: Itinerary[index].Sectors[index].NoSeats,
+            NoSeats: sector.Seat,
             FltNum: sector.FNo,
             EquipType: sector.FlightType,
             FlyingTime: sector.Dur,
@@ -745,8 +745,8 @@ const KafilaFun = async (
             APISRequirementsRef: "",
             Departure: {
               Terminal: sector.DTrmnl,
-              Date: sector.DDate.split("T")[0],
-              Time: sector.DDate.split("T")[1].substring(0, 5),
+              Date: sector.DDate,
+              Time: sector.DDate,
               Day: null,
               DateTimeStamp: sector.DDate,
               Code: sector.Src,
@@ -758,8 +758,8 @@ const KafilaFun = async (
             },
             Arrival: {
               Terminal: sector.ATrmnl,
-              Date: sector.ADate.split("T")[0],
-              Time: sector.ADate.split("T")[1].substring(0, 5),
+              Date: sector.ADate,
+              Time: sector.ADate,
               Day: null,
               DateTimeStamp: sector.ADate,
               Code: sector.Des,

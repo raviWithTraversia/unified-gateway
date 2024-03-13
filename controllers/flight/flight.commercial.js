@@ -624,7 +624,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {
               
               checkInnerFilterfun = await checkInnerFilter(
@@ -649,7 +650,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -673,7 +675,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -697,7 +700,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -721,7 +725,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -745,7 +750,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -769,7 +775,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -793,7 +800,28 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)   
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails._id,
+                  congifDetails,
+                  "TMC"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (              
+              ['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -961,7 +989,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {
               
               checkInnerFilterfun = await checkInnerFilter(
@@ -986,7 +1015,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1010,7 +1040,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1034,7 +1065,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1058,7 +1090,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1082,7 +1115,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1106,7 +1140,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1130,7 +1165,28 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails.parent._id,
+                  congifDetails,
+                  "TMC"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (              
+              ['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1230,7 +1286,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1254,7 +1311,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1278,7 +1336,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1302,7 +1361,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1326,7 +1386,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1350,7 +1411,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1374,7 +1436,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1398,7 +1461,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1566,7 +1630,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {
               
               checkInnerFilterfun = await checkInnerFilter(
@@ -1591,7 +1656,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1615,7 +1681,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1639,7 +1706,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1663,7 +1731,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1687,7 +1756,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1711,7 +1781,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -1735,7 +1806,28 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              !['FD','FF'].includes(singleFlightDetails.FareFamily)
+            ) {              
+              checkInnerFilterfun = await checkInnerFilter(
+                commList,
+                singleFlightDetails,
+                companyDetails.parent._id
+              );
+              if (checkInnerFilterfun.match === true) {
+                commertialMatrixValueHandle = await commertialMatrixValue(
+                  commList,
+                  singleFlightDetails,
+                  companyDetails._id,
+                  congifDetails,
+                  "TMC"
+                );
+                //bestMatch = commertialMatrixValueHandle;
+                // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
+                break;
+              }
+            } else if (              
+              ['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
@@ -2784,8 +2876,7 @@ const checkIncentiveFilter = async (
       const checkDestination =
         commList.incentiveMasterId &&
         commList.incentiveMasterId.destination != null &&
-        commList.incentiveMasterId.destination !== "";
-                
+        commList.incentiveMasterId.destination !== "";               
       if (checkOrigin) {        
         const allCountryValue = commList.incentiveMasterId.origin.split(",");
         
@@ -2951,11 +3042,15 @@ const checkIncentiveFilter = async (
           .filter(item => item.fareFamilyName === commList.incentiveMasterId.fareFamily.fareFamilyName)
           .map(item => item.fareFamilyCode) :  [];
         
-        if (matchedFareFamilyCodes.includes(singleFlightDetails.FareFamily)) {
+        if (matchedFareFamilyCodes.includes(singleFlightDetails.FareFamily) && !['FD','FF'].includes(singleFlightDetails.FareFamily)) {
           bestMatch = true;
-        } else {
+        } else if(matchedFareFamilyCodes.includes(singleFlightDetails.FareFamily) && ['FD','FF'].includes(singleFlightDetails.FareFamily)){
+          bestMatch = true;
+        }else {
           continue;
         }
+      }else if(['FD','FF'].includes(singleFlightDetails.FareFamily)){
+        continue;
       }
       // Cabin class
       const checkcabinClass =
@@ -4401,11 +4496,15 @@ const checkPLBFilter = async (
         const matchedFareFamilyCodes = commList.PLBMasterId.fareFamily?.fareFamilyName != null ? fareFamilyMasterGet
           .filter(item => item.fareFamilyName === commList.PLBMasterId.fareFamily.fareFamilyName)
           .map(item => item.fareFamilyCode) :  [];       
-        if (matchedFareFamilyCodes.includes(singleFlightDetails.FareFamily)) {
+        if (matchedFareFamilyCodes.includes(singleFlightDetails.FareFamily) && !['FD','FF'].includes(singleFlightDetails.FareFamily)) {
           bestMatch = true;
-        } else {
+        }else if(matchedFareFamilyCodes.includes(singleFlightDetails.FareFamily) && ['FD','FF'].includes(singleFlightDetails.FareFamily)){
+          bestMatch = true;
+        }else {
           continue;
         }
+      }else if(['FD','FF'].includes(singleFlightDetails.FareFamily)){
+        continue;
       }
       // Cabin class
       const checkcabinClass =
@@ -7353,7 +7452,7 @@ const commertialMatrixValue = async (
           const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'Discount');             
           if (existingBookingFeesIndex !== -1) {                
             //tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(serviceRate) / 100) * tax.BaseFare;
-            const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS');             
+            const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Discount');             
             if (existingTDSIndex !== -1) {                
               //tax.CommercialBreakup[existingBookingFeesIndex].Amount = tax.CommercialBreakup[existingBookingFeesIndex].Amount - (parseFloat(tdsCheckFromConfig) / 100) ;
               //tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100);
@@ -7361,7 +7460,8 @@ const commertialMatrixValue = async (
             } else { 
               //tax.CommercialBreakup[existingBookingFeesIndex].Amount = tax.CommercialBreakup[existingBookingFeesIndex].Amount - (parseFloat(tdsCheckFromConfig) / 100) ;               
               tax.CommercialBreakup.push({
-                    CommercialType: "TDS",          
+                    CommercialType: "TDS",
+                    onCommercialApply: "Discount",          
                     Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
                     SupplierType: supplierTypeFor
                 });
@@ -8234,12 +8334,13 @@ const commertialMatrixValue = async (
           if (existingBookingFeesIndex !== -1) {
             if (type === "ADT") {
               const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
-              const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS');             
+              const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'SegmentKickback');             
               if (existingTDSIndex !== -1) {                
                 tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
               } else {                
                 tax.CommercialBreakup.push({
-                      CommercialType: "TDS",          
+                      CommercialType: "TDS",
+                      onCommercialApply:"SegmentKickback",          
                       Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
                       SupplierType: supplierTypeFor
                   });

@@ -1,4 +1,4 @@
-const flightSearchReport = require("./flightSearchLog.services");
+const flightSearchReportService = require("./flightSearchLog.services");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
@@ -8,7 +8,7 @@ const {
 
 let getFlightSerchReport =  async (req,res) => {
     try{
-    const result = await flightSearchReport.getFlightSerchReport(req,res);
+    const result = await flightSearchReportService.getFlightSerchReport(req,res);
     if(result.response == 'Data Found Successfully'){
      apiSucessRes(
       res,
@@ -57,7 +57,7 @@ let getFlightSerchReport =  async (req,res) => {
 };
 let addFlightSerchReport = async (req,res) => {
   try{
-    const result = flightSearchReport.addFlightSerchReport(req,res);
+    const result = flightSearchReportService.addFlightSerchReport(req,res);
 
   }catch(error){
 

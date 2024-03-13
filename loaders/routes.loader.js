@@ -63,7 +63,8 @@ const manageAirlineCredentailRoute = require('../routes/manageAirlineCredRoute')
 const flightSerchLogRoute = require('../routes/flightSearchLogRoute');
 const seriesDepartureRoute = require('../routes/seriesDepartureRoute');
 const countryDialRoute = require('../routes/countryDialCodeRoute');
-const seriesDepartureGroup = require('../routes/seriesDepartureGroupRoute')
+const seriesDepartureGroup = require('../routes/seriesDepartureGroupRoute');
+const groupTicketRequestRoute = require('../routes/groupTicketRequestRoute');
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -266,7 +267,11 @@ class RoutesLoader {
        app.use('/api', countryDialRoute);
 
        //seriesDepartureGroup
-       app.use('/api', seriesDepartureGroup )
+       app.use('/api', seriesDepartureGroup );
+
+       //groupTicketRequestRoute
+
+       app.use('/api', groupTicketRequestRoute)
 
     }
 }

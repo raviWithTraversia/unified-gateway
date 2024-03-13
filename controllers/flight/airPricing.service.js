@@ -252,7 +252,7 @@ async function handleflight(
     response: getApplyAllCommercialVar,
     apiReq : res.apiReq
   };
-}
+};
 
 const KafilaFun = async (
   Authentication,

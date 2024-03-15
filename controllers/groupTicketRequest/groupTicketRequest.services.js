@@ -37,8 +37,9 @@ const getTicketRequestId = async (req, res) => {
 };
 const getTicketRequestByUserId = async (req, res) => {
     try {
-        let userId = req.query.id;
-        const groupTicketRequest = await groupTicketRequestModel.find({userId : userId});
+        let agentId = req.query.agentId;
+        const groupTicketRequest = await groupTicketRequestModel.find({agentId}).populate('agentId');
+        console.log("==>", groupTicketRequest)
         if (!groupTicketRequest) {
           return { response: 'Group ticket request not found' };
         }

@@ -820,7 +820,8 @@ const getApplyAllCommercial = async (
                 // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 break;
               }
-            } else if (              
+            } else if ( 
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&             
               ['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
@@ -1185,7 +1186,8 @@ const getApplyAllCommercial = async (
                 // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 break;
               }
-            } else if (              
+            } else if ( 
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&             
               ['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
@@ -1826,7 +1828,8 @@ const getApplyAllCommercial = async (
                 // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 break;
               }
-            } else if (              
+            } else if ( 
+              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&              
               ['FD','FF'].includes(singleFlightDetails.FareFamily)
             ) {              
               checkInnerFilterfun = await checkInnerFilter(

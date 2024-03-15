@@ -65,6 +65,7 @@ const seriesDepartureRoute = require('../routes/seriesDepartureRoute');
 const countryDialRoute = require('../routes/countryDialCodeRoute');
 const seriesDepartureGroup = require('../routes/seriesDepartureGroupRoute');
 const groupTicketRequestRoute = require('../routes/groupTicketRequestRoute');
+const gstDetailRoute = require('../routes/gstDetailRoute')
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -271,7 +272,11 @@ class RoutesLoader {
 
        //groupTicketRequestRoute
 
-       app.use('/api', groupTicketRequestRoute)
+       app.use('/api', groupTicketRequestRoute);
+
+       //gstDetailRoute
+
+       app.use('/api', gstDetailRoute)
 
     }
 }

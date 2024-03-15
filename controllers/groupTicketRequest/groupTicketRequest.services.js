@@ -20,7 +20,7 @@ const addTicketRequset = async (req,res) => {
 const getTicketRequestId = async (req, res) => {
     try {
         const groupTicketRequest = await groupTicketRequestModel.findById(req.query.id).populate('agentId');
-        console.log("===>>>",groupTicketRequest)
+        //console.log("===>>>",groupTicketRequest)
         if (!groupTicketRequest) {
           return { response: 'Group ticket request not found' };
         }

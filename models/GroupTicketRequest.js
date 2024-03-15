@@ -42,7 +42,8 @@ const groupTicketSchema = new mongoose.Schema({
     ref  : 'User'
   } ,
   comapnyId : {
-    type : mongoose.Schema.Types.ObjectId
+    type : mongoose.Schema.Types.ObjectId,
+    ref : 'Company'
   },
   segment : {
     type : [segmentSchema]

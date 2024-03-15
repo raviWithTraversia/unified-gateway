@@ -1,0 +1,3383 @@
+{
+    "AirSegments": [
+        {
+            "SeatRows": [
+                {
+                    "Number": "4",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Front of cabin class/compartment",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAJytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat",
+                                "Front of cabin class/compartment"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAJytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat",
+                                "Front of cabin class/compartment"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAJytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat",
+                                "Front of cabin class/compartment"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAJytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat",
+                                "Front of cabin class/compartment"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAJytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "4-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Front of cabin class/compartment",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAJytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "5",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "5-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "6",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6-D",
+                            "Availability": "Occupied",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle",
+                                "Handicapped",
+                                "Restricted seat - General"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "6-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "7",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "7-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "8",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "8-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "9",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "9-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "10",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "10-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "11",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "11-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "12",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "12-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "13",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "13-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "13-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "13-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "13-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "13-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "13-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "14",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "14-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "15",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat",
+                                "ExitRow"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat",
+                                "ExitRow"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat",
+                                "ExitRow"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat",
+                                "ExitRow"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "15-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "16",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "16-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "17",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "17-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "18",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "18-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "19",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "19-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "20",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "20-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "21",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "21-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "22",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "22-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "23",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAMytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat"
+                            ],
+                            "Key": "Ow+Pb4uFuDKALytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 200.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "23-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKAKytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 375.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "24",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24-A",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24-B",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24-C",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24-D",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Aisle",
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24-E",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)",
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "24-F",
+                            "Availability": "Available",
+                            "Paid": true,
+                            "Characteristics": [
+                                "PaidGeneralSeat",
+                                "ExitRow",
+                                "ExtraLegRoom",
+                                "Window"
+                            ],
+                            "Key": "Ow+Pb4uFuDKANytv4AAAAA==",
+                            "Currency": "INR",
+                            "TotalPrice": 1000.0,
+                            "ProviderDefinedType": "SA"
+                        }
+                    ]
+                },
+                {
+                    "Number": "25",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25-A",
+                            "Availability": "Occupied",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25-B",
+                            "Availability": "Occupied",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25-C",
+                            "Availability": "Occupied",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25-D",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25-E",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "25-F",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "26",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26-A",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26-B",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26-C",
+                            "Availability": "Occupied",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26-D",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26-E",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "26-F",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "27",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27-A",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27-B",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27-C",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27-D",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27-E",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "27-F",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "28",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28-A",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28-B",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28-C",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28-D",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28-E",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "28-F",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "29",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29-A",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29-B",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29-C",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29-D",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29-E",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "29-F",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "30",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30-A",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30-B",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30-C",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30-D",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30-E",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "30-F",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "31",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31-A",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31-B",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31-C",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31-D",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31-E",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "31-F",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "32",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32-A",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32-B",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32-C",
+                            "Availability": "Occupied",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle",
+                                "Handicapped",
+                                "Restricted seat - General"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32-D",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32-E",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "32-F",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                },
+                {
+                    "Number": "33",
+                    "Facilities": [
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "33-A",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "33-B",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "33-C",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Aisle",
+                            "SeatCode": null,
+                            "Availability": null,
+                            "Paid": false,
+                            "Characteristics": null,
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "33-D",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Aisle"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "33-E",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Center seat (not window, not aisle)"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        },
+                        {
+                            "Type": "Seat",
+                            "SeatCode": "33-F",
+                            "Availability": "Available",
+                            "Paid": false,
+                            "Characteristics": [
+                                "Window"
+                            ],
+                            "Key": null,
+                            "Currency": null,
+                            "TotalPrice": 0.0,
+                            "ProviderDefinedType": null
+                        }
+                    ]
+                }
+            ],
+            "IsConnect": false,
+            "AirlineCode": "AI",
+            "AirlineName": "Air India",
+            "Class": "T",
+            "CabinClass": "",
+            "BookingCounts": "",
+            "NoSeats": 0,
+            "FltNum": "431",
+            "EquipType": "321",
+            "FlyingTime": null,
+            "TravelTime": null,
+            "TechStopOver": 0,
+            "Status": "NN",
+            "OperatingCarrier": null,
+            "MarketingCarrier": null,
+            "BaggageInfo": "",
+            "HandBaggage": "7 KG",
+            "TransitTime": null,
+            "MealCode": null,
+            "Key": "+NE1a4y3nDKAsHAoIBAAAA==",
+            "Distance": "",
+            "ETicket": "",
+            "ChangeOfPlane": "",
+            "ParticipantLevel": "",
+            "OptionalServicesIndicator": false,
+            "AvailabilitySource": "",
+            "Group": "0",
+            "LinkAvailability": "",
+            "PolledAvailabilityOption": "",
+            "FareBasisCode": "",
+            "HostTokenRef": "",
+            "APISRequirementsRef": "",
+            "Departure": {
+                "Terminal": null,
+                "Date": "28-04-2024",
+                "Time": "12:20",
+                "Day": null,
+                "DateTimeStamp": "2024-04-28T12:20:00.000+05:30",
+                "Code": "DEL",
+                "Name": "Indira Gandhi International Airport",
+                "CityCode": "DEL",
+                "CityName": "Delhi",
+                "CountryCode": "IN",
+                "CountryName": "India"
+            },
+            "Arrival": {
+                "Terminal": null,
+                "Date": "28-04-2024",
+                "Time": "13:35",
+                "Day": null,
+                "DateTimeStamp": "2024-04-28T13:35:00.000+05:30",
+                "Code": "LKO",
+                "Name": "Chaudhary Charan Singh International Airport",
+                "CityCode": "LKO",
+                "CityName": "Lucknow",
+                "CountryCode": "IN",
+                "CountryName": "India"
+            }
+        }
+    ],
+    "Provider": null,
+    "Messages": null
+}

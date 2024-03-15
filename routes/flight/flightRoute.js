@@ -8,5 +8,6 @@ const flight = require('../../controllers/flight/flight.controller');
 flight_route.post('/flight/search' , flight.getSearch);
 flight_route.post('/Pricing/AirPricing' , flight.airPricing);
 flight_route.post('/Flight/startBooking' , flight.startBooking);
+flight_route.post('/flight/ssr' , flight.specialServiceReq)
 
 module.exports = flight_route;

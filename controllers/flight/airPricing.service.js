@@ -3,6 +3,7 @@ const PromoCode = require("../../models/AirlinePromoCode");
 const Company = require("../../models/Company");
 const AirportsDetails = require("../../models/AirportDetail");
 const Supplier = require("../../models/Supplier");
+const fareFamilyMaster = require("../../models/FareFamilyMaster");
 const Role = require("../../models/Role");
 const axios = require("axios");
 const uuid = require("uuid");
@@ -209,7 +210,7 @@ async function handleflight(
       }
     })
   );
-  console.log("pppppppppppppppppppppppp", res, "<<<========pppp")
+ // console.log("pppppppppppppppppppppppp", res, "<<<========pppp")
   // delete this one
   // return {
   //   IsSucess: true,
@@ -346,8 +347,14 @@ const KafilaFun = async (
   let classOfServiceVal = classOfServiceMap[ClassOfService] || "";
 
   // Fare Family Array
+  let fareFamilyMasterGet = [];
+  if (FareFamily && FareFamily.length > 0) {
+      fareFamilyMasterGet = await fareFamilyMaster.distinct("fareFamilyCode", { fareFamilyName: { $in: FareFamily } });
+  }  
   let fareFamilyVal =
-    FareFamily && FareFamily.length > 0 ? FareFamily.join(",") : "";
+  fareFamilyMasterGet && fareFamilyMasterGet.length > 0 ? fareFamilyMasterGet.join(",") : "";
+
+
   const segmentsArray = Segments.map((segment) => ({
     Src: segment.Origin,
     Des: segment.Destination,
@@ -529,6 +536,7 @@ const KafilaFun = async (
     };
    
    // console.log(requestDataFSearch, "API Responce")
+   //console.log(requestDataFSearch, "Request")
       let fSearchApiResponse = await axios.post(
         flightSearchUrl,
         requestDataFSearch,
@@ -550,7 +558,8 @@ const KafilaFun = async (
             fSearchApiResponse.data.WarningMessage,
         };
       }
-      //console.log(fSearchApiResponse.data);
+      //console.log('apiData',fSearchApiResponse.data); 
+          
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;
       let apiResponseCommon = [];
@@ -559,8 +568,7 @@ const KafilaFun = async (
       for (let index = 0; index < apiResponse.SelectedFlight.length; index++) {
         let schedule = apiResponse.SelectedFlight[index];        
          //let oldItinerary = Itinerary[index];         
-        // apiResponseCommon.push(schedule);
-        
+        // apiResponseCommon.push(schedule);       
         
         apiResponseCommon.push({
           UID: Itinerary[index].UID,
@@ -708,14 +716,14 @@ const KafilaFun = async (
                 }
               : {},
           ],
-          Sectors: schedule.Itinerary.map((sector,index) => ({
+          Sectors: schedule.Itinerary.map((sector,indexcount) => ({
             IsConnect: false,
             AirlineCode: sector.FCode,
             AirlineName: sector.FName,
             Class: sector.FClass,
             CabinClass: sector.PClass,
             BookingCounts: "",
-            NoSeats: Itinerary[index].Sectors[index].NoSeats,
+            NoSeats: sector.Seat,
             FltNum: sector.FNo,
             EquipType: sector.FlightType,
             FlyingTime: sector.Dur,
@@ -743,8 +751,8 @@ const KafilaFun = async (
             APISRequirementsRef: "",
             Departure: {
               Terminal: sector.DTrmnl,
-               Date: sector.DDate,
-               Time: sector.DDate,
+              Date: sector.DDate,
+              Time: sector.DDate,
               Day: null,
               DateTimeStamp: sector.DDate,
               Code: sector.Src,
@@ -756,8 +764,8 @@ const KafilaFun = async (
             },
             Arrival: {
               Terminal: sector.ATrmnl,
-               Date: sector.ADate,
-               Time: sector.ADate,
+              Date: sector.ADate,
+              Time: sector.ADate,
               Day: null,
               DateTimeStamp: sector.ADate,
               Code: sector.Des,

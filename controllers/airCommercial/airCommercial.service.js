@@ -22,6 +22,7 @@ const addAirCommercial = async (req, res) => {
             supplier,
             source,
             priority,
+            fareFamily,
             companyId
         } = req.body;
         if (!commercialAirPlanId) {
@@ -56,6 +57,7 @@ const addAirCommercial = async (req, res) => {
             commercialCategory,
             supplier,
             source,
+            fareFamily,
             priority,
             companyId
         });
@@ -360,7 +362,7 @@ const UpdateMatrixData = async (req, res) => {
 const getAirCommercialListByAirComId = async (req, res) => {
     try {
         const airCommercialPlanId = req.params.airCommercialPlanId;
-        const coloumnData = await AirCommercial.find({ commercialAirPlanId: airCommercialPlanId }).populate('carrier').populate('supplier').populate('source');
+        const coloumnData = await AirCommercial.find({ commercialAirPlanId: airCommercialPlanId }).populate('carrier').populate('supplier').populate('source').populate('fareFamily');
 
         if (coloumnData.length > 0) {
             return {

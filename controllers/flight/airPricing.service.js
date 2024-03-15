@@ -93,7 +93,7 @@ const airPricing = async (req, res) => {
       Itinerary
     );
   };
-  console.log("============>>>MMMMMMMMMM", result , "<<<============nnnnnnnnnnnnnnnnnnnn")
+ // console.log("============>>>MMMMMMMMMM", result , "<<<============nnnnnnnnnnnnnnnnnnnn")
 
   if (!result.IsSucess) {
     return {
@@ -246,7 +246,7 @@ async function handleflight(
     TravelType,
     commonArray
   );
-  console.log("pppppppppppppppppppppppp", res, "<<<========ppppvvvvvvvv")
+  //console.log("pppppppppppppppppppppppp", res, "<<<========ppppvvvvvvvv")
 
   return {
     IsSucess: true,
@@ -794,7 +794,7 @@ const KafilaFun = async (
       }
      // apiResponseCommon.push("<<<<<<<=============>>>>>>>>>>>>>>>");
    //   apiResponseCommon.push(fSearchApiResponse.data);
-      console.log("==========>>>>",apiResponseCommon , "<<==================")
+      //console.log("==========>>>>",apiResponseCommon , "<<==================")
       return {
         IsSucess: true,
         response: apiResponseCommon,

@@ -76,14 +76,14 @@ if(result.response == 'Group ticket request found sucessfully'){
 const getTicketRequestByUserId = async (req,res) => {
     try{
         const result = await groupTicketRequestServices.getTicketRequestByUserId(req,res);
-        if(result.response == 'Group ticket request not found'){
+        if(result.response == 'Group ticket request found sucessfully'){
             apiSucessRes( 
                 res,
                 result.response,
                 result.data,
                 ServerStatusCode.SUCESS_CODE
                )
-        }else if(result.response == 'Group ticket request found sucessfully'){
+        }else if(result.response == 'Group ticket request not found'){
             apiErrorres(
                 res,
                 result.response,

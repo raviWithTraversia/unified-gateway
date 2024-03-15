@@ -4,8 +4,6 @@ const axios = require('axios');
 const { Config } = require("../../configs/config");
 const registrationServices = require('../../controllers/registration/registration.services')
 
-
-
 const dashBoardCount  = async (req,res) => {
     try{
     let  {companyId} = req.query;
@@ -58,7 +56,6 @@ const dashBoardCount  = async (req,res) => {
        throw error 
     }
 };
-
 const checkPanCard = async (req, res) => {
     try {
       const { panNumber } = req.body;
@@ -105,11 +102,10 @@ const checkPanCard = async (req, res) => {
       throw error;
     }
 };
-
 const checkGstin = async (req,res) => {
     try{
         const { gstNumber } = req.body;
-        
+       
       if (!gstNumber) {
         return {
           response: "GST number is required"
@@ -118,7 +114,7 @@ const checkGstin = async (req,res) => {
   
       const apiUrl = Config.GST_URL;
       const headers = Config.GST_TOKEN;
-      console.log(apiUrl,"<<<==========", headers, "Code is here 114")
+    //  console.log(apiUrl,"<<<==========", headers, "Code is here 114")
       const responseData = await axios.post(
         apiUrl,
         null,
@@ -128,7 +124,7 @@ const checkGstin = async (req,res) => {
           gst_number: gstNumber
         }
       });
-      console.log(apiUrl,"<<<==========", headers, "Code is here 121")
+    // console.log(apiUrl,"<<<==========", responseData.data.data, "Code is here 121")
       if(responseData){
       return {
         response : "Data Fetch Sucessfully",

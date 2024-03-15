@@ -5770,6 +5770,11 @@ const commertialMatrixValue = async (
   configDetails,
   supplierTypeFor
 ) => {
+  // console.log("=====>>",commList,
+  //   "[[[[[[[[[[[[[[[[",singleFlightDetails,
+  //   companyId,
+  //   configDetails,
+  //   supplierTypeFor)
 
   let oldBaseFareADT = 0;
   let oldTaxFareADT = 0;

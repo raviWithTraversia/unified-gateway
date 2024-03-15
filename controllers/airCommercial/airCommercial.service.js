@@ -569,7 +569,6 @@ const updateAirCommercialFilter = async (req,res) => {
     const { id } = req.query;
    const updates = req.body;
  let data = await AirCommercial.find({_id : id});
-//console.log(data);
 const updatedAirCommercial = await AirCommercial.findOneAndUpdate(
    { _id : id},
     updates,

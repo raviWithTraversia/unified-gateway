@@ -92,7 +92,8 @@ const airPricing = async (req, res) => {
       RefundableOnly,
       Itinerary
     );
-  }
+  };
+  console.log("============>>>MMMMMMMMMM", result , "<<<============nnnnnnnnnnnnnnnnnnnn")
 
   if (!result.IsSucess) {
     return {
@@ -102,6 +103,7 @@ const airPricing = async (req, res) => {
     return {
       response: "Fetch Data Successfully",
       data: result.response,
+      apiReq : result.apiReq 
     };
   }
 };
@@ -173,13 +175,14 @@ async function handleflight(
   //airline promo code query here
   // Commertial query call here ( PENDING )
   // Supplier API Integration Start Here ....
+  let res;
   const responsesApi = await Promise.all(
     supplierCredentials.map(async (supplier) => {
       try {
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
             // check here airline promoCode if active periority first agent level then group level
-            return await KafilaFun(
+            return   res = await KafilaFun(
               Authentication,
               supplier,
               TypeOfTrip,
@@ -207,7 +210,7 @@ async function handleflight(
       }
     })
   );
-  
+ // console.log("pppppppppppppppppppppppp", res, "<<<========pppp")
   // delete this one
   // return {
   //   IsSucess: true,
@@ -237,17 +240,20 @@ async function handleflight(
   }
 
   // apply commercial function
+ // console.log("{{{{{{{{{{{{{{{{{{{",commonArray,"}}}}}}}}}}}}}}}}}}}}}}" )
   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
     Authentication,
     TravelType,
     commonArray
   );
+  console.log("pppppppppppppppppppppppp", res, "<<<========ppppvvvvvvvv")
 
   return {
     IsSucess: true,
     response: getApplyAllCommercialVar,
+    apiReq : res.apiReq
   };
-}
+};
 
 const KafilaFun = async (
   Authentication,
@@ -370,9 +376,7 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
-    if (response.data.Status === "success") {
-      
-        
+    if (response.data.Status === "success") { 
       const newArray = Itinerary.map(item => {                 
         const sectorsall = item.Sectors.map(sector => ({          
           Id: 0,
@@ -531,6 +535,7 @@ const KafilaFun = async (
     }
     };
    
+   // console.log(requestDataFSearch, "API Responce")
    //console.log(requestDataFSearch, "Request")
       let fSearchApiResponse = await axios.post(
         flightSearchUrl,
@@ -543,7 +548,7 @@ const KafilaFun = async (
       );
       //logger.info(fSearchApiResponse.data);
       
-      //console.log(fSearchApiResponse.data, "API Responce")
+    //  console.log(fSearchApiResponse.data, "API Responce")
       if (fSearchApiResponse.data.Status == "failed") {
         return {
           IsSucess: false,
@@ -558,6 +563,7 @@ const KafilaFun = async (
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;
       let apiResponseCommon = [];
+     // apiResponseCommon.push(fSearchApiResponse.data);
       
       for (let index = 0; index < apiResponse.SelectedFlight.length; index++) {
         let schedule = apiResponse.SelectedFlight[index];        
@@ -798,10 +804,13 @@ const KafilaFun = async (
           OI:schedule.OI ?? null
         });
       }
-
+     // apiResponseCommon.push("<<<<<<<=============>>>>>>>>>>>>>>>");
+   //   apiResponseCommon.push(fSearchApiResponse.data);
+      console.log("==========>>>>",apiResponseCommon , "<<==================")
       return {
         IsSucess: true,
         response: apiResponseCommon,
+        apiReq: fSearchApiResponse.data
       };
     } else {
       return {

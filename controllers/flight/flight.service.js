@@ -402,7 +402,8 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
-    if (response.data.Status === "success") {
+    if (response.
+      data.Status === "success") {
       let getToken = response.data.Result;
       let requestDataFSearch = {
         Trip: tripTypeValue,

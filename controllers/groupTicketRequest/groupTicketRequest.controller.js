@@ -110,14 +110,15 @@ const getTicketRequestByUserId = async (req,res) => {
 const updateTicketRequest = async (req,res) => {
     try{
         const result = await groupTicketRequestServices.updateTicketRequest(req,res);
-        if(result.response == 'Group ticket request not found'){
+        //Group ticket request updated sucessfully
+        if(result.response == 'Group ticket request updated sucessfully'){
             apiSucessRes( 
                 res,
                 result.response,
                 result.data,
                 ServerStatusCode.SUCESS_CODE
                )
-        }else if(result.response == 'Group ticket request updated sucessfully'){
+        }else if(result.response == 'Group ticket request not found'){
             apiErrorres(
                 res,
                 result.response,

@@ -95,7 +95,17 @@ const groupTicketSchema = new mongoose.Schema({
   travelType : {
     type : String,
     enum : ['Domestic' , 'International']
-  }
+  },
+  groupId: {
+    type: String,
+    default: () => {
+      const timestamp = Date.now().toString(36);
+      const random = Math.random().toString(36).substr(2, 5);
+      const numericPart = ('0000' + (parseInt(random, 36) % 10000)).slice(-4);
+      return 'GRP_' + numericPart;
+  },
+    unique: true
+},
 },{
     timeStamp : true 
 });

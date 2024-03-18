@@ -135,7 +135,7 @@ const updateTicketRequest = async (req,res) => {
         }catch(error){
             apiErrorres(
                 res,
-                errorResponse.error.message,
+                errorResponse.error,
                 ServerStatusCode.SERVER_ERROR,
                 true
                 ) 

@@ -31,7 +31,7 @@ const getEmailConfig = async(req,res) => {
       true
     )
   }
-}
+};
 
 const addEmailConfig = async (req ,res) => {
     try{
@@ -76,9 +76,47 @@ const addEmailConfig = async (req ,res) => {
         true
       )
     }
+};
+
+const upadteEmailConfig = async (req, res) => {
+  try{
+  let result = await emailConfigServices.upadteEmailConfig(req,res);
+    if(result.response == 'Email configuration updated successfully'){
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE,
+       ) 
+    }
+    else if(result.response == 'Email configuration not found' ){
+    
+     apiErrorres(
+      res,
+      result.response,
+      ServerStatusCode.RECORD_NOTEXIST,
+      true
+    )
+    }else{
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      )
+    }
+  }catch(error){
+    apiErrorres(
+      res,
+      error,
+      ServerStatusCode.UNPROCESSABLE,
+      true
+    )
+  }
 }
 
 module.exports = {
     getEmailConfig,
-    addEmailConfig
+    addEmailConfig,
+    upadteEmailConfig
 }

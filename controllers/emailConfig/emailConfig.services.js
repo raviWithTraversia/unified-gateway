@@ -89,7 +89,7 @@ const getEmailConfig = async (req, res) => {
   })
   .populate({
       path: 'smptConfigId',
-      select: 'host port emailFrom -_id ', 
+      select: 'host port emailFrom _id ', 
   });
     if (!allEmailConfigData || !allEmailConfigData.length) {
       return {
@@ -108,9 +108,32 @@ const getEmailConfig = async (req, res) => {
   }
 };
 
+const upadteEmailConfig = async (req,res) => {
+  const { id } = req.query;
+  const updateFields = req.body;
+
+  try {
+    const updatedConfig = await emailConfig.findByIdAndUpdate(id, updateFields, { new: true });
+
+    if (!updatedConfig) {
+      return {
+         response: 'Email configuration not found'
+         };
+    }
+    return{
+       response: 'Email configuration updated successfully',
+        data : updatedConfig 
+      };
+  } catch (error) {
+    console.error('Error updating email configuration:', error);
+    throw error
+  }
+}
+
 
 
 module.exports = {
   getEmailConfig,
   addEmailConfig,
+  upadteEmailConfig
 };

@@ -268,7 +268,7 @@ const userInsert = async (req, res) => {
     });
     let createdComapanyId = newCompany._id;
     savedCompany = await newCompany.save();
-    console.log(createdComapanyId, "=====================");
+   // console.log(createdComapanyId, "=====================");
     if(findRole?.name === HOST_ROLE.TMC){
       const rolesToInsert = [
         { name: TMC_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
@@ -290,7 +290,7 @@ const userInsert = async (req, res) => {
     if(password == null || password == undefined){
      password = commonFunction.generateRandomPassword(10)     
     }
-    const securePassword = await commonFunction.securePassword(password);
+    ///const securePassword = await commonFunction.securePassword(password);
     const resetToken = Math.random().toString(36).slice(2);
      newUser = new User({
       userType,
@@ -332,8 +332,8 @@ const userInsert = async (req, res) => {
     };
     let baseUrl = await webMaster.findOne({companyId : savedCompany._id});
     if(!baseUrl){
-      let cId = '6555f84c991eaa63cb171a9f'
-      baseUrl = await webMaster.find({companyId : cId});
+     // let cId = '6555f84c991eaa63cb171a9f'
+      baseUrl = await webMaster.find({companyId : savedCompany._id});
       baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'http://localhost:3111/api';
     }
     if(userCreated){
@@ -384,7 +384,7 @@ const userInsert = async (req, res) => {
         agentConfigsInsert = await agentConfigsInsert.save();
       console.log( 'User Config Insert Sucessfully');
       await Registration.deleteOne({email : email});
-      console.log("Registration details deleted");
+      //console.log("Registration details deleted");
     }
     return {
       response: "User and Company Inserted successfully",

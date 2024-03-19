@@ -82,7 +82,13 @@ const addEmailConfig = async (req, res) => {
 const getEmailConfig = async (req, res) => {
   try {
     const { companyId } = req.params;
-    let allEmailConfigData = await emailConfig.find({ companyId });
+    let allEmailConfigData = await emailConfig.find({ companyId }).populate({
+      path: 'EmailConfigDescriptionId',
+  })
+  .populate({
+      path: 'smptConfigId',
+      select: 'host port emailFrom -_id ', 
+  });
     if (!allEmailConfigData || !allEmailConfigData.length) {
       return {
         response: "No any email config exist for this comapnyId",

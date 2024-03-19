@@ -8,7 +8,7 @@ const emailSchema = new mongoose.Schema({  // Changed mongoose.schema to mongoos
     },
     EmailConfigDescriptionId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'EmailConfigDescription'
+        ref: 'emailConfigDiscription'
     },
     mailDescription: {
         type: String,
@@ -24,7 +24,7 @@ const emailSchema = new mongoose.Schema({  // Changed mongoose.schema to mongoos
     },
     smptConfigId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'smtp'
+        ref: 'SmtpConfig'
     },
     status: {
         type: Boolean,  // Corrected the type to Boolean

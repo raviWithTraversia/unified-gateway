@@ -13,6 +13,10 @@ const sectorDetailsSchema = new mongoose.Schema({
       type: String,
       default: null
     },
+    bid: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "BookingDetails",
+    },
     prodBookingId: {  // 1,2,3,4,5,6,7,8,9
         type: String,
         default: null

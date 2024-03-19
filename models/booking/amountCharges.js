@@ -8,6 +8,10 @@ const amountChargesSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
     },
+    bid: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "BookingDetails",
+    },
     paxId:{ // 1,2,3,4,5,6,7,8
         type: String,
         default: null

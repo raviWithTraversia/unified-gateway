@@ -14,11 +14,12 @@ const addTicketRequset = async (req,res) => {
           }
         }else{
           let userDetail = await userModel.findOne({_id : req.body.agentId});
-          //console.log(userDetail)
+        //  console.log(userDetail)
           let mailConfig = await smtpModel.findOne({ companyId: userDetail.company_ID});
+         // console.log("===>>>>>>>>>>>",mailConfig)
           if (!mailConfig) {
             let id = Config.MAIL_CONFIG_ID;
-            mailConfig = await Smtp.findById(id);
+            mailConfig = await smtpModel.findById(id);
           };
             return {
                 response : 'Group Ticket Request Data Created Sucessfully',

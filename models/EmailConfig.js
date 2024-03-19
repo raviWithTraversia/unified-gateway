@@ -29,6 +29,9 @@ const emailSchema = new mongoose.Schema({  // Changed mongoose.schema to mongoos
     status: {
         type: Boolean,  // Corrected the type to Boolean
         required: true
+    },
+    productType : {
+      type : String
     }
 });
 

@@ -14,6 +14,7 @@ const addEmailConfig = async (req, res) => {
       emailBcc,
       smptConfigId,
       status,
+      productType
     } = req.body;
 
     let isValidSmptConfigId = FUNC.checkIsValidId(smptConfigId);
@@ -66,6 +67,7 @@ const addEmailConfig = async (req, res) => {
         emailBcc,
         smptConfigId,
         status,
+        productType
       });
       await createEmailConfig.save();
       return {

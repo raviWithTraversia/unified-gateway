@@ -1,18 +1,21 @@
 const groupTicketRequestModel = require("../../models/GroupTicketRequest");
 const smtpModel = require("../../models/Smtp");
 const userModel = require("../../models/User");
+const {Config} = require("../../configs/config");
 const addTicketRequset = async (req,res) => {
     try {
       let totalCount = req.body.adultCount + req.body.childCount + req.body.infantCount ;
-      req.body.totalCount;
+      req.body.totalCount = totalCount ;
         const groupTicketRequest = await groupTicketRequestModel.create(req.body);
+
         if(!groupTicketRequest){
           return {
             response : 'Group Ticket Request Data Not Created'
           }
         }else{
           let userDetail = await userModel.findOne({_id : req.body.agentId});
-          let mailConfig = await smtpModel.findOne({ companyId: parent});
+          //console.log(userDetail)
+          let mailConfig = await smtpModel.findOne({ companyId: userDetail.company_ID});
           if (!mailConfig) {
             let id = Config.MAIL_CONFIG_ID;
             mailConfig = await Smtp.findById(id);

@@ -8,7 +8,7 @@ const addEmailConfig = async (req, res) => {
   try {
     const {
       companyId,
-      EmailConfigDescriptionId,
+    //  EmailConfigDescriptionId,
       mailDescription,
       emailCc,
       emailBcc,
@@ -18,19 +18,19 @@ const addEmailConfig = async (req, res) => {
     } = req.body;
 
     let isValidSmptConfigId = FUNC.checkIsValidId(smptConfigId);
-    let isValidEmailConfigDescriptionId = FUNC.checkIsValidId(
-      EmailConfigDescriptionId
-    );
+    // let isValidEmailConfigDescriptionId = FUNC.checkIsValidId(
+    //   EmailConfigDescriptionId
+    // );
     if (isValidSmptConfigId === "Invalid Mongo Object Id") {
       return {
         response: "smptConfigId is not valid",
       };
     }
-    if (isValidEmailConfigDescriptionId === "Invalid Mongo Object Id") {
-      return {
-        response: "EmailConfigDescriptionId is not valid",
-      };
-    }
+    // if (isValidEmailConfigDescriptionId === "Invalid Mongo Object Id") {
+    //   return {
+    //     response: "EmailConfigDescriptionId is not valid",
+    //   };
+    // }
     let checkIscompanyIdExist = await user.findOne({ company_ID: companyId });
     if (!checkIscompanyIdExist) {
       checkIscompanyIdExist = null;

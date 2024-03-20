@@ -76,7 +76,9 @@ const addAgentConfiguration = async (req, res) => {
         UserId,
         modifyBy: req.user._id,
         agencyGroupId,
-        discountPercentage
+        discountPercentage,
+        bookingPrefix,
+        InvoiceingPrefix
       });
       agentConfigsInsert = await agentConfigsInsert.save();
       if (agentConfigsInsert) {

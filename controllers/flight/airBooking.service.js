@@ -202,8 +202,12 @@ async function handleflight(
       }
     })
   );
-  // delete this one
-  return responsesApi;
+  // delete this one  
+  return {
+    IsSucess: true,
+    response: responsesApi.flat(),
+  };
+
   // Combine the responses here
   const combineResponseObj = {};
   supplierCredentials.forEach((supplier, index) => {

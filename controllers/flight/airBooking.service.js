@@ -12,20 +12,20 @@ const flightCache = new NodeCache();
 const startBooking = async (req, res) => {
   const {
     SearchRequest: {
-    Authentication,
-    TypeOfTrip,
-    Segments,
-    PaxDetail,
-    TravelType,
-    Flexi,
-    Direct,
-    ClassOfService,
-    Airlines,
-    FareFamily,
-    RefundableOnly,    
+      Authentication,
+      TypeOfTrip,
+      Segments,
+      PaxDetail,
+      TravelType,
+      Flexi,
+      Direct,
+      ClassOfService,
+      Airlines,
+      FareFamily,
+      RefundableOnly,
     },
     PassengerPreferences,
-    ItineraryPriceCheckResponses
+    ItineraryPriceCheckResponses,
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -40,13 +40,15 @@ const startBooking = async (req, res) => {
     "FareFamily",
     "RefundableOnly",
     "PassengerPreferences",
-    "ItineraryPriceCheckResponses",    
+    "ItineraryPriceCheckResponses",
   ];
-//   const missingFields = fieldNames.filter(
-//     (fieldName) =>
-//       req.body.SearchRequest[fieldName] === null || req.body.SearchRequest[fieldName] === undefined
-//   );
-  const missingFields = fieldNames.filter(field => field === null || field === undefined);
+  //   const missingFields = fieldNames.filter(
+  //     (fieldName) =>
+  //       req.body.SearchRequest[fieldName] === null || req.body.SearchRequest[fieldName] === undefined
+  //   );
+  const missingFields = fieldNames.filter(
+    (field) => field === null || field === undefined
+  );
   if (missingFields.length > 0) {
     const missingFieldsString = missingFields.join(", ");
     return {
@@ -54,8 +56,8 @@ const startBooking = async (req, res) => {
       isSometingMissing: true,
       data: `Missing or null fields: ${missingFieldsString}`,
     };
-  }  
-  
+  }
+
   let companyId = Authentication.CompanyId;
   let UserId = Authentication.UserId;
   if (!companyId || !UserId) {
@@ -123,7 +125,7 @@ async function handleflight(
   FareFamily,
   RefundableOnly,
   PassengerPreferences,
-  ItineraryPriceCheckResponses  
+  ItineraryPriceCheckResponses
 ) {
   // International
   // Check LIVE and TEST
@@ -188,7 +190,6 @@ async function handleflight(
               supplier.supplierCodeId.supplierCode,
               PassengerPreferences,
               ItineraryPriceCheckResponses
-              
             );
 
           default:
@@ -222,7 +223,7 @@ async function handleflight(
   });
   // make common before commercial
   let commonArray = [];
-  
+
   for (let key in combineResponseObj) {
     if (combineResponseObj[key].IsSucess) {
       commonArray.push(...combineResponseObj[key].response);
@@ -230,11 +231,11 @@ async function handleflight(
   }
 
   // apply commercial function
-//   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
-//     Authentication,
-//     TravelType,
-//     commonArray
-//   );
+  //   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
+  //     Authentication,
+  //     TravelType,
+  //     commonArray
+  //   );
 
   return {
     IsSucess: true,
@@ -259,7 +260,6 @@ const KafilaFun = async (
   PassengerPreferences,
   ItineraryPriceCheckResponses
 ) => {
- 
   let createTokenUrl;
   let flightSearchUrl;
   // Apply APi for Type of trip ( ONEWAY / ROUNDTRIP / MULTYCITY )
@@ -336,10 +336,14 @@ const KafilaFun = async (
   // Fare Family Array
   let fareFamilyMasterGet = [];
   if (FareFamily && FareFamily.length > 0) {
-      fareFamilyMasterGet = await fareFamilyMaster.distinct("fareFamilyCode", { fareFamilyName: { $in: FareFamily } });
-  }  
+    fareFamilyMasterGet = await fareFamilyMaster.distinct("fareFamilyCode", {
+      fareFamilyName: { $in: FareFamily },
+    });
+  }
   let fareFamilyVal =
-  fareFamilyMasterGet && fareFamilyMasterGet.length > 0 ? fareFamilyMasterGet.join(",") : "";
+    fareFamilyMasterGet && fareFamilyMasterGet.length > 0
+      ? fareFamilyMasterGet.join(",")
+      : "";
 
   const segmentsArray = Segments.map((segment) => ({
     Src: segment.Origin,
@@ -363,173 +367,197 @@ const KafilaFun = async (
       },
     });
     if (response.data.Status === "success") {
-      
-        
-      const newArray = ItineraryPriceCheckResponses.map(item => {                 
-        const sectorsall = item.Sectors.map(sector => ({          
-          Id: 0,
-          Src: sector.Departure.Code,
-          SrcName: sector.Departure.CityName,
-          Des: sector.Arrival.Code,
-          DesName: sector.Arrival.CityName,
-          FLogo: "",
-          FCode: sector.AirlineCode,
-          FName: sector.AirlineName,
-          FNo: sector.FltNum,
-          DDate: sector.Departure.Date,
-          ADate: sector.Arrival.Date,
-          DTrmnl: sector.Departure.Terminal,
-          ATrmnl: sector.Arrival.Terminal,
-          DArpt: sector.Departure.Name,
-          AArpt: sector.Arrival.Name,
-          Dur: sector.FlyingTime,
-          layover: "",
-          Seat: sector.NoSeats,
-          FClass: sector.Class,
-          PClass: sector.CabinClass,
-          FBasis: sector.FareBasisCode,
-          FlightType: sector.EquipType,
-          OI:sector.OI
-        }));    
-        
-        const Adt = item.PriceBreakup[1] ? {
-          Basic: item.PriceBreakup[0]?.BaseFare || 0,
-          Yq: item.PriceBreakup[0]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0,
-          Taxes: item.PriceBreakup[0]?.Tax || 0,
-          Total: (item.PriceBreakup[0]?.BaseFare || 0) + (item.PriceBreakup[0]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[0]?.Tax || 0)
-        } : null;
-        
-        const Chd = Object.keys(item.PriceBreakup[1]).length !== 0
-        ? {
-          Basic: item.PriceBreakup[1]?.BaseFare || 0,
-          Yq: item.PriceBreakup[1]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0,
-          Taxes: item.PriceBreakup[1]?.Tax || 0,
-          Total: (item.PriceBreakup[1]?.BaseFare || 0) + (item.PriceBreakup[1]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[1]?.Tax || 0)
-        } : null;
-                
-        const Inf = Object.keys(item.PriceBreakup[2]).length !== 0
-        ? {
-          Basic: item.PriceBreakup[2]?.BaseFare || 0,
-          Yq: item.PriceBreakup[2]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0,
-          Taxes: item.PriceBreakup[2]?.Tax || 0,
-          Total: (item.PriceBreakup[2]?.BaseFare || 0) + (item.PriceBreakup[2]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[2]?.Tax || 0)
-        } : null;        
-            
-        return {
-          PId: 0,
-          Id: 0,
-          TId: 0,
-          Src: Segments[0].Origin,
-          Des: Segments[0].Destination,
-          FCode: item.ValCarrier,
-          FName: "",
-          FNo: "",
-          DDate: "",
-          ADate: "",
-          Dur: "",
-          Stop: "",
-          Seat: 0,
-          Sector: "",
-          Itinerary: sectorsall,
-          Fare: {
-            GrandTotal: item.TotalPrice,
-            BasicTotal: item.BaseFare,
-            YqTotal: 0,
-            TaxesTotal: item.Taxes,
-            Adt: Adt,
-            Chd: Chd,
-            Inf: Inf,
-            OI: item.PriceBreakup[0]?.OI || null,
-          },
-          FareRule: {
-            CBNBG: "7KG",
-            CHKNBG: "15KG",
-            CBH: "96HRS",
-            CWBH: "96HRS-4HRS",
-            RBH: "96HRS",
-            RWBH: "96HRS-4HRS",
-            CBHA: 3000,
-            CWBHA: 3600,
-            RBHA: 2850,
-            RWBHA: 3350,
-            SF: 50.00
-          },
-          Alias: item.FareFamily,
-          FareType: item.FareType,
-          PFClass: "A-R",
-          Offer: {
-            Msg: "",
-            Refund: "",
-            IsPromoAvailable: true,
-            IsGstMandatory: false,
-            IsLcc: true
-          },
-          OI: item.OI,
-          Deal: {
-            NETFARE: 13439,
-            TDISC: 553,
-            TDS: 28,
-            GST: 100,
-            DISCOUNT: {
-              DIS: 553,
-              SF: 0,
-              PDIS: 0,
-              CB: 0
-            }
-          }
-        };        
-      });      
-      
-      
+      // const newArray = ItineraryPriceCheckResponses.map((item) => {
+      //   const sectorsall = item.Sectors.map((sector) => ({
+      //     Id: 0,
+      //     Src: sector.Departure.Code,
+      //     SrcName: sector.Departure.CityName,
+      //     Des: sector.Arrival.Code,
+      //     DesName: sector.Arrival.CityName,
+      //     FLogo: "",
+      //     FCode: sector.AirlineCode,
+      //     FName: sector.AirlineName,
+      //     FNo: sector.FltNum,
+      //     DDate: sector.Departure.Date,
+      //     ADate: sector.Arrival.Date,
+      //     DTrmnl: sector.Departure.Terminal,
+      //     ATrmnl: sector.Arrival.Terminal,
+      //     DArpt: sector.Departure.Name,
+      //     AArpt: sector.Arrival.Name,
+      //     Dur: sector.FlyingTime,
+      //     layover: "",
+      //     Seat: sector.NoSeats,
+      //     FClass: sector.Class,
+      //     PClass: sector.CabinClass,
+      //     FBasis: sector.FareBasisCode,
+      //     FlightType: sector.EquipType,
+      //     OI: sector.OI,
+      //   }));
 
-      let getToken = response.data.Result;
-      let requestDataFSearch = { FareChkRes: {
-        Error:ItineraryPriceCheckResponses[0].Error,
-        IsFareUpdate: ItineraryPriceCheckResponses[0].IsFareUpdate,
-        IsAncl: ItineraryPriceCheckResponses[0].IsAncl,
-        Param: ItineraryPriceCheckResponses[0].Param,   
-        SelectedFlight: [ItineraryPriceCheckResponses[0].SelectedFlight],
-        FareBreakup:ItineraryPriceCheckResponses[0].FareDifference,
-      GstData:ItineraryPriceCheckResponses[0].GstData,
-      Ancl: null 
-    },
-    PaxInfo:PassengerPreferences,
-};
+      //   const Adt = item.PriceBreakup[1]
+      //     ? {
+      //         Basic: item.PriceBreakup[0]?.BaseFare || 0,
+      //         Yq:
+      //           item.PriceBreakup[0]?.TaxBreakup.find(
+      //             (tax) => tax.TaxType === "YQ"
+      //           )?.Amount || 0,
+      //         Taxes: item.PriceBreakup[0]?.Tax || 0,
+      //         Total:
+      //           (item.PriceBreakup[0]?.BaseFare || 0) +
+      //           (item.PriceBreakup[0]?.TaxBreakup.find(
+      //             (tax) => tax.TaxType === "YQ"
+      //           )?.Amount || 0) +
+      //           (item.PriceBreakup[0]?.Tax || 0),
+      //       }
+      //     : null;
 
-    //console.log(requestDataFSearch, "API Responce")
-      let fSearchApiResponse = await axios.post(
-        flightSearchUrl,
-        requestDataFSearch,
-        {
-          headers: {
-            "Content-Type": "application/json",
+      //   const Chd =
+      //     Object.keys(item.PriceBreakup[1]).length !== 0
+      //       ? {
+      //           Basic: item.PriceBreakup[1]?.BaseFare || 0,
+      //           Yq:
+      //             item.PriceBreakup[1]?.TaxBreakup.find(
+      //               (tax) => tax.TaxType === "YQ"
+      //             )?.Amount || 0,
+      //           Taxes: item.PriceBreakup[1]?.Tax || 0,
+      //           Total:
+      //             (item.PriceBreakup[1]?.BaseFare || 0) +
+      //             (item.PriceBreakup[1]?.TaxBreakup.find(
+      //               (tax) => tax.TaxType === "YQ"
+      //             )?.Amount || 0) +
+      //             (item.PriceBreakup[1]?.Tax || 0),
+      //         }
+      //       : null;
+
+      //   const Inf =
+      //     Object.keys(item.PriceBreakup[2]).length !== 0
+      //       ? {
+      //           Basic: item.PriceBreakup[2]?.BaseFare || 0,
+      //           Yq:
+      //             item.PriceBreakup[2]?.TaxBreakup.find(
+      //               (tax) => tax.TaxType === "YQ"
+      //             )?.Amount || 0,
+      //           Taxes: item.PriceBreakup[2]?.Tax || 0,
+      //           Total:
+      //             (item.PriceBreakup[2]?.BaseFare || 0) +
+      //             (item.PriceBreakup[2]?.TaxBreakup.find(
+      //               (tax) => tax.TaxType === "YQ"
+      //             )?.Amount || 0) +
+      //             (item.PriceBreakup[2]?.Tax || 0),
+      //         }
+      //       : null;
+
+      //   return {
+      //     PId: 0,
+      //     Id: 0,
+      //     TId: 0,
+      //     Src: Segments[0].Origin,
+      //     Des: Segments[0].Destination,
+      //     FCode: item.ValCarrier,
+      //     FName: "",
+      //     FNo: "",
+      //     DDate: "",
+      //     ADate: "",
+      //     Dur: "",
+      //     Stop: "",
+      //     Seat: 0,
+      //     Sector: "",
+      //     Itinerary: sectorsall,
+      //     Fare: {
+      //       GrandTotal: item.TotalPrice,
+      //       BasicTotal: item.BaseFare,
+      //       YqTotal: 0,
+      //       TaxesTotal: item.Taxes,
+      //       Adt: Adt,
+      //       Chd: Chd,
+      //       Inf: Inf,
+      //       OI: item.PriceBreakup[0]?.OI || null,
+      //     },
+      //     FareRule: {
+      //       CBNBG: "7KG",
+      //       CHKNBG: "15KG",
+      //       CBH: "96HRS",
+      //       CWBH: "96HRS-4HRS",
+      //       RBH: "96HRS",
+      //       RWBH: "96HRS-4HRS",
+      //       CBHA: 3000,
+      //       CWBHA: 3600,
+      //       RBHA: 2850,
+      //       RWBHA: 3350,
+      //       SF: 50.0,
+      //     },
+      //     Alias: item.FareFamily,
+      //     FareType: item.FareType,
+      //     PFClass: "A-R",
+      //     Offer: {
+      //       Msg: "",
+      //       Refund: "",
+      //       IsPromoAvailable: true,
+      //       IsGstMandatory: false,
+      //       IsLcc: true,
+      //     },
+      //     OI: item.OI,
+      //     Deal: {
+      //       NETFARE: 13439,
+      //       TDISC: 553,
+      //       TDS: 28,
+      //       GST: 100,
+      //       DISCOUNT: {
+      //         DIS: 553,
+      //         SF: 0,
+      //         PDIS: 0,
+      //         CB: 0,
+      //       },
+      //     },
+      //   };
+      // });
+
+      //let getToken = response.data.Result;
+      const newArray = await Promise.all(ItineraryPriceCheckResponses.map(async (item) => {
+        let requestDataFSearch = {
+          FareChkRes: {
+            Error: item.Error,
+            IsFareUpdate: item.IsFareUpdate,
+            IsAncl: item.IsAncl,
+            Param: item.Param,
+            SelectedFlight: [item.SelectedFlight],
+            FareBreakup: item.FareDifference,
+            GstData: item.GstData,
+            Ancl: null,
           },
-        }
-      );
-      //logger.info(fSearchApiResponse.data);
-     
-      //console.log(fSearchApiResponse.data, "API Responce")
-      if (fSearchApiResponse.data.Status == "failed") {
-        return {
-          IsSucess: false,
-          response:
-            fSearchApiResponse.data.ErrorMessage +
-            "-" +
-            fSearchApiResponse.data.WarningMessage,
+          PaxInfo: PassengerPreferences,
         };
-      }
-      //console.log(fSearchApiResponse.data);
-      return {
-        IsSucess: true,
-        response: fSearchApiResponse.data,
-    };
+      
+        try {
+          let fSearchApiResponse = await axios.post(
+            flightSearchUrl,
+            requestDataFSearch,
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+      
+          if (fSearchApiResponse.data.Status == "failed") {
+            return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
+          }
+      
+          return fSearchApiResponse.data;
+        } catch (error) {
+          return  error.message;
+        }
+      }));
+      
+      return newArray;
+      
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;
       let apiResponseCommon = [];
-      
+
       for (let index = 0; index < apiResponse.SelectedFlight.length; index++) {
-        let schedule = apiResponse.SelectedFlight[index];        
-         //let oldItinerary = Itinerary[index];         
+        let schedule = apiResponse.SelectedFlight[index];
+        //let oldItinerary = Itinerary[index];
         // apiResponseCommon.push(schedule);
         apiResponseCommon.push({
           UID: Itinerary[index].UID,
@@ -564,7 +592,7 @@ const KafilaFun = async (
           RefundableFare: schedule.Offer.Refund === "Refundable" ? true : false,
           IndexNumber: index,
           Provider: Provider,
-          ValCarrier: schedule.FCode.split(',')[0],
+          ValCarrier: schedule.FCode.split(",")[0],
           LastTicketingDate: "",
           TravelTime: schedule.Dur,
           PriceBreakup: [
@@ -595,13 +623,13 @@ const KafilaFun = async (
                   ],
                   AirPenalty: [],
                   CommercialBreakup: [],
-                AgentMarkupBreakup: {
-                  BookingFee: 0.0,
-                  Basic: 0.0,
-                  Tax: 0.0,                  
-              },
+                  AgentMarkupBreakup: {
+                    BookingFee: 0.0,
+                    Basic: 0.0,
+                    Tax: 0.0,
+                  },
                   Key: null,
-                  OI:schedule.Fare.OI
+                  OI: schedule.Fare.OI,
                 }
               : {},
             PaxDetail.Child > 0
@@ -631,13 +659,13 @@ const KafilaFun = async (
                   ],
                   AirPenalty: [],
                   CommercialBreakup: [],
-                AgentMarkupBreakup: {
-                  BookingFee: 0.0,
-                  Basic: 0.0,
-                  Tax: 0.0,                  
-              },
+                  AgentMarkupBreakup: {
+                    BookingFee: 0.0,
+                    Basic: 0.0,
+                    Tax: 0.0,
+                  },
                   Key: null,
-                  OI:schedule.Fare.OI
+                  OI: schedule.Fare.OI,
                 }
               : {},
             PaxDetail.Infants > 0
@@ -667,13 +695,13 @@ const KafilaFun = async (
                   ],
                   AirPenalty: [],
                   CommercialBreakup: [],
-                AgentMarkupBreakup: {
-                  BookingFee: 0.0,
-                  Basic: 0.0,
-                  Tax: 0.0,                  
-              },
+                  AgentMarkupBreakup: {
+                    BookingFee: 0.0,
+                    Basic: 0.0,
+                    Tax: 0.0,
+                  },
                   Key: null,
-                  OI:schedule.Fare.OI
+                  OI: schedule.Fare.OI,
                 }
               : {},
           ],
@@ -712,8 +740,8 @@ const KafilaFun = async (
             APISRequirementsRef: "",
             Departure: {
               Terminal: sector.DTrmnl,
-               Date: sector.DDate,
-               Time: sector.DDate,
+              Date: sector.DDate,
+              Time: sector.DDate,
               Day: null,
               DateTimeStamp: sector.DDate,
               Code: sector.Src,
@@ -725,8 +753,8 @@ const KafilaFun = async (
             },
             Arrival: {
               Terminal: sector.ATrmnl,
-               Date: sector.ADate,
-               Time: sector.ADate,
+              Date: sector.ADate,
+              Time: sector.ADate,
               Day: null,
               DateTimeStamp: sector.ADate,
               Code: sector.Des,
@@ -736,15 +764,15 @@ const KafilaFun = async (
               CountryCode: "IN",
               CountryName: "India",
             },
-            OI:sector.OI
+            OI: sector.OI,
           })),
-          FareDifference:apiResponse.FareBreakup,
+          FareDifference: apiResponse.FareBreakup,
           HostTokens: null,
           Key: "",
           SearchID: "",
           TRCNumber: null,
           TraceId: Authentication.TraceId,
-          OI:schedule.OI ?? null
+          OI: schedule.OI ?? null,
         });
       }
 
@@ -767,5 +795,5 @@ const KafilaFun = async (
 };
 
 module.exports = {
-    startBooking,
+  startBooking,
 };

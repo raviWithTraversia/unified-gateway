@@ -22,6 +22,7 @@ const commercialAirPlanRoute = require('../routes/commercialAirPlanRoute');
 const fareFamilyRoute = require('../routes/fareFamilyMasterRoute');
 const verifyOtpRoute = require('../routes/verifyOtpRoute');
 const flightRoute = require('../routes/flight/flightRoute');
+const flightBookingRoute = require('../routes/flight/flightBookingRoute');
 const carrierRoute = require('../routes/carrierRoute');
 const airCommercialRoute = require('../routes/airCommercialRoute');
 const roleHasPermissionRoute = require('../routes/roleHasPermissioRoute');
@@ -134,6 +135,9 @@ class RoutesLoader {
         // Flight Route Start Here
         app.use("/api", flightRoute);
 
+        // Flight Booking Route
+        app.use("/api", flightBookingRoute);
+        
         app.use('/api', verifyOtpRoute);
 
         // Carrier route by alam shah

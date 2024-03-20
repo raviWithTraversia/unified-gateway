@@ -12,7 +12,7 @@ const getIdCreation = async (req, res) => {
         const result = await idCreation.getIdCreation(req, res);
         if (!result.response && result.isSometingMissing) {
           apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-        }else if (result.response === "TMC Compnay id does not exist") {
+        }else if (result.response === "TMC Compnay id does not exist" || result.response === "No data found for the given companyId" || result.response === "No data found for the given Prefix" || result.response === "Not Found" || result.response === "No Update") {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
         }else if (result.response === "Fetch Data Successfully") {
           apiSucessRes(

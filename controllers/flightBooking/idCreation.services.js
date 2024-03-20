@@ -1,25 +1,12 @@
-const flightcommercial = require("./flight.commercial");
-const PromoCode = require("../../models/AirlinePromoCode");
 const Company = require("../../models/Company");
-const Supplier = require("../../models/Supplier");
-const seriesDeparture = require("../../models/SeriesDeparture");
-const AirportsDetails = require("../../models/AirportDetail");
-const fareFamilyMaster = require("../../models/FareFamilyMaster");
-const Role = require("../../models/Role");
-const axios = require("axios");
-const uuid = require("uuid");
-const NodeCache = require("node-cache");
-const flightCache = new NodeCache();
-const moment = require("moment");
-
+const agentConfig = require("../../models/AgentConfig");
+const idCreation = require("../../models/booking/idCreation");
 const getIdCreation = async (req, res) => {
   const {
-    companyId,
-    prefix,    
+    companyId        
   } = req.body;
   const fieldNames = [
-    "companyId",
-    "prefix",    
+    "companyId"        
   ];
   const missingFields = fieldNames.filter(
     (fieldName) =>
@@ -47,18 +34,54 @@ const getIdCreation = async (req, res) => {
     return {
       response: "TMC Compnay id does not exist",
     };
-  }  
+  } 
 
-  if (!result.IsSucess) {
+  const getAgentConfig = await agentConfig.findOne({
+    companyId: companyId,
+  }); 
+  if (!getAgentConfig) {
     return {
-      response: result.response,
-    };
-  } else {
-    return {
-      response: "Fetch Data Successfully",
-      data: result.response,
+      response: "No data found for the given companyId"      
     };
   }
+  // check id Creation Data
+  const getIdCreation = await idCreation.findOne({ companyId: companyId, type:"prefix"});
+  if (!getIdCreation) {
+    return {
+      response: "No data found for the given Prefix"      
+    };
+  }
+
+  // check prefix 
+  if(getIdCreation.prefix == getAgentConfig.bookingPrefix){
+    const updateSuffix = await idCreation.updateOne({ companyId: companyId, type:"prefix" }, { $set: { suffix: getIdCreation.suffix + 1 } });
+    
+    if(updateSuffix){
+        return {
+            response: "Fetch Data Successfully",            
+            data: getAgentConfig.bookingPrefix + (getIdCreation.suffix+1),
+          };
+    }else{
+        return {
+            response: "No Update"      
+          };
+    }
+  }else{
+    const updateSuffix = await idCreation.updateOne({ companyId: companyId, type:"prefix" }, { $set: { prefix: getAgentConfig.bookingPrefix, suffix: getIdCreation.suffix + 1  } });
+        
+    if(updateSuffix){
+        return {
+            response: "Fetch Data Successfully",            
+            data: getAgentConfig.bookingPrefix + (getIdCreation.suffix+1),
+          };
+    }else{
+        return {
+            response: "No Update"      
+          };
+    }
+    
+    }
+  
 };
 
 module.exports = {

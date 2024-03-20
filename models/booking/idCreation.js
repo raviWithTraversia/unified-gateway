@@ -5,13 +5,17 @@ const idCreationSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
     },
+    type:{
+      type : String ,
+      default:null
+    },
     prefix:{ // TD,KAFILA
         type: String,
         default: null
     },    
     suffix: { // 10000, 23232, etc
-      type: String,
-      default: null
+      type: Number,
+      default: 100000
     },
     description: { 
         type: String,

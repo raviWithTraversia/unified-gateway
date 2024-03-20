@@ -101,6 +101,12 @@ const agentConfigSchema = new mongoose.Schema({
     discountPercentage : {
       type : Number,
       default : 0
+    },
+    bookingPrefix : {
+      type : String
+    },
+    InvoiceingPrefix : {
+      type : String
     }
   },
   {

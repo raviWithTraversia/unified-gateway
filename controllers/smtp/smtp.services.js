@@ -32,7 +32,7 @@ const addSmtpConfig = async (req,res) => {
         throw error;
     }
 
-}
+};
 
 const removeSmtpConfig = async (req , res) => {
     const { companyId } = req.params;

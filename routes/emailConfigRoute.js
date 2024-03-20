@@ -149,6 +149,12 @@ email_config_route.post(
     emailController.addEmailConfig
 );
 
+email_config_route.patch(
+    '/getEmailConfig/upadteEmailConfig',
+    auth,
+    emailController.upadteEmailConfig
+);
+
 email_config_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

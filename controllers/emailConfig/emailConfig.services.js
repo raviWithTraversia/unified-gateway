@@ -14,6 +14,7 @@ const addEmailConfig = async (req, res) => {
       emailBcc,
       smptConfigId,
       status,
+      productType
     } = req.body;
 
     let isValidSmptConfigId = FUNC.checkIsValidId(smptConfigId);
@@ -66,6 +67,7 @@ const addEmailConfig = async (req, res) => {
         emailBcc,
         smptConfigId,
         status,
+        productType
       });
       await createEmailConfig.save();
       return {
@@ -82,7 +84,13 @@ const addEmailConfig = async (req, res) => {
 const getEmailConfig = async (req, res) => {
   try {
     const { companyId } = req.params;
-    let allEmailConfigData = await emailConfig.find({ companyId });
+    let allEmailConfigData = await emailConfig.find({ companyId }).populate({
+      path: 'EmailConfigDescriptionId',
+  })
+  .populate({
+      path: 'smptConfigId',
+      select: 'host port emailFrom _id ', 
+  });
     if (!allEmailConfigData || !allEmailConfigData.length) {
       return {
         response: "No any email config exist for this comapnyId",
@@ -100,9 +108,32 @@ const getEmailConfig = async (req, res) => {
   }
 };
 
+const upadteEmailConfig = async (req,res) => {
+  const { id } = req.query;
+  const updateFields = req.body;
+
+  try {
+    const updatedConfig = await emailConfig.findByIdAndUpdate(id, updateFields, { new: true });
+
+    if (!updatedConfig) {
+      return {
+         response: 'Email configuration not found'
+         };
+    }
+    return{
+       response: 'Email configuration updated successfully',
+        data : updatedConfig 
+      };
+  } catch (error) {
+    console.error('Error updating email configuration:', error);
+    throw error
+  }
+}
+
 
 
 module.exports = {
   getEmailConfig,
   addEmailConfig,
+  upadteEmailConfig
 };

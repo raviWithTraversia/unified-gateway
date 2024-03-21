@@ -69,16 +69,23 @@ const removeSmtpConfig = async (req,res) => {
             ServerStatusCode.BAD_REQUEST,
             true )
 
-    }else {
+    }else if(result.response == "Smtp configured mail deleted sucessfully" ){
         apiSucessRes(
             res,
             CrudMessage.REMOVE_SMTP,
             result.response,
             ServerStatusCode.SUCESS_CODE
             )
+    }
+    else {
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.BAD_REQUEST,
+            true 
+            )
 
     }
-
     }catch(error){
         console.log(error);
         apiErrorres(

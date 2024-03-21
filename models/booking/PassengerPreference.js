@@ -45,7 +45,7 @@ const passengerPreferenceSchema = new mongoose.Schema({
     PAX_PRF_Lounge_Code: { type: String ,default: null },
     PAX_PRF_Lounge_Name: { type: String ,default: null },
     PAX_PRF_IsWebCheckin: {  type: String, default: null },
-    Status: { typr: String, default:null },       
+    // status: { typr: String, default:null },       
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

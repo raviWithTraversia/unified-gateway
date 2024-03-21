@@ -4,6 +4,14 @@ const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const Role = require("../../models/Role");
 const fareFamilyMaster = require("../../models/FareFamilyMaster");
+const passengerDetails = require("../../models/booking/PassengerDetails");
+const passengerPreference = require("../../models/booking/PassengerPreference");
+const amountCharges = require("../../models/booking/amountCharges");
+const contactDetails = require("../../models/booking/contactDetails");
+const sectorDetails = require("../../models/booking/sectorDetails");
+const sectorMaster = require("../../models/booking/sectorMaster");
+const BookingDetails = require("../../models/booking/BookingDetails");
+
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
@@ -276,7 +284,7 @@ const KafilaFun = async (
     // Live Url here
     credentialType = "P";
     createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
-    //flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FPNR`;
+    flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FPNR`;
   } else {
     // Test Url here
     createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
@@ -515,6 +523,7 @@ const KafilaFun = async (
 
       //let getToken = response.data.Result;
       const newArray = await Promise.all(ItineraryPriceCheckResponses.map(async (item) => {
+        //let BookingDetailsCreate = await BookingDetails.create({userId:});
         let requestDataFSearch = {
           FareChkRes: {
             Error: item.Error,
@@ -544,7 +553,8 @@ const KafilaFun = async (
             return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
           }
       
-          return fSearchApiResponse.data;
+          return fSearchApiResponse.data;          
+
         } catch (error) {
           return  error.message;
         }

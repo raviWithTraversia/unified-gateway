@@ -84,7 +84,6 @@ const removeSmtpConfig = async (req,res) => {
             ServerStatusCode.BAD_REQUEST,
             true 
             )
-
     }
     }catch(error){
         console.log(error);
@@ -96,10 +95,45 @@ const removeSmtpConfig = async (req,res) => {
     }
 }
 
+const updateSmtpConfig = async (req,res) => {
+ try{
+const result = await smtpServices.updateSmtpConfig(req,res);
+if(result.response == 'Smtp Data Updated Successfully'){
+    apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+        )
+}else if(result.response == 'Smtp Data Not Updated'){
+    apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true 
+        )
+}else{
+    apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.BAD_REQUEST,
+        true 
+        )
+}
+
+ }catch(error){
+    apiErrorres(
+        res,
+        errorResponse.SOMETHING_WRONG,
+        ServerStatusCode.SERVER_ERROR,
+        true ) 
+ }
+}
 
 
 module.exports = {
     smtpConfig,
     addSmtpConfig,
-    removeSmtpConfig
+    removeSmtpConfig,
+    updateSmtpConfig
 }

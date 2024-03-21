@@ -123,7 +123,7 @@ smtp_route.post(
 
 
 smtp_route.delete(
-    '/smtp/remove/smtpConfig/:companyId',
+    '/smtp/remove/smtpConfig',
     auth,
     smtpController.removeSmtpConfig
       

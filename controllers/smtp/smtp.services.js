@@ -47,7 +47,6 @@ const removeSmtpConfig = async (req , res) => {
             response : "Smtp configured not deleted"
         }
     }
-
     } catch (error) {
         console.log(error);
         throw error;
@@ -64,9 +63,35 @@ const removeSmtpConfig = async (req , res) => {
 //     }
 // }
 
+const updateSmtpConfig = async (req, res) => {
+    try {
+        let id = req.query.id; 
+        const updates = req.body;
+       // console.log(updates)
+        let updateSmtpData = await SmtpConfig.findByIdAndUpdate(
+            id,
+            updates,
+            { new: true }
+        )
+        if (updateSmtpData) {
+            return {
+                response: 'Smtp Data Updated Successfully',
+                data: updateSmtpData
+            }
+        } else {
+            return {
+                response: 'Smtp Data Not Updated'
+            }
+        }
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
 
 module.exports = {
     smtpConfig,
     addSmtpConfig,
-    removeSmtpConfig
+    removeSmtpConfig,
+    updateSmtpConfig
 }

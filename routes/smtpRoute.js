@@ -134,6 +134,12 @@ smtp_route.delete(
 //     smtpController.updateSmtpConfig
 // )
 
+smtp_route.patch(
+    '/smtp/updateSmtpConfig',
+    auth,
+    smtpController.updateSmtpConfig     
+);
+
 smtp_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

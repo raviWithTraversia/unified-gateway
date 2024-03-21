@@ -35,12 +35,18 @@ const addSmtpConfig = async (req,res) => {
 };
 
 const removeSmtpConfig = async (req , res) => {
-    const { companyId } = req.params;
+    const { id } = req.query;
     try{
-     await SmtpConfig.deleteOne({companyId});
-     return {
-        response : "Smtp configured mail deleted sucessfully"
-     }
+    let deleteSmtp = await SmtpConfig.deleteOne({_id : id});
+    if(deleteSmtp){
+        return {
+            response : "Smtp configured mail deleted sucessfully"
+         }
+    }else{
+        return {
+            response : "Smtp configured not deleted"
+        }
+    }
 
     } catch (error) {
         console.log(error);

@@ -113,6 +113,7 @@ const addAgencyGroup = async (req, res) => {
       isDefault,
       companyId,
       name,
+      ssrCommercialGroupId
     } = req.body;
     let agencyGroupNameExist =
     await agencyGroupModel.findOne({
@@ -145,6 +146,7 @@ const addAgencyGroup = async (req, res) => {
       name,
       createdBy: req.user._id,
       modifyBy: req.user._id,
+      ssrCommercialGroupId
     });
     newAgencyGroup = await newAgencyGroup.save();
     if (newAgencyGroup) {

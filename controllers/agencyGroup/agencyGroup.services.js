@@ -8,6 +8,7 @@ const fareRuleGroupModel = require('../../models/FareRuleGroup');
 const diSetupGroupModel = require('../../models/DiSetupGroup');
 const paymentGatewayGroupModel = require('../../models/paymentGatewayChargesGroup');
 const airlinePromoCodeGroupModel = require('../../models/AirlinePromoCodeGroup');
+const ssrCommercialGroupModel = require('../../models/SsrCommercialGroup');
 
 
 const createDefaultDistributerGroup = async (companyId, isDefault, name) => {
@@ -20,7 +21,9 @@ const createDefaultDistributerGroup = async (companyId, isDefault, name) => {
       fareRuleGroup,
       diSetupGroup,
       paymentGatewayGroup,
-      airlinePromoCodeGroup
+      airlinePromoCodeGroup,
+      ssrCommercialGroup
+
     ] = await Promise.all([
       privilagePlanModel.findOne({ isDefault: true }),
       commercialPlanModel.findOne({ isDefault: true }),
@@ -29,7 +32,9 @@ const createDefaultDistributerGroup = async (companyId, isDefault, name) => {
       fareRuleGroupModel.findOne({ isDefault: true }),
       diSetupGroupModel.findOne({ isDefault: true }),
       paymentGatewayGroupModel.findOne({ isDefault: true }),
-      airlinePromoCodeGroupModel.findOne({ isDefault: true })
+      airlinePromoCodeGroupModel.findOne({ isDefault: true }),
+      ssrCommercialGroupModel.findOne({ isDefault: true})
+
     ]);
 
     let privilagePlanId = privilagePlan ? privilagePlan._id : null;
@@ -40,6 +45,7 @@ const createDefaultDistributerGroup = async (companyId, isDefault, name) => {
     let diSetupGroupId = diSetupGroup ? diSetupGroup._id : null;
     let pgChargesGroupId = paymentGatewayGroup ? paymentGatewayGroup._id : null;
     let airlinePromoCodeGroupId = airlinePromoCodeGroup ? airlinePromoCodeGroup._id : null;
+    let ssrCommercialGroupId = ssrCommercialGroup ? ssrCommercialGroup._id : null;
 
     let agencyGroupNameExist = await agencyGroupModel.findOne({
       companyId: companyId,
@@ -68,6 +74,7 @@ const createDefaultDistributerGroup = async (companyId, isDefault, name) => {
       diSetupGroupId,
       airlinePromoCodeGroupId,
       pgChargesGroupId,
+      ssrCommercialGroupId,
       isDefault,
       companyId,
       name,

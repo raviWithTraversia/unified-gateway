@@ -51,7 +51,7 @@ const removeSmtpConfig = async (req , res) => {
         console.log(error);
         throw error;
     }
-}
+};
 
 // const updateSmtpConfig = async (req,res) => {
 //     const { companyId } = req.params;
@@ -87,7 +87,7 @@ const updateSmtpConfig = async (req, res) => {
         console.log(error);
         throw error;
     }
-}
+};
 
 module.exports = {
     smtpConfig,

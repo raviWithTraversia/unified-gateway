@@ -8,6 +8,9 @@ const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
+const airlineCodeModel = require('../../models/AirlineCode');
+const ssrCommercialModel = require('../../models/SsrCommercial');
+const moment = require("moment");
 
 const specialServiceReq = async (req,res) => {
   try{
@@ -351,6 +354,7 @@ const KafilaFun = async (
       //   console.log("========>>>ssss",fSearchApiResponse.data.Ancl.Seat, "<<<<jjjjjjjjjjjjjj")
         let seat =  processSsrArray(fSearchApiResponse.data.Ancl.Seat,supplier);
        fSearchApiResponse.data.Ancl.Seat = seat;
+      // fSearchApiResponse.ssrCommercialData = await ssrCommercialData()
         return {
           IsSucess: true,
           response: fSearchApiResponse.data,
@@ -377,6 +381,7 @@ const findCountryCodeByCode = (airportDetails,countryCode) => {
     const airport = airportDetails.find(airport => airport.Airport_Code === countryCode);
     return airport ? airport.Country_Code : null;
 };
+
 
 
 
@@ -442,6 +447,17 @@ let res = {
     }
 ]
 };
+
+const ssrCommercialData = async (TypeOfTrip,DepartureDate,FlightName) => {
+  let airlineCodeId = await airlineCodeModel.find({airlineCode : FlightName });
+  airlineCodeId = airlineCodeId._id;
+  let data1 = moment('DepartureDate');
+  let ssrCommercialsData = await ssrCommercialModel.find({
+    travelType : TypeOfTrip,
+    airlineCodeId : airlineCodeId,
+  });
+  return ssrCommercialsData;
+}
 
 module.exports = {
   specialServiceReq 

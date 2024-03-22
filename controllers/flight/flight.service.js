@@ -262,7 +262,7 @@ async function handleflight(
   //     response: commonArray.IsSucess ? commonArray.response : commonArray,
   //   };
    
-}
+};
 
 const KafilaFun = async (
   Authentication,
@@ -945,5 +945,5 @@ const findCountryCodeByCode = (airportDetails,countryCode) => {
 };
 
 module.exports = {
-  getSearch,
+  getSearch
 };

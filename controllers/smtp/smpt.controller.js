@@ -57,7 +57,8 @@ const addSmtpConfig = async (req,res) => {
          ServerStatusCode.SERVER_ERROR,
          true )
     }
-}
+};
+
 
 const removeSmtpConfig = async (req,res) => {
     try{
@@ -93,7 +94,7 @@ const removeSmtpConfig = async (req,res) => {
          ServerStatusCode.SERVER_ERROR,
          true )
     }
-}
+};
 
 const updateSmtpConfig = async (req,res) => {
  try{
@@ -128,7 +129,7 @@ if(result.response == 'Smtp Data Updated Successfully'){
         ServerStatusCode.SERVER_ERROR,
         true ) 
  }
-}
+};
 
 
 module.exports = {

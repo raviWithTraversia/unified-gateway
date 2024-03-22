@@ -20,7 +20,7 @@ const addAgentConfiguration = async (req, res) => {
       fareTypes,
       UserId,
       agencyGroupId,
-      discountPercentage
+      discountPercentage,
     } = req.body;
     let userId = req.user._id;
     let checkIsRole = await userModel
@@ -235,7 +235,7 @@ const getUserProfile = async (req,res) => {
     console.log(error);
     throw error
   }
-}
+};
 module.exports = {
   addAgentConfiguration,
   updateAgentConfiguration,

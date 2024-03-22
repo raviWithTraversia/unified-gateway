@@ -57,6 +57,11 @@ const agentConfigSchema = new mongoose.Schema({
         ref: "paymentGatewayGroupModel",
         default : null
   },
+  ssrCommercialGroupId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ssrCommercialGroup",
+    default : null
+  },
     portalLedgerAllowed: {
       type: Boolean
     },

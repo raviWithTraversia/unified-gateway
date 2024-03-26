@@ -30,6 +30,9 @@ const addSsrCommercial = async(req,res) => {
           if( bookingType){
             query.bookingType = bookingType
           }
+          if(travelType){
+            query.travelType = travelType
+          }
           
          
       let checkIsSsrCommercialExist = await ssrCommercialModel.find(query);

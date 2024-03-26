@@ -19,11 +19,14 @@ const addSsrCommercial = async(req,res) => {
           } = req.body;
           let query = {
             supplierCode: supplierCode,
-            companyId: companyId
+            companyId: companyId,
           };
           
           if (airlineCodeId) {
             query.airlineCodeId = airlineCodeId;
+          }
+          if( bookingType){
+            query.bookingType = bookingType
           }
           
           

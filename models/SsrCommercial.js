@@ -46,7 +46,8 @@ const serviceRequestSchema = new mongoose.Schema({
   },
   airlineCodeId: {
     type : mongoose.Schema.Types.ObjectId,
-    ref : 'AirlineCode'
+    ref : 'AirlineCode',
+    default : null
   },
   travelType: {
     type: String,

@@ -95,6 +95,17 @@ const specialServiceReq = async (req,res) => {
         response: result.response,
       };
     } else {
+     let DepartureDate = Segments[0].DepartureDate;
+     let AirlinesData = ssrReqData.SelectedFlight[0].FCode;
+    // console.log("<<<<",AirlinesData, ">>>>>>>>>>>>>>>>>>>>")
+      let tmcSsrData  = await ssrCommercialData(TravelType,DepartureDate,AirlinesData);
+      //console.log("===>>>>>>>>>>>>>>>>>>>>>>>>",tmcSsrData);
+      if(tmcSsrData){
+        result.tmcSsrData = tmcSsrData
+      }else{
+        result.tmcSsrData = null
+      }
+     
       return {
         response: "Fetch Data Successfully",
         data: result,
@@ -449,13 +460,14 @@ let res = {
 };
 
 const ssrCommercialData = async (TypeOfTrip,DepartureDate,FlightName) => {
-  let airlineCodeId = await airlineCodeModel.find({airlineCode : FlightName });
+  let airlineCodeId = await airlineCodeModel.findOne({airlineCode : FlightName });
   airlineCodeId = airlineCodeId._id;
-  let data1 = moment('DepartureDate');
-  let ssrCommercialsData = await ssrCommercialModel.find({
-    travelType : TypeOfTrip,
-    airlineCodeId : airlineCodeId,
-  });
+ let ssrCommercialsData = await ssrCommercialModel.find({
+  travelType: TypeOfTrip,
+  airlineCodeId: airlineCodeId,
+  validDateFrom: { $lte: new Date(DepartureDate) },
+  validDateTo: { $gte: new Date(DepartureDate) } 
+});
   return ssrCommercialsData;
 }
 

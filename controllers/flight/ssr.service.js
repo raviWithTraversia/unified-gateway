@@ -98,16 +98,15 @@ const specialServiceReq = async (req,res) => {
     } else {
      let DepartureDate = Segments[0].DepartureDate;
      let AirlinesData = ssrReqData.SelectedFlight[0].FCode;
-     console.log("<<<<",Authentication, ">>>>>>>>>>>>>>>>>>>>")
-    // await ssrCommercialGroup(Authentication.UserId)
-      let tmcSsrData  = await ssrCommercialData(TravelType,DepartureDate,AirlinesData);
+   //  console.log("<<<<",Authentication, ">>>>>>>>>>>>>>>>>>>>")
+     let tmcSsrData = await ssrCommercialGroup(Authentication.UserId,TravelType,DepartureDate,AirlinesData) || null
+     // let tmcSsrData  = await ssrCommercialData(TravelType,DepartureDate,AirlinesData);
       //console.log("===>>>>>>>>>>>>>>>>>>>>>>>>",tmcSsrData);
       if(tmcSsrData){
         result.tmcSsrData = tmcSsrData
       }else{
         result.tmcSsrData = null
       }
-     
       return {
         response: "Fetch Data Successfully",
         data: result,
@@ -353,7 +352,7 @@ const KafilaFun = async (
         );
         //logger.info(fSearchApiResponse.data);
         
-       console.log(fSearchApiResponse.data, "API Responce");
+      // console.log(fSearchApiResponse.data, "API Responce");
 
         if (fSearchApiResponse.data.Status == "failed") {
           return {
@@ -448,7 +447,7 @@ const seatArr = [];
 //   seatArr.push(result);
 // });
 
-console.log(seatArr);
+//console.log(seatArr);
 let res = {
     "Number":"3",
     "Facilities":[
@@ -470,31 +469,44 @@ let res = {
 ]
 };
 
-const ssrCommercialGroup = async (userId) => {
-  console.log("mmmmmm", userId)
+const ssrCommercialGroup = async (userId,TypeOfTrip,DepartureDate,FlightName) => {
+  //console.log("mmmmmm", userId)
   let ssrCommercialGroup = await agencyConfigModel.findOne({ userId })
   .populate({
     path: 'agencyGroupId',
     populate: { 
       path: 'ssrCommercialGroupId',
       populate: {
-        path: 'ssrCommercialIds', // Assuming 'ssrCommercialIds' needs to be populated from another collection.
-        model: 'SSRCommercial' // This should be the name of the model you're populating from.
+        path: 'ssrCommercialIds', 
+        model: 'ssrCommercial'
       }
     }
   });
-console.log("pppppppppppppppppppppp",ssrCommercialGroup)
+//console.log("=======>>>",ssrCommercialGroup,"<<<===========")
+//console.log("pppppppppppppppppppppp",ssrCommercialGroup.agencyGroupId.ssrCommercialGroupId.ssrCommercialIds);
+let ssrCommercialGroupData = ssrCommercialGroup?.agencyGroupId?.ssrCommercialGroupId?.ssrCommercialIds;
+let ssrCommercialBestMatch = []
+for(let i = 0 ; i < ssrCommercialGroupData.length; i++ ){
+  let airlineCodeId ;
+  console.log(ssrCommercialGroupData[i].airlineCodeId);
+ let airlineCodeData = await airlineCodeModel.findById(ssrCommercialGroupData[i].airlineCodeId);
+ // moment(currentTimestamp).isAfter(moment(otpData[0]?.otpExpireTime))
+ if(airlineCodeData.airlineCode == FlightName  && ssrCommercialGroupData[i].travelType == TypeOfTrip &&
+   moment(DepartureDate).isAfter(moment(ssrCommercialGroupData[i].validDateFrom) ) 
+   && moment(DepartureDate).isBefore(moment(ssrCommercialGroupData[i].validDateTo) )){
+    ssrCommercialBestMatch.push(ssrCommercialGroupData[i])
+ }else if( moment(DepartureDate).isAfter(moment(ssrCommercialGroupData[i].validDateFrom) ) 
+ && moment(DepartureDate).isBefore(moment(ssrCommercialGroupData[i].validDateTo) ) && airlineCodeData.airlineCode == FlightName){
+  ssrCommercialBestMatch.push(ssrCommercialGroupData[i])
+ }else if( moment(DepartureDate).isAfter(moment(ssrCommercialGroupData[i].validDateFrom) ) 
+ && moment(DepartureDate).isBefore(moment(ssrCommercialGroupData[i].validDateTo) ) && ssrCommercialGroupData[i].travelType == TypeOfTrip){
+  ssrCommercialBestMatch.push(ssrCommercialGroupData[i])
+ }else{
+  ssrCommercialBestMatch.push(null)
+ }
 }
-const ssrCommercialData = async (TypeOfTrip,DepartureDate,FlightName) => {
-  let airlineCodeId = await airlineCodeModel.findOne({airlineCode : FlightName });
-  airlineCodeId = airlineCodeId._id;
- let ssrCommercialsData = await ssrCommercialModel.find({
-  travelType: TypeOfTrip,
-  airlineCodeId: airlineCodeId,
-  validDateFrom: { $lte: new Date(DepartureDate) },
-  validDateTo: { $gte: new Date(DepartureDate) } 
-});
-  return ssrCommercialsData;
+return ssrCommercialBestMatch;
+//console.log("===>", ssrCommercialBestMatch, "<<<<====================kkkkkkkkkkkkkkkkkkkkkkk")
 }
 
 module.exports = {

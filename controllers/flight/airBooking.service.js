@@ -4,12 +4,7 @@ const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const Role = require("../../models/Role");
 const fareFamilyMaster = require("../../models/FareFamilyMaster");
-const passengerDetails = require("../../models/booking/PassengerDetails");
-const passengerPreference = require("../../models/booking/PassengerPreference");
-const amountCharges = require("../../models/booking/amountCharges");
-const contactDetails = require("../../models/booking/contactDetails");
-const sectorDetails = require("../../models/booking/sectorDetails");
-const sectorMaster = require("../../models/booking/sectorMaster");
+const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
 
 const axios = require("axios");
@@ -210,7 +205,7 @@ async function handleflight(
       }
     })
   );
-  // delete this one  
+  // delete this one
   return {
     IsSucess: true,
     response: responsesApi.flat(),
@@ -278,6 +273,7 @@ const KafilaFun = async (
       response: "Type of trip does not exist",
     };
   }
+
   // add api with here oneway round multicity
   let credentialType = "D";
   if (Authentication.CredentialType === "LIVE") {
@@ -369,6 +365,7 @@ const KafilaFun = async (
     PWD: supplier.supplierPassword,
     Version: "1.0.0.0.0.0",
   };
+
   try {
     let response = await axios.post(createTokenUrl, tokenData, {
       headers: {
@@ -376,192 +373,293 @@ const KafilaFun = async (
       },
     });
     if (response.data.Status === "success") {
-      // const newArray = ItineraryPriceCheckResponses.map((item) => {
-      //   const sectorsall = item.Sectors.map((sector) => ({
-      //     Id: 0,
-      //     Src: sector.Departure.Code,
-      //     SrcName: sector.Departure.CityName,
-      //     Des: sector.Arrival.Code,
-      //     DesName: sector.Arrival.CityName,
-      //     FLogo: "",
-      //     FCode: sector.AirlineCode,
-      //     FName: sector.AirlineName,
-      //     FNo: sector.FltNum,
-      //     DDate: sector.Departure.Date,
-      //     ADate: sector.Arrival.Date,
-      //     DTrmnl: sector.Departure.Terminal,
-      //     ATrmnl: sector.Arrival.Terminal,
-      //     DArpt: sector.Departure.Name,
-      //     AArpt: sector.Arrival.Name,
-      //     Dur: sector.FlyingTime,
-      //     layover: "",
-      //     Seat: sector.NoSeats,
-      //     FClass: sector.Class,
-      //     PClass: sector.CabinClass,
-      //     FBasis: sector.FareBasisCode,
-      //     FlightType: sector.EquipType,
-      //     OI: sector.OI,
-      //   }));
+      const createBooking = async (newItem) => {
+        try {          
+            let bookingDetailsCreate = await BookingDetails.create(newItem);
 
-      //   const Adt = item.PriceBreakup[1]
-      //     ? {
-      //         Basic: item.PriceBreakup[0]?.BaseFare || 0,
-      //         Yq:
-      //           item.PriceBreakup[0]?.TaxBreakup.find(
-      //             (tax) => tax.TaxType === "YQ"
-      //           )?.Amount || 0,
-      //         Taxes: item.PriceBreakup[0]?.Tax || 0,
-      //         Total:
-      //           (item.PriceBreakup[0]?.BaseFare || 0) +
-      //           (item.PriceBreakup[0]?.TaxBreakup.find(
-      //             (tax) => tax.TaxType === "YQ"
-      //           )?.Amount || 0) +
-      //           (item.PriceBreakup[0]?.Tax || 0),
-      //       }
-      //     : null;
+            return {
+              msg: "Booking created successfully",
+              bookingId: newItem.bookingId,
+              bid: bookingDetailsCreate._id,
+            };          
+         
+        } catch (error) {
+          // console.error('Error creating booking:', error);
+          return {
+            IsSucess: false,
+            response: "Error creating booking:",
+            error,
+          };
+        }
+      };
+      try {
+        const existingBooking = await BookingDetails.findOne({
+          bookingId: ItineraryPriceCheckResponses[0].BookingId,
+        });
+        if (existingBooking) {
+          return {
+            msg: "Booking already exists",
+            bookingId: newItem.bookingId,
+          };
+        } 
+      } catch (error) {
+        // console.error('Error creating booking:', error);
+        return {
+          IsSucess: false,
+          response: "Error creating booking:",
+          error,
+        };
+      }
+      const newArray = await Promise.all(
+        ItineraryPriceCheckResponses?.map(async (itineraryItem) => {
+          const sectorsArray = itineraryItem?.Sectors?.map((sector) => {
+            // Construct departure and arrival objects
+            const departure = {
+              Terminal: sector.Departure?.Terminal,
+              Date: sector.Departure?.Date,
+              Time: sector.Departure?.Time,
+              Day: sector.Departure?.Day,
+              DateTimeStamp: sector.Departure?.DateTimeStamp,
+              Code: sector.Departure?.Code,
+              Name: sector.Departure?.Name,
+              CityCode: sector.Departure?.CityCode,
+              CityName: sector.Departure?.CityName,
+              CountryCode: sector.Departure?.CountryCode,
+              CountryName: sector.Departure?.CountryName,
+            };
+      
+            const arrival = {
+              Terminal: sector.Arrival?.Terminal,
+              Date: sector.Arrival?.Date,
+              Time: sector.Arrival?.Time,
+              Day: sector.Arrival?.Day,
+              DateTimeStamp: sector.Arrival?.DateTimeStamp,
+              Code: sector.Arrival?.Code,
+              Name: sector.Arrival?.Name,
+              CityCode: sector.Arrival?.CityCode,
+              CityName: sector.Arrival?.CityName,
+              CountryCode: sector.Arrival?.CountryCode,
+              CountryName: sector.Arrival?.CountryName,
+            };
+      
+            // Construct sector object
+            const sectorObject = {
+              AirlineCode: sector.AirlineCode,
+              AirlineName: sector.AirlineName,
+              Class: sector.Class,
+              CabinClass: sector.CabinClass,
+              FltNum: sector.FltNum,
+              FlyingTime: sector.FlyingTime,
+              TravelTime: sector.TravelTime,
+              Departure: departure,
+              Arrival: arrival,
+            };
+      
+            return sectorObject; // Return the constructed sector object
+          });
+      
+          // Construct PriceBreakup array
+          const priceBreakupArray = itineraryItem?.PriceBreakup?.map((price) => {
+            return {
+              PassengerType: price.PassengerType,
+              NoOfPassenger: price.NoOfPassenger,
+              Tax: price.Tax,
+              BaseFare: price.BaseFare,
+              TaxBreakup: price?.TaxBreakup?.map((tax) => ({
+                TaxType: tax.TaxType,
+                Amount: tax.Amount,
+              })),
+              CommercialBreakup: price?.CommercialBreakup?.map((commercial) => ({
+                CommercialType: commercial.CommercialType,
+                onCommercialApply: commercial.onCommercialApply,
+                Amount: commercial.Amount,
+                SupplierType: commercial.SupplierType,
+              })),
+              AgentMarkupBreakup: {
+                BookingFee: price?.AgentMarkupBreakup?.BookingFee,
+                Basic: price?.AgentMarkupBreakup?.Basic,
+                Tax: price?.AgentMarkupBreakup?.Tax,
+              },
+            };
+          });
+      
+          // Construct item object with populated itineraryArray
+          const newItem = {
+            userId: Authentication?.UserId,
+            companyId: Authentication?.CompanyId,
+            bookingId: itineraryItem?.BookingId, // Changed from item?.BookingId to itineraryItem?.BookingId
+            prodBookingId: itineraryItem?.IndexNumber,
+            provider: itineraryItem?.Provider,
+            bookingType: "Automated",
+            bookingStatus: "PENDING",
+            bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
+            Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
+            travelType: TravelType,
+            itinerary: {
+              UID: itineraryItem.UID,
+              BaseFare: itineraryItem.BaseFare,
+              Taxes: itineraryItem.Taxes,
+              TotalPrice: itineraryItem.TotalPrice,
+              GrandTotal: itineraryItem.GrandTotal,
+              FareFamily: itineraryItem.FareFamily,
+              IndexNumber: itineraryItem.IndexNumber,
+              Provider: itineraryItem.Provider,
+              ValCarrier: itineraryItem.ValCarrier,
+              LastTicketingDate: itineraryItem.LastTicketingDate,
+              TravelTime: itineraryItem.TravelTime,
+              PriceBreakup: priceBreakupArray,
+              Sectors: sectorsArray,
+            },
+          };
+      
+          return await createBooking(newItem); // Call function to create booking
+        })
+      );
+      
 
-      //   const Chd =
-      //     Object.keys(item.PriceBreakup[1]).length !== 0
-      //       ? {
-      //           Basic: item.PriceBreakup[1]?.BaseFare || 0,
-      //           Yq:
-      //             item.PriceBreakup[1]?.TaxBreakup.find(
-      //               (tax) => tax.TaxType === "YQ"
-      //             )?.Amount || 0,
-      //           Taxes: item.PriceBreakup[1]?.Tax || 0,
-      //           Total:
-      //             (item.PriceBreakup[1]?.BaseFare || 0) +
-      //             (item.PriceBreakup[1]?.TaxBreakup.find(
-      //               (tax) => tax.TaxType === "YQ"
-      //             )?.Amount || 0) +
-      //             (item.PriceBreakup[1]?.Tax || 0),
-      //         }
-      //       : null;
+        
+      // return newArray;
+      //console.log(newArray);
+      if (Array.isArray(newArray) && newArray.length > 0) {
+        const response = newArray[0];       
+        
+        if (response.msg === "Booking created successfully") {
+          const passengerPreferencesData = PassengerPreferences;
+          const passengerPreference = new passengerPreferenceModel({
+            userId: Authentication?.UserId,
+            companyId: Authentication?.CompanyId,
+            bookingId: response?.bookingId,
+            bid: response?.bid,
+            PaxEmail: passengerPreferencesData?.PaxEmail,
+            PaxMobile: passengerPreferencesData?.PaxMobile,
+            Passengers: passengerPreferencesData?.Passengers?.map(
+              (passenger) => ({
+                PaxType: passenger?.PaxType,
+                passengarSerialNo: passenger?.passengarSerialNo,
+                Title: passenger?.Title,
+                FName: passenger?.FName,
+                LName: passenger?.LName,
+                Gender: passenger?.Gender,
+                Dob: passenger?.Dob,
+                Optional: {
+                  TicketNumber: passenger?.Optional?.TicketNumber,
+                  PassportNo: passenger?.Optional.PassportNo,
+                  PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
+                  FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,
+                  Nationality: passenger?.Optional?.Nationality,
+                  ResidentCountry: passenger?.Optional?.ResidentCountry,
+                },
+                Meal: passenger?.Meal,
+                Baggage: passenger?.Baggage,
+                Seat: passenger?.Seat,
+              })
+            ),
+            modifyBy: Authentication?.UserId,
+          });
+          await passengerPreference.save();
+          
+          const hitAPI = await Promise.all(
+            ItineraryPriceCheckResponses.map(async (item) => {
+              let requestDataFSearch = {
+                FareChkRes: {
+                  Error: item.Error,
+                  IsFareUpdate: item.IsFareUpdate,
+                  IsAncl: item.IsAncl,
+                  Param: item.Param,
+                  SelectedFlight: [item.SelectedFlight],
+                  FareBreakup: item.FareDifference,
+                  GstData: item.GstData,
+                  Ancl: null,
+                },
+                PaxInfo: PassengerPreferences,
+              };
+    
+              try {
+                let fSearchApiResponse = await axios.post(
+                  flightSearchUrl,
+                  requestDataFSearch,
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+    
+                if (fSearchApiResponse.data.Status == "failed") {
+                  return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
+                }
+                const bookingResponce = {
+                    CartId: item.BookingId,
+                    bookingResponce: { 
+                        CurrentStatus: fSearchApiResponse.data.BookingInfo.CurrentStatus,
+                        BookingStatus: fSearchApiResponse.data.BookingInfo.BookingStatus,
+                        BookingRemark: fSearchApiResponse.data.BookingInfo.BookingRemark,
+                        BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
+                        PNR: fSearchApiResponse.data.BookingInfo.APnr,
+                        Type: fSearchApiResponse.data.BookingInfo.GPnr
+                    }, 
+                    itinerary: item,
+                    PassengerPreferences:PassengerPreferences            
+                  };
+                  await BookingDetails.updateOne(
+                    { bookingId: item?.bookingId, "itinerary.IndexNumber": item.IndexNumber }, 
+                    { $set: { bookingStatus: fSearchApiResponse.data.BookingInfo.CurrentStatus } }
+                  );
+                  
+                 //return fSearchApiResponse.data;
+                return bookingResponce;
+              } catch (error) {
+                return error.message;
+              }
+            })
+          );  
+          return hitAPI;
+        //   const itineraryArray = await Promise.all(hitAPI?.map(async (itineraryItem) => {
+        //     try {
+        //       const bookingData = await BookingDetails.find({ bookingId: response?.bookingId, itinerary.Sectors:itineraryItem.Param.Sector[0].Src, itinerary.Sectors:Param.Sector[0].Des });
+        //       const passengerPreferenceData = await passengerPreferenceModel.findOne({ bookingId: response?.bookingId });
+              
+        //         return {
+        //             BookingInfo: { 
+        //                 CurrentStatus: itineraryItem.BookingInfo.CurrentStatus,
+        //                 BookingStatus: itineraryItem.BookingInfo.BookingStatus,
+        //                 BookingRemark: itineraryItem.BookingInfo.BookingRemark,
+        //                 BookingId: itineraryItem.BookingInfo.BookingId,
+        //                 PNR: itineraryItem.BookingInfo.APnr,
+        //                 Type: itineraryItem.BookingInfo.GPnr
+        //             },
+        //             itinerary: bookingData,  // Replace "daddda" with the actual itinerary data
+        //         };
+        //     } catch (error) {
+        //         console.error("Error fetching booking data:", error);
+        //         return null; // Or handle the error as needed
+        //     }
+        // }));
+        
+        
+          // const bookingResponce = {
+          //   CartId: response?.bookingId,
+          //   bookingResponce:itineraryArray             
+          // };
+          // return {
+          //   IsSuccess: true,
+          //   response: bookingResponce,
+          // };      
+          // Continue with further actions if needed
+        } else {
+          return "Booking already exists";
+        }
+      } else {
+        return "Some Technical Issue";
+      }
 
-      //   const Inf =
-      //     Object.keys(item.PriceBreakup[2]).length !== 0
-      //       ? {
-      //           Basic: item.PriceBreakup[2]?.BaseFare || 0,
-      //           Yq:
-      //             item.PriceBreakup[2]?.TaxBreakup.find(
-      //               (tax) => tax.TaxType === "YQ"
-      //             )?.Amount || 0,
-      //           Taxes: item.PriceBreakup[2]?.Tax || 0,
-      //           Total:
-      //             (item.PriceBreakup[2]?.BaseFare || 0) +
-      //             (item.PriceBreakup[2]?.TaxBreakup.find(
-      //               (tax) => tax.TaxType === "YQ"
-      //             )?.Amount || 0) +
-      //             (item.PriceBreakup[2]?.Tax || 0),
-      //         }
-      //       : null;
-
-      //   return {
-      //     PId: 0,
-      //     Id: 0,
-      //     TId: 0,
-      //     Src: Segments[0].Origin,
-      //     Des: Segments[0].Destination,
-      //     FCode: item.ValCarrier,
-      //     FName: "",
-      //     FNo: "",
-      //     DDate: "",
-      //     ADate: "",
-      //     Dur: "",
-      //     Stop: "",
-      //     Seat: 0,
-      //     Sector: "",
-      //     Itinerary: sectorsall,
-      //     Fare: {
-      //       GrandTotal: item.TotalPrice,
-      //       BasicTotal: item.BaseFare,
-      //       YqTotal: 0,
-      //       TaxesTotal: item.Taxes,
-      //       Adt: Adt,
-      //       Chd: Chd,
-      //       Inf: Inf,
-      //       OI: item.PriceBreakup[0]?.OI || null,
-      //     },
-      //     FareRule: {
-      //       CBNBG: "7KG",
-      //       CHKNBG: "15KG",
-      //       CBH: "96HRS",
-      //       CWBH: "96HRS-4HRS",
-      //       RBH: "96HRS",
-      //       RWBH: "96HRS-4HRS",
-      //       CBHA: 3000,
-      //       CWBHA: 3600,
-      //       RBHA: 2850,
-      //       RWBHA: 3350,
-      //       SF: 50.0,
-      //     },
-      //     Alias: item.FareFamily,
-      //     FareType: item.FareType,
-      //     PFClass: "A-R",
-      //     Offer: {
-      //       Msg: "",
-      //       Refund: "",
-      //       IsPromoAvailable: true,
-      //       IsGstMandatory: false,
-      //       IsLcc: true,
-      //     },
-      //     OI: item.OI,
-      //     Deal: {
-      //       NETFARE: 13439,
-      //       TDISC: 553,
-      //       TDS: 28,
-      //       GST: 100,
-      //       DISCOUNT: {
-      //         DIS: 553,
-      //         SF: 0,
-      //         PDIS: 0,
-      //         CB: 0,
-      //       },
-      //     },
-      //   };
-      // });
+      //return newArray;
 
       //let getToken = response.data.Result;
-      const newArray = await Promise.all(ItineraryPriceCheckResponses.map(async (item) => {
-        //let BookingDetailsCreate = await BookingDetails.create({userId:});
-        let requestDataFSearch = {
-          FareChkRes: {
-            Error: item.Error,
-            IsFareUpdate: item.IsFareUpdate,
-            IsAncl: item.IsAncl,
-            Param: item.Param,
-            SelectedFlight: [item.SelectedFlight],
-            FareBreakup: item.FareDifference,
-            GstData: item.GstData,
-            Ancl: null,
-          },
-          PaxInfo: PassengerPreferences,
-        };
       
-        try {
-          let fSearchApiResponse = await axios.post(
-            flightSearchUrl,
-            requestDataFSearch,
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-      
-          if (fSearchApiResponse.data.Status == "failed") {
-            return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
-          }
-      
-          return fSearchApiResponse.data;          
 
-        } catch (error) {
-          return  error.message;
-        }
-      }));
-      
-      return newArray;
-      
+      return hitAPI;
+
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;
       let apiResponseCommon = [];

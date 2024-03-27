@@ -11,7 +11,7 @@ const flightCache = new NodeCache();
 const airlineCodeModel = require('../../models/AirlineCode');
 const ssrCommercialModel = require('../../models/SsrCommercial');
 const moment = require("moment");
-const agencyConfigModel = require('../../models/AgentConfig')
+const agencyConfigModel = require('../../models/AgentConfig');
 
 const specialServiceReq = async (req,res) => {
   try{
@@ -472,7 +472,17 @@ let res = {
 
 const ssrCommercialGroup = async (userId) => {
   console.log("mmmmmm", userId)
-let ssrCommercialGroup = await agencyConfigModel.findOne({userId})//.populate('ssrCommercialGroupId');
+  let ssrCommercialGroup = await agencyConfigModel.findOne({ userId })
+  .populate({
+    path: 'agencyGroupId',
+    populate: { 
+      path: 'ssrCommercialGroupId',
+      populate: {
+        path: 'ssrCommercialIds', // Assuming 'ssrCommercialIds' needs to be populated from another collection.
+        model: 'SSRCommercial' // This should be the name of the model you're populating from.
+      }
+    }
+  });
 console.log("pppppppppppppppppppppp",ssrCommercialGroup)
 }
 const ssrCommercialData = async (TypeOfTrip,DepartureDate,FlightName) => {

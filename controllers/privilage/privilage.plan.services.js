@@ -200,20 +200,6 @@ const privilagePlanPatch = async(req , res) => {
         const privilagePlanId = req.params.privilagePlanId;
         // check privilage name already exist behalf of company id
         const checkPrivilagePlanNameExist = await PrivilagePlan.findOne({ _id : _id});
-        console.log(checkPrivilagePlanNameExist)
-        if (privilagePlanName != checkPrivilagePlanNameExist?.privilagePlanName) {
-            
-            const checkPrivilage = await PrivilagePlan.find({ companyId : companyId });
-           
-            const oldNameExists = checkPrivilage.some(checkPrivilage => checkPrivilage.privilagePlanName.toLowerCase() === privilagePlanName.toLowerCase());
-            
-            if(oldNameExists) {
-                return {
-                    response: 'privilage plan name already exist'
-                }
-            }
-        }
-       
         const updatePrivilage =  await PrivilagePlan.findByIdAndUpdate(_id, {
             privilagePlanName : privilagePlanName,
             productPlanId : productPlanId,

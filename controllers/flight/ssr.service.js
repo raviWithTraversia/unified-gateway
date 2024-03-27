@@ -99,7 +99,7 @@ const specialServiceReq = async (req,res) => {
      let DepartureDate = Segments[0].DepartureDate;
      let AirlinesData = ssrReqData.SelectedFlight[0].FCode;
      console.log("<<<<",Authentication, ">>>>>>>>>>>>>>>>>>>>")
-     await ssrCommercialGroup(Authentication.UserId)
+    // await ssrCommercialGroup(Authentication.UserId)
       let tmcSsrData  = await ssrCommercialData(TravelType,DepartureDate,AirlinesData);
       //console.log("===>>>>>>>>>>>>>>>>>>>>>>>>",tmcSsrData);
       if(tmcSsrData){

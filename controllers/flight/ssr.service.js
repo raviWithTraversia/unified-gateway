@@ -90,7 +90,7 @@ const specialServiceReq = async (req,res) => {
       RefundableOnly,
       ssrReqData
     );
-    console.log("============>>>MMMMMMMMMM", result , "<<<============nnnnnnnnnnnnnnnnnnnn")
+  //  console.log("============>>>MMMMMMMMMM", result , "<<<============nnnnnnnnnnnnnnnnnnnn")
     if (!result.IsSucess) {
       return {
         response: result.response,
@@ -98,8 +98,8 @@ const specialServiceReq = async (req,res) => {
     } else {
      let DepartureDate = Segments[0].DepartureDate;
      let AirlinesData = ssrReqData.SelectedFlight[0].FCode;
-    // console.log("<<<<",AirlinesData, ">>>>>>>>>>>>>>>>>>>>")
-    await ssrCommercialGroup(Authentication.userId)
+     console.log("<<<<",Authentication, ">>>>>>>>>>>>>>>>>>>>")
+     await ssrCommercialGroup(Authentication.UserId)
       let tmcSsrData  = await ssrCommercialData(TravelType,DepartureDate,AirlinesData);
       //console.log("===>>>>>>>>>>>>>>>>>>>>>>>>",tmcSsrData);
       if(tmcSsrData){
@@ -405,7 +405,7 @@ const processSsrArray = (reqArray, provider) => {
   reqArray.forEach(seatGroups => {
       seatGroups.forEach(seats => {
           seats.forEach(seat => {
-              const { SeatRow, SeatCode, Avlt, Currency, SsrDesc, Price, OI, Compartemnt,FCode,FNo,FType ,Src,Des,Group,DDate} = seat;
+              const { SeatRow, SeatCode, Avlt, Currency, SsrDesc, Price, Compartemnt,FCode,FNo,FType ,Src,Des,Group,DDate,Deck,OI} = seat;
               let seatRowObj = resArray.SeatRow.find(row => row.Number === seat.SeatRow);
               if (!seatRowObj) {
                   seatRowObj = { Number: seat.SeatRow, Facilities: [] };
@@ -428,7 +428,8 @@ const processSsrArray = (reqArray, provider) => {
                   Src : Src,
                   Des : Des,
                   Group : Group,
-                  DDate : DDate
+                  DDate : DDate,
+                  Deck : Deck
 
               });
           });
@@ -470,6 +471,7 @@ let res = {
 };
 
 const ssrCommercialGroup = async (userId) => {
+  console.log("mmmmmm", userId)
 let ssrCommercialGroup = await agencyConfigModel.findOne({userId})//.populate('ssrCommercialGroupId');
 console.log("pppppppppppppppppppppp",ssrCommercialGroup)
 }

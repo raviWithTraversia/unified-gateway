@@ -200,8 +200,8 @@ const privilagePlanPatch = async(req , res) => {
         const privilagePlanId = req.params.privilagePlanId;
         // check privilage name already exist behalf of company id
         const checkPrivilagePlanNameExist = await PrivilagePlan.findOne({ _id : _id});
-        
-        if (privilagePlanName != checkPrivilagePlanNameExist.privilagePlanName) {
+        console.log(checkPrivilagePlanNameExist)
+        if (privilagePlanName != checkPrivilagePlanNameExist?.privilagePlanName) {
             
             const checkPrivilage = await PrivilagePlan.find({ companyId : companyId });
            
@@ -250,6 +250,7 @@ const privilagePlanPatch = async(req , res) => {
         }
 
     } catch (error) {
+        console.log(error)
         throw error
     }
 }

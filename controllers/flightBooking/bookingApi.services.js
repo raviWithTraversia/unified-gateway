@@ -93,6 +93,92 @@ const getAllBooking = async (req, res) => {
             data: allBookingData,
         };
     }
+}else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer" ){
+    let filter = { companyId: checkUserIdExist.company_ID };
+    if (agencyId !== undefined && agencyId.trim() !== "") {
+        filter.userId._id = agencyId;
+    }
+
+    if (bookingId !== undefined && bookingId.trim() !== "") {
+        filter.bookingId = bookingId;
+    }
+    // if (pnr !== undefined && pnr.trim() !== "") {
+    //     filter.pnr = pnr;
+    // }
+    if (status !== undefined && status.trim() !== "") {
+        filter.bookingStatus = status;
+    }
+
+    if (fromDate !== undefined && fromDate.trim() !== "") {
+        filter.bookingDateTime = { ...filter.bookingDateTime, $gte: fromDate };
+    }
+
+    if (toDate !== undefined && toDate.trim() !== "") {
+        filter.bookingDateTime = { ...filter.bookingDateTime, $lte: toDate };
+    }
+    
+    const bookingDetails = await bookingdetails.find(filter).populate('userId');
+
+    if (!bookingDetails || bookingDetails.length === 0) {
+        return {
+            response: "Data Not Found",
+        };
+    } else {
+        const allBookingData = [];
+
+        await Promise.all(bookingDetails.map(async (booking) => {
+            const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+            allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference });
+        }));
+
+        return {
+            response: "Fetch Data Successfully",
+            data: allBookingData,
+        };
+    }
+}else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" ){
+    let filter = {};
+    if (agencyId !== undefined && agencyId.trim() !== "") {
+        filter.userId._id = agencyId;
+    }
+
+    if (bookingId !== undefined && bookingId.trim() !== "") {
+        filter.bookingId = bookingId;
+    }
+    // if (pnr !== undefined && pnr.trim() !== "") {
+    //     filter.pnr = pnr;
+    // }
+    if (status !== undefined && status.trim() !== "") {
+        filter.bookingStatus = status;
+    }
+
+    if (fromDate !== undefined && fromDate.trim() !== "") {
+        filter.bookingDateTime = { ...filter.bookingDateTime, $gte: fromDate };
+    }
+
+    if (toDate !== undefined && toDate.trim() !== "") {
+        filter.bookingDateTime = { ...filter.bookingDateTime, $lte: toDate };
+    }
+    
+    const bookingDetails = await bookingdetails.find(filter).populate('userId');
+
+    if (!bookingDetails || bookingDetails.length === 0) {
+        return {
+            response: "Data Not Found",
+        };
+    } else {
+        const allBookingData = [];
+
+        await Promise.all(bookingDetails.map(async (booking) => {
+            const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+            allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference });
+        }));
+
+        return {
+            response: "Fetch Data Successfully",
+            data: allBookingData,
+        };
+    }
 }
 
   

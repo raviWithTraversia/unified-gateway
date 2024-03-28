@@ -27,6 +27,14 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    src: {
+      type: String,
+      default: null,
+    },
+    des: {
+      type: String,
+      default: null,
+    },
     bookingDateTime: {      
       type: Date,
       default: Date.now,
@@ -83,7 +91,7 @@ const bookingDetailsSchema = new mongoose.Schema(
     },
     bookingCancelDate: {
       type: Date,
-      default: Date.now(),
+      default: null,
     },
     invoiceNo: {
       type: String,
@@ -124,7 +132,80 @@ const bookingDetailsSchema = new mongoose.Schema(
       GSTPhoneNumber: { type: String, default: null },
       GSTAddress: { type: String, default: null },
       GSTStateCode: { type: String, default: null },
-    },    
+    },
+    itinerary: {
+      UID:{ type: String, default: null },      
+      BaseFare:{ type: Number, default: null },
+      Taxes:{ type: Number, default: null },
+      TotalPrice:{ type: Number, default: null },
+      GrandTotal:{ type: Number, default: null },      
+      FareFamily:{ type: String, default: null }, 
+      IndexNumber:{ type: Number, default: 0 },
+      Provider:{ type: String, default: null },
+      ValCarrier:{ type: String, default: null },
+      LastTicketingDate:{ type: String, default: null },
+      TravelTime:{ type: String, default: null },
+      PriceBreakup:[{
+      PassengerType:{ type: String, default: null },
+      NoOfPassenger:{ type: Number, default: null },
+      Tax:{ type: Number, default: null },
+      BaseFare:{ type: Number, default: null },
+      TaxBreakup:[{
+        TaxType:{ type: String, default: null },
+        Amount:{ type: Number, default: null }
+      }],
+      CommercialBreakup:[{
+        CommercialType: { type: String, default: null },
+        onCommercialApply: { type: String, default: null },
+        Amount: { type: Number, default: null },
+        SupplierType: { type: String, default: null }
+      }],
+      AgentMarkupBreakup:{
+        BookingFee: { type: Number, default: null },
+        Basic: { type: Number, default: null },
+        Tax: { type: Number, default: null },
+      },  
+      }],
+      Sectors:[{        
+        AirlineCode:{ type: String, default: null },
+        AirlineName:{ type: String, default: null },
+        Class:{ type: String, default: null },
+        CabinClass:{ type: String, default: null },        
+        FltNum:{ type: String, default: null },        
+        FlyingTime:{ type: String, default: null },
+        TravelTime:{ type: String, default: null }, 
+        Departure:{
+        Terminal:{ type: String, default: null },
+        Date:{ type: Date, default: null },
+        Time:{ type: Date, default: null },
+        Day:{ type: Date, default: null },
+        DateTimeStamp:{ type: Date, default: null },
+        Code:{ type: String, default: null },
+        Name:{ type: String, default: null },
+        CityCode:{ type: String, default: null },
+        CityName:{ type: String, default: null },
+        CountryCode:{ type: String, default: null },
+        CountryName:{ type: String, default: null }
+        },
+        Arrival:{
+        Terminal:{ type: String, default: null },
+        Date:{ type: String, default: null },
+        Time:{ type: String, default: null },
+        Day:{ type: Date, default: null },
+        DateTimeStamp:{ type: String, default: null },
+        Code:{ type: String, default: null },
+        Name:{ type: String, default: null },
+        CityCode:{ type: String, default: null },
+        CityName:{ type: String, default: null },
+        CountryCode:{ type: String, default: null },
+        CountryName:{ type: String, default: null }
+        }   
+
+      }],
+      IsFareUpdate:{ type: String, default: true },
+      IsAncl:{ type: String, default: false },      
+      TraceId:{ type: String, default: null }
+      },    
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

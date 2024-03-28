@@ -7,5 +7,6 @@ const flight = require('../../controllers/flightBooking/flightBooking.controller
 
 flight_booking_route.post('/flightbooking/idcreation' , flight.getIdCreation);
 flight_booking_route.post('/flightbooking/allBooking' , flight.getAllBooking);
+flight_booking_route.post('/flightbooking/getBookingByBookingId' , flight.getBookingByBookingId);
 
 module.exports = flight_booking_route;

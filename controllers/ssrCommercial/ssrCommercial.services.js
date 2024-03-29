@@ -19,15 +19,24 @@ const addSsrCommercial = async(req,res) => {
           } = req.body;
           let query = {
             supplierCode: supplierCode,
-            companyId: companyId
+            companyId: companyId,
           };
           
           if (airlineCodeId) {
             query.airlineCodeId = airlineCodeId;
+          }else{
+            query.airlineCodeId = null
+          }
+          if( bookingType){
+            query.bookingType = bookingType
+          }
+          if(travelType){
+            query.travelType = travelType
           }
           
-          
+         
       let checkIsSsrCommercialExist = await ssrCommercialModel.find(query);
+      console.log("+++++++",checkIsSsrCommercialExist)
       if(checkIsSsrCommercialExist.length > 0){
         return {
             response : 'This Combination Of SSR Commercial Already Exist'
@@ -35,7 +44,7 @@ const addSsrCommercial = async(req,res) => {
       }
           const newServiceRequest = new ssrCommercialModel({
             bookingType,
-            airlineCodeId,
+            airlineCodeId : airlineCodeId || null,
             travelType,
             supplierCode,
             validDateFrom,
@@ -71,7 +80,6 @@ const getSsrCommercialByCompany = async (req,res) => {
     try{
     let {companyId, bookingType} = req.query;
     let query = {};
-    query.status = true;
     if(companyId){
       query.companyId = companyId   
     }

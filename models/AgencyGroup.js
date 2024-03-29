@@ -34,6 +34,11 @@ const agencyGroupSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "airlinePromoCodeGroupModel",
     },
+    ssrCommercialGroupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ssrCommercialGroup",
+      default: null
+    },
     isDefault: {
       type: Boolean,
       default: false,

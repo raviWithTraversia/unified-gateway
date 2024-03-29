@@ -199,27 +199,17 @@ const privilagePlanPatch = async(req , res) => {
         const _id = req.params.privilagePlanId;
         const privilagePlanId = req.params.privilagePlanId;
         // check privilage name already exist behalf of company id
+        console.log(_id)
         const checkPrivilagePlanNameExist = await PrivilagePlan.findOne({ _id : _id});
-        
-        if (privilagePlanName != checkPrivilagePlanNameExist.privilagePlanName) {
-            
-            const checkPrivilage = await PrivilagePlan.find({ companyId : companyId });
-           
-            const oldNameExists = checkPrivilage.some(checkPrivilage => checkPrivilage.privilagePlanName.toLowerCase() === privilagePlanName.toLowerCase());
-            
-            if(oldNameExists) {
-                return {
-                    response: 'privilage plan name already exist'
-                }
-            }
-        }
-       
+        let data = await PrivilagePlan.findById(_id)
+        console.log(data)
         const updatePrivilage =  await PrivilagePlan.findByIdAndUpdate(_id, {
             privilagePlanName : privilagePlanName,
             productPlanId : productPlanId,
             status,
         }, { new: true })
         // privious plan has permission deleted.
+        console.log("=====>>>",updatePrivilage, "<<<<===========")
         const result = await privilagePlanHasPermission.deleteMany({ privilagePlanId: _id });
 
         // Add privilagePlanHasPermission
@@ -250,6 +240,7 @@ const privilagePlanPatch = async(req , res) => {
         }
 
     } catch (error) {
+        console.log(error)
         throw error
     }
 }

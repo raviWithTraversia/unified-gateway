@@ -74,7 +74,14 @@ const getAllBooking = async (req, res) => {
         filter.bookingDateTime = { ...filter.bookingDateTime, $lte: toDate };
     }
     
-    const bookingDetails = await bookingdetails.find(filter).populate('userId');
+    const bookingDetails = await bookingdetails.find(filter)
+    .populate({
+        path: 'userId',
+        populate: {
+            path: 'company_ID'
+        }
+    });
+
 
     if (!bookingDetails || bookingDetails.length === 0) {
         return {
@@ -117,7 +124,13 @@ const getAllBooking = async (req, res) => {
         filter.bookingDateTime = { ...filter.bookingDateTime, $lte: toDate };
     }
     
-    const bookingDetails = await bookingdetails.find(filter).populate('userId');
+    const bookingDetails = await bookingdetails.find(filter)
+    .populate({
+        path: 'userId',
+        populate: {
+            path: 'company_ID'
+        }
+    });
 
     if (!bookingDetails || bookingDetails.length === 0) {
         return {
@@ -160,8 +173,13 @@ const getAllBooking = async (req, res) => {
         filter.bookingDateTime = { ...filter.bookingDateTime, $lte: toDate };
     }
     
-    const bookingDetails = await bookingdetails.find(filter).populate('userId');
-
+    const bookingDetails = await bookingdetails.find(filter)
+    .populate({
+        path: 'userId',
+        populate: {
+            path: 'company_ID'
+        }
+    });   
     if (!bookingDetails || bookingDetails.length === 0) {
         return {
             response: "Data Not Found",

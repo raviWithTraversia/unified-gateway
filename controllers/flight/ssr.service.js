@@ -90,30 +90,30 @@ const specialServiceReq = async (req,res) => {
       RefundableOnly,
       ssrReqData
     );
-  //  console.log("============>>>MMMMMMMMMM", result , "<<<============nnnnnnnnnnnnnnnnnnnn")
-    if (!result.IsSucess) {
-      return {
-        response: result.response,
-      };
+    //console.log("============>>>MMMMMMMMMM", result?.response.IsSucess , "<<<============nnnnnnnnnnnnnnnnnnnn")
+    if (!result?.response?.IsSucess) {      
+     return {
+      response: "Data Not Found",
+    };
     } else {
-     let DepartureDate = Segments[0].DepartureDate;
-     let AirlinesData = ssrReqData.SelectedFlight[0].FCode;
-   //  console.log("<<<<",Authentication, ">>>>>>>>>>>>>>>>>>>>")
+     let DepartureDate = Segments[0]?.DepartureDate;
+     let AirlinesData = ssrReqData?.SelectedFlight[0]?.FCode;
+    //console.log("<<<<",Authentication.UserId, TravelType,DepartureDate,AirlinesData ,">>>>>>>>>>>>>>>>>>>>")
      let tmcSsrData = await ssrCommercialGroup(Authentication.UserId,TravelType,DepartureDate,AirlinesData) || null
-     // let tmcSsrData  = await ssrCommercialData(TravelType,DepartureDate,AirlinesData);
-      //console.log("===>>>>>>>>>>>>>>>>>>>>>>>>",tmcSsrData);
-      if(tmcSsrData){
+     // let tmcSsrData  = await ssrCommercialData(TravelType,DepartureDate,AirlinesData);      
+      if(tmcSsrData && tmcSsrData.length > 0){
         result.tmcSsrData = tmcSsrData
       }else{
         result.tmcSsrData = null
       }
-      if(tmcSsrData != null){
-        let seatObj = result.response.response.Ancl.Seat.SeatRow ;
-        let mealObj = result.response.response.Ancl.Meals ;
+      //console.log("===>>>>>>>>>>>>>>>>>>>>>>>>",tmcSsrData);
+      if(tmcSsrData != null && tmcSsrData.length > 0){
+        let seatObj = result.response.response.Ancl.Seat.SeatRow;
+        let mealObj = result.response.response.Ancl.Meals;
         let baggageObj = result.response.response.Ancl.Baggage;
-        let seatSsr = tmcSsrData[0].seat;
-        let baggageSsr =  tmcSsrData[0].meal ;
-        let mealSsr = tmcSsrData[0].baggage;
+        let seatSsr = tmcSsrData[0]?.seat;
+        let baggageSsr =  tmcSsrData[0]?.meal;
+        let mealSsr = tmcSsrData[0]?.baggage;
   
         result.response.response.Ancl.Seat.SeatRow = rePriceSeat(seatObj,seatSsr);
         result.response.response.Ancl.Meals = rePriceMeal(mealObj,mealSsr);
@@ -184,7 +184,7 @@ async function handleflight(
         console.error("Error fetching airport details:", error);
         airportDetails = null;
     }
-  
+    
     if (!TraceId) {
       return {
         IsSucess: false,
@@ -198,7 +198,7 @@ async function handleflight(
         try {
           switch (supplier.supplierCodeId.supplierCode) {
             case "Kafila":
-              return   res = await KafilaFun(
+              return res = await KafilaFun(
       Authentication,
       TypeOfTrip,
       Segments,
@@ -251,7 +251,7 @@ const KafilaFun = async (
   supplier,
   ssrReqData
   ) => {
-   
+    
     let createTokenUrl;
     let flightSearchUrl;
     // Apply APi for Type of trip ( ONEWAY / ROUNDTRIP / MULTYCITY )
@@ -351,7 +351,7 @@ const KafilaFun = async (
       });
       if (response.data.Status === "success") { 
         let getToken = response.data.Result;
-
+        
       let requestDataFSearch = ssrReqData
         let fSearchApiResponse = await axios.post(
           flightSearchUrl,
@@ -375,7 +375,9 @@ const KafilaFun = async (
               fSearchApiResponse.data.WarningMessage,
           };
         }
-      //   console.log("========>>>ssss",fSearchApiResponse.data.Ancl.Seat, "<<<<jjjjjjjjjjjjjj")
+          
+         //console.log("========>>>ssss",fSearchApiResponse.data, "<<<<jjjjjjjjjjjjjj")
+        if(fSearchApiResponse.data.Ancl.Seat && fSearchApiResponse.data.Ancl.Seat.length > 0) {          
         let seat =  processSsrArray(fSearchApiResponse.data.Ancl.Seat,supplier);
        fSearchApiResponse.data.Ancl.Seat = seat;
       // fSearchApiResponse.ssrCommercialData = await ssrCommercialData()
@@ -384,6 +386,12 @@ const KafilaFun = async (
           response: fSearchApiResponse.data,
          // apiReq: fSearchApiResponse.data
         };
+      }else{        
+        return {
+          IsSucess: false,
+          response: [],
+        };
+      }
       } else {
         return {
           IsSucess: false,
@@ -412,7 +420,6 @@ const findCountryCodeByCode = (airportDetails,countryCode) => {
 let provider = "Kafila"
 const processSsrArray = (reqArray, provider) => {
   const resArray = { SeatRow: [] };
-
   reqArray.forEach(seatGroups => {
       seatGroups.forEach(seats => {
           seats.forEach(seat => {
@@ -446,7 +453,7 @@ const processSsrArray = (reqArray, provider) => {
           });
       });
   });
-
+  
   return resArray;
 };
 
@@ -482,7 +489,7 @@ let res = {
 };
 
 const ssrCommercialGroup = async (userId,TypeOfTrip,DepartureDate,FlightName) => {
-  //console.log("mmmmmm", userId)
+  //console.log("mmmmmm", userId,TypeOfTrip,DepartureDate, FlightName)
   let ssrCommercialGroup = await agencyConfigModel.findOne({ userId })
   .populate({
     path: 'agencyGroupId',
@@ -495,28 +502,31 @@ const ssrCommercialGroup = async (userId,TypeOfTrip,DepartureDate,FlightName) =>
     }
   });
 //console.log("=======>>>",ssrCommercialGroup,"<<<===========")
-//console.log("pppppppppppppppppppppp",ssrCommercialGroup.agencyGroupId.ssrCommercialGroupId.ssrCommercialIds);
+//console.log("pppppppppppppppppppppp",ssrCommercialGroup.agencyGroupId.ssrCommercialGroupId);
 let ssrCommercialGroupData = ssrCommercialGroup?.agencyGroupId?.ssrCommercialGroupId?.ssrCommercialIds;
-let ssrCommercialBestMatch = []
-for(let i = 0 ; i < ssrCommercialGroupData.length; i++ ){
-  let airlineCodeId ;
-  console.log(ssrCommercialGroupData[i].airlineCodeId);
- let airlineCodeData = await airlineCodeModel.findById(ssrCommercialGroupData[i].airlineCodeId);
- // moment(currentTimestamp).isAfter(moment(otpData[0]?.otpExpireTime))
- if(airlineCodeData.airlineCode == FlightName  && ssrCommercialGroupData[i].travelType == TypeOfTrip &&
-   moment(DepartureDate).isAfter(moment(ssrCommercialGroupData[i].validDateFrom) ) 
-   && moment(DepartureDate).isBefore(moment(ssrCommercialGroupData[i].validDateTo) )){
+let ssrCommercialBestMatch = [];
+if(ssrCommercialGroupData != null){
+  for(let i = 0 ; i < ssrCommercialGroupData.length; i++ ){
+    let airlineCodeId ;
+    //console.log(ssrCommercialGroupData[i].airlineCodeId);
+   let airlineCodeData = await airlineCodeModel.findById(ssrCommercialGroupData[i].airlineCodeId);
+   // moment(currentTimestamp).isAfter(moment(otpData[0]?.otpExpireTime))
+   if(airlineCodeData.airlineCode == FlightName  && ssrCommercialGroupData[i].travelType == TypeOfTrip &&
+     moment(DepartureDate).isAfter(moment(ssrCommercialGroupData[i].validDateFrom) ) 
+     && moment(DepartureDate).isBefore(moment(ssrCommercialGroupData[i].validDateTo) )){
+      ssrCommercialBestMatch.push(ssrCommercialGroupData[i])
+   }else if( moment(DepartureDate).isAfter(moment(ssrCommercialGroupData[i].validDateFrom) ) 
+   && moment(DepartureDate).isBefore(moment(ssrCommercialGroupData[i].validDateTo) ) && airlineCodeData.airlineCode == FlightName){
     ssrCommercialBestMatch.push(ssrCommercialGroupData[i])
- }else if( moment(DepartureDate).isAfter(moment(ssrCommercialGroupData[i].validDateFrom) ) 
- && moment(DepartureDate).isBefore(moment(ssrCommercialGroupData[i].validDateTo) ) && airlineCodeData.airlineCode == FlightName){
-  ssrCommercialBestMatch.push(ssrCommercialGroupData[i])
- }else if( moment(DepartureDate).isAfter(moment(ssrCommercialGroupData[i].validDateFrom) ) 
- && moment(DepartureDate).isBefore(moment(ssrCommercialGroupData[i].validDateTo) ) && ssrCommercialGroupData[i].travelType == TypeOfTrip){
-  ssrCommercialBestMatch.push(ssrCommercialGroupData[i])
- }else{
-  ssrCommercialBestMatch.push(null)
- }
+   }else if( moment(DepartureDate).isAfter(moment(ssrCommercialGroupData[i].validDateFrom) ) 
+   && moment(DepartureDate).isBefore(moment(ssrCommercialGroupData[i].validDateTo) ) && ssrCommercialGroupData[i].travelType == TypeOfTrip){
+    ssrCommercialBestMatch.push(ssrCommercialGroupData[i])
+   }else{
+    ssrCommercialBestMatch.push(null)
+   }
+  }
 }
+
 return ssrCommercialBestMatch;
 //console.log("===>", ssrCommercialBestMatch, "<<<<====================kkkkkkkkkkkkkkkkkkkkkkk")
 }
@@ -528,16 +538,16 @@ const rePriceSeat = (seatObj, seatSsr) => {
               for (let key in facility) {
                   if (key === 'TotalPrice' && facility[key] > 0) {
                       let price = facility[key];
-                      let markupPercent = (price / 100) * seatSsr.markup.percentCharge;
-                      let discountPercent = (price / 100) * seatSsr.discount.percentCharge;
-                      let totalMarkup = markupPercent + seatSsr.markup.fixCharge;
-                      let totalDiscount = discountPercent + seatSsr.discount.fixCharge;
+                      let markupPercent = (price / 100) * seatSsr?.markup?.percentCharge;
+                      let discountPercent = (price / 100) * seatSsr?.discount?.percentCharge;
+                      let totalMarkup = markupPercent + seatSsr?.markup?.fixCharge;
+                      let totalDiscount = discountPercent + seatSsr?.discount?.fixCharge;
                       
-                      if (totalMarkup >= seatSsr.markup.maxValue) {
-                          totalMarkup = seatSsr.markup.maxValue;
+                      if (totalMarkup >= seatSsr?.markup?.maxValue) {
+                          totalMarkup = seatSsr?.markup?.maxValue;
                       }
-                      if (totalDiscount >= seatSsr.discount.maxValue) {
-                          totalDiscount = seatSsr.discount.maxValue;
+                      if (totalDiscount >= seatSsr?.discount?.maxValue) {
+                          totalDiscount = seatSsr?.discount?.maxValue;
                       }
                       
                       let netMarkup = totalMarkup - totalDiscount;

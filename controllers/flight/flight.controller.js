@@ -117,7 +117,7 @@ const specialServiceReq = async (req , res) => {
    
   if (!result.response && result.isSometingMissing) {
     apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-  }else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid") {
+  }else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid" || result.response === "Data Not Found") {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
   }else if (result.response === "Fetch Data Successfully") {
     apiSucessRes(

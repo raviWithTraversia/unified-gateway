@@ -67,11 +67,11 @@ const getAllBooking = async (req, res) => {
     }
 
     if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = { ...filter.bookingDateTime, $gte: fromDate };
+        filter.bookingDateTime = { ...filter.bookingDateTime, $lte: fromDate };
     }
 
     if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = { ...filter.bookingDateTime, $lte: toDate };
+        filter.bookingDateTime = { ...filter.bookingDateTime, $gte: toDate };
     }
     
     const bookingDetails = await bookingdetails.find(filter)
@@ -117,11 +117,11 @@ const getAllBooking = async (req, res) => {
     }
 
     if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = { ...filter.bookingDateTime, $gte: fromDate };
+        filter.bookingDateTime = { ...filter.bookingDateTime, $lte: fromDate };
     }
 
     if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = { ...filter.bookingDateTime, $lte: toDate };
+        filter.bookingDateTime = { ...filter.bookingDateTime, $gte: toDate };
     }
     
     const bookingDetails = await bookingdetails.find(filter)
@@ -166,11 +166,11 @@ const getAllBooking = async (req, res) => {
     }
 
     if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = { ...filter.bookingDateTime, $gte: fromDate };
+        filter.bookingDateTime = { ...filter.bookingDateTime, $lte: fromDate };
     }
 
     if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = { ...filter.bookingDateTime, $lte: toDate };
+        filter.bookingDateTime = { ...filter.bookingDateTime, $gte: toDate };
     }
     
     const bookingDetails = await bookingdetails.find(filter)

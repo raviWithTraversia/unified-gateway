@@ -1,8 +1,10 @@
 const express = require("express");
 const flight_booking_route = express();
 const bodyParser = require("body-parser");
-flight_booking_route.use(bodyParser.json());
-flight_booking_route.use(bodyParser.urlencoded({extended:true}));
+flight_booking_route.use(bodyParser.json({ limit: '50mb' }));
+flight_booking_route.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+// flight_booking_route.use(bodyParser.json());
+// flight_booking_route.use(bodyParser.urlencoded({extended:true}));
 const flight = require('../../controllers/flightBooking/flightBooking.controller');
 
 flight_booking_route.post('/flightbooking/idcreation' , flight.getIdCreation);

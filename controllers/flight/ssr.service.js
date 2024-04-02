@@ -553,11 +553,23 @@ const ssrCommercialGroup = async (
           model: "ssrCommercial",
         },
       },
+    }).populate({
+      path: "ssrCommercialGroupId",
+      populate: {
+        path: "ssrCommercialIds",
+        model: "ssrCommercial",
+      },
     });
   
-  //console.log("pppppppppppppppppppppp",ssrCommercialGroup.agencyGroupId.ssrCommercialGroupId.ssrCommercialIds);
-  let ssrCommercialGroupData =
-    ssrCommercialGroup?.agencyGroupId?.ssrCommercialGroupId?.ssrCommercialIds;
+  //console.log("pppppppppppppppppppppp",ssrCommercialGroup);
+  let ssrCommercialGroupData = null;
+  if (ssrCommercialGroup && ssrCommercialGroup.ssrCommercialGroupId != null) {    
+      ssrCommercialGroupData = ssrCommercialGroup.ssrCommercialGroupId.ssrCommercialIds;
+  } else {
+      ssrCommercialGroupData = ssrCommercialGroup?.agencyGroupId?.ssrCommercialGroupId?.ssrCommercialIds ?? null;
+  }
+  
+  
     
   let ssrCommercialBestMatch = [];
   if (ssrCommercialGroupData != null && ssrCommercialGroupData.length > 0) {
@@ -565,7 +577,8 @@ const ssrCommercialGroup = async (
       let airlineCodeId;
       let airlineCodeData = await airlineCodeModel.findById(
         ssrCommercialGroupData[i].airlineCodeId
-      );      
+      ); 
+      //console.log("pppppppppppppppppppppp",airlineCodeData);     
       // moment(currentTimestamp).isAfter(moment(otpData[0]?.otpExpireTime))
       if (airlineCodeData !== null) {
         // console.log("=======>>>", i ,'---',moment(DepartureDate).isAfter(
@@ -584,6 +597,7 @@ const ssrCommercialGroup = async (
           )
         ) {
           ssrCommercialBestMatch.push(ssrCommercialGroupData[i]);
+          break;
         } else if (
           moment(DepartureDate).isAfter(
             moment(ssrCommercialGroupData[i].validDateFrom)
@@ -594,6 +608,7 @@ const ssrCommercialGroup = async (
           airlineCodeData.airlineCode == FlightName
         ) {
           ssrCommercialBestMatch.push(ssrCommercialGroupData[i]);
+          break;
         } else if (
           moment(DepartureDate).isAfter(
             moment(ssrCommercialGroupData[i].validDateFrom)
@@ -604,6 +619,7 @@ const ssrCommercialGroup = async (
           ssrCommercialGroupData[i].travelType == TypeOfTrip
         ) {
           ssrCommercialBestMatch.push(ssrCommercialGroupData[i]);
+          break;
         } 
         // else {
         //   ssrCommercialBestMatch.push(null);

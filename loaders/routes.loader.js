@@ -22,6 +22,7 @@ const commercialAirPlanRoute = require('../routes/commercialAirPlanRoute');
 const fareFamilyRoute = require('../routes/fareFamilyMasterRoute');
 const verifyOtpRoute = require('../routes/verifyOtpRoute');
 const flightRoute = require('../routes/flight/flightRoute');
+const balanceManageRoute = require('../routes/balanceManageRoute');
 const flightBookingRoute = require('../routes/flight/flightBookingRoute');
 const carrierRoute = require('../routes/carrierRoute');
 const airCommercialRoute = require('../routes/airCommercialRoute');
@@ -135,6 +136,9 @@ class RoutesLoader {
         // Flight Route Start Here
         app.use("/api", flightRoute);
 
+        // Balance Manage Route
+        app.use("/api", balanceManageRoute);
+        
         // Flight Booking Route
         app.use("/api", flightBookingRoute);
         

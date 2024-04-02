@@ -3,6 +3,7 @@ const PromoCode = require("../../models/AirlinePromoCode");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const Role = require("../../models/Role");
+const UserModel = require("../../models/User");
 const fareFamilyMaster = require("../../models/FareFamilyMaster");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
@@ -285,6 +286,21 @@ const KafilaFun = async (
     // Test Url here
     createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
     flightSearchUrl = `http://stage1.ksofttechnology.com/api/FPNR`;
+  }
+  let getuserDetails;
+  try {
+     getuserDetails = await UserModel.findOne({
+      _id: Authentication.UserId,
+    }).populate('company_ID');
+    if (getuserDetails) {
+      getuserDetails = getuserDetails;
+    } else {
+      getuserDetails = "User Not Found";
+    } 
+  } catch (error) {
+    // console.error('Error creating booking:', error);
+    getuserDetails = "User Not Found";
+
   }
 
   let tripTypeValue;
@@ -596,14 +612,24 @@ const KafilaFun = async (
                         BookingRemark: fSearchApiResponse.data.BookingInfo.BookingRemark,
                         BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
                         PNR: fSearchApiResponse.data.BookingInfo.APnr,
-                        Type: fSearchApiResponse.data.BookingInfo.GPnr
+                        Type: fSearchApiResponse.data.BookingInfo.GPnr,
+                        APnr:fSearchApiResponse.data.BookingInfo.APnr,
+                        GPnr:fSearchApiResponse.data.BookingInfo.GPnr,
+                        TicketNumber:fSearchApiResponse.data.BookingInfo.APnr
                     }, 
                     itinerary: item,
-                    PassengerPreferences:PassengerPreferences            
+                    PassengerPreferences:PassengerPreferences,
+                    userDetails:getuserDetails           
                   };
                   await BookingDetails.updateOne(
                     { bookingId: item?.bookingId, "itinerary.IndexNumber": item.IndexNumber }, 
-                    { $set: { bookingStatus: fSearchApiResponse.data.BookingInfo.CurrentStatus } }
+                    { $set: { bookingStatus: fSearchApiResponse.data.BookingInfo.CurrentStatus,
+                      bookingRemarks: fSearchApiResponse.data.BookingInfo.BookingRemark,
+                      PNR: fSearchApiResponse.data.BookingInfo.APnr,                        
+                      APnr:fSearchApiResponse.data.BookingInfo.APnr,
+                      GPnr:fSearchApiResponse.data.BookingInfo.GPnr,
+                      TicketNumber:fSearchApiResponse.data.BookingInfo.APnr
+                    } }
                   );
                   
                  //return fSearchApiResponse.data;

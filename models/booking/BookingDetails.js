@@ -48,6 +48,22 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    PNR: {
+      type: String,
+      default: null,
+    },
+    APnr: {
+      type: String,
+      default: null,
+    },
+    GPnr: {
+      type: String,
+      default: null,
+    },
+    TicketNumber: {
+      type: String,
+      default: null,
+    },
     bookingTotalAmount: {
       type: Number,
       default: 0,

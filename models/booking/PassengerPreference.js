@@ -73,6 +73,7 @@ const passengerPreferenceSchema = new mongoose.Schema({
       Currency:{ type: String, default:null },
       Price:{ type: Number, default:null },
       Src:{ type: String, default:null },
+      SeatCode:{ type: String, default:null },
       Des:{ type: String, default:null },
       SsrFor:{ type: String, default:null },
       OI:{ type: String, default:null },

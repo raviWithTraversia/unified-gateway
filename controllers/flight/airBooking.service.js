@@ -301,7 +301,7 @@ const KafilaFun = async (
     // console.error('Error creating booking:', error);
     getuserDetails = "User Not Found";
 
-  }
+  } 
 
   let tripTypeValue;
   if (TravelType == "International") {
@@ -546,6 +546,7 @@ const KafilaFun = async (
             companyId: Authentication?.CompanyId,
             bookingId: response?.bookingId,
             bid: response?.bid,
+            GstData:passengerPreferencesData?.GstData,
             PaxEmail: passengerPreferencesData?.PaxEmail,
             PaxMobile: passengerPreferencesData?.PaxMobile,
             Passengers: passengerPreferencesData?.Passengers?.map(
@@ -614,8 +615,7 @@ const KafilaFun = async (
                         PNR: fSearchApiResponse.data.BookingInfo.APnr,
                         Type: fSearchApiResponse.data.BookingInfo.GPnr,
                         APnr:fSearchApiResponse.data.BookingInfo.APnr,
-                        GPnr:fSearchApiResponse.data.BookingInfo.GPnr,
-                        TicketNumber:fSearchApiResponse.data.BookingInfo.APnr
+                        GPnr:fSearchApiResponse.data.BookingInfo.GPnr                        
                     }, 
                     itinerary: item,
                     PassengerPreferences:PassengerPreferences,
@@ -627,14 +627,19 @@ const KafilaFun = async (
                       bookingRemarks: fSearchApiResponse.data.BookingInfo.BookingRemark,
                       PNR: fSearchApiResponse.data.BookingInfo.APnr,                        
                       APnr:fSearchApiResponse.data.BookingInfo.APnr,
-                      GPnr:fSearchApiResponse.data.BookingInfo.GPnr,
-                      TicketNumber:fSearchApiResponse.data.BookingInfo.APnr
+                      GPnr:fSearchApiResponse.data.BookingInfo.GPnr,                      
                     } }
                   );
                   
                  //return fSearchApiResponse.data;
                 return bookingResponce;
-              } catch (error) {
+              } catch (error) {               
+                await BookingDetails.updateOne(
+                  { bookingId: item?.bookingId, "itinerary.IndexNumber": item.IndexNumber }, 
+                  { $set: { bookingStatus: "FAILED",
+                    bookingRemarks: error.message                    
+                  } }
+                );
                 return error.message;
               }
             })

@@ -16,7 +16,13 @@ const passengerPreferenceSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "BookingDetails",
     },
-    //GstData:null,
+    GstData:{
+      gstNumber:{ type: String, default:null },
+      gstName:{ type: String, default:null },
+      gstmobile:{ type: String, default:null },
+      gstEmail:{ type: String, default:null },
+      gstAddress:{ type: String, default:null }
+    },
     PaxEmail:{ type: String, default:null },
     PaxMobile:{ type: String, default:null },
     Passengers:[{
@@ -50,7 +56,7 @@ const passengerPreferenceSchema = new mongoose.Schema({
       OI:{ type: String, default:null },
       }],
       Baggage:[{
-        Trip:{ type: String, default:null },
+      Trip:{ type: String, default:null },
       FCode:{ type: String, default:null },
       FNo:{ type: String, default:null },
       SsrCode:{ type: String, default:null },

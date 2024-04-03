@@ -6,8 +6,8 @@ const bodyParser = require("body-parser");
 // flight_route.use(bodyParser.json());
 // flight_route.use(bodyParser.urlencoded({extended:true}));
 
-flight_route.use(bodyParser.json({ limit: '50mb' }));
-flight_route.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+flight_route.use(bodyParser.json({ limit: '100mb' }));
+flight_route.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 
 const flight = require('../../controllers/flight/flight.controller');
 

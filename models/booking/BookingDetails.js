@@ -42,7 +42,7 @@ const bookingDetailsSchema = new mongoose.Schema(
     bookingStatus: {
       type: String,
       default: null,
-      // enum: ['INCOMPLETE', 'FAILED','CONFIRMED','CANCELLED','PENDING']
+      // enum: ['INCOMPLETE', 'FAILED','CONFIRMED','CANCELLED','PENDING',HOLD, HOLDRELEASED]
     },
     bookingRemarks: {
       type: String,
@@ -60,10 +60,7 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    TicketNumber: {
-      type: String,
-      default: null,
-    },
+    
     bookingTotalAmount: {
       type: Number,
       default: 0,

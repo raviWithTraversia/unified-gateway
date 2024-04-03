@@ -59,9 +59,9 @@ const getAllBooking = async (req, res) => {
     if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
     }
-    // if (pnr !== undefined && pnr.trim() !== "") {
-    //     filter.pnr = pnr;
-    // }
+    if (pnr !== undefined && pnr.trim() !== "") {
+        filter.PNR = pnr;
+    }
     if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
     }
@@ -88,6 +88,23 @@ const getAllBooking = async (req, res) => {
             response: "Data Not Found",
         };
     } else {
+
+      const statusCounts = {
+        "PENDING": 0,
+        "CONFIRMED": 0,
+        "FAILED": 0,
+        "CANCELLED": 0,
+        "INCOMPLETE": 0,
+        "HOLD": 0,
+        "HOLDRELEASED": 0
+    };
+    
+    // Iterate over the bookingDetails array
+    bookingDetails.forEach(booking => {
+        const status = booking.bookingStatus;
+        // Increment the count corresponding to the status
+        statusCounts[status]++;
+    });
         const allBookingData = [];
 
         await Promise.all(bookingDetails.map(async (booking) => {
@@ -97,7 +114,7 @@ const getAllBooking = async (req, res) => {
 
         return {
             response: "Fetch Data Successfully",
-            data: allBookingData,
+            data: {bookingList:allBookingData, statusCounts: statusCounts}
         };
     }
 }else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer" ){
@@ -109,9 +126,9 @@ const getAllBooking = async (req, res) => {
     if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
     }
-    // if (pnr !== undefined && pnr.trim() !== "") {
-    //     filter.pnr = pnr;
-    // }
+    if (pnr !== undefined && pnr.trim() !== "") {
+        filter.PNR = pnr;
+    }
     if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
     }
@@ -137,6 +154,23 @@ const getAllBooking = async (req, res) => {
             response: "Data Not Found",
         };
     } else {
+
+      const statusCounts = {
+        "PENDING": 0,
+        "CONFIRMED": 0,
+        "FAILED": 0,
+        "CANCELLED": 0,
+        "INCOMPLETE": 0,
+        "HOLD": 0,
+        "HOLDRELEASED": 0
+    };
+    
+    // Iterate over the bookingDetails array
+    bookingDetails.forEach(booking => {
+        const status = booking.bookingStatus;
+        // Increment the count corresponding to the status
+        statusCounts[status]++;
+    });
         const allBookingData = [];
 
         await Promise.all(bookingDetails.map(async (booking) => {
@@ -146,7 +180,7 @@ const getAllBooking = async (req, res) => {
 
         return {
             response: "Fetch Data Successfully",
-            data: allBookingData,
+            data: {bookingList:allBookingData, statusCounts: statusCounts}
         };
     }
 }else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" ){
@@ -158,9 +192,9 @@ const getAllBooking = async (req, res) => {
     if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
     }
-    // if (pnr !== undefined && pnr.trim() !== "") {
-    //     filter.pnr = pnr;
-    // }
+    if (pnr !== undefined && pnr.trim() !== "") {
+        filter.PNR = pnr;
+    }
     if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
     }
@@ -185,6 +219,22 @@ const getAllBooking = async (req, res) => {
             response: "Data Not Found",
         };
     } else {
+      const statusCounts = {
+        "PENDING": 0,
+        "CONFIRMED": 0,
+        "FAILED": 0,
+        "CANCELLED": 0,
+        "INCOMPLETE": 0,
+        "HOLD": 0,
+        "HOLDRELEASED": 0
+    };
+    
+    // Iterate over the bookingDetails array
+    bookingDetails.forEach(booking => {
+        const status = booking.bookingStatus;
+        // Increment the count corresponding to the status
+        statusCounts[status]++;
+    });
         const allBookingData = [];
 
         await Promise.all(bookingDetails.map(async (booking) => {
@@ -194,7 +244,7 @@ const getAllBooking = async (req, res) => {
 
         return {
             response: "Fetch Data Successfully",
-            data: allBookingData,
+            data: {bookingList:allBookingData, statusCounts: statusCounts}
         };
     }
 }

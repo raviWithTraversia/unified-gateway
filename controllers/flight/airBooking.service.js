@@ -7,7 +7,7 @@ const UserModel = require("../../models/User");
 const fareFamilyMaster = require("../../models/FareFamilyMaster");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
-
+const moment = require('moment');
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
@@ -210,42 +210,7 @@ async function handleflight(
   return {
     IsSucess: true,
     response: responsesApi.flat(),
-  };
-
-  // Combine the responses here
-  const combineResponseObj = {};
-  supplierCredentials.forEach((supplier, index) => {
-    const responsecombineapi = responsesApi[index];
-    if (!responsecombineapi.error) {
-      combineResponseObj[supplier.supplierCodeId.supplierCode] =
-        responsecombineapi;
-    } else {
-      combineResponseObj[supplier.supplierCodeId.supplierCode] = {
-        IsSucess: false,
-        response: "Supplier Not Found",
-      };
-    }
-  });
-  // make common before commercial
-  let commonArray = [];
-
-  for (let key in combineResponseObj) {
-    if (combineResponseObj[key].IsSucess) {
-      commonArray.push(...combineResponseObj[key].response);
-    }
-  }
-
-  // apply commercial function
-  //   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
-  //     Authentication,
-  //     TravelType,
-  //     commonArray
-  //   );
-
-  return {
-    IsSucess: true,
-    response: commonArray,
-  };
+  }; 
 }
 
 const KafilaFun = async (
@@ -344,16 +309,6 @@ const KafilaFun = async (
       response: "Invalid TypeOfTrip",
     };
   }
-  //Class Of Service Economy, Business, Premium Economy
-  const classOfServiceMap = {
-    Economy: "EC",
-    Business: "BU",
-    "Premium Economy": "PE",
-    First: "",
-  };
-
-  let classOfServiceVal = classOfServiceMap[ClassOfService] || "";
-
   // Fare Family Array
   let fareFamilyMasterGet = [];
   if (FareFamily && FareFamily.length > 0) {
@@ -361,16 +316,228 @@ const KafilaFun = async (
       fareFamilyName: { $in: FareFamily },
     });
   }
-  let fareFamilyVal =
-    fareFamilyMasterGet && fareFamilyMasterGet.length > 0
-      ? fareFamilyMasterGet.join(",")
-      : "";
 
-  const segmentsArray = Segments.map((segment) => ({
-    Src: segment.Origin,
-    Des: segment.Destination,
-    DDate: segment.DepartureDate,
-  }));
+  // Calculate Balance with commercial 
+const preparePassengerArrayListForBookingApiPayload = async (allPassengerArrayList,allItineraryArrayList) => {  
+    let returnPassengerPayloadArrayList = allPassengerArrayList;            
+        
+      returnPassengerPayloadArrayList.forEach((passengerElement) => {
+          
+          let totalBasePrice = 0, totalTaxPrice = 0, totalBookingFees = 0, totalGstAmount = 0;
+  
+          allItineraryArrayList.forEach((childElement) => {
+              let PriceBreakup = childElement?.PriceBreakup;
+              let advanceAgentMarkup = childElement?.advanceAgentMarkup;
+  
+              PriceBreakup.forEach((priceBreakupElement) => {
+                if (
+                    passengerElement?.PaxType ==
+                    priceBreakupElement?.PassengerType
+                ) {
+                    totalBasePrice +=
+                        priceBreakupElement?.BaseFare +
+                        priceBreakupElement?.AgentMarkupBreakup?.Basic +
+                        advanceAgentMarkup?.adult?.baseFare;
+    
+                    totalTaxPrice +=
+                        priceBreakupElement?.Tax +
+                        priceBreakupElement?.AgentMarkupBreakup?.Tax +
+                        advanceAgentMarkup?.adult?.taxesFare;
+    
+                    totalBookingFees +=
+                        priceBreakupElement?.AgentMarkupBreakup?.BookingFee +
+                        advanceAgentMarkup?.adult?.feesFare;
+    
+                    totalGstAmount += advanceAgentMarkup?.adult?.gstFare;
+                    if (priceBreakupElement?.AgentMarkupBreakup?.BookingFee)
+                        totalGstAmount +=
+                            priceBreakupElement?.AgentMarkupBreakup?.BookingFee *
+                            new AppSetting().gstPercentageAmount;
+    
+                    priceBreakupElement?.CommercialBreakup.forEach(
+                        (commercialBreakup) => {
+                            let { CommercialType, Amount } = commercialBreakup;
+                            if (CommercialType == "Markup") totalBasePrice += Amount;
+                        }
+                    );
+                }
+            });
+          });
+  
+          passengerElement.totalBasePrice = totalBasePrice;
+          passengerElement.totalTaxPrice = totalTaxPrice;
+          passengerElement.totalBookingFees = totalBookingFees;
+          passengerElement.totalGstAmount = totalGstAmount;
+          passengerElement.totalPublishedPrice = totalBasePrice + totalTaxPrice + totalBookingFees + totalGstAmount + totalGstAmount;
+      });
+  
+      return returnPassengerPayloadArrayList;
+}
+// Example usage:
+const getAllPriceAppliedPessengerwise = await preparePassengerArrayListForBookingApiPayload(PassengerPreferences.Passengers, ItineraryPriceCheckResponses);
+//return itineraryCal;
+
+// function prepareAppliedCommercialArrayList(selectedReprizedItenary) {
+//   let adultCommercialArrayList = [];
+//   let childCommercialArrayList = [];
+//   let infantsCommercialArrayList = [];  
+//   if (selectedReprizedItenary?.PriceBreakup[0]?.PassengerType == "ADT")
+//     adultCommercialArrayList = selectedReprizedItenary?.PriceBreakup[0]?.CommercialBreakup;
+//   if (selectedReprizedItenary?.PriceBreakup[1]?.PassengerType == "CHD")
+//     childCommercialArrayList = selectedReprizedItenary?.PriceBreakup[1]?.CommercialBreakup;
+//   if (selectedReprizedItenary?.PriceBreakup[2]?.PassengerType == "INF")
+//     infantsCommercialArrayList = selectedReprizedItenary?.PriceBreakup[2]?.CommercialBreakup;
+//   //console.log(adultCommercialArrayList)
+//   adultCommercialArrayList = calculateCommercialBreakupArray(adultCommercialArrayList, childCommercialArrayList);
+//   adultCommercialArrayList = calculateCommercialBreakupArray(adultCommercialArrayList, infantsCommercialArrayList);
+
+//   return adultCommercialArrayList;
+// }
+
+// const oneWayItinerary = prepareAppliedCommercialArrayList(ItineraryPriceCheckResponses[0]);
+
+
+// let returnItinerary = [];
+
+// if (ItineraryPriceCheckResponses.length >= 1) {
+  
+//   returnItinerary = prepareAppliedCommercialArrayList(ItineraryPriceCheckResponses[1]);
+// }
+
+// const allCommercialList = [...oneWayItinerary, ...returnItinerary];
+// function calculateCommercialBreakupArray(parentArrayList, childArrayList) {
+//   parentArrayList.forEach((parentElement) => {
+//     childArrayList.forEach((childElement) => {
+//       parentElement.Amount = Number(parentElement.Amount);
+//       if (parentElement?.CommercialType == childElement?.CommercialType)
+//         parentElement.Amount += Number(childElement?.Amount);
+//     });
+//   });
+//   return parentArrayList;
+// }
+
+// function removeDuplicateCommercialTypeButKeepUpperPrice(allResultArrayList) {
+//   const result = Object.values(
+//     allResultArrayList.reduce((reduced, objectElement) => {
+//       if (!reduced[objectElement?.CommercialType] ||
+//         objectElement?.Amount > reduced[objectElement?.CommercialType]?.Amount)
+//         reduced[objectElement?.CommercialType] = objectElement;
+
+//       return reduced;
+//     }, {})
+//   );
+//   return result;
+// }
+
+// const uniqueCommercialList = removeDuplicateCommercialTypeButKeepUpperPrice(allCommercialList);
+// return uniqueCommercialList
+function offerPricePlusInAmount(plusKeyName) {
+  let returnBoolean = false;
+  switch (plusKeyName) {
+    case "TDS":
+      returnBoolean = true;
+      break;
+    case "BookingFees":
+      returnBoolean = true;
+      break;
+    case "ServiceFees":
+      returnBoolean = true;
+      break;
+    case "GST":
+      returnBoolean = true;
+      break;
+    case "Markup":
+      returnBoolean = true;
+      break;
+
+    default:
+      returnBoolean = false;
+      break;
+  }
+  return returnBoolean;
+}
+
+function offerPriceMinusInAmount(plusKeyName) {
+  let returnBoolean = false;
+  switch (plusKeyName) {
+    case "Discount":
+      returnBoolean = true;
+      break;
+    case "SegmentKickback":
+      returnBoolean = true;
+      break;
+    case "Incentive":
+      returnBoolean = true;
+      break;
+    case "PLB":
+      returnBoolean = true;
+      break;
+
+    default:
+      returnBoolean = false;
+      break;
+  }
+  return returnBoolean;
+}
+
+
+const calculateOfferedPrice = async (fareFamiliyElement) => {
+  let returnCalculatedOfferedPrice = 0,
+    adultPriceCalculate = 0,
+    childPriceCalculate = 0,
+    infantPriceCalculate = 0;
+
+  fareFamiliyElement.PriceBreakup?.forEach((priceBreakupElement) => {
+    let { PassengerType, NoOfPassenger, CommercialBreakup, BaseFare, Tax } =
+      priceBreakupElement;
+
+    if (PassengerType == "ADT") {
+      adultPriceCalculate = Number(BaseFare) * NoOfPassenger;
+      adultPriceCalculate += Number(Tax) * NoOfPassenger;
+      CommercialBreakup?.forEach((commercialBreakup) => {
+        let { CommercialType, Amount } = commercialBreakup;
+        if (offerPriceMinusInAmount(CommercialType))
+          adultPriceCalculate -= Number(Amount) * NoOfPassenger;
+        else if (offerPricePlusInAmount(CommercialType))
+          adultPriceCalculate += Number(Amount) * NoOfPassenger;
+      });
+    } else if (PassengerType == "CHD") {
+      childPriceCalculate = Number(BaseFare) * NoOfPassenger;
+      childPriceCalculate += Number(Tax) * NoOfPassenger;
+      CommercialBreakup?.forEach((commercialBreakup) => {
+        let { CommercialType, Amount } = commercialBreakup;
+        if (offerPriceMinusInAmount(CommercialType))
+          childPriceCalculate -= Number(Amount) * NoOfPassenger;
+        else if (offerPricePlusInAmount(CommercialType))
+          childPriceCalculate += Number(Amount) * NoOfPassenger;
+      });
+    } else if (PassengerType == "INF") {
+      infantPriceCalculate = Number(BaseFare) * NoOfPassenger;
+      infantPriceCalculate += Number(Tax) * NoOfPassenger;
+      CommercialBreakup?.forEach((commercialBreakup) => {
+        let { CommercialType, Amount } = commercialBreakup;
+        if (offerPriceMinusInAmount(CommercialType))
+          infantPriceCalculate -= Number(Amount) * NoOfPassenger;
+        else if (offerPricePlusInAmount(CommercialType))
+          infantPriceCalculate += Number(Amount) * NoOfPassenger;
+      });
+    }
+  });
+
+  returnCalculatedOfferedPrice =
+    adultPriceCalculate + childPriceCalculate + infantPriceCalculate;
+  return returnCalculatedOfferedPrice;
+}
+async function calculateOfferedPriceForAll() {
+  let calculationOfferPriceWithCommercial = 0; // Initialize to 0
+  for (const itinerary of ItineraryPriceCheckResponses) {
+    calculationOfferPriceWithCommercial += await calculateOfferedPrice(itinerary);    
+  }
+  return calculationOfferPriceWithCommercial;
+}
+
+const calculationOfferPriceWithCommercial = await calculateOfferedPriceForAll();
+//return calculationOfferPriceWithCommercial;
 
   let tokenData = {
     P_TYPE: "API",
@@ -388,7 +555,7 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
-    if (response.data.Status === "success") {
+    if (response.data.Status === "success") {      
       const createBooking = async (newItem) => {
         try {          
             let bookingDetailsCreate = await BookingDetails.create(newItem);
@@ -426,6 +593,7 @@ const KafilaFun = async (
           error,
         };
       }
+      
       const newArray = await Promise.all(
         ItineraryPriceCheckResponses?.map(async (itineraryItem) => {
           const sectorsArray = itineraryItem?.Sectors?.map((sector) => {
@@ -622,7 +790,7 @@ const KafilaFun = async (
                     userDetails:getuserDetails           
                   };
                   await BookingDetails.updateOne(
-                    { bookingId: item?.bookingId, "itinerary.IndexNumber": item.IndexNumber }, 
+                    { bookingId: item?.BookingId, "itinerary.IndexNumber": item.IndexNumber }, 
                     { $set: { bookingStatus: fSearchApiResponse.data.BookingInfo.CurrentStatus,
                       bookingRemarks: fSearchApiResponse.data.BookingInfo.BookingRemark,
                       PNR: fSearchApiResponse.data.BookingInfo.APnr,                        
@@ -635,7 +803,7 @@ const KafilaFun = async (
                 return bookingResponce;
               } catch (error) {               
                 await BookingDetails.updateOne(
-                  { bookingId: item?.bookingId, "itinerary.IndexNumber": item.IndexNumber }, 
+                  { bookingId: item?.BookingId, "itinerary.IndexNumber": item.IndexNumber }, 
                   { $set: { bookingStatus: "FAILED",
                     bookingRemarks: error.message                    
                   } }

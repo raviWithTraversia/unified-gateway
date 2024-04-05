@@ -50,7 +50,7 @@ const getBalance = async (req, res) => {
 
   return {
     response: "Fetch Data Successfully",            
-    data: {cashBalance:getAgentConfig.maxcreditLimit, tempBalance:10},
+    data: {cashBalance:getAgentConfig.maxcreditLimit, tempBalance:10, expireDate:"2025-01-18"},
   };
         
     

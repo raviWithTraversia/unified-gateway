@@ -158,6 +158,26 @@ const bookingDetailsSchema = new mongoose.Schema(
       ValCarrier:{ type: String, default: null },
       LastTicketingDate:{ type: String, default: null },
       TravelTime:{ type: String, default: null },
+      advanceAgentMarkup:{        
+          adult: {
+            baseFare: { type: Number, default: 0 },
+            taxesFare: { type: Number, default: 0 },
+            feesFare: { type: Number, default: 0 },
+            gstFare: { type: Number, default: 0 },
+          },
+          child: {
+            baseFare: { type: Number, default: 0 },
+            taxesFare: { type: Number, default: 0 },
+            feesFare: { type: Number, default: 0 },
+            gstFare: { type: Number, default: 0 },
+          },
+          infant: {
+            baseFare: { type: Number, default: 0 },
+            taxesFare: { type: Number, default: 0 },
+            feesFare: { type: Number, default: 0 },
+            gstFare: { type: Number, default: 0 },
+          }
+      },
       PriceBreakup:[{
       PassengerType:{ type: String, default: null },
       NoOfPassenger:{ type: Number, default: null },

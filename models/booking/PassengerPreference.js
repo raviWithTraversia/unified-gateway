@@ -83,7 +83,11 @@ const passengerPreferenceSchema = new mongoose.Schema({
       Des:{ type: String, default:null },
       SsrFor:{ type: String, default:null },
       OI:{ type: String, default:null },
-      }]
+      }],
+      totalPublishedPrice: { type: String, default:null },
+      totalBaggagePrice: { type: String, default:null },
+      totalMealPrice: { type: String, default:null },
+      totalSeatPrice: { type: String, default:null },
     }],       
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,

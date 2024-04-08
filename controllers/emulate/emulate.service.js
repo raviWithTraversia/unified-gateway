@@ -26,7 +26,7 @@ const searchForUserEmulate = async (req, res) => {
 
                 // Check if populatedCompanyDetails exists before trying to access _id
                 if (populatedCompanyDetails) {
-                    companiesList.push({_id:populatedCompanyDetails._id,name:companyDetails.companyName});                   
+                    companiesList.push({_id:populatedCompanyDetails._id,name:companyDetails.companyName, userId:populatedCompanyDetails.userId});                   
                 }
                                 
             }
@@ -40,7 +40,7 @@ const searchForUserEmulate = async (req, res) => {
             });
             for (let i = 0; i < getUserDetails.length; i++) {
                 const userDetails = getUserDetails[i];
-                    companiesList.push({_id:userDetails._id,name:userDetails.fname+' '+userDetails.lastName});                   
+                    companiesList.push({_id:userDetails._id,name:userDetails.fname+' '+userDetails.lastName, userId:populatedCompanyDetails.userId});                   
             }  
                 
             

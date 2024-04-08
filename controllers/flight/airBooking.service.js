@@ -742,6 +742,9 @@ try {
               Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
               travelType: TravelType,
               bookingTotalAmount:itineraryItem.offeredPrice + itineraryItem.totalMealPrice + itineraryItem.totalBaggagePrice + itineraryItem.totalSeatPrice,
+              totalMealPrice: itineraryItem.totalMealPrice,
+              totalBaggagePrice: itineraryItem.totalBaggagePrice,
+              totalSeatPrice: itineraryItem.totalSeatPrice,
               itinerary: {
                 UID: itineraryItem.UID,
                 BaseFare: itineraryItem.BaseFare,

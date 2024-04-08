@@ -54,7 +54,9 @@ const getApplyAllCommercial = async (
       getAssignPlb(companyDetails._id),
       getAssignMarcup(companyDetails._id),
       getAssignCongifDetails(companyDetails.parent._id),
-    ]);   
+    ]);
+
+    //console.log(congifDetails);
 
     const countryMapingVal = await countryMaping.find({
       companyId: companyDetails.parent._id,
@@ -6737,16 +6739,17 @@ const commertialMatrixValue = async (
             filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
             filter.AirCommertialColumnMasterId.type === "coloumn"
         );
+        console.log( gstPersentageSingleColumn);
         if (
           gstPersentageSingleColumn?.textType === "number" &&
-          baseOtherTaxesSingleColumn.value != "0"
+          gstPersentageSingleColumn.value != "0"
         ) {
           
           //apply on base on k2 or gst
           if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length > 0) {
           applyFixedMarkupFeeToBaseOtherTaxes(
             singleFlightDetails,
-            baseOtherTaxesSingleColumn.value,
+            gstPersentageSingleColumn.value,
             singleFlightDetails.PriceBreakup[0],
             "ADT",
             supplierTypeFor
@@ -6755,7 +6758,7 @@ const commertialMatrixValue = async (
           if (singleFlightDetails.PriceBreakup[1] && Object.keys(singleFlightDetails.PriceBreakup[1]).length > 0) {
           applyFixedMarkupFeeToBaseOtherTaxes(
             singleFlightDetails,
-            baseOtherTaxesSingleColumn.value,
+            gstPersentageSingleColumn.value,
             singleFlightDetails.PriceBreakup[1],
             "CHD",
             supplierTypeFor
@@ -6764,7 +6767,7 @@ const commertialMatrixValue = async (
           if (singleFlightDetails.PriceBreakup[2] && Object.keys(singleFlightDetails.PriceBreakup[2]).length > 0) {
           applyFixedMarkupFeeToBaseOtherTaxes(
             singleFlightDetails,
-            baseOtherTaxesSingleColumn.value,
+            gstPersentageSingleColumn.value,
             singleFlightDetails.PriceBreakup[2],
             "INF",
             supplierTypeFor
@@ -7092,6 +7095,7 @@ const commertialMatrixValue = async (
       // GST Start Here
       const applyServiceRateToGst = async (tax, type,supplierTypeFor) => {
         if (tax && Object.keys(tax).length !== 0) {
+          
           // let getAgentConfig = await agentConfig.findOne({
           //   companyId: companyId,
           // });
@@ -7102,17 +7106,18 @@ const commertialMatrixValue = async (
            //console.log(configDetails.data.discountPercentage);
 
           const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees');    
-            if (existingBookingFeesIndex !== -1) {
-              
+          
+          if (existingBookingFeesIndex !== -1) {            
             const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
+            
             if (existingGSTIndex !== -1) {
               const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 !== undefined ? configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 : 0 || 0) : 0;
-                            
+                     
               tax.CommercialBreakup[existingGSTIndex].Amount += tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : tax.CommercialBreakup[existingGSTIndex].Amount;
              
-            } else { 
-              
+            } else {                                
               const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;               
+              
               tax.CommercialBreakup.push({
                     CommercialType: "GST",          
                     Amount: tdsCheckFromConfig != 0 ? (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount : 0,
@@ -7149,6 +7154,7 @@ const commertialMatrixValue = async (
         onGstSingleColumn?.textType === "checkbox" &&
         onGstSingleColumn.value
       ) {
+        
         applyServiceRateToGst(singleFlightDetails.PriceBreakup[0], "ADT",supplierTypeFor);
         if (isExcludeChildChecked != true && Object.keys(singleFlightDetails.PriceBreakup[1]).length > 0) {
           applyServiceRateToGst(singleFlightDetails.PriceBreakup[1], "CHD",supplierTypeFor);

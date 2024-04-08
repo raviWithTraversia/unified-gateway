@@ -126,8 +126,8 @@ const specialServiceReq = async (req, res) => {
           let mealObj = result.response.response.Ancl.Meals;
           let baggageObj = result.response.response.Ancl.Baggage;
           let seatSsr = tmcSsrData[0]?.seat;
-          let baggageSsr = tmcSsrData[0]?.meal;
-          let mealSsr = tmcSsrData[0]?.baggage;
+          let baggageSsr = tmcSsrData[0]?.baggage;
+          let mealSsr = tmcSsrData[0]?.meal;
           //console.log("===>>>>>>>>>>>>>>>>>>>>>>>>",seatSsr);
           if (typeof seatSsr !== 'undefined') {
           result.response.response.Ancl.Seat.SeatRow = rePriceSeat(

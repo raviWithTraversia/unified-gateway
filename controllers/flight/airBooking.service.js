@@ -30,9 +30,11 @@ const startBooking = async (req, res) => {
       Airlines,
       FareFamily,
       RefundableOnly,
+      
     },
     PassengerPreferences,
     ItineraryPriceCheckResponses,
+    paymentMethodType
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -48,6 +50,7 @@ const startBooking = async (req, res) => {
     "RefundableOnly",
     "PassengerPreferences",
     "ItineraryPriceCheckResponses",
+    "paymentMethodType",
   ];
   //   const missingFields = fieldNames.filter(
   //     (fieldName) =>
@@ -103,7 +106,8 @@ const startBooking = async (req, res) => {
       FareFamily,
       RefundableOnly,
       PassengerPreferences,
-      ItineraryPriceCheckResponses
+      ItineraryPriceCheckResponses,
+      paymentMethodType
     );
   }
 
@@ -132,7 +136,8 @@ async function handleflight(
   FareFamily,
   RefundableOnly,
   PassengerPreferences,
-  ItineraryPriceCheckResponses
+  ItineraryPriceCheckResponses,
+  paymentMethodType
 ) {
   // International
   // Check LIVE and TEST
@@ -196,7 +201,8 @@ async function handleflight(
               RefundableOnly,
               supplier.supplierCodeId.supplierCode,
               PassengerPreferences,
-              ItineraryPriceCheckResponses
+              ItineraryPriceCheckResponses,
+              paymentMethodType
             );
 
           default:
@@ -231,7 +237,8 @@ const KafilaFun = async (
   RefundableOnly,
   Provider,
   PassengerPreferences,
-  ItineraryPriceCheckResponses
+  ItineraryPriceCheckResponses,
+  paymentMethodType
 ) => {
   let createTokenUrl;
   let flightSearchUrl;
@@ -757,6 +764,26 @@ try {
                 ValCarrier: itineraryItem.ValCarrier,
                 LastTicketingDate: itineraryItem.LastTicketingDate,
                 TravelTime: itineraryItem.TravelTime,
+                advanceAgentMarkup:{        
+                  adult: {
+                    baseFare: itineraryItem.advanceAgentMarkup.adult.baseFare,
+                    taxesFare: itineraryItem.advanceAgentMarkup.adult.taxesFare,
+                    feesFare: itineraryItem.advanceAgentMarkup.adult.feesFare,
+                    gstFare: itineraryItem.advanceAgentMarkup.adult.gstFare,
+                  },
+                  child: {
+                    baseFare: itineraryItem.advanceAgentMarkup.child.baseFare,
+                    taxesFare: itineraryItem.advanceAgentMarkup.child.taxesFare,
+                    feesFare: itineraryItem.advanceAgentMarkup.child.feesFare,
+                    gstFare: itineraryItem.advanceAgentMarkup.child.gstFare,
+                  },
+                  infant: {
+                    baseFare: itineraryItem.advanceAgentMarkup.infant.baseFare,
+                    taxesFare: itineraryItem.advanceAgentMarkup.infant.taxesFare,
+                    feesFare: itineraryItem.advanceAgentMarkup.infant.feesFare,
+                    gstFare: itineraryItem.advanceAgentMarkup.infant.gstFare,
+                  }
+              },
                 PriceBreakup: priceBreakupArray,
                 Sectors: sectorsArray,
               },

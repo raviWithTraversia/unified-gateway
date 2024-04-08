@@ -69,9 +69,9 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    totalMealPrice: {type: String,default: null},
-    totalBaggagePrice: {type: String,default: null},
-    totalSeatPrice: {type: String,default: null},
+    totalMealPrice: {type: Number,default: 0},
+    totalBaggagePrice: {type: Number,default: 0},
+    totalSeatPrice: {type: Number,default: 0},
     sourceMedia: {
       type: String,
       default: null,

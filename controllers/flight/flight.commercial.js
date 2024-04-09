@@ -8677,7 +8677,8 @@ const commertialMatrixValue = async (
                 tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
               } else {                
                 tax.CommercialBreakup.push({
-                      CommercialType: "TDS",          
+                      CommercialType: "TDS", 
+                      onCommercialApply:"SegmentKickback",         
                       Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
                       SupplierType: supplierTypeFor
                   });
@@ -8690,7 +8691,8 @@ const commertialMatrixValue = async (
                 tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
               } else {                
                 tax.CommercialBreakup.push({
-                      CommercialType: "TDS",          
+                      CommercialType: "TDS", 
+                      onCommercialApply:"SegmentKickback",         
                       Amount: (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
                       SupplierType: supplierTypeFor
                   });
@@ -8802,24 +8804,24 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {            
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Onward Only');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Onward Only');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",
+                    CommercialType: "FixedBookingFees",
                     onCommercialApply: "Onward Only",           
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
                 });
             }            
           } else if (type === "CHD") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Onward Only');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Onward Only');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees", 
+                    CommercialType: "FixedBookingFees", 
                     onCommercialApply: "Onward Only",           
                     Amount: fixedChildRate,
                     SupplierType: supplierTypeFor
@@ -8827,12 +8829,12 @@ const commertialMatrixValue = async (
             }   
             
           } else if (type === "INF") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Onward Only');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Onward Only');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",
+                    CommercialType: "FixedBookingFees",
                     onCommercialApply: "Onward Only",            
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -8970,12 +8972,12 @@ const commertialMatrixValue = async (
             0
           );
           if (type === "ADT") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per Airline Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Airline Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",
+                    CommercialType: "FixedBookingFees",
                     onCommercialApply: "Per Airline Per Pax",           
                     Amount: totalCount * fixedAdultRate,
                     SupplierType: supplierTypeFor
@@ -8983,24 +8985,24 @@ const commertialMatrixValue = async (
             }
             
           } else if (type === "CHD") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per Airline Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Airline Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",  
+                    CommercialType: "FixedBookingFees",  
                     onCommercialApply: "Per Airline Per Pax",        
                     Amount: totalCount * fixedChildRate,
                     SupplierType: supplierTypeFor
                 });
             }            
           } else if (type === "INF") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per Airline Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Airline Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees", 
+                    CommercialType: "FixedBookingFees", 
                     onCommercialApply: "Per Airline Per Pax",         
                     Amount: totalCount * fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -9057,36 +9059,36 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",
+                    CommercialType: "FixedBookingFees",
                     onCommercialApply: "Per Pnr Per Ticket",           
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
                 });
             }             
           } else if (type === "CHD") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees", 
+                    CommercialType: "FixedBookingFees", 
                     onCommercialApply: "Per Pnr Per Ticket",          
                     Amount: fixedChildRate,
                     SupplierType: supplierTypeFor
                 });
             }               
           } else if (type === "INF") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",
+                    CommercialType: "FixedBookingFees",
                     onCommercialApply: "Per Pnr Per Ticket",            
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -9146,24 +9148,24 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per Pax Per Sector');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Pax Per Sector');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",
+                    CommercialType: "FixedBookingFees",
                     onCommercialApply: "Per Pax Per Sector",           
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
                 });
             }             
           } else if (type === "CHD") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per Pax Per Sector');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Pax Per Sector');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",
+                    CommercialType: "FixedBookingFees",
                     onCommercialApply: "Per Pax Per Sector",          
                     Amount: fixedChildRate,
                     SupplierType: supplierTypeFor
@@ -9171,12 +9173,12 @@ const commertialMatrixValue = async (
             }   
            
           } else if (type === "INF") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per Pax Per Sector');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Pax Per Sector');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",
+                    CommercialType: "FixedBookingFees",
                     onCommercialApply: "Per Pax Per Sector",          
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -9253,12 +9255,12 @@ const commertialMatrixValue = async (
           );
 
           if (type === "ADT") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per Flight Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Flight Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",
+                    CommercialType: "FixedBookingFees",
                     onCommercialApply: "Per Flight Per Pax",           
                     Amount: totalCount * fixedAdultRate,
                     SupplierType: supplierTypeFor
@@ -9266,12 +9268,12 @@ const commertialMatrixValue = async (
             } 
             
           } else if (type === "CHD") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per Flight Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Flight Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees", 
+                    CommercialType: "FixedBookingFees", 
                     onCommercialApply: "Per Flight Per Pax",          
                     Amount: totalCount * fixedChildRate,
                     SupplierType: supplierTypeFor
@@ -9279,12 +9281,12 @@ const commertialMatrixValue = async (
             } 
             
           } else if (type === "INF") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per Flight Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per Flight Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees", 
+                    CommercialType: "FixedBookingFees", 
                     onCommercialApply: "Per Flight Per Pax",          
                     Amount: totalCount * fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -9341,12 +9343,12 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per PNR Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per PNR Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",
+                    CommercialType: "FixedBookingFees",
                     onCommercialApply: "Per PNR Per Pax",           
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
@@ -9354,12 +9356,12 @@ const commertialMatrixValue = async (
             }  
             
           } else if (type === "CHD") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per PNR Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per PNR Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees", 
+                    CommercialType: "FixedBookingFees", 
                     onCommercialApply: "Per PNR Per Pax",          
                     Amount: fixedChildRate,
                     SupplierType: supplierTypeFor
@@ -9367,13 +9369,13 @@ const commertialMatrixValue = async (
             }  
             
           } else if (type === "INF") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees' && item.onCommercialApply === 'Per PNR Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees' && item.onCommercialApply === 'Per PNR Per Pax');             
            
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "BookingFees",  
+                    CommercialType: "FixedBookingFees",  
                     onCommercialApply: "Per PNR Per Pax",         
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -9429,41 +9431,43 @@ const commertialMatrixValue = async (
         supplierTypeFor
       ) => {
         if (tax && Object.keys(tax).length !== 0) {
-          // let getAgentConfig = await agentConfig.findOne({
-          //   companyId: companyId,
-          // });
-          // console.log(getAgentConfig);
-          // if (getAgentConfig) {
-          //  tax.gst += getAgentConfig.discountPercentage
-          // }
-          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees');           
-            if (existingBookingFeesIndex !== -1) {   
-              const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
-              if (existingGSTIndex !== -1) {
-                //const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;                
-                tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
-              } else { 
-                //const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;                
-                tax.CommercialBreakup.push({
-                      CommercialType: "GST",          
-                      Amount: (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
-                      SupplierType: supplierTypeFor
-                  });
-              }          
-              
-            } else {  
-              const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
-              if (existingGSTIndex !== -1) {                
-                tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * 0;
-              } else {                
-                tax.CommercialBreakup.push({
-                      CommercialType: "GST",          
-                      Amount: (parseFloat(18) / 100) * 0,
-                      SupplierType: supplierTypeFor
-                  });
-              }              
-             
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedBookingFees');
+
+          if (existingBookingFeesIndex !== -1) {
+            // Calculate the total amount of FixedBookingFees
+            const totalFixedBookingFees = tax.CommercialBreakup.reduce((total, item) => {
+              if (item.CommercialType === 'FixedBookingFees' && item.SupplierType === supplierTypeFor)
+                return total + item.Amount;
+              return total;
+            }, 0);
+          
+            const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');
+            if (existingGSTIndex !== -1) {
+              // Update existing GST entry
+              tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * totalFixedBookingFees;
+            } else {
+              // Add new GST entry
+              tax.CommercialBreakup.push({
+                CommercialType: "GST",
+                Amount: (parseFloat(18) / 100) * totalFixedBookingFees,
+                SupplierType: supplierTypeFor
+              });
             }
+          } else {
+            const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');
+            if (existingGSTIndex !== -1) {
+              // Update existing GST entry with 0 amount
+              tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * 0;
+            } else {
+              // Add new GST entry with 0 amount
+              tax.CommercialBreakup.push({
+                CommercialType: "GST",
+                Amount: (parseFloat(18) / 100) * 0,
+                SupplierType: supplierTypeFor
+              });
+            }
+          }
+          
           
         }
       };
@@ -9474,7 +9478,7 @@ const commertialMatrixValue = async (
           filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
           filter.AirCommertialColumnMasterId.type === "coloumn"
       );
-
+      
       if (gstSingleColumn?.textType === "checkbox" && gstSingleColumn.value) {
         if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length > 0) {
         applyFixedBookingFeeToGst(
@@ -9570,12 +9574,12 @@ const commertialMatrixValue = async (
         if (tax) {
           if (type === "ADT") {
             if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0) {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Onward Only');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Onward Only');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees", 
+                    CommercialType: "FixedServiceFees", 
                     onCommercialApply: "Onward Only",           
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
@@ -9584,12 +9588,12 @@ const commertialMatrixValue = async (
            }
           } else if (type === "CHD") {
             if (singleFlightDetails.PriceBreakup[1] && Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0) {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Onward Only');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Onward Only');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees",
+                    CommercialType: "FixedServiceFees",
                     onCommercialApply: "Onward Only",          
                     Amount: fixedChildRate,
                     SupplierType: supplierTypeFor
@@ -9598,12 +9602,12 @@ const commertialMatrixValue = async (
            }
           } else if (type === "INF") {
             if (singleFlightDetails.PriceBreakup[2] && Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0) {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Onward Only');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Onward Only');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees",  
+                    CommercialType: "FixedServiceFees",  
                     onCommercialApply: "Onward Only",        
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -9742,12 +9746,12 @@ const commertialMatrixValue = async (
             0
           );
           if (type === "ADT") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Airline Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Airline Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees",  
+                    CommercialType: "FixedServiceFees",  
                     onCommercialApply: "Per Airline Per Pax",          
                     Amount: totalCount * fixedAdultRate,
                     SupplierType: supplierTypeFor
@@ -9755,12 +9759,12 @@ const commertialMatrixValue = async (
             }
             
           } else if (type === "CHD") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Airline Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Airline Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees", 
+                    CommercialType: "FixedServiceFees", 
                     onCommercialApply: "Per Airline Per Pax",          
                     Amount: totalCount * fixedChildRate,
                     SupplierType: supplierTypeFor
@@ -9768,12 +9772,12 @@ const commertialMatrixValue = async (
             }
             
           } else if (type === "INF") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Airline Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Airline Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees",   
+                    CommercialType: "FixedServiceFees",   
                     onCommercialApply: "Per Airline Per Pax",        
                     Amount: totalCount * fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -9830,12 +9834,12 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees",
+                    CommercialType: "FixedServiceFees",
                     onCommercialApply: "Per Pnr Per Ticket",            
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
@@ -9843,12 +9847,12 @@ const commertialMatrixValue = async (
             }
            
           } else if (type === "CHD") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees",
+                    CommercialType: "FixedServiceFees",
                     onCommercialApply: "Per Pnr Per Ticket",          
                     Amount: fixedChildRate,
                     SupplierType: supplierTypeFor
@@ -9856,12 +9860,12 @@ const commertialMatrixValue = async (
             }
             
           } else if (type === "INF") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Pnr Per Ticket');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees",
+                    CommercialType: "FixedServiceFees",
                     onCommercialApply: "Per Pnr Per Ticket",          
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -9918,12 +9922,12 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Pax Per Sector');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Pax Per Sector');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees", 
+                    CommercialType: "FixedServiceFees", 
                     onCommercialApply: "Per Pax Per Sector",           
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
@@ -9931,12 +9935,12 @@ const commertialMatrixValue = async (
             }
             
           } else if (type === "CHD") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Pax Per Sector');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Pax Per Sector');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees", 
+                    CommercialType: "FixedServiceFees", 
                     onCommercialApply: "Per Pax Per Sector",           
                     Amount: fixedChildRate,
                     SupplierType: supplierTypeFor
@@ -9944,12 +9948,12 @@ const commertialMatrixValue = async (
             }
             
           } else if (type === "INF") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Pax Per Sector');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Pax Per Sector');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees", 
+                    CommercialType: "FixedServiceFees", 
                     onCommercialApply: "Per Pax Per Sector",           
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -10027,12 +10031,12 @@ const commertialMatrixValue = async (
           );
 
           if (type === "ADT") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Flight Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Flight Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees",
+                    CommercialType: "FixedServiceFees",
                     onCommercialApply: "Per Flight Per Pax",            
                     Amount: totalCount * fixedAdultRate,
                     SupplierType: supplierTypeFor
@@ -10040,12 +10044,12 @@ const commertialMatrixValue = async (
             }
             
           } else if (type === "CHD") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Flight Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Flight Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees", 
+                    CommercialType: "FixedServiceFees", 
                     onCommercialApply: "Per Flight Per Pax",         
                     Amount: totalCount * fixedChildRate,
                     SupplierType: supplierTypeFor
@@ -10053,12 +10057,12 @@ const commertialMatrixValue = async (
             }
             
           } else if (type === "INF") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per Flight Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per Flight Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees", 
+                    CommercialType: "FixedServiceFees", 
                     onCommercialApply: "Per Flight Per Pax",         
                     Amount: totalCount * fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -10115,12 +10119,12 @@ const commertialMatrixValue = async (
       ) => {
         if (tax) {
           if (type === "ADT") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per PNR Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per PNR Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees",
+                    CommercialType: "FixedServiceFees",
                     onCommercialApply : "Per PNR Per Pax",          
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
@@ -10128,12 +10132,12 @@ const commertialMatrixValue = async (
             }
             
           } else if (type === "CHD") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per PNR Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per PNR Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees", 
+                    CommercialType: "FixedServiceFees", 
                     onCommercialApply : "Per PNR Per Pax",           
                     Amount: fixedChildRate,
                     SupplierType: supplierTypeFor
@@ -10141,12 +10145,12 @@ const commertialMatrixValue = async (
             }
             
           } else if (type === "INF") {
-            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'ServiceFees' && item.onCommercialApply === 'Per PNR Per Pax');             
+            const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees' && item.onCommercialApply === 'Per PNR Per Pax');             
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
             } else {                
               tax.CommercialBreakup.push({
-                    CommercialType: "ServiceFees",
+                    CommercialType: "FixedServiceFees",
                     onCommercialApply : "Per PNR Per Pax",            
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
@@ -10202,41 +10206,43 @@ const commertialMatrixValue = async (
         supplierTypeFor
       ) => {
         if (tax && Object.keys(tax).length !== 0) {
-          // let getAgentConfig = await agentConfig.findOne({
-          //   companyId: companyId,
-          // });
-          // console.log(getAgentConfig);
-          // if (getAgentConfig) {
-          //  tax.gst += getAgentConfig.discountPercentage
-          // }
-          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees');           
-            if (existingBookingFeesIndex !== -1) { 
-              const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
-              if (existingGSTIndex !== -1) {
-                //const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;                
-                tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
-              } else { 
-                //const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.discountPercentage !== undefined ? configDetails.data.discountPercentage : 0 || 0) : 0;                
-                tax.CommercialBreakup.push({
-                      CommercialType: "GST",          
-                      Amount: (parseFloat(18) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount,
-                      SupplierType: supplierTypeFor
-                  });
-              }            
-              
-            } else {   
-              const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
-              if (existingGSTIndex !== -1) {                
-                tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * 0;
-              } else {                
-                tax.CommercialBreakup.push({
-                      CommercialType: "GST",          
-                      Amount: (parseFloat(18) / 100) * 0,
-                      SupplierType: supplierTypeFor
-                  });
-              }              
-              
-            }
+          const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'FixedServiceFees');
+
+if (existingBookingFeesIndex !== -1) {
+  // Calculate the total amount of FixedBookingFees
+  const totalFixedBookingFees = tax.CommercialBreakup.reduce((total, item) => {
+    if (item.CommercialType === 'FixedServiceFees' && item.SupplierType === supplierTypeFor)
+      return total + item.Amount;
+    return total;
+  }, 0);
+
+  const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');
+  if (existingGSTIndex !== -1) {
+    // Update existing GST entry
+    tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * totalFixedBookingFees;
+  } else {
+    // Add new GST entry
+    tax.CommercialBreakup.push({
+      CommercialType: "GST",
+      Amount: (parseFloat(18) / 100) * totalFixedBookingFees,
+      SupplierType: supplierTypeFor
+    });
+  }
+} else {
+  const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');
+  if (existingGSTIndex !== -1) {
+    // Update existing GST entry with 0 amount
+    tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(18) / 100) * 0;
+  } else {
+    // Add new GST entry with 0 amount
+    tax.CommercialBreakup.push({
+      CommercialType: "GST",
+      Amount: (parseFloat(18) / 100) * 0,
+      SupplierType: supplierTypeFor
+    });
+  }
+}
+
           
         }
       };

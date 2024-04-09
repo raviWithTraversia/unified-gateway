@@ -6012,22 +6012,320 @@ const commertialMatrixValue = async (
           ? parseFloat(fixedInfantSingleColumn.value)
           : 0;
 
+
+      // Base Other Taxes START HERE
+      
+      const applyFixedMarkupFeeToBaseOtherTaxes = async (
+        singleFlightDetails,        
+        tax,
+        type,
+        fixedAmount,
+        fixedMarkupAllColumn,
+        supplierTypeFor
+      ) => {
+        const baseOtherTaxesSingleColumn = fixedMarkupAllColumn.find(
+          (filter) =>
+            filter.AirCommertialColumnMasterId.name === "Base / Other Taxes" &&
+            filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+            filter.AirCommertialColumnMasterId.type === "coloumn"
+        );
+  
+        if (
+          baseOtherTaxesSingleColumn?.textType === "dropdown" &&
+          baseOtherTaxesSingleColumn.value === "Base"
+        ) {
+          
+          const gstPersentageSingleColumn = fixedMarkupAllColumn.find(
+            (filter) =>
+              filter.AirCommertialColumnMasterId.name === "GST" &&
+              filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+              filter.AirCommertialColumnMasterId.type === "coloumn"
+          );
+          
+          if (
+            gstPersentageSingleColumn?.textType === "number" &&
+            gstPersentageSingleColumn.value != "0"
+          ) {
+            if (type === "ADT") {            
+              if (!(Object.keys(singleFlightDetails.PriceBreakup[0]).length === 0) 
+              ) { 
+                
+                const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'otherTax');    
+                if (existingBookingFeesIndex !== -1) { 
+                  tax.BaseFare += fixedAmount;                                             
+                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount;
+                } else {                
+                  tax.CommercialBreakup.push({
+                        CommercialType: "otherTax",
+                        onCommercialApply: "Base",          
+                        Amount: (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount,
+                        SupplierType: supplierTypeFor
+                    });
+                    tax.BaseFare += fixedAmount;
+                }
+                // const K2TaxADT =
+                //   singleFlightDetails.PriceBreakup[0].TaxBreakup.find(
+                //     (tax) => tax.TaxType != "K2"
+                //   );
+                // if(K2TaxADT){
+                //   K2TaxADT.Amount += (parseFloat(values) / 100) * fixedAdultRate;
+                // }else{
+                //   tax.gst += (parseFloat(values) / 100) * fixedAdultRate;
+                // }
+              }
+            } else if (type === "CHD") {
+              if (
+                !(
+                  Object.keys(singleFlightDetails.PriceBreakup[1]).length === 0
+                ) 
+              ) {
+  
+                const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'otherTax');    
+                if (existingBookingFeesIndex !== -1) { 
+                  tax.BaseFare += fixedAmount;                               
+                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount;
+                } else {                
+                  tax.CommercialBreakup.push({
+                        CommercialType: "otherTax",
+                        onCommercialApply: "Base",          
+                        Amount: (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount,
+                        SupplierType: supplierTypeFor
+                    });
+                    tax.BaseFare += fixedAmount;
+                }
+                // const K2TaxADT =
+                //   singleFlightDetails.PriceBreakup[1].TaxBreakup.find(
+                //     (tax) => tax.TaxType != "K2"
+                //   );
+                // if(K2TaxADT){
+                //   K2TaxADT.Amount += (parseFloat(values) / 100) * fixedChildRate;
+                // }else{
+                //   tax.gst += (parseFloat(values) / 100) * fixedChildRate;
+                // }
+              }
+            } else if (type === "INF") {
+              if (
+                !(
+                  Object.keys(singleFlightDetails.PriceBreakup[2]).length === 0
+                ) 
+              ) {
+  
+                const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'otherTax');    
+                if (existingBookingFeesIndex !== -1) {  
+                  tax.BaseFare += fixedAmount;                              
+                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount;
+                } else {                
+                  tax.CommercialBreakup.push({
+                        CommercialType: "otherTax",
+                        onCommercialApply: "Base",          
+                        Amount: (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount,
+                        SupplierType: supplierTypeFor
+                    });
+                    tax.BaseFare += fixedAmount;
+                }
+                // const K2TaxADT =
+                //   singleFlightDetails.PriceBreakup[2].TaxBreakup.find(
+                //     (tax) => tax.TaxType != "K2"
+                //   );
+                // if(K2TaxADT){
+                //   K2TaxADT.Amount += (parseFloat(values) / 100) * fixedInfantRate;
+                // }else{
+                //   tax.gst += (parseFloat(values) / 100) * fixedInfantRate;
+                // }
+              }
+            }
+  
+          }
+          }else{  // for tax here 
+            if (type === "ADT") {            
+              if (!(Object.keys(singleFlightDetails.PriceBreakup[0]).length === 0) 
+              ) { 
+                
+                const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'otherTax');    
+                if (existingBookingFeesIndex !== -1) { 
+                  tax.BaseFare += fixedAmount;                                             
+                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAmount;
+                } else {                
+                  tax.CommercialBreakup.push({
+                        CommercialType: "otherTax",
+                        onCommercialApply: "Tax",          
+                        Amount: fixedAmount,
+                        SupplierType: supplierTypeFor
+                    });
+                    tax.BaseFare += fixedAmount;
+                }
+                
+              }
+            } else if (type === "CHD") {
+              if (
+                !(
+                  Object.keys(singleFlightDetails.PriceBreakup[1]).length === 0
+                ) 
+              ) {
+  
+                const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'otherTax');    
+                if (existingBookingFeesIndex !== -1) { 
+                  tax.BaseFare += fixedAmount;                               
+                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAmount;
+                } else {                
+                  tax.CommercialBreakup.push({
+                        CommercialType: "otherTax",
+                        onCommercialApply: "Tax",          
+                        Amount: fixedAmount,
+                        SupplierType: supplierTypeFor
+                    });
+                    tax.BaseFare += fixedAmount;
+                }
+                
+              }
+            } else if (type === "INF") {
+              if (
+                !(
+                  Object.keys(singleFlightDetails.PriceBreakup[2]).length === 0
+                ) 
+              ) {
+  
+                const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'otherTax');    
+                if (existingBookingFeesIndex !== -1) {  
+                  tax.BaseFare += fixedAmount;                              
+                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAmount;
+                } else {                
+                  tax.CommercialBreakup.push({
+                        CommercialType: "otherTax",
+                        onCommercialApply: "Tax",          
+                        Amount: fixedAmount,
+                        SupplierType: supplierTypeFor
+                    });
+                    tax.BaseFare += fixedAmount;
+                }                
+              }
+            }
+          }
+        
+      };
+
+      // const baseOtherTaxesSingleColumn = fixedMarkupAllColumn.find(
+      //   (filter) =>
+      //     filter.AirCommertialColumnMasterId.name === "Base / Other Taxes" &&
+      //     filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+      //     filter.AirCommertialColumnMasterId.type === "coloumn"
+      // );
+
+      // if (
+      //   baseOtherTaxesSingleColumn?.textType === "dropdown" &&
+      //   baseOtherTaxesSingleColumn.value === "Base"
+      // ) {
+        
+      //   const gstPersentageSingleColumn = fixedMarkupAllColumn.find(
+      //     (filter) =>
+      //       filter.AirCommertialColumnMasterId.name === "GST" &&
+      //       filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
+      //       filter.AirCommertialColumnMasterId.type === "coloumn"
+      //   );
+        
+      //   if (
+      //     gstPersentageSingleColumn?.textType === "number" &&
+      //     gstPersentageSingleColumn.value != "0"
+      //   ) {          
+      //     //apply on base on k2 or gst
+          
+      //     if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0) {
+           
+      //       applyFixedMarkupFeeToBaseOtherTaxes(
+      //       singleFlightDetails,
+      //       gstPersentageSingleColumn.value,
+      //       singleFlightDetails.PriceBreakup[0],
+      //       "ADT",
+      //       fixedAmount,
+      //       supplierTypeFor
+      //     );
+      //     }
+      //     if (singleFlightDetails.PriceBreakup[1] && Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0) {
+      //     applyFixedMarkupFeeToBaseOtherTaxes(
+      //       singleFlightDetails,
+      //       gstPersentageSingleColumn.value,
+      //       singleFlightDetails.PriceBreakup[1],
+      //       "CHD",
+      //       supplierTypeFor
+      //     );
+      //     }
+      //     if (singleFlightDetails.PriceBreakup[2] && Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0) {
+      //     applyFixedMarkupFeeToBaseOtherTaxes(
+      //       singleFlightDetails,
+      //       gstPersentageSingleColumn.value,
+      //       singleFlightDetails.PriceBreakup[2],
+      //       "INF",
+      //       supplierTypeFor
+      //     );
+      //     }
+      //   }
+      // } else {
+      //   // apply to other tax ( ot )
+      //   if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0) {
+      //   applyFixedMarkupFeeToBaseOtherTaxes(
+      //     singleFlightDetails,
+      //     "tax",
+      //     singleFlightDetails.PriceBreakup[0],
+      //     "ADT",
+      //     supplierTypeFor
+      //   );
+      //   }
+      //   if (singleFlightDetails.PriceBreakup[1] && Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0) {
+      //   applyFixedMarkupFeeToBaseOtherTaxes(
+      //     singleFlightDetails,
+      //     "tax",
+      //     singleFlightDetails.PriceBreakup[1],
+      //     "CHD",
+      //     supplierTypeFor
+      //   );
+      //   }
+      //   if (singleFlightDetails.PriceBreakup[2] && Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0) {
+      //   applyFixedMarkupFeeToBaseOtherTaxes(
+      //     singleFlightDetails,
+      //     "tax",
+      //     singleFlightDetails.PriceBreakup[2],
+      //     "INF",
+      //     supplierTypeFor
+      //   );
+      //   }
+      // }
+      // Base Other Taxes END HERE
+
+
+
       // on word only start here
       const applyFixedMarkupToOnWardOnly = (singleFlightDetails, tax, type,supplierTypeFor) => {
         if (tax) {
           if (type === "ADT") {           
             if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0) {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Onward Only');    
-            if (existingBookingFeesIndex !== -1) {
-                              
+            if (existingBookingFeesIndex !== -1) {                             
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
-            } else {                
+              console.log('aaaaaaaaaa');
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[0],
+                "ADT",
+                fixedAdultRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
+            } else {
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[0],
+                "ADT",
+                fixedAdultRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );               
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
                     onCommercialApply: "Onward Only",          
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
                 });
+                
             }
           }
           
@@ -6038,6 +6336,14 @@ const commertialMatrixValue = async (
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Onward Only');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[0],
+                "CHD",
+                fixedChildRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );  
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6045,6 +6351,14 @@ const commertialMatrixValue = async (
                     Amount: fixedChildRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[0],
+                  "CHD",
+                  fixedChildRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );  
             }
           }
           
@@ -6055,6 +6369,14 @@ const commertialMatrixValue = async (
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Onward Only');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[0],
+                "INF",
+                fixedInfantRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );  
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6062,6 +6384,14 @@ const commertialMatrixValue = async (
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[0],
+                  "INF",
+                  fixedInfantRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );  
             }
           }
           
@@ -6565,246 +6895,7 @@ const commertialMatrixValue = async (
       }
       // Per Flight Per Pax End Here
 
-      // Base Other Taxes START HERE
-      const applyFixedMarkupFeeToBaseOtherTaxes = async (
-        singleFlightDetails,
-        values,
-        tax,
-        type,
-        supplierTypeFor
-      ) => {
-        if (tax && values != "tax") {
-          if (type === "ADT") {
-            if (
-              !(
-                Object.keys(singleFlightDetails.PriceBreakup[0]).length === 0
-              ) &&
-              !(
-                Object.keys(singleFlightDetails.PriceBreakup[0].TaxBreakup)
-                  .length === 0
-              )
-            ) {
-              const K2TaxADT =
-                singleFlightDetails.PriceBreakup[0].TaxBreakup.find(
-                  (tax) => tax.TaxType === "K2"
-                );
-              if (K2TaxADT) {
-                K2TaxADT.Amount += (parseFloat(values) / 100) * fixedAdultRate;
-              } else {
-                const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
-                if (existingGSTIndex !== -1) {                
-                  tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(values) / 100) * fixedAdultRate;
-                } else {                
-                  // tax.CommercialBreakup.push({
-                  //       CommercialType: "GST",                                                     
-                  //       Amount: (parseFloat(values) / 100) * fixedAdultRate,
-                  //       SupplierType: supplierTypeFor
-                  //   });
-                }
-                
-              }
-            }
-          } else if (type === "CHD") {
-            if (
-              singleFlightDetails.PriceBreakup[1] &&
-              singleFlightDetails.PriceBreakup[1].TaxBreakup &&
-              singleFlightDetails.PriceBreakup[1].TaxBreakup.length > 0
-            ) {
-              const K2TaxADT =
-                singleFlightDetails.PriceBreakup[1].TaxBreakup.find(
-                  (tax) => tax.TaxType === "K2"
-                );
-              if (K2TaxADT) {
-                K2TaxADT.Amount += (parseFloat(values) / 100) * fixedChildRate;
-              } else {
-                const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
-                if (existingGSTIndex !== -1) {                
-                  tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(values) / 100) * fixedChildRate;
-                } else {                
-                  // tax.CommercialBreakup.push({
-                  //       CommercialType: "GST",          
-                  //       Amount: (parseFloat(values) / 100) * fixedChildRate,
-                  //       SupplierType: supplierTypeFor
-                  //   });
-                }
-                
-              }
-            }
-          } else if (type === "INF") {
-            if (
-              singleFlightDetails.PriceBreakup[2] &&
-              singleFlightDetails.PriceBreakup[2].TaxBreakup &&
-              singleFlightDetails.PriceBreakup[2].TaxBreakup.length > 0
-            ) {
-              const K2TaxADT =
-                singleFlightDetails.PriceBreakup[2].TaxBreakup.find(
-                  (tax) => tax.TaxType === "K2"
-                );
-              if (K2TaxADT) {
-                K2TaxADT.Amount += (parseFloat(values) / 100) * fixedInfantRate;
-              } else {
-                const existingGSTIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'GST');             
-                if (existingGSTIndex !== -1) {                
-                  tax.CommercialBreakup[existingGSTIndex].Amount += (parseFloat(values) / 100) * fixedInfantRate;
-                } else {                
-                  // tax.CommercialBreakup.push({
-                  //       CommercialType: "GST",          
-                  //       Amount: (parseFloat(values) / 100) * fixedInfantRate,
-                  //       SupplierType: supplierTypeFor
-                  //   });
-                }
-                
-              }
-            }
-          }
-        } else {
-          if (type === "ADT") {
-            if (
-              !(
-                Object.keys(singleFlightDetails.PriceBreakup[0]).length === 0
-              ) &&
-              !(
-                Object.keys(singleFlightDetails.PriceBreakup[0].TaxBreakup)
-                  .length === 0
-              )
-            ) {
-              const K2TaxADT =
-                singleFlightDetails.PriceBreakup[0].TaxBreakup.find(
-                  (tax) => tax.TaxType != "K2"
-                );
-              // if(K2TaxADT){
-              //   K2TaxADT.Amount += (parseFloat(values) / 100) * fixedAdultRate;
-              // }else{
-              //   tax.gst += (parseFloat(values) / 100) * fixedAdultRate;
-              // }
-            }
-          } else if (type === "CHD") {
-            if (
-              !(
-                Object.keys(singleFlightDetails.PriceBreakup[1]).length === 0
-              ) &&
-              !(
-                Object.keys(singleFlightDetails.PriceBreakup[1].TaxBreakup)
-                  .length === 0
-              )
-            ) {
-              const K2TaxADT =
-                singleFlightDetails.PriceBreakup[1].TaxBreakup.find(
-                  (tax) => tax.TaxType != "K2"
-                );
-              // if(K2TaxADT){
-              //   K2TaxADT.Amount += (parseFloat(values) / 100) * fixedChildRate;
-              // }else{
-              //   tax.gst += (parseFloat(values) / 100) * fixedChildRate;
-              // }
-            }
-          } else if (type === "INF") {
-            if (
-              !(
-                Object.keys(singleFlightDetails.PriceBreakup[2]).length === 0
-              ) &&
-              !(
-                Object.keys(singleFlightDetails.PriceBreakup[2].TaxBreakup)
-                  .length === 0
-              )
-            ) {
-              const K2TaxADT =
-                singleFlightDetails.PriceBreakup[2].TaxBreakup.find(
-                  (tax) => tax.TaxType != "K2"
-                );
-              // if(K2TaxADT){
-              //   K2TaxADT.Amount += (parseFloat(values) / 100) * fixedInfantRate;
-              // }else{
-              //   tax.gst += (parseFloat(values) / 100) * fixedInfantRate;
-              // }
-            }
-          }
-        }
-      };
-
-      const baseOtherTaxesSingleColumn = fixedMarkupAllColumn.find(
-        (filter) =>
-          filter.AirCommertialColumnMasterId.name === "Base / Other Taxes" &&
-          filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
-          filter.AirCommertialColumnMasterId.type === "coloumn"
-      );
-
-      if (
-        baseOtherTaxesSingleColumn?.textType === "dropdown" &&
-        baseOtherTaxesSingleColumn.value === "Base"
-      ) {
-        const gstPersentageSingleColumn = fixedMarkupAllColumn.find(
-          (filter) =>
-            filter.AirCommertialColumnMasterId.name === "GST" &&
-            filter.AirCommertialColumnMasterId.commercialType === "fixed" &&
-            filter.AirCommertialColumnMasterId.type === "coloumn"
-        );
-        
-        if (
-          gstPersentageSingleColumn?.textType === "number" &&
-          gstPersentageSingleColumn.value != "0"
-        ) {
-          
-          //apply on base on k2 or gst
-          if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length > 0) {
-          applyFixedMarkupFeeToBaseOtherTaxes(
-            singleFlightDetails,
-            gstPersentageSingleColumn.value,
-            singleFlightDetails.PriceBreakup[0],
-            "ADT",
-            supplierTypeFor
-          );
-          }
-          if (singleFlightDetails.PriceBreakup[1] && Object.keys(singleFlightDetails.PriceBreakup[1]).length > 0) {
-          applyFixedMarkupFeeToBaseOtherTaxes(
-            singleFlightDetails,
-            gstPersentageSingleColumn.value,
-            singleFlightDetails.PriceBreakup[1],
-            "CHD",
-            supplierTypeFor
-          );
-          }
-          if (singleFlightDetails.PriceBreakup[2] && Object.keys(singleFlightDetails.PriceBreakup[2]).length > 0) {
-          applyFixedMarkupFeeToBaseOtherTaxes(
-            singleFlightDetails,
-            gstPersentageSingleColumn.value,
-            singleFlightDetails.PriceBreakup[2],
-            "INF",
-            supplierTypeFor
-          );
-          }
-        }
-      } else {
-        // apply to other tax ( ot )
-        if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length > 0) {
-        applyFixedMarkupFeeToBaseOtherTaxes(
-          singleFlightDetails,
-          "tax",
-          singleFlightDetails.PriceBreakup[0],
-          "ADT",
-          supplierTypeFor
-        );
-        }
-        if (singleFlightDetails.PriceBreakup[1] && Object.keys(singleFlightDetails.PriceBreakup[1]).length > 0) {
-        applyFixedMarkupFeeToBaseOtherTaxes(
-          singleFlightDetails,
-          "tax",
-          singleFlightDetails.PriceBreakup[1],
-          "CHD",
-          supplierTypeFor
-        );
-        }
-        if (singleFlightDetails.PriceBreakup[2] && Object.keys(singleFlightDetails.PriceBreakup[2]).length > 0) {
-        applyFixedMarkupFeeToBaseOtherTaxes(
-          singleFlightDetails,
-          "tax",
-          singleFlightDetails.PriceBreakup[2],
-          "INF",
-          supplierTypeFor
-        );
-        }
-      }
-      // Base Other Taxes END HERE
+      
     }
   }
   // FIXED MARKUP ( + ) END HERE

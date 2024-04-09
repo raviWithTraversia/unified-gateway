@@ -6043,9 +6043,9 @@ const commertialMatrixValue = async (
           );
           
           if (
-            gstPersentageSingleColumn?.textType === "number" &&
-            gstPersentageSingleColumn.value != "0"
-          ) {
+            gstPersentageSingleColumn?.textType === "number"
+            
+          ) {            
             if (type === "ADT") {            
               if (!(Object.keys(singleFlightDetails.PriceBreakup[0]).length === 0) 
               ) { 
@@ -6053,12 +6053,12 @@ const commertialMatrixValue = async (
                 const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'otherTax');    
                 if (existingBookingFeesIndex !== -1) { 
                   tax.BaseFare += fixedAmount;                                             
-                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount;
+                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(gstPersentageSingleColumn.value) / 100) * fixedAmount;
                 } else {                
                   tax.CommercialBreakup.push({
                         CommercialType: "otherTax",
                         onCommercialApply: "Base",          
-                        Amount: (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount,
+                        Amount: (parseFloat(gstPersentageSingleColumn.value) / 100) * fixedAmount,
                         SupplierType: supplierTypeFor
                     });
                     tax.BaseFare += fixedAmount;
@@ -6083,12 +6083,12 @@ const commertialMatrixValue = async (
                 const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'otherTax');    
                 if (existingBookingFeesIndex !== -1) { 
                   tax.BaseFare += fixedAmount;                               
-                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount;
+                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(gstPersentageSingleColumn.value) / 100) * fixedAmount;
                 } else {                
                   tax.CommercialBreakup.push({
                         CommercialType: "otherTax",
                         onCommercialApply: "Base",          
-                        Amount: (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount,
+                        Amount: (parseFloat(gstPersentageSingleColumn.value) / 100) * fixedAmount,
                         SupplierType: supplierTypeFor
                     });
                     tax.BaseFare += fixedAmount;
@@ -6113,12 +6113,12 @@ const commertialMatrixValue = async (
                 const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'otherTax');    
                 if (existingBookingFeesIndex !== -1) {  
                   tax.BaseFare += fixedAmount;                              
-                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount;
+                  tax.CommercialBreakup[existingBookingFeesIndex].Amount += (parseFloat(gstPersentageSingleColumn.value) / 100) * fixedAmount;
                 } else {                
                   tax.CommercialBreakup.push({
                         CommercialType: "otherTax",
                         onCommercialApply: "Base",          
-                        Amount: (parseFloat(gstPersentageSingleColumn.value) / 100) + fixedAmount,
+                        Amount: (parseFloat(gstPersentageSingleColumn.value) / 100) * fixedAmount,
                         SupplierType: supplierTypeFor
                     });
                     tax.BaseFare += fixedAmount;

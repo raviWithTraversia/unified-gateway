@@ -6301,7 +6301,7 @@ const commertialMatrixValue = async (
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Onward Only');    
             if (existingBookingFeesIndex !== -1) {                             
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
-              console.log('aaaaaaaaaa');
+              
               applyFixedMarkupFeeToBaseOtherTaxes(
                 singleFlightDetails,                
                 singleFlightDetails.PriceBreakup[0],
@@ -6338,7 +6338,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
               applyFixedMarkupFeeToBaseOtherTaxes(
                 singleFlightDetails,                
-                singleFlightDetails.PriceBreakup[0],
+                singleFlightDetails.PriceBreakup[1],
                 "CHD",
                 fixedChildRate,
                 fixedMarkupAllColumn,
@@ -6353,7 +6353,7 @@ const commertialMatrixValue = async (
                 });
                 applyFixedMarkupFeeToBaseOtherTaxes(
                   singleFlightDetails,                
-                  singleFlightDetails.PriceBreakup[0],
+                  singleFlightDetails.PriceBreakup[1],
                   "CHD",
                   fixedChildRate,
                   fixedMarkupAllColumn,
@@ -6371,7 +6371,7 @@ const commertialMatrixValue = async (
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
               applyFixedMarkupFeeToBaseOtherTaxes(
                 singleFlightDetails,                
-                singleFlightDetails.PriceBreakup[0],
+                singleFlightDetails.PriceBreakup[2],
                 "INF",
                 fixedInfantRate,
                 fixedMarkupAllColumn,
@@ -6386,7 +6386,7 @@ const commertialMatrixValue = async (
                 });
                 applyFixedMarkupFeeToBaseOtherTaxes(
                   singleFlightDetails,                
-                  singleFlightDetails.PriceBreakup[0],
+                  singleFlightDetails.PriceBreakup[2],
                   "INF",
                   fixedInfantRate,
                   fixedMarkupAllColumn,
@@ -6437,7 +6437,7 @@ const commertialMatrixValue = async (
         }
       }
 
-      // on word only start End
+      // on word only  End
 
       // Non Zero Only Start Here
       const applyFixedMarkupFeeToNonZeroOnly = (
@@ -6531,6 +6531,14 @@ const commertialMatrixValue = async (
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per Airline Per Pax');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[0],
+                "ADT",
+                fixedAdultRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6538,12 +6546,29 @@ const commertialMatrixValue = async (
                     Amount: totalCount * fixedAdultRate,
                     SupplierType: supplierTypeFor
                 });
+
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[0],
+                  "ADT",
+                  fixedAdultRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );
             }
             //tax.MarkUp += totalCount * fixedAdultRate;
           } else if (type === "CHD") {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per Airline Per Pax');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[1],
+                "CHD",
+                fixedChildRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6551,12 +6576,28 @@ const commertialMatrixValue = async (
                     Amount: totalCount * totalCount * fixedChildRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[1],
+                  "CHD",
+                  fixedChildRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );
             }
             //tax.MarkUp += totalCount * fixedChildRate;
           } else if (type === "INF") {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per Airline Per Pax');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[2],
+                "INF",
+                fixedInfantRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6564,6 +6605,14 @@ const commertialMatrixValue = async (
                     Amount: totalCount * totalCount * fixedInfantRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[2],
+                  "INF",
+                  fixedInfantRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );
             }
             //tax.MarkUp += totalCount * fixedInfantRate;
           }
@@ -6620,6 +6669,14 @@ const commertialMatrixValue = async (
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per PNR PER Ticket');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[0],
+                "ADT",
+                fixedAdultRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6627,12 +6684,28 @@ const commertialMatrixValue = async (
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[0],
+                  "ADT",
+                  fixedAdultRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );
             }
            // tax.MarkUp += fixedAdultRate;
           } else if (type === "CHD") {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per PNR PER Ticket');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[1],
+                "CHD",
+                fixedChildRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6640,12 +6713,28 @@ const commertialMatrixValue = async (
                     Amount: fixedChildRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[1],
+                  "CHD",
+                  fixedChildRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );
             }
            // tax.MarkUp += fixedChildRate;
           } else if (type === "INF") {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per PNR PER Ticket');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[2],
+                "INF",
+                fixedInfantRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6653,6 +6742,14 @@ const commertialMatrixValue = async (
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[2],
+                  "INF",
+                  fixedInfantRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );  
             }
             //tax.MarkUp += fixedInfantRate;
           }
@@ -6709,6 +6806,14 @@ const commertialMatrixValue = async (
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per Pax per sector');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedAdultRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[0],
+                "ADT",
+                fixedAdultRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6716,12 +6821,28 @@ const commertialMatrixValue = async (
                     Amount: fixedAdultRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[0],
+                  "ADT",
+                  fixedAdultRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );
             }
            // tax.MarkUp += fixedAdultRate;
           } else if (type === "CHD") {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per Pax per sector');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedChildRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[1],
+                "CHD",
+                fixedChildRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6729,12 +6850,28 @@ const commertialMatrixValue = async (
                     Amount: fixedChildRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[1],
+                  "CHD",
+                  fixedChildRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );
             }
             //tax.MarkUp += fixedChildRate;
           } else if (type === "INF") {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per Pax per sector');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += fixedInfantRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[2],
+                "INF",
+                fixedInfantRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6742,6 +6879,14 @@ const commertialMatrixValue = async (
                     Amount: fixedInfantRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[2],
+                  "INF",
+                  fixedInfantRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );
             }
             //tax.MarkUp += fixedInfantRate;
           }
@@ -6818,6 +6963,14 @@ const commertialMatrixValue = async (
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per Flight Per Pax');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedAdultRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[0],
+                "ADT",
+                fixedAdultRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6825,12 +6978,28 @@ const commertialMatrixValue = async (
                     Amount: totalCount * totalCount * fixedAdultRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[0],
+                  "ADT",
+                  fixedAdultRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );
             }
             //tax.MarkUp += totalCount * fixedAdultRate;
           } else if (type === "CHD") {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per Flight Per Pax');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedChildRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[1],
+                "CHD",
+                fixedChildRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6838,12 +7007,28 @@ const commertialMatrixValue = async (
                     Amount: totalCount * totalCount * fixedChildRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[1],
+                  "CHD",
+                  fixedChildRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );
             }
            // tax.MarkUp += totalCount * fixedChildRate;
           } else if (type === "INF") {
             const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.onCommercialApply === 'Per Flight Per Pax');    
             if (existingBookingFeesIndex !== -1) {                
               tax.CommercialBreakup[existingBookingFeesIndex].Amount += totalCount * fixedInfantRate;
+              applyFixedMarkupFeeToBaseOtherTaxes(
+                singleFlightDetails,                
+                singleFlightDetails.PriceBreakup[2],
+                "INF",
+                fixedInfantRate,
+                fixedMarkupAllColumn,
+                supplierTypeFor
+              );
             } else {                
               tax.CommercialBreakup.push({
                     CommercialType: "Markup",
@@ -6851,6 +7036,14 @@ const commertialMatrixValue = async (
                     Amount: totalCount * totalCount * fixedInfantRate,
                     SupplierType: supplierTypeFor
                 });
+                applyFixedMarkupFeeToBaseOtherTaxes(
+                  singleFlightDetails,                
+                  singleFlightDetails.PriceBreakup[2],
+                  "INF",
+                  fixedInfantRate,
+                  fixedMarkupAllColumn,
+                  supplierTypeFor
+                );
             }
            // tax.MarkUp += totalCount * fixedInfantRate;
           }

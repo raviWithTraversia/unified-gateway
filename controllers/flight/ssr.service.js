@@ -643,9 +643,9 @@ const rePriceSeat = (seatObj, seatSsr) => {
           if (key === "TotalPrice" && facility[key] > 0) {
             let price = facility[key];
             let markupPercent = (price / 100) * seatSsr?.markup?.percentCharge;
-            let discountPercent =
-              (price / 100) * seatSsr?.discount?.percentCharge;
             let totalMarkup = markupPercent + seatSsr?.markup?.fixCharge;
+            let discountPercent =
+              (price / 100) * totalMarkup;
             let totalDiscount = discountPercent + seatSsr?.discount?.fixCharge;
 
             if (totalMarkup >= seatSsr?.markup?.maxValue) {

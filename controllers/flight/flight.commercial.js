@@ -8671,8 +8671,10 @@ const commertialMatrixValue = async (
               }
               
             } else if (type === "CHD") {
+                         
               const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
-              const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS');             
+              const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS' && item.onCommercialApply === 'SegmentKickback');             
+              
               if (existingTDSIndex !== -1) {                
                 tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
               } else {                
@@ -8685,7 +8687,7 @@ const commertialMatrixValue = async (
               
             } else if (type === "INF") {
               const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
-              const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS');             
+              const existingTDSIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS' && item.onCommercialApply === 'SegmentKickback');             
               if (existingTDSIndex !== -1) {                
                 tax.CommercialBreakup[existingTDSIndex].Amount += (parseFloat(tdsCheckFromConfig) / 100) * tax.CommercialBreakup[existingBookingFeesIndex].Amount;
               } else {                
@@ -8710,7 +8712,7 @@ const commertialMatrixValue = async (
       
       if (tdsSingleColumn?.textType === "checkbox" && tdsSingleColumn.value) {        
         if (singleFlightDetails.PriceBreakup[0] && Object.keys(singleFlightDetails.PriceBreakup[0]).length > 0) {
-           
+          
         applySegmentKickbackToTDS(
           singleFlightDetails,
           singleFlightDetails.PriceBreakup[0],
@@ -8719,6 +8721,7 @@ const commertialMatrixValue = async (
         );
         }
         if (singleFlightDetails.PriceBreakup[1] && Object.keys(singleFlightDetails.PriceBreakup[1]).length > 0) {
+          
         applySegmentKickbackToTDS(
           singleFlightDetails,
           singleFlightDetails.PriceBreakup[1],

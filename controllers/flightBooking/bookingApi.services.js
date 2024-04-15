@@ -67,16 +67,19 @@ const getAllBooking = async (req, res) => {
         filter.bookingStatus = status;
     }
   
-    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-      
+    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {      
       filter.bookingDateTime = {
-          $gte: fromDate, // Greater than or equal to fromDate
-          $lte: toDate    // Less than or equal to toDate
+        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
       };
     } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = { $lte: fromDate };
+      filter.bookingDateTime = { 
+        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+       };
     } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = { $gte: toDate };
+      filter.bookingDateTime = { 
+        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      };
     }
     
     const bookingDetails = await bookingdetails.find(filter)
@@ -137,13 +140,19 @@ const getAllBooking = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
     }
-
-    if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = { ...filter.bookingDateTime, $lte: fromDate };
-    }
-
-    if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = { ...filter.bookingDateTime, $gte: toDate };
+    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {      
+      filter.bookingDateTime = {
+        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      };
+    } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      filter.bookingDateTime = { 
+        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+       };
+    } else if (toDate !== undefined && toDate.trim() !== "") {
+      filter.bookingDateTime = { 
+        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      };
     }
     
     const bookingDetails = await bookingdetails.find(filter)
@@ -203,13 +212,19 @@ const getAllBooking = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
     }
-
-    if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = { ...filter.bookingDateTime, $lte: fromDate };
-    }
-
-    if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = { ...filter.bookingDateTime, $gte: toDate };
+    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {      
+      filter.bookingDateTime = {
+        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      };
+    } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      filter.bookingDateTime = { 
+        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+       };
+    } else if (toDate !== undefined && toDate.trim() !== "") {
+      filter.bookingDateTime = { 
+        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      };
     }
     
     const bookingDetails = await bookingdetails.find(filter)

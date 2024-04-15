@@ -92,7 +92,7 @@ creditRequest.storeCreditRequest
  */
 
 credit_route.get(
-    '/credit/get-all-credit-request' , 
+    '/credit/get-all-credit-request', 
     auth,
     creditRequest.getAllCreditRequest
 )

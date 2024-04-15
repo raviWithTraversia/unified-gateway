@@ -100,7 +100,7 @@ const getApplyAllCommercial = async (
         RefundableFare: true,
         IndexNumber: 0,
         Provider: "Kafila",
-        ValCarrier: "6E",
+        ValCarrier: "SG",
         LastTicketingDate: "",
         TravelTime: "1d:0h:50m",
         PriceBreakup: [
@@ -604,8 +604,8 @@ const getApplyAllCommercial = async (
       },
     ];
     
-     for (const singleFlightDetails of commonArray) {
-   // for (const singleFlightDetails of commonArrayDummy) {
+     //for (const singleFlightDetails of commonArray) {
+    for (const singleFlightDetails of commonArrayDummy) {
       
       // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
@@ -617,7 +617,7 @@ const getApplyAllCommercial = async (
         );
         if (groupPriority.length > 0) { 
           //console.log('carrier', groupPriority);
-          //console.log(groupPriority) 
+          //console.log(groupPriority.sort((a, b) => a.priority - b.priority)) 
                                 
           for (let i = 0; i < groupPriority.sort((a, b) => a.priority - b.priority).length; i++) {
             const commList = groupPriority[i];            
@@ -10428,6 +10428,28 @@ const makePriorityGroup = async (
 ) => {
   let groupedMatches = {};
 
+  // Sort the array of objects by the carrier property
+commercialPlanDetails.data[0].commercialFilterList.sort((a, b) => {
+  // Compare the carrier values
+  if (a.carrier === null && b.carrier !== null) {
+      return 1; // Place null values last
+  } else if (a.carrier !== null && b.carrier === null) {
+      return -1; // Place null values last
+  } else {
+      // If both are null or both are non-null, sort normally
+      if (a.carrier < b.carrier) {
+          return -1;
+      } else if (a.carrier > b.carrier) {
+          return 1;
+      } else {
+          return 0;
+      }
+  }
+});
+
+
+
+//console.log(commercialPlanDetails.data[0])
   for (
     let i = 0;
     i < commercialPlanDetails.data[0].commercialFilterList.length;

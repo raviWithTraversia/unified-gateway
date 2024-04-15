@@ -1925,6 +1925,10 @@ const getAssignCommercial = async (companyId) => {
           status: true,
         })
         .select("_id commercialPlanName");
+        if (!commercialairplansVar) {
+          return { IsSuccess: false, Message: "Commercial Not Available" };
+        }  
+
       aircommercialListVar = await aircommercialsList
         .find({
           commercialAirPlanId: commercialairplansVar._id,
@@ -1998,6 +2002,9 @@ const getAssignCommercial = async (companyId) => {
         status: true,
       })
       .select("_id commercialPlanName");
+      if (!commercialairplansVar) {
+        return { IsSuccess: false, Message: "Commercial Not Available" };
+      }  
     aircommercialListVar = await aircommercialsList
       .find({
         commercialAirPlanId: commercialairplansVar._id,

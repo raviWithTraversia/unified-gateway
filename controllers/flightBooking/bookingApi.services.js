@@ -54,7 +54,7 @@ const getAllBooking = async (req, res) => {
     
     let filter = { userId: userId };
     if (agencyId !== undefined && agencyId.trim() !== "") {
-        filter.userId._id = agencyId;
+      filter.userId = { _id: agencyId };
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -128,7 +128,7 @@ const getAllBooking = async (req, res) => {
 }else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer" ){
     let filter = { companyId: checkUserIdExist.company_ID };
     if (agencyId !== undefined && agencyId.trim() !== "") {
-        filter.userId._id = agencyId;
+      filter.userId = { _id: agencyId };
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -198,9 +198,10 @@ const getAllBooking = async (req, res) => {
         };
     }
 }else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" ){
-    let filter = {};
+  
+  let filter = {};
     if (agencyId !== undefined && agencyId.trim() !== "") {
-        filter.userId._id = agencyId;
+      filter.userId = { _id: agencyId };
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -226,7 +227,7 @@ const getAllBooking = async (req, res) => {
         $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
       };
     }
-    
+     
     const bookingDetails = await bookingdetails.find(filter)
     .populate({
         path: 'userId',

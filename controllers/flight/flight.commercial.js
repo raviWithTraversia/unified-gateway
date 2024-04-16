@@ -615,9 +615,7 @@ const getApplyAllCommercial = async (
           singleFlightDetails,
           commercialPlanDetails
         );
-        if (groupPriority.length > 0) { 
-          //console.log('carrier', groupPriority);
-          //console.log(groupPriority) 
+        if (groupPriority.length > 0) {                    
           const sortedGroupPriority = groupPriority.sort((a, b) => {
             if (a.carrier === null && b.carrier === null) {
                 return 0;
@@ -629,9 +627,11 @@ const getApplyAllCommercial = async (
                 return -1;
             }
             return a.priority - b.priority;
-          }); 
+          });           
+          
           for (let i = 0; i < sortedGroupPriority.length; i++) {
-            const commList = sortedGroupPriority[i];            
+            const commList = sortedGroupPriority[i];  
+                       
             if (
               TravelType === commList.travelType &&
               commList.carrier === singleFlightDetails.ValCarrier &&
@@ -663,7 +663,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              commList.fareFamily.length === 0 && 
+              //!commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
@@ -763,7 +764,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              commList.fareFamily.length === 0 &&
+              //!commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
@@ -788,7 +790,8 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              commList.fareFamily.length === 0 &&
+              //!commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
@@ -813,7 +816,8 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              !commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              commList.fareFamily.length === 0 &&
+              //!commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
@@ -10482,7 +10486,7 @@ const makePriorityGroup = async (
 ) => {
   let groupedMatches = {};
 
-//console.log(commercialPlanDetails.data[0])
+
   for (
     let i = 0;
     i < commercialPlanDetails.data[0].commercialFilterList.length;
@@ -10497,6 +10501,7 @@ const makePriorityGroup = async (
       commList.commercialCategory === "Ticket" &&
       commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
+      //console.log(commercialPlanDetails.data[0])
       const groupKey = `${TravelType}-${commList.carrier}-${commList.source}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
 
       if (!groupedMatches[groupKey]) {
@@ -10510,7 +10515,8 @@ const makePriorityGroup = async (
       commList.carrier === singleFlightDetails.ValCarrier &&
       commList.source === singleFlightDetails.Provider &&
       commList.commercialCategory === "Ticket" &&
-      !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+      commList.fareFamily.length === 0
+      //!commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.carrier}-${commList.source}-${commList.commercialCategory}`;
 
@@ -10570,7 +10576,8 @@ const makePriorityGroup = async (
       commList.carrier === singleFlightDetails.ValCarrier &&
       commList.source === null &&
       commList.commercialCategory === "Ticket" &&
-      !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+      commList.fareFamily.length === 0
+      //!commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.carrier}-${commList.commercialCategory}`;
 
@@ -10585,7 +10592,8 @@ const makePriorityGroup = async (
       commList.carrier === null &&
       commList.source === singleFlightDetails.Provider &&
       commList.commercialCategory === "Ticket" &&
-      !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+      commList.fareFamily.length === 0
+      //!commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `FTF-${commList.carrier}-${TravelType}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
 
@@ -10600,7 +10608,8 @@ const makePriorityGroup = async (
       commList.carrier === null &&
       commList.source === null &&
       commList.commercialCategory === "Ticket" &&
-      !commList.fareFamily.includes(singleFlightDetails.FareFamily)
+      commList.fareFamily.length === 0
+      //!commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.commercialCategory}`;
 

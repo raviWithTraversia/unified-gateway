@@ -73,7 +73,7 @@ const loginUser = async (req, res) => {
     let data = await User.find();
     let user = await User.findOne({
       $or: [{ email: email }, { phoneNumber: phoneNumber }],
-    });
+    }).populate("roleId");
     if (!user) {
       return {
         response: "User not found",
@@ -99,7 +99,8 @@ const loginUser = async (req, res) => {
       email: user.email,
       phoneNumber: user.phoneNumber,
       companyId: user.company_ID,
-      roleId : user?.roleId || null,
+      roleId : user?.roleId?._id || null,
+      userType: user?.roleId?.name || null,
       token: token,
       lastLogin : user?.last_LoginDate ||new Date(),
       userId : user?.userId || ""
@@ -107,7 +108,7 @@ const loginUser = async (req, res) => {
     if(user.roleId){
       let userRoleName = await Role.findOne({})
     }
-  console.log(userDetails)
+  //console.log(userDetails)
     user = {
       ip_address : req.ip,
       last_LoginDate : new Date()

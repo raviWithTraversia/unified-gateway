@@ -87,7 +87,7 @@ const authenticate = async (req, res) => {
         const {userId } = req.body;
 
             // Check if the user exists for the given user ID and company ID
-            const user = await UserModule.findOne({ _id: userId});
+            const user = await UserModule.findOne({ _id: userId}).populate("roleId");
            
             if (user) {
                 
@@ -101,7 +101,7 @@ const authenticate = async (req, res) => {
                 };
 
                 await UserModule.findOneAndUpdate({ _id: user._id }, updatedUser);
-                console.log("=====>>",user)
+                //console.log("=====>>",user)
                 // Prepare user details to be sent in the response
                 const userDetails = {
                     _id: user._id,
@@ -109,7 +109,8 @@ const authenticate = async (req, res) => {
                     email: user.email,
                     phoneNumber: user.phoneNumber,
                     companyId: user.company_ID,
-                    roleId: user?.roleId || null,
+                    roleId: user?.roleId?._id || null,
+                    userType: user?.roleId?.name || null,
                     token: token,
                     lastLogInDate : user?.last_LoginDate || null,
                     userId : user?.userId || ""

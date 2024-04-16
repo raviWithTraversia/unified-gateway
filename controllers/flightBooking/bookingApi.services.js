@@ -198,7 +198,7 @@ const getAllBooking = async (req, res) => {
         };
     }
 }else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" ){
-  
+ 
   let filter = {};
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.userId = { _id: agencyId };

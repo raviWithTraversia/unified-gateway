@@ -618,9 +618,20 @@ const getApplyAllCommercial = async (
         if (groupPriority.length > 0) { 
           //console.log('carrier', groupPriority);
           //console.log(groupPriority) 
-                                
-          for (let i = 0; i < groupPriority.sort((a, b) => a.priority - b.priority).length; i++) {
-            const commList = groupPriority[i];            
+          const sortedGroupPriority = groupPriority.sort((a, b) => {
+            if (a.carrier === null && b.carrier === null) {
+                return 0;
+            }
+            if (a.carrier === null) {
+                return 1;
+            }
+            if (b.carrier === null) {
+                return -1;
+            }
+            return a.priority - b.priority;
+          }); 
+          for (let i = 0; i < sortedGroupPriority.length; i++) {
+            const commList = sortedGroupPriority[i];            
             if (
               TravelType === commList.travelType &&
               commList.carrier === singleFlightDetails.ValCarrier &&
@@ -984,9 +995,22 @@ const getApplyAllCommercial = async (
           singleFlightDetails,
           commercialPlanDetails
         );
-        if (groupPriority.length > 0) {          
-          for (let i = 0; i < groupPriority.sort((a, b) => a.priority - b.priority).length; i++) {
-            const commList = groupPriority[i];            
+        if (groupPriority.length > 0) {  
+          
+          const sortedGroupPriority = groupPriority.sort((a, b) => {
+            if (a.carrier === null && b.carrier === null) {
+                return 0;
+            }
+            if (a.carrier === null) {
+                return 1;
+            }
+            if (b.carrier === null) {
+                return -1;
+            }
+            return a.priority - b.priority;
+          }); 
+          for (let i = 0; i < sortedGroupPriority.length; i++) {
+            const commList = sortedGroupPriority[i];          
             if (
               TravelType === commList.travelType &&
               commList.carrier === singleFlightDetails.ValCarrier &&
@@ -1283,8 +1307,20 @@ const getApplyAllCommercial = async (
           commercialPlanDetailsDistibuter
         );
         if (groupPriority.length > 0) {          
-          for (let i = 0; i < groupPriority.sort((a, b) => a.priority - b.priority).length; i++) {
-            const commList = groupPriority[i];            
+          const sortedGroupPriority = groupPriority.sort((a, b) => {
+            if (a.carrier === null && b.carrier === null) {
+                return 0;
+            }
+            if (a.carrier === null) {
+                return 1;
+            }
+            if (b.carrier === null) {
+                return -1;
+            }
+            return a.priority - b.priority;
+          }); 
+          for (let i = 0; i < sortedGroupPriority.length; i++) {
+            const commList = sortedGroupPriority[i];        
             if (
               TravelType === commList.travelType &&
               commList.carrier === singleFlightDetails.ValCarrier &&
@@ -1627,8 +1663,20 @@ const getApplyAllCommercial = async (
           commercialPlanDetails
         );
         if (groupPriority.length > 0) {          
-          for (let i = 0; i < groupPriority.sort((a, b) => a.priority - b.priority).length; i++) {
-            const commList = groupPriority[i];            
+          const sortedGroupPriority = groupPriority.sort((a, b) => {
+            if (a.carrier === null && b.carrier === null) {
+                return 0;
+            }
+            if (a.carrier === null) {
+                return 1;
+            }
+            if (b.carrier === null) {
+                return -1;
+            }
+            return a.priority - b.priority;
+          }); 
+          for (let i = 0; i < sortedGroupPriority.length; i++) {
+            const commList = sortedGroupPriority[i];         
             if (
               TravelType === commList.travelType &&
               commList.carrier === singleFlightDetails.ValCarrier &&
@@ -10433,27 +10481,6 @@ const makePriorityGroup = async (
   commercialPlanDetails
 ) => {
   let groupedMatches = {};
-
-  // Sort the array of objects by the carrier property
-commercialPlanDetails.data[0].commercialFilterList.sort((a, b) => {
-  // Compare the carrier values
-  if (a.carrier === null && b.carrier !== null) {
-      return 1; // Place null values last
-  } else if (a.carrier !== null && b.carrier === null) {
-      return -1; // Place null values last
-  } else {
-      // If both are null or both are non-null, sort normally
-      if (a.carrier < b.carrier) {
-          return -1;
-      } else if (a.carrier > b.carrier) {
-          return 1;
-      } else {
-          return 0;
-      }
-  }
-});
-
-
 
 //console.log(commercialPlanDetails.data[0])
   for (

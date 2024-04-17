@@ -10779,11 +10779,11 @@ const checkMarkupValue = async (
 
     }else{
       if(checkBasic.adultFixed != 0){
-        console.log('adt');
+        
         applyBasicTo("",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT");
       }
       if(checkBasic.childFixed != 0){
-        console.log('chd');
+       
         applyBasicTo("", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.childFixed, singleFlightDetails.PriceBreakup[1], "CHD");
       }
       if(checkBasic.infantFixed != 0){

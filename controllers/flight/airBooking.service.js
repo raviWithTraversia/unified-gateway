@@ -830,7 +830,10 @@ try {
                 },
                 Meal: passenger?.Meal,
                 Baggage: passenger?.Baggage,
-                Seat: passenger?.Seat,
+                Seat: passenger?.Seat,                
+                totalBaggagePrice: passenger?.totalBaggagePrice,
+                totalMealPrice: passenger?.totalMealPrice,
+                totalSeatPrice: passenger?.totalSeatPrice,
               })
             ),
             modifyBy: Authentication?.UserId,

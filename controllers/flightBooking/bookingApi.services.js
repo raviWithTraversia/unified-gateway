@@ -88,7 +88,7 @@ const getAllBooking = async (req, res) => {
         populate: {
             path: 'company_ID'
         }
-    }).sort({ _id: -1 });
+    });
 
 
     if (!bookingDetails || bookingDetails.length === 0) {
@@ -161,7 +161,7 @@ const getAllBooking = async (req, res) => {
         populate: {
             path: 'company_ID'
         }
-    }).sort({ _id: -1 });
+    });
 
     if (!bookingDetails || bookingDetails.length === 0) {
         return {
@@ -234,7 +234,7 @@ const getAllBooking = async (req, res) => {
         populate: {
             path: 'company_ID'
         }
-    }).sort({ _id: -1 });  
+    });  
     if (!bookingDetails || bookingDetails.length === 0) {
         return {
             response: "Data Not Found",

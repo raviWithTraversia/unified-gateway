@@ -67,11 +67,7 @@ const auth = require("../middleware/auth");
  */
 
 
-credit_route.post('/credit/add-credit-request' , 
-creditRequestValidator.creditValidation , 
-auth,
-creditRequest.storeCreditRequest
-);
+credit_route.post('/credit/add-credit-request', creditRequest.storeCreditRequest);
 
 
 

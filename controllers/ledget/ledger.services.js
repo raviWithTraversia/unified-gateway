@@ -3,10 +3,16 @@ const User = require("../../models/User");
 const ledger = require("../../models/Ledger");
 const getAllledger = async (req, res) => {
   const {
-    userId,     
+    userId, 
+    fromDate,
+    toDate, 
+    transactionType   
   } = req.body;
   const fieldNames = [
-    "userId",          
+    "userId", 
+    "fromDate",
+    "toDate",
+    "transactionType"         
   ];
   const missingFields = fieldNames.filter(
     (fieldName) =>
@@ -37,7 +43,26 @@ const getAllledger = async (req, res) => {
   } 
 
   if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
-    let filter = { userId: userId };    
+    let filter = { userId: userId }; 
+
+    if (transactionType !== undefined && transactionType.trim() !== "") {
+        filter.transactionType = transactionType;
+    }
+
+    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {      
+      filter.transationDate = {
+        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      };
+    } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      filter.transationDate = { 
+        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      };
+    } else if (toDate !== undefined && toDate.trim() !== "") {
+      filter.transationDate = { 
+        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      };
+    }   
     const ledgerDetails = await ledger.find(filter)
     .populate("userId").populate('companyId');
 
@@ -54,7 +79,24 @@ const getAllledger = async (req, res) => {
     }
 }else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer" ){
     let filter = { companyId: checkUserIdExist.company_ID };
-    
+    if (transactionType !== undefined && transactionType.trim() !== "") {
+      filter.transactionType = transactionType;
+  }
+
+  if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {      
+    filter.transationDate = {
+      $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+      $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+    };
+  } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    filter.transationDate = { 
+      $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+    };
+  } else if (toDate !== undefined && toDate.trim() !== "") {
+    filter.transationDate = { 
+      $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+    };
+  } 
     const ledgerDetails = await ledger.find(filter)
     .populate("userId").populate('companyId');
 
@@ -70,7 +112,24 @@ const getAllledger = async (req, res) => {
     }
 }else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" ){
     let filter = {};    
-    
+    if (transactionType !== undefined && transactionType.trim() !== "") {
+      filter.transactionType = transactionType;
+  }
+
+  if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {      
+    filter.transationDate = {
+      $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+      $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+    };
+  } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    filter.transationDate = { 
+      $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+    };
+  } else if (toDate !== undefined && toDate.trim() !== "") {
+    filter.transationDate = { 
+      $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+    };
+  } 
     const ledgerDetails = await ledger.find(filter)
     .populate("userId").populate('companyId');
     if (!ledgerDetails || ledgerDetails.length === 0) {

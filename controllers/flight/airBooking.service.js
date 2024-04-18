@@ -240,6 +240,7 @@ const KafilaFun = async (
   ItineraryPriceCheckResponses,
   paymentMethodType
 ) => {
+  
   let createTokenUrl;
   let flightSearchUrl;
   // Apply APi for Type of trip ( ONEWAY / ROUNDTRIP / MULTYCITY )
@@ -319,7 +320,7 @@ const KafilaFun = async (
       response: "Invalid TypeOfTrip",
     };
   }
-
+  
   // Calculate Balance with commercial 
 const preparePassengerArrayListForBookingApiPayload = async (allPassengerArrayList,allItineraryArrayList) => {  
     let returnPassengerPayloadArrayList = allPassengerArrayList;            
@@ -327,7 +328,7 @@ const preparePassengerArrayListForBookingApiPayload = async (allPassengerArrayLi
       returnPassengerPayloadArrayList.forEach((passengerElement) => {
           
           let totalBasePrice = 0, totalTaxPrice = 0, totalBookingFees = 0, totalGstAmount = 0;
-  
+          
           allItineraryArrayList.forEach((childElement) => {
               let PriceBreakup = childElement?.PriceBreakup;
               let advanceAgentMarkup = childElement?.advanceAgentMarkup;
@@ -337,6 +338,7 @@ const preparePassengerArrayListForBookingApiPayload = async (allPassengerArrayLi
                     passengerElement?.PaxType ==
                     priceBreakupElement?.PassengerType
                 ) {
+                  
                     totalBasePrice +=
                         priceBreakupElement?.BaseFare +
                         priceBreakupElement?.AgentMarkupBreakup?.Basic +
@@ -350,12 +352,12 @@ const preparePassengerArrayListForBookingApiPayload = async (allPassengerArrayLi
                     totalBookingFees +=
                         priceBreakupElement?.AgentMarkupBreakup?.BookingFee +
                         advanceAgentMarkup?.adult?.feesFare;
-    
+                        
                     totalGstAmount += advanceAgentMarkup?.adult?.gstFare;
                     if (priceBreakupElement?.AgentMarkupBreakup?.BookingFee)
                         totalGstAmount +=
-                            priceBreakupElement?.AgentMarkupBreakup?.BookingFee *
-                            new AppSetting().gstPercentageAmount;
+                            priceBreakupElement?.AgentMarkupBreakup?.BookingFee
+                             //* new AppSetting().gstPercentageAmount;
     
                     priceBreakupElement?.CommercialBreakup.forEach(
                         (commercialBreakup) => {
@@ -363,10 +365,12 @@ const preparePassengerArrayListForBookingApiPayload = async (allPassengerArrayLi
                             if (CommercialType == "Markup") totalBasePrice += Amount;
                         }
                     );
+
+                    
                 }
             });
           });
-  
+          
           passengerElement.totalBasePrice = totalBasePrice;
           passengerElement.totalTaxPrice = totalTaxPrice;
           passengerElement.totalBookingFees = totalBookingFees;
@@ -376,6 +380,7 @@ const preparePassengerArrayListForBookingApiPayload = async (allPassengerArrayLi
   
       return returnPassengerPayloadArrayList;
 }
+
 // Example usage:
 const getAllPriceAppliedPessengerwise = await preparePassengerArrayListForBookingApiPayload(PassengerPreferences.Passengers, ItineraryPriceCheckResponses);
 let totalssrPrice = 0;
@@ -603,7 +608,7 @@ try {
   return "An error occurred. Please try again later.";
 }
 
-    
+
 // Calculation End here
 // return totalSSRWithCalculationPrice;
 

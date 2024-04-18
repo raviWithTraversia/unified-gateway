@@ -68,6 +68,11 @@ const CreditRequestSchema = new mongoose.Schema({
         max : Number.MAX_SAFE_INTEGER,
         required : false,
         default : 0
+    },
+    product: {
+        type : String,
+        required : false,
+        default : null
     }
 },{
     timestamps : true  //add created_at and updated_at

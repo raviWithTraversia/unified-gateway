@@ -17,6 +17,7 @@ const addCreditRequest = async(req , res) => {
             createdDate,
             createdBy,
             requestedAmount,
+            product
         } = req.body;
 
         if(!companyId || !createdBy || !requestedAmount) {
@@ -24,7 +25,7 @@ const addCreditRequest = async(req , res) => {
                 response : 'All field are required'
             }
         }
-
+       
         // check companyId exist or not
         const checkExistCompany = await Company.findById(companyId);
         if(!checkExistCompany) {
@@ -32,7 +33,7 @@ const addCreditRequest = async(req , res) => {
                 response : 'companyId does not exist'
             }
         }
-
+        
         // Check created BY id exist or not
         const checkUserIdExist = await User.findById(createdBy);
         if(!checkUserIdExist) {
@@ -40,6 +41,7 @@ const addCreditRequest = async(req , res) => {
                 response : 'createdBy id does not exist'
             }
         }
+       
         const saveResult = new CreditRequest({
             companyId,
             date,
@@ -51,28 +53,32 @@ const addCreditRequest = async(req , res) => {
             expireDate,
             createdDate,
             createdBy,
-            requestedAmount 
+            requestedAmount ,
+            product
         })
         
         const result = await saveResult.save();
-        
+        if (result) {     
+       
         // Log add 
-        const doerId = req.user._id;
-        const loginUser = await User.findById(doerId);
+        // const doerId = req.user._id;
+        // const loginUser = await User.findById(doerId);
 
-        await commonFunction.eventLogFunction(
-            'creditRequest' ,
-            doerId ,
-            loginUser.fname ,
-            req.ip , 
-            companyId , 
-            'add credit request'
-        );
+        // await commonFunction.eventLogFunction(
+        //     'creditRequest',
+        //     doerId ,
+        //     loginUser.fname ,
+        //     req.ip , 
+        //     companyId , 
+        //     'add credit request'
+        // );
 
         return {
             response : 'Credit request created successfully'
         }
-
+        } else {
+            console.log("Failed to save result!");
+        }
     } catch (error) {
         throw error;
     }

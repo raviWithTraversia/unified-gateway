@@ -3367,8 +3367,10 @@ const checkIncentiveFilter = async (
                   singleFlightDetails.PriceBreakup[0]
                 ) {    
                   const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;             
+                  const calculateBase = await calculateAfterCommertialPriceIncentive(singleFlightDetails.PriceBreakup,'base','ADT');
+                  
                   const totalIncentiveVal =
-                   ( singleFlightDetails.PriceBreakup[0].BaseFare *
+                   ( calculateBase *
                       persentageValue) -
                     parseFloat(tdsCheckFromConfig) / 100;                     
                   if (checkminPrice && checkmaxPrice) {
@@ -3402,8 +3404,10 @@ const checkIncentiveFilter = async (
                   singleFlightDetails.PriceBreakup[1]
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+                  const calculateBase = await calculateAfterCommertialPriceIncentive(singleFlightDetails.PriceBreakup,'base','CHD');
+                  
                   const totalIncentiveVal =
-                    (singleFlightDetails.PriceBreakup[1].BaseFare *
+                    (calculateBase *
                       persentageValue) -
                     parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
@@ -3435,8 +3439,10 @@ const checkIncentiveFilter = async (
                   singleFlightDetails.PriceBreakup[2]
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+                  const calculateBase = await calculateAfterCommertialPriceIncentive(singleFlightDetails.PriceBreakup,'base','INF');
+                  
                   const totalIncentiveVal =
-                    (singleFlightDetails.PriceBreakup[2].BaseFare *
+                    (calculateBase *
                       persentageValue) -
                     parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
@@ -3876,9 +3882,10 @@ const checkIncentiveFilter = async (
                 if (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[0]
-                ) {                  
+                ) {  
+                  const calculateBase = await calculateAfterCommertialPriceIncentive(singleFlightDetails.PriceBreakup,'base','ADT');
                   const totalIncentiveVal =
-                   singleFlightDetails.PriceBreakup[0].BaseFare *
+                  calculateBase *
                       persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -3912,8 +3919,9 @@ const checkIncentiveFilter = async (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[1]
                 ) {
+                  const calculateBase = await calculateAfterCommertialPriceIncentive(singleFlightDetails.PriceBreakup,'base','CHD');
                   const totalIncentiveVal =
-                    singleFlightDetails.PriceBreakup[1].BaseFare *
+                  calculateBase *
                       persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -3946,8 +3954,9 @@ const checkIncentiveFilter = async (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[2]
                 ) {
+                  const calculateBase = await calculateAfterCommertialPriceIncentive(singleFlightDetails.PriceBreakup,'base','INF');
                   const totalIncentiveVal =
-                    singleFlightDetails.PriceBreakup[2].BaseFare *
+                  calculateBase *
                       persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -4820,9 +4829,10 @@ const checkPLBFilter = async (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[0]
                 ) {    
-                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;             
+                  const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+                  const calculateBase = await calculateAfterCommertialPricePLB(singleFlightDetails.PriceBreakup,'base','ADT');             
                   const totalIncentiveVal =
-                   ( singleFlightDetails.PriceBreakup[0].BaseFare *
+                   ( calculateBase *
                       persentageValue) -
                     parseFloat(tdsCheckFromConfig) / 100;                     
                   if (checkminPrice && checkmaxPrice) {
@@ -4856,8 +4866,9 @@ const checkPLBFilter = async (
                   singleFlightDetails.PriceBreakup[1]
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5; 
+                  const calculateBase = await calculateAfterCommertialPricePLB(singleFlightDetails.PriceBreakup,'base','CHD');
                   const totalIncentiveVal =
-                    (singleFlightDetails.PriceBreakup[1].BaseFare *
+                    (calculateBase *
                       persentageValue) -
                     parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
@@ -4889,8 +4900,9 @@ const checkPLBFilter = async (
                   singleFlightDetails.PriceBreakup[2]
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess ? (configDetails.data.tds || 5) : 5;
+                  const calculateBase = await calculateAfterCommertialPricePLB(singleFlightDetails.PriceBreakup,'base','INF');
                   const totalIncentiveVal =
-                    (singleFlightDetails.PriceBreakup[2].BaseFare *
+                    (calculateBase *
                       persentageValue) -
                     parseFloat(tdsCheckFromConfig) / 100;
                   if (checkminPrice && checkmaxPrice) {
@@ -5330,9 +5342,10 @@ const checkPLBFilter = async (
                 if (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[0]
-                ) {                  
+                ) { 
+                  const calculateBase = await calculateAfterCommertialPricePLB(singleFlightDetails.PriceBreakup,'base','ADT');                 
                   const totalIncentiveVal =
-                   singleFlightDetails.PriceBreakup[0].BaseFare *
+                  calculateBase *
                       persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -5366,8 +5379,9 @@ const checkPLBFilter = async (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[1]
                 ) {
+                  const calculateBase = await calculateAfterCommertialPricePLB(singleFlightDetails.PriceBreakup,'base','CHD'); 
                   const totalIncentiveVal =
-                    singleFlightDetails.PriceBreakup[1].BaseFare *
+                  calculateBase *
                       persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -5400,8 +5414,9 @@ const checkPLBFilter = async (
                   singleFlightDetails.PriceBreakup &&
                   singleFlightDetails.PriceBreakup[2]
                 ) {
+                  const calculateBase = await calculateAfterCommertialPricePLB(singleFlightDetails.PriceBreakup,'base','INF'); 
                   const totalIncentiveVal =
-                    singleFlightDetails.PriceBreakup[2].BaseFare *
+                  calculateBase *
                       persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -10742,6 +10757,7 @@ const checkMarkupValue = async (
     };
     if(checkBasic.sectorWise){
       if(checkBasic.adultFixed != 0){
+       
         applyBasicTo("sectorWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT");
       }
       if(checkBasic.childFixed != 0){
@@ -10763,9 +10779,11 @@ const checkMarkupValue = async (
 
     }else{
       if(checkBasic.adultFixed != 0){
+        
         applyBasicTo("",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT");
       }
       if(checkBasic.childFixed != 0){
+       
         applyBasicTo("", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.childFixed, singleFlightDetails.PriceBreakup[1], "CHD");
       }
       if(checkBasic.infantFixed != 0){
@@ -11069,7 +11087,144 @@ const checkMarkupValue = async (
   return singleFlightDetails;
 };
 
+async function calculateAfterCommertialPriceIncentive(priceBreakup, type, personType) { // type:base,Tax , personType:ADT,CHD,INF
+ 
+ if(type === 'base' && personType === 'ADT'){
 
+  let totalMarkupAmount = 0; 
+  let totaldisCountAmount = 0;  
+  let totalTDSAmount = 0; 
+    priceBreakup[0].CommercialBreakup.forEach(item => {        
+        if (item.CommercialType === 'Markup') {            
+          totalMarkupAmount += item.Amount;
+        }
+        if (item.CommercialType === 'Discount') {            
+          totaldisCountAmount += item.Amount;
+        }
+        if (item.CommercialType === 'TDS' && item.onCommercialApply === 'Discount') {            
+          totalTDSAmount += item.Amount;
+        }
+    });
+    const basePrice = (priceBreakup[0].BaseFare + totalMarkupAmount) - (totaldisCountAmount - totalTDSAmount);
+    
+    return basePrice;
+ }else if(type === 'base' && personType === 'CHD'){
+
+  let totalMarkupAmount = 0; 
+  let totaldisCountAmount = 0;  
+  let totalTDSAmount = 0; 
+    priceBreakup[1].CommercialBreakup.forEach(item => {        
+        if (item.CommercialType === 'Markup') {            
+          totalMarkupAmount += item.Amount;
+        }
+        if (item.CommercialType === 'Discount') {            
+          totaldisCountAmount += item.Amount;
+        }
+        if (item.CommercialType === 'TDS') {            
+          totalTDSAmount += item.Amount;
+        }
+    });
+    const basePrice = (priceBreakup[0].BaseFare + totalMarkupAmount) - (totaldisCountAmount + totalTDSAmount);
+    
+    return basePrice;
+ }else if(type === 'base' && personType === 'INF'){
+
+  let totalMarkupAmount = 0; 
+  let totaldisCountAmount = 0;  
+  let totalTDSAmount = 0; 
+    priceBreakup[2].CommercialBreakup.forEach(item => {        
+        if (item.CommercialType === 'Markup') {            
+          totalMarkupAmount += item.Amount;
+        }
+        if (item.CommercialType === 'Discount') {            
+          totaldisCountAmount += item.Amount;
+        }
+        if (item.CommercialType === 'TDS') {            
+          totalTDSAmount += item.Amount;
+        }
+    });
+    const basePrice = (priceBreakup[0].BaseFare + totalMarkupAmount) - (totaldisCountAmount + totalTDSAmount);
+    
+    return basePrice;
+ }
+ 
+  
+}
+async function calculateAfterCommertialPricePLB(priceBreakup, type, personType) { // type:base,Tax , personType:ADT,CHD,INF
+ 
+  if(type === 'base' && personType === 'ADT'){
+ 
+   let totalMarkupAmount = 0; 
+   let totaldisCountAmount = 0;  
+   let totalTDSAmount = 0; 
+   let totalIncentiveAmount = 0; 
+     priceBreakup[0].CommercialBreakup.forEach(item => {        
+         if (item.CommercialType === 'Markup') {            
+           totalMarkupAmount += item.Amount;
+         }
+         if (item.CommercialType === 'Discount') {            
+           totaldisCountAmount += item.Amount;
+         }
+         if (item.CommercialType === 'TDS' && item.onCommercialApply === 'Discount') {            
+           totalTDSAmount += item.Amount;
+         }
+         if (item.CommercialType === 'Incentive') {            
+          totalIncentiveAmount += item.Amount;
+         }
+     });
+     const basePrice = (priceBreakup[0].BaseFare + totalMarkupAmount) - (totaldisCountAmount - totalTDSAmount);
+     
+     return basePrice - totalIncentiveAmount;
+  }else if(type === 'base' && personType === 'CHD'){
+ 
+   let totalMarkupAmount = 0; 
+   let totaldisCountAmount = 0;  
+   let totalTDSAmount = 0;
+   let totalIncentiveAmount = 0; 
+     priceBreakup[1].CommercialBreakup.forEach(item => {        
+         if (item.CommercialType === 'Markup') {            
+           totalMarkupAmount += item.Amount;
+         }
+         if (item.CommercialType === 'Discount') {            
+           totaldisCountAmount += item.Amount;
+         }
+         if (item.CommercialType === 'TDS') {            
+           totalTDSAmount += item.Amount;
+         }
+         if (item.CommercialType === 'Incentive') {            
+          totalIncentiveAmount += item.Amount;
+         }
+     });
+     const basePrice = (priceBreakup[0].BaseFare + totalMarkupAmount) - (totaldisCountAmount + totalTDSAmount);
+     
+     return basePrice - totalIncentiveAmount;
+  }else if(type === 'base' && personType === 'INF'){
+ 
+   let totalMarkupAmount = 0; 
+   let totaldisCountAmount = 0;  
+   let totalTDSAmount = 0;
+   let totalIncentiveAmount = 0;  
+     priceBreakup[2].CommercialBreakup.forEach(item => {        
+         if (item.CommercialType === 'Markup') {            
+           totalMarkupAmount += item.Amount;
+         }
+         if (item.CommercialType === 'Discount') {            
+           totaldisCountAmount += item.Amount;
+         }
+         if (item.CommercialType === 'TDS') {            
+           totalTDSAmount += item.Amount;
+         }
+         if (item.CommercialType === 'Incentive') {            
+          totalIncentiveAmount += item.Amount;
+         }
+     });
+     const basePrice = (priceBreakup[0].BaseFare + totalMarkupAmount) - (totaldisCountAmount + totalTDSAmount);
+     
+     return basePrice - totalIncentiveAmount;
+  }
+  
+   
+ }
 module.exports = {
   getApplyAllCommercial,
 };

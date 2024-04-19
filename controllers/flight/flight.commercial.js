@@ -5818,6 +5818,7 @@ const checkPLBFilter = async (
   return singleFlightDetails;
 };
 
+
 const addPLBToBreakup = (priceBreakup, totalIncentiveVal,supplierTypeFor) => {
   priceBreakup.forEach(price => {
       if (price && price.CommercialBreakup) {

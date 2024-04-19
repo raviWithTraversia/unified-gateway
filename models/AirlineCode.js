@@ -25,6 +25,11 @@ const airlineCodeSchema = new mongoose.Schema({
         required : false,
         default : null
     },
+    customerCareNumber : {
+        type : String ,
+        required : false,
+        default : null
+    },
     timeStaamp : {
 
     }

@@ -10816,7 +10816,7 @@ const checkMarkupValue = async (
       filter.markUpCategoryId.markUpCategoryName === "Basic" 
   );
 
-  if(checkBasic){
+  if(checkBasic){    
     const applyBasicTo = (wise, markupRate, maxMarkup, paxVal, tax, type) => {
       if (wise === "sectorWise") {
         if ( tax && tax.AgentMarkupBreakup ) {
@@ -10889,18 +10889,28 @@ const checkMarkupValue = async (
         if ( tax && tax.AgentMarkupBreakup ) {          
         const countAirline = tax.AgentMarkupBreakup;
         const maxAmount = paxVal;
-        
+        let totalMarkupAmount = 0;        
+        tax.CommercialBreakup.forEach(item => {        
+            if (item.CommercialType === 'Markup') {            
+              totalMarkupAmount += item.Amount;
+            }              
+          });
+          
               if(maxMarkup != 0 && maxMarkup != null){
                 if(maxAmount <= maxMarkup){
+                  if(maxAmount !== markupRate){
                   countAirline.Basic += maxAmount;
-                  if(markupRate != 0 && markupRate != null){
-                    countAirline.Basic += (markupRate / 100) * tax.BaseFare;
                   }
-                }  
+                  if(markupRate != 0 && markupRate != null){                    
+                    countAirline.Basic += (markupRate / 100) * (tax.BaseFare + totalMarkupAmount);
+                  }
+                }
               }else{
-                countAirline.Basic += maxAmount;
+                if(maxAmount !== markupRate){
+                  countAirline.Basic += maxAmount;
+                }                
                 if(markupRate != 0 && markupRate != null){
-                  countAirline.Basic += (markupRate / 100) * tax.BaseFare;
+                  countAirline.Basic += (markupRate / 100) * (tax.BaseFare + totalMarkupAmount);
                 }
               }
               
@@ -10930,6 +10940,10 @@ const checkMarkupValue = async (
       }
 
     }else{
+      
+      if(checkBasic.markupRate != 0){        
+        applyBasicTo("",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.markupRate, singleFlightDetails.PriceBreakup[0], "ADT");
+      }
       if(checkBasic.adultFixed != 0){
         
         applyBasicTo("",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT");

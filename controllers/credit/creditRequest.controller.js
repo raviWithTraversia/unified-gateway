@@ -66,6 +66,25 @@ const getCreditByCompanyId = async(req , res) => {
         )
     }
 }
+const getCreditByAgentId = async(req , res) => {
+    try {
+        const result = await creditRequestService.getCredirRequestByAgentId(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
 
 const approveRejectCredit = async(req ,res) => {
     try {
@@ -106,5 +125,6 @@ module.exports = {
     storeCreditRequest , 
     getAllCreditRequest , 
     getCreditByCompanyId,
-    approveRejectCredit
+    approveRejectCredit,
+    getCreditByAgentId
 }

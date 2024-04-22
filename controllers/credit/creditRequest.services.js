@@ -112,7 +112,7 @@ const getCredirRequestByCompanyId = async(req , res) => {
         const CompanyId = req.params.companyId;
         // const getAllAgency = await Company.find({_id: CompanyId});
         // console.log(getAllAgency);
-        const result = await CreditRequest.find({companyId : CompanyId}).populate('companyId' , 'companyName');
+        const result = await CreditRequest.find({agencyId : CompanyId}).populate('companyId' , 'companyName');
         if (result.length > 0) {
             return {
                 data: result

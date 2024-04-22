@@ -11155,7 +11155,7 @@ async function calculateAfterCommertialPriceIncentive(priceBreakup, type, person
         //   totalTDSAmount += item.Amount;
         // }
     });
-    const basePrice = priceBreakup[0].BaseFare + totalMarkupAmount;
+    const basePrice = priceBreakup[0].BaseFare;
     
     return basePrice;
  }else if(type === 'base' && personType === 'CHD'){
@@ -11175,7 +11175,7 @@ async function calculateAfterCommertialPriceIncentive(priceBreakup, type, person
         //   totalTDSAmount += item.Amount;
         // }
     });
-    const basePrice = priceBreakup[1].BaseFare + totalMarkupAmount;    
+    const basePrice = priceBreakup[1].BaseFare;    
     return basePrice;
   }
 
@@ -11196,7 +11196,7 @@ async function calculateAfterCommertialPriceIncentive(priceBreakup, type, person
         //   totalTDSAmount += item.Amount;
         // }
     });
-    const basePrice = priceBreakup[2].BaseFare + totalMarkupAmount;
+    const basePrice = priceBreakup[2].BaseFare;
     
     return basePrice;
   }
@@ -11226,7 +11226,7 @@ async function calculateAfterCommertialPricePLB(priceBreakup, type, personType) 
         //   totalIncentiveAmount += item.Amount;
         //  }
      });
-     const basePrice = priceBreakup[0].BaseFare + totalMarkupAmount;
+     const basePrice = priceBreakup[0].BaseFare;
      
      return basePrice;
   }else if(type === 'base' && personType === 'CHD'){
@@ -11250,7 +11250,7 @@ async function calculateAfterCommertialPricePLB(priceBreakup, type, personType) 
         //   totalIncentiveAmount += item.Amount;
         //  }
      });
-     const basePrice = priceBreakup[1].BaseFare + totalMarkupAmount;
+     const basePrice = priceBreakup[1].BaseFare;
      
      return basePrice;
     }
@@ -11275,7 +11275,7 @@ async function calculateAfterCommertialPricePLB(priceBreakup, type, personType) 
         //   totalIncentiveAmount += item.Amount;
         //  }
      });
-     const basePrice = priceBreakup[2].BaseFare + totalMarkupAmount;
+     const basePrice = priceBreakup[2].BaseFare;
      
      return basePrice;
     }

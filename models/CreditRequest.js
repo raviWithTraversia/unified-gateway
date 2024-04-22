@@ -5,6 +5,10 @@ const CreditRequestSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Company',
     },
+    agencyId : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company',
+    },
     date : {
         type : Date,
         required : true,

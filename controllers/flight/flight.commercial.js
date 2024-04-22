@@ -4423,7 +4423,7 @@ function updateOrPushIncentive(CommercialBreakup, totalIncentiveVal,supplierType
 
 function updateOrPushIncentiveTDS(CommercialBreakup, totalIncentiveVal,supplierTypeFor,type) {
   if(type === "base"){
-  const existingcheckParentIncentiveIndex = CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'PLB' && item.onCommercialApply === 'On Base');
+  const existingcheckParentIncentiveIndex = CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'Incentive' && item.onCommercialApply === 'On Base');
   if (existingcheckParentIncentiveIndex !== -1) {  
   const existingIncentiveIndex = CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS' && item.onCommercialApply === 'Incentive');
   if (existingIncentiveIndex !== -1) {
@@ -4440,7 +4440,7 @@ function updateOrPushIncentiveTDS(CommercialBreakup, totalIncentiveVal,supplierT
   }
 }
   }else if(type === "tax"){
-    const existingcheckParentIncentiveIndex = CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'PLB' && item.onCommercialApply === 'tax');
+    const existingcheckParentIncentiveIndex = CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'Incentive' && item.onCommercialApply === 'tax');
     if (existingcheckParentIncentiveIndex !== -1) {  
     const existingIncentiveIndex = CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS' && item.onCommercialApply === 'Incentive');
     if (existingIncentiveIndex !== -1) {

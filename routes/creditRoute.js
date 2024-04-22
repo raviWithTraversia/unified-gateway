@@ -123,7 +123,11 @@ credit_route.get(
     creditRequest.getCreditByCompanyId
 )
 
-
+credit_route.get(
+    '/credit/get-credit-by-agent/:companyId' ,
+    auth, 
+    creditRequest.getCreditByAgentId
+)
 credit_route.patch(
     '/credit/approv-reject-credit/:creditRequestId',
     auth,

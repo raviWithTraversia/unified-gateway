@@ -68,7 +68,7 @@ const auth = require("../middleware/auth");
 
 
 credit_route.post('/credit/add-credit-request', creditRequest.storeCreditRequest);
-
+credit_route.post('/credit/wallettopup', creditRequest.wallettopup);
 
 
 /**

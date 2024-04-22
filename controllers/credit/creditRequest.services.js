@@ -88,7 +88,7 @@ const addCreditRequest = async(req , res) => {
 
 const getAllCreditList = async(req , res) => {
     try {
-        const result = await CreditRequest.find().populate('companyId' , 'companyName');
+        const result = await CreditRequest.find().populate('companyId' , 'companyName','agencyId');
         if (result.length > 0) {
             return {
                 data: result
@@ -112,7 +112,7 @@ const getCredirRequestByCompanyId = async(req , res) => {
         const CompanyId = req.params.companyId;
         // const getAllAgency = await Company.find({_id: CompanyId});
         // console.log(getAllAgency);
-        const result = await CreditRequest.find({companyId : CompanyId}).populate('companyId' , 'companyName');
+        const result = await CreditRequest.find({companyId : CompanyId}).populate('companyId' , 'companyName','agencyId');
         if (result.length > 0) {
             return {
                 data: result

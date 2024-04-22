@@ -2,6 +2,7 @@ const CreditRequest = require('../../models/CreditRequest');
 const Company = require('../../models/Company');
 const User = require('../../models/User');
 const commonFunction = require('../commonFunctions/common.function');
+const config = require('../../models/AgentConfig');
 
 
 const addCreditRequest = async(req , res) => {
@@ -85,6 +86,64 @@ const addCreditRequest = async(req , res) => {
         throw error;
     }
 }
+const addwallettopup = async(req , res) => {
+    try {
+        const {
+            companyId,
+            agencyId,                     
+            amount,            
+            remarks,            
+            createdDate,
+            createdBy,            
+            product,
+            modeofpayment
+        } = req.body;
+
+        if(!companyId || !createdBy || !requestedAmount || !agencyId) {
+            return {
+                response : 'All field are required'
+            }
+        }
+       
+        // check companyId exist or not
+        const checkExistCompany = await Company.findById(companyId);
+        if(!checkExistCompany) {
+            return {
+                response : 'companyId does not exist'
+            }
+        }
+        
+        // Check created BY id exist or not
+        const checkUserIdExist = await User.findById(createdBy);
+        if(!checkUserIdExist) {
+            return {
+                response : 'createdBy id does not exist'
+            }
+        }
+       
+        const getResult = await config.findOne({ userId: agencyId });
+        if (getResult) {
+        const maxCreditLimit = getResult.maxCreditLimit;
+        const updatedMaxCreditLimit = maxCreditLimit + amount;
+        const result = await config.updateOne({ userId: agencyId }, { maxCreditLimit: updatedMaxCreditLimit });
+        if (result) { 
+            return {
+                response : 'Topup request created successfully'
+            }
+            } else {
+                console.log("Failed to save result!");
+            }
+    
+       }  
+        
+        
+        
+       
+    } catch (error) {
+        throw error;
+    }
+}
+
 
 const getAllCreditList = async(req , res) => {
     try {
@@ -225,5 +284,6 @@ module.exports = {
      getAllCreditList , 
      getCredirRequestByCompanyId ,
      approveAndRejectCredit,
-     getCredirRequestByAgentId
+     getCredirRequestByAgentId,
+     addwallettopup
     }

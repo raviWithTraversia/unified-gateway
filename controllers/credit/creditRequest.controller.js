@@ -119,12 +119,36 @@ const approveRejectCredit = async(req ,res) => {
         )
     }
 }
-
+const wallettopup = async(req , res) => {
+    try {
+        const result = await creditRequestService.addwallettopup(req);
+        if(result.response == 'All field are required' || result.response == 'companyId does not exist' || result.response == 'createdBy id does not exist') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        }
+        else {
+            apiSucessRes(
+                res,
+                CrudMessage.CREDIT_REQUESTED_CREATED,
+                result.response,
+                ServerStatusCode.SUCESS_CODE
+            )  
+        }
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
 
 module.exports = {
     storeCreditRequest , 
     getAllCreditRequest , 
     getCreditByCompanyId,
     approveRejectCredit,
-    getCreditByAgentId
+    getCreditByAgentId,
+    wallettopup
 }

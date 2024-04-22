@@ -10817,24 +10817,44 @@ const checkMarkupValue = async (
   );
 
   if(checkBasic){    
-    const applyBasicTo = (wise, markupRate, maxMarkup, paxVal, tax, type) => {
+    const applyBasicTo = (wise, markupRate, maxMarkup, paxVal, tax, type, checkBasic) => {
       if (wise === "sectorWise") {
         if ( tax && tax.AgentMarkupBreakup ) {
           if(singleFlightDetails.Sectors[0].Group == 0){            
             const countAirline = tax.AgentMarkupBreakup;
              const maxAmount = paxVal;
-        
+             let totalMarkupAmount = 0;        
+             tax.CommercialBreakup.forEach(item => {        
+                 if (item.CommercialType === 'Markup') {            
+                   totalMarkupAmount += item.Amount;
+                 }              
+               });
               if(maxMarkup != 0 && maxMarkup != null){
-                if(maxAmount <= maxMarkup){
-                  countAirline.Basic += maxAmount;
+                
+                  if(type === "ADT" && checkBasic.adultFixed != 0){
+                    countAirline.Basic += checkBasic.adultFixed;
+                  }else if(type === "CHD" && checkBasic.childFixed != 0){
+                    countAirline.Basic += checkBasic.childFixed;
+                  } else if(type === "INF" && checkBasic.infantFixed != 0){
+                    countAirline.Basic += checkBasic.infantFixed;
+                  }   
                   if(markupRate != 0 && markupRate != null){
-                    countAirline.Basic += (markupRate / 100) * tax.BaseFare;
+                    countAirline.Basic += (markupRate / 100) * (tax.BaseFare + totalMarkupAmount);
                   }                   
-                }  
+                  if(countAirline.Basic >= maxMarkup){
+                    countAirline.Basic = maxMarkup;
+                  }
+
               }else{
-                countAirline.Basic += maxAmount;
+                if(type === "ADT" && checkBasic.adultFixed != 0){
+                  countAirline.Basic += checkBasic.adultFixed;
+                }else if(type === "CHD" && checkBasic.childFixed != 0){
+                  countAirline.Basic += checkBasic.childFixed;
+                } else if(type === "INF" && checkBasic.infantFixed != 0){
+                  countAirline.Basic += checkBasic.infantFixed;
+                }   
                 if(markupRate != 0 && markupRate != null){
-                  countAirline.Basic += (markupRate / 100) * tax.BaseFare;
+                  countAirline.Basic += (markupRate / 100) * (tax.BaseFare + totalMarkupAmount);
                 }
               }
               
@@ -10859,6 +10879,12 @@ const checkMarkupValue = async (
               encounteredFltNums.add(fltNum);
             }
           });
+          let totalMarkupAmount = 0;        
+        tax.CommercialBreakup.forEach(item => {        
+            if (item.CommercialType === 'Markup') {            
+              totalMarkupAmount += item.Amount;
+            }              
+          });
           const countAirline = tax.AgentMarkupBreakup;
           if (countAirline) {
             const totalCount = Object.values(fltNumCount).reduce(
@@ -10868,16 +10894,32 @@ const checkMarkupValue = async (
             
               const maxAmount = totalCount * paxVal;
               if(maxMarkup != 0 && maxMarkup != null){
-              if(maxAmount <= maxMarkup){
-                countAirline.Basic += maxAmount;
+              
+                if(type === "ADT" && checkBasic.adultFixed != 0){
+                  countAirline.Basic += checkBasic.adultFixed;
+                }else if(type === "CHD" && checkBasic.childFixed != 0){
+                  countAirline.Basic += checkBasic.childFixed;
+                } else if(type === "INF" && checkBasic.infantFixed != 0){
+                  countAirline.Basic += checkBasic.infantFixed;
+                }   
                 if(markupRate != 0 && markupRate != null){
-                  countAirline.Basic += (markupRate / 100) * tax.BaseFare;
+                  countAirline.Basic += (markupRate / 100) * (tax.BaseFare + totalMarkupAmount);
                 }
-              } 
+
+                if(countAirline.Basic >= maxMarkup){
+                  countAirline.Basic = maxMarkup;
+                }
+               
             }else{
-              countAirline.Basic += maxAmount;
+              if(type === "ADT" && checkBasic.adultFixed != 0){
+                countAirline.Basic += checkBasic.adultFixed;
+              }else if(type === "CHD" && checkBasic.childFixed != 0){
+                countAirline.Basic += checkBasic.childFixed;
+              } else if(type === "INF" && checkBasic.infantFixed != 0){
+                countAirline.Basic += checkBasic.infantFixed;
+              }   
               if(markupRate != 0 && markupRate != null){
-                countAirline.Basic += (markupRate / 100) * tax.BaseFare;
+                countAirline.Basic += (markupRate / 100) * (tax.BaseFare + totalMarkupAmount);
               }
             }  
             
@@ -10896,19 +10938,31 @@ const checkMarkupValue = async (
             }              
           });
           
-              if(maxMarkup != 0 && maxMarkup != null){
-                if(maxAmount <= maxMarkup){
-                  if(maxAmount !== markupRate){
-                  countAirline.Basic += maxAmount;
-                  }
-                  if(markupRate != 0 && markupRate != null){                    
+              if(maxMarkup != 0 && maxMarkup != null){                
+                  
+                  if(type === "ADT" && checkBasic.adultFixed != 0){
+                    countAirline.Basic += checkBasic.adultFixed;
+                  }else if(type === "CHD" && checkBasic.childFixed != 0){
+                    countAirline.Basic += checkBasic.childFixed;
+                  } else if(type === "INF" && checkBasic.infantFixed != 0){
+                    countAirline.Basic += checkBasic.infantFixed;
+                  }                  
+                  if(markupRate != 0 && markupRate != null){
                     countAirline.Basic += (markupRate / 100) * (tax.BaseFare + totalMarkupAmount);
                   }
-                }
-              }else{
-                if(maxAmount !== markupRate){
-                  countAirline.Basic += maxAmount;
-                }                
+                  if(countAirline.Basic >= maxMarkup){
+                    countAirline.Basic = maxMarkup;
+                  }
+
+
+              }else{                 
+                if(type === "ADT" && checkBasic.adultFixed != 0){
+                  countAirline.Basic += checkBasic.adultFixed;
+                }else if(type === "CHD" && checkBasic.childFixed != 0){
+                  countAirline.Basic += checkBasic.childFixed;
+                } else if(type === "INF" && checkBasic.infantFixed != 0){
+                  countAirline.Basic += checkBasic.infantFixed;
+                }               
                 if(markupRate != 0 && markupRate != null){
                   countAirline.Basic += (markupRate / 100) * (tax.BaseFare + totalMarkupAmount);
                 }
@@ -10918,42 +10972,57 @@ const checkMarkupValue = async (
       }
     };
     if(checkBasic.sectorWise){
-      if(checkBasic.adultFixed != 0){
+      if(checkBasic.markupRate != 0){        
+        applyBasicTo("sectorWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.markupRate, singleFlightDetails.PriceBreakup[0], "ADT",checkBasic);
+      }else if(checkBasic.adultFixed != 0){
        
-        applyBasicTo("sectorWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT");
+        applyBasicTo("sectorWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT", checkBasic);
       }
-      if(checkBasic.childFixed != 0){
-        applyBasicTo("sectorWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.childFixed, singleFlightDetails.PriceBreakup[1], "CHD");
+      if(checkBasic.markupRate != 0){        
+        applyBasicTo("sectorWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.markupRate, singleFlightDetails.PriceBreakup[1], "ADT",checkBasic);
+      }else if(checkBasic.childFixed != 0){
+        applyBasicTo("sectorWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.childFixed, singleFlightDetails.PriceBreakup[1], "CHD", checkBasic);
       }
-      if(checkBasic.infantFixed != 0){
-        applyBasicTo("sectorWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.infantFixed, singleFlightDetails.PriceBreakup[2], "INF");
+      if(checkBasic.markupRate != 0){        
+        applyBasicTo("sectorWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.markupRate, singleFlightDetails.PriceBreakup[2], "ADT",checkBasic);
+      }else if(checkBasic.infantFixed != 0){
+        applyBasicTo("sectorWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.infantFixed, singleFlightDetails.PriceBreakup[2], "INF", checkBasic);
       }
+
     }else if(checkBasic.flightWise){
-      if(checkBasic.adultFixed != 0){
-        applyBasicTo("flightWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT");
+      if(checkBasic.markupRate != 0){        
+        applyBasicTo("flightWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.markupRate, singleFlightDetails.PriceBreakup[0], "ADT",checkBasic);
+      }else if(checkBasic.adultFixed != 0){
+        applyBasicTo("flightWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT", checkBasic);
       }
-      if(checkBasic.childFixed != 0){
-        applyBasicTo("flightWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.childFixed, singleFlightDetails.PriceBreakup[1], "CHD");
+      if(checkBasic.markupRate != 0){        
+        applyBasicTo("flightWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.markupRate, singleFlightDetails.PriceBreakup[1], "ADT",checkBasic);
+      }else if(checkBasic.childFixed != 0){
+        applyBasicTo("flightWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.childFixed, singleFlightDetails.PriceBreakup[1], "CHD", checkBasic);
       }
-      if(checkBasic.infantFixed != 0){
-        applyBasicTo("flightWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.infantFixed, singleFlightDetails.PriceBreakup[2], "INF");
+      if(checkBasic.markupRate != 0){        
+        applyBasicTo("flightWise",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.markupRate, singleFlightDetails.PriceBreakup[2], "ADT",checkBasic);
+      }else if(checkBasic.infantFixed != 0){
+        applyBasicTo("flightWise", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.infantFixed, singleFlightDetails.PriceBreakup[2], "INF", checkBasic);
       }
 
     }else{
       
       if(checkBasic.markupRate != 0){        
-        applyBasicTo("",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.markupRate, singleFlightDetails.PriceBreakup[0], "ADT");
+        applyBasicTo("",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.markupRate, singleFlightDetails.PriceBreakup[0], "ADT",checkBasic);
+      }else if(checkBasic.adultFixed != 0){        
+        applyBasicTo("",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT", checkBasic);
       }
-      if(checkBasic.adultFixed != 0){
-        
-        applyBasicTo("",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.adultFixed, singleFlightDetails.PriceBreakup[0], "ADT");
+
+      if(checkBasic.markupRate != 0){        
+        applyBasicTo("",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.markupRate, singleFlightDetails.PriceBreakup[1], "ADT",checkBasic);
+      }else if(checkBasic.childFixed != 0){       
+        applyBasicTo("", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.childFixed, singleFlightDetails.PriceBreakup[1], "CHD", checkBasic);
       }
-      if(checkBasic.childFixed != 0){
-       
-        applyBasicTo("", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.childFixed, singleFlightDetails.PriceBreakup[1], "CHD");
-      }
-      if(checkBasic.infantFixed != 0){
-        applyBasicTo("", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.infantFixed, singleFlightDetails.PriceBreakup[2], "INF");
+      if(checkBasic.markupRate != 0){        
+        applyBasicTo("",checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.markupRate, singleFlightDetails.PriceBreakup[2], "ADT",checkBasic);
+      }else if(checkBasic.infantFixed != 0){
+        applyBasicTo("", checkBasic.markupRate, checkBasic.maxMarkup, checkBasic.infantFixed, singleFlightDetails.PriceBreakup[2], "INF",checkBasic);
       }
     }
   }
@@ -10973,7 +11042,7 @@ const checkMarkupValue = async (
              const maxAmount = paxVal;
         
               if(maxMarkup != 0 && maxMarkup != null){
-                if(maxAmount <= maxMarkup){
+                
                   countAirline.BookingFee += maxAmount;
                   if(markupRate != 0 && markupRate != null){
                     const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees');           
@@ -10984,7 +11053,9 @@ const checkMarkupValue = async (
                     }
                     
                   }                   
-                }  
+                  if(maxAmount >= maxMarkup){
+                    countAirline.BookingFee = maxMarkup;
+                  } 
               }else{
                 countAirline.BookingFee += maxAmount;
                 if(markupRate != 0 && markupRate != null){
@@ -11027,7 +11098,7 @@ const checkMarkupValue = async (
             
               const maxAmount = totalCount * paxVal;
               if(maxMarkup != 0 && maxMarkup != null){
-              if(maxAmount <= maxMarkup){
+             
                 countAirline.BookingFee += maxAmount;
                 if(markupRate != 0 && markupRate != null){
                   const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees');           
@@ -11038,7 +11109,9 @@ const checkMarkupValue = async (
                     }   
                   
                 }
-              } 
+                if(maxAmount >= maxMarkup){
+                  countAirline.BookingFee = maxMarkup;
+                } 
             }else{
               countAirline.BookingFee += maxAmount;
               if(markupRate != 0 && markupRate != null){
@@ -11061,7 +11134,7 @@ const checkMarkupValue = async (
         const maxAmount = paxVal;
         
               if(maxMarkup != 0 && maxMarkup != null){
-                if(maxAmount <= maxMarkup){
+                
                   countAirline.BookingFee += maxAmount;
                   if(markupRate != 0 && markupRate != null){
                     const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'BookingFees');           
@@ -11072,7 +11145,9 @@ const checkMarkupValue = async (
                     }    
                     
                   }
-                }  
+                  if(maxAmount >= maxMarkup){
+                    countAirline.BookingFee = maxMarkup;
+                  }
               }else{
                 countAirline.BookingFee += maxAmount;
                 if(markupRate != 0 && markupRate != null){
@@ -11135,12 +11210,14 @@ const checkMarkupValue = async (
              const maxAmount = paxVal;
         
               if(maxMarkup != 0 && maxMarkup != null){
-                if(maxAmount <= maxMarkup){
+                
                   countAirline.Tax += maxAmount;
                   if(markupRate != 0 && markupRate != null){
                     countAirline.Tax += (markupRate / 100) * tax.Tax;
                   }                   
-                }  
+                  if(maxAmount >= maxMarkup){
+                    countAirline.Tax = maxMarkup;
+                  }   
               }else{
                 countAirline.Tax += maxAmount;
                 if(markupRate != 0 && markupRate != null){
@@ -11178,12 +11255,14 @@ const checkMarkupValue = async (
             
               const maxAmount = totalCount * paxVal;
               if(maxMarkup != 0 && maxMarkup != null){
-              if(maxAmount <= maxMarkup){
+             
                 countAirline.Tax += maxAmount;
                 if(markupRate != 0 && markupRate != null){
                   countAirline.Tax += (markupRate / 100) * tax.Tax;
                 }
-              } 
+                if(maxAmount >= maxMarkup){
+                  countAirline.Tax = maxMarkup;
+                } 
             }else{
               countAirline.Tax += maxAmount;
               if(markupRate != 0 && markupRate != null){
@@ -11200,12 +11279,14 @@ const checkMarkupValue = async (
         const maxAmount = paxVal;
         
               if(maxMarkup != 0 && maxMarkup != null){
-                if(maxAmount <= maxMarkup){
+               
                   countAirline.Tax += maxAmount;
                   if(markupRate != 0 && markupRate != null){
                     countAirline.Tax += (markupRate / 100) * tax.Tax;
                   }
-                }  
+                  if(maxAmount >= maxMarkup){
+                    countAirline.Tax = maxMarkup;
+                  }  
               }else{
                 countAirline.Tax += maxAmount;
                 if(markupRate != 0 && markupRate != null){

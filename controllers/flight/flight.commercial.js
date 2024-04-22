@@ -4394,8 +4394,8 @@ function updateOrPushIncentive(CommercialBreakup, totalIncentiveVal,supplierType
   }
 }
 
-function updateOrPushIncentiveTDS(CommercialBreakup, totalIncentiveVal,supplierTypeFor) {
-  const existingIncentiveIndex = CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS' && onCommercialApply === 'Incentive');
+function updateOrPushIncentiveTDS(CommercialBreakup, totalIncentiveVal,supplierTypeFor) {  
+  const existingIncentiveIndex = CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS' && item.onCommercialApply === 'Incentive');
   if (existingIncentiveIndex !== -1) {
       // Update the Amount if 'Incentive' already exists
       CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;
@@ -5878,7 +5878,7 @@ function updateOrPushPLB(CommercialBreakup, totalIncentiveVal,supplierTypeFor) {
   }
 }
 function updateOrPushPLBTDS(CommercialBreakup, totalIncentiveVal,supplierTypeFor) {
-  const existingIncentiveIndex = CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS' && onCommercialApply === 'PLB');
+  const existingIncentiveIndex = CommercialBreakup.findIndex(item => item.SupplierType === supplierTypeFor && item.CommercialType === 'TDS' && item.onCommercialApply === 'PLB');
   if (existingIncentiveIndex !== -1) {
       // Update the Amount if 'Incentive' already exists
       CommercialBreakup[existingIncentiveIndex].Amount += totalIncentiveVal;

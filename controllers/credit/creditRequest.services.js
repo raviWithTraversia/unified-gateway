@@ -7,6 +7,7 @@ const commonFunction = require('../commonFunctions/common.function');
 const addCreditRequest = async(req , res) => {
     try {
         const {companyId,
+            agencyId,
             date,
             duration,
             purpose,
@@ -20,7 +21,7 @@ const addCreditRequest = async(req , res) => {
             product
         } = req.body;
 
-        if(!companyId || !createdBy || !requestedAmount) {
+        if(!companyId || !createdBy || !requestedAmount || !agencyId) {
             return {
                 response : 'All field are required'
             }
@@ -44,6 +45,7 @@ const addCreditRequest = async(req , res) => {
        
         const saveResult = new CreditRequest({
             companyId,
+            agencyId,
             date,
             duration,
             purpose,
@@ -108,6 +110,8 @@ const getAllCreditList = async(req , res) => {
 const getCredirRequestByCompanyId = async(req , res) => {
     try {
         const CompanyId = req.params.companyId;
+        // const getAllAgency = await Company.find({_id: CompanyId});
+        // console.log(getAllAgency);
         const result = await CreditRequest.find({companyId : CompanyId}).populate('companyId' , 'companyName');
         if (result.length > 0) {
             return {

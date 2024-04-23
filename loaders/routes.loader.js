@@ -69,6 +69,7 @@ const seriesDepartureGroup = require('../routes/seriesDepartureGroupRoute');
 const groupTicketRequestRoute = require('../routes/groupTicketRequestRoute');
 const gstDetailRoute = require('../routes/gstDetailRoute');
 const ledgerRoute = require('../routes/ledgerRoute');
+const payuRoute = require('../routes/payuRoute');
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -289,6 +290,10 @@ class RoutesLoader {
 
        // ledger Route
        app.use('/api', ledgerRoute);
+
+       // PayU Route
+       app.use('/api', payuRoute);
+       
     }
 }
 

@@ -9,14 +9,15 @@ const payu = async (req, res) => {
         const {
             companyId,
             userId,
-            name,
+            firstName,
+            lastName,
             email,
             mobile,
             amount
 
         } = req.body;
 
-        if(!companyId || !userId || !name || !email || !mobile || !amount) {
+        if(!companyId || !userId || !firstName || !lastName || !email || !mobile || !amount) {
             return {
                 response : 'All field are required'
             }
@@ -32,26 +33,25 @@ const payu = async (req, res) => {
         const transtionId = uuidv4();      
         const payDetails = {
             txnId: transtionId,
-            plan_name : "Test",
-            name : name,           
-            email: email,            
-            mobile: mobile,            
+            plan_name: "Test",
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            mobile: mobile,
             amount: amount,
             service_provide: 'test',
-            amount: 19999,
-            call_back_url : `https://kafila.traversia.net`,
-            payu_merchant_key : 'gtKFFx',
+            call_back_url: `https://kafila.traversia.net`,
+            payu_merchant_key: 'gtKFFx',
             // payu_merchant_salt_version_1 : process.env.PAYU_MERCHANT_SALT_VERSION_1,
             // payu_merchant_salt_version_2 : process.env.PAYU_MERCHANT_SALT_VERSION_2,
-            payu_url : 'https://test.payu.in/_payment',
-            payu_fail_url : `https://kafila.traversia.net/success/url`,
-            payu_cancel_url : `https://kafila.traversia.net/success/url`,
-            payu_url: 'https://test.payu.in/_payment',            
+            payu_url: 'https://test.payu.in/_payment',
+            payu_fail_url: `https://kafila.traversia.net/success/url`,
+            payu_cancel_url: `https://kafila.traversia.net/success/url`,
+            payu_url: 'https://test.payu.in/_payment',
         };
-
+        console.log(payDetails)
         // Construct the string to be hashed
-        const hashString = `${payDetails.txnId}|${payDetails.name}|${payDetails.email}|${payDetails.mobile}|${payDetails.amount}`;
-
+        const hashString = `${payDetails.txnId}|${payDetails.firstName}|${payDetails.lastName}|${payDetails.email}|${payDetails.mobile}|${payDetails.amount}`;
         // Add your PayU secret key
         const secretKey = 'gtKFFx';
 
@@ -65,7 +65,7 @@ const payu = async (req, res) => {
         if (payu_sha_token) {
             return {
                 response : "payU sha token generate successfully",
-                data: {payDetails:payDetails, haskKey:payu_sha_token, }
+                data: {payDetails:payDetails, haskKey:payu_sha_token }
             }
         } else {
             return {

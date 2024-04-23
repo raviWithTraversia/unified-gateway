@@ -7,28 +7,38 @@ const {
 } = require("../../utils/constants");
 
 const payu = async (req, res) => {
-    try {        
-        const result = await payuServices.payu(req);
-        if(result.response == 'All field are required' || result.response == 'companyId does not exist' || result.response == 'createdBy id does not exist') {
-            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
-        }
-        else {
-            apiSucessRes(
-                res,
-                CrudMessage.PAYU_REQUEST_RESPONCE,
-                result.response,
-                ServerStatusCode.SUCESS_CODE
-            )  
-        }
-        
-    } catch (error) {
-        apiErrorres(
+    try {
+        const result = await payuServices.payu(req, res);
+        if (result.response == "payU sha token generate successfully") {
+          apiSucessRes(
             res,
-            errorResponse.SOMETHING_WRONG,
-            ServerStatusCode.SERVER_ERROR,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+          );
+        } else if (result.response == "Data does not exist") {
+          apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
             true
-        )
-    }
+          );
+        } else {
+          apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.INVALID_CRED,
+            true
+          );
+        }
+      } catch (error) {
+        apiErrorres(
+          res,
+          errorResponse.SOME_UNOWN,
+          ServerStatusCode.INVALID_CRED,
+          true
+        );
+      }
 };
 module.exports = {
   payu,

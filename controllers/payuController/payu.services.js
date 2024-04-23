@@ -28,13 +28,25 @@ const payu = async (req, res) => {
         //     return {
         //         response : 'companyId does not exist'
         //     }
-        // }         
+        // }   
+        const transtionId = uuidv4();      
         const payDetails = {
-            txnId:  uuidv4(),
+            txnId: transtionId,
+            plan_name : "Test",
             name : name,           
             email: email,            
             mobile: mobile,            
             amount: amount,
+            service_provide: 'test',
+            amount: 19999,
+            call_back_url : `https://kafila.traversia.net`,
+            payu_merchant_key : 'gtKFFx',
+            // payu_merchant_salt_version_1 : process.env.PAYU_MERCHANT_SALT_VERSION_1,
+            // payu_merchant_salt_version_2 : process.env.PAYU_MERCHANT_SALT_VERSION_2,
+            payu_url : 'https://test.payu.in/_payment',
+            payu_fail_url : `https://kafila.traversia.net/success/url`,
+            payu_cancel_url : `https://kafila.traversia.net/success/url`,
+            payu_url: 'https://test.payu.in/_payment',            
         };
 
         // Construct the string to be hashed
@@ -53,7 +65,7 @@ const payu = async (req, res) => {
         if (payu_sha_token) {
             return {
                 response : "payU sha token generate successfully",
-                data: payu_sha_token
+                data: {payDetails:payDetails, haskKey:payu_sha_token, }
             }
         } else {
             return {

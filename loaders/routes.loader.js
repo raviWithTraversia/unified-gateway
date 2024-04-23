@@ -70,6 +70,7 @@ const groupTicketRequestRoute = require('../routes/groupTicketRequestRoute');
 const gstDetailRoute = require('../routes/gstDetailRoute');
 const ledgerRoute = require('../routes/ledgerRoute');
 const payuRoute = require('../routes/payuRoute');
+const depositRequestRoute = require('../routes/depositRequestRoute');
 class RoutesLoader {
     static initRoutes (app) {        
         app.use('/api', userRoute);
@@ -293,6 +294,9 @@ class RoutesLoader {
 
        // PayU Route
        app.use('/api', payuRoute);
+
+       // deposite Request
+       app.use('/api', depositRequestRoute);
        
     }
 }

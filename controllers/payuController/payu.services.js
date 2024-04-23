@@ -9,14 +9,15 @@ const payu = async (req, res) => {
         const {
             companyId,
             userId,
-            name,
+            firstName,
+            lastName,
             email,
             mobile,
             amount
 
         } = req.body;
 
-        if(!companyId || !userId || !name || !email || !mobile || !amount) {
+        if(!companyId || !userId || !firstName || !lastName || !email || !mobile || !amount) {
             return {
                 response : 'All field are required'
             }
@@ -33,7 +34,8 @@ const payu = async (req, res) => {
         const payDetails = {
             txnId: transtionId,
             plan_name : "Test",
-            name : name,           
+            firstName : firstName,
+            lastName : lastName,           
             email: email,            
             mobile: mobile,            
             amount: amount,
@@ -50,7 +52,7 @@ const payu = async (req, res) => {
         };
 
         // Construct the string to be hashed
-        const hashString = `${payDetails.txnId}|${payDetails.name}|${payDetails.email}|${payDetails.mobile}|${payDetails.amount}`;
+        const hashString = `${payDetails.txnId}|${payDetails.firstName}|${payDetails.lastName}|${payDetails.email}|${payDetails.mobile}|${payDetails.amount}`;
 
         // Add your PayU secret key
         const secretKey = 'gtKFFx';

@@ -41,7 +41,7 @@ const payu = async (req, res) => {
         const hashString = `${payDetails.txnId}|${payDetails.name}|${payDetails.email}|${payDetails.mobile}|${payDetails.amount}`;
 
         // Add your PayU secret key
-        const secretKey = 'your_secret_key';
+        const secretKey = 'gtKFFx';
 
         // Create the SHA512 hash using the secret key
         const hash = crypto.createHash('sha512');

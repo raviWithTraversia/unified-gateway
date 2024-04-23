@@ -99,12 +99,12 @@ const addwallettopup = async(req , res) => {
             modeofpayment
         } = req.body;
 
-        if(!companyId || !createdBy || !requestedAmount || !agencyId) {
+        if(!companyId || !createdBy || !agencyId || !remarks || !createdDate || !product || !modeofpayment) {
             return {
                 response : 'All field are required'
             }
         }
-       
+        
         // check companyId exist or not
         const checkExistCompany = await Company.findById(companyId);
         if(!checkExistCompany) {
@@ -122,18 +122,20 @@ const addwallettopup = async(req , res) => {
         }
        
         const getResult = await config.findOne({ userId: agencyId });
-        if (getResult) {
-        const maxCreditLimit = getResult.maxCreditLimit;
-        const updatedMaxCreditLimit = maxCreditLimit + amount;
-        const result = await config.updateOne({ userId: agencyId }, { maxCreditLimit: updatedMaxCreditLimit });
-        if (result) { 
-            return {
-                response : 'Topup request created successfully'
-            }
+        //console.log(getResult);
+        if (getResult) {            
+            const maxCreditLimit = getResult.maxcreditLimit;
+            const updatedMaxCreditLimit = maxCreditLimit + amount;
+            const result = await config.updateOne({ userId: agencyId }, { maxcreditLimit: updatedMaxCreditLimit });
+            if (result) { 
+                return {
+                    response : 'Topup request created successfully'
+                }
             } else {
                 console.log("Failed to save result!");
-            }
-    
+            }    
+       }else{
+        console.log("Agency Not Found!");
        }  
         
         

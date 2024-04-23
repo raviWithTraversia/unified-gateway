@@ -120,7 +120,7 @@ const approveRejectCredit = async(req ,res) => {
     }
 }
 const wallettopup = async(req , res) => {
-    try {
+    try {        
         const result = await creditRequestService.addwallettopup(req);
         if(result.response == 'All field are required' || result.response == 'companyId does not exist' || result.response == 'createdBy id does not exist') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)

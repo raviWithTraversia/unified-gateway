@@ -11411,12 +11411,15 @@ async function calculateAfterCommertialPriceIncentive(priceBreakup, type, person
  if(type === 'base' && personType === 'ADT'){
 
   let totalMarkupAmount = 0; 
-  // let totaldisCountAmount = 0;  
+   let totalOTAmount = 0;  
   // let totalTDSAmount = 0; 
     priceBreakup[0].CommercialBreakup.forEach(item => {        
         if (item.CommercialType === 'Markup') {            
           totalMarkupAmount += item.Amount;
         }
+        if (item.CommercialType === 'otherTax' && item.onCommercialApply === 'Base') {            
+          totalOTAmount += item.Amount;
+         }
         // if (item.CommercialType === 'Discount') {            
         //   totaldisCountAmount += item.Amount;
         // }
@@ -11424,19 +11427,23 @@ async function calculateAfterCommertialPriceIncentive(priceBreakup, type, person
         //   totalTDSAmount += item.Amount;
         // }
     });
-    const basePrice = priceBreakup[0].BaseFare + totalMarkupAmount;
+    const basePrice = priceBreakup[0].BaseFare + totalMarkupAmount + totalOTAmount;
     
     return basePrice;
  }else if(type === 'base' && personType === 'CHD'){
 
   let totalMarkupAmount = 0; 
-  // let totaldisCountAmount = 0;  
+   let totalOTAmount = 0;  
   // let totalTDSAmount = 0; 
-  if (PriceBreakup && PriceBreakup[1]) {
+  if (priceBreakup && priceBreakup[1]) {
     priceBreakup[1].CommercialBreakup.forEach(item => {        
         if (item.CommercialType === 'Markup') {            
           totalMarkupAmount += item.Amount;
         }
+
+        if (item.CommercialType === 'otherTax' && item.onCommercialApply === 'Base') {            
+          totalOTAmount += item.Amount;
+         }
         // if (item.CommercialType === 'Discount') {            
         //   totaldisCountAmount += item.Amount;
         // }
@@ -11444,20 +11451,23 @@ async function calculateAfterCommertialPriceIncentive(priceBreakup, type, person
         //   totalTDSAmount += item.Amount;
         // }
     });
-    const basePrice = priceBreakup[1].BaseFare + totalMarkupAmount;    
+    const basePrice = priceBreakup[1].BaseFare + totalMarkupAmount + totalOTAmount;    
     return basePrice;
   }
 
  }else if(type === 'base' && personType === 'INF'){
 
   let totalMarkupAmount = 0; 
-  // let totaldisCountAmount = 0;  
+   let totalOTAmount = 0;  
   // let totalTDSAmount = 0; 
-  if (PriceBreakup && PriceBreakup[2]) {
+  if (priceBreakup && priceBreakup[2]) {
     priceBreakup[2].CommercialBreakup.forEach(item => {        
         if (item.CommercialType === 'Markup') {            
           totalMarkupAmount += item.Amount;
         }
+        if (item.CommercialType === 'otherTax' && item.onCommercialApply === 'Base') {            
+          totalOTAmount += item.Amount;
+         }
         // if (item.CommercialType === 'Discount') {            
         //   totaldisCountAmount += item.Amount;
         // }
@@ -11465,7 +11475,7 @@ async function calculateAfterCommertialPriceIncentive(priceBreakup, type, person
         //   totalTDSAmount += item.Amount;
         // }
     });
-    const basePrice = priceBreakup[2].BaseFare + totalMarkupAmount;
+    const basePrice = priceBreakup[2].BaseFare + totalMarkupAmount + totalOTAmount;
     
     return basePrice;
   }
@@ -11478,12 +11488,15 @@ async function calculateAfterCommertialPricePLB(priceBreakup, type, personType) 
   if(type === 'base' && personType === 'ADT'){
  
    let totalMarkupAmount = 0; 
-  //  let totaldisCountAmount = 0;  
+    let totalOTAmount = 0;  
   //  let totalTDSAmount = 0; 
    //let totalIncentiveAmount = 0; 
      priceBreakup[0].CommercialBreakup.forEach(item => {        
          if (item.CommercialType === 'Markup') {            
            totalMarkupAmount += item.Amount;
+         }
+         if (item.CommercialType === 'otherTax' && item.onCommercialApply === 'Base') {            
+          totalOTAmount += item.Amount;
          }
         //  if (item.CommercialType === 'Discount') {            
         //    totaldisCountAmount += item.Amount;
@@ -11495,19 +11508,22 @@ async function calculateAfterCommertialPricePLB(priceBreakup, type, personType) 
         //   totalIncentiveAmount += item.Amount;
         //  }
      });
-     const basePrice = priceBreakup[0].BaseFare + totalMarkupAmount;
+     const basePrice = priceBreakup[0].BaseFare + totalMarkupAmount + totalOTAmount;
      
      return basePrice;
   }else if(type === 'base' && personType === 'CHD'){
  
    let totalMarkupAmount = 0; 
-  //  let totaldisCountAmount = 0;  
+    let totalOTAmount = 0;  
   //  let totalTDSAmount = 0;
   //  let totalIncentiveAmount = 0; 
-   if (PriceBreakup && PriceBreakup[1]) {
+   if (priceBreakup && priceBreakup[1]) {
      priceBreakup[1].CommercialBreakup.forEach(item => {        
          if (item.CommercialType === 'Markup') {            
            totalMarkupAmount += item.Amount;
+         }
+         if (item.CommercialType === 'otherTax' && item.onCommercialApply === 'Base') {            
+          totalOTAmount += item.Amount;
          }
         //  if (item.CommercialType === 'Discount') {            
         //    totaldisCountAmount += item.Amount;
@@ -11519,24 +11535,24 @@ async function calculateAfterCommertialPricePLB(priceBreakup, type, personType) 
         //   totalIncentiveAmount += item.Amount;
         //  }
      });
-     const basePrice = priceBreakup[1].BaseFare + totalMarkupAmount;
+     const basePrice = priceBreakup[1].BaseFare + totalMarkupAmount + totalOTAmount;
      
      return basePrice;
     }
   }else if(type === 'base' && personType === 'INF'){
  
    let totalMarkupAmount = 0; 
-  //  let totaldisCountAmount = 0;  
+    let totalOTAmount = 0;  
   //  let totalTDSAmount = 0;
   //  let totalIncentiveAmount = 0; 
-   if (PriceBreakup && PriceBreakup[2]) { 
+   if (priceBreakup && priceBreakup[2]) { 
      priceBreakup[2].CommercialBreakup.forEach(item => {        
          if (item.CommercialType === 'Markup') {            
            totalMarkupAmount += item.Amount;
          }
-        //  if (item.CommercialType === 'Discount') {            
-        //    totaldisCountAmount += item.Amount;
-        //  }
+         if (item.CommercialType === 'otherTax' && item.onCommercialApply === 'Base') {            
+          totalOTAmount += item.Amount;
+         }
         //  if (item.CommercialType === 'TDS') {            
         //    totalTDSAmount += item.Amount;
         //  }
@@ -11544,7 +11560,7 @@ async function calculateAfterCommertialPricePLB(priceBreakup, type, personType) 
         //   totalIncentiveAmount += item.Amount;
         //  }
      });
-     const basePrice = priceBreakup[2].BaseFare + totalMarkupAmount;
+     const basePrice = priceBreakup[2].BaseFare + totalMarkupAmount + totalOTAmount;
      
      return basePrice;
     }

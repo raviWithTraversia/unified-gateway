@@ -40,6 +40,7 @@ const CrudMessage = {
     REMOVE_SMTP : "Remove smtp config sucessfully",
     PRIVILAGE_PLAN_CREATED : 'Privilage plan created successfully',
     CREDIT_REQUESTED_CREATED : 'Credit request created successfully',
+    PAYU_REQUEST_RESPONCE : 'PayU created successfully',
     TOPUP_REQUESTED_CREATED : 'Topup request created successfully',
     WEBSIET_MANAGER_CREATED : 'Website manager created successfully',
     PRIVILAGE_PLAN_UPDATE : 'Privilage plan updated successfully',

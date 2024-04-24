@@ -9,28 +9,26 @@ const auth = require("../middleware/auth");
 deposit_route.post('/deposit/add-deposit-request', depositRequest.storeDepositRequest);
 // deposit_route.post('/credit/wallettopup', creditRequest.wallettopup);
 
-// deposit_route.get(
-//     '/credit/get-all-credit-request', 
-//     auth,
-//     creditRequest.getAllCreditRequest
-// )
+deposit_route.get(
+    '/deposit/get-all-deposit-request',    
+    depositRequest.getAllDepositRequest
+)
 
-// deposit_route.get(
-//     '/credit/get-credit-by-compnay/:companyId' ,
-//     auth, 
-//     creditRequest.getCreditByCompanyId
-// )
+deposit_route.get(
+    '/deposit/get-deposit-by-compnay/:companyId' ,    
+    depositRequest.getDepositByCompanyId
+)
 
-// deposit_route.get(
-//     '/credit/get-credit-by-agent/:companyId' ,
-//     auth, 
-//     creditRequest.getCreditByAgentId
-// )
-// deposit_route.patch(
-//     '/credit/approv-reject-credit/:creditRequestId',
-//     auth,
-//     creditRequest.approveRejectCredit
-// );
+deposit_route.get(
+    '/deposit/get-deposit-by-agency/:companyId' ,    
+    depositRequest.getDepositByagencyId
+)
+
+
+deposit_route.patch(
+    '/deposit/approv-reject-deposit/:creditRequestId',    
+    depositRequest.approveRejectDeposit
+);
 
 
 

@@ -3,11 +3,10 @@ const deposit_route = express();
 const bodyParser = require("body-parser");
 deposit_route.use(bodyParser.json());
 deposit_route.use(bodyParser.urlencoded({extended:true}));
-const creditRequest = require('../controllers/credit/creditRequest.controller');
-const creditRequestValidator = require('../validation/creditRequest.validation');
+const depositRequest = require('../controllers/depositRequest/depositRequest.controller');
 const auth = require("../middleware/auth");
 
-deposit_route.post('/deposit/add-deposit-request', creditRequest.storeCreditRequest);
+deposit_route.post('/deposit/add-deposit-request', depositRequest.storeDepositRequest);
 // deposit_route.post('/credit/wallettopup', creditRequest.wallettopup);
 
 // deposit_route.get(

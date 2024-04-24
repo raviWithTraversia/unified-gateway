@@ -1,6 +1,7 @@
 const depositDetail = require("../../models/DepositRequest");
 const Company = require("../../models/Company");
 const User = require("../../models/User");
+const config = require("../../models/AgentConfig");
 
 const adddepositDetails = async (req, res) => {
   try {
@@ -194,14 +195,23 @@ const approveAndRejectDeposit = async(req, res) => {
         // const doerId = req.user._id;
        // const loginUser = await User.findById(doerId);
 
-
+       let updateResponse;
         if(status == "approved") { 
             // Approved
-            const updateCreditRequestApproved =  await depositDetail.findByIdAndUpdate(_id, {                
+            updateResponse = await depositDetail.findByIdAndUpdate(_id, {
                 remarks,
-                status                
-            }, { new: true })
-
+                status
+            }, { new: true });
+            //console.log(updateResponse);
+            const configData = await config.findOne({ userId: updateResponse.userId});
+            //console.log(updateResponse);
+            if (!configData) {
+                return {
+                    response : 'User not found'
+                }
+            }
+            configData.maxcreditLimit += updateResponse.amount;
+            await configData.save();
             // await commonFunction.eventLogFunction(
             //     'creditRequest' ,
             //     doerId ,

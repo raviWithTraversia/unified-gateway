@@ -145,7 +145,7 @@ const getDepositByagencyId = async(req , res) => {
 const approveRejectDeposit= async(req ,res) => {
     try {
         const result = await depositServices.approveAndRejectDeposit(req);
-        if(result.response == 'Remark and status are required' || result.response == 'All field are required') {
+        if(result.response == 'Remark and status are required' || result.response == 'All field are required' || result.response == 'User not found') {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
         }
         else {

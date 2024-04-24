@@ -51,15 +51,15 @@ const payu = async (req, res) => {
             payu_cancel_url: `https://kafila.traversia.net/success/url`,
             payu_url: 'https://test.payu.in/_payment',
         };
-        console.log(payDetails)
+        //console.log(payDetails)
         // Construct the string to be hashed
-        const hashString = `${payDetails.payu_merchant_key}|${payDetails.txnId}|${payDetails.amount}|${payDetails.productinfo}|${payDetails.firstName}|${payDetails.email}|||||||||||${payDetails.payu_merchant_salt_version_1}`;
+        const hashString = `${payDetails.payu_merchant_key}|${payDetails.txnId}|${payDetails.amount}|${payDetails.productinfo}|${payDetails.firstName}|${payDetails.email}|||||||||||$payDetails.payu_merchant_salt_version_1}`;
         // Add your PayU secret key
-        const secretKey = 'gtKFFx';
+        //const secretKey = 'gtKFFx';
 
         // Create the SHA512 hash using the secret key
         const hash = crypto.createHash('sha512');
-        hash.update(hashString + secretKey);
+        hash.update(hashString);
         const payu_sha_token = hash.digest('hex');
 
         //console.log(payu_sha_token);

@@ -17,8 +17,39 @@ const storeDepositRequest = async (req,res) => {
                 result.data,
                 ServerStatusCode.SUCESS_CODE
             )    
+         }else if (result.response == "The same deposit request already exists"){
+            apiSucessRes(
+                res,
+                result.response,
+                result.data,
+                ServerStatusCode.SUCESS_CODE
+            )   
          }
          else if(result.response == "Some Datails is missing or Deposit Request not saved"){
+            apiErrorres(
+                res,
+                result.response,
+                ServerStatusCode.PRECONDITION_FAILED,
+                true
+            )
+           
+         }else if(result.response == "companyId does not exist"){
+            apiErrorres(
+                res,
+                result.response,
+                ServerStatusCode.PRECONDITION_FAILED,
+                true
+            )
+           
+         }else if(result.response == "agencyId does not exist"){
+            apiErrorres(
+                res,
+                result.response,
+                ServerStatusCode.PRECONDITION_FAILED,
+                true
+            )
+           
+         }else if(result.response == "userId does not exist"){
             apiErrorres(
                 res,
                 result.response,
@@ -53,127 +84,102 @@ const storeDepositRequest = async (req,res) => {
     }
 }
 
-// const getBankDetails = async (req,res) => {
-//     try{
-//     const result = await bankDetailServices.getCompanyBankDetalis(req,res);
-//     if(result.response === "Bank Details Fetch Sucessfully"){
-//        apiSucessRes(
-//         res,
-//         result.response,
-//         result.data,
-//         ServerStatusCode.SUCESS_CODE
-//        ) 
-//     }
-//     else if(result.response === "No any Bank details added for this company"){
-//         apiErrorres(
-//             res,
-//             result.response,
-//             ServerStatusCode.RECORD_NOTEXIST,
-//             true
-//         )
-//     }
-//     else{
-//         apiErrorres(
-//             res,
-//             "Some Unkown error",
-//             ServerStatusCode.NOT_EXIST_CODE,
-//             true
-//         )
-//     }
+const getAllDepositRequest = async(req , res) => {
+    try {
+        const result = await depositServices.getAlldepositList(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+const getDepositByCompanyId = async(req , res) => {
+    try {
+        const result = await depositServices.getDepositRequestByCompanyId(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
+const getDepositByagencyId = async(req , res) => {
+    try {
+        const result = await depositServices.getDepositRequestByAgentId(req);
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
 
-//     }catch(error){
-//          apiErrorres(
-//             res,
-//             error,
-//             ServerStatusCode.BAD_REQUEST,
-//             true
-//          )
-//     }
-// }
+const approveRejectDeposit= async(req ,res) => {
+    try {
+        const result = await depositServices.approveAndRejectDeposit(req);
+        if(result.response == 'Remark and status are required' || result.response == 'All field are required') {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true)
+        }
+        else {
+            if(result.response == 'Deposit request approved successfully') {
+                apiSucessRes(
+                    res,
+                    CrudMessage.DEPOSIT_APPROVE,
+                    result.response,
+                    ServerStatusCode.SUCESS_CODE
+                )  
+            }else{
+                apiSucessRes(
+                    res,
+                    CrudMessage.DEPOSIT_REJECTED,
+                    result.response,
+                    ServerStatusCode.SUCESS_CODE
+                )  
+            }
+        }
+        
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+    }
+}
 
-// const updateBankDetails = async (req,res) => {
-//     try{
-
-//     const result = await bankDetailServices.updateBankDetails(req,res);
-//     if(!result){
-//        apiErrorres(
-//         res,
-//         errorResponse.NOT_AVALIABLE,
-//         ServerStatusCode.RESOURCE_NOT_FOUND,
-//         true
-//        )
-//     }
-//     else if(result.response === 'Bank details not updated'){
-//       apiErrorres(
-//         res,
-//         result.response,
-//         ServerStatusCode.UNPROCESSABLE,
-//         true
-//       )
-//     }
-//     else if(result.response === 'Bank details updated sucessfully'){
-//        apiSucessRes(
-//         res,
-//         result.response,
-//         result.data,
-//         ServerStatusCode.SUCESS_CODE
-//        )
-//     }
-//     else{
-//          apiErrorres(
-//             res,
-//             errorResponse.NOT_AVALIABLE,
-//             ServerStatusCode.RESOURCE_NOT_FOUND,
-//             true
-//          )
-//     }
-//     }catch(error){
-//         apiErrorres(
-//             res,
-//             error,
-//             ServerStatusCode.RESOURCE_NOT_FOUND,
-//             true
-//         )
-//     }
-// };
-// const deleteBankDetails = async (req,res) => {
-//     try{
-//         const result = await bankDetailServices.deleteBankDetails(req,res);
-//         if(result.response  === "Bank details deleted successfully"){
-//           apiSucessRes(
-//             res,
-//             result.response,
-//             result.data,
-//             ServerStatusCode.SUCESS_CODE
-//           )
-//         }else if(result.response === 'Bank details not found' ){
-//            apiErrorres(
-//             res,
-//             result.response,
-//             ServerStatusCode.RECORD_NOTEXIST,
-//             true
-//            )
-//         }else{
-//             apiErrorres(
-//                 res,
-//                 errorResponse.SOME_UNOWN,
-//                 ServerStatusCode.UNPROCESSABLE,
-//                 true
-//                )
-//         }
-
-//     }catch(error){
-//         apiErrorres(
-//             res,
-//             error,
-//             ServerStatusCode.UNAUTHORIZED,
-//             true
-//         )
-//     }
-// }
 module.exports = {
     storeDepositRequest,
-    // getBankDetails,
-    // updateBankDetails,
-    // deleteBankDetails
+    getAllDepositRequest,
+    getDepositByCompanyId,
+    getDepositByagencyId,
+    approveRejectDeposit    
 }

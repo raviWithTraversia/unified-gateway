@@ -13,11 +13,12 @@ const payu = async (req, res) => {
             lastName,
             email,
             mobile,
-            amount
+            amount,
+            productinfo
 
         } = req.body;
 
-        if(!companyId || !userId || !firstName || !lastName || !email || !mobile || !amount) {
+        if(!companyId || !userId || !firstName || !lastName || !email || !mobile || !amount || !productinfo) {
             return {
                 response : 'All field are required'
             }
@@ -39,25 +40,26 @@ const payu = async (req, res) => {
             email: email,
             mobile: mobile,
             amount: amount,
+            productinfo: productinfo,
             service_provide: 'test',
             call_back_url: `https://kafila.traversia.net`,
             payu_merchant_key: 'gtKFFx',
-            // payu_merchant_salt_version_1 : process.env.PAYU_MERCHANT_SALT_VERSION_1,
+            payu_merchant_salt_version_1 : '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW',
             // payu_merchant_salt_version_2 : process.env.PAYU_MERCHANT_SALT_VERSION_2,
             payu_url: 'https://test.payu.in/_payment',
             payu_fail_url: `https://kafila.traversia.net/success/url`,
             payu_cancel_url: `https://kafila.traversia.net/success/url`,
             payu_url: 'https://test.payu.in/_payment',
         };
-        console.log(payDetails)
+        //console.log(payDetails)
         // Construct the string to be hashed
-        const hashString = `${payDetails.txnId}|${payDetails.firstName}|${payDetails.lastName}|${payDetails.email}|${payDetails.mobile}|${payDetails.amount}`;
+        const hashString = `${payDetails.payu_merchant_key}|${payDetails.txnId}|${payDetails.amount}|${payDetails.productinfo}|${payDetails.firstName}|${payDetails.email}|||||||||||$payDetails.payu_merchant_salt_version_1}`;
         // Add your PayU secret key
-        const secretKey = 'gtKFFx';
+        //const secretKey = 'gtKFFx';
 
         // Create the SHA512 hash using the secret key
         const hash = crypto.createHash('sha512');
-        hash.update(hashString + secretKey);
+        hash.update(hashString);
         const payu_sha_token = hash.digest('hex');
 
         //console.log(payu_sha_token);

@@ -2,7 +2,7 @@ const depositDetail = require("../../models/DepositRequest");
 const Company = require("../../models/Company");
 const User = require("../../models/User");
 const config = require("../../models/AgentConfig");
-
+const ledger = require("../../models/Ledger");
 const adddepositDetails = async (req, res) => {
   try {
     const {
@@ -212,6 +212,19 @@ const approveAndRejectDeposit = async(req, res) => {
             }
             configData.maxcreditLimit += updateResponse.amount;
             await configData.save();
+            const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+            await ledger.create({
+              userId: updateResponse.userId,
+              companyId: updateResponse.companyId,
+              ledgerId: ledgerId,
+              transactionAmount: updateResponse.amount,
+              currencyType: "INR",
+              fop: "Credit",
+              transactionType: "Credit",
+              runningAmount: configData.maxcreditLimit += updateResponse.amount,
+              remarks: "Deposit Request Added Into Your Account.",
+              transactionBy: updateResponse.userId              
+            });
             // await commonFunction.eventLogFunction(
             //     'creditRequest' ,
             //     doerId ,

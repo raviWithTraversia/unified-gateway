@@ -349,12 +349,14 @@ const KafilaFun = async (
   let classOfServiceVal = classOfServiceMap[ClassOfService] || "";
 
   // Fare Family Array
-  let fareFamilyMasterGet = [];
-  if (FareFamily && FareFamily.length > 0) {
-      fareFamilyMasterGet = await fareFamilyMaster.distinct("fareFamilyCode", { fareFamilyName: { $in: FareFamily } });
-  }  
+  // let fareFamilyMasterGet = [];
+  // if (FareFamily && FareFamily.length > 0) {
+  //     fareFamilyMasterGet = await fareFamilyMaster.distinct("fareFamilyCode", { fareFamilyName: { $in: FareFamily } });
+  // }  
+  // let fareFamilyVal =
+  // fareFamilyMasterGet && fareFamilyMasterGet.length > 0 ? fareFamilyMasterGet.join(",") : "";
   let fareFamilyVal =
-  fareFamilyMasterGet && fareFamilyMasterGet.length > 0 ? fareFamilyMasterGet.join(",") : "";
+  FareFamily && FareFamily.length > 0 ? FareFamily.join(",") : "";
 
 
   const segmentsArray = Segments.map((segment) => ({

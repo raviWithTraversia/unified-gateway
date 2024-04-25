@@ -143,7 +143,7 @@ const getDepositRequestByCompanyId = async(req , res) => {
         const CompanyId = req.params.companyId;
         // const getAllAgency = await Company.find({_id: CompanyId});
         // console.log(getAllAgency);
-        const result = await depositDetail.find({companyId : CompanyId}).populate('companyId' , 'companyName').populate('agencyId');
+        const result = await depositDetail.find({companyId : CompanyId}).populate('companyId' , 'companyName').populate('agencyId').populate('userId');
         if (result.length > 0) {
             return {
                 response: 'Fetch Data Successfuly!!',
@@ -165,7 +165,7 @@ const getDepositRequestByAgentId = async(req , res) => {
         const CompanyId = req.params.companyId;
         // const getAllAgency = await Company.find({_id: CompanyId});
         // console.log(getAllAgency);
-        const result = await depositDetail.find({agencyId : CompanyId}).populate('companyId' , 'companyName').populate('agencyId');
+        const result = await depositDetail.find({agencyId : CompanyId}).populate('companyId' , 'companyName').populate('agencyId').populate('userId');
         if (result.length > 0) {
             return {
                 response: 'Fetch Data Successfuly!!',

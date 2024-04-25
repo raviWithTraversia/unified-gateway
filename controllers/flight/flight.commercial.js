@@ -92,7 +92,7 @@ const getApplyAllCommercial = async (
         FareType: "Economy",
         TourCode: "",
         PricingMethod: "Guaranteed",
-        FareFamily: "MAIN",
+        FareFamily: "FF",
         PromotionalFare: false,
         FareFamilyDN: null,
         PromotionalCode: "",
@@ -100,7 +100,7 @@ const getApplyAllCommercial = async (
         RefundableFare: true,
         IndexNumber: 0,
         Provider: "Kafila",
-        ValCarrier: "6E",
+        ValCarrier: "SG",
         LastTicketingDate: "",
         TravelTime: "1d:0h:50m",
         PriceBreakup: [
@@ -604,11 +604,11 @@ const getApplyAllCommercial = async (
       },
     ];
     
-     for (const singleFlightDetails of commonArray) {
-   // for (const singleFlightDetails of commonArrayDummy) {
-      
+   for (const singleFlightDetails of commonArray) {
+    //for (const singleFlightDetails of commonArrayDummy) {      
       // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
+        // console.log(commercialPlanDetails.data);
         // get group of priority base
         groupPriority = await makePriorityGroup(
           TravelType,
@@ -637,7 +637,7 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              commList.fareFamily === singleFlightDetails.FareFamily &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {
               
@@ -663,7 +663,7 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.length === 0 && 
+              commList.fareFamily === null &&
               //!commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
@@ -689,7 +689,7 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              commList.fareFamily === singleFlightDetails.FareFamily &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {
               checkInnerFilterfun = await checkInnerFilter(
@@ -714,7 +714,7 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              commList.fareFamily === singleFlightDetails.FareFamily &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {
               checkInnerFilterfun = await checkInnerFilter(
@@ -739,7 +739,7 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              commList.fareFamily === singleFlightDetails.FareFamily &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
               checkInnerFilterfun = await checkInnerFilter(
@@ -764,7 +764,7 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.length === 0 &&
+              commList.fareFamily === null &&
               //!commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
@@ -790,7 +790,7 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.length === 0 &&
+              commList.fareFamily === null &&
               //!commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
@@ -816,7 +816,7 @@ const getApplyAllCommercial = async (
               commList.carrier === singleFlightDetails.ValCarrier &&
               commList.source === null &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.length === 0 &&
+              commList.fareFamily === null &&
               //!commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
               !['FD','FF'].includes(singleFlightDetails.FareFamily)   
             ) {              
@@ -838,9 +838,10 @@ const getApplyAllCommercial = async (
                 break;
               }
             } else if ( 
-              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&             
+              commList.fareFamily === singleFlightDetails.FareFamily &&             
               ['FD','FF'].includes(singleFlightDetails.FareFamily)   
-            ) {              
+            ) {   
+                        
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
                 singleFlightDetails,
@@ -2004,13 +2005,15 @@ const getAssignCommercial = async (companyId) => {
             select: "fareFamilyName fareFamilyCode",
           }, 
         ]);
+        console.log(aircommercialListVar);
       if (aircommercialListVar.length > 0) {
-        const fareFamilyMasterGet = await fareFamilyMaster.find({});
+        //const fareFamilyMasterGet = await fareFamilyMaster.find({});
         let mappingData = aircommercialListVar.map(async (items) => {
-
-          const matchedFareFamilyCodes = items.fareFamily?.fareFamilyName != null ? fareFamilyMasterGet
-          .filter(item => item.fareFamilyName === items.fareFamily.fareFamilyName)
-          .map(item => item.fareFamilyCode) :  [];
+          
+          // const matchedFareFamilyCodes = items.fareFamily?.fareFamilyName != null ? fareFamilyMasterGet
+          // .filter(item => item.fareFamilyName === items.fareFamily.fareFamilyName)
+          // .map(item => item.fareFamilyCode) :  [];
+          const matchedFareFamilyCodes = items.fareFamily != null ? items.fareFamily?.fareFamilyCode : null;
 
           const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
             .findOne({
@@ -2080,15 +2083,14 @@ const getAssignCommercial = async (companyId) => {
           select: "fareFamilyName fareFamilyCode",
         },       
       ]);
-      //console.log(aircommercialListVar);
+      
     if (aircommercialListVar.length > 0) {
-      const fareFamilyMasterGet = await fareFamilyMaster.find({});     
+      //const fareFamilyMasterGet = await fareFamilyMaster.find({});     
       
       let mappingData = aircommercialListVar.map(async (items) => {
         //return items       
-        const matchedFareFamilyCodes = items.fareFamily?.fareFamilyName != null ? fareFamilyMasterGet
-        .filter(item => item.fareFamilyName === items.fareFamily.fareFamilyName)
-        .map(item => item.fareFamilyCode) : [];
+        
+        const matchedFareFamilyCodes = items.fareFamily != null ? items.fareFamily?.fareFamilyCode : null;        
         
         const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
           .findOne({
@@ -3104,13 +3106,13 @@ const checkIncentiveFilter = async (
         commList.incentiveMasterId.fareFamily !== "";
 
       if (checkfareFamily) {
-        const matchedFareFamilyCodes = commList.incentiveMasterId.fareFamily?.fareFamilyName != null ? fareFamilyMasterGet
-          .filter(item => item.fareFamilyName === commList.incentiveMasterId.fareFamily.fareFamilyName)
-          .map(item => item.fareFamilyCode) :  [];
+        // const matchedFareFamilyCodes = commList.incentiveMasterId.fareFamily?.fareFamilyName != null ? fareFamilyMasterGet
+        //   .filter(item => item.fareFamilyName === commList.incentiveMasterId.fareFamily.fareFamilyName)
+        //   .map(item => item.fareFamilyCode) :  [];
         
-        if (matchedFareFamilyCodes.includes(singleFlightDetails.FareFamily) && !['FD','FF'].includes(singleFlightDetails.FareFamily)) {
+        if (commList.incentiveMasterId.fareFamily.fareFamilyCode === singleFlightDetails.FareFamily && !['FD','FF'].includes(singleFlightDetails.FareFamily)) {
           bestMatch = true;
-        } else if(matchedFareFamilyCodes.includes(singleFlightDetails.FareFamily) && ['FD','FF'].includes(singleFlightDetails.FareFamily)){
+        } else if(commList.incentiveMasterId.fareFamily.fareFamilyCode === singleFlightDetails.FareFamily && ['FD','FF'].includes(singleFlightDetails.FareFamily)){
           bestMatch = true;
         }else {
           continue;
@@ -4643,12 +4645,12 @@ const checkPLBFilter = async (
         commList.PLBMasterId?.fareFamily !== "";
 
       if (checkfareFamily) { 
-        const matchedFareFamilyCodes = commList.PLBMasterId.fareFamily?.fareFamilyName != null ? fareFamilyMasterGet
-          .filter(item => item.fareFamilyName === commList.PLBMasterId.fareFamily.fareFamilyName)
-          .map(item => item.fareFamilyCode) :  [];       
-        if (matchedFareFamilyCodes.includes(singleFlightDetails.FareFamily) && !['FD','FF'].includes(singleFlightDetails.FareFamily)) {
+        // const matchedFareFamilyCodes = commList.PLBMasterId.fareFamily?.fareFamilyName != null ? fareFamilyMasterGet
+        //   .filter(item => item.fareFamilyName === commList.PLBMasterId.fareFamily.fareFamilyName)
+        //   .map(item => item.fareFamilyCode) :  [];       
+        if (commList.PLBMasterId.fareFamily.fareFamilyCode === singleFlightDetails.FareFamily && !['FD','FF'].includes(singleFlightDetails.FareFamily)) {
           bestMatch = true;
-        }else if(matchedFareFamilyCodes.includes(singleFlightDetails.FareFamily) && ['FD','FF'].includes(singleFlightDetails.FareFamily)){
+        }else if(commList.PLBMasterId.fareFamily.fareFamilyCode === singleFlightDetails.FareFamily && ['FD','FF'].includes(singleFlightDetails.FareFamily)){
           bestMatch = true;
         }else {
           continue;
@@ -6001,7 +6003,9 @@ const commertialMatrixValue = async (
   configDetails,
   supplierTypeFor
 ) => {
-  // console.log("=====>>",commList,
+  
+  // console.log("Total=====>>",singleFlightDetails.TotalPrice)
+  //  console.log("b=====>>",singleFlightDetails.PriceBreakup[0].BaseFare)
   //   "[[[[[[[[[[[[[[[[",singleFlightDetails,
   //   companyId,
   //   configDetails,
@@ -6023,7 +6027,8 @@ const commertialMatrixValue = async (
       oldBaseFareADT = singleFlightDetails.PriceBreakup[0].BaseFare;
       oldTaxFareADT = singleFlightDetails.PriceBreakup[0].Tax;
       oldTaxBreakupADT = singleFlightDetails.PriceBreakup[0].TaxBreakup;
-  }  
+  } 
+   
   if (typeof singleFlightDetails.PriceBreakup[1] === 'object' && Object.keys(singleFlightDetails.PriceBreakup[1]).length > 0) {
       oldBaseFareCHD = singleFlightDetails.PriceBreakup[1].BaseFare;
       oldTaxFareCHD = singleFlightDetails.PriceBreakup[1].Tax;
@@ -6035,7 +6040,7 @@ const commertialMatrixValue = async (
       oldTaxFareInf = singleFlightDetails.PriceBreakup[2].Tax;
       oldTaxBreakupInf = singleFlightDetails.PriceBreakup[2].TaxBreakup;
   }
-  
+ 
     // Markup Rate start Here
     const markupRateAllColumn = commList.updateaircommercialmatrixes.data.filter(
       (filter) =>
@@ -10666,7 +10671,8 @@ const makePriorityGroup = async (
       commList.carrier === singleFlightDetails.ValCarrier &&
       commList.source === singleFlightDetails.Provider &&
       commList.commercialCategory === "Ticket" &&
-      commList.fareFamily.includes(singleFlightDetails.FareFamily)
+      commList.fareFamily === singleFlightDetails.FareFamily &&
+      !['FD','FF'].includes(singleFlightDetails.FareFamily)
     ) {
       //console.log(commercialPlanDetails.data[0])
       const groupKey = `${TravelType}-${commList.carrier}-${commList.source}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
@@ -10682,7 +10688,8 @@ const makePriorityGroup = async (
       commList.carrier === singleFlightDetails.ValCarrier &&
       commList.source === singleFlightDetails.Provider &&
       commList.commercialCategory === "Ticket" &&
-      commList.fareFamily.length === 0
+      commList.fareFamily === null &&
+      !['FD','FF'].includes(singleFlightDetails.FareFamily)
       //!commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.carrier}-${commList.source}-${commList.commercialCategory}`;
@@ -10698,7 +10705,8 @@ const makePriorityGroup = async (
       commList.carrier === null &&
       commList.source === singleFlightDetails.Provider &&
       commList.commercialCategory === "Ticket" && 
-      commList.fareFamily.includes(singleFlightDetails.FareFamily)
+      commList.fareFamily === singleFlightDetails.FareFamily &&
+      !['FD','FF'].includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.source}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
 
@@ -10713,7 +10721,8 @@ const makePriorityGroup = async (
       commList.carrier === singleFlightDetails.ValCarrier &&
       commList.source === null &&
       commList.commercialCategory === "Ticket" &&
-      commList.fareFamily.includes(singleFlightDetails.FareFamily)
+      commList.fareFamily === singleFlightDetails.FareFamily &&
+      !['FD','FF'].includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.carrier}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
 
@@ -10728,7 +10737,8 @@ const makePriorityGroup = async (
       commList.carrier === null &&
       commList.source === null &&
       commList.commercialCategory === "Ticket" &&
-      commList.fareFamily.includes(singleFlightDetails.FareFamily)
+      commList.fareFamily === singleFlightDetails.FareFamily &&
+      !['FD','FF'].includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
 
@@ -10743,7 +10753,8 @@ const makePriorityGroup = async (
       commList.carrier === singleFlightDetails.ValCarrier &&
       commList.source === null &&
       commList.commercialCategory === "Ticket" &&
-      commList.fareFamily.length === 0
+      commList.fareFamily === null &&
+      !['FD','FF'].includes(singleFlightDetails.FareFamily)
       //!commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.carrier}-${commList.commercialCategory}`;
@@ -10759,7 +10770,8 @@ const makePriorityGroup = async (
       commList.carrier === null &&
       commList.source === singleFlightDetails.Provider &&
       commList.commercialCategory === "Ticket" &&
-      commList.fareFamily.length === 0
+      commList.fareFamily === null &&
+      !['FD','FF'].includes(singleFlightDetails.FareFamily)
       //!commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `FTF-${commList.carrier}-${TravelType}-${commList.commercialCategory}-${singleFlightDetails.FareFamily}`;
@@ -10775,7 +10787,8 @@ const makePriorityGroup = async (
       commList.carrier === null &&
       commList.source === null &&
       commList.commercialCategory === "Ticket" &&
-      commList.fareFamily.length === 0
+      commList.fareFamily === null &&
+      !['FD','FF'].includes(singleFlightDetails.FareFamily)
       //!commList.fareFamily.includes(singleFlightDetails.FareFamily)
     ) {
       const groupKey = `${TravelType}-${commList.commercialCategory}`;

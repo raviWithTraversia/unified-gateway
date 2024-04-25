@@ -48,6 +48,7 @@ const getBalance = async (req, res) => {
     agencyId: checkuserIdIdExist.company_ID,
     expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
     status: "approved",
+    product: "Flight"
   });
 
   if (getcreditRequest && getcreditRequest.length > 0) {
@@ -62,7 +63,7 @@ const getBalance = async (req, res) => {
       response: "Fetch Data Successfully",
       data: {
         cashBalance: getAgentConfig.maxcreditLimit,
-        totalAmount: totalAmount,
+        totalAmount: totalAmount ?? 0,
         expireDate: expireDate,
       },
     };

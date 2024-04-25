@@ -48,16 +48,30 @@ const getBalance = async (req, res) => {
       response: "No data found for the given UserId"      
     };
   }
-  //console.log(getAgentConfig.companyId);
-  // const getcreditRequest = await creditRequest.findOne({
-  //   userId: userId,
-  // }); 
   
+  const getcreditRequest = await creditRequest.find({
+    agencyId: checkuserIdIdExist.company_ID,
+    expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
+    status: 'approved',
+  });
+  
+  if(getcreditRequest && getcreditRequest.length > 0){
+  let totalAmount = 0;
+  getcreditRequest.forEach(request => {
+    totalAmount += request.amount;
+  });
+  const expireDate = getcreditRequest[0].expireDate;
+  // console.log(getcreditRequest);
+
   return {
     response: "Fetch Data Successfully",            
-    data: {cashBalance:getAgentConfig.maxcreditLimit, tempBalance:10, expireDate:"2025-01-18"},
+    data: {cashBalance:getAgentConfig.maxcreditLimit, totalAmount:10, expireDate:expireDate},
   };
-        
+}else{
+  return {
+    response: "No data found for the given UserId"      
+  };
+}     
     
 
   

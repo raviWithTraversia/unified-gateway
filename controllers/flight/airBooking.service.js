@@ -5,6 +5,7 @@ const Supplier = require("../../models/Supplier");
 const Role = require("../../models/Role");
 const UserModel = require("../../models/User");
 const ledger = require("../../models/Ledger");
+const creditRequest = require("../../models/CreditRequest");
 const transaction = require("../../models/transaction");
 const agentConfig = require("../../models/AgentConfig");
 const fareFamilyMaster = require("../../models/FareFamilyMaster");
@@ -557,12 +558,26 @@ const totalSSRWithCalculationPrice = calculationOfferPriceWithCommercial + total
 try {
   // Retrieve agent configuration
   const getAgentConfig = await agentConfig.findOne({ userId: getuserDetails._id });
-
+  const getcreditRequest = await creditRequest.find({
+    agencyId: getuserDetails.company_ID,
+    expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
+    status: 'approved',
+  });
+  let creditTotal = 0;
+  if(getcreditRequest && getcreditRequest.length > 0){
+    
+    getcreditRequest.forEach(request => {
+      creditTotal += request.amount;
+    });
+  }else{
+    creditTotal = 0;
+  }
   // Check if maxCreditLimit exists, otherwise set it to 0
+  const checkCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
   const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
 
   // Check if balance is sufficient
-  if (maxCreditLimit < totalSSRWithCalculationPrice) {
+  if (checkCreditLimit < totalSSRWithCalculationPrice) {
     return "Your Balance is not sufficient";
   }
 

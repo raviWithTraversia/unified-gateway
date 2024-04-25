@@ -10,15 +10,14 @@ const payu = async (req, res) => {
             companyId,
             userId,
             firstName,            
-            email,
-            mobile,
+            email,            
             amount,
             phone,
             productinfo
 
         } = req.body;
 
-        if(!companyId || !userId || !firstName || !email || !mobile || !amount || !productinfo || !phone) {
+        if(!companyId || !userId || !firstName || !email || !amount || !productinfo || !phone) {
             return {
                 response : 'All field are required'
             }

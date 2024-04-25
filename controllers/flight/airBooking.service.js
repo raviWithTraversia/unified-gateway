@@ -573,10 +573,11 @@ try {
     creditTotal = 0;
   }
   // Check if maxCreditLimit exists, otherwise set it to 0
-  const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
+  const checkCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
+  const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
 
   // Check if balance is sufficient
-  if (maxCreditLimit < totalSSRWithCalculationPrice) {
+  if (checkCreditLimit < totalSSRWithCalculationPrice) {
     return "Your Balance is not sufficient";
   }
 

@@ -1,5 +1,6 @@
 const User = require("../../models/User");
 const agentConfig = require("../../models/AgentConfig");
+const creditRequest = require("../../models/CreditRequest");
 
 const getBalance = async (req, res) => {
   const {
@@ -47,7 +48,11 @@ const getBalance = async (req, res) => {
       response: "No data found for the given UserId"      
     };
   }
-
+  //console.log(getAgentConfig.companyId);
+  // const getcreditRequest = await creditRequest.findOne({
+  //   userId: userId,
+  // }); 
+  
   return {
     response: "Fetch Data Successfully",            
     data: {cashBalance:getAgentConfig.maxcreditLimit, tempBalance:10, expireDate:"2025-01-18"},

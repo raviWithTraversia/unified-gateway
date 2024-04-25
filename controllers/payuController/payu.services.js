@@ -13,11 +13,12 @@ const payu = async (req, res) => {
             email,
             mobile,
             amount,
+            phone,
             productinfo
 
         } = req.body;
 
-        if(!companyId || !userId || !firstName || !email || !mobile || !amount || !productinfo) {
+        if(!companyId || !userId || !firstName || !email || !mobile || !amount || !productinfo || !phone) {
             return {
                 response : 'All field are required'
             }
@@ -37,8 +38,11 @@ const payu = async (req, res) => {
         const productinfores = productinfo;
         const firstnameres = firstName;
         const emailres = email;
+        const phoneres = phone;
+        const surl = "/payment/payumoney/response";
+        const furl = "/payment/payumoney/response";        
         const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
-
+        
 
         // Concatenate the transaction details
         const hashString = `${key}|${txnid}|${amountres}|${productinfores}|${firstnameres}|${emailres}|||||||||||${salt}`;
@@ -46,7 +50,7 @@ const payu = async (req, res) => {
         // Calculate the SHA-512 hash
         const hash = crypto.createHash('sha512').update(hashString).digest('hex');
     
-        payDetails = {key:key,txnid:txnid,amount:amountres,productinfo:productinfores, firstname:firstnameres,email:emailres,salt:salt, hash: hash}; // Add the hash to payment details
+        payDetails = {key:key,txnid:txnid,amount:amountres,productinfo:productinfores, firstname:firstnameres,email:emailres,salt:salt, phone: phoneres,surl:surl,furl:furl, hash: hash}; // Add the hash to payment details
         // check companyId exist or not
         // const checkExistCompany = await Company.findById(companyId);
         // if(!checkExistCompany) {

@@ -221,7 +221,7 @@ const approveAndRejectDeposit = async(req, res) => {
               currencyType: "INR",
               fop: "Credit",
               transactionType: "Credit",
-              runningAmount: configData.maxcreditLimit += updateResponse.amount,
+              runningAmount: configData.maxcreditLimit,
               remarks: "Deposit Request Added Into Your Account.",
               transactionBy: updateResponse.userId              
             });

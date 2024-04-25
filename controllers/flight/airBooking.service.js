@@ -562,6 +562,7 @@ try {
     agencyId: getuserDetails.company_ID,
     expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
     status: 'approved',
+    product: 'Flight'
   });
   let creditTotal = 0;
   if(getcreditRequest && getcreditRequest.length > 0){

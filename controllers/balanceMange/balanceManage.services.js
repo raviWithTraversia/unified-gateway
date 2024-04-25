@@ -63,7 +63,7 @@ const getBalance = async (req, res) => {
       response: "Fetch Data Successfully",
       data: {
         cashBalance: getAgentConfig.maxcreditLimit,
-        totalAmount: totalAmount ?? 0,
+        tempBalance: totalAmount ?? 0,
         expireDate: expireDate,
       },
     };
@@ -72,7 +72,7 @@ const getBalance = async (req, res) => {
       response: "Fetch Data Successfully",
       data: {
         cashBalance: getAgentConfig.maxcreditLimit,
-        totalAmount: 0,
+        tempBalance: 0,
         expireDate: '',
       },
     };

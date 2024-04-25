@@ -46,7 +46,7 @@ const payu = async (req, res) => {
         // Calculate the SHA-512 hash
         const hash = crypto.createHash('sha512').update(hashString).digest('hex');
     
-        payDetails = hash; // Add the hash to payment details
+        payDetails = {key:key,txnid:txnid,amount:amountres,productinfo:productinfores, firstname:firstnameres,email:emailres,salt:salt, hash: hash}; // Add the hash to payment details
         // check companyId exist or not
         // const checkExistCompany = await Company.findById(companyId);
         // if(!checkExistCompany) {

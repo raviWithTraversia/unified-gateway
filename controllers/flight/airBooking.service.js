@@ -919,6 +919,7 @@ try {
   
                   return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
                 }
+                
                 const bookingResponce = {
                     CartId: item.BookingId,
                     bookingResponce: { 
@@ -926,6 +927,7 @@ try {
                         BookingStatus: fSearchApiResponse.data.BookingInfo.BookingStatus,
                         BookingRemark: fSearchApiResponse.data.BookingInfo.BookingRemark,
                         BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
+                        providerBookingId: fSearchApiResponse.data.BookingInfo.BookingId,
                         PNR: fSearchApiResponse.data.BookingInfo.APnr,
                         Type: fSearchApiResponse.data.BookingInfo.GPnr,
                         APnr:fSearchApiResponse.data.BookingInfo.APnr,
@@ -939,6 +941,7 @@ try {
                     { bookingId: item?.BookingId, "itinerary.IndexNumber": item.IndexNumber }, 
                     { $set: { bookingStatus: fSearchApiResponse.data.BookingInfo.CurrentStatus,
                       bookingRemarks: fSearchApiResponse.data.BookingInfo.BookingRemark,
+                      providerBookingId: fSearchApiResponse.data.BookingInfo.BookingId,
                       PNR: fSearchApiResponse.data.BookingInfo.APnr,                        
                       APnr:fSearchApiResponse.data.BookingInfo.APnr,
                       GPnr:fSearchApiResponse.data.BookingInfo.GPnr,                      

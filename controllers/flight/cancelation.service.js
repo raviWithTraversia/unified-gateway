@@ -280,7 +280,7 @@ const KafilaFun = async (
         R_NAME: "CANCEL",
         R_DATA: {
             ACTION: "CANCEL_CHARGE",
-            BOOKING_ID: "B2B1602241706PM229808359c3",
+            BOOKING_ID: BookingId,
             CANCEL_TYPE: "FULL_CANCELLATION",
             REASON: Reason,
             TRACE_ID:Authentication.TraceId

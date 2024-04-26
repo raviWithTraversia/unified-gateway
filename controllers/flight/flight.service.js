@@ -255,7 +255,11 @@ async function handleflight(
 
   return {
     IsSucess: true,
-    response: getApplyAllCommercialVar.IsSucess ? getApplyAllCommercialVar.response : getApplyAllCommercialVar,
+    response: getApplyAllCommercialVar.IsSucess ? getApplyAllCommercialVar.response.sort(
+      (a, b) => a.TotalPrice - b.TotalPrice
+    ) : getApplyAllCommercialVar.sort(
+      (a, b) => a.TotalPrice - b.TotalPrice
+    ),
   };
   // return {
   //     IsSucess: true,

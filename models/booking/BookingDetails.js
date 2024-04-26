@@ -26,7 +26,7 @@ const bookingDetailsSchema = new mongoose.Schema(
       // The type of booking (e.g., "Staff", "Agency", etc.)
       type: String,
       default: null,
-    },
+    },    
     src: {
       type: String,
       default: null,
@@ -43,6 +43,10 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
       // enum: ['INCOMPLETE', 'FAILED','CONFIRMED','CANCELLED','PENDING',HOLD, HOLDRELEASED]
+    },
+    providerBookingId: {
+      type: String,
+      default: null,
     },
     bookingRemarks: {
       type: String,

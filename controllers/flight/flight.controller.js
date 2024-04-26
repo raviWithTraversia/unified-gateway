@@ -1,7 +1,8 @@
 const flightSearch = require("./flight.service");
 const airPricingCheck = require("./airPricing.service");
 const airBooking = require("./airBooking.service");
-const ssrServices = require('../flight/ssr.service')
+const ssrServices = require('../flight/ssr.service');
+const cancelationServices = require('../flight/cancelation.service');
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
@@ -144,4 +145,39 @@ const specialServiceReq = async (req , res) => {
   );
 }
 }
-module.exports = {getSearch, airPricing, startBooking, specialServiceReq};
+
+const fullCancelation = async(req, res) => {
+  try {
+    const result = await cancelationServices.fullCancelation(req, res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    }else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid" || result.response === "Booking Id does not exist") {
+        apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    }else if (result.response === "Fetch Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    }else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+
+
+module.exports = {getSearch, airPricing, startBooking, specialServiceReq, fullCancelation};

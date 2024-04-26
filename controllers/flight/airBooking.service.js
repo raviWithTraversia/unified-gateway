@@ -807,6 +807,7 @@ try {
               },
                 PriceBreakup: priceBreakupArray,
                 Sectors: sectorsArray,
+                TraceId: Authentication?.TraceId,
               },
             };
         

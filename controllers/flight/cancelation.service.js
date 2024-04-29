@@ -2,7 +2,7 @@ const flightcommercial = require("./flight.commercial");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const bookingDetails = require("../../models/BookingDetails");
-const cancelationBooking = require("../../models/booking/CancelationBooking");
+const CancelationBooking = require("../../models/booking/CancelationBooking");
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
@@ -290,11 +290,31 @@ const KafilaFun = async (
       }
     ); 
 
-    // if(fCancelApiResponse?.data?.R_DATA?.Error?.Status === "PENDING"){
-    //   const saveCalcelation = // savedata query here
-    // }else{
-    //   return fCancelApiResponse?.data;
-    // }
+    if(fCancelApiResponse?.data?.R_DATA?.Error?.Status === "PENDING"){
+      try {
+        const cancelationBookingInstance = new CancelationBooking({
+          calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status,
+          AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode,
+          companyId: Authentication?.CompanyId,
+          userId: Authentication?.UserId,
+          PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr,
+          fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare,
+          AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee,
+          AirlineRefund: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund,
+          ServiceFee: fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee,
+          RefundableAmt: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt,
+          description: fCancelApiResponse?.data?.R_DATA?.Charges?.Description,
+          modifyBy: Authentication?.UserId,
+          modifyAt: new Date(),
+        });
+        await cancelationBookingInstance.save();
+        return fCancelApiResponse?.data;
+      } catch (error) {
+        throw new Error("Error saving cancellation data");
+      }
+    }else{
+      return fCancelApiResponse?.data;
+    }
 
 
       //console.log(fCancelApiResponse.data, "Cancel Responce")

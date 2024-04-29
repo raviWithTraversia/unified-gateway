@@ -2,6 +2,7 @@ const flightcommercial = require("./flight.commercial");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const bookingDetails = require("../../models/BookingDetails");
+const CancelationBooking = require("../../models/booking/CancelationBooking");
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
@@ -16,9 +17,7 @@ const partialCancelation = async (req, res) => {
     BookingId,
     CancelType,
     Reason,
-    Sector,
-    AdultCount,
-    ChildCount,
+    Sector    
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -28,9 +27,8 @@ const partialCancelation = async (req, res) => {
     "BookingId",
     "CancelType",
     "Reason",    
-    "Sector",
-    "AdultCount",
-    "ChildCount",
+    "Sector"
+    
   ];
   const missingFields = fieldNames.filter(
     (fieldName) =>
@@ -76,9 +74,8 @@ const partialCancelation = async (req, res) => {
       BookingId,
       CancelType,      
       Sector,
-      Reason,
-      AdultCount,
-      ChildCount
+      Reason
+      
     );
   }
 
@@ -103,9 +100,7 @@ async function handleflight(
   BookingId,
   CancelType, 
   Reason, 
-  Sector,
-  AdultCount,
-  ChildCount
+  Sector  
 ) {
   // International
   // Check LIVE and TEST
@@ -165,9 +160,7 @@ async function handleflight(
               BookingId,
               CancelType,
               Reason,
-              Sector,
-              AdultCount,
-              ChildCount
+              Sector             
             );
           default:
             throw new Error(
@@ -196,9 +189,7 @@ const KafilaFun = async (
   BookingId,
   CancelType, 
   Reason, 
-  Sector,
-  AdultCount,
-  ChildCount
+  Sector  
 ) => {
   let createTokenUrl;
   let flightCancelUrl;
@@ -303,6 +294,32 @@ const KafilaFun = async (
         },
       }
     ); 
+
+    if(fCancelApiResponse?.data?.R_DATA?.Error?.Status === "PENDING"){
+        try {
+          const cancelationBookingInstance = new CancelationBooking({
+            calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status,
+            AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode,
+            companyId: Authentication?.CompanyId,
+            userId: Authentication?.UserId,
+            PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr,
+            fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare,
+            AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee,
+            AirlineRefund: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund,
+            ServiceFee: fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee,
+            RefundableAmt: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt,
+            description: fCancelApiResponse?.data?.R_DATA?.Charges?.Description,
+            modifyBy: Authentication?.UserId,
+            modifyAt: new Date(),
+          });
+          await cancelationBookingInstance.save();
+          return fCancelApiResponse?.data;
+        } catch (error) {
+          throw new Error("Error saving cancellation data");
+        }
+      }else{
+        return fCancelApiResponse?.data;
+      }
       //console.log(fCancelApiResponse.data, "Cancel Responce")
     // if (fCancelApiResponse.data.Status !==  null) {
     //   return {
@@ -314,7 +331,7 @@ const KafilaFun = async (
     //   };
     // }
       //console.log('apiData',fSearchApiResponse.data.Charges); 
-      return fCancelApiResponse.data;
+     // return fCancelApiResponse.data;
 
 
 
@@ -328,16 +345,10 @@ const KafilaFun = async (
       // }         
       
     } else {
-      return {
-        IsSucess: false,
-        response: response.data.ErrorMessage,
-      };
+      return response.data.ErrorMessage;
     }
   } catch (error) {
-    return {
-      IsSucess: false,
-      response: error.message,
-    };
+    return error.message
   }
 };
 module.exports = {

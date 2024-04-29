@@ -247,10 +247,9 @@ async function handleflight(
     commonArray
   );
   //console.log("pppppppppppppppppppppppp", res, "<<<========ppppvvvvvvvv")
-
   return {
     IsSucess: true,
-    response: getApplyAllCommercialVar,
+    response: getApplyAllCommercialVar.IsSucess ? getApplyAllCommercialVar.response:getApplyAllCommercialVar,
     apiReq : res.apiReq
   };
 };

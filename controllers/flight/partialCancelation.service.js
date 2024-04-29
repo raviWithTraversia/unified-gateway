@@ -7,7 +7,7 @@ const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
 
-const fullCancelation = async (req, res) => {
+const partialCancelation = async (req, res) => {
   const {
     Authentication,
     Provider,
@@ -16,7 +16,9 @@ const fullCancelation = async (req, res) => {
     BookingId,
     CancelType,
     Reason,
-    Sector    
+    Sector,
+    AdultCount,
+    ChildCount,
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -26,7 +28,9 @@ const fullCancelation = async (req, res) => {
     "BookingId",
     "CancelType",
     "Reason",    
-    "Sector"    
+    "Sector",
+    "AdultCount",
+    "ChildCount",
   ];
   const missingFields = fieldNames.filter(
     (fieldName) =>
@@ -72,7 +76,9 @@ const fullCancelation = async (req, res) => {
       BookingId,
       CancelType,      
       Sector,
-      Reason      
+      Reason,
+      AdultCount,
+      ChildCount
     );
   }
 
@@ -97,7 +103,9 @@ async function handleflight(
   BookingId,
   CancelType, 
   Reason, 
-  Sector  
+  Sector,
+  AdultCount,
+  ChildCount
 ) {
   // International
   // Check LIVE and TEST
@@ -157,7 +165,9 @@ async function handleflight(
               BookingId,
               CancelType,
               Reason,
-              Sector              
+              Sector,
+              AdultCount,
+              ChildCount
             );
           default:
             throw new Error(
@@ -186,7 +196,9 @@ const KafilaFun = async (
   BookingId,
   CancelType, 
   Reason, 
-  Sector  
+  Sector,
+  AdultCount,
+  ChildCount
 ) => {
   let createTokenUrl;
   let flightCancelUrl;
@@ -229,8 +241,9 @@ const KafilaFun = async (
         R_DATA: {
             ACTION: "CANCEL_CHARGE",
             BOOKING_ID: BookingId,
-            CANCEL_TYPE: "FULL_CANCELLATION",
+            CANCEL_TYPE: "PARTIAL_CANCELLATION",
             REASON: Reason,
+            SECTORS:Sector,
             TRACE_ID:Authentication.TraceId
         },
         AID: supplier.supplierWsapSesssion,
@@ -252,7 +265,8 @@ const KafilaFun = async (
       ); 
         //console.log(fSearchApiResponse.data, "1API Responce")
       if (fSearchApiResponse.data.Status !==  null) {
-        return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage;       
+        return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage
+       
       }
 
 
@@ -263,8 +277,9 @@ const KafilaFun = async (
         R_DATA: {
             ACTION: "CANCEL_COMMIT",
             BOOKING_ID: BookingId,
-            CANCEL_TYPE: "FULL_CANCELLATION",
+            CANCEL_TYPE: "PARTIAL_CANCELLATION",
             REASON: Reason,
+            SECTORS:Sector,
             TRACE_ID:Authentication?.TraceId,
             Charges:fSearchApiResponse?.data?.Charges,
             Error:fSearchApiResponse?.data?.Error,
@@ -326,5 +341,5 @@ const KafilaFun = async (
   }
 };
 module.exports = {
-  fullCancelation,
+    partialCancelation,
 };

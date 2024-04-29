@@ -41,6 +41,9 @@ const payu = async (req, res) => {
         const surl = "/payment/payumoney/response";
         const furl = "/payment/payumoney/response";        
         const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
+        const cancelUrl = '/payment/cancelurl';
+        const successUrl = '/payment/successurl';
+        const failedUrl = '/payment/failedurl';
         
 
         // Concatenate the transaction details
@@ -49,7 +52,20 @@ const payu = async (req, res) => {
         // Calculate the SHA-512 hash
         const hash = crypto.createHash('sha512').update(hashString).digest('hex');
     
-        payDetails = {key:key,txnid:txnid,amount:amountres,productinfo:productinfores, firstname:firstnameres,email:emailres,salt:salt, phone: phoneres,surl:surl,furl:furl, hash: hash}; // Add the hash to payment details
+        payDetails = {key:key,txnid:txnid,
+            amount:amountres,
+            productinfo:productinfores,
+            firstname:firstnameres,
+            email:emailres,
+            salt:salt, 
+            phone: phoneres,
+            surl:surl,
+            furl:furl, 
+            hash: hash,
+            cancelUrl:cancelUrl,
+            successUrl:successUrl,
+            failedUrl:failedUrl,
+        }; // Add the hash to payment details
         // check companyId exist or not
         // const checkExistCompany = await Company.findById(companyId);
         // if(!checkExistCompany) {

@@ -392,8 +392,8 @@ const KafilaFun = async (
           FCode: sector.AirlineCode,
           FName: sector.AirlineName,
           FNo: sector.FltNum,
-          DDate: sector.Departure.Date,
-          ADate: sector.Arrival.Date,
+          DDate: sector.Departure.DateTimeStamp,
+          ADate: sector.Arrival.DateTimeStamp,
           DTrmnl: sector.Departure.Terminal,
           ATrmnl: sector.Arrival.Terminal,
           DArpt: sector.Departure.Name,
@@ -558,7 +558,8 @@ const KafilaFun = async (
      // apiResponseCommon.push(fSearchApiResponse.data);
       
       for (let index = 0; index < apiResponse.SelectedFlight.length; index++) {
-        let schedule = apiResponse.SelectedFlight[index];        
+        let schedule = apiResponse.SelectedFlight[index];   
+        //console.log(schedule, 'api responce');     
          //let oldItinerary = Itinerary[index];         
         // apiResponseCommon.push(schedule);       
         

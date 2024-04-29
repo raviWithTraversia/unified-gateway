@@ -2,6 +2,7 @@ const flightcommercial = require("./flight.commercial");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const bookingDetails = require("../../models/BookingDetails");
+const cancelationBooking = require("../../models/booking/CancelationBooking");
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
@@ -288,6 +289,14 @@ const KafilaFun = async (
         },
       }
     ); 
+
+    // if(fCancelApiResponse?.data?.R_DATA?.Error?.Status === "PENDING"){
+    //   const saveCalcelation = // savedata query here
+    // }else{
+    //   return fCancelApiResponse?.data;
+    // }
+
+
       //console.log(fCancelApiResponse.data, "Cancel Responce")
     // if (fCancelApiResponse.data.Status !==  null) {
     //   return {
@@ -299,7 +308,8 @@ const KafilaFun = async (
     //   };
     // }
       //console.log('apiData',fSearchApiResponse.data.Charges); 
-      return fCancelApiResponse.data;
+
+      //return fCancelApiResponse.data;
 
 
 
@@ -313,16 +323,10 @@ const KafilaFun = async (
       // }         
       
     } else {
-      return {
-        IsSucess: false,
-        response: response.data.ErrorMessage,
-      };
+      return  response.data.ErrorMessage
     }
   } catch (error) {
-    return {
-      IsSucess: false,
-      response: error.message,
-    };
+    return error.message    
   }
 };
 module.exports = {

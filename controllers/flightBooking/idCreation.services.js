@@ -1,6 +1,7 @@
 const Company = require("../../models/Company");
 const agentConfig = require("../../models/AgentConfig");
 const idCreation = require("../../models/booking/idCreation");
+
 const getIdCreation = async (req, res) => {
   const {
     companyId        

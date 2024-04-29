@@ -38,12 +38,10 @@ const payu = async (req, res) => {
         const firstnameres = firstName;
         const emailres = email;
         const phoneres = phone;
-        const surl = "/payment/payumoney/response";
-        const furl = "/payment/payumoney/response";        
+        const surl = "https://kafilaui.traversia.net/home/flight/paymentSuccess";
+        const furl = "https://kafilaui.traversia.net/home/flight/paymentFailed";        
         const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
-        const cancelUrl = '/payment/cancelurl';
-        const successUrl = '/payment/successurl';
-        const failedUrl = '/payment/failedurl';
+       
         
 
         // Concatenate the transaction details
@@ -61,10 +59,7 @@ const payu = async (req, res) => {
             phone: phoneres,
             surl:surl,
             furl:furl, 
-            hash: hash,
-            cancelUrl:cancelUrl,
-            successUrl:successUrl,
-            failedUrl:failedUrl,
+            hash: hash            
         }; // Add the hash to payment details
         // check companyId exist or not
         // const checkExistCompany = await Company.findById(companyId);

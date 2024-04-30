@@ -650,9 +650,13 @@ const rePriceSeat = (seatObj, seatSsr) => {
             let totalDiscount = discountPercent + seatSsr?.discount?.fixCharge;
 
             if (totalMarkup >= seatSsr?.markup?.maxValue) {
+              totalMarkup = totalMarkup;
+            }else{
               totalMarkup = seatSsr?.markup?.maxValue;
             }
             if (totalDiscount >= seatSsr?.discount?.maxValue) {
+              totalDiscount = totalDiscount;
+            }else{
               totalDiscount = seatSsr?.discount?.maxValue;
             }
 
@@ -673,11 +677,12 @@ const rePriceSeat = (seatObj, seatSsr) => {
   return seatObj;
 };
 
-const rePriceMeal = (mealObj, mealSsr) => {
+const rePriceMeal = (mealObj, mealSsr) => {  
   for (let obj of mealObj) {
     for (let key in obj) {
       if (key === "Price" && obj[key] > 0) {
         let price = obj[key];
+        
         let percentPrice = (price  / 100) * mealSsr.markup.percentCharge;
         let percentPriceDiscount =
           ((price + percentPrice + mealSsr.markup.fixCharge) / 100) * mealSsr.discount.percentCharge;
@@ -686,9 +691,14 @@ const rePriceMeal = (mealObj, mealSsr) => {
           percentPriceDiscount + mealSsr.discount.fixCharge;
 
         if (fixAndPercentMarkup >= mealSsr.markup.maxValue) {
+          fixAndPercentMarkup = fixAndPercentMarkup;
+        }else{
           fixAndPercentMarkup = mealSsr.markup.maxValue;
         }
+        
         if (fixAndPercentMarkupDiscount >= mealSsr.discount.maxValue) {
+          fixAndPercentMarkupDiscount = fixAndPercentMarkupDiscount;
+        }else{
           fixAndPercentMarkupDiscount = mealSsr.discount.maxValue;
         }
 
@@ -697,7 +707,7 @@ const rePriceMeal = (mealObj, mealSsr) => {
           mealSsr.discount.tds === null || mealSsr.discount.tds < 5
             ? (fixAndPercentMarkupDiscount / 100) * 5
             : (fixAndPercentMarkupDiscount / 100) * mealSsr.discount.tds;
-
+           
         let newPrice = price + netMarkup;
         obj.rePrice = newPrice;
         obj.tds = tds;
@@ -724,9 +734,13 @@ const repriceBaggage = (baggageObj, baggageSsr) => {
             percentPriceDiscount + baggageSsr.discount.fixCharge;
 
           if (fixAndPercentMarkup >= baggageSsr.markup.maxValue) {
+            fixAndPercentMarkup = fixAndPercentMarkup;
+          }else{
             fixAndPercentMarkup = baggageSsr.markup.maxValue;
           }
           if (fixAndPercentMarkupDiscount >= baggageSsr.discount.maxValue) {
+            fixAndPercentMarkupDiscount = fixAndPercentMarkupDiscount;
+          }else{
             fixAndPercentMarkupDiscount = baggageSsr.discount.maxValue;
           }          
           let netMarkup = fixAndPercentMarkup - fixAndPercentMarkupDiscount;

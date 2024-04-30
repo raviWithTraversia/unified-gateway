@@ -6,17 +6,30 @@ const protalApiLogSchema = new mongoose.Schema({
         required : false,
         default : null
     },
-    companyId : {
-        type : String,
-        required : false,
-        default : null
+    companyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Company",
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
     source : {
         type : String,
         required : false,
         default : null
     },
-    product : {
+    type : { // portal log / api logs
+        type : String,
+        required : false,
+        default : null
+    },
+    product : { // Flight , Hotel 
+        type : String,
+        required : false,
+        default : null
+    },
+    logName : { // search , airpricing, booking 
         type : String,
         required : false,
         default : null

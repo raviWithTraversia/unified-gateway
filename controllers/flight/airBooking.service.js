@@ -463,7 +463,15 @@ function offerPricePlusInAmount(plusKeyName) {
     case "Markup":
       returnBoolean = true;
       break;
-
+      case "otherTax":
+        returnBoolean = true;
+        break;
+      case "FixedBookingFees":
+        returnBoolean = true;
+        break;
+      case "FixedServiceFees":
+        returnBoolean = true;
+        break;
     default:
       returnBoolean = false;
       break;

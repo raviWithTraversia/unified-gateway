@@ -5,6 +5,7 @@ const Supplier = require("../../models/Supplier");
 const seriesDeparture = require("../../models/SeriesDeparture");
 const AirportsDetails = require("../../models/AirportDetail");
 const fareFamilyMaster = require("../../models/FareFamilyMaster");
+const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const Role = require("../../models/Role");
 const axios = require("axios");
 const uuid = require("uuid");
@@ -94,6 +95,18 @@ const getSearch = async (req, res) => {
     );
   }
 
+  const logData = {
+    traceId: Authentication.TraceId,
+    companyId: Authentication.CompanyId,
+    userId: Authentication.UserId,
+    source: "Kafila",
+    type: "Portal Log",
+    product: "Flight",
+    logName: "Flight Search",
+    request: req.body,
+    responce: result
+  };  
+  Logs(logData);
   if (!result.IsSucess) {
     return {
       response: result.response,
@@ -449,6 +462,19 @@ const KafilaFun = async (
           },
         }
       );
+
+      const logData = {
+        traceId: Authentication.TraceId,
+        companyId: Authentication.CompanyId,
+        userId: Authentication.UserId,
+        source: "Kafila",
+        type: "API Log",
+        product: "Flight",
+        logName: "Flight Search",
+        request: requestDataFSearch,
+        responce: fSearchApiResponse?.data
+      };  
+      Logs(logData);
       //logger.info(fSearchApiResponse.data);
        //console.log(fSearchApiResponse.data.Schedules, "API Responce")
       if (fSearchApiResponse.data.Status == "failed") {

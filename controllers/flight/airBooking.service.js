@@ -605,7 +605,7 @@ try {
     transactionAmount: totalSSRWithCalculationPrice,
     currencyType: "INR",
     fop: "CREDIT",
-    transactionType: "DEBIT",
+    transactionType: "CREDIT",
     runningAmount: newBalance,
     remarks: "Booking Amount Added Into Your Account.",
     transactionBy: getuserDetails._id,
@@ -921,7 +921,7 @@ try {
                     fop: "CREDIT",
                     transactionType: "DEBIT",
                     runningAmount: newBalanceCredit,
-                    remarks: "Booking Amount Added Into Your Account.",
+                    remarks: "Booking Amount Dedactive Into Your Account.",
                     transactionBy: getuserDetails._id,
                     cartId: item?.BookingId
                   });
@@ -973,7 +973,7 @@ try {
                       fop: "CREDIT",
                       transactionType: "DEBIT",
                       runningAmount: newBalanceCredit,
-                      remarks: "Booking Amount Added Into Your Account.",
+                      remarks: "Booking Amount Dedactive Into Your Account.",
                       transactionBy: getuserDetails._id,
                       cartId: item?.BookingId
                     });
@@ -1009,7 +1009,7 @@ try {
                   fop: "CREDIT",
                   transactionType: "DEBIT",
                   runningAmount: newBalanceCredit,
-                  remarks: "Booking Amount Added Into Your Account.",
+                  remarks: "Booking Amount Dedactive Into Your Account.",
                   transactionBy: getuserDetails._id,
                   cartId: item?.BookingId
                 });

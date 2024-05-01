@@ -12,7 +12,7 @@ const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const fareFamilyMaster = require("../../models/FareFamilyMaster");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
-const moment = require('moment');
+const moment = require("moment");
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
@@ -32,11 +32,10 @@ const startBooking = async (req, res) => {
       Airlines,
       FareFamily,
       RefundableOnly,
-      
     },
     PassengerPreferences,
     ItineraryPriceCheckResponses,
-    paymentMethodType
+    paymentMethodType,
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -121,8 +120,8 @@ const startBooking = async (req, res) => {
     product: "Flight",
     logName: "Air Booking",
     request: req.body,
-    responce: result
-  };  
+    responce: result,
+  };
   Logs(logData);
   if (!result.IsSucess) {
     return {
@@ -232,7 +231,7 @@ async function handleflight(
   return {
     IsSucess: true,
     response: responsesApi.flat(),
-  }; 
+  };
 }
 
 const KafilaFun = async (
@@ -253,7 +252,6 @@ const KafilaFun = async (
   ItineraryPriceCheckResponses,
   paymentMethodType
 ) => {
-  
   let createTokenUrl;
   let flightSearchUrl;
   // Apply APi for Type of trip ( ONEWAY / ROUNDTRIP / MULTYCITY )
@@ -278,19 +276,18 @@ const KafilaFun = async (
   }
   let getuserDetails;
   try {
-     getuserDetails = await UserModel.findOne({
+    getuserDetails = await UserModel.findOne({
       _id: Authentication.UserId,
-    }).populate('company_ID');
+    }).populate("company_ID");
     if (getuserDetails) {
       getuserDetails = getuserDetails;
     } else {
       getuserDetails = "User Not Found";
-    } 
+    }
   } catch (error) {
     // console.error('Error creating booking:', error);
     getuserDetails = "User Not Found";
-
-  } 
+  }
 
   let tripTypeValue;
   if (TravelType == "International") {
@@ -333,148 +330,158 @@ const KafilaFun = async (
       response: "Invalid TypeOfTrip",
     };
   }
-  
-  // Calculate Balance with commercial 
-const preparePassengerArrayListForBookingApiPayload = async (allPassengerArrayList,allItineraryArrayList) => {  
-    let returnPassengerPayloadArrayList = allPassengerArrayList;            
-        
-      returnPassengerPayloadArrayList.forEach((passengerElement) => {
-          
-          let totalBasePrice = 0, totalTaxPrice = 0, totalBookingFees = 0, totalGstAmount = 0;
-          
-          allItineraryArrayList.forEach((childElement) => {
-              let PriceBreakup = childElement?.PriceBreakup;
-              let advanceAgentMarkup = childElement?.advanceAgentMarkup;
-  
-              PriceBreakup.forEach((priceBreakupElement) => {
-                if (
-                    passengerElement?.PaxType ==
-                    priceBreakupElement?.PassengerType
-                ) {
-                  
-                    totalBasePrice +=
-                        priceBreakupElement?.BaseFare +
-                        priceBreakupElement?.AgentMarkupBreakup?.Basic +
-                        advanceAgentMarkup?.adult?.baseFare;
-    
-                    totalTaxPrice +=
-                        priceBreakupElement?.Tax +
-                        priceBreakupElement?.AgentMarkupBreakup?.Tax +
-                        advanceAgentMarkup?.adult?.taxesFare;
-    
-                    totalBookingFees +=
-                        priceBreakupElement?.AgentMarkupBreakup?.BookingFee +
-                        advanceAgentMarkup?.adult?.feesFare;
-                        
-                    totalGstAmount += advanceAgentMarkup?.adult?.gstFare;
-                    if (priceBreakupElement?.AgentMarkupBreakup?.BookingFee)
-                        totalGstAmount +=
-                            priceBreakupElement?.AgentMarkupBreakup?.BookingFee
-                             //* new AppSetting().gstPercentageAmount;
-    
-                    priceBreakupElement?.CommercialBreakup.forEach(
-                        (commercialBreakup) => {
-                            let { CommercialType, Amount } = commercialBreakup;
-                            if (CommercialType == "Markup") totalBasePrice += Amount;
-                        }
-                    );
 
-                    
-                }
-            });
-          });
-          
-          passengerElement.totalBasePrice = totalBasePrice;
-          passengerElement.totalTaxPrice = totalTaxPrice;
-          passengerElement.totalBookingFees = totalBookingFees;
-          passengerElement.totalGstAmount = totalGstAmount;
-          passengerElement.totalPublishedPrice = totalBasePrice + totalTaxPrice + totalBookingFees + totalGstAmount + totalGstAmount;
+  // Calculate Balance with commercial
+  const preparePassengerArrayListForBookingApiPayload = async (
+    allPassengerArrayList,
+    allItineraryArrayList
+  ) => {
+    let returnPassengerPayloadArrayList = allPassengerArrayList;
+
+    returnPassengerPayloadArrayList.forEach((passengerElement) => {
+      let totalBasePrice = 0,
+        totalTaxPrice = 0,
+        totalBookingFees = 0,
+        totalGstAmount = 0;
+
+      allItineraryArrayList.forEach((childElement) => {
+        let PriceBreakup = childElement?.PriceBreakup;
+        let advanceAgentMarkup = childElement?.advanceAgentMarkup;
+
+        PriceBreakup.forEach((priceBreakupElement) => {
+          if (passengerElement?.PaxType == priceBreakupElement?.PassengerType) {
+            totalBasePrice +=
+              priceBreakupElement?.BaseFare +
+              priceBreakupElement?.AgentMarkupBreakup?.Basic +
+              advanceAgentMarkup?.adult?.baseFare;
+
+            totalTaxPrice +=
+              priceBreakupElement?.Tax +
+              priceBreakupElement?.AgentMarkupBreakup?.Tax +
+              advanceAgentMarkup?.adult?.taxesFare;
+
+            totalBookingFees +=
+              priceBreakupElement?.AgentMarkupBreakup?.BookingFee +
+              advanceAgentMarkup?.adult?.feesFare;
+
+            totalGstAmount += advanceAgentMarkup?.adult?.gstFare;
+            if (priceBreakupElement?.AgentMarkupBreakup?.BookingFee)
+              totalGstAmount +=
+                priceBreakupElement?.AgentMarkupBreakup?.BookingFee;
+            //* new AppSetting().gstPercentageAmount;
+
+            priceBreakupElement?.CommercialBreakup.forEach(
+              (commercialBreakup) => {
+                let { CommercialType, Amount } = commercialBreakup;
+                if (CommercialType == "Markup") totalBasePrice += Amount;
+              }
+            );
+          }
+        });
       });
-  
-      return returnPassengerPayloadArrayList;
-}
 
-// Example usage:
-const getAllPriceAppliedPessengerwise = await preparePassengerArrayListForBookingApiPayload(PassengerPreferences.Passengers, ItineraryPriceCheckResponses);
-let totalssrPrice = 0;
+      passengerElement.totalBasePrice = totalBasePrice;
+      passengerElement.totalTaxPrice = totalTaxPrice;
+      passengerElement.totalBookingFees = totalBookingFees;
+      passengerElement.totalGstAmount = totalGstAmount;
+      passengerElement.totalPublishedPrice =
+        totalBasePrice +
+        totalTaxPrice +
+        totalBookingFees +
+        totalGstAmount +
+        totalGstAmount;
+    });
 
-for (const passenger of getAllPriceAppliedPessengerwise) {
-  totalssrPrice += (passenger.totalMealPrice || 0) + (passenger.totalSeatPrice || 0) + (passenger.totalBaggagePrice || 0);    
-}
-//return totalssrPrice;
+    return returnPassengerPayloadArrayList;
+  };
 
-// function prepareAppliedCommercialArrayList(selectedReprizedItenary) {
-//   let adultCommercialArrayList = [];
-//   let childCommercialArrayList = [];
-//   let infantsCommercialArrayList = [];  
-//   if (selectedReprizedItenary?.PriceBreakup[0]?.PassengerType == "ADT")
-//     adultCommercialArrayList = selectedReprizedItenary?.PriceBreakup[0]?.CommercialBreakup;
-//   if (selectedReprizedItenary?.PriceBreakup[1]?.PassengerType == "CHD")
-//     childCommercialArrayList = selectedReprizedItenary?.PriceBreakup[1]?.CommercialBreakup;
-//   if (selectedReprizedItenary?.PriceBreakup[2]?.PassengerType == "INF")
-//     infantsCommercialArrayList = selectedReprizedItenary?.PriceBreakup[2]?.CommercialBreakup;
-//   //console.log(adultCommercialArrayList)
-//   adultCommercialArrayList = calculateCommercialBreakupArray(adultCommercialArrayList, childCommercialArrayList);
-//   adultCommercialArrayList = calculateCommercialBreakupArray(adultCommercialArrayList, infantsCommercialArrayList);
+  // Example usage:
+  const getAllPriceAppliedPessengerwise =
+    await preparePassengerArrayListForBookingApiPayload(
+      PassengerPreferences.Passengers,
+      ItineraryPriceCheckResponses
+    );
+  let totalssrPrice = 0;
 
-//   return adultCommercialArrayList;
-// }
+  for (const passenger of getAllPriceAppliedPessengerwise) {
+    totalssrPrice +=
+      (passenger.totalMealPrice || 0) +
+      (passenger.totalSeatPrice || 0) +
+      (passenger.totalBaggagePrice || 0);
+  }
+  //return totalssrPrice;
 
-// const oneWayItinerary = prepareAppliedCommercialArrayList(ItineraryPriceCheckResponses[0]);
+  // function prepareAppliedCommercialArrayList(selectedReprizedItenary) {
+  //   let adultCommercialArrayList = [];
+  //   let childCommercialArrayList = [];
+  //   let infantsCommercialArrayList = [];
+  //   if (selectedReprizedItenary?.PriceBreakup[0]?.PassengerType == "ADT")
+  //     adultCommercialArrayList = selectedReprizedItenary?.PriceBreakup[0]?.CommercialBreakup;
+  //   if (selectedReprizedItenary?.PriceBreakup[1]?.PassengerType == "CHD")
+  //     childCommercialArrayList = selectedReprizedItenary?.PriceBreakup[1]?.CommercialBreakup;
+  //   if (selectedReprizedItenary?.PriceBreakup[2]?.PassengerType == "INF")
+  //     infantsCommercialArrayList = selectedReprizedItenary?.PriceBreakup[2]?.CommercialBreakup;
+  //   //console.log(adultCommercialArrayList)
+  //   adultCommercialArrayList = calculateCommercialBreakupArray(adultCommercialArrayList, childCommercialArrayList);
+  //   adultCommercialArrayList = calculateCommercialBreakupArray(adultCommercialArrayList, infantsCommercialArrayList);
 
+  //   return adultCommercialArrayList;
+  // }
 
-// let returnItinerary = [];
+  // const oneWayItinerary = prepareAppliedCommercialArrayList(ItineraryPriceCheckResponses[0]);
 
-// if (ItineraryPriceCheckResponses.length >= 1) {
-  
-//   returnItinerary = prepareAppliedCommercialArrayList(ItineraryPriceCheckResponses[1]);
-// }
+  // let returnItinerary = [];
 
-// const allCommercialList = [...oneWayItinerary, ...returnItinerary];
-// function calculateCommercialBreakupArray(parentArrayList, childArrayList) {
-//   parentArrayList.forEach((parentElement) => {
-//     childArrayList.forEach((childElement) => {
-//       parentElement.Amount = Number(parentElement.Amount);
-//       if (parentElement?.CommercialType == childElement?.CommercialType)
-//         parentElement.Amount += Number(childElement?.Amount);
-//     });
-//   });
-//   return parentArrayList;
-// }
+  // if (ItineraryPriceCheckResponses.length >= 1) {
 
-// function removeDuplicateCommercialTypeButKeepUpperPrice(allResultArrayList) {
-//   const result = Object.values(
-//     allResultArrayList.reduce((reduced, objectElement) => {
-//       if (!reduced[objectElement?.CommercialType] ||
-//         objectElement?.Amount > reduced[objectElement?.CommercialType]?.Amount)
-//         reduced[objectElement?.CommercialType] = objectElement;
+  //   returnItinerary = prepareAppliedCommercialArrayList(ItineraryPriceCheckResponses[1]);
+  // }
 
-//       return reduced;
-//     }, {})
-//   );
-//   return result;
-// }
+  // const allCommercialList = [...oneWayItinerary, ...returnItinerary];
+  // function calculateCommercialBreakupArray(parentArrayList, childArrayList) {
+  //   parentArrayList.forEach((parentElement) => {
+  //     childArrayList.forEach((childElement) => {
+  //       parentElement.Amount = Number(parentElement.Amount);
+  //       if (parentElement?.CommercialType == childElement?.CommercialType)
+  //         parentElement.Amount += Number(childElement?.Amount);
+  //     });
+  //   });
+  //   return parentArrayList;
+  // }
 
-// const uniqueCommercialList = removeDuplicateCommercialTypeButKeepUpperPrice(allCommercialList);
-// return uniqueCommercialList
-function offerPricePlusInAmount(plusKeyName) {
-  let returnBoolean = false;
-  switch (plusKeyName) {
-    case "TDS":
-      returnBoolean = true;
-      break;
-    case "BookingFees":
-      returnBoolean = true;
-      break;
-    case "ServiceFees":
-      returnBoolean = true;
-      break;
-    case "GST":
-      returnBoolean = true;
-      break;
-    case "Markup":
-      returnBoolean = true;
-      break;
+  // function removeDuplicateCommercialTypeButKeepUpperPrice(allResultArrayList) {
+  //   const result = Object.values(
+  //     allResultArrayList.reduce((reduced, objectElement) => {
+  //       if (!reduced[objectElement?.CommercialType] ||
+  //         objectElement?.Amount > reduced[objectElement?.CommercialType]?.Amount)
+  //         reduced[objectElement?.CommercialType] = objectElement;
+
+  //       return reduced;
+  //     }, {})
+  //   );
+  //   return result;
+  // }
+
+  // const uniqueCommercialList = removeDuplicateCommercialTypeButKeepUpperPrice(allCommercialList);
+  // return uniqueCommercialList
+  function offerPricePlusInAmount(plusKeyName) {
+    let returnBoolean = false;
+    switch (plusKeyName) {
+      case "TDS":
+        returnBoolean = true;
+        break;
+      case "BookingFees":
+        returnBoolean = true;
+        break;
+      case "ServiceFees":
+        returnBoolean = true;
+        break;
+      case "GST":
+        returnBoolean = true;
+        break;
+      case "Markup":
+        returnBoolean = true;
+        break;
       case "otherTax":
         returnBoolean = true;
         break;
@@ -484,169 +491,174 @@ function offerPricePlusInAmount(plusKeyName) {
       case "FixedServiceFees":
         returnBoolean = true;
         break;
-    default:
-      returnBoolean = false;
-      break;
-  }
-  return returnBoolean;
-}
-
-function offerPriceMinusInAmount(plusKeyName) {
-  let returnBoolean = false;
-  switch (plusKeyName) {
-    case "Discount":
-      returnBoolean = true;
-      break;
-    case "SegmentKickback":
-      returnBoolean = true;
-      break;
-    case "Incentive":
-      returnBoolean = true;
-      break;
-    case "PLB":
-      returnBoolean = true;
-      break;
-
-    default:
-      returnBoolean = false;
-      break;
-  }
-  return returnBoolean;
-}
-
-
-const calculateOfferedPrice = async (fareFamiliyElement) => {
-  let returnCalculatedOfferedPrice = 0,
-    adultPriceCalculate = 0,
-    childPriceCalculate = 0,
-    infantPriceCalculate = 0;
-
-  fareFamiliyElement.PriceBreakup?.forEach((priceBreakupElement) => {
-    let { PassengerType, NoOfPassenger, CommercialBreakup, BaseFare, Tax } =
-      priceBreakupElement;
-
-    if (PassengerType == "ADT") {
-      adultPriceCalculate = Number(BaseFare) * NoOfPassenger;
-      adultPriceCalculate += Number(Tax) * NoOfPassenger;
-      CommercialBreakup?.forEach((commercialBreakup) => {
-        let { CommercialType, Amount } = commercialBreakup;
-        if (offerPriceMinusInAmount(CommercialType))
-          adultPriceCalculate -= Number(Amount) * NoOfPassenger;
-        else if (offerPricePlusInAmount(CommercialType))
-          adultPriceCalculate += Number(Amount) * NoOfPassenger;
-      });
-    } else if (PassengerType == "CHD") {
-      childPriceCalculate = Number(BaseFare) * NoOfPassenger;
-      childPriceCalculate += Number(Tax) * NoOfPassenger;
-      CommercialBreakup?.forEach((commercialBreakup) => {
-        let { CommercialType, Amount } = commercialBreakup;
-        if (offerPriceMinusInAmount(CommercialType))
-          childPriceCalculate -= Number(Amount) * NoOfPassenger;
-        else if (offerPricePlusInAmount(CommercialType))
-          childPriceCalculate += Number(Amount) * NoOfPassenger;
-      });
-    } else if (PassengerType == "INF") {
-      infantPriceCalculate = Number(BaseFare) * NoOfPassenger;
-      infantPriceCalculate += Number(Tax) * NoOfPassenger;
-      CommercialBreakup?.forEach((commercialBreakup) => {
-        let { CommercialType, Amount } = commercialBreakup;
-        if (offerPriceMinusInAmount(CommercialType))
-          infantPriceCalculate -= Number(Amount) * NoOfPassenger;
-        else if (offerPricePlusInAmount(CommercialType))
-          infantPriceCalculate += Number(Amount) * NoOfPassenger;
-      });
+      default:
+        returnBoolean = false;
+        break;
     }
-  });
-
-  returnCalculatedOfferedPrice =
-    adultPriceCalculate + childPriceCalculate + infantPriceCalculate;
-  return returnCalculatedOfferedPrice;
-}
-async function calculateOfferedPriceForAll() {
-  let calculationOfferPriceWithCommercial = 0; // Initialize to 0
-  for (const itinerary of ItineraryPriceCheckResponses) {
-    calculationOfferPriceWithCommercial += await calculateOfferedPrice(itinerary);    
+    return returnBoolean;
   }
-  return calculationOfferPriceWithCommercial;
-}
 
-const calculationOfferPriceWithCommercial = await calculateOfferedPriceForAll();
+  function offerPriceMinusInAmount(plusKeyName) {
+    let returnBoolean = false;
+    switch (plusKeyName) {
+      case "Discount":
+        returnBoolean = true;
+        break;
+      case "SegmentKickback":
+        returnBoolean = true;
+        break;
+      case "Incentive":
+        returnBoolean = true;
+        break;
+      case "PLB":
+        returnBoolean = true;
+        break;
 
-// Check Balance Available or Not Available
-const totalSSRWithCalculationPrice = calculationOfferPriceWithCommercial + totalssrPrice;
+      default:
+        returnBoolean = false;
+        break;
+    }
+    return returnBoolean;
+  }
 
-try {
-  // Retrieve agent configuration
-  const getAgentConfig = await agentConfig.findOne({ userId: getuserDetails._id });
-  const getcreditRequest = await creditRequest.find({
-    agencyId: getuserDetails.company_ID,
-    expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
-    status: 'approved',
-    product: 'Flight'
-  });
-  let creditTotal = 0;
-  if(getcreditRequest && getcreditRequest.length > 0){
-    
-    getcreditRequest.forEach(request => {
-      creditTotal += request.amount;
+  const calculateOfferedPrice = async (fareFamiliyElement) => {
+    let returnCalculatedOfferedPrice = 0,
+      adultPriceCalculate = 0,
+      childPriceCalculate = 0,
+      infantPriceCalculate = 0;
+
+    fareFamiliyElement.PriceBreakup?.forEach((priceBreakupElement) => {
+      let { PassengerType, NoOfPassenger, CommercialBreakup, BaseFare, Tax } =
+        priceBreakupElement;
+
+      if (PassengerType == "ADT") {
+        adultPriceCalculate = Number(BaseFare) * NoOfPassenger;
+        adultPriceCalculate += Number(Tax) * NoOfPassenger;
+        CommercialBreakup?.forEach((commercialBreakup) => {
+          let { CommercialType, Amount } = commercialBreakup;
+          if (offerPriceMinusInAmount(CommercialType))
+            adultPriceCalculate -= Number(Amount) * NoOfPassenger;
+          else if (offerPricePlusInAmount(CommercialType))
+            adultPriceCalculate += Number(Amount) * NoOfPassenger;
+        });
+      } else if (PassengerType == "CHD") {
+        childPriceCalculate = Number(BaseFare) * NoOfPassenger;
+        childPriceCalculate += Number(Tax) * NoOfPassenger;
+        CommercialBreakup?.forEach((commercialBreakup) => {
+          let { CommercialType, Amount } = commercialBreakup;
+          if (offerPriceMinusInAmount(CommercialType))
+            childPriceCalculate -= Number(Amount) * NoOfPassenger;
+          else if (offerPricePlusInAmount(CommercialType))
+            childPriceCalculate += Number(Amount) * NoOfPassenger;
+        });
+      } else if (PassengerType == "INF") {
+        infantPriceCalculate = Number(BaseFare) * NoOfPassenger;
+        infantPriceCalculate += Number(Tax) * NoOfPassenger;
+        CommercialBreakup?.forEach((commercialBreakup) => {
+          let { CommercialType, Amount } = commercialBreakup;
+          if (offerPriceMinusInAmount(CommercialType))
+            infantPriceCalculate -= Number(Amount) * NoOfPassenger;
+          else if (offerPricePlusInAmount(CommercialType))
+            infantPriceCalculate += Number(Amount) * NoOfPassenger;
+        });
+      }
     });
-  }else{
-    creditTotal = 0;
+
+    returnCalculatedOfferedPrice =
+      adultPriceCalculate + childPriceCalculate + infantPriceCalculate;
+    return returnCalculatedOfferedPrice;
+  };
+  async function calculateOfferedPriceForAll() {
+    let calculationOfferPriceWithCommercial = 0; // Initialize to 0
+    for (const itinerary of ItineraryPriceCheckResponses) {
+      calculationOfferPriceWithCommercial += await calculateOfferedPrice(
+        itinerary
+      );
+    }
+    return calculationOfferPriceWithCommercial;
   }
-  // Check if maxCreditLimit exists, otherwise set it to 0
-  const checkCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
-  const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
 
-  // Check if balance is sufficient
-  if (checkCreditLimit < totalSSRWithCalculationPrice) {
-    return "Your Balance is not sufficient";
+  const calculationOfferPriceWithCommercial =
+    await calculateOfferedPriceForAll();
+
+  // Check Balance Available or Not Available
+  const totalSSRWithCalculationPrice =
+    calculationOfferPriceWithCommercial + totalssrPrice;
+
+  try {
+    // Retrieve agent configuration
+    const getAgentConfig = await agentConfig.findOne({
+      userId: getuserDetails._id,
+    });
+    const getcreditRequest = await creditRequest.find({
+      agencyId: getuserDetails.company_ID,
+      expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
+      status: "approved",
+      product: "Flight",
+    });
+    let creditTotal = 0;
+    if (getcreditRequest && getcreditRequest.length > 0) {
+      getcreditRequest.forEach((request) => {
+        creditTotal += request.amount;
+      });
+    } else {
+      creditTotal = 0;
+    }
+    // Check if maxCreditLimit exists, otherwise set it to 0
+    const checkCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
+    const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
+
+    // Check if balance is sufficient
+    if (checkCreditLimit < totalSSRWithCalculationPrice) {
+      return "Your Balance is not sufficient";
+    }
+
+    // Deduct balance from user configuration and update in DB
+    const newBalance = maxCreditLimit - totalSSRWithCalculationPrice;
+    await agentConfig.updateOne(
+      { userId: getuserDetails._id },
+      { maxcreditLimit: newBalance }
+    );
+
+    // Generate random ledger ID
+    const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+
+    // Create ledger entry
+    await ledger.create({
+      userId: getuserDetails._id,
+      companyId: getuserDetails.company_ID._id,
+      ledgerId: ledgerId,
+      transactionAmount: totalSSRWithCalculationPrice,
+      currencyType: "INR",
+      fop: "CREDIT",
+      transactionType: "CREDIT",
+      runningAmount: newBalance,
+      remarks: "Booking Amount Added Into Your Account.",
+      transactionBy: getuserDetails._id,
+      cartId: ItineraryPriceCheckResponses[0].BookingId,
+    });
+
+    // Create transaction Entry
+    await transaction.create({
+      userId: getuserDetails._id,
+      companyId: getuserDetails.company_ID._id,
+      trnsNo: Math.floor(100000 + Math.random() * 900000),
+      trnsType: "DEBIT",
+      paymentMode: "CL",
+      trnsStatus: "success",
+      transactionBy: getuserDetails._id,
+      bookingId: ItineraryPriceCheckResponses[0].BookingId,
+    });
+
+    //return addToLedger;
+  } catch (error) {
+    // Handle errors
+    console.error("Error:", error.message);
+    return "An error occurred. Please try again later.";
   }
 
-  // Deduct balance from user configuration and update in DB
-  const newBalance = maxCreditLimit - totalSSRWithCalculationPrice; 
-  await agentConfig.updateOne({ userId: getuserDetails._id }, { maxcreditLimit: newBalance });
-
-  // Generate random ledger ID
-  const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-  
-  // Create ledger entry
-  await ledger.create({
-    userId: getuserDetails._id,
-    companyId: getuserDetails.company_ID._id,
-    ledgerId: ledgerId,
-    transactionAmount: totalSSRWithCalculationPrice,
-    currencyType: "INR",
-    fop: "CREDIT",
-    transactionType: "CREDIT",
-    runningAmount: newBalance,
-    remarks: "Booking Amount Added Into Your Account.",
-    transactionBy: getuserDetails._id,
-    cartId: ItineraryPriceCheckResponses[0].BookingId
-  });
-  
-  // Create transaction Entry
-  await transaction.create({
-    userId: getuserDetails._id,
-    companyId: getuserDetails.company_ID._id,
-    trnsNo: Math.floor(100000 + Math.random() * 900000),        
-    trnsType: "DEBIT",
-    paymentMode:"CL",
-    trnsStatus:"success",
-    transactionBy: getuserDetails._id,
-    bookingId: ItineraryPriceCheckResponses[0].BookingId
-  });
-  
-
-  //return addToLedger;
-} catch (error) {
-  // Handle errors
-  console.error("Error:", error.message);
-  return "An error occurred. Please try again later.";
-}
-
-
-// Calculation End here
-// return totalSSRWithCalculationPrice;
+  // Calculation End here
+  // return totalSSRWithCalculationPrice;
 
   let tokenData = {
     P_TYPE: "API",
@@ -666,15 +678,14 @@ try {
     });
     if (response.data.Status === "success") {      
       const createBooking = async (newItem) => {
-        try {          
-            let bookingDetailsCreate = await BookingDetails.create(newItem);
+        try {
+          let bookingDetailsCreate = await BookingDetails.create(newItem);
 
-            return {
-              msg: "Booking created successfully",
-              bookingId: newItem.bookingId,
-              bid: bookingDetailsCreate._id,
-            };          
-         
+          return {
+            msg: "Booking created successfully",
+            bookingId: newItem.bookingId,
+            bid: bookingDetailsCreate._id,
+          };
         } catch (error) {
           // console.error('Error creating booking:', error);
           return {
@@ -693,7 +704,7 @@ try {
             msg: "Booking already exists",
             bookingId: newItem.bookingId,
           };
-        } 
+        }
       } catch (error) {
         // console.error('Error creating booking:', error);
         return {
@@ -702,10 +713,10 @@ try {
           error,
         };
       }
-      
+
       const newArray = await Promise.all(
         ItineraryPriceCheckResponses?.map(async (itineraryItem) => {
-          if(itineraryItem.Provider === "Kafila"){
+          if (itineraryItem.Provider === "Kafila") {
             const sectorsArray = itineraryItem?.Sectors?.map((sector) => {
               // Construct departure and arrival objects
               const departure = {
@@ -721,7 +732,7 @@ try {
                 CountryCode: sector.Departure?.CountryCode,
                 CountryName: sector.Departure?.CountryName,
               };
-        
+
               const arrival = {
                 Terminal: sector.Arrival?.Terminal,
                 Date: sector.Arrival?.Date,
@@ -735,7 +746,7 @@ try {
                 CountryCode: sector.Arrival?.CountryCode,
                 CountryName: sector.Arrival?.CountryName,
               };
-        
+
               // Construct sector object
               const sectorObject = {
                 AirlineCode: sector.AirlineCode,
@@ -748,35 +759,39 @@ try {
                 Departure: departure,
                 Arrival: arrival,
               };
-        
+
               return sectorObject; // Return the constructed sector object
             });
-        
+
             // Construct PriceBreakup array
-            const priceBreakupArray = itineraryItem?.PriceBreakup?.map((price) => {
-              return {
-                PassengerType: price.PassengerType,
-                NoOfPassenger: price.NoOfPassenger,
-                Tax: price.Tax,
-                BaseFare: price.BaseFare,
-                TaxBreakup: price?.TaxBreakup?.map((tax) => ({
-                  TaxType: tax.TaxType,
-                  Amount: tax.Amount,
-                })),
-                CommercialBreakup: price?.CommercialBreakup?.map((commercial) => ({
-                  CommercialType: commercial.CommercialType,
-                  onCommercialApply: commercial.onCommercialApply,
-                  Amount: commercial.Amount,
-                  SupplierType: commercial.SupplierType,
-                })),
-                AgentMarkupBreakup: {
-                  BookingFee: price?.AgentMarkupBreakup?.BookingFee,
-                  Basic: price?.AgentMarkupBreakup?.Basic,
-                  Tax: price?.AgentMarkupBreakup?.Tax,
-                },
-              };
-            });
-        
+            const priceBreakupArray = itineraryItem?.PriceBreakup?.map(
+              (price) => {
+                return {
+                  PassengerType: price.PassengerType,
+                  NoOfPassenger: price.NoOfPassenger,
+                  Tax: price.Tax,
+                  BaseFare: price.BaseFare,
+                  TaxBreakup: price?.TaxBreakup?.map((tax) => ({
+                    TaxType: tax.TaxType,
+                    Amount: tax.Amount,
+                  })),
+                  CommercialBreakup: price?.CommercialBreakup?.map(
+                    (commercial) => ({
+                      CommercialType: commercial.CommercialType,
+                      onCommercialApply: commercial.onCommercialApply,
+                      Amount: commercial.Amount,
+                      SupplierType: commercial.SupplierType,
+                    })
+                  ),
+                  AgentMarkupBreakup: {
+                    BookingFee: price?.AgentMarkupBreakup?.BookingFee,
+                    Basic: price?.AgentMarkupBreakup?.Basic,
+                    Tax: price?.AgentMarkupBreakup?.Tax,
+                  },
+                };
+              }
+            );
+
             // Construct item object with populated itineraryArray
             const newItem = {
               userId: Authentication?.UserId,
@@ -789,7 +804,11 @@ try {
               bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
               Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
               travelType: TravelType,
-              bookingTotalAmount:itineraryItem.offeredPrice + itineraryItem.totalMealPrice + itineraryItem.totalBaggagePrice + itineraryItem.totalSeatPrice,
+              bookingTotalAmount:
+                itineraryItem.offeredPrice +
+                itineraryItem.totalMealPrice +
+                itineraryItem.totalBaggagePrice +
+                itineraryItem.totalSeatPrice,
               totalMealPrice: itineraryItem.totalMealPrice,
               totalBaggagePrice: itineraryItem.totalBaggagePrice,
               totalSeatPrice: itineraryItem.totalSeatPrice,
@@ -805,7 +824,7 @@ try {
                 ValCarrier: itineraryItem.ValCarrier,
                 LastTicketingDate: itineraryItem.LastTicketingDate,
                 TravelTime: itineraryItem.TravelTime,
-                advanceAgentMarkup:{        
+                advanceAgentMarkup: {
                   adult: {
                     baseFare: itineraryItem.advanceAgentMarkup.adult.baseFare,
                     taxesFare: itineraryItem.advanceAgentMarkup.adult.taxesFare,
@@ -820,29 +839,28 @@ try {
                   },
                   infant: {
                     baseFare: itineraryItem.advanceAgentMarkup.infant.baseFare,
-                    taxesFare: itineraryItem.advanceAgentMarkup.infant.taxesFare,
+                    taxesFare:
+                      itineraryItem.advanceAgentMarkup.infant.taxesFare,
                     feesFare: itineraryItem.advanceAgentMarkup.infant.feesFare,
                     gstFare: itineraryItem.advanceAgentMarkup.infant.gstFare,
-                  }
-              },
+                  },
+                },
                 PriceBreakup: priceBreakupArray,
                 Sectors: sectorsArray,
                 TraceId: Authentication?.TraceId,
               },
             };
-        
+
             return await createBooking(newItem); // Call function to create booking
-         }
+          }
         })
       );
-      
 
-        
       // return newArray;
       //console.log(newArray);
       if (Array.isArray(newArray) && newArray.length > 0) {
-        const response = newArray[0];       
-        
+        const response = newArray[0];
+
         if (response.msg === "Booking created successfully") {
           const passengerPreferencesData = PassengerPreferences;
           const passengerPreference = new passengerPreferenceModel({
@@ -850,7 +868,7 @@ try {
             companyId: Authentication?.CompanyId,
             bookingId: response?.bookingId,
             bid: response?.bid,
-            GstData:passengerPreferencesData?.GstData,
+            GstData: passengerPreferencesData?.GstData,
             PaxEmail: passengerPreferencesData?.PaxEmail,
             PaxMobile: passengerPreferencesData?.PaxMobile,
             Passengers: passengerPreferencesData?.Passengers?.map(
@@ -872,7 +890,7 @@ try {
                 },
                 Meal: passenger?.Meal,
                 Baggage: passenger?.Baggage,
-                Seat: passenger?.Seat,                
+                Seat: passenger?.Seat,
                 totalBaggagePrice: passenger?.totalBaggagePrice,
                 totalMealPrice: passenger?.totalMealPrice,
                 totalSeatPrice: passenger?.totalSeatPrice,
@@ -881,10 +899,9 @@ try {
             modifyBy: Authentication?.UserId,
           });
           await passengerPreference.save();
-          
+
           const hitAPI = await Promise.all(
             ItineraryPriceCheckResponses.map(async (item) => {
-              
               let requestDataFSearch = {
                 FareChkRes: {
                   Error: item.Error,
@@ -898,7 +915,7 @@ try {
                 },
                 PaxInfo: PassengerPreferences,
               };
-    
+
               try {
                 let fSearchApiResponse = await axios.post(
                   flightSearchUrl,
@@ -915,140 +932,220 @@ try {
                   userId: Authentication.UserId,
                   source: "Kafila",
                   type: "API Log",
-                  BookingId:item?.BookingId,
+                  BookingId: item?.BookingId,
                   product: "Flight",
                   logName: "Flight Search",
                   request: requestDataFSearch,
-                  responce: fSearchApiResponse?.data
-                };  
+                  responce: fSearchApiResponse?.data,
+                };
                 Logs(logData);
                 if (fSearchApiResponse.data.Status == "failed") {
                   await BookingDetails.updateOne(
-                    { bookingId: item?.BookingId, "itinerary.IndexNumber": item.IndexNumber }, 
-                    { $set: { bookingStatus: "FAILED",
-                      bookingRemarks: error.message                    
-                    } }
+                    {
+                      bookingId: item?.BookingId,
+                      "itinerary.IndexNumber": item.IndexNumber,
+                    },
+                    {
+                      $set: {
+                        bookingStatus: "FAILED",
+                        bookingRemarks: error.message,
+                      },
+                    }
                   );
-                  
-                  // Ledget Create After booking Failed 
-                  const getAgentConfigForUpdate = await agentConfig.findOne({ userId: getuserDetails._id });
+
+                  // Ledget Create After booking Failed
+                  const getAgentConfigForUpdate = await agentConfig.findOne({
+                    userId: getuserDetails._id,
+                  });
                   // Check if maxCreditLimit exists, otherwise set it to 0
-                  const maxCreditLimitPrice = getAgentConfigForUpdate?.maxcreditLimit ?? 0;
-                  const newBalanceCredit = maxCreditLimitPrice + item?.offeredPrice + item?.totalMealPrice + item?.totalBaggagePrice + item?.totalSeatPrice;
-                  await agentConfig.updateOne({ userId: getuserDetails._id }, { maxcreditLimit: newBalanceCredit });
+                  const maxCreditLimitPrice =
+                    getAgentConfigForUpdate?.maxcreditLimit ?? 0;
+                  const newBalanceCredit =
+                    maxCreditLimitPrice +
+                    item?.offeredPrice +
+                    item?.totalMealPrice +
+                    item?.totalBaggagePrice +
+                    item?.totalSeatPrice;
+                  await agentConfig.updateOne(
+                    { userId: getuserDetails._id },
+                    { maxcreditLimit: newBalanceCredit }
+                  );
                   await ledger.create({
                     userId: getuserDetails._id,
                     companyId: getuserDetails.company_ID._id,
-                    ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                    transactionAmount: item?.offeredPrice + item?.totalMealPrice + item?.totalBaggagePrice + item?.totalSeatPrice,
+                    ledgerId:
+                      "LG" + Math.floor(100000 + Math.random() * 900000),
+                    transactionAmount:
+                      item?.offeredPrice +
+                      item?.totalMealPrice +
+                      item?.totalBaggagePrice +
+                      item?.totalSeatPrice,
                     currencyType: "INR",
                     fop: "CREDIT",
                     transactionType: "DEBIT",
                     runningAmount: newBalanceCredit,
                     remarks: "Booking Amount Dedactive Into Your Account.",
                     transactionBy: getuserDetails._id,
-                    cartId: item?.BookingId
+                    cartId: item?.BookingId,
                   });
-  
+
                   return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
                 }
-                
-                const bookingResponce = {
-                    CartId: item.BookingId,
-                    bookingResponce: { 
-                        CurrentStatus: fSearchApiResponse.data.BookingInfo.CurrentStatus,
-                        BookingStatus: fSearchApiResponse.data.BookingInfo.BookingStatus,
-                        BookingRemark: fSearchApiResponse.data.BookingInfo.BookingRemark,
-                        BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
-                        providerBookingId: fSearchApiResponse.data.BookingInfo.BookingId,
-                        PNR: fSearchApiResponse.data.BookingInfo.APnr,
-                        Type: fSearchApiResponse.data.BookingInfo.GPnr,
-                        APnr:fSearchApiResponse.data.BookingInfo.APnr,
-                        GPnr:fSearchApiResponse.data.BookingInfo.GPnr                        
-                    }, 
-                    itinerary: item,
-                    PassengerPreferences:PassengerPreferences,
-                    userDetails:getuserDetails           
-                  };
-                  await BookingDetails.updateOne(
-                    { bookingId: item?.BookingId, "itinerary.IndexNumber": item.IndexNumber }, 
-                    { $set: { bookingStatus: fSearchApiResponse.data.BookingInfo.CurrentStatus,
-                      bookingRemarks: fSearchApiResponse.data.BookingInfo.BookingRemark,
-                      providerBookingId: fSearchApiResponse.data.BookingInfo.BookingId,
-                      PNR: fSearchApiResponse.data.BookingInfo.APnr,                        
-                      APnr:fSearchApiResponse.data.BookingInfo.APnr,
-                      GPnr:fSearchApiResponse.data.BookingInfo.GPnr,                      
-                    } }
-                  );
-                    
-                  if(fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"){
-                    const getAgentConfigForUpdate = await agentConfig.findOne({ userId: getuserDetails._id });
-                    // Check if maxCreditLimit exists, otherwise set it to 0
-                    const maxCreditLimitPrice = getAgentConfigForUpdate?.maxcreditLimit ?? 0; 
-                    
-                    const newBalanceCredit = maxCreditLimitPrice + item?.offeredPrice + item?.totalMealPrice + item?.totalBaggagePrice + item?.totalSeatPrice;
-                    await agentConfig.updateOne({ userId: getuserDetails._id }, { maxcreditLimit: newBalanceCredit });
-                    await ledger.create({
-                      userId: getuserDetails._id,
-                      companyId: getuserDetails.company_ID._id,
-                      ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                      transactionAmount: item?.offeredPrice + item?.totalMealPrice + item?.totalBaggagePrice + item?.totalSeatPrice,
-                      currencyType: "INR",
-                      fop: "CREDIT",
-                      transactionType: "DEBIT",
-                      runningAmount: newBalanceCredit,
-                      remarks: "Booking Amount Dedactive Into Your Account.",
-                      transactionBy: getuserDetails._id,
-                      cartId: item?.BookingId
-                    });
-                  }else{
-                    // Transtion 
-                  await transaction.updateOne({ bookingId: item?.BookingId }, { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" });
-                  await updateBarcode2DByBookingId(item?.BookingId, passengerPreferencesData,item, fSearchApiResponse.data.BookingInfo.APnr);
-                  }
-                   //return fSearchApiResponse.data;
-                return bookingResponce;
-              } catch (error) {               
-                await BookingDetails.updateOne(
-                  { bookingId: item?.BookingId, "itinerary.IndexNumber": item.IndexNumber }, 
-                  { $set: { bookingStatus: "FAILED",
-                    bookingRemarks: error.message                    
-                  } }
-                );
-                
-                // Ledget Create After booking Failed 
-                const getAgentConfigForUpdate = await agentConfig.findOne({ userId: getuserDetails._id });
-                // Check if maxCreditLimit exists, otherwise set it to 0
-                const maxCreditLimitPrice = getAgentConfigForUpdate?.maxcreditLimit ?? 0;        
 
-                
-                const newBalanceCredit = maxCreditLimitPrice + item?.offeredPrice + item?.totalMealPrice + item?.totalBaggagePrice + item?.totalSeatPrice;
-                await agentConfig.updateOne({ userId: getuserDetails._id }, { maxcreditLimit: newBalanceCredit });
+                const bookingResponce = {
+                  CartId: item.BookingId,
+                  bookingResponce: {
+                    CurrentStatus:
+                      fSearchApiResponse.data.BookingInfo.CurrentStatus,
+                    BookingStatus:
+                      fSearchApiResponse.data.BookingInfo.BookingStatus,
+                    BookingRemark:
+                      fSearchApiResponse.data.BookingInfo.BookingRemark,
+                    BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
+                    providerBookingId:
+                      fSearchApiResponse.data.BookingInfo.BookingId,
+                    PNR: fSearchApiResponse.data.BookingInfo.APnr,
+                    Type: fSearchApiResponse.data.BookingInfo.GPnr,
+                    APnr: fSearchApiResponse.data.BookingInfo.APnr,
+                    GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+                  },
+                  itinerary: item,
+                  PassengerPreferences: PassengerPreferences,
+                  userDetails: getuserDetails,
+                };
+                await BookingDetails.updateOne(
+                  {
+                    bookingId: item?.BookingId,
+                    "itinerary.IndexNumber": item.IndexNumber,
+                  },
+                  {
+                    $set: {
+                      bookingStatus:
+                        fSearchApiResponse.data.BookingInfo.CurrentStatus,
+                      bookingRemarks:
+                        fSearchApiResponse.data.BookingInfo.BookingRemark,
+                      providerBookingId:
+                        fSearchApiResponse.data.BookingInfo.BookingId,
+                      PNR: fSearchApiResponse.data.BookingInfo.APnr,
+                      APnr: fSearchApiResponse.data.BookingInfo.APnr,
+                      GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+                    },
+                  }
+                );
+
+                if (
+                  fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
+                ) {
+                  const getAgentConfigForUpdate = await agentConfig.findOne({
+                    userId: getuserDetails._id,
+                  });
+                  // Check if maxCreditLimit exists, otherwise set it to 0
+                  const maxCreditLimitPrice =
+                    getAgentConfigForUpdate?.maxcreditLimit ?? 0;
+
+                  const newBalanceCredit =
+                    maxCreditLimitPrice +
+                    item?.offeredPrice +
+                    item?.totalMealPrice +
+                    item?.totalBaggagePrice +
+                    item?.totalSeatPrice;
+                  await agentConfig.updateOne(
+                    { userId: getuserDetails._id },
+                    { maxcreditLimit: newBalanceCredit }
+                  );
+                  await ledger.create({
+                    userId: getuserDetails._id,
+                    companyId: getuserDetails.company_ID._id,
+                    ledgerId:
+                      "LG" + Math.floor(100000 + Math.random() * 900000),
+                    transactionAmount:
+                      item?.offeredPrice +
+                      item?.totalMealPrice +
+                      item?.totalBaggagePrice +
+                      item?.totalSeatPrice,
+                    currencyType: "INR",
+                    fop: "CREDIT",
+                    transactionType: "DEBIT",
+                    runningAmount: newBalanceCredit,
+                    remarks: "Booking Amount Dedactive Into Your Account.",
+                    transactionBy: getuserDetails._id,
+                    cartId: item?.BookingId,
+                  });
+                } else {
+                  // Transtion
+                  await transaction.updateOne(
+                    { bookingId: item?.BookingId },
+                    { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" }
+                  );
+                  await updateBarcode2DByBookingId(
+                    item?.BookingId,
+                    PassengerPreferences,
+                    item,
+                    fSearchApiResponse.data.BookingInfo.APnr
+                  );
+                }
+                //return fSearchApiResponse.data;
+                return bookingResponce;
+              } catch (error) {
+                await BookingDetails.updateOne(
+                  {
+                    bookingId: item?.BookingId,
+                    "itinerary.IndexNumber": item.IndexNumber,
+                  },
+                  {
+                    $set: {
+                      bookingStatus: "FAILED",
+                      bookingRemarks: error.message,
+                    },
+                  }
+                );
+
+                // Ledget Create After booking Failed
+                const getAgentConfigForUpdate = await agentConfig.findOne({
+                  userId: getuserDetails._id,
+                });
+                // Check if maxCreditLimit exists, otherwise set it to 0
+                const maxCreditLimitPrice =
+                  getAgentConfigForUpdate?.maxcreditLimit ?? 0;
+
+                const newBalanceCredit =
+                  maxCreditLimitPrice +
+                  item?.offeredPrice +
+                  item?.totalMealPrice +
+                  item?.totalBaggagePrice +
+                  item?.totalSeatPrice;
+                await agentConfig.updateOne(
+                  { userId: getuserDetails._id },
+                  { maxcreditLimit: newBalanceCredit }
+                );
                 await ledger.create({
                   userId: getuserDetails._id,
                   companyId: getuserDetails.company_ID._id,
                   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                  transactionAmount: item?.offeredPrice + item?.totalMealPrice + item?.totalBaggagePrice + item?.totalSeatPrice,
+                  transactionAmount:
+                    item?.offeredPrice +
+                    item?.totalMealPrice +
+                    item?.totalBaggagePrice +
+                    item?.totalSeatPrice,
                   currencyType: "INR",
                   fop: "CREDIT",
                   transactionType: "DEBIT",
                   runningAmount: newBalanceCredit,
                   remarks: "Booking Amount Dedactive Into Your Account.",
                   transactionBy: getuserDetails._id,
-                  cartId: item?.BookingId
+                  cartId: item?.BookingId,
                 });
                 return error.message;
               }
             })
-          );  
-          return hitAPI;          
+          );
+          return hitAPI;
         } else {
           return "Booking already exists";
         }
       } else {
         return "Some Technical Issue";
       }
-
     } else {
       return {
         IsSucess: false,
@@ -1063,76 +1160,98 @@ try {
   }
 };
 
-async function updateBarcode2DByBookingId(bookingId, passengerPreferencesData, item, pnr) {
+async function updateBarcode2DByBookingId(
+  bookingId,
+  passengerPreferencesData,
+  item,
+  pnr
+) {
   try {
-      const generateBarcodeUrl = 'http://flightapi.traversia.net/api/GenerateBarCode/GenerateBarCode';
-      const lastSectorIndex = item.itinerary.Sectors.length - 1;
-      const passengerPreference = await passengerPreferenceModel.findOne({ bookingId: bookingId });
+    const generateBarcodeUrl =
+      "http://flightapi.traversia.net/api/GenerateBarCode/GenerateBarCode";
+    const lastSectorIndex = item.Sectors.length - 1;
+    const passengerPreference = await passengerPreferenceModel.findOne({
+      bookingId: bookingId,
+    });
 
-      if (!passengerPreference) {
-          console.error("Passenger preference not found for booking ID:", bookingId);
-          return; // Exit function if document not found
-      }
+    if (!passengerPreference) {
+      console.error(
+        "Passenger preference not found for booking ID:",
+        bookingId
+      );
+      return; // Exit function if document not found
+    }
 
-      for (let passenger of passengerPreferencesData.Passengers) {
-          try {
-              const response = await axios.post(generateBarcodeUrl, {
-                  Company: item?.provider,
-                  TripType: "O",
-                  PNR: pnr,
-                  PaxId: bookingId,
-                  PassangerFirstName: passenger?.FName,
-                  PassangerLastName: passenger?.LName,
-                  PassangetMidName: null,
-                  isInfant: false,
-                  MyAllData: [
-                      {
-                          DepartureStation: item?.itinerary?.Sectors[0]?.Departure?.Code,
-                          ArrivalStation: item?.itinerary?.Sectors[lastSectorIndex]?.Arrival?.Code,
-                          CarrierCode: item?.itinerary?.Sectors[0]?.Departure?.AirlineCode,
-                          FlightNumber: item?.itinerary?.Sectors[0]?.FltNum,
-                          JulianDate: item?.itinerary?.Sectors[0]?.Departure?.Date,
-                          SeatNo: "",
-                          CheckInSeq: "N"
-                      }
-                  ]
-              }, {
-                  headers: {
-                      'Content-Type': 'application/json'
-                  }
-              });
-
-              //console.log(response.data);
-              const newToken = response.data;
-              
-              passengerPreference.Passengers.forEach(p => {
-                  if (p.FName === passenger.FName && p.LName === passenger.LName) {
-                      p.barCode2D.push({
-                          FCode: item?.itinerary?.Sectors[0]?.Departure?.Code,
-                          FNo: item?.itinerary?.Sectors[0]?.FltNum,
-                          Src: item?.itinerary?.Sectors[0]?.Departure?.Code,
-                          Des: item?.itinerary?.Sectors[lastSectorIndex]?.Arrival?.Code,
-                          Code: newToken
-                      });
-                  }
-              });
-
-              console.log('Barcode2D updated successfully for passenger:', passenger);
-          } catch (error) {
-              console.error('Error updating Barcode2D for passenger:', passenger, error);
+    for (let passenger of passengerPreference.Passengers) {      
+      try {
+        
+        let reqPassengerData =   {
+          Company: item?.Provider,
+          TripType: "O",
+          PNR: pnr,
+          PaxId: bookingId,
+          PassangerFirstName: passenger?.FName,
+          PassangerLastName: passenger?.LName,
+          PassangetMidName: null,
+          isInfant: false,
+          MyAllData: [
+            {
+              DepartureStation: item?.Sectors[0]?.Departure?.Code,
+              ArrivalStation: item?.Sectors[lastSectorIndex]?.Arrival?.Code,
+              CarrierCode: item?.Sectors[0]?.AirlineCode,
+              FlightNumber: item?.Sectors[0]?.FltNum,
+              JulianDate: item?.Sectors[0]?.Departure?.Date,
+              SeatNo: "",
+              CheckInSeq: "N",
+            },
+          ],
+        };
+        
+        const response = await axios.post(
+          generateBarcodeUrl,
+          reqPassengerData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
           }
+        );
+        
+        const newToken = response.data;
+        if (!passenger.barCode2D) {           
+            passenger.barCode2D = [];
+        }
+        // break;
+        //passengerPreference.Passengers.forEach(p => {
+        //if (p.FName === passenger.FName && p.LName === passenger.LName) {
+          passenger.barCode2D.push({
+          FCode: item?.Sectors[0]?.Departure?.Code,
+          FNo: item?.Sectors[0]?.FltNum,
+          Src: item?.Sectors[0]?.Departure?.Code,
+          Des: item?.Sectors[lastSectorIndex]?.Arrival?.Code,
+          Code: newToken,
+        });
+        //}
+        //});
+        
+        //console.log("mytoken", passenger);
+       // console.log("Barcode2D updated successfully for passenger:", passenger);
+      } catch (error) {
+        // console.error(
+        //   "Error updating Barcode2D for passenger:",
+        //   passenger,
+        //   error
+        // );
       }
-      
-      // Save the updated document back to the database
-      await passengerPreference.save();
-      console.log("Barcode2D updated successfully for booking ID:", bookingId);
+    }
+    //console.log("mydata", passengerPreference);
+    // Save the updated document back to the database
+    await passengerPreference.save();
+    //console.log("Barcode2D updated successfully for booking ID:", bookingId);
   } catch (error) {
-      console.error("Error updating Barcode2D:", error);
+    //console.error("Error updating Barcode2D:", error);
   }
 }
-
-
-
 
 module.exports = {
   startBooking,

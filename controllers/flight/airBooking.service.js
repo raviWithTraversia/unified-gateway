@@ -676,14 +676,7 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
-    if (response.data.Status === "success") {
-      await updateBarcode2DByBookingId(
-        "PKY100208",
-        PassengerPreferences,
-        ItineraryPriceCheckResponses[0],
-        "O7JP4P"
-      );
-      return false;
+    if (response.data.Status === "success") {      
       const createBooking = async (newItem) => {
         try {
           let bookingDetailsCreate = await BookingDetails.create(newItem);

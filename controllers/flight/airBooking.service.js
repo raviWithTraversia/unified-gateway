@@ -1182,7 +1182,7 @@ async function updateBarcode2DByBookingId(
       return; // Exit function if document not found
     }
 
-    for (let passenger of passengerPreference.Passengers) {      
+    for (let passenger of passengerPreferencesData.Passengers) {      
       try {
         
         let reqPassengerData =   {

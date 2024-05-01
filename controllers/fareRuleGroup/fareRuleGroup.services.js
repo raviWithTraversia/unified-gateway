@@ -125,7 +125,8 @@ const getCustomFareRule = async (req, res) => {
       response: "TMC Compnay id does not exist",
     };
   }
-    const assignFareRuleGroup = getAssignCommercial(companyDetails._id);
+    const assignFareRuleGroup = await getAssignCommercial(companyDetails._id);
+    
     // Check if FareRule Group Id exists
     // const checkFareGroupExist = await fareRuleGroupModels.findById(CompanyId);
     // if (!checkFareGroupExist) {
@@ -136,7 +137,7 @@ const getCustomFareRule = async (req, res) => {
   
   return {
     response: "Fetch Data Successfully",
-    data: checkCompanyIdExist,
+    data: assignFareRuleGroup,
   }; 
 
 };
@@ -145,13 +146,10 @@ const getAssignCommercial = async (companyId) => {
   let getAgentConfig = await agentConfig.findOne({
     companyId: companyId,
   }); // check config
-
+  //console.log(getAgentConfig);
   //return getAgentConfig;
 
   let commercialairplansVar = [];
-  let combineAllCommercialArr = [];
-  let aircommercialListVar;
-
   if (!getAgentConfig || getAgentConfig.fareRuleGroupIds === null) {
     getAgentConfig = await agencyGroup.findById(getAgentConfig.fairRuleGroupId);
     if (getAgentConfig) {
@@ -160,94 +158,33 @@ const getAssignCommercial = async (companyId) => {
         .findOne({
           _id: getAgentConfig.fairRuleGroupId,          
         })
-        .select("_id commercialPlanName");
+        .select("_id fareRuleGroupName");
       if (!commercialairplansVar) {
         return { IsSuccess: false, Message: "Fare Group Not Available" };
+      }else{
+        return { IsSuccess: true, data: commercialairplansVar };
       }      
      
     } else {
-      return { IsSuccess: false, Message: "Commercial Not Available" };
+      return { IsSuccess: false, Message: "Fare Group Not Available" };
     }
   } else {
     // check Manuwal from config
     //return getAgentConfig
-    commercialairplansVar = await commercialairplans
+    commercialairplansVar = await fareRuleGroupModels
       .findOne({
-        _id: getAgentConfig.commercialPlanIds,
-        status: true,
+        _id: getAgentConfig.fareRuleGroupIds        
       })
-      .select("_id commercialPlanName");
+      .select("_id fareRuleGroupName");
     if (!commercialairplansVar) {
-      return { IsSuccess: false, Message: "Commercial Not Available" };
+      return { IsSuccess: false, Message: "Fare Group Not Available" };
+    }else{
+      return { IsSuccess: true, data: commercialairplansVar };
     }
-    aircommercialListVar = await aircommercialsList
-      .find({
-        commercialAirPlanId: commercialairplansVar._id,
-      })
-      .populate([
-        {
-          path: "carrier",
-          select: "_id airlineCode",
-        },
-        {
-          path: "supplier",
-          select: "supplierCode",
-        },
-        {
-          path: "source",
-          select: "supplierCode",
-        },
-        {
-          path: "fareFamily",
-          select: "fareFamilyName fareFamilyCode",
-        },
-      ]);
-
-    if (aircommercialListVar.length > 0) {
-      //const fareFamilyMasterGet = await fareFamilyMaster.find({});
-
-      let mappingData = aircommercialListVar.map(async (items) => {
-        //return items
-
-        const matchedFareFamilyCodes =
-          items.fareFamily != null ? items.fareFamily?.fareFamilyCode : null;
-
-        const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
-          .findOne({
-            airCommercialId: items._id,
-          })
-          .populate("commercialFilter.commercialFilterId");
-        const updateaircommercialmatrixesVar = await updateaircommercialmatrixes
-          .findOne({ airCommercialPlanId: items._id })
-          .populate("data.AirCommertialRowMasterId")
-          .populate("data.AirCommertialColumnMasterId");
-
-        return {
-          _id: items._id,
-          travelType: items.travelType,
-          carrier: items.carrier ? items.carrier.airlineCode : null,
-          commercialCategory: items.commercialCategory,
-          supplier: items.supplier ? items.supplier.supplierCode : null,
-          source: items.supplier ? items.supplier.supplierCode : null,
-          priority: items.priority,
-          aircommercialfilterincexcs: aircommercialfilterincexcsVar,
-          updateaircommercialmatrixes: updateaircommercialmatrixesVar,
-          fareFamily: matchedFareFamilyCodes,
-        };
-      });
-      mappingData = await Promise.all(mappingData);
-      combineAllCommercialArr.push({
-        plan: commercialairplansVar,
-        commercialFilterList: mappingData,
-      });
-    } else {
-      return { IsSuccess: false, Message: "Commercial Not Available" };
-    }
+    
   }
-  if (!commercialairplansVar) {
-    return { IsSuccess: false, Message: "No Commercial Air Plan Found" };
-  }
-  return { IsSuccess: true, data: combineAllCommercialArr };
+  
+ // return { IsSuccess: true, data: combineAllCommercialArr };
 };
 const getFareRuleGroup = async (req, res) => {
   try {

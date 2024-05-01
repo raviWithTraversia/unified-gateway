@@ -1225,7 +1225,7 @@ async function updateBarcode2DByBookingId(
         //passengerPreference.Passengers.forEach(p => {
         //if (p.FName === passenger.FName && p.LName === passenger.LName) {
           passenger.barCode2D.push({
-          FCode: item?.Sectors[0]?.Departure?.Code,
+          FCode: item?.Sectors[0]?.AirlineCode,
           FNo: item?.Sectors[0]?.FltNum,
           Src: item?.Sectors[0]?.Departure?.Code,
           Des: item?.Sectors[lastSectorIndex]?.Arrival?.Code,

@@ -1,6 +1,9 @@
 const fareRuleGroupModels = require("../../models/FareRuleGroup");
 const fareRuleModel = require("../../models/FareRules");
-
+const Company = require("../../models/Company");
+const agentConfig = require("../../models/AgentConfig");
+const UserModule = require("../../models/User");
+const agencyGroup = require("../../models/AgencyGroup");
 const addFareRuleGroup = async (req, res) => {
   try {
     let {
@@ -79,7 +82,173 @@ const editFareRuleGroup = async (req, res) => {
     throw error;
   }
 };
+const getCustomFareRule = async (req, res) => {
+  const {    
+    CompanyId,
+    UserId    
+  } = req.body;
+  const fieldNames = [
+    "CompanyId",
+    "UserId"    
+  ];
+  const missingFields = fieldNames.filter(
+    (field) => field === null || field === undefined
+  );
+  if (missingFields.length > 0) {
+    const missingFieldsString = missingFields.join(", ");
+    return {
+      response: null,
+      isSometingMissing: true,
+      data: `Missing or null fields: ${missingFieldsString}`,
+    };
+  }  
+  if (!CompanyId) {
+    return {
+      response: "Company field are required",
+    };
+  }
 
+  const userDetails = await UserModule.findOne({ _id:UserId });
+  if (!userDetails) {
+    return {
+      IsSuccess: false,
+      response: "User Id Not Available",
+    };
+  }
+  const companyDetails = await Company.findOne({
+    _id: userDetails.company_ID,
+  }).populate("parent", "type");
+
+  // Check if company Id exists 
+  if (!companyDetails) {
+    return {
+      response: "TMC Compnay id does not exist",
+    };
+  }
+    const assignFareRuleGroup = getAssignCommercial(companyDetails._id);
+    // Check if FareRule Group Id exists
+    // const checkFareGroupExist = await fareRuleGroupModels.findById(CompanyId);
+    // if (!checkFareGroupExist) {
+    //   return {
+    //     response: "Fare Group Not Found!!",
+    //   };
+    // }
+  
+  return {
+    response: "Fetch Data Successfully",
+    data: checkCompanyIdExist,
+  }; 
+
+};
+const getAssignCommercial = async (companyId) => {
+  //// Get Commertial id , plb, incentive so on...
+  let getAgentConfig = await agentConfig.findOne({
+    companyId: companyId,
+  }); // check config
+
+  //return getAgentConfig;
+
+  let commercialairplansVar = [];
+  let combineAllCommercialArr = [];
+  let aircommercialListVar;
+
+  if (!getAgentConfig || getAgentConfig.fareRuleGroupIds === null) {
+    getAgentConfig = await agencyGroup.findById(getAgentConfig.fairRuleGroupId);
+    if (getAgentConfig) {
+      // check from group privillage plan id
+      commercialairplansVar = await fareRuleGroupModels
+        .findOne({
+          _id: getAgentConfig.fairRuleGroupId,          
+        })
+        .select("_id commercialPlanName");
+      if (!commercialairplansVar) {
+        return { IsSuccess: false, Message: "Fare Group Not Available" };
+      }      
+     
+    } else {
+      return { IsSuccess: false, Message: "Commercial Not Available" };
+    }
+  } else {
+    // check Manuwal from config
+    //return getAgentConfig
+    commercialairplansVar = await commercialairplans
+      .findOne({
+        _id: getAgentConfig.commercialPlanIds,
+        status: true,
+      })
+      .select("_id commercialPlanName");
+    if (!commercialairplansVar) {
+      return { IsSuccess: false, Message: "Commercial Not Available" };
+    }
+    aircommercialListVar = await aircommercialsList
+      .find({
+        commercialAirPlanId: commercialairplansVar._id,
+      })
+      .populate([
+        {
+          path: "carrier",
+          select: "_id airlineCode",
+        },
+        {
+          path: "supplier",
+          select: "supplierCode",
+        },
+        {
+          path: "source",
+          select: "supplierCode",
+        },
+        {
+          path: "fareFamily",
+          select: "fareFamilyName fareFamilyCode",
+        },
+      ]);
+
+    if (aircommercialListVar.length > 0) {
+      //const fareFamilyMasterGet = await fareFamilyMaster.find({});
+
+      let mappingData = aircommercialListVar.map(async (items) => {
+        //return items
+
+        const matchedFareFamilyCodes =
+          items.fareFamily != null ? items.fareFamily?.fareFamilyCode : null;
+
+        const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
+          .findOne({
+            airCommercialId: items._id,
+          })
+          .populate("commercialFilter.commercialFilterId");
+        const updateaircommercialmatrixesVar = await updateaircommercialmatrixes
+          .findOne({ airCommercialPlanId: items._id })
+          .populate("data.AirCommertialRowMasterId")
+          .populate("data.AirCommertialColumnMasterId");
+
+        return {
+          _id: items._id,
+          travelType: items.travelType,
+          carrier: items.carrier ? items.carrier.airlineCode : null,
+          commercialCategory: items.commercialCategory,
+          supplier: items.supplier ? items.supplier.supplierCode : null,
+          source: items.supplier ? items.supplier.supplierCode : null,
+          priority: items.priority,
+          aircommercialfilterincexcs: aircommercialfilterincexcsVar,
+          updateaircommercialmatrixes: updateaircommercialmatrixesVar,
+          fareFamily: matchedFareFamilyCodes,
+        };
+      });
+      mappingData = await Promise.all(mappingData);
+      combineAllCommercialArr.push({
+        plan: commercialairplansVar,
+        commercialFilterList: mappingData,
+      });
+    } else {
+      return { IsSuccess: false, Message: "Commercial Not Available" };
+    }
+  }
+  if (!commercialairplansVar) {
+    return { IsSuccess: false, Message: "No Commercial Air Plan Found" };
+  }
+  return { IsSuccess: true, data: combineAllCommercialArr };
+};
 const getFareRuleGroup = async (req, res) => {
   try {
     const { ObjectId } = require('mongoose').Types; 
@@ -148,4 +317,5 @@ module.exports = {
   editFareRuleGroup,
   getFareRuleGroup,
   deleteFareRuleGroup,
+  getCustomFareRule
 };

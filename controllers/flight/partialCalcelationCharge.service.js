@@ -3,13 +3,13 @@ const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const bookingDetails = require("../../models/BookingDetails");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
-const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const axios = require("axios");
+const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
 
-const fullCancelation = async (req, res) => {
+const partialCancelationCharge = async (req, res) => {
   const {
     Authentication,
     Provider,
@@ -28,7 +28,8 @@ const fullCancelation = async (req, res) => {
     "BookingId",
     "CancelType",
     "Reason",    
-    "Sector"    
+    "Sector"
+    
   ];
   const missingFields = fieldNames.filter(
     (fieldName) =>
@@ -74,7 +75,8 @@ const fullCancelation = async (req, res) => {
       BookingId,
       CancelType,      
       Sector,
-      Reason      
+      Reason
+      
     );
   }
 
@@ -159,7 +161,7 @@ async function handleflight(
               BookingId,
               CancelType,
               Reason,
-              Sector              
+              Sector             
             );
           default:
             throw new Error(
@@ -231,8 +233,9 @@ const KafilaFun = async (
         R_DATA: {
             ACTION: "CANCEL_CHARGE",
             BOOKING_ID: BookingId,
-            CANCEL_TYPE: "FULL_CANCELLATION",
+            CANCEL_TYPE: "PARTIAL_CANCELLATION",
             REASON: Reason,
+            SECTORS:Sector,
             TRACE_ID:Authentication.TraceId
         },
         AID: supplier.supplierWsapSesssion,
@@ -254,70 +257,12 @@ const KafilaFun = async (
       ); 
         //console.log(fSearchApiResponse.data, "1API Responce")
       if (fSearchApiResponse.data.Status !==  null) {
-        return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage;       
+        return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage
+       
       }
 
-
-      let requestDataForCancel= {
-        P_TYPE: "API",
-        R_TYPE: "FLIGHT",
-        R_NAME: "CANCEL",
-        R_DATA: {
-            ACTION: "CANCEL_COMMIT",
-            BOOKING_ID: BookingId,
-            CANCEL_TYPE: "FULL_CANCELLATION",
-            REASON: Reason,
-            TRACE_ID:Authentication?.TraceId,
-            Charges:fSearchApiResponse?.data?.Charges,
-            Error:fSearchApiResponse?.data?.Error,
-            Status:fSearchApiResponse?.data?.Status
-        },
-        AID: supplier.supplierWsapSesssion,
-        MODULE: "B2B",
-        IP: "182.73.146.154",
-        TOKEN: getToken,
-        ENV: credentialType,
-        Version: "1.0.0.0.0.0"
-    };  
-    
-    
-    let fCancelApiResponse = await axios.post(
-      flightCancelUrl,
-      requestDataForCancel,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    ); 
-
-    if(fCancelApiResponse?.data?.R_DATA?.Error?.Status === "PENDING"){
-      try {
-        const cancelationBookingInstance = new CancelationBooking({
-          calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status,
-          AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode,
-          companyId: Authentication?.CompanyId,
-          userId: Authentication?.UserId,
-          PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr,
-          fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare,
-          AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee,
-          AirlineRefund: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund,
-          ServiceFee: fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee,
-          RefundableAmt: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt,
-          description: fCancelApiResponse?.data?.R_DATA?.Charges?.Description,
-          modifyBy: Authentication?.UserId,
-          modifyAt: new Date(),
-        });
-        await cancelationBookingInstance.save();
-        return fCancelApiResponse?.data;
-      } catch (error) {
-        throw new Error("Error saving cancellation data");
-      }
-    }else{
-      return fCancelApiResponse?.data;
-    }
-
-
+      return fSearchApiResponse?.data;
+   
       //console.log(fCancelApiResponse.data, "Cancel Responce")
     // if (fCancelApiResponse.data.Status !==  null) {
     //   return {
@@ -329,8 +274,7 @@ const KafilaFun = async (
     //   };
     // }
       //console.log('apiData',fSearchApiResponse.data.Charges); 
-
-      //return fCancelApiResponse.data;
+     // return fCancelApiResponse.data;
 
 
 
@@ -344,12 +288,12 @@ const KafilaFun = async (
       // }         
       
     } else {
-      return  response.data.ErrorMessage
+      return response.data.ErrorMessage;
     }
   } catch (error) {
-    return error.message    
+    return error.message
   }
 };
 module.exports = {
-  fullCancelation,
+    partialCancelationCharge,
 };

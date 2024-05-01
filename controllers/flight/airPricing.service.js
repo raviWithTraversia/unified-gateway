@@ -5,6 +5,7 @@ const AirportsDetails = require("../../models/AirportDetail");
 const Supplier = require("../../models/Supplier");
 const fareFamilyMaster = require("../../models/FareFamilyMaster");
 const Role = require("../../models/Role");
+const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
@@ -94,7 +95,18 @@ const airPricing = async (req, res) => {
     );
   };
  // console.log("============>>>MMMMMMMMMM", result , "<<<============nnnnnnnnnnnnnnnnnnnn")
-
+ const logData = {
+  traceId: Authentication.TraceId,
+  companyId: Authentication.CompanyId,
+  userId: Authentication.UserId,
+  source: "Kafila",
+  type: "Portal Log",
+  product: "Flight",
+  logName: "Air Pricing",
+  request: req.body,
+  responce: result
+};  
+Logs(logData);
   if (!result.IsSucess) {
     return {
       response: result.response,
@@ -538,7 +550,18 @@ const KafilaFun = async (
         }
       );
       //logger.info(fSearchApiResponse.data);
-      
+      const logData = {
+        traceId: Authentication.TraceId,
+        companyId: Authentication.CompanyId,
+        userId: Authentication.UserId,
+        source: "Kafila",
+        type: "API Log",
+        product: "Flight",
+        logName: "Air Pricing",
+        request: requestDataFSearch,
+        responce: fSearchApiResponse?.data
+      };  
+      Logs(logData);
     //  console.log(fSearchApiResponse.data, "API Responce")
       if (fSearchApiResponse.data.Status == "failed") {
         return {

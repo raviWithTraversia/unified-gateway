@@ -4,6 +4,7 @@ const Supplier = require("../../models/Supplier");
 const bookingDetails = require("../../models/BookingDetails");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
 const axios = require("axios");
+const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();

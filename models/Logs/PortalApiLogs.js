@@ -29,6 +29,11 @@ const protalApiLogSchema = new mongoose.Schema({
         required : false,
         default : null
     },
+    BookingId : { // Flight , Hotel 
+        type : String,
+        required : false,
+        default : null
+    },    
     logName : { // search , airpricing, booking 
         type : String,
         required : false,

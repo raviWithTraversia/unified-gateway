@@ -40,8 +40,7 @@ const payu = async (req, res) => {
         const phoneres = phone;
         const surl = "https://kafilaui.traversia.net/home/flight/paymentSuccess";
         const furl = "https://kafilaui.traversia.net/home/flight/paymentFailed";        
-        const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
-       
+        const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';      
         
 
         // Concatenate the transaction details

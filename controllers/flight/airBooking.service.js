@@ -8,6 +8,7 @@ const ledger = require("../../models/Ledger");
 const creditRequest = require("../../models/CreditRequest");
 const transaction = require("../../models/transaction");
 const agentConfig = require("../../models/AgentConfig");
+const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const fareFamilyMaster = require("../../models/FareFamilyMaster");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
@@ -111,7 +112,18 @@ const startBooking = async (req, res) => {
       paymentMethodType
     );
   }
-
+  const logData = {
+    traceId: Authentication.TraceId,
+    companyId: Authentication.CompanyId,
+    userId: Authentication.UserId,
+    source: "Kafila",
+    type: "Portal Log",
+    product: "Flight",
+    logName: "Air Booking",
+    request: req.body,
+    responce: result
+  };  
+  Logs(logData);
   if (!result.IsSucess) {
     return {
       response: result.response,
@@ -897,7 +909,19 @@ try {
                     },
                   }
                 );
-    
+                const logData = {
+                  traceId: Authentication.TraceId,
+                  companyId: Authentication.CompanyId,
+                  userId: Authentication.UserId,
+                  source: "Kafila",
+                  type: "API Log",
+                  BookingId:item?.BookingId,
+                  product: "Flight",
+                  logName: "Flight Search",
+                  request: requestDataFSearch,
+                  responce: fSearchApiResponse?.data
+                };  
+                Logs(logData);
                 if (fSearchApiResponse.data.Status == "failed") {
                   await BookingDetails.updateOne(
                     { bookingId: item?.BookingId, "itinerary.IndexNumber": item.IndexNumber }, 
@@ -980,7 +1004,7 @@ try {
                   }else{
                     // Transtion 
                   await transaction.updateOne({ bookingId: item?.BookingId }, { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" });
-                
+                  await updateBarcode2DByBookingId(item?.BookingId, passengerPreferencesData,item, fSearchApiResponse.data.BookingInfo.APnr);
                   }
                    //return fSearchApiResponse.data;
                 return bookingResponce;
@@ -1017,39 +1041,7 @@ try {
               }
             })
           );  
-          return hitAPI;
-        //   const itineraryArray = await Promise.all(hitAPI?.map(async (itineraryItem) => {
-        //     try {
-        //       const bookingData = await BookingDetails.find({ bookingId: response?.bookingId, itinerary.Sectors:itineraryItem.Param.Sector[0].Src, itinerary.Sectors:Param.Sector[0].Des });
-        //       const passengerPreferenceData = await passengerPreferenceModel.findOne({ bookingId: response?.bookingId });
-              
-        //         return {
-        //             BookingInfo: { 
-        //                 CurrentStatus: itineraryItem.BookingInfo.CurrentStatus,
-        //                 BookingStatus: itineraryItem.BookingInfo.BookingStatus,
-        //                 BookingRemark: itineraryItem.BookingInfo.BookingRemark,
-        //                 BookingId: itineraryItem.BookingInfo.BookingId,
-        //                 PNR: itineraryItem.BookingInfo.APnr,
-        //                 Type: itineraryItem.BookingInfo.GPnr
-        //             },
-        //             itinerary: bookingData,  // Replace "daddda" with the actual itinerary data
-        //         };
-        //     } catch (error) {
-        //         console.error("Error fetching booking data:", error);
-        //         return null; // Or handle the error as needed
-        //     }
-        // }));
-        
-        
-          // const bookingResponce = {
-          //   CartId: response?.bookingId,
-          //   bookingResponce:itineraryArray             
-          // };
-          // return {
-          //   IsSuccess: true,
-          //   response: bookingResponce,
-          // };      
-          // Continue with further actions if needed
+          return hitAPI;          
         } else {
           return "Booking already exists";
         }
@@ -1057,242 +1049,6 @@ try {
         return "Some Technical Issue";
       }
 
-      //return newArray;
-
-      //let getToken = response.data.Result;
-      
-
-      return hitAPI;
-
-      //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
-      let apiResponse = fSearchApiResponse.data;
-      let apiResponseCommon = [];
-
-      for (let index = 0; index < apiResponse.SelectedFlight.length; index++) {
-        let schedule = apiResponse.SelectedFlight[index];
-        //let oldItinerary = Itinerary[index];
-        // apiResponseCommon.push(schedule);
-        apiResponseCommon.push({
-          UID: Itinerary[index].UID,
-          BaseFare: schedule.Fare.BasicTotal,
-          Taxes: schedule.Fare.TaxesTotal,
-          TotalPrice: schedule.Fare.GrandTotal,
-          ExtraCharges: 0.0,
-          TaxMarkUp: 0.0,
-          MarkUp: 0.0,
-          Commission: 0.0,
-          Fees: 0.0,
-          BookingFees: 0.0,
-          ServiceFee: 0.0,
-          CancellationFees: 0.0,
-          RescheduleFees: 0.0,
-          AdminFees: 0.0,
-          Discount: 0.0,
-          TDS: 0.0,
-          BaseCharges: 0.0,
-          SupplierDiscount: 0.0,
-          SupplierDiscountPercent: 0.0,
-          GrandTotal: schedule.Fare.GrandTotal,
-          Currency: "INR",
-          FareType: schedule.FareType,
-          TourCode: "",
-          PricingMethod: "Guaranteed",
-          FareFamily: schedule.Alias,
-          PromotionalFare: false,
-          FareFamilyDN: null,
-          PromotionalCode: "",
-          PromoCodeType: "",
-          RefundableFare: schedule.Offer.Refund === "Refundable" ? true : false,
-          IndexNumber: index,
-          Provider: Provider,
-          ValCarrier: schedule.FCode.split(",")[0],
-          LastTicketingDate: "",
-          TravelTime: schedule.Dur,
-          PriceBreakup: [
-            PaxDetail.Adults > 0
-              ? {
-                  PassengerType: "ADT",
-                  NoOfPassenger: PaxDetail.Adults,
-                  Tax: schedule.Fare.Adt.Taxes,
-                  BaseFare: schedule.Fare.Adt.Basic,
-                  MarkUp: 0.0,
-                  TaxMarkUp: 0.0,
-                  Commission: 0.0,
-                  Fees: 0.0,
-                  BookingFees: 0.0,
-                  CancellationFees: 0.0,
-                  RescheduleFees: 0.0,
-                  AdminFees: 0.0,
-                  TDS: 0.0,
-                  gst: 0.0,
-                  ServiceFees: 0.0,
-                  Discount: 0.0,
-                  BaseCharges: 0.0,
-                  TaxBreakup: [
-                    {
-                      TaxType: "YQ",
-                      Amount: schedule.Fare.Adt.Yq,
-                    },
-                  ],
-                  AirPenalty: [],
-                  CommercialBreakup: [],
-                  AgentMarkupBreakup: {
-                    BookingFee: 0.0,
-                    Basic: 0.0,
-                    Tax: 0.0,
-                  },
-                  Key: null,
-                  OI: schedule.Fare.OI,
-                }
-              : {},
-            PaxDetail.Child > 0
-              ? {
-                  PassengerType: "CHD",
-                  NoOfPassenger: PaxDetail.Child,
-                  Tax: schedule.Fare.Chd.Taxes,
-                  BaseFare: schedule.Fare.Chd.Basic,
-                  MarkUp: 0.0,
-                  TaxMarkUp: 0.0,
-                  Commission: 0.0,
-                  Fees: 0.0,
-                  BookingFees: 0.0,
-                  CancellationFees: 0.0,
-                  RescheduleFees: 0.0,
-                  AdminFees: 0.0,
-                  TDS: 0.0,
-                  gst: 0.0,
-                  ServiceFees: 0.0,
-                  Discount: 0.0,
-                  BaseCharges: 0.0,
-                  TaxBreakup: [
-                    {
-                      TaxType: "YQ",
-                      Amount: schedule.Fare.Chd.Yq,
-                    },
-                  ],
-                  AirPenalty: [],
-                  CommercialBreakup: [],
-                  AgentMarkupBreakup: {
-                    BookingFee: 0.0,
-                    Basic: 0.0,
-                    Tax: 0.0,
-                  },
-                  Key: null,
-                  OI: schedule.Fare.OI,
-                }
-              : {},
-            PaxDetail.Infants > 0
-              ? {
-                  PassengerType: "INF",
-                  NoOfPassenger: PaxDetail.Infants,
-                  Tax: schedule.Fare.Inf.Taxes,
-                  BaseFare: schedule.Fare.Inf.Basic,
-                  MarkUp: 0.0,
-                  TaxMarkUp: 0.0,
-                  Commission: 0.0,
-                  Fees: 0.0,
-                  BookingFees: 0.0,
-                  CancellationFees: 0.0,
-                  RescheduleFees: 0.0,
-                  AdminFees: 0.0,
-                  TDS: 0.0,
-                  gst: 0.0,
-                  ServiceFees: 0.0,
-                  Discount: 0.0,
-                  BaseCharges: 0.0,
-                  TaxBreakup: [
-                    {
-                      TaxType: "YQ",
-                      Amount: schedule.Fare.Inf.Yq,
-                    },
-                  ],
-                  AirPenalty: [],
-                  CommercialBreakup: [],
-                  AgentMarkupBreakup: {
-                    BookingFee: 0.0,
-                    Basic: 0.0,
-                    Tax: 0.0,
-                  },
-                  Key: null,
-                  OI: schedule.Fare.OI,
-                }
-              : {},
-          ],
-          Sectors: schedule.Itinerary.map((sector) => ({
-            IsConnect: false,
-            AirlineCode: sector.FCode,
-            AirlineName: sector.FName,
-            Class: sector.FClass,
-            CabinClass: sector.PClass,
-            BookingCounts: "",
-            NoSeats: sector.Seat,
-            FltNum: sector.FNo,
-            EquipType: sector.FlightType,
-            FlyingTime: sector.Dur,
-            TravelTime: sector.Dur,
-            TechStopOver: 1,
-            Status: "",
-            OperatingCarrier: null,
-            MarketingCarrier: null,
-            BaggageInfo: schedule.FareRule.CHKNBG,
-            HandBaggage: schedule.FareRule.CBNBG,
-            TransitTime: null,
-            MealCode: null,
-            Key: "",
-            Distance: "",
-            ETicket: "No",
-            ChangeOfPlane: "",
-            ParticipantLevel: "",
-            OptionalServicesIndicator: false,
-            AvailabilitySource: "",
-            Group: "0",
-            LinkAvailability: "true",
-            PolledAvailabilityOption: "",
-            FareBasisCode: sector.FBasis,
-            HostTokenRef: "",
-            APISRequirementsRef: "",
-            Departure: {
-              Terminal: sector.DTrmnl,
-              Date: sector.DDate,
-              Time: sector.DDate,
-              Day: null,
-              DateTimeStamp: sector.DDate,
-              Code: sector.Src,
-              Name: sector.DArpt,
-              CityCode: sector.Src,
-              CityName: sector.SrcName,
-              CountryCode: "IN",
-              CountryName: "India",
-            },
-            Arrival: {
-              Terminal: sector.ATrmnl,
-              Date: sector.ADate,
-              Time: sector.ADate,
-              Day: null,
-              DateTimeStamp: sector.ADate,
-              Code: sector.Des,
-              Name: sector.AArpt,
-              CityCode: sector.Des,
-              CityName: sector.DesName,
-              CountryCode: "IN",
-              CountryName: "India",
-            },
-            OI: sector.OI,
-          })),
-          FareDifference: apiResponse.FareBreakup,
-          HostTokens: null,
-          Key: "",
-          SearchID: "",
-          TRCNumber: null,
-          TraceId: Authentication.TraceId,
-          OI: schedule.OI ?? null,
-        });
-      }
-
-      return {
-        IsSucess: true,
-        response: apiResponseCommon,
-      };
     } else {
       return {
         IsSucess: false,
@@ -1306,6 +1062,63 @@ try {
     };
   }
 };
+
+async function updateBarcode2DByBookingId(bookingId, passengerPreferencesData,item,pnr) {
+  try {  
+
+    // Update the barcode2d field with the new token    
+    passengerPreferencesData.Passengers.forEach(async passenger => {
+      const generateBarcodeUrl = 'http://flightapi.traversia.net/api/GenerateBarCode/GenerateBarCode';
+      const lastSectorIndex = item.itinerary.Sectors.length - 1;
+      try {
+          const response = await axios.post(generateBarcodeUrl, {
+              Company: item?.provider,
+              TripType: "O",
+              PNR: pnr,
+              PaxId: bookingId,
+              PassangerFirstName: passenger?.FName,
+              PassangerLastName: passenger?.LName,
+              PassangetMidName: null,
+              isInfant: false,
+              MyAllData: [
+                  {
+                      DepartureStation: item?.itinerary?.Sectors[0]?.Departure?.Code,
+                      ArrivalStation: item?.itinerary?.Sectors[lastSectorIndex]?.Arrival?.Code,
+                      CarrierCode: item?.itinerary?.Sectors[0]?.Departure?.AirlineCode,
+                      FlightNumber: item?.itinerary?.Sectors[0]?.FltNum,
+                      JulianDate: item?.itinerary?.Sectors[0]?.Departure?.Date,
+                      SeatNo: "",
+                      CheckInSeq: "N"
+                  }
+              ]
+          }, {
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          });
+          console.log(response.data);
+          const newToken = response.data; 
+          passenger.barCode2D.push({
+            FCode: item?.itinerary?.Sectors[0]?.Departure?.Code,
+            FNo: item?.itinerary?.Sectors[0]?.FltNum,
+            Src: item?.itinerary?.Sectors[0]?.Departure?.Code,
+            Des: item?.itinerary?.Sectors[lastSectorIndex]?.Arrival?.Code,
+            Code: newToken
+        });
+  console.log('Barcode2D updated successfully for passenger:', passenger);
+      } catch (error) {
+          console.error('Error updating Barcode2D for passenger:', passenger, error);
+      }
+    });
+    // Save the updated document back to the database
+    await passengerPreferenceModel.save();
+    console.log("Barcode2D updated successfully for booking ID:", bookingId);
+  } catch (error) {
+    console.error("Error updating Barcode2D:", error);
+  }
+}
+
+
 
 module.exports = {
   startBooking,

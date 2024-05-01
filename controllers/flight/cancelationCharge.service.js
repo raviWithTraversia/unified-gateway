@@ -9,7 +9,7 @@ const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
 
-const fullCancelation = async (req, res) => {
+const fullCancelationCharge = async (req, res) => {
   const {
     Authentication,
     Provider,
@@ -256,66 +256,7 @@ const KafilaFun = async (
       if (fSearchApiResponse.data.Status !==  null) {
         return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage;       
       }
-
-
-      let requestDataForCancel= {
-        P_TYPE: "API",
-        R_TYPE: "FLIGHT",
-        R_NAME: "CANCEL",
-        R_DATA: {
-            ACTION: "CANCEL_COMMIT",
-            BOOKING_ID: BookingId,
-            CANCEL_TYPE: "FULL_CANCELLATION",
-            REASON: Reason,
-            TRACE_ID:Authentication?.TraceId,
-            Charges:fSearchApiResponse?.data?.Charges,
-            Error:fSearchApiResponse?.data?.Error,
-            Status:fSearchApiResponse?.data?.Status
-        },
-        AID: supplier.supplierWsapSesssion,
-        MODULE: "B2B",
-        IP: "182.73.146.154",
-        TOKEN: getToken,
-        ENV: credentialType,
-        Version: "1.0.0.0.0.0"
-    };  
-    
-    
-    let fCancelApiResponse = await axios.post(
-      flightCancelUrl,
-      requestDataForCancel,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    ); 
-
-    if(fCancelApiResponse?.data?.R_DATA?.Error?.Status === "PENDING"){
-      try {
-        const cancelationBookingInstance = new CancelationBooking({
-          calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status,
-          AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode,
-          companyId: Authentication?.CompanyId,
-          userId: Authentication?.UserId,
-          PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr,
-          fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare,
-          AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee,
-          AirlineRefund: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund,
-          ServiceFee: fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee,
-          RefundableAmt: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt,
-          description: fCancelApiResponse?.data?.R_DATA?.Charges?.Description,
-          modifyBy: Authentication?.UserId,
-          modifyAt: new Date(),
-        });
-        await cancelationBookingInstance.save();
-        return fCancelApiResponse?.data;
-      } catch (error) {
-        throw new Error("Error saving cancellation data");
-      }
-    }else{
-      return fCancelApiResponse?.data;
-    }
+      return fSearchApiResponse?.data;
 
 
       //console.log(fCancelApiResponse.data, "Cancel Responce")
@@ -351,5 +292,5 @@ const KafilaFun = async (
   }
 };
 module.exports = {
-  fullCancelation,
+    fullCancelationCharge,
 };

@@ -112,6 +112,35 @@ const editFareRuleGroup = async (req, res) => {
     apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
   }
 };
+
+const getCustomFareRule = async (req, res) => {
+  try {
+    const result = await fareRuleGoupController.getCustomFareRule(req, res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    }else if (result.response === "Company field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Fare Group Not Found!!" || result.response === "User Id Not Available") {
+        apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    }else if (result.response === "Fetch Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    }else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
+  }
+};
+
+
 const deleteFareRuleGroup = async (req, res) => {
   try {
     const result = await fareRuleGoupController.deleteFareRuleGroup(req, res);
@@ -145,5 +174,6 @@ module.exports = {
   addFareRuleGroup,
   getFareRuleGroup,
   editFareRuleGroup,
-  deleteFareRuleGroup
+  deleteFareRuleGroup,
+  getCustomFareRule
 };

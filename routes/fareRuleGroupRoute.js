@@ -24,6 +24,13 @@ fareRuleGroup_route.patch(
     fareRuleGroupController.editFareRuleGroup
 )
 
+fareRuleGroup_route.post(
+  '/fareRuleGroup/getCustomFareRule',fareRuleGroupController.getCustomFareRule
+)
+
+
+
+
 fareRuleGroup_route.delete(
   '/fareRuleGroup/deleteFareRules',
   auth,

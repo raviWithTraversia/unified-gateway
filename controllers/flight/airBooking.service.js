@@ -1077,15 +1077,21 @@ const KafilaFun = async (
                     { bookingId: item?.BookingId },
                     { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" }
                   );
-                  await updateBarcode2DByBookingId(
-                    item?.BookingId,
-                    PassengerPreferences,
-                    item,
-                    fSearchApiResponse.data.BookingInfo.APnr
-                  );
+                  
                 }
                 //return fSearchApiResponse.data;
-                return bookingResponce;
+                const barcodeupdate = await updateBarcode2DByBookingId(
+                  item?.BookingId,
+                  PassengerPreferences,
+                  item,
+                  fSearchApiResponse.data.BookingInfo.APnr
+                );
+                if(barcodeupdate){
+                  return bookingResponce;
+                }else{
+                  return bookingResponce;
+                }
+                
               } catch (error) {
                 await BookingDetails.updateOne(
                   {
@@ -1182,7 +1188,7 @@ async function updateBarcode2DByBookingId(
       return; // Exit function if document not found
     }
 
-    for (let passenger of passengerPreferencesData.Passengers) {      
+    for (let passenger of passengerPreference.Passengers) {      
       try {
         
         let reqPassengerData =   {

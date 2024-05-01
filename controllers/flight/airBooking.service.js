@@ -1088,6 +1088,8 @@ const KafilaFun = async (
                 );
                 if(barcodeupdate){
                   return bookingResponce;
+                }else{
+                  return bookingResponce;
                 }
                 
               } catch (error) {

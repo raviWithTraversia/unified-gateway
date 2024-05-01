@@ -1063,60 +1063,74 @@ try {
   }
 };
 
-async function updateBarcode2DByBookingId(bookingId, passengerPreferencesData,item,pnr) {
-  try {  
-
-    // Update the barcode2d field with the new token    
-    passengerPreferencesData.Passengers.forEach(async passenger => {
+async function updateBarcode2DByBookingId(bookingId, passengerPreferencesData, item, pnr) {
+  try {
       const generateBarcodeUrl = 'http://flightapi.traversia.net/api/GenerateBarCode/GenerateBarCode';
       const lastSectorIndex = item.itinerary.Sectors.length - 1;
-      try {
-          const response = await axios.post(generateBarcodeUrl, {
-              Company: item?.provider,
-              TripType: "O",
-              PNR: pnr,
-              PaxId: bookingId,
-              PassangerFirstName: passenger?.FName,
-              PassangerLastName: passenger?.LName,
-              PassangetMidName: null,
-              isInfant: false,
-              MyAllData: [
-                  {
-                      DepartureStation: item?.itinerary?.Sectors[0]?.Departure?.Code,
-                      ArrivalStation: item?.itinerary?.Sectors[lastSectorIndex]?.Arrival?.Code,
-                      CarrierCode: item?.itinerary?.Sectors[0]?.Departure?.AirlineCode,
-                      FlightNumber: item?.itinerary?.Sectors[0]?.FltNum,
-                      JulianDate: item?.itinerary?.Sectors[0]?.Departure?.Date,
-                      SeatNo: "",
-                      CheckInSeq: "N"
-                  }
-              ]
-          }, {
-              headers: {
-                  'Content-Type': 'application/json'
-              }
-          });
-          console.log(response.data);
-          const newToken = response.data; 
-          passenger.barCode2D.push({
-            FCode: item?.itinerary?.Sectors[0]?.Departure?.Code,
-            FNo: item?.itinerary?.Sectors[0]?.FltNum,
-            Src: item?.itinerary?.Sectors[0]?.Departure?.Code,
-            Des: item?.itinerary?.Sectors[lastSectorIndex]?.Arrival?.Code,
-            Code: newToken
-        });
-  console.log('Barcode2D updated successfully for passenger:', passenger);
-      } catch (error) {
-          console.error('Error updating Barcode2D for passenger:', passenger, error);
+      const passengerPreference = await passengerPreferenceModel.findOne({ bookingId: bookingId });
+
+      if (!passengerPreference) {
+          console.error("Passenger preference not found for booking ID:", bookingId);
+          return; // Exit function if document not found
       }
-    });
-    // Save the updated document back to the database
-    await passengerPreferenceModel.save();
-    console.log("Barcode2D updated successfully for booking ID:", bookingId);
+
+      for (let passenger of passengerPreferencesData.Passengers) {
+          try {
+              const response = await axios.post(generateBarcodeUrl, {
+                  Company: item?.provider,
+                  TripType: "O",
+                  PNR: pnr,
+                  PaxId: bookingId,
+                  PassangerFirstName: passenger?.FName,
+                  PassangerLastName: passenger?.LName,
+                  PassangetMidName: null,
+                  isInfant: false,
+                  MyAllData: [
+                      {
+                          DepartureStation: item?.itinerary?.Sectors[0]?.Departure?.Code,
+                          ArrivalStation: item?.itinerary?.Sectors[lastSectorIndex]?.Arrival?.Code,
+                          CarrierCode: item?.itinerary?.Sectors[0]?.Departure?.AirlineCode,
+                          FlightNumber: item?.itinerary?.Sectors[0]?.FltNum,
+                          JulianDate: item?.itinerary?.Sectors[0]?.Departure?.Date,
+                          SeatNo: "",
+                          CheckInSeq: "N"
+                      }
+                  ]
+              }, {
+                  headers: {
+                      'Content-Type': 'application/json'
+                  }
+              });
+
+              //console.log(response.data);
+              const newToken = response.data;
+              
+              passengerPreference.Passengers.forEach(p => {
+                  if (p.FName === passenger.FName && p.LName === passenger.LName) {
+                      p.barCode2D.push({
+                          FCode: item?.itinerary?.Sectors[0]?.Departure?.Code,
+                          FNo: item?.itinerary?.Sectors[0]?.FltNum,
+                          Src: item?.itinerary?.Sectors[0]?.Departure?.Code,
+                          Des: item?.itinerary?.Sectors[lastSectorIndex]?.Arrival?.Code,
+                          Code: newToken
+                      });
+                  }
+              });
+
+              console.log('Barcode2D updated successfully for passenger:', passenger);
+          } catch (error) {
+              console.error('Error updating Barcode2D for passenger:', passenger, error);
+          }
+      }
+      
+      // Save the updated document back to the database
+      await passengerPreference.save();
+      console.log("Barcode2D updated successfully for booking ID:", bookingId);
   } catch (error) {
-    console.error("Error updating Barcode2D:", error);
+      console.error("Error updating Barcode2D:", error);
   }
 }
+
 
 
 

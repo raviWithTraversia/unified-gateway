@@ -213,6 +213,7 @@ const getAgencyGroup = async (req, res) => {
     .populate('pgChargesGroupId')
     .populate('airlinePromoCodeGroupId')
     .populate('companyId')
+    .populate('ssrCommercialGroupId')
     if (agencyGroup.length > 0) {
       return {
         response: "Agency Group Fetch Sucessfully",

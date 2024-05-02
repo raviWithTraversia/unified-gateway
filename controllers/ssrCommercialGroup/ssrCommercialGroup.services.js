@@ -73,7 +73,7 @@ const editSsrCommercialGroup = async (req, res) => {
     if (updateSsrCommercialData) {
       await agencyGroup.findOneAndUpdate(
         { companyId: updateData.companyId, isDefault: true },
-        { ssrCommercialGroupId: _id },
+        { ssrCommercialGroupId: id },
         { new: true }
       );
       return {

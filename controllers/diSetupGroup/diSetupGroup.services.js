@@ -95,7 +95,7 @@ const editDiSetupGroup = async (req, res) => {
     if (updateDiSetupGroupData) {
       await agencyGroup.findOneAndUpdate(
         { companyId: updateData.companyId, isDefault: true },
-        { diSetupGroupId: _id },
+        { diSetupGroupId: id },
         { new: true }
       );
       return {

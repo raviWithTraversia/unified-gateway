@@ -70,7 +70,7 @@ const editFareRuleGroup = async (req, res) => {
     if (updateFareRuleData) {
       await agencyGroup.findOneAndUpdate(
         { companyId: updateData.companyId, isDefault: true },
-        { fairRuleGroupId: _id },
+        { fairRuleGroupId: id },
         { new: true }
       );
       return {

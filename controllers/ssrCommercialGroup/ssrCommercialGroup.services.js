@@ -70,16 +70,19 @@ const editSsrCommercialGroup = async (req, res) => {
         },
         { new: true }
       );
-    if (updateSsrCommercialData) {
+    if (updateSsrCommercialData) {      
       await agencyGroup.findOneAndUpdate(
         { companyId: updateData.companyId, isDefault: true },
         { ssrCommercialGroupId: id },
         { new: true }
       );
-      return {
-        response: "Ssr Commercial Group Updated Sucessfully",
-        data: updateSsrCommercialData,
-      };
+      
+        return {
+          response: "Ssr Commercial Group Updated Sucessfully",
+          data: updateSsrCommercialData,
+        };
+      
+      
     } else {
       return {
         response: "Ssr Commercial Group Not Updated",

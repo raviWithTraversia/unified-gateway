@@ -95,7 +95,7 @@ const editAirlinePromoCodeGroup = async (req, res) => {
     if (updateAirlinePromoGroupData) {
       await agencyGroup.findOneAndUpdate(
         { companyId: updateData.companyId, isDefault: true },
-        { airlinePromoCodeGroupId: _id },
+        { airlinePromoCodeGroupId: id },
         { new: true }
       );
       return {

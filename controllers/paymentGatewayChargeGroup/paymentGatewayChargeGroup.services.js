@@ -85,7 +85,7 @@ const editPaymentGatewayChargeGroup = async (req, res) => {
     if (updatePaymentGatewayChargeGroupData) {
       await agencyGroup.findOneAndUpdate(
         { companyId: updateData.companyId, isDefault: true },
-        { pgChargesGroupId: _id },
+        { pgChargesGroupId:id },
         { new: true }
       );
       return {

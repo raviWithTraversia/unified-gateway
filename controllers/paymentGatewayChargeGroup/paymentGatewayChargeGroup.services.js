@@ -1,5 +1,6 @@
 const paymentGatewayChargeGroupModels = require("../../models/paymentGatewayChargesGroup");
 const paymentGatewayChargeModel = require("../../models/PaymentGatewayCharges");
+const agencyGroup = require("../../models/AgencyGroup");
 
 const addPaymentGatewayChargeGroup = async (req, res) => {
   try {
@@ -82,6 +83,11 @@ const editPaymentGatewayChargeGroup = async (req, res) => {
         { new: true }
       );
     if (updatePaymentGatewayChargeGroupData) {
+      await agencyGroup.findOneAndUpdate(
+        { companyId: updateData.companyId, isDefault: true },
+        { pgChargesGroupId: _id },
+        { new: true }
+      );
       return {
         response: "PaymentGatewayChargeGroup Updated Sucessfully",
         data: updatePaymentGatewayChargeGroupData,

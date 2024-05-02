@@ -4,7 +4,7 @@ const ProductPlan = require('../../models/ProductPlan');
 const privilagePlanHasPermission = require('../../models/PrivilagePlanHasPermission')
 const User = require('../../models/User');
 const commonFunction = require('../commonFunctions/common.function');
-
+const agencyGroup = require("../../models/AgencyGroup");
 const addPrivilagePlan = async(req , res) =>{
     try {
         
@@ -252,7 +252,11 @@ const privilagePlanAssignIsDefault = async(req ,res) => {
         const _id = req.params.privilagePlanId;
 
          await PrivilagePlan.updateMany({ companyId }, { IsDefault: false });
-
+         await agencyGroup.findOneAndUpdate(
+            { companyId: companyId, isDefault: true },
+            { privilagePlanId: _id },
+            { new: true }
+          );
         const result = await PrivilagePlan.findByIdAndUpdate( _id , {IsDefault : true }, { new: true });
 
         return {

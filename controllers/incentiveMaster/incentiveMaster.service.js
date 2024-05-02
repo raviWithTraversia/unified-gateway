@@ -2,7 +2,7 @@ const IncentiveMaster = require('../../models/IncentiveMaster');
 const commonFunction = require('../commonFunctions/common.function');
 const User = require('../../models/User');
 const IncentiveGroupHasIncentiveMaster = require('../../models/IncentiveGroupHasIncentiveMaster');
-
+const agencyGroup = require("../../models/AgencyGroup");
 const addIncentiveMaster = async (req, res) => {
     try {
         const {
@@ -223,7 +223,11 @@ const defineIncetiveMasterDefault = async (req, res) => {
             }
         }
         await IncentiveMaster.updateMany({ companyId }, { isDefault: false });
-
+        await agencyGroup.findOneAndUpdate(
+            { companyId: companyId, isDefault: true },
+            { incentiveGroupId: _id },
+            { new: true }
+          );
         const result = await IncentiveMaster.findByIdAndUpdate(_id, { isDefault: true }, { new: true });
         return {
             response: 'Incentive master define as default'

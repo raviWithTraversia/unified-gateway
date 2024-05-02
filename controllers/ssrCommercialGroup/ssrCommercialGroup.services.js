@@ -1,6 +1,6 @@
 const ssrCommercialGroupModels = require("../../models/SsrCommercialGroup");
 const ssrCommercial = require("../../models/SsrCommercial");
-
+const agencyGroup = require("../../models/AgencyGroup");
 const addSsrCommercialGroup = async (req, res) => {
   try {
     let { ssrCommercialIds, ssrCommercialName, companyId, isDefault } =
@@ -71,6 +71,11 @@ const editSsrCommercialGroup = async (req, res) => {
         { new: true }
       );
     if (updateSsrCommercialData) {
+      await agencyGroup.findOneAndUpdate(
+        { companyId: updateData.companyId, isDefault: true },
+        { ssrCommercialGroupId: _id },
+        { new: true }
+      );
       return {
         response: "Ssr Commercial Group Updated Sucessfully",
         data: updateSsrCommercialData,

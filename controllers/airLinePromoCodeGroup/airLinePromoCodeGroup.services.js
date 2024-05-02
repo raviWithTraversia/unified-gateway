@@ -1,6 +1,6 @@
 const AirlinePromoCodeGroupModels = require("../../models/AirlinePromoCodeGroup");
 const airlinePromoModel = require('../../models/AirlinePromoCode');
-
+const agencyGroup = require("../../models/AgencyGroup");
 const addAirlinePromcodeGroup = async (req, res) => {
   try {
     let {
@@ -93,6 +93,11 @@ const editAirlinePromoCodeGroup = async (req, res) => {
         { new: true }
       );
     if (updateAirlinePromoGroupData) {
+      await agencyGroup.findOneAndUpdate(
+        { companyId: updateData.companyId, isDefault: true },
+        { airlinePromoCodeGroupId: _id },
+        { new: true }
+      );
       return {
         response: "Airline Promo Code Group Updated Sucessfully",
         data: updateAirlinePromoGroupData,

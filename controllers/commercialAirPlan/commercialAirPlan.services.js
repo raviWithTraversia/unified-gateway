@@ -1,6 +1,6 @@
 const { date } = require('joi');
 const CommercialAirPlan = require('../../models/CommercialAirPlan');
-
+const agencyGroup = require("../../models/AgencyGroup");
 
 // Add Air commercial Plan
 const addCommercialAirPlan = async(req , res) => {
@@ -111,10 +111,14 @@ const isDefaultCommercialAirPlan = async(req , res) => {
     try {
         const {companyId} = req.body;
         const _id = req.params.commercialAirPlanId;
-
+        
          await CommercialAirPlan.updateMany({ companyId }, { IsDefault: false });
-
-
+         await agencyGroup.findOneAndUpdate(
+            { companyId: companyId, isDefault: true },
+            { commercialPlanId: _id },
+            { new: true }
+          );
+         
         const result = await CommercialAirPlan.findByIdAndUpdate( _id , {IsDefault : true }, { new: true });
         return {
             response : 'Commercial air plan define as IsDefault updated successfully'

@@ -68,6 +68,11 @@ const editFareRuleGroup = async (req, res) => {
       { new: true }
     );
     if (updateFareRuleData) {
+      await agencyGroup.findOneAndUpdate(
+        { companyId: updateData.companyId, isDefault: true },
+        { fairRuleGroupId: _id },
+        { new: true }
+      );
       return {
         response: "Fare rule Updated Sucessfully",
         data: updateFareRuleData,

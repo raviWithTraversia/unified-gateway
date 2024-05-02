@@ -68,9 +68,10 @@ const editFareRuleGroup = async (req, res) => {
       { new: true }
     );
     if (updateFareRuleData) {
+      //console.log(id);
       await agencyGroup.findOneAndUpdate(
         { companyId: updateData.companyId, isDefault: true },
-        { fairRuleGroupId: id },
+        { fareRuleGroupId: id },
         { new: true }
       );
       return {

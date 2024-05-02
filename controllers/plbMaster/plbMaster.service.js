@@ -3,6 +3,7 @@ const commonFunction = require('../commonFunctions/common.function');
 const User = require('../../models/User');
 const PLBMasterHistory =require('../../models/PLBMasterHistory');
 const PLBGroupHasPLBMaster = require('../../models/PLBGroupHasPLBMaster');
+const agencyGroup = require("../../models/AgencyGroup");
 
 const addPLBMaster = async(req, res) => {
     try {
@@ -463,7 +464,11 @@ const PLBMasterIsDefault = async(req , res) => {
             }
         }
         await PLBMaster.updateMany({ companyId }, { isDefault: false });
-
+        await agencyGroup.findOneAndUpdate(
+            { companyId: companyId, isDefault: true },
+            { plbGroupId: _id },
+            { new: true }
+          );
         const result = await PLBMaster.findByIdAndUpdate( _id , {isDefault : true }, { new: true });
         return {
             response : 'PLB master define as default'

@@ -1,5 +1,6 @@
 const diSetupGroupModels = require("../../models/DiSetupGroup");
 const diSetupModel = require('../../models/DiSetup');
+const agencyGroup = require("../../models/AgencyGroup");
 
 const addDiSetupGroup = async (req, res) => {
   try {
@@ -92,6 +93,11 @@ const editDiSetupGroup = async (req, res) => {
         { new: true }
       );
     if (updateDiSetupGroupData) {
+      await agencyGroup.findOneAndUpdate(
+        { companyId: updateData.companyId, isDefault: true },
+        { diSetupGroupId: _id },
+        { new: true }
+      );
       return {
         response: "DiSetup Group Updated Sucessfully",
         data: updateDiSetupGroupData,

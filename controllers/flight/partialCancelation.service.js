@@ -4,6 +4,7 @@ const Supplier = require("../../models/Supplier");
 const Users = require("../../models/User");
 const bookingDetails = require("../../models/BookingDetails");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
+const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const agentConfig = require("../../models/AgentConfig");
 const ledger = require("../../models/Ledger");
 const axios = require("axios");
@@ -122,7 +123,7 @@ async function handleflight(
   BookingId,
   CancelType,
   Sector, 
-  Reaso,
+  Reason,
   agencyUserId  
 ) {
   // International
@@ -218,6 +219,9 @@ const KafilaFun = async (
   agencyUserId,
   BookingIdDetails  
 ) => {
+
+
+
   let createTokenUrl;
   let flightCancelUrl;
 
@@ -372,16 +376,38 @@ const KafilaFun = async (
             remarks: "Calcelation Amount Added Into Your Account.",
             transactionBy: Authentication?.UserId          
           });
-               
-          await bookingDetails.updateMany(
-            { bookingId: BookingIdDetails._id },
-            {
-                $set: {
-                    bookingStatus: "CANCELLED",
-                    bookingRemarks: "Cancelled Your Booking Successfully"
+          
+          const passengerPreference = await passengerPreferenceModel.findOne({
+              bookingId: BookingIdDetails._id,
+            }); 
+              for (const flight of Sector) {
+                const { PAX,SRC,DES } = flight;  
+                for (const passenger of passengerPreference.Passengers) { 
+                  for (const paxEntry of PAX) {
+                    if (
+                        passenger.FNAME === paxEntry.FNAME &&
+                        passenger.LNAME === paxEntry.LNAME
+                    ) {
+                        
+                    }
                 }
+                    // for (const flight of Sector) {
+                    //   const { PAX,SRC,DES } = flight;            
+                      
+                    // }
+                } 
             }
-        );
+        //   await passengerPreferenceModel.updateOne(
+        //     { bookingId: BookingIdDetails._id },
+        //     {
+        //         $set: {
+        //             bookingStatus: "CANCELLED",
+        //             bookingRemarks: "Cancelled Your Booking Successfully"
+        //         }
+        //     }
+        // );
+
+
           const cancelationBookingInstance = new CancelationBooking({
             calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status,
             AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode,

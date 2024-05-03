@@ -215,8 +215,6 @@ const KafilaFun = async (
   BookingIdDetails  
 ) => {
 
-  
-
   let createTokenUrl;
   let flightCancelUrl;
 
@@ -343,9 +341,8 @@ const KafilaFun = async (
       } catch (error) {
         throw new Error("Error saving cancellation data");
       }
-    }else{
+    }else if(fCancelApiResponse?.data?.R_DATA?.Error?.Status === null && fCancelApiResponse?.data?.R_DATA?.Charges?.IsCanceled === true) {
       try {
-
         const getAgentConfig = await agentConfig.findOne({
           userId: agencyUserId,
         });
@@ -402,6 +399,65 @@ const KafilaFun = async (
       } catch (error) {
         throw new Error("Error saving cancellation data");
       }
+    }else{      
+        try {
+  
+          const getAgentConfig = await agentConfig.findOne({
+            userId: agencyUserId,
+          });
+        
+          const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
+                const newBalance = maxCreditLimit - fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
+                await agentConfig.updateOne(
+                  { userId: agencyUserId },
+                  { maxcreditLimit: newBalance }
+                );
+          //console.log(getAgentConfig);
+          const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+  
+          // Create ledger entry
+          await ledger.create({
+            userId: agencyUserId,
+            companyId: Authentication?.CompanyId,
+            ledgerId: ledgerId,
+            transactionAmount: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt,
+            currencyType: "INR",
+            fop: "CREDIT",
+            transactionType: "CREDIT",
+            runningAmount: newBalance,
+            remarks: "Calcelation Amount Added Into Your Account.",
+            transactionBy: Authentication?.UserId          
+          });
+               
+          await bookingDetails.updateMany(
+            { bookingId: BookingIdDetails._id },
+            {
+                $set: {
+                    bookingStatus: "CANCELLED",
+                    bookingRemarks: "Cancelled Your Booking Successfully"
+                }
+            }
+        );
+          const cancelationBookingInstance = new CancelationBooking({
+            calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status,
+            AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode,
+            companyId: Authentication?.CompanyId,
+            userId: Authentication?.UserId,
+            PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr,
+            fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare,
+            AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee,
+            AirlineRefund: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund,
+            ServiceFee: fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee,
+            RefundableAmt: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt,
+            description: fCancelApiResponse?.data?.R_DATA?.Charges?.Description,
+            modifyBy: Authentication?.UserId,
+            modifyAt: new Date(),
+          });
+          await cancelationBookingInstance.save();
+          return fCancelApiResponse?.data;
+        } catch (error) {
+          throw new Error("Error saving cancellation data");
+        }
     }
 
 

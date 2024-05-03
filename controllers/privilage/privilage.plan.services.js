@@ -88,7 +88,7 @@ const addPrivilagePlan = async(req , res) =>{
 const getPrivilageList =async(req ,res) => {
     try {
         const companyId = req.params.comapnyId;
-        const result = await PrivilagePlan.find({companyId : companyId});
+        const result = await PrivilagePlan.find({companyId : companyId}).populate("productPlanId");
         if (result.length > 0) {
             const allData = await Promise.all(result.map(async (privilagePlan) => {
                 const newObj = {

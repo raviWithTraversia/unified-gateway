@@ -9,7 +9,7 @@ const searchForUserEmulate = async (req, res) => {
         const { companyId, search , userId } = req.query;
 
         const getUserId = await UserModule.findOne({_id : userId , roleId: { $exists: true, $ne: null }});
-
+        
         const getRole = await RoleModel.findOne({_id : getUserId.roleId});
 
         //if(getRole.name == 'TMC' || getRole.name == 'Distributer' || getRole.name == 'Supplier') {
@@ -19,6 +19,7 @@ const searchForUserEmulate = async (req, res) => {
                     { companyName: new RegExp(search, 'i') }
                 ]
             });
+            
             let companiesList = [];
             for (let i = 0; i < getCompaniesDetails.length; i++) {
                 const companyDetails = getCompaniesDetails[i];
@@ -30,6 +31,7 @@ const searchForUserEmulate = async (req, res) => {
                 }
                                 
             }
+            
             const getUserDetails = await UserModule.find({
                 company_ID: getUserId.company_ID,
                 userStatus:"Active",
@@ -38,6 +40,7 @@ const searchForUserEmulate = async (req, res) => {
                     { lastName: new RegExp(search, 'i') }
                 ]
             });
+            // console.log("ffffffff")
             for (let i = 0; i < getUserDetails.length; i++) {
                 const userDetails = getUserDetails[i];
                     companiesList.push({_id:userDetails._id,name:userDetails.fname+' '+userDetails.lastName, userId:populatedCompanyDetails.userId});                   
@@ -45,7 +48,7 @@ const searchForUserEmulate = async (req, res) => {
                 
             
             //const getUserDetails = await UserModule.findOne({ company_ID : getUserId.company_ID });
-            //  console.log(getUserDetails)
+            
             //  return false
             if (companiesList.length > 0) {
                 return {

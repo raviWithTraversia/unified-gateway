@@ -9,6 +9,12 @@ const webMaster = require("../../models/WebsiteManager");
 const Registration = require('../../models/Registration');
 const agentConfigModel = require('../../models/AgentConfig');
 const privilagePlanModel = require('../../models/PrivilagePlan');
+const plbGroupModel = require('../../models/PLBGroupMaster');
+const incentiveGroupModel = require('../../models/IncentiveGroupMaster');
+const airlinePromocodeModel = require('../../models/AirlinePromoCodeGroup');
+const paymentGatewayModel = require('../../models/paymentGatewayChargesGroup');
+const ssrCommercialGroupModel = require('../../models/SsrCommercialGroup');
+
 const commercialPlanModel = require('../../models/CommercialAirPlan');
 const fareRuleGroupModel = require('../../models/FareRuleGroup');
 const agencyGroupModel = require('../../models/AgencyGroup');
@@ -355,6 +361,12 @@ const userInsert = async (req, res) => {
     let privilegePlansIds = await privilagePlanModel.findOne({companyId :parent,IsDefault : true});
     let commercialPlanIds = await commercialPlanModel.findOne({companyId :parent,IsDefault : true});
     let fareRuleGroupIds = await fareRuleGroupModel.findOne({companyId :parent,IsDefault : true});
+    let plbGroupIds = await plbGroupModel.findOne({companyId :parent,IsDefault : true});
+    let incentiveGroupIds = await incentiveGroupModel.findOne({companyId :parent,IsDefault : true});
+    let airlinePromocodeIds = await airlinePromocodeModel.findOne({companyId :parent,IsDefault : true});
+    let paymentGatewayIds = await paymentGatewayModel.findOne({companyId :parent,IsDefault : true});
+    let ssrCommercialGroupId = await ssrCommercialGroupModel.findOne({companyId :parent,IsDefault : true});
+    
     if(!agencyGroupId){
       // check agency parent is distributer or TMC
       let findParentRoleId = await User.findOne({company_ID : parent});
@@ -378,6 +390,13 @@ const userInsert = async (req, res) => {
         maxcreditLimit : maxCreditLimit,
         holdPNRAllowed : holdPnrAllowed,
         commercialPlanIds : commercialPlanIds || null,
+        privilegePlansIds:privilegePlansIds || null,
+        fareRuleGroupIds:fareRuleGroupIds || null,
+        plbGroupIds:plbGroupIds || null,
+        incentiveGroupIds:incentiveGroupIds || null,
+        airlinePromocodeIds:airlinePromocodeIds || null,
+        paymentGatewayIds:paymentGatewayIds || null,
+        ssrCommercialGroupId:ssrCommercialGroupId || null,
         modifyAt: new Date(),
         modifiedBy : req?.user?.id || null,
         agencyGroupId : agencyGroupId

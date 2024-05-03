@@ -4,6 +4,7 @@ const Users = require("../../models/User");
 const Supplier = require("../../models/Supplier");
 const bookingDetails = require("../../models/BookingDetails");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
+const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const agentConfig = require("../../models/AgentConfig");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const ledger = require("../../models/Ledger");
@@ -379,6 +380,35 @@ const KafilaFun = async (
               }
           }
       );
+
+
+      
+      const passengerPreference = await passengerPreferenceModel.findOne({
+        bookingId: BookingIdDetails._id,
+      }); 
+        
+            
+          for (const passenger of passengerPreference.Passengers) { 
+            if (!passenger.ticketStatus) {           
+                passenger.ticketStatus = [];
+            }
+                const existingTicketStatusIndex = passenger.ticketStatus.findIndex(status =>
+                  status.status != "CANCELLED"
+              );
+              if (existingTicketStatusIndex !== -1) {
+                  // If object already exists, update its status
+                  passenger.ticketStatus[existingTicketStatusIndex].status = "CANCELLED";
+              } else {
+                  // If object does not exist, push a new object into the array
+                  passenger.ticketStatus.push({
+                      Src: SRC,
+                      Des: DES,
+                      status: "CANCELLED",
+                  });
+              }                   
+          } 
+          await passengerPreference.save(); 
+
         const cancelationBookingInstance = new CancelationBooking({
           calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status,
           AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode,

@@ -139,12 +139,12 @@ async function handleflight(
       response: "Booking Id does not exist",
     };
   }  
-  if (!TraceId) {
-    return {
-      IsSucess: false,
-      response: "Trace Id Required",
-    };
-  }
+  // if (!TraceId) {
+  //   return {
+  //     IsSucess: false,
+  //     response: "Trace Id Required",
+  //   };
+  // }
 
   
   const responsesApi = await Promise.all(
@@ -236,7 +236,7 @@ const KafilaFun = async (
             CANCEL_TYPE: "PARTIAL_CANCELLATION",
             REASON: Reason,
             SECTORS:Sector,
-            TRACE_ID:Authentication.TraceId
+            TRACE_ID:""
         },
         AID: supplier.supplierWsapSesssion,
         MODULE: "B2B",

@@ -38,8 +38,8 @@ const payu = async (req, res) => {
         const firstnameres = firstName;
         const emailres = email;
         const phoneres = phone;
-        const surl = "https://kafilaui.traversia.net/home/flight/paymentSuccess";
-        const furl = "https://kafilaui.traversia.net/home/flight/paymentFailed";        
+        const surl = "https://kafila.traversia.net/api/paymentGateway/paymentSuccess";
+        const furl = "https://kafila.traversia.net/api/paymentGateway/paymentFailed";        
         const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';      
         
 

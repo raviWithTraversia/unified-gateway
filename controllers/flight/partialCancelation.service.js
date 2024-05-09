@@ -2,7 +2,7 @@ const flightcommercial = require("./flight.commercial");
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
 const Users = require("../../models/User");
-const bookingDetails = require("../../models/BookingDetails");
+const bookingDetails = require("../../models/booking/BookingDetails");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const agentConfig = require("../../models/AgentConfig");
@@ -375,7 +375,7 @@ const KafilaFun = async (
           });
           
           const passengerPreference = await passengerPreferenceModel.findOne({
-            bookingId: BookingIdDetails._id,
+            bookingId: BookingIdDetails.bookingId,
           }); 
             for (const flight of Sector) {
               const { PAX,SRC,DES } = flight;  

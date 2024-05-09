@@ -156,6 +156,11 @@ async function handleflight(
       IsSucess: false,
       response: "Booking Id does not exist",
     };
+  }else{
+    return {
+      IsSucess: true,
+      response: BookingIdDetails,
+    };
   }  
   if (!TraceId) {
     return {
@@ -213,8 +218,7 @@ const KafilaFun = async (
   Reason,  
   agencyUserId,
   BookingIdDetails  
-) => {
-
+) => { 
 let createTokenUrl;
   let flightCancelUrl;
 
@@ -393,11 +397,11 @@ let createTokenUrl;
       }
     }else if(fCancelApiResponse?.data?.R_DATA?.Error?.Status === null && fCancelApiResponse?.data?.R_DATA?.Charges?.IsCanceled === true) {
       
-      try {
+      try {        
         const getAgentConfig = await agentConfig.findOne({
           userId: agencyUserId,
         });
-      
+        
         const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;        
               const newBalance = maxCreditLimit - fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
               await agentConfig.updateOne(
@@ -418,24 +422,15 @@ let createTokenUrl;
           runningAmount: newBalance,
           remarks: "Calcelation Amount Added Into Your Account.",
           transactionBy: Authentication?.UserId          
-        });        
+        });      
        
-        const BookingIdDetailsUpdate = await bookingDetails.updateMany(
-          { providerBookingId: BookingId },
-          {
-              $set: {
-                  bookingStatus: "CANCELLED",
-                  bookingRemarks: "Cancelled Your Booking Successfully"
-              }
-          }
-      );
-      console.log(BookingIdDetailsUpdate, BookingId);
       
+       
       const passengerPreference = await passengerPreferenceModel.findOne({
-        providerBookingId: BookingIdDetails?.providerBookingId,
+        bookingId: BookingIdDetails.bookingId,
       }); 
         
-            
+      
           for (const passenger of passengerPreference?.Passengers) { 
             if (!passenger?.ticketStatus) {           
                 passenger.ticketStatus = [];
@@ -456,7 +451,7 @@ let createTokenUrl;
               }                   
           } 
           await passengerPreference.save(); 
-
+          
         const cancelationBookingInstance = new CancelationBooking({
           calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status  || null,
           AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode  || null,
@@ -473,6 +468,16 @@ let createTokenUrl;
           modifyAt: new Date(),
         });
         await cancelationBookingInstance.save();
+        
+        const BookingIdDetailsUpdate = await bookingDetails.findOneAndUpdate(
+          { providerBookingId: BookingId  },
+          { $set: { bookingStatus: "CANCELLED" } },
+          { new: true } // To return the updated document
+      );       
+      
+      //console.log(BookingIdDetailsUpdate)
+      
+
         return fCancelApiResponse?.data;
       } catch (error) {
         throw new Error({error:"Error saving cancellation data (Success)" , responce: fCancelApiResponse?.data});

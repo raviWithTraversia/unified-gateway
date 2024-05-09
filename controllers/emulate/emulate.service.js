@@ -37,7 +37,8 @@ const searchForUserEmulate = async (req, res) => {
                 userStatus:"Active",
                 $or: [
                     { fname: new RegExp(search, 'i') },
-                    { lastName: new RegExp(search, 'i') }
+                    { lastName: new RegExp(search, 'i') },
+                    { userId: new RegExp(search, 'i') }
                 ]
             });
              

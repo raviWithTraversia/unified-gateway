@@ -251,7 +251,9 @@ const getAllBooking = async (req, res) => {
         populate: {
             path: 'company_ID'
         }
-    });  
+    });
+    console.log(bookingDetails);
+      
     if (!bookingDetails || bookingDetails.length === 0) {
         return {
             response: "Data Not Found",

@@ -104,10 +104,12 @@ const bookingDetailsSchema = new mongoose.Schema(
     travelType: {
       type: String,
       enum: ["Domestic", "International"],
+      default: "Domestic",
     },
     booking_Type: {
       type: String,
       enum: ["Automated", "Manual"],
+      default: "Automated",
     },
     bookingCancelDate: {
       type: Date,

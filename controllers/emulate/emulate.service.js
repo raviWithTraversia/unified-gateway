@@ -11,7 +11,7 @@ const searchForUserEmulate = async (req, res) => {
         const getUserId = await UserModule.findOne({_id : userId , roleId: { $exists: true, $ne: null }});
         
         const getRole = await RoleModel.findOne({_id : getUserId.roleId});
-
+       
         //if(getRole.name == 'TMC' || getRole.name == 'Distributer' || getRole.name == 'Supplier') {
             const getCompaniesDetails = await CompanyModel.find({
                 parent: getUserId.company_ID,
@@ -23,11 +23,11 @@ const searchForUserEmulate = async (req, res) => {
             let companiesList = [];
             for (let i = 0; i < getCompaniesDetails.length; i++) {
                 const companyDetails = getCompaniesDetails[i];
-                const populatedCompanyDetails = await UserModule.findOne({ company_ID: companyDetails._id, userStatus:"Active" });
-
+                const populatedCompanyDetails = await UserModule.findOne({ company_ID: companyDetails?._id, userStatus:"Active" });
+                
                 // Check if populatedCompanyDetails exists before trying to access _id
                 if (populatedCompanyDetails) {
-                    companiesList.push({_id:populatedCompanyDetails._id,name:companyDetails.companyName, userId:populatedCompanyDetails.userId});                   
+                    companiesList.push({_id:populatedCompanyDetails?._id,name:companyDetails?.companyName, userId:populatedCompanyDetails?.userId});                   
                 }
                                 
             }
@@ -40,12 +40,12 @@ const searchForUserEmulate = async (req, res) => {
                     { lastName: new RegExp(search, 'i') }
                 ]
             });
-            // console.log("ffffffff")
+             
             for (let i = 0; i < getUserDetails.length; i++) {
                 const userDetails = getUserDetails[i];
-                    companiesList.push({_id:userDetails._id,name:userDetails.fname+' '+userDetails.lastName, userId:populatedCompanyDetails.userId});                   
+                    companiesList.push({_id:userDetails?._id,name:userDetails?.fname+' '+userDetails?.lastName, userId:userDetails?.userId});                   
             }  
-                
+            //console.log(companiesList)   
             
             //const getUserDetails = await UserModule.findOne({ company_ID : getUserId.company_ID });
             

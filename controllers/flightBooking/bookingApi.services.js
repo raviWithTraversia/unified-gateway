@@ -137,7 +137,7 @@ const getAllBooking = async (req, res) => {
         };
     }
 }else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer" ){
-    let filter = { companyId: checkUserIdExist.company_ID };
+    let filter = { companyId: checkUserIdExist.company_ID._id };
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.userId = { _id: agencyId };
     }

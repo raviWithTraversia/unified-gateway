@@ -54,8 +54,7 @@ const fullCancelation = async (req, res) => {
     return {
       response: "Company or User id field are required",
     };
-  }
-
+  }  
   // Check if company Id exists
   const checkCompanyIdExist = await Company.findById(companyId);
   if (!checkCompanyIdExist || checkCompanyIdExist.type !== "TMC") {
@@ -148,11 +147,11 @@ async function handleflight(
     };
   }
 
-  const BookingIdDetails = await bookingDetails.find({
+  const BookingIdDetails = await bookingDetails.findOne({
     providerBookingId: BookingId        
   });
     
-  if (!BookingIdDetails || !BookingIdDetails.length) {
+  if (!BookingIdDetails) {
     return {
       IsSucess: false,
       response: "Booking Id does not exist",
@@ -259,7 +258,7 @@ let createTokenUrl;
             BOOKING_ID: BookingId,
             CANCEL_TYPE: "FULL_CANCELLATION",
             REASON: Reason,
-            TRACE_ID:Authentication.TraceId
+            TRACE_ID:""
         },
         AID: supplier.supplierWsapSesssion,
         MODULE: "B2B",
@@ -279,48 +278,98 @@ let createTokenUrl;
         }
       ); 
         //console.log(fSearchApiResponse.data, "1API Responce")
-      if (fSearchApiResponse.data.Status !==  null) {
-        return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage;       
-      }
+      // if (fSearchApiResponse.data.Status !==  null) {
+      //   return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage;       
+      // }
 
 
-      let requestDataForCancel= {
-        P_TYPE: "API",
-        R_TYPE: "FLIGHT",
-        R_NAME: "CANCEL",
-        R_DATA: {
-            ACTION: "CANCEL_COMMIT",
-            BOOKING_ID: BookingId,
-            CANCEL_TYPE: "FULL_CANCELLATION",
-            REASON: Reason,
-            TRACE_ID:Authentication?.TraceId,
-            Charges:fSearchApiResponse?.data?.Charges,
-            Error:fSearchApiResponse?.data?.Error,
-            Status:fSearchApiResponse?.data?.Status
-        },
-        AID: supplier.supplierWsapSesssion,
-        MODULE: "B2B",
-        IP: "182.73.146.154",
-        TOKEN: getToken,
-        ENV: credentialType,
-        Version: "1.0.0.0.0.0"
-    };  
+    //   let requestDataForCancel= {
+    //     P_TYPE: "API",
+    //     R_TYPE: "FLIGHT",
+    //     R_NAME: "CANCEL",
+    //     R_DATA: {
+    //         ACTION: "CANCEL_COMMIT",
+    //         BOOKING_ID: BookingId,
+    //         CANCEL_TYPE: "FULL_CANCELLATION",
+    //         REASON: Reason,
+    //         TRACE_ID:fSearchApiResponse?.data?.Req?.R_DATA?.TRACE_ID,
+    //         Charges:fSearchApiResponse?.data?.Charges,
+    //         Error:fSearchApiResponse?.data?.Error,
+    //         Status:fSearchApiResponse?.data?.Status
+    //     },
+    //     AID: supplier.supplierWsapSesssion,
+    //     MODULE: "B2B",
+    //     IP: "182.73.146.154",
+    //     TOKEN: getToken,
+    //     ENV: credentialType,
+    //     Version: "1.0.0.0.0.0"
+    // };  
     
     
-    let fCancelApiResponse = await axios.post(
-      flightCancelUrl,
-      requestDataForCancel,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    ); 
+    // let fCancelApiResponse = await axios.post(
+    //   flightCancelUrl,
+    //   requestDataForCancel,
+    //   {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   }
+    // ); 
 
-   
+    let fCancelApiResponse = {"data":{
+      "P_TYPE": "API",
+      "R_TYPE": "FLIGHT",
+      "R_NAME": "CANCEL",
+      "R_DATA": {
+          "ACTION": "CANCEL_COMMIT",
+          "BOOKING_ID": "B2B0805241605PM43373588029",
+          "CANCEL_TYPE": "FULL_CANCELLATION",
+          "REASON": {
+              "ReasonCode": "CTP",
+              "Reason": "Change In Travels Plans",
+              "Scenarios": "Cancellation as per fare rules",
+              "IsVoluntary": true,
+              "Remarks": ""
+          },
+          "TRACE_ID": "CLN0905241002AM4918076d7311e55",
+          "Charges": {
+              "FlightCode": "SG",
+              "Pnr": "JY7TPJ",
+              "SplitedPnr": null,
+              "Fare": 3242,
+              "AirlineCancellationFee": 3043,
+              "AirlineRefund": 199,
+              "ServiceFee": 50,
+              "RefundableAmt": -404,
+              "IsCanceled": true,
+              "IsError": false,
+              "Description": null,
+              "AirlineToken": "PbnlbkQ4HNA=|PrImChttWy6/w98Qc+7O8auykBKVM9MMWsCYu1p0XdpEkKWBIj5Mss/pfuJ4bljkQtUwPrZL33PNd0uaphG+PjwoyOPSNV+76Ox/ARWQzwtnQecG6c2+FiACBa7fmPftRzcjcwoOlg0=",
+              "CancelReason": null
+          },
+          "Error": {
+              "Status": null,
+              "Result": "PROCESSING",
+              "ErrorMessage": null,
+              "ErrorCode": null,
+              "Location": "CALLCENTER",
+              "WarningMessage": "We are working on your Cancellation Commit Request.",
+              "IsError": false,
+              "IsWarning": true
+          },
+          "Status": null
+      },
+      "AID": "675923",
+      "MODULE": "B2B",
+      "IP": "182.73.146.154",
+      "TOKEN": "fd58e3d2b1e517f4ee46063ae176eee1",
+      "ENV": "D",
+      "Version": "1.0.0.0.0.0"
+  }};
+  
 
-
-    if(fCancelApiResponse?.data?.R_DATA?.Error?.Status.toUpperCase() === "PENDING" || fCancelApiResponse?.data?.R_DATA?.Error?.Status.toUpperCase() === "FAILED"){
+    if(fCancelApiResponse?.data?.R_DATA?.Error?.Status != null && (fCancelApiResponse?.data?.R_DATA?.Error?.Status.toUpperCase() === "PENDING" || fCancelApiResponse?.data?.R_DATA?.Error?.Status.toUpperCase() === "FAILED")){
+      
       try {
         const cancelationBookingInstance = new CancelationBooking({
           calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status  || null,
@@ -343,18 +392,18 @@ let createTokenUrl;
         throw new Error({error:"Error saving cancellation data (Pending)" , responce: fCancelApiResponse?.data});
       }
     }else if(fCancelApiResponse?.data?.R_DATA?.Error?.Status === null && fCancelApiResponse?.data?.R_DATA?.Charges?.IsCanceled === true) {
+      
       try {
         const getAgentConfig = await agentConfig.findOne({
           userId: agencyUserId,
         });
       
-        const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
+        const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;        
               const newBalance = maxCreditLimit - fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
               await agentConfig.updateOne(
                 { userId: agencyUserId },
                 { maxcreditLimit: newBalance }
-              );
-        //console.log(getAgentConfig);
+              );        
         const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
 
         // Create ledger entry
@@ -369,10 +418,10 @@ let createTokenUrl;
           runningAmount: newBalance,
           remarks: "Calcelation Amount Added Into Your Account.",
           transactionBy: Authentication?.UserId          
-        });
-             
-        await bookingDetails.updateMany(
-          { bookingId: BookingIdDetails?._id },
+        });        
+       
+        const BookingIdDetailsUpdate = await bookingDetails.updateMany(
+          { providerBookingId: BookingId },
           {
               $set: {
                   bookingStatus: "CANCELLED",
@@ -380,11 +429,10 @@ let createTokenUrl;
               }
           }
       );
-
-
+      console.log(BookingIdDetailsUpdate, BookingId);
       
       const passengerPreference = await passengerPreferenceModel.findOne({
-        bookingId: BookingIdDetails?._id,
+        providerBookingId: BookingIdDetails?.providerBookingId,
       }); 
         
             
@@ -429,7 +477,8 @@ let createTokenUrl;
       } catch (error) {
         throw new Error({error:"Error saving cancellation data (Success)" , responce: fCancelApiResponse?.data});
       }
-    }else{      
+    }else{ 
+        
         try {           
           const cancelationBookingInstance = new CancelationBooking({
             calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status || null,

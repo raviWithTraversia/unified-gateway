@@ -236,7 +236,7 @@ const KafilaFun = async (
             CANCEL_TYPE: "PARTIAL_CANCELLATION",
             REASON: Reason,
             SECTORS:Sector,
-            TRACE_ID:Authentication.TraceId
+            TRACE_ID:""
         },
         AID: supplier.supplierWsapSesssion,
         MODULE: "B2B",

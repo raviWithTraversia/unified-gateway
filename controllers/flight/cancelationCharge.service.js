@@ -233,7 +233,7 @@ const KafilaFun = async (
             BOOKING_ID: BookingId,
             CANCEL_TYPE: "FULL_CANCELLATION",
             REASON: Reason,
-            TRACE_ID:Authentication.TraceId
+            TRACE_ID:""
         },
         AID: supplier.supplierWsapSesssion,
         MODULE: "B2B",

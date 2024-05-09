@@ -46,7 +46,7 @@ const getAllBooking = async (req, res) => {
   }
 
   // Check if company Id exists
-  const checkUserIdExist = await User.findById(userId).populate('roleId');
+  const checkUserIdExist = await User.findById(userId).populate('roleId').populate("company_ID");
   if (!checkUserIdExist) {
     return {
       response: "User id does not exist",
@@ -214,7 +214,7 @@ const getAllBooking = async (req, res) => {
             data: {bookingList:filteredBookingData.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)), statusCounts: statusCounts}
         };
     }
-}else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" ){
+}else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" || checkUserIdExist?.company_ID?.type === "TMC" ){
  
   let filter = {};
     if (agencyId !== undefined && agencyId.trim() !== "") {

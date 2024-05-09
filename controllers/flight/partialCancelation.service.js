@@ -264,7 +264,7 @@ const KafilaFun = async (
             CANCEL_TYPE: "PARTIAL_CANCELLATION",
             REASON: Reason,
             SECTORS:Sector,
-            TRACE_ID:Authentication.TraceId
+            TRACE_ID:""
         },
         AID: supplier.supplierWsapSesssion,
         MODULE: "B2B",
@@ -285,8 +285,7 @@ const KafilaFun = async (
       ); 
         //console.log(fSearchApiResponse.data, "1API Responce")
       if (fSearchApiResponse.data.Status !==  null) {
-        return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage
-       
+        return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage       
       }
 
 
@@ -300,7 +299,7 @@ const KafilaFun = async (
             CANCEL_TYPE: "PARTIAL_CANCELLATION",
             REASON: Reason,
             SECTORS:Sector,
-            TRACE_ID:Authentication?.TraceId,
+            TRACE_ID:fSearchApiResponse?.data?.Req.R_DATA.TRACE_ID,
             Charges:fSearchApiResponse?.data?.Charges,
             Error:fSearchApiResponse?.data?.Error,
             Status:fSearchApiResponse?.data?.Status
@@ -324,7 +323,7 @@ const KafilaFun = async (
       }
     ); 
 
-    if(fCancelApiResponse?.data?.R_DATA?.Error?.Status.toUpperCase() === "PENDING" || fCancelApiResponse?.data?.R_DATA?.Error?.Status.toUpperCase() === "FAILED"){
+    if(fCancelApiResponse?.data?.R_DATA?.Error?.Status != null && (fCancelApiResponse?.data?.R_DATA?.Error?.Status.toUpperCase() === "PENDING" || fCancelApiResponse?.data?.R_DATA?.Error?.Status.toUpperCase() === "FAILED")){
         try {
           const cancelationBookingInstance = new CancelationBooking({
             calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status || null,

@@ -156,12 +156,7 @@ async function handleflight(
       IsSucess: false,
       response: "Booking Id does not exist",
     };
-  }else{
-    return {
-      IsSucess: true,
-      response: BookingIdDetails,
-    };
-  }  
+  }
   if (!TraceId) {
     return {
       IsSucess: false,
@@ -424,7 +419,13 @@ let createTokenUrl;
           transactionBy: Authentication?.UserId          
         });      
        
+        const BookingIdDetailsUpdate = await bookingDetails.findOneAndUpdate(
+          { _id: BookingIdDetails._id  },
+          { $set: { bookingStatus: "CANCELLED" } },
+          { new: true } // To return the updated document
+      );       
       
+      console.log(BookingIdDetailsUpdate);
        
       const passengerPreference = await passengerPreferenceModel.findOne({
         bookingId: BookingIdDetails.bookingId,
@@ -469,13 +470,7 @@ let createTokenUrl;
         });
         await cancelationBookingInstance.save();
         
-        const BookingIdDetailsUpdate = await bookingDetails.findOneAndUpdate(
-          { providerBookingId: BookingId  },
-          { $set: { bookingStatus: "CANCELLED" } },
-          { new: true } // To return the updated document
-      );       
-      
-      //console.log(BookingIdDetailsUpdate)
+       
       
 
         return fCancelApiResponse?.data;

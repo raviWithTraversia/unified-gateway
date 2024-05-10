@@ -147,6 +147,16 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    fareRules:{
+      origin: { type: String, default: null },
+      destination: { type: String, default: null },
+      desceription: { type: String, default: null },
+      CBHA: { type: Number, default: 0 },
+      CWBHA: { type: Number, default: 0 },
+      RBHA: { type: Number, default: 0 },
+      RWBHA: { type: Number, default: 0 },
+      SF: { type: Number, default: 0 },
+    },
     bookingGST: {
       GSTNumber: { type: String, default: null },
       GSTEmail: { type: String, default: null },

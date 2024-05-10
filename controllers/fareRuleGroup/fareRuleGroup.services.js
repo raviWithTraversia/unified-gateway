@@ -192,14 +192,15 @@ const getAssignCommercial = async (companyId, requestPayload) => {
         } = requestPayload;
         
         const filteredFareRuleIds = fareRuleGroupVar.fareRuleIds.filter(rule => {
+          
           return (
             (rule.status === true) &&
             (!origin || rule.origin === origin || rule.origin === "") &&
              (!destination || rule.destination === destination || rule.destination === "") &&
              (!provider || (rule.providerId && rule.providerId.supplierCode === provider) || rule.providerId === "" || rule.providerId === null || provider === "") &&
              (!airlineCode || (rule.airlineCodeId && rule.airlineCodeId.airlineCode === airlineCode) || rule.airlineCodeId === "" || rule.airlineCodeId === null || airlineCode === "") &&
-             (!fareFamily || rule.fareFamilyId === fareFamily || rule.fareFamilyId === "" || fareFamily === "") &&
-             (!cabinclass || rule.cabinclassId === cabinclass || rule.cabinclassId === "" || cabinclass === "") &&
+             (!fareFamily || rule.fareFamilyId?.fareFamilyCode === fareFamily || rule.fareFamilyId === "" || fareFamily === "") &&
+             (!cabinclass || rule.cabinclassId?.cabinClassCode === cabinclass || rule.cabinclassId === "" || cabinclass === "") &&
              (!travelType || rule.travelType === travelType || rule.travelType === "" || travelType === "") &&
              (!validDateFrom || new Date(rule.validDateFrom) >= new Date(validDateFrom) || !rule.validDateFrom || validDateFrom === "") &&
              (!validDateTo || new Date(rule.validDateTo) <= new Date(validDateTo) || !rule.validDateTo || validDateTo === "") &&
@@ -244,14 +245,16 @@ const getAssignCommercial = async (companyId, requestPayload) => {
       } = requestPayload;
       
       const filteredFareRuleIds = fareRuleGroupVar.fareRuleIds.filter(rule => {
+        console.log(rule.rbd);
+          console.log(cabinclass);
         return (
           (rule.status === true) &&
           (!origin || rule.origin === origin || rule.origin === "") &&
            (!destination || rule.destination === destination || rule.destination === "") &&
            (!provider || (rule.providerId && rule.providerId.supplierCode === provider) || rule.providerId === "" || rule.providerId === null || provider === "") &&
            (!airlineCode || (rule.airlineCodeId && rule.airlineCodeId.airlineCode === airlineCode) || rule.airlineCodeId === "" || rule.airlineCodeId === null || airlineCode === "") &&
-           (!fareFamily || rule.fareFamilyId === fareFamily || rule.fareFamilyId === "" || fareFamily === "") &&
-           (!cabinclass || rule.cabinclassId === cabinclass || rule.cabinclassId === "" || cabinclass === "") &&
+           (!fareFamily || rule.fareFamilyId?.fareFamilyCode === fareFamily || rule.fareFamilyId === "" || fareFamily === "") &&
+           (!cabinclass || rule.cabinclassId?.cabinClassCode === cabinclass || rule.cabinclassId === "" || cabinclass === "") &&
            (!travelType || rule.travelType === travelType || rule.travelType === "" || travelType === "") &&
            (!validDateFrom || new Date(rule.validDateFrom) >= new Date(validDateFrom) || !rule.validDateFrom || validDateFrom === "") &&
            (!validDateTo || new Date(rule.validDateTo) <= new Date(validDateTo) || !rule.validDateTo || validDateTo === "") &&

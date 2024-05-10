@@ -259,7 +259,7 @@ const getAssignCommercial = async (companyId, requestPayload) => {
           RWBHA: rule?.RWBHA ?? "",
           SF: rule?.SF ?? "",
         }));
-        return descriptions[0];
+        return descriptions[0] ?? null;
       }
     } else {
       return "Fare Group Not Available";
@@ -351,7 +351,7 @@ const getAssignCommercial = async (companyId, requestPayload) => {
         RWBHA: rule?.RWBHA ?? "",
         SF: rule?.SF ?? "",
       }));
-      return descriptions[0];
+      return descriptions[0] ?? null;
     }
   }
 };

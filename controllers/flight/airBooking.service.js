@@ -804,7 +804,7 @@ const KafilaFun = async (
               bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
               Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
               travelType: TravelType,
-              fareRules:fareRules,
+              fareRules:fareRules !== undefined && fareRules !== null ? fareRules : null,
               bookingTotalAmount:
                 itineraryItem.offeredPrice +
                 itineraryItem.totalMealPrice +

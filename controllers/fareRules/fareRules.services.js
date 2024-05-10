@@ -19,6 +19,11 @@ const addfareRule = async (req, res) => {
       desceription,
       rbd,
       fareBasis,
+      CBHA,
+      CWBHA,
+      RBHA,
+      RWBHA,
+      SF
     } = req.body;
     let addRules = new fareRulesModel({
       companyId,
@@ -35,6 +40,11 @@ const addfareRule = async (req, res) => {
       desceription,
       fareBasis,
       rbd,
+      CBHA,
+      CWBHA,
+      RBHA,
+      RWBHA,
+      SF,
       modifyAt: new Date(),
       modifyBy: req.user._id,
     });

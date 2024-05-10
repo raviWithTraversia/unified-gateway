@@ -676,7 +676,7 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
-    if (response.data.Status === "success") {      
+    if (response.data.Status === "success") {
       const createBooking = async (newItem) => {
         try {
           let bookingDetailsCreate = await BookingDetails.create(newItem);
@@ -804,6 +804,7 @@ const KafilaFun = async (
               bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
               Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
               travelType: TravelType,
+              fareRules:fareRules,
               bookingTotalAmount:
                 itineraryItem.offeredPrice +
                 itineraryItem.totalMealPrice +
@@ -1077,7 +1078,6 @@ const KafilaFun = async (
                     { bookingId: item?.BookingId },
                     { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" }
                   );
-                  
                 }
                 //return fSearchApiResponse.data;
                 const barcodeupdate = await updateBarcode2DByBookingId(
@@ -1086,12 +1086,11 @@ const KafilaFun = async (
                   item,
                   fSearchApiResponse.data.BookingInfo.APnr
                 );
-                if(barcodeupdate){
+                if (barcodeupdate) {
                   return bookingResponce;
-                }else{
+                } else {
                   return bookingResponce;
                 }
-                
               } catch (error) {
                 await BookingDetails.updateOne(
                   {
@@ -1188,10 +1187,9 @@ async function updateBarcode2DByBookingId(
       return; // Exit function if document not found
     }
 
-    for (let passenger of passengerPreference.Passengers) {      
+    for (let passenger of passengerPreference.Passengers) {
       try {
-        
-        let reqPassengerData =   {
+        let reqPassengerData = {
           Company: item?.Provider,
           TripType: "O",
           PNR: pnr,
@@ -1212,7 +1210,7 @@ async function updateBarcode2DByBookingId(
             },
           ],
         };
-        
+
         const response = await axios.post(
           generateBarcodeUrl,
           reqPassengerData,
@@ -1222,15 +1220,15 @@ async function updateBarcode2DByBookingId(
             },
           }
         );
-        
+
         const newToken = response.data;
-        if (!passenger.barCode2D) {           
-            passenger.barCode2D = [];
+        if (!passenger.barCode2D) {
+          passenger.barCode2D = [];
         }
         // break;
         //passengerPreference.Passengers.forEach(p => {
         //if (p.FName === passenger.FName && p.LName === passenger.LName) {
-          passenger.barCode2D.push({
+        passenger.barCode2D.push({
           FCode: item?.Sectors[0]?.AirlineCode,
           FNo: item?.Sectors[0]?.FltNum,
           Src: item?.Sectors[0]?.Departure?.Code,
@@ -1239,9 +1237,9 @@ async function updateBarcode2DByBookingId(
         });
         //}
         //});
-        
+
         //console.log("mytoken", passenger);
-       // console.log("Barcode2D updated successfully for passenger:", passenger);
+        // console.log("Barcode2D updated successfully for passenger:", passenger);
       } catch (error) {
         // console.error(
         //   "Error updating Barcode2D for passenger:",

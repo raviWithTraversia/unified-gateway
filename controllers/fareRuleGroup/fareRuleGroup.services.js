@@ -11,16 +11,23 @@ const addFareRuleGroup = async (req, res) => {
       fareRuleGroupName,
       fareRuleGroupDescription,
       companyId,
-      isDefault
+      isDefault,
     } = req.body;
-    let fareRuleGroupNameExist = await fareRuleGroupModels.findOne({companyId,fareRuleGroupName});
-    if(fareRuleGroupNameExist){
+    let fareRuleGroupNameExist = await fareRuleGroupModels.findOne({
+      companyId,
+      fareRuleGroupName,
+    });
+    if (fareRuleGroupNameExist) {
       return {
-        response :'Fare rule group with the same name already exists for this company'
-      }
-    };
-    if(isDefault === true){
-      let checkIsAnydefaultTrue = await fareRuleGroupModels.updateMany({companyId} ,{isDefault : false});
+        response:
+          "Fare rule group with the same name already exists for this company",
+      };
+    }
+    if (isDefault === true) {
+      let checkIsAnydefaultTrue = await fareRuleGroupModels.updateMany(
+        { companyId },
+        { isDefault: false }
+      );
     }
     const newFareRuleGroup = new fareRuleGroupModels({
       fareRuleIds,
@@ -29,7 +36,7 @@ const addFareRuleGroup = async (req, res) => {
       companyId,
       modifyAt: new Date(),
       modifyBy: req.user._id,
-      isDefault
+      isDefault,
     });
     const saveFareRuleGroup = await newFareRuleGroup.save();
     if (saveFareRuleGroup) {
@@ -52,11 +59,14 @@ const editFareRuleGroup = async (req, res) => {
   try {
     let { id } = req.query;
     let updateData = {
-      ...req.body
+      ...req.body,
     };
 
-    if(updateData?.isDefault === true){
-      let checkIsAnydefaultTrue = await fareRuleGroupModels.updateMany({companyId: updateData.companyId} ,{isDefault : false});
+    if (updateData?.isDefault === true) {
+      let checkIsAnydefaultTrue = await fareRuleGroupModels.updateMany(
+        { companyId: updateData.companyId },
+        { isDefault: false }
+      );
     }
     let updateFareRuleData = await fareRuleGroupModels.findByIdAndUpdate(
       id,
@@ -101,9 +111,9 @@ const getCustomFareRule = async (req, res) => {
     validDateFrom,
     validDateTo,
     rbd,
-    fareBasis        
+    fareBasis,
   } = req.body;
-  const fieldNames = [    
+  const fieldNames = [
     "UserId",
     "origin",
     "destination",
@@ -115,7 +125,7 @@ const getCustomFareRule = async (req, res) => {
     "validDateFrom",
     "validDateTo",
     "rbd",
-    "fareBasis"    
+    "fareBasis",
   ];
   const missingFields = fieldNames.filter(
     (field) => field === null || field === undefined
@@ -127,10 +137,9 @@ const getCustomFareRule = async (req, res) => {
       isSometingMissing: true,
       data: `Missing or null fields: ${missingFieldsString}`,
     };
-  }  
+  }
 
-
-  const userDetails = await UserModule.findOne({ _id:UserId });
+  const userDetails = await UserModule.findOne({ _id: UserId });
   if (!userDetails) {
     return {
       IsSuccess: false,
@@ -141,39 +150,41 @@ const getCustomFareRule = async (req, res) => {
     _id: userDetails.company_ID,
   }).populate("parent", "type");
 
-  // Check if company Id exists 
+  // Check if company Id exists
   if (!companyDetails) {
     return {
       response: "TMC Compnay id does not exist",
     };
   }
-    const assignFareRuleGroup = await getAssignCommercial(companyDetails._id, req.body);  
-    
-  
+  const assignFareRuleGroup = await getAssignCommercial(
+    companyDetails._id,
+    req.body
+  );
+
   return {
     response: "Fetch Data Successfully",
     data: assignFareRuleGroup,
-  }; 
-
+  };
 };
 const getAssignCommercial = async (companyId, requestPayload) => {
   let getAgentConfig = await agentConfig.findOne({ companyId: companyId });
-  
+
   if (!getAgentConfig || getAgentConfig.fareRuleGroupIds === null) {
     getAgentConfig = await agencyGroup.findById(getAgentConfig.agencyGroupId);
-    
+
     if (getAgentConfig) {
-      const fareRuleGroupVar = await fareRuleGroupModels.findOne({ _id: getAgentConfig.fareRuleGroupId })
+      const fareRuleGroupVar = await fareRuleGroupModels
+        .findOne({ _id: getAgentConfig.fareRuleGroupId })
         .populate({
-          path: 'fareRuleIds',
+          path: "fareRuleIds",
           populate: [
-            { path: 'providerId' },
-            { path: 'airlineCodeId' },
-            { path: 'fareFamilyId' },
-            { path: 'cabinclassId' }
-          ]
+            { path: "providerId" },
+            { path: "airlineCodeId" },
+            { path: "fareFamilyId" },
+            { path: "cabinclassId" },
+          ],
         });
-      
+
       if (!fareRuleGroupVar) {
         return "Fare Group Not Available";
       } else {
@@ -188,43 +199,82 @@ const getAssignCommercial = async (companyId, requestPayload) => {
           validDateFrom,
           validDateTo,
           rbd,
-          fareBasis
+          fareBasis,
         } = requestPayload;
-        
-        const filteredFareRuleIds = fareRuleGroupVar.fareRuleIds.filter(rule => {
-          
-          return (
-            (rule.status === true) &&
-            (!origin || rule.origin === origin || rule.origin === "") &&
-             (!destination || rule.destination === destination || rule.destination === "") &&
-             (!provider || (rule.providerId && rule.providerId.supplierCode === provider) || rule.providerId === "" || rule.providerId === null || provider === "") &&
-             (!airlineCode || (rule.airlineCodeId && rule.airlineCodeId.airlineCode === airlineCode) || rule.airlineCodeId === "" || rule.airlineCodeId === null || airlineCode === "") &&
-             (!fareFamily || rule.fareFamilyId?.fareFamilyCode === fareFamily || rule.fareFamilyId === "" || fareFamily === "") &&
-             (!cabinclass || rule.cabinclassId?.cabinClassCode === cabinclass || rule.cabinclassId === "" || cabinclass === "") &&
-             (!travelType || rule.travelType === travelType || rule.travelType === "" || travelType === "") &&
-             (!validDateFrom || new Date(rule.validDateFrom) >= new Date(validDateFrom) || !rule.validDateFrom || validDateFrom === "") &&
-             (!validDateTo || new Date(rule.validDateTo) <= new Date(validDateTo) || !rule.validDateTo || validDateTo === "") &&
-             (!rbd || rule.rbd === rbd || rule.rbd === "" || rbd === "") &&
-             (!fareBasis || rule.fareBasis === fareBasis || rule.fareBasis === "" || fareBasis === "")
-          );
-        });
-        
-        const descriptions = filteredFareRuleIds.map(rule => rule.desceription);
-        return descriptions;
+
+        const filteredFareRuleIds = fareRuleGroupVar.fareRuleIds.filter(
+          (rule) => {
+            return (
+              rule.status === true &&
+              (!origin || rule.origin === origin || rule.origin === "") &&
+              (!destination ||
+                rule.destination === destination ||
+                rule.destination === "") &&
+              (!provider ||
+                (rule.providerId &&
+                  rule.providerId.supplierCode === provider) ||
+                rule.providerId === "" ||
+                rule.providerId === null ||
+                provider === "") &&
+              (!airlineCode ||
+                (rule.airlineCodeId &&
+                  rule.airlineCodeId.airlineCode === airlineCode) ||
+                rule.airlineCodeId === "" ||
+                rule.airlineCodeId === null ||
+                airlineCode === "") &&
+              (!fareFamily ||
+                rule.fareFamilyId?.fareFamilyCode === fareFamily ||
+                rule.fareFamilyId === "" ||
+                fareFamily === "") &&
+              (!cabinclass ||
+                rule.cabinclassId?.cabinClassCode === cabinclass ||
+                rule.cabinclassId === "" ||
+                cabinclass === "") &&
+              (!travelType ||
+                rule.travelType === travelType ||
+                rule.travelType === "" ||
+                travelType === "") &&
+              (!validDateFrom ||
+                new Date(rule.validDateFrom) >= new Date(validDateFrom) ||
+                !rule.validDateFrom ||
+                validDateFrom === "") &&
+              (!validDateTo ||
+                new Date(rule.validDateTo) <= new Date(validDateTo) ||
+                !rule.validDateTo ||
+                validDateTo === "") &&
+              (!rbd || rule.rbd === rbd || rule.rbd === "" || rbd === "") &&
+              (!fareBasis ||
+                rule.fareBasis === fareBasis ||
+                rule.fareBasis === "" ||
+                fareBasis === "")
+            );
+          }
+        );
+
+        const descriptions = filteredFareRuleIds.map((rule) => ({
+          DESC: rule?.desceription ?? "",
+          CBHA: rule?.CBHA ?? "",
+          CWBHA: rule?.CWBHA ?? "",
+          RBHA: rule?.RBHA ?? "",
+          RWBHA: rule?.RWBHA ?? "",
+          SF: rule?.SF ?? "",
+        }));
+        return descriptions[0];
       }
     } else {
       return "Fare Group Not Available";
     }
   } else {
-    const fareRuleGroupVar = await fareRuleGroupModels.findOne({ _id: getAgentConfig.fareRuleGroupIds })
+    const fareRuleGroupVar = await fareRuleGroupModels
+      .findOne({ _id: getAgentConfig.fareRuleGroupIds })
       .populate({
-        path: 'fareRuleIds',
+        path: "fareRuleIds",
         populate: [
-          { path: 'providerId' },
-          { path: 'airlineCodeId' },
-          { path: 'fareFamilyId' },
-          { path: 'cabinclassId' }
-        ]
+          { path: "providerId" },
+          { path: "airlineCodeId" },
+          { path: "fareFamilyId" },
+          { path: "cabinclassId" },
+        ],
       });
 
     if (!fareRuleGroupVar) {
@@ -241,34 +291,70 @@ const getAssignCommercial = async (companyId, requestPayload) => {
         validDateFrom,
         validDateTo,
         rbd,
-        fareBasis
+        fareBasis,
       } = requestPayload;
-      
-      const filteredFareRuleIds = fareRuleGroupVar.fareRuleIds.filter(rule => {
-        console.log(rule.rbd);
+
+      const filteredFareRuleIds = fareRuleGroupVar.fareRuleIds.filter(
+        (rule) => {
+          console.log(rule.rbd);
           console.log(cabinclass);
-        return (
-          (rule.status === true) &&
-          (!origin || rule.origin === origin || rule.origin === "") &&
-           (!destination || rule.destination === destination || rule.destination === "") &&
-           (!provider || (rule.providerId && rule.providerId.supplierCode === provider) || rule.providerId === "" || rule.providerId === null || provider === "") &&
-           (!airlineCode || (rule.airlineCodeId && rule.airlineCodeId.airlineCode === airlineCode) || rule.airlineCodeId === "" || rule.airlineCodeId === null || airlineCode === "") &&
-           (!fareFamily || rule.fareFamilyId?.fareFamilyCode === fareFamily || rule.fareFamilyId === "" || fareFamily === "") &&
-           (!cabinclass || rule.cabinclassId?.cabinClassCode === cabinclass || rule.cabinclassId === "" || cabinclass === "") &&
-           (!travelType || rule.travelType === travelType || rule.travelType === "" || travelType === "") &&
-           (!validDateFrom || new Date(rule.validDateFrom) >= new Date(validDateFrom) || !rule.validDateFrom || validDateFrom === "") &&
-           (!validDateTo || new Date(rule.validDateTo) <= new Date(validDateTo) || !rule.validDateTo || validDateTo === "") &&
-           (!rbd || rule.rbd === rbd || rule.rbd === "" || rbd === "") &&
-           (!fareBasis || rule.fareBasis === fareBasis || rule.fareBasis === "" || fareBasis === "")
-        );
-      });
-      
-      const descriptions = filteredFareRuleIds.map(rule => rule.desceription);
-      return descriptions;
+          return (
+            rule.status === true &&
+            (!origin || rule.origin === origin || rule.origin === "") &&
+            (!destination ||
+              rule.destination === destination ||
+              rule.destination === "") &&
+            (!provider ||
+              (rule.providerId && rule.providerId.supplierCode === provider) ||
+              rule.providerId === "" ||
+              rule.providerId === null ||
+              provider === "") &&
+            (!airlineCode ||
+              (rule.airlineCodeId &&
+                rule.airlineCodeId.airlineCode === airlineCode) ||
+              rule.airlineCodeId === "" ||
+              rule.airlineCodeId === null ||
+              airlineCode === "") &&
+            (!fareFamily ||
+              rule.fareFamilyId?.fareFamilyCode === fareFamily ||
+              rule.fareFamilyId === "" ||
+              fareFamily === "") &&
+            (!cabinclass ||
+              rule.cabinclassId?.cabinClassCode === cabinclass ||
+              rule.cabinclassId === "" ||
+              cabinclass === "") &&
+            (!travelType ||
+              rule.travelType === travelType ||
+              rule.travelType === "" ||
+              travelType === "") &&
+            (!validDateFrom ||
+              new Date(rule.validDateFrom) >= new Date(validDateFrom) ||
+              !rule.validDateFrom ||
+              validDateFrom === "") &&
+            (!validDateTo ||
+              new Date(rule.validDateTo) <= new Date(validDateTo) ||
+              !rule.validDateTo ||
+              validDateTo === "") &&
+            (!rbd || rule.rbd === rbd || rule.rbd === "" || rbd === "") &&
+            (!fareBasis ||
+              rule.fareBasis === fareBasis ||
+              rule.fareBasis === "" ||
+              fareBasis === "")
+          );
+        }
+      );      
+      const descriptions = filteredFareRuleIds.map((rule) => ({
+        DESC: rule?.desceription ?? "",
+        CBHA: rule?.CBHA ?? "",
+        CWBHA: rule?.CWBHA ?? "",
+        RBHA: rule?.RBHA ?? "",
+        RWBHA: rule?.RWBHA ?? "",
+        SF: rule?.SF ?? "",
+      }));
+      return descriptions[0];
     }
   }
 };
-
 
 // const getAssignCommercial = async (companyId) => {
 //   //// Get Commertial id , plb, incentive so on...
@@ -281,12 +367,12 @@ const getAssignCommercial = async (companyId, requestPayload) => {
 //   let fareRuleGroupVar = [];
 //   if (!getAgentConfig || getAgentConfig.fareRuleGroupIds === null) {
 //     getAgentConfig = await agencyGroup.findById(getAgentConfig.agencyGroupId);
-    
+
 //     if (getAgentConfig) {
 //       // check from group privillage plan id
 //       fareRuleGroupVar = await fareRuleGroupModels
 //         .findOne({
-//           _id: getAgentConfig.fareRuleGroupId,          
+//           _id: getAgentConfig.fareRuleGroupId,
 //         }).populate({
 //           path: 'fareRuleIds',
 //           populate: [
@@ -298,8 +384,8 @@ const getAssignCommercial = async (companyId, requestPayload) => {
 //         return  "Fare Group Not Available";
 //       }else{
 //         return fareRuleGroupVar;
-//       }      
-     
+//       }
+
 //     } else {
 //       return "Fare Group Not Available";
 //     }
@@ -308,14 +394,14 @@ const getAssignCommercial = async (companyId, requestPayload) => {
 //     //return getAgentConfig
 //     fareRuleGroupVar = await fareRuleGroupModels
 //       .findOne({
-//         _id: getAgentConfig.fareRuleGroupIds        
+//         _id: getAgentConfig.fareRuleGroupIds
 //       }).populate({
 //         path: 'fareRuleIds',
 //         populate: [
 //             { path: 'providerId' },
 //             { path: 'airlineCodeId' },
 //             { path: 'fareFamilyId' },
-//             { path: 'cabinclassId' },            
+//             { path: 'cabinclassId' },
 //         ]
 //     });
 //     if (!fareRuleGroupVar) {
@@ -323,35 +409,37 @@ const getAssignCommercial = async (companyId, requestPayload) => {
 //     }else{
 //       return fareRuleGroupVar;
 //     }
-    
+
 //   }
-  
+
 //  // return { IsSuccess: true, data: combineAllCommercialArr };
 // };
 const getFareRuleGroup = async (req, res) => {
   try {
-    const { ObjectId } = require('mongoose').Types; 
+    const { ObjectId } = require("mongoose").Types;
     let companyId = req.query.companyId;
-    let getFareRule ;
+    let getFareRule;
     try {
       getFareRule = await fareRuleGroupModels.find({ companyId: companyId });
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getFareRule, "<<<<<<<<<<<")
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>", getFareRule, "<<<<<<<<<<<");
 
-      for (let i = 0; i < getFareRule.length; i++) {      
-          let convertedFareRuleIds = getFareRule[i].fareRuleIds.map(id => id.toString());
-          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",convertedFareRuleIds)
-      
-          let documents = await fareRuleModel.find({ _id: { $in: convertedFareRuleIds } })
-              .populate("providerId", "supplierCode")
-              .populate("airlineCodeId", "airlineCode airlineName")
-              .populate("fareFamilyId", "fareFamilyCode fareFamilyName")
-              .populate("cabinclassId", 'cabinClassCode cabinClassName')
-              .exec();      
-          getFareRule[i].fareRuleIds = documents;
+      for (let i = 0; i < getFareRule.length; i++) {
+        let convertedFareRuleIds = getFareRule[i].fareRuleIds.map((id) =>
+          id.toString()
+        );
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", convertedFareRuleIds);
+
+        let documents = await fareRuleModel
+          .find({ _id: { $in: convertedFareRuleIds } })
+          .populate("providerId", "supplierCode")
+          .populate("airlineCodeId", "airlineCode airlineName")
+          .populate("fareFamilyId", "fareFamilyCode fareFamilyName")
+          .populate("cabinclassId", "cabinClassCode cabinClassName")
+          .exec();
+        getFareRule[i].fareRuleIds = documents;
       }
-   
     } catch (err) {
-      retur
+      retur;
       console.error(err);
     }
     if (getFareRule) {
@@ -374,27 +462,25 @@ const deleteFareRuleGroup = async (req, res) => {
   try {
     let id = req.query.id;
     let deleteData = await fareRuleGroupModels.findByIdAndDelete(id);
-    if(deleteData){
-      return{
-        response : 'Data deleted sucessfully'
-      }
-    }else{
-      return{
-        response : 'Farerule Group data not found for this id'
-      }
+    if (deleteData) {
+      return {
+        response: "Data deleted sucessfully",
+      };
+    } else {
+      return {
+        response: "Farerule Group data not found for this id",
+      };
     }
-
   } catch (error) {
     console.log(error);
-    throw error
+    throw error;
   }
 };
-
 
 module.exports = {
   addFareRuleGroup,
   editFareRuleGroup,
   getFareRuleGroup,
   deleteFareRuleGroup,
-  getCustomFareRule
+  getCustomFareRule,
 };

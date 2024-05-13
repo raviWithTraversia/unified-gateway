@@ -152,16 +152,17 @@ async function handleflight(
     };
   }
 
-  const BookingIdDetails = await bookingDetails.find({
-    providerBookingId: BookingId        
+  const BookingIdDetails = await bookingDetails.findOne({
+    providerBookingId: BookingId,
   });
-    
-  if (!BookingIdDetails || !BookingIdDetails.length) {
+
+  if (!BookingIdDetails) {
     return {
       IsSucess: false,
       response: "Booking Id does not exist",
     };
-  }  
+  } 
+
   if (!TraceId) {
     return {
       IsSucess: false,

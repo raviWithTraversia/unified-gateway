@@ -89,11 +89,10 @@ const agentConfigSchema = new mongoose.Schema({
       type: Boolean
     },
     fareTypes: {
-      regular: { type: Boolean },
-      sme: { type: Boolean },
-      corporate: { type: Boolean },
-      agency: { type: Boolean },
-      series: { type: Boolean },
+      type: [{
+        type: String,        
+      }],
+    default: [],
     },
     agencyGroupId: {
       type: mongoose.Schema.Types.ObjectId,

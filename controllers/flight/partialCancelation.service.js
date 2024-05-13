@@ -352,7 +352,37 @@ const KafilaFun = async (
           });
         
           const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
-                const newBalance = maxCreditLimit - fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
+          let newBalance = 0;
+          let pricecheck = 0;
+          if(BookingIdDetails && BookingIdDetails?.fareRules  && BookingIdDetails?.fareRules != null) {
+            if (BookingIdDetails.createdAt) {
+              // Convert createdAt to milliseconds
+              const createdAtTime = new Date(BookingIdDetails.createdAt).getTime();
+              // Current time in milliseconds
+              const currentTime = new Date().getTime();
+              // Difference in milliseconds between current time and createdAt time
+              const timeDifference = currentTime - createdAtTime;
+              // Convert 62 hours to milliseconds
+              const sixtyTwoHoursInMilliseconds = 96 * 60 * 60 * 1000;
+              
+              // Checking if the difference is less than 62 hours
+              if (timeDifference <= sixtyTwoHoursInMilliseconds) {
+                 pricecheck = BookingIdDetails?.fareRules?.CWBHA === 0 ?
+                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CWBHA + BookingIdDetails?.fareRules?.SF) ;
+                 newBalance = maxCreditLimit - pricecheck; 
+              }else{
+                 pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 ?
+                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CBHA +  BookingIdDetails?.fareRules?.SF);
+                newBalance = maxCreditLimit - pricecheck; 
+              }
+            }
+          }else{
+            newBalance =
+            maxCreditLimit -
+            fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
+            pricecheck = fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
+          }
+                
                 await agentConfig.updateOne(
                   { userId: agencyUserId },
                   { maxcreditLimit: newBalance }
@@ -365,7 +395,7 @@ const KafilaFun = async (
             userId: agencyUserId,
             companyId: Authentication?.CompanyId,
             ledgerId: ledgerId,
-            transactionAmount: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt,
+            transactionAmount: pricecheck,
             currencyType: "INR",
             fop: "CREDIT",
             transactionType: "CREDIT",
@@ -420,7 +450,7 @@ const KafilaFun = async (
             AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee || null,
             AirlineRefund: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund || null,
             ServiceFee: fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee || null,
-            RefundableAmt: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt || null,
+            RefundableAmt: pricecheck || null,
             description: fCancelApiResponse?.data?.R_DATA?.Charges?.Description || null,
             modifyBy: Authentication?.UserId || null,
             modifyAt: new Date(),

@@ -409,61 +409,7 @@ const KafilaFun = async (
       (passenger.totalSeatPrice || 0) +
       (passenger.totalBaggagePrice || 0);
   }
-  //return totalssrPrice;
-
-  // function prepareAppliedCommercialArrayList(selectedReprizedItenary) {
-  //   let adultCommercialArrayList = [];
-  //   let childCommercialArrayList = [];
-  //   let infantsCommercialArrayList = [];
-  //   if (selectedReprizedItenary?.PriceBreakup[0]?.PassengerType == "ADT")
-  //     adultCommercialArrayList = selectedReprizedItenary?.PriceBreakup[0]?.CommercialBreakup;
-  //   if (selectedReprizedItenary?.PriceBreakup[1]?.PassengerType == "CHD")
-  //     childCommercialArrayList = selectedReprizedItenary?.PriceBreakup[1]?.CommercialBreakup;
-  //   if (selectedReprizedItenary?.PriceBreakup[2]?.PassengerType == "INF")
-  //     infantsCommercialArrayList = selectedReprizedItenary?.PriceBreakup[2]?.CommercialBreakup;
-  //   //console.log(adultCommercialArrayList)
-  //   adultCommercialArrayList = calculateCommercialBreakupArray(adultCommercialArrayList, childCommercialArrayList);
-  //   adultCommercialArrayList = calculateCommercialBreakupArray(adultCommercialArrayList, infantsCommercialArrayList);
-
-  //   return adultCommercialArrayList;
-  // }
-
-  // const oneWayItinerary = prepareAppliedCommercialArrayList(ItineraryPriceCheckResponses[0]);
-
-  // let returnItinerary = [];
-
-  // if (ItineraryPriceCheckResponses.length >= 1) {
-
-  //   returnItinerary = prepareAppliedCommercialArrayList(ItineraryPriceCheckResponses[1]);
-  // }
-
-  // const allCommercialList = [...oneWayItinerary, ...returnItinerary];
-  // function calculateCommercialBreakupArray(parentArrayList, childArrayList) {
-  //   parentArrayList.forEach((parentElement) => {
-  //     childArrayList.forEach((childElement) => {
-  //       parentElement.Amount = Number(parentElement.Amount);
-  //       if (parentElement?.CommercialType == childElement?.CommercialType)
-  //         parentElement.Amount += Number(childElement?.Amount);
-  //     });
-  //   });
-  //   return parentArrayList;
-  // }
-
-  // function removeDuplicateCommercialTypeButKeepUpperPrice(allResultArrayList) {
-  //   const result = Object.values(
-  //     allResultArrayList.reduce((reduced, objectElement) => {
-  //       if (!reduced[objectElement?.CommercialType] ||
-  //         objectElement?.Amount > reduced[objectElement?.CommercialType]?.Amount)
-  //         reduced[objectElement?.CommercialType] = objectElement;
-
-  //       return reduced;
-  //     }, {})
-  //   );
-  //   return result;
-  // }
-
-  // const uniqueCommercialList = removeDuplicateCommercialTypeButKeepUpperPrice(allCommercialList);
-  // return uniqueCommercialList
+  
   function offerPricePlusInAmount(plusKeyName) {
     let returnBoolean = false;
     switch (plusKeyName) {
@@ -585,77 +531,82 @@ const KafilaFun = async (
   const totalSSRWithCalculationPrice =
     calculationOfferPriceWithCommercial + totalssrPrice;
 
-  try {
-    // Retrieve agent configuration
-    const getAgentConfig = await agentConfig.findOne({
-      userId: getuserDetails._id,
-    });
-    const getcreditRequest = await creditRequest.find({
-      agencyId: getuserDetails.company_ID,
-      expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
-      status: "approved",
-      product: "Flight",
-    });
-    let creditTotal = 0;
-    if (getcreditRequest && getcreditRequest.length > 0) {
-      getcreditRequest.forEach((request) => {
-        creditTotal += request.amount;
+  if(paymentMethodType === "Wallet"){  
+    try {
+
+      // Retrieve agent configuration
+      const getAgentConfig = await agentConfig.findOne({
+        userId: getuserDetails._id,
       });
-    } else {
-      creditTotal = 0;
+      const getcreditRequest = await creditRequest.find({
+        agencyId: getuserDetails.company_ID,
+        expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
+        status: "approved",
+        product: "Flight",
+      });
+      let creditTotal = 0;
+      if (getcreditRequest && getcreditRequest.length > 0) {
+        getcreditRequest.forEach((request) => {
+          creditTotal += request.amount;
+        });
+      } else {
+        creditTotal = 0;
+      }
+      // Check if maxCreditLimit exists, otherwise set it to 0
+      const checkCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
+      const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
+
+      // Check if balance is sufficient
+      if (checkCreditLimit < totalSSRWithCalculationPrice) {
+        return "Your Balance is not sufficient";
+      }
+
+      // Deduct balance from user configuration and update in DB
+      const newBalance = maxCreditLimit - totalSSRWithCalculationPrice;
+      await agentConfig.updateOne(
+        { userId: getuserDetails._id },
+        { maxcreditLimit: newBalance }
+      );
+
+      // Generate random ledger ID
+      const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+
+      // Create ledger entry
+      await ledger.create({
+        userId: getuserDetails._id,
+        companyId: getuserDetails.company_ID._id,
+        ledgerId: ledgerId,
+        transactionAmount: totalSSRWithCalculationPrice,
+        currencyType: "INR",
+        fop: "CREDIT",
+        transactionType: "CREDIT",
+        runningAmount: newBalance,
+        remarks: "Booking Amount Added Into Your Account.",
+        transactionBy: getuserDetails._id,
+        cartId: ItineraryPriceCheckResponses[0].BookingId,
+      });
+
+      // Create transaction Entry
+      await transaction.create({
+        userId: getuserDetails._id,
+        companyId: getuserDetails.company_ID._id,
+        trnsNo: Math.floor(100000 + Math.random() * 900000),
+        trnsType: "DEBIT",
+        paymentMode: "CL",
+        trnsStatus: "success",
+        transactionBy: getuserDetails._id,
+        bookingId: ItineraryPriceCheckResponses[0].BookingId,
+      });
+
+      //return addToLedger;
+    } catch (error) {
+      // Handle errors
+      console.error("Error:", error.message);
+      return "An error occurred. Please try again later.";
     }
-    // Check if maxCreditLimit exists, otherwise set it to 0
-    const checkCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
-    const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
-
-    // Check if balance is sufficient
-    if (checkCreditLimit < totalSSRWithCalculationPrice) {
-      return "Your Balance is not sufficient";
-    }
-
-    // Deduct balance from user configuration and update in DB
-    const newBalance = maxCreditLimit - totalSSRWithCalculationPrice;
-    await agentConfig.updateOne(
-      { userId: getuserDetails._id },
-      { maxcreditLimit: newBalance }
-    );
-
-    // Generate random ledger ID
-    const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-
-    // Create ledger entry
-    await ledger.create({
-      userId: getuserDetails._id,
-      companyId: getuserDetails.company_ID._id,
-      ledgerId: ledgerId,
-      transactionAmount: totalSSRWithCalculationPrice,
-      currencyType: "INR",
-      fop: "CREDIT",
-      transactionType: "CREDIT",
-      runningAmount: newBalance,
-      remarks: "Booking Amount Added Into Your Account.",
-      transactionBy: getuserDetails._id,
-      cartId: ItineraryPriceCheckResponses[0].BookingId,
-    });
-
-    // Create transaction Entry
-    await transaction.create({
-      userId: getuserDetails._id,
-      companyId: getuserDetails.company_ID._id,
-      trnsNo: Math.floor(100000 + Math.random() * 900000),
-      trnsType: "DEBIT",
-      paymentMode: "CL",
-      trnsStatus: "success",
-      transactionBy: getuserDetails._id,
-      bookingId: ItineraryPriceCheckResponses[0].BookingId,
-    });
-
-    //return addToLedger;
-  } catch (error) {
-    // Handle errors
-    console.error("Error:", error.message);
-    return "An error occurred. Please try again later.";
   }
+
+
 
   // Calculation End here
   // return totalSSRWithCalculationPrice;

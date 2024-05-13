@@ -323,7 +323,7 @@ const KafilaFun = async (
       }
     ); 
 
-    if(fCancelApiResponse?.data?.R_DATA?.Error?.Status != null && (fCancelApiResponse?.data?.R_DATA?.Error?.Status.toUpperCase() === "PENDING" || fCancelApiResponse?.data?.R_DATA?.Error?.Status.toUpperCase() === "FAILED")){
+    if(fCancelApiResponse?.data?.R_DATA?.Status != null && (fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "PENDING" || fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "FAILED")){
         try {
           const cancelationBookingInstance = new CancelationBooking({
             calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status || null,
@@ -345,7 +345,7 @@ const KafilaFun = async (
         } catch (error) {
           throw new Error({error:"Error saving cancellation data (Pending)" , responce: fCancelApiResponse?.data});
         }
-      }else if(fCancelApiResponse?.data?.R_DATA?.Error?.Status === null && fCancelApiResponse?.data?.R_DATA?.Charges?.IsCanceled === true){
+      }else if(fCancelApiResponse?.data?.R_DATA?.Status === null && fCancelApiResponse?.data?.R_DATA?.Charges?.IsCanceled === true){
         try {  
           const getAgentConfig = await agentConfig.findOne({
             userId: agencyUserId,
@@ -378,7 +378,7 @@ const KafilaFun = async (
             }
           }else{
             newBalance =
-            maxCreditLimit -
+            maxCreditLimit +
             fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
             pricecheck = fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
           }
@@ -397,8 +397,8 @@ const KafilaFun = async (
             ledgerId: ledgerId,
             transactionAmount: pricecheck,
             currencyType: "INR",
-            fop: "CREDIT",
-            transactionType: "CREDIT",
+            fop: "DEBIT",
+            transactionType: "DEBIT",
             runningAmount: newBalance,
             remarks: "Calcelation Amount Added Into Your Account.",
             transactionBy: Authentication?.UserId          

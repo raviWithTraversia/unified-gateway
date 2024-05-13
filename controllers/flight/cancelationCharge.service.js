@@ -317,7 +317,7 @@ const KafilaFun = async (
             fSearchApiResponse.data = fSearchApiResponse.data || {};            
             fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
 
-            fSearchApiResponse.data.Charges.RefundableAmt = BookingIdDetails.fareRules.CWBHA || 0;
+            fSearchApiResponse.data.Charges.RefundableAmt = BookingIdDetails.fareRules.CBHA || 0;
             fSearchApiResponse.data.Charges.ServiceFee = BookingIdDetails.fareRules.SF || 0;
             fSearchApiResponse.data.Charges.AirlineRefund = 0; 
             fSearchApiResponse.data.Charges.AirlineCancellationFee = 0;
@@ -326,7 +326,7 @@ const KafilaFun = async (
           }else{
             fSearchApiResponse.data = fSearchApiResponse.data || {};            
             fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
-            fSearchApiResponse.data.Charges.RefundableAmt = BookingIdDetails.fareRules.CBHA || 0;
+            fSearchApiResponse.data.Charges.RefundableAmt = BookingIdDetails.fareRules.CWBHA || 0;
             fSearchApiResponse.data.Charges.ServiceFee = BookingIdDetails.fareRules.SF || 0;
             fSearchApiResponse.data.Charges.AirlineRefund = 0; 
             fSearchApiResponse.data.Charges.AirlineCancellationFee = 0;

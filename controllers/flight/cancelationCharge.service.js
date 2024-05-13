@@ -326,7 +326,6 @@ const KafilaFun = async (
           }else{
             fSearchApiResponse.data = fSearchApiResponse.data || {};            
             fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
-
             fSearchApiResponse.data.Charges.RefundableAmt = BookingIdDetails.fareRules.CBHA || null;
             fSearchApiResponse.data.Charges.ServiceFee = BookingIdDetails.fareRules.SF || null;
             fSearchApiResponse.data.Charges.AirlineRefund = null; 

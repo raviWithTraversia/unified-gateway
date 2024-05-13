@@ -368,12 +368,12 @@ const KafilaFun = async (
               
               // Checking if the difference is less than 62 hours
               if (timeDifference <= sixtyTwoHoursInMilliseconds) {
-                 pricecheck = BookingIdDetails?.fareRules?.CWBHA === 0 ?
-                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CWBHA + BookingIdDetails?.fareRules?.SF) ;
+                 pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 ?
+                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CBHA + BookingIdDetails?.fareRules?.SF) ;
                  newBalance = maxCreditLimit + pricecheck; 
               }else{
-                 pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 ?
-                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CBHA +  BookingIdDetails?.fareRules?.SF);
+                 pricecheck = BookingIdDetails?.fareRules?.CWBHA === 0 ?
+                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CWBHA +  BookingIdDetails?.fareRules?.SF);
                 newBalance = maxCreditLimit + pricecheck; 
               }
             }

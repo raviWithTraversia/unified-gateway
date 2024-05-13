@@ -144,7 +144,7 @@ const getAgentConfig = async (req, res) => {
       .populate("diSetupIds")
       .populate("airlinePromocodeIds")
       .populate("paymentGatewayIds")
-    console.log(agentConfigData);
+    //console.log(agentConfigData);
     if (agentConfigData) {
       return {
         response: "Agent config Data found Sucessfully",

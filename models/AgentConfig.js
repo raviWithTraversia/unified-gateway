@@ -62,6 +62,10 @@ const agentConfigSchema = new mongoose.Schema({
     ref: "ssrCommercialGroup",
     default : null
   },
+  initiallyLoad: {
+    type : String,
+    default : null
+  },
     portalLedgerAllowed: {
       type: Boolean
     },

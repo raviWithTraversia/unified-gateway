@@ -218,7 +218,7 @@ const getAllBooking = async (req, res) => {
  
   let filter = {};
     if (agencyId !== undefined && agencyId.trim() !== "") {
-      filter.userId = { _id: agencyId };
+      filter["userId.company_ID._id"] = agencyId;
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -286,9 +286,8 @@ const getAllBooking = async (req, res) => {
 
         if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {            
             filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
-            
-            
-          }
+        } 
+
         return {
             response: "Fetch Data Successfully",
             data: {bookingList:filteredBookingData.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)), statusCounts: statusCounts}

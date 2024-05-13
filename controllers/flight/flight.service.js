@@ -520,7 +520,7 @@ const KafilaFun = async (
           FareType: schedule.FareType,
           TourCode: "",
           PricingMethod: "Guaranteed",
-          FareFamily: schedule.Alias,
+          FareFamily: schedule?.Offer?.Msg === "" ? schedule?.Alias : schedule?.Offer?.Msg,
           PromotionalFare: false,
           FareFamilyDN: null,
           PromotionalCode: "",

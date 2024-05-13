@@ -319,21 +319,21 @@ const KafilaFun = async (
             fSearchApiResponse.data = fSearchApiResponse.data || {};            
             fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
 
-            fSearchApiResponse.data.Charges.RefundableAmt = BookingIdDetails.fareRules.CBHA || 0;
+            fSearchApiResponse.data.Charges.RefundableAmt = (fSearchApiResponse.data.Charges.Fare - ((BookingIdDetails.fareRules.CBHA) || 0 + (BookingIdDetails.fareRules.SF || 0)));
             fSearchApiResponse.data.Charges.ServiceFee = BookingIdDetails.fareRules.SF || 0;
             fSearchApiResponse.data.Charges.AirlineRefund = 0; 
-            fSearchApiResponse.data.Charges.AirlineCancellationFee = 0;
-            fSearchApiResponse.data.Charges.Fare = 0; 
+            fSearchApiResponse.data.Charges.AirlineCancellationFee = BookingIdDetails.fareRules.CBHA || 0;
+            //fSearchApiResponse.data.Charges.Fare = 0; 
              return fSearchApiResponse.data;
           }else{
             fSearchApiResponse.data = fSearchApiResponse.data || {};            
             fSearchApiResponse.data.Charges = fSearchApiResponse.data.R_DATA.Charges || {};
 
-            fSearchApiResponse.data.Charges.RefundableAmt = BookingIdDetails.fareRules.CWBHA || 0;
+            fSearchApiResponse.data.Charges.RefundableAmt = (fSearchApiResponse.data.Charges.Fare - ((BookingIdDetails.fareRules.CWBHA || 0) + (BookingIdDetails.fareRules.SF || 0) ));
             fSearchApiResponse.data.Charges.ServiceFee = BookingIdDetails.fareRules.SF || 0;
             fSearchApiResponse.data.Charges.AirlineRefund = 0; 
-            fSearchApiResponse.data.Charges.AirlineCancellationFee = 0;
-            fSearchApiResponse.data.Charges.Fare = 0; 
+            fSearchApiResponse.data.Charges.AirlineCancellationFee = BookingIdDetails.fareRules.CWBHA || 0;
+            //fSearchApiResponse.data.Charges.Fare = 0; 
             return fSearchApiResponse.data;
             
             //  pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 ?

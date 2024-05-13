@@ -206,10 +206,10 @@ const getAssignCommercial = async (companyId, requestPayload) => {
           (rule) => {
             return (
               rule.status === true &&
-              (!origin || rule.origin === origin || rule.origin === "") &&
+              (!origin || rule.origin === origin || rule.origin === "" || rule.origin === null) &&
               (!destination ||
                 rule.destination === destination ||
-                rule.destination === "") &&
+                rule.destination === "" || rule.destination === null) &&
               (!provider ||
                 (rule.providerId &&
                   rule.providerId.supplierCode === provider) ||
@@ -300,10 +300,10 @@ const getAssignCommercial = async (companyId, requestPayload) => {
           console.log(cabinclass);
           return (
             rule.status === true &&
-            (!origin || rule.origin === origin || rule.origin === "") &&
+            (!origin || rule.origin === origin || rule.origin === "" || rule.origin === null) &&
             (!destination ||
               rule.destination === destination ||
-              rule.destination === "") &&
+              rule.destination === "" || rule.destination === null) &&
             (!provider ||
               (rule.providerId && rule.providerId.supplierCode === provider) ||
               rule.providerId === "" ||

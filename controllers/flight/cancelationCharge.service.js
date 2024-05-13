@@ -297,10 +297,10 @@ const KafilaFun = async (
       let pricecheck = 0;
       if(BookingIdDetails && BookingIdDetails?.fareRules  && BookingIdDetails?.fareRules != null) {
         
-        if (BookingIdDetails.bookingDateTime) {
+        if (BookingIdDetails?.itinerary?.Sectors[0]?.Departure?.Date) {
 
           // Convert createdAt to milliseconds
-          const createdAtTime = new Date(BookingIdDetails.bookingDateTime).getTime();
+          const createdAtTime = new Date(BookingIdDetails?.itinerary?.Sectors[0]?.Departure?.Date).getTime();
           // Current time in milliseconds
           const currentTime = new Date().getTime();
           // Difference in milliseconds between current time and createdAt time
@@ -317,20 +317,20 @@ const KafilaFun = async (
             fSearchApiResponse.data = fSearchApiResponse.data || {};            
             fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
 
-            fSearchApiResponse.data.Charges.RefundableAmt = BookingIdDetails.fareRules.CWBHA || null;
-            fSearchApiResponse.data.Charges.ServiceFee = BookingIdDetails.fareRules.SF || null;
-            fSearchApiResponse.data.Charges.AirlineRefund = null; 
-            fSearchApiResponse.data.Charges.AirlineCancellationFee = null;
-            fSearchApiResponse.data.Charges.Fare = null; 
+            fSearchApiResponse.data.Charges.RefundableAmt = BookingIdDetails.fareRules.CWBHA || 0;
+            fSearchApiResponse.data.Charges.ServiceFee = BookingIdDetails.fareRules.SF || 0;
+            fSearchApiResponse.data.Charges.AirlineRefund = 0; 
+            fSearchApiResponse.data.Charges.AirlineCancellationFee = 0;
+            fSearchApiResponse.data.Charges.Fare = 0; 
              return fSearchApiResponse.data;
           }else{
             fSearchApiResponse.data = fSearchApiResponse.data || {};            
             fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
-            fSearchApiResponse.data.Charges.RefundableAmt = BookingIdDetails.fareRules.CBHA || null;
-            fSearchApiResponse.data.Charges.ServiceFee = BookingIdDetails.fareRules.SF || null;
-            fSearchApiResponse.data.Charges.AirlineRefund = null; 
-            fSearchApiResponse.data.Charges.AirlineCancellationFee = null;
-            fSearchApiResponse.data.Charges.Fare = null; 
+            fSearchApiResponse.data.Charges.RefundableAmt = BookingIdDetails.fareRules.CBHA || 0;
+            fSearchApiResponse.data.Charges.ServiceFee = BookingIdDetails.fareRules.SF || 0;
+            fSearchApiResponse.data.Charges.AirlineRefund = 0; 
+            fSearchApiResponse.data.Charges.AirlineCancellationFee = 0;
+            fSearchApiResponse.data.Charges.Fare = 0; 
             return fSearchApiResponse.data;
             
             //  pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 ?

@@ -363,9 +363,9 @@ const KafilaFun = async (
           let newBalance = 0;
           let pricecheck = 0;
           if(BookingIdDetails && BookingIdDetails?.fareRules  && BookingIdDetails?.fareRules != null) {
-            if (BookingIdDetails.bookingDateTime) {
+            if (BookingIdDetails?.itinerary?.Sectors[0]?.Departure?.Date) {
               // Convert createdAt to milliseconds
-              const createdAtTime = new Date(BookingIdDetails.bookingDateTime).getTime();
+              const createdAtTime = new Date(BookingIdDetails?.itinerary?.Sectors[0]?.Departure?.Date).getTime();
               // Current time in milliseconds
               const currentTime = new Date().getTime();
               // Difference in milliseconds between current time and createdAt time
@@ -402,6 +402,7 @@ const KafilaFun = async (
             userId: agencyUserId,
             companyId: Authentication?.CompanyId,
             ledgerId: ledgerId,
+            cartId:BookingIdDetails?.bookingId,
             transactionAmount:pricecheck,
             currencyType: "INR",
             fop: "DEBIT",

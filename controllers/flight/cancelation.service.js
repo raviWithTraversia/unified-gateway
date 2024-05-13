@@ -363,9 +363,9 @@ const KafilaFun = async (
           let newBalance = 0;
           let pricecheck = 0;
           if(BookingIdDetails && BookingIdDetails?.fareRules  && BookingIdDetails?.fareRules != null) {
-            if (BookingIdDetails.createdAt) {
+            if (BookingIdDetails.bookingDateTime) {
               // Convert createdAt to milliseconds
-              const createdAtTime = new Date(BookingIdDetails.createdAt).getTime();
+              const createdAtTime = new Date(BookingIdDetails.bookingDateTime).getTime();
               // Current time in milliseconds
               const currentTime = new Date().getTime();
               // Difference in milliseconds between current time and createdAt time
@@ -377,11 +377,11 @@ const KafilaFun = async (
               if (timeDifference <= sixtyTwoHoursInMilliseconds) {
                  pricecheck = BookingIdDetails?.fareRules?.CWBHA === 0 ?
                 fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CWBHA + BookingIdDetails?.fareRules?.SF) ;
-                 newBalance = maxCreditLimit - pricecheck; 
+                 newBalance = maxCreditLimit + pricecheck; 
               }else{
                  pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 ?
                 fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CBHA +  BookingIdDetails?.fareRules?.SF);
-                newBalance = maxCreditLimit - pricecheck; 
+                newBalance = maxCreditLimit + pricecheck; 
               }
             }
           }else{

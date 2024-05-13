@@ -351,7 +351,7 @@ const KafilaFun = async (
           await cancelationBookingInstance.save();
           return fCancelApiResponse?.data;
         } else if (
-          fCancelApiResponse?.data?.R_DATA?.Error?.Status === null &&
+          fCancelApiResponse?.data?.R_DATA?.Status === null &&
           fCancelApiResponse?.data?.R_DATA?.Charges?.IsCanceled === true
         ) {          
 

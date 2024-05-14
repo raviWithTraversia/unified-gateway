@@ -519,6 +519,7 @@ const KafilaFun = async (
           Currency: "INR",
           FareType: schedule.FareType,
           Stop:schedule.Stop,
+          IsVia: schedule?.Itinerary[0]?.layover != "" ? true : false,
           TourCode: "",
           PricingMethod: "Guaranteed",
           FareFamily: schedule?.Offer?.Msg === "" ? schedule?.Alias : schedule?.Offer?.Msg,

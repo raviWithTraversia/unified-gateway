@@ -638,6 +638,7 @@ const ssrCommercialGroup = async (
 
 const rePriceSeat = (seatObj, seatSsr) => {
   for (let seat of seatObj) {
+    console.log(seat);
     if (seat.Facilities) {
       for (let facility of seat.Facilities) {
         for (let key in facility) {

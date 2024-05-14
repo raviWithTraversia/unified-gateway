@@ -252,12 +252,13 @@ async function handleflight(
   }
 
   // apply commercial function
- // console.log("{{{{{{{{{{{{{{{{{{{",commonArray,"}}}}}}}}}}}}}}}}}}}}}}" )
+ 
   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
     Authentication,
     TravelType,
     commonArray
   );
+
   //console.log("pppppppppppppppppppppppp", res, "<<<========ppppvvvvvvvv")
   return {
     IsSucess: true,
@@ -369,7 +370,7 @@ const KafilaFun = async (
   let fareFamilyVal =
   FareFamily && FareFamily.length > 0 ? FareFamily.join(",") : "";
 
-
+  
   const segmentsArray = Segments.map((segment) => ({
     Src: segment.Origin,
     Des: segment.Destination,
@@ -391,7 +392,10 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
-    if (response.data.Status === "success") { 
+    
+    //console.log(Itinerary[0]?.Sec)
+    
+    if (response.data.Status === "success") {      
       const newArray = Itinerary.map(item => {                 
         const sectorsall = item.Sectors.map(sector => ({          
           Id: 0,
@@ -419,28 +423,26 @@ const KafilaFun = async (
           OI:sector.OI
         }));    
         
-        const Adt = item.PriceBreakup[1] ? {
+        const Adt = item.PriceBreakup[0] ? {
           Basic: item.PriceBreakup[0]?.BaseFare || 0,
           Yq: item.PriceBreakup[0]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0,
           Taxes: item.PriceBreakup[0]?.Tax || 0,
-          Total: (item.PriceBreakup[0]?.BaseFare || 0) + (item.PriceBreakup[0]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[0]?.Tax || 0)
-        } : null;
-        
-        const Chd = Object.keys(item.PriceBreakup[1]).length !== 0
-        ? {
-          Basic: item.PriceBreakup[1]?.BaseFare || 0,
-          Yq: item.PriceBreakup[1]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0,
-          Taxes: item.PriceBreakup[1]?.Tax || 0,
-          Total: (item.PriceBreakup[1]?.BaseFare || 0) + (item.PriceBreakup[1]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[1]?.Tax || 0)
-        } : null;
-                
-        const Inf = Object.keys(item.PriceBreakup[2]).length !== 0
-        ? {
+          Total: ((item.PriceBreakup[0]?.BaseFare || 0) + (item.PriceBreakup[0]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[0]?.Tax || 0))
+      } : null;
+      
+      const Chd = item.PriceBreakup[1] && Object.keys(item.PriceBreakup[1]).length > 0 ? {            
+        Basic: item.PriceBreakup[1]?.BaseFare || 0,
+        Yq: item.PriceBreakup[1]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0,
+        Taxes: item.PriceBreakup[1]?.Tax || 0,
+        Total: ((item.PriceBreakup[1]?.BaseFare || 0) + (item.PriceBreakup[1]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[1]?.Tax || 0))
+    } : null;
+    
+      const Inf = item.PriceBreakup[2] ? {
           Basic: item.PriceBreakup[2]?.BaseFare || 0,
           Yq: item.PriceBreakup[2]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0,
           Taxes: item.PriceBreakup[2]?.Tax || 0,
-          Total: (item.PriceBreakup[2]?.BaseFare || 0) + (item.PriceBreakup[2]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[2]?.Tax || 0)
-        } : null;        
+          Total: ((item.PriceBreakup[2]?.BaseFare || 0) + (item.PriceBreakup[2]?.TaxBreakup.find(tax => tax.TaxType === 'YQ')?.Amount || 0) + (item.PriceBreakup[2]?.Tax || 0))
+      } : null;         
             
         return {
           PId: 0,
@@ -451,7 +453,7 @@ const KafilaFun = async (
           FCode: item.ValCarrier,
           FName: "",
           FNo: "",
-          DDate: "",
+          DDate: item?.Sectors[0]?.Departure?.DateTimeStamp,
           ADate: "",
           Dur: "",
           Stop: "",
@@ -496,7 +498,7 @@ const KafilaFun = async (
       });      
       
       
-
+     
       let getToken = response.data.Result;
       let requestDataFSearch = { Param: {
         Trip: tripTypeValue,
@@ -537,8 +539,13 @@ const KafilaFun = async (
         }
     }
     };
-   
-   // console.log(requestDataFSearch, "API Responce")
+    
+    // return {
+    //   IsSucess: true,
+    //   response: requestDataFSearch,
+    //   apiReq: requestDataFSearch
+    // };
+    //console.log(requestDataFSearch.SelectedFlights, "API Responce")
    //console.log(requestDataFSearch, "Request")
       let fSearchApiResponse = await axios.post(
         flightSearchUrl,
@@ -549,6 +556,7 @@ const KafilaFun = async (
           },
         }
       );
+      //console.log(fSearchApiResponse.data, "API Responce")
       //logger.info(fSearchApiResponse.data);
       const logData = {
         traceId: Authentication.TraceId,
@@ -562,7 +570,7 @@ const KafilaFun = async (
         responce: fSearchApiResponse?.data
       };  
       Logs(logData);
-    //  console.log(fSearchApiResponse.data, "API Responce")
+      //console.log(fSearchApiResponse.data, "API Responce")
       if (fSearchApiResponse.data.Status == "failed") {
         return {
           IsSucess: false,
@@ -572,7 +580,7 @@ const KafilaFun = async (
             fSearchApiResponse.data.WarningMessage,
         };
       }
-      //console.log('apiData',fSearchApiResponse.data); 
+     // console.log('apiData',fSearchApiResponse); 
           
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;

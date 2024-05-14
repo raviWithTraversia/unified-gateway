@@ -11,7 +11,13 @@ payu_route.post(
     auth,
     payuController.payu
 );
-
+payu_route.post(
+    '/paymentGateway/success',
+    payuController.payuSuccess
+);payu_route.post(
+    '/paymentGateway/failed',
+    payuController.payuFail
+);
 payu_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

@@ -532,7 +532,7 @@ const KafilaFun = async (
           TPnr: false,
         },
       },   
-      SelectedFlights: Itinerary[0].apiItinerary,
+      SelectedFlights: [Itinerary[0].apiItinerary],
     GstData: {
         IsGst: false,
         GstDetails: {
@@ -547,7 +547,11 @@ const KafilaFun = async (
         }
     }
     };
-    
+    // return {
+    //   IsSucess: true,
+    //   response: requestDataFSearch,
+    //   apiReq: requestDataFSearch
+    // };
    // console.log(requestDataFSearch, "API Responce")
    //console.log(requestDataFSearch, "Request")
       let fSearchApiResponse = await axios.post(

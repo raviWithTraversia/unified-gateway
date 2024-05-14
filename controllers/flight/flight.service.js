@@ -703,6 +703,7 @@ const KafilaFun = async (
             OI:sector.OI
           })),
           FareRule:schedule.FareRule,
+          apiItinerary:schedule,
           HostTokens: null,
           Key: "",
           SearchID: "",

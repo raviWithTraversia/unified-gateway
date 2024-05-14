@@ -498,45 +498,47 @@ const KafilaFun = async (
       
 
       let getToken = response.data.Result;
-      let requestDataFSearch = { Param: {
-        Trip: tripTypeValue,
-        Adt: PaxDetail.Adults,
-        Chd: PaxDetail.Child,
-        Inf: PaxDetail.Infants,
-        Sector: segmentsArray,
-        PF: Airlines.length > 0 ? Airlines.join(",") : "",
-        PC: classOfServiceVal,
-        Routing: "ALL",
-        Ver: "1.0.0.0",
-        Auth: {
-          AgentId: supplier.supplierWsapSesssion,
-          Token: getToken,
-        },
-        Env: credentialType,
-        Module: "B2B",
-        OtherInfo: {
-          PromoCode: "",
-          FFlight: "",
-          FareType: fareFamilyVal,
-          TraceId: Authentication.TraceId,
-          IsUnitTesting: false,
-          TPnr: false,
-        },
-      },   SelectedFlights: newArray,
-    GstData: {
-        IsGst: false,
-        GstDetails: {
-            Name: "Kafila Hospitality and Travels Pvt Ltd",
-            Address: "10185-c, Arya samaj Road, Karolbagh",
-            Email: "admin@kafilatravel.in",
-            Mobile: "9899911993",
-            Pin: "110005",
-            State: "Delhi",
-            Type: "",
-            Gstn: "07AAACD3853F1ZW"
-        }
-    }
-    };
+      let requestDataFSearch = Itinerary.apiItinerary;
+      
+    //   let requestDataFSearch = { Param: {
+    //     Trip: tripTypeValue,
+    //     Adt: PaxDetail.Adults,
+    //     Chd: PaxDetail.Child,
+    //     Inf: PaxDetail.Infants,
+    //     Sector: segmentsArray,
+    //     PF: Airlines.length > 0 ? Airlines.join(",") : "",
+    //     PC: classOfServiceVal,
+    //     Routing: "ALL",
+    //     Ver: "1.0.0.0",
+    //     Auth: {
+    //       AgentId: supplier.supplierWsapSesssion,
+    //       Token: getToken,
+    //     },
+    //     Env: credentialType,
+    //     Module: "B2B",
+    //     OtherInfo: {
+    //       PromoCode: "",
+    //       FFlight: "",
+    //       FareType: fareFamilyVal,
+    //       TraceId: Authentication.TraceId,
+    //       IsUnitTesting: false,
+    //       TPnr: false,
+    //     },
+    //   },   SelectedFlights: newArray,
+    // GstData: {
+    //     IsGst: false,
+    //     GstDetails: {
+    //         Name: "Kafila Hospitality and Travels Pvt Ltd",
+    //         Address: "10185-c, Arya samaj Road, Karolbagh",
+    //         Email: "admin@kafilatravel.in",
+    //         Mobile: "9899911993",
+    //         Pin: "110005",
+    //         State: "Delhi",
+    //         Type: "",
+    //         Gstn: "07AAACD3853F1ZW"
+    //     }
+    // }
+    // };
    
    // console.log(requestDataFSearch, "API Responce")
    //console.log(requestDataFSearch, "Request")

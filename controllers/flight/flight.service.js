@@ -518,6 +518,7 @@ const KafilaFun = async (
           GrandTotal: schedule.Fare.GrandTotal,
           Currency: "INR",
           FareType: schedule.FareType,
+          Stop:schedule.Stop,
           TourCode: "",
           PricingMethod: "Guaranteed",
           FareFamily: schedule?.Offer?.Msg === "" ? schedule?.Alias : schedule?.Offer?.Msg,
@@ -654,6 +655,7 @@ const KafilaFun = async (
             FlyingTime: sector.Dur,
             TravelTime: sector.Dur,
             TechStopOver: 1,
+            layover:sector.layover,
             Status: "",
             OperatingCarrier: null,
             MarketingCarrier: null,
@@ -703,6 +705,7 @@ const KafilaFun = async (
             OI:sector.OI
           })),
           FareRule:schedule.FareRule,
+          apiItinerary:schedule,
           HostTokens: null,
           Key: "",
           SearchID: "",

@@ -26,8 +26,12 @@ const getBalance = async (req, res) => {
   }
 
   // Check if company Id exists
-  const checkuserIdIdExist = await User.findById(userId);
+  const checkuserIdIdExistfind = await User.find({ company_ID: userId }).populate("roleId");
+  const userWithAgencyRole = checkuserIdIdExistfind.find(user => user.roleId.name === 'Agency');
+const checkuserIdIdExistId = userWithAgencyRole ? userWithAgencyRole._id : null;
+const checkuserIdIdExist = await User.findById(checkuserIdIdExistId);
 
+  //console.log(checkuserIdIdExist);
   if (!checkuserIdIdExist) {
     return {
       response: "User id does not exist",
@@ -35,7 +39,7 @@ const getBalance = async (req, res) => {
   }
 
   const getAgentConfig = await agentConfig.findOne({
-    userId: userId,
+    userId: checkuserIdIdExistId,
   });
 
   if (!getAgentConfig) {

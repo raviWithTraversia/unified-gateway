@@ -38,8 +38,8 @@ const payu = async (req, res) => {
         const firstnameres = firstName;
         const emailres = email;
         const phoneres = phone;
-        const surl = "https://kafila.traversia.net/api/paymentGateway/paymentSuccess";
-        const furl = "https://kafila.traversia.net/api/paymentGateway/paymentFailed";        
+        const surl = "https://kafila.traversia.net/api/paymentGateway/success";
+        const furl = "https://kafila.traversia.net/api/paymentGateway/failed";        
         const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';      
         
 
@@ -117,6 +117,174 @@ const payu = async (req, res) => {
     }
 };
 
+const payuSuccess = async (req, res) => {
+    try { 
+     
+        const {
+            status,
+            txnid,
+            productinfo 
+        } = req.body;
+        
+        
+    let successHtmlCode=`<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Payment Success</title>
+      <style>
+      .success-txt{
+        color: #51a351;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f2f2f2;
+      }
+      
+      .success-container {
+        max-width: 400px;
+        width: 100%;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+        text-align: center;
+      }
+      .success-container p {
+        margin-top: 10px;
+      }
+      
+      .success-container a {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      
+      .success-container a:hover {
+        background-color: #0056b3;
+      }
+    </style>
+
+    </head>
+    <body>
+      <div class="success-container">
+        <h1 class="success-txt">Payment Successful!</h1>
+        <p class="success-txt">Your payment has been successfully processed.</p>
+        <p>Thank you for your purchase.</p>
+      </div>
+    </body>
+    </html>`
+       
+        if (status === "success") {
+            return {
+                response : "Success",
+                data: successHtmlCode 
+            }
+        } else {
+            return {
+                response: 'Data does not exist',
+                data: null
+            }
+        }
+       
+    } catch (error) {
+        throw error;
+    }
+};
+
+const payuFail = async (req, res) => {
+    try {    
+            let failedHtmlCode=`<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Success</title>
+        <style>
+        .failed-txt{
+          color: #bd362f;
+        }
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background-color: #f2f2f2;
+        }
+        
+        .failed-container {
+          max-width: 400px;
+          width: 100%;
+          padding: 20px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          background-color: #fff;
+          text-align: center;
+        }
+
+        
+        .failed-container p {
+          margin-top: 10px;
+        }
+        
+        .failed-container a {
+          display: inline-block;
+          margin-top: 20px;
+          padding: 10px 20px;
+          background-color: #007bff;
+          color: #fff;
+          text-decoration: none;
+          border-radius: 5px;
+        }
+        
+        .failed-container a:hover {
+          background-color: #0056b3;
+        }
+      </style>
+  
+      </head>
+      <body>
+        <div class="failed-container">
+          <h1 class="failed-txt">Payment Failed!</h1>
+          <p class="failed-txt">Your payment has been failed.</p>
+          <p>Please try again later.</p>
+        </div>
+      </body>
+      </html>
+      `
+ 
+  
+        if (failedHtmlCode) {
+            return {
+                response : "Success",
+                data: failedHtmlCode 
+            }
+        } else {
+            return {
+                response: 'Data does not exist',
+                data: null
+            }
+        }
+       
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
-    payu
+    payu,payuFail,payuSuccess
 };

@@ -222,6 +222,13 @@ async function handleflight(
       }
     })
   );
+
+
+  // return {
+  //   IsSucess: true,
+  //   response: responsesApi,
+  //   apiReq : responsesApi
+  // };
  // console.log("pppppppppppppppppppppppp", res, "<<<========pppp")
   // delete this one
   // return {
@@ -499,7 +506,7 @@ const KafilaFun = async (
 
       let getToken = response.data.Result;
       //let requestDataFSearch = Itinerary.apiItinerary;
-      
+      //console.log(Itinerary[0].apiItinerary);
       let requestDataFSearch = { Param: {
         Trip: tripTypeValue,
         Adt: PaxDetail.Adults,
@@ -524,7 +531,8 @@ const KafilaFun = async (
           IsUnitTesting: false,
           TPnr: false,
         },
-      },   SelectedFlights: Itinerary.apiItinerary,
+      },   
+      SelectedFlights: Itinerary[0].apiItinerary,
     GstData: {
         IsGst: false,
         GstDetails: {
@@ -539,7 +547,7 @@ const KafilaFun = async (
         }
     }
     };
-   
+    
    // console.log(requestDataFSearch, "API Responce")
    //console.log(requestDataFSearch, "Request")
       let fSearchApiResponse = await axios.post(

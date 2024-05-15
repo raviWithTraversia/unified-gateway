@@ -342,6 +342,37 @@ const getAllAgencyAndDistributer = async (req,res) => {
   }
 }
 
+
+const userStatusUpdate=async(req,res)=>{
+  try{
+    const result=await userServices.updateUserStatus(req,res)
+if(result.response==="Upate Successfully"){
+  apiSucessRes(
+    res,
+    result.response,
+    result.data,
+
+    ServerStatusCode.SUCESS_CODE
+  );
+}
+else if(result.response==="User data not found"){
+  apiErrorres(res, result.response, ServerStatusCode.NOT_EXIST_CODE, true);
+}
+else {
+  apiErrorres(
+    res,
+    errorResponse.SOME_UNOWN,
+    ServerStatusCode.RESOURCE_NOT_FOUND,
+    true
+  );
+}
+
+  }
+  catch(error){
+    apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
+
+  }
+}
 module.exports = {
   registerUser,
   loginUser,
@@ -353,5 +384,6 @@ module.exports = {
   addUser,
   editUser,
   getUser,
-  getAllAgencyAndDistributer
+  getAllAgencyAndDistributer,
+  userStatusUpdate
 };

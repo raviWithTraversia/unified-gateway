@@ -310,6 +310,9 @@ user_route.get(
     userController.getAllAgencyAndDistributer
 )
 
+user_route.post("/user/updateStatus",auth,userController.userStatusUpdate)
+
+
 user_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

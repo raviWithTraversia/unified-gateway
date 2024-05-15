@@ -14,13 +14,13 @@ const incentiveGroupModel = require('../../models/IncentiveGroupMaster');
 const airlinePromocodeModel = require('../../models/AirlinePromoCodeGroup');
 const paymentGatewayModel = require('../../models/paymentGatewayChargesGroup');
 const ssrCommercialGroupModel = require('../../models/SsrCommercialGroup');
-
 const commercialPlanModel = require('../../models/CommercialAirPlan');
 const fareRuleGroupModel = require('../../models/FareRuleGroup');
 const agencyGroupModel = require('../../models/AgencyGroup');
 const { response } = require("../../routes/userRoute");
 const {Config} = require("../../configs/config");
 const agencyGroupServices = require("../../controllers/agencyGroup/agencyGroup.services");
+const { status } = require("../../utils/commonResponce");
 
 const registerUser = async (req, res) => {
   try {
@@ -774,6 +774,39 @@ const getAllAgencyAndDistributer = async (req,res) => {
      throw error
   }
 };
+
+const updateUserStatus=async(req,res)=>{
+  try{
+
+    const {userId,status}=req.query
+
+    if (!userId||!status) {
+      return {
+        response: null,
+        message: "user Id not true",
+      };
+    };
+
+    
+    const result=await Company.findByIdAndUpdate({_id:userId},{companyStatus:status},{new:true})
+
+    if(result){
+      return {
+        response : 'Upate Successfully',
+      
+      }
+    }else{
+       return {
+        response : 'User data not found'
+       }
+    }
+    
+
+  }
+  catch(error){
+    throw error
+  }
+}
 module.exports = {
   registerUser,
   loginUser,
@@ -785,6 +818,7 @@ module.exports = {
   addUser,
   editUser,
   getUser,
-  getAllAgencyAndDistributer
+  getAllAgencyAndDistributer,
+  updateUserStatus
 };
 

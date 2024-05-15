@@ -205,7 +205,7 @@ const payuSuccess = async (req, res) => {
 
 const payuFail = async (req, res) => {
     try {    
-            let failedHtmlCode=`<!DOCTYPE html>
+            let failedHtmlCode =`<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
@@ -265,12 +265,12 @@ const payuFail = async (req, res) => {
         </div>
       </body>
       </html>
-      `
+      `;
  
   
         if (failedHtmlCode) {
             return {
-                response : "Success",
+                response : "Failed",
                 data: failedHtmlCode 
             }
         } else {

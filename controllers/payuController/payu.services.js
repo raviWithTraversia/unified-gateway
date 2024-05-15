@@ -4,10 +4,12 @@ const User = require("../../models/User");
 const crypto = require("crypto");
 const UserModel = require("../../models/User");
 const BookingDetails = require("../../models/booking/BookingDetails");
+const transaction = require("../../models/transaction");
 const ledger = require("../../models/Ledger");
 const agentConfig = require("../../models/AgentConfig");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const BookingTemp = require("../../models/booking/BookingTemp");
+const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 
 const payu = async (req, res) => {

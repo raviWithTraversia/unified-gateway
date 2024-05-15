@@ -52,6 +52,13 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    // paymentMethodType:{
+    //   type: String,
+    //   default: null,
+    // },
+    // paymentGateway:{
+
+    // }
     PNR: {
       type: String,
       default: null,

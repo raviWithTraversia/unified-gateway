@@ -1271,7 +1271,7 @@ const kafilaFunOnlinePayment = async (
           prodBookingId: itineraryItem?.IndexNumber,
           provider: itineraryItem?.Provider,
           bookingType: "Automated",
-          bookingStatus: "PENDING",
+          bookingStatus: "INCOMPLETE",
           bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
           Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
           travelType: TravelType,
@@ -1374,13 +1374,14 @@ const kafilaFunOnlinePayment = async (
       if(cardStore){
         const passengerPreferencesString = JSON.stringify(PassengerPreferences);
         const itineraryPriceCheckResponsesString = JSON.stringify(ItineraryPriceCheckResponses);
-
+        const authData = JSON.stringify(Authentication); 
         const request = JSON.stringify({
           PassengerPreferences: passengerPreferencesString,
-          ItineraryPriceCheckResponses: itineraryPriceCheckResponsesString
+          ItineraryPriceCheckResponses: itineraryPriceCheckResponsesString,
+          Authentication:authData
         });
 
-       await BookingTemp.create({
+       const bookingTemp = await BookingTemp.create({
           companyId:Authentication.companyId,
           userId:Authentication.userId,
           source:"Kafila",
@@ -1388,7 +1389,12 @@ const kafilaFunOnlinePayment = async (
           request:request,
           responce:"Booking Save Successfully",
         });
-        return "Booking Save Successfully";
+        if(bookingTemp){
+          return "Booking Save Successfully";
+        }else{
+          return "Booking already exists";
+        }
+        
       }else{
         return "Booking already exists";
       }

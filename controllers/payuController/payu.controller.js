@@ -80,7 +80,7 @@ const payuSuccess = async (req, res) =>
     {
       try {
         const result = await payuServices.payuFail(req, res);
-        if (result.response == "Failed!!!") {
+        if (result.response == "Failed") {
           apiSucessRes(
             res,
             result.response,

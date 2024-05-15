@@ -12,6 +12,7 @@ const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const fareFamilyMaster = require("../../models/FareFamilyMaster");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
+const BookingTemp = require("../../models/booking/BookingTemp");
 const moment = require("moment");
 const axios = require("axios");
 const uuid = require("uuid");
@@ -1371,6 +1372,22 @@ const kafilaFunOnlinePayment = async (
       });
       const cardStore = await passengerPreference.save();
       if(cardStore){
+        const passengerPreferencesString = JSON.stringify(PassengerPreferences);
+        const itineraryPriceCheckResponsesString = JSON.stringify(ItineraryPriceCheckResponses);
+
+        const request = JSON.stringify({
+          PassengerPreferences: passengerPreferencesString,
+          ItineraryPriceCheckResponses: itineraryPriceCheckResponsesString
+        });
+
+       await BookingTemp.create({
+          companyId:Authentication.companyId,
+          userId:Authentication.userId,
+          source:"Kafila",
+          BookingId:ItineraryPriceCheckResponses[0].BookingId,
+          request:request,
+          responce:"Booking Save Successfully",
+        });
         return "Booking Save Successfully";
       }else{
         return "Booking already exists";

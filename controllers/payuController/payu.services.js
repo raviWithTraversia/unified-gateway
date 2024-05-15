@@ -540,6 +540,7 @@ const payuSuccess = async (req, res) => {
         <h1 class="success-txt">Payment Successful!</h1>
         <p class="success-txt">Your payment has been successfully processed.</p>
         <p>Thank you for your purchase.</p>
+        <a href="https://kafilaui.traversia.net/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
       </div>
     </body>
     </html>`;
@@ -681,6 +682,7 @@ const payuFail = async (req, res) => {
         <h1 class="failed-txt">Payment Failed!</h1>
         <p class="failed-txt">Your payment has been failed.</p>
         <p>Please try again later.</p>
+        <a href="https://kafilaui.traversia.net/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
       </div>
     </body>
     </html>

@@ -52,13 +52,12 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    // paymentMethodType:{
-    //   type: String,
-    //   default: null,
-    // },
-    // paymentGateway:{
-
-    // }
+    paymentMethodType:{
+      type: String,
+      default: null,
+    },   
+      paymentGateway:{ paymentCharges:{type: Number, default: 0}, paymentMode:{type: String, default: null} },
+    
     PNR: {
       type: String,
       default: null,

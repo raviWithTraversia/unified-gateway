@@ -8,6 +8,7 @@ const transaction = require("../../models/transaction");
 const ledger = require("../../models/Ledger");
 const agentConfig = require("../../models/AgentConfig");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
+const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const BookingTemp = require("../../models/booking/BookingTemp");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");

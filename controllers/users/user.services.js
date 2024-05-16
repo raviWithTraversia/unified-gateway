@@ -775,12 +775,12 @@ const getAllAgencyAndDistributer = async (req,res) => {
   }
 };
 
-const updateUserStatus=async(req,res)=>{
+const updateUserStatus = async(req,res)=>{
   try{
 
     const {userId,status}=req.query
 
-    if (!userId||!status) {
+    if (!userId || !status) {
       return {
         response: null,
         message: "user Id not true",

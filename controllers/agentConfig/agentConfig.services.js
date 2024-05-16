@@ -1,8 +1,6 @@
 const agentConfigsModels = require("../../models/AgentConfig");
 const userModel = require("../../models/User");
 const companyModel = require('../../models/Company');
-const Mongoose=require('mongoose')
-const { ObjectId } = Mongoose.Types;
 
 
 const addAgentConfiguration = async (req, res) => {
@@ -166,26 +164,30 @@ const getAgentConfig = async (req, res) => {
 };
 const updateAgencyProfile = async (req, res) => {
   try {
-      let uploadDataId = new ObjectId(req.query.id);
+      let uploadDataId = req.query.id
 
+      console.log(req.body,"shdad")
       let dataForUpdate = {
           ...req.body
       };
 
+
       let updateCompayProfile;
 
       if (req.files?.upload_TDS_Exemption_Certificate_URL || req.files?.gst_URL || req.files?.panUpload_URL || req.files?.logoDocument_URL || req.files?.signature_URL || req.files?.aadhar_URL || req.files?.agencyLogo_URL) {
+
+        
           updateCompayProfile = await companyModel.findByIdAndUpdate(
               uploadDataId,
               {
                   $set: dataForUpdate,
-                  upload_TDS_Exemption_Certificate_URL: req?.files?.tds_exemption_certificate_URL[0]?.path,
-                  gst_URL: req?.files?.gst_URL[0]?.path,
-                  panUpload_URL: req?.files?.panUpload_URL[0]?.path,
-                  logoDocument_URL: req?.files?.logoDocument_URL[0]?.path,
-                  signature_URL: req?.files?.signature_URL[0]?.path,
-                  aadhar_URL: req?.files.aadhar_URL[0]?.path,
-                  agencyLogo_URL: req?.files?.agencyLogo_URL[0]?.path
+                  tds_exemption_certificate_URL: req.files.tds_exemption_certificate_URL ? req.files.tds_exemption_certificate_URL[0].path : null,
+                  gst_URL: req.files.gst_URL ? req.files.gst_URL[0].path : null,
+                  panUpload_URL: req.files.panUpload_URL ? req.files.panUpload_URL[0].path : null,
+                  logoDocument_URL: req.files.logoDocument_URL ? req.files.logoDocument_URL[0].path : null,
+                  signature_URL: req.files.signature_URL ? req.files.signature_URL[0].path : null,
+                  aadhar_URL: req.files.aadhar_URL ? req.files.aadhar_URL[0].path : null,
+                  agencyLogo_URL: req.files.agencyLogo_URL ? req.files.agencyLogo_URL[0].path : null
               },
               { new: true }
           );

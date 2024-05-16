@@ -630,6 +630,8 @@ const KafilaFun = async (
           PromotionalCode: "",
           PromoCodeType: "",
           RefundableFare: schedule.Offer.Refund === "Refundable" ? true : false,
+          Stop:schedule.Stop,
+          IsVia: schedule?.Itinerary[0]?.layover != "" ? true : false,
           IndexNumber: index,
           Provider: Provider,
           ValCarrier: schedule.FCode.split(',')[0],

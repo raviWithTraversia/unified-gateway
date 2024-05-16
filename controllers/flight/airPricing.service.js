@@ -758,6 +758,7 @@ const KafilaFun = async (
             FltNum: sector.FNo,
             EquipType: sector.FlightType,
             FlyingTime: sector.Dur,
+            layover:sector.layover,
             TravelTime: sector.Dur,
             TechStopOver: 1,
             Status: "",

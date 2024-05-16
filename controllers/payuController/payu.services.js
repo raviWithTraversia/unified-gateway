@@ -184,8 +184,8 @@ const payuSuccess = async (req, res) => {
           getuserDetails = "User Not Found";
         }
 
-        const hitAPI = await Promise.all(
-          ItineraryPriceCheckResponses.map(async (item) => {
+        //const hitAPI = await Promise.all(
+          const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
             let requestDataFSearch = {
               FareChkRes: {
                 Error: item.Error,
@@ -492,8 +492,8 @@ const payuSuccess = async (req, res) => {
               return error.message;
             }
           })
-        );
-
+        //);
+        await Promise.all(updatePromises);
         let successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -554,7 +554,7 @@ const payuSuccess = async (req, res) => {
     </body>
     </html>`;
 
-        if (hitAPI.length > 0) {
+        if (updatePromises.length > 0) {
           return successHtmlCode;
         } else {
           return "Data does not exist";

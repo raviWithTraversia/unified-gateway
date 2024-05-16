@@ -234,7 +234,8 @@ const bookingDetailsSchema = new mongoose.Schema(
         CabinClass:{ type: String, default: null },        
         FltNum:{ type: String, default: null },        
         FlyingTime:{ type: String, default: null },
-        TravelTime:{ type: String, default: null }, 
+        TravelTime:{ type: String, default: null },
+        layover:{ type: String, default: null }, 
         Departure:{
         Terminal:{ type: String, default: null },
         Date:{ type: Date, default: null },

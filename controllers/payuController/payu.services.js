@@ -382,7 +382,7 @@ const payuSuccess = async (req, res) => {
               
             // dedatc Balance here
             const maxCreditLimitPricededact =
-            getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
+            newBalanceCredit;
 
             const newBalanceCreditdeduct =
             maxCreditLimitPricededact -

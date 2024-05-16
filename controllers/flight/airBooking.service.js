@@ -37,6 +37,7 @@ const startBooking = async (req, res) => {
     PassengerPreferences,
     ItineraryPriceCheckResponses,
     paymentMethodType,
+    paymentGateway,
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -53,6 +54,7 @@ const startBooking = async (req, res) => {
     "PassengerPreferences",
     "ItineraryPriceCheckResponses",
     "paymentMethodType",
+    "paymentGateway",
   ];
   //   const missingFields = fieldNames.filter(
   //     (fieldName) =>
@@ -109,7 +111,8 @@ const startBooking = async (req, res) => {
       RefundableOnly,
       PassengerPreferences,
       ItineraryPriceCheckResponses,
-      paymentMethodType
+      paymentMethodType,
+      paymentGateway
     );
   }
   const logData = {
@@ -150,7 +153,8 @@ async function handleflight(
   RefundableOnly,
   PassengerPreferences,
   ItineraryPriceCheckResponses,
-  paymentMethodType
+  paymentMethodType,
+  paymentGateway
 ) {
   // International
   // Check LIVE and TEST
@@ -215,7 +219,8 @@ async function handleflight(
               supplier.supplierCodeId.supplierCode,
               PassengerPreferences,
               ItineraryPriceCheckResponses,
-              paymentMethodType
+              paymentMethodType,
+              paymentGateway
             );
 
           default:
@@ -251,7 +256,8 @@ const KafilaFun = async (
   Provider,
   PassengerPreferences,
   ItineraryPriceCheckResponses,
-  paymentMethodType
+  paymentMethodType,
+  paymentGateway
 ) => {
   let createTokenUrl;
   let flightSearchUrl;
@@ -622,7 +628,8 @@ const KafilaFun = async (
       Provider,
       PassengerPreferences,
       ItineraryPriceCheckResponses,
-      paymentMethodType
+      paymentMethodType,
+      paymentGateway
     ); 
   }
 
@@ -1154,7 +1161,8 @@ const kafilaFunOnlinePayment = async (
     Provider,
     PassengerPreferences,
     ItineraryPriceCheckResponses,
-    paymentMethodType
+    paymentMethodType,
+    paymentGateway
 ) => {
 
   const createBooking = async (newItem) => {

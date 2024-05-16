@@ -417,7 +417,7 @@ const KafilaFun = async (
           DArpt: sector.Departure.Name,
           AArpt: sector.Arrival.Name,
           Dur: sector.FlyingTime,
-          layover: "",
+          layover: sector.layover,
           Seat: 0,
           FClass: sector.Class,
           PClass: sector.CabinClass,

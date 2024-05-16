@@ -9,6 +9,11 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
     },
+    AgencyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    
     bookingId: {
       type: String,
       default: null,

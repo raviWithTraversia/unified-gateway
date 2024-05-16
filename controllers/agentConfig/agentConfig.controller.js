@@ -84,14 +84,15 @@ const getAgentConfig = async (req,res) => {
 const updateAgencyProfile = async (req,res) => {
     try{
     const result = await agentConfigServices.updateAgencyProfile(req,res);
-    if(result.response == 'Agency/Distributer details updated sucessfully'){
+    
+    if(result.response === 'Agency/Distributor details updated successfully'){
         apiSucessRes(
             res,
             result.response,
             result.data,
             ServerStatusCode.SUCESS_CODE
          )
-    }else if(result.response == 'Agency/Distributer details not updated'){
+    }else if(result.response === 'Agency/Distributer details not updated'){
         apiErrorres(
             res,
             result.response,

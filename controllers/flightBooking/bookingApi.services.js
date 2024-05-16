@@ -373,7 +373,12 @@ const getBookingCalendarCount = async (req, res) => {
     }
   }, {
     $group: {
-      _id: "$creationDate", bookingCount: { $sum: 1 }
+      _id: {
+        $dateToString: {
+          format: "%Y-%m-%d",
+          date: "$creationDate"
+        }
+      }, bookingCount: { $sum: 1 }
     }
   }, { $project: { _id: 0, bookingDate: "$_id", bookingCount: 1 } }]);
   if (!checkBookingCount.length) {

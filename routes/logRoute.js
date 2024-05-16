@@ -174,4 +174,6 @@ log_route.get(
 
 log_route.post('/log/getBookingLogs', auth, portalLogController.getBookingLogs);
 
+log_route.get('/log/getEventLog', auth, eventLogController.getEventLog);
+
 module.exports = log_route;

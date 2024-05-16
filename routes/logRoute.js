@@ -2,7 +2,7 @@ const express = require("express");
 const log_route = express();
 const bodyParser = require("body-parser");
 log_route.use(bodyParser.json());
-log_route.use(bodyParser.urlencoded({extended:true}));
+log_route.use(bodyParser.urlencoded({ extended: true }));
 const eventLogController = require('../controllers/logs/eventLog.controller');
 const portalLogController = require('../controllers/logs/portalLog.controller');
 const auth = require("../middleware/auth");
@@ -53,9 +53,9 @@ const auth = require("../middleware/auth");
 
 
 log_route.post(
-    '/log/eventlog' ,
+    '/log/eventlog',
     auth,
-     eventLogController.storeEventLog
+    eventLogController.storeEventLog
 );
 
 
@@ -84,9 +84,9 @@ log_route.post(
 
 
 log_route.get(
-    '/log/retriveEventLog/:companyId' ,
+    '/log/retriveEventLog/:companyId',
     auth,
-     eventLogController.retriveEventLogByCompanyId
+    eventLogController.retriveEventLogByCompanyId
 );
 
 // Portal Log Route process
@@ -138,7 +138,7 @@ log_route.get(
 
 
 log_route.post(
-    '/log/portallog' ,
+    '/log/portallog',
     auth,
     portalLogController.storePortalLog
 );
@@ -167,9 +167,13 @@ log_route.post(
  */
 
 log_route.get(
-    '/log/retrivePortalLog/:traceId' ,
+    '/log/retrivePortalLog/:traceId',
     auth,
     portalLogController.retrivePortalLog
 );
+
+log_route.post('/log/getBookingLogs', auth, portalLogController.getBookingLogs);
+
+log_route.get('/log/getEventLog', auth, eventLogController.getEventLog);
 
 module.exports = log_route;

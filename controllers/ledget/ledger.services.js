@@ -63,7 +63,7 @@ const getAllledger = async (req, res) => {
         $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
       };
     }   
-    const ledgerDetails = await ledger.find(filter)
+    const ledgerDetails = await ledger.find(filter).sort({ transationDate: -1 })
     .populate("userId").populate('companyId');
 
 
@@ -97,7 +97,7 @@ const getAllledger = async (req, res) => {
       $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
     };
   } 
-    const ledgerDetails = await ledger.find(filter)
+    const ledgerDetails = await ledger.find(filter).sort({ transationDate: -1 })
     .populate("userId").populate('companyId');
 
     if (!ledgerDetails || ledgerDetails.length === 0) {
@@ -130,7 +130,7 @@ const getAllledger = async (req, res) => {
       $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
     };
   } 
-    const ledgerDetails = await ledger.find(filter)
+    const ledgerDetails = await ledger.find(filter).sort({ transationDate: -1 })
     .populate("userId").populate('companyId');
     if (!ledgerDetails || ledgerDetails.length === 0) {
         return {

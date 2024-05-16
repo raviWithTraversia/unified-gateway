@@ -2,7 +2,7 @@ const express = require("express");
 const agency_config_route = express();
 const bodyParser = require("body-parser");
 agency_config_route.use(bodyParser.json());
-agency_config_route.use(bodyParser.urlencoded({extended:true}));
+agency_config_route.use(bodyParser.urlencoded({extended:false}));
 const auth = require("../middleware/auth");
 const agencyConfigurationController = require('./../controllers/agentConfig/agentConfig.controller');
 const multer = require("multer");
@@ -89,6 +89,12 @@ agency_config_route.get(
   auth,
   agencyConfigurationController.getUserProfile
 )
+
+
+
+
+
+
 agency_config_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

@@ -48,4 +48,27 @@ const retriveEventLog = async (req, res) => {
     }
 }
 
-module.exports = { addEventLog, retriveEventLog }
+const getEventLog = async (req, res) => {
+    try {
+        const { eventName, companyId } = req.query;
+        if (!eventName || !companyId) {
+            return {
+                response: "Either eventName or companyId does not exist",
+            };
+        }
+        const getEventLogs = await EventLog.find({ eventName, companyId });
+        if (!getEventLogs.length) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: getEventLogs,
+        };
+    } catch (error) {
+        throw error;
+    }
+}
+
+module.exports = { addEventLog, retriveEventLog, getEventLog }

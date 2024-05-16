@@ -1,6 +1,8 @@
 const agentConfigsModels = require("../../models/AgentConfig");
 const userModel = require("../../models/User");
-const companyModel = require('../../models/Company')
+const companyModel = require('../../models/Company');
+
+
 const addAgentConfiguration = async (req, res) => {
   try {
     let {
@@ -160,53 +162,61 @@ const getAgentConfig = async (req, res) => {
     throw error;
   }
 };
-const updateAgencyProfile = async (req,res) => {
-    try{
-        let uploadDataId = req.query.id;
-        let dataForUpdate = {
-            ...req.body
-        };
-        let updateCompayProfile;
-  // console.log(req.files)
-    if (req.files?. upload_TDS_Exemption_Certificate_URL ||req.files?.gst_URL ||req.files?.panUpload_URL || req.files?.logoDocument_URL ||req.files?.signature_URL||req.files?.aadhar_URL||req.files?.agencyLogo_URL) {
-        updateCompayProfile = await companyModel.findByIdAndUpdate(
-          uploadDataId,
-          {
-            $set: dataForUpdate,
-            upload_TDS_Exemption_Certificate_URL: req?.files?.tds_exemption_certificate_URL[0]?.path,
-            gst_URL: req?.files?.gst_URL[0]?.path,
-            panUpload_URL : req?.files?.panUpload_URL[0]?.path,
-            logoDocument_URL : req?.files?.logoDocument_URL[0]?.path,
-            signature_URL : req?.files?.signature_URL[0]?.path,
-            aadhar_URL : req?.files.aadhar_URL[0]?.path,
-            agencyLogo_URL : req?.files?.agencyLogo_URL[0]?.path
-          },
-          { new: true }
-        );
+const updateAgencyProfile = async (req, res) => {
+  try {
+      let uploadDataId = req.query.id
+
+      console.log(req.body,"shdad")
+      let dataForUpdate = {
+          ...req.body
+      };
+
+
+      let updateCompayProfile;
+
+      if (req.files?.upload_TDS_Exemption_Certificate_URL || req.files?.gst_URL || req.files?.panUpload_URL || req.files?.logoDocument_URL || req.files?.signature_URL || req.files?.aadhar_URL || req.files?.agencyLogo_URL) {
+
+        
+          updateCompayProfile = await companyModel.findByIdAndUpdate(
+              uploadDataId,
+              {
+                  $set: dataForUpdate,
+                  tds_exemption_certificate_URL: req.files.tds_exemption_certificate_URL ? req.files.tds_exemption_certificate_URL[0].path : null,
+                  gst_URL: req.files.gst_URL ? req.files.gst_URL[0].path : null,
+                  panUpload_URL: req.files.panUpload_URL ? req.files.panUpload_URL[0].path : null,
+                  logoDocument_URL: req.files.logoDocument_URL ? req.files.logoDocument_URL[0].path : null,
+                  signature_URL: req.files.signature_URL ? req.files.signature_URL[0].path : null,
+                  aadhar_URL: req.files.aadhar_URL ? req.files.aadhar_URL[0].path : null,
+                  agencyLogo_URL: req.files.agencyLogo_URL ? req.files.agencyLogo_URL[0].path : null
+              },
+              { new: true }
+          );
       } else {
-        updateCompayProfile = await companyModel.findByIdAndUpdate(
-          uploadDataId,
-          {
-            $set: dataForUpdate,
-          },
-          { new: true }
-        );
+          updateCompayProfile = await companyModel.findByIdAndUpdate(
+              uploadDataId,
+              {
+                  $set: dataForUpdate,
+              },
+              { new: true }
+          );
       }
-    if(updateCompayProfile){
-        return {
-            response : 'Agency/Distributer details updated sucessfully',
-            data : updateCompayProfile
-        }
-    }else{
-        return {
-            response : 'Agency/Distributer details not updated'
-        }
-    }
-    }catch(error){
-      console.log(error)
-      throw error
-    }
+
+      if (updateCompayProfile) {
+          return {
+              response: 'Agency/Distributor details updated successfully',
+              data: updateCompayProfile
+          };
+      } else {
+          return {
+              response: 'Agency/Distributor details not updated'
+          };
+      }
+  } catch (error) {
+      console.log('Error updating agency profile:', error); // Log error
+      throw error;
+  }
 };
+
 const getUserProfile = async (req,res) => {
   try{
   let {userId} = req.query;

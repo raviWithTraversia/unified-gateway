@@ -1,12 +1,12 @@
 const PortalLog = require('../../models/Logs/PortalApiLogs');
 
-const addPortalLog = async(req , res) => {
+const addPortalLog = async (req, res) => {
     try {
-        const {traceId , companyId , source , product , request , responce} = req.body
-        
-        if(!companyId) {
+        const { traceId, companyId, source, product, request, responce } = req.body
+
+        if (!companyId) {
             return {
-                responce : 'companyId fields are required'
+                responce: 'companyId fields are required'
             }
         }
 
@@ -32,23 +32,23 @@ const addPortalLog = async(req , res) => {
 }
 
 
-const getPortalLog = async(req , res) => {
+const getPortalLog = async (req, res) => {
 
     try {
         const traceIdToFind = req.params.traceId;
 
-        const logs = await PortalLog.find({traceId : traceIdToFind});
-        if(logs.length > 0) {
+        const logs = await PortalLog.find({ traceId: traceIdToFind });
+        if (logs.length > 0) {
             return {
                 data: logs
             }
-        }else {
+        } else {
             return {
                 response: 'Portal Log Not Found',
                 data: null
             }
         }
-        
+
     } catch (error) {
         apiErrorres(
             res,
@@ -58,4 +58,29 @@ const getPortalLog = async(req , res) => {
     }
 }
 
-module.exports = {addPortalLog , getPortalLog}
+const getBookingLogs = async (req, res) => {
+    const { userId, companyId, traceId, BookingId } = req.body;
+    let fifteenDaysAgo = new Date();
+    fifteenDaysAgo.setDate(new Date().getDate() - 5); //get 15 days before date for deleting the previous data
+    const getFifteenDaysBeforeData = await PortalLog.find({ createdAt: { $lt: new Date(fifteenDaysAgo) } });
+    if (getFifteenDaysBeforeData.length) {
+        await PortalLog.deleteMany({ createdAt: { $lt: new Date(fifteenDaysAgo) } });
+    }
+    if (!userId || !companyId) {
+        return {
+            response: "Either userId or companyId does not exist",
+        };
+    }
+    const getPortalBookingLogs = await PortalLog.find({ userId, companyId, traceId, BookingId });
+    if (!getPortalBookingLogs.length) {
+        return {
+            response: "Data Not Found",
+        };
+    }
+    return {
+        response: "Fetch Data Successfully",
+        data: getPortalBookingLogs,
+    };
+}
+
+module.exports = { addPortalLog, getPortalLog, getBookingLogs }

@@ -7,8 +7,9 @@ flight_booking_route.use(bodyParser.urlencoded({ limit: '100mb', extended: true 
 // flight_booking_route.use(bodyParser.urlencoded({extended:true}));
 const flight = require('../../controllers/flightBooking/flightBooking.controller');
 
-flight_booking_route.post('/flightbooking/idcreation' , flight.getIdCreation);
-flight_booking_route.post('/flightbooking/allBooking' , flight.getAllBooking);
-flight_booking_route.post('/flightbooking/getBookingByBookingId' , flight.getBookingByBookingId);
+flight_booking_route.post('/flightbooking/idcreation', flight.getIdCreation);
+flight_booking_route.post('/flightbooking/allBooking', flight.getAllBooking);
+flight_booking_route.post('/flightbooking/getBookingByBookingId', flight.getBookingByBookingId);
+flight_booking_route.post('/flightbooking/getBookingCalendarCount', flight.getBookingCalendarCount);
 
 module.exports = flight_booking_route;

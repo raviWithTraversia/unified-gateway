@@ -1274,6 +1274,8 @@ const kafilaFunOnlinePayment = async (
           provider: itineraryItem?.Provider,
           bookingType: "Automated",
           bookingStatus: "INCOMPLETE",
+          paymentMethodType:paymentMethodType,
+          paymentGateway:paymentGateway,
           bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
           Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
           travelType: TravelType,

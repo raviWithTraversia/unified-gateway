@@ -197,7 +197,7 @@ const payuSuccess = async (req, res) => {
               PaxInfo: PassengerPreferences,
             };
 
-            try {
+            
               let fSearchApiResponse = await axios.post(
                 flightSearchUrl,
                 requestDataFSearch,
@@ -440,9 +440,7 @@ const payuSuccess = async (req, res) => {
               } else {
                 return bookingResponce;
               }
-            } catch (error) {
-              console.log('asdfgf')
-            }
+            
           })
         //);
         await Promise.all(updatePromises);

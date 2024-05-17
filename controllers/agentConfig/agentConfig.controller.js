@@ -128,7 +128,7 @@ const getUserProfile = async (req, res) => {
           ServerStatusCode.SUCESS_CODE
         );
       } else if (result.response === "User data not found") {
-        apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
+        apiErrorres(res, result.response, ServerStatusCode.NOT_EXIST_CODE, true);
       } else {
         apiErrorres(
           res,

@@ -413,7 +413,7 @@ const getBookingBill = async (req, res) => {
     },
   }, { $unwind: "$bookingData" }, {
     $match: {
-      "bookingData.AgencyId": agencyId ? new ObjectId(agencyId) : { $exists: true }
+      "bookingData.bookingStatus": "CONFIRMED", "bookingData.AgencyId": agencyId ? new ObjectId(agencyId) : { $exists: true }
     }
   }, {
     $lookup: {

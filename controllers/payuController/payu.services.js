@@ -184,11 +184,13 @@ const payuSuccess = async (req, res) => {
           // console.error('Error creating booking:', error);
           getuserDetails = "User Not Found";
         }
+        
         const getAgentConfigForUpdateagain = await agentConfig.findOne({
           userId: getuserDetails._id,
-        });
-        const maxCreditLimitPriceUp = getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
-
+        });        
+          
+        const getconfigAmount = getAgentConfigForUpdateagain.maxcreditLimit;        
+        
         let totalItemAmount = 0; // Initialize totalItemAmount outside the reduce function
 
         const totalsAmount = ItineraryPriceCheckResponses.reduce((acc, curr) => {
@@ -202,10 +204,10 @@ const payuSuccess = async (req, res) => {
         }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0 });        
         // Calculate totalItemAmount by summing up all prices
         totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice;
-        
+       
         const newBalanceCredit =
-        maxCreditLimitPriceUp + totalItemAmount;
-
+        getconfigAmount + totalItemAmount;
+        
         await agentConfig.updateOne(
               { userId: getuserDetails._id },
               { maxcreditLimit: newBalanceCredit }
@@ -461,6 +463,10 @@ const payuSuccess = async (req, res) => {
     </html>`;
 
         if (updatePromises.length > 0) {
+          return {
+            response: "Success",
+            data: successHtmlCode,
+          };
           return successHtmlCode;
         } else {
           return "Data does not exist";

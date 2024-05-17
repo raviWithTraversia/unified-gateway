@@ -130,11 +130,53 @@ if(result.response == 'Smtp Data Updated Successfully'){
         true ) 
  }
 };
+const sendMail = async(req,res)=>{
+    try{
+const result=await smtpServices.sendMail(req,res)
+    console.log(result)
 
+    if(result.response === 'SMTP Email sent successfully'){
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+            )
+    }
+    else if(result.response === 'Your Smtp data not found'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
+            true 
+            )
+    }
+  
+    
+    else{
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.BAD_REQUEST,
+            true 
+            )
+    }
+    }
+    catch(error){
+console.log(error)
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true ) 
+    }
+}
 
 module.exports = {
     smtpConfig,
     addSmtpConfig,
     removeSmtpConfig,
-    updateSmtpConfig
+    updateSmtpConfig,
+sendMail
+
 }

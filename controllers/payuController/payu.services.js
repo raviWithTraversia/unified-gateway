@@ -359,9 +359,10 @@ const payuSuccess = async (req, res) => {
                 const getAgentConfigForUpdateagain = await agentConfig.findOne({
                   userId: getuserDetails._id,
                 });
-                // add balance here
-                const maxCreditLimitPriceUp =
-                  getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
+                if(getAgentConfigForUpdateagain){
+                  // add balance here
+                  const maxCreditLimitPriceUp =
+                    getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
 
                 const newBalanceCredit =
                   maxCreditLimitPriceUp +
@@ -373,7 +374,7 @@ const payuSuccess = async (req, res) => {
                 //   { userId: getuserDetails._id },
                 //   { maxcreditLimit: newBalanceCredit }
                 // );
-                await ledger.create({
+                const addToLedger = await ledger.create({
                   userId: getuserDetails._id,
                   companyId: getuserDetails.company_ID._id,
                   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
@@ -390,7 +391,7 @@ const payuSuccess = async (req, res) => {
                   transactionBy: getuserDetails._id,
                   cartId: item?.BookingId,
                 });
-
+                if(addToLedger){
                 // dedatc Balance here
                 const maxCreditLimitPricededact = newBalanceCredit;
 
@@ -427,6 +428,8 @@ const payuSuccess = async (req, res) => {
                   { bookingId: item?.BookingId },
                   { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" }
                 );
+              }
+               }
               }
               //return fSearchApiResponse.data;
               const barcodeupdate = await updateBarcode2DByBookingId(
@@ -639,44 +642,44 @@ const payuFail = async (req, res) => {
       //   })
       // );
       
-      const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
-        const getAgentConfigForUpdateagain = await agentConfig.findOne({
-            userId: getuserDetails._id,
-        });
-        // add balance here
-        const maxCreditLimitPriceUp =
-            getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
+    //   const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
+    //     // const getAgentConfigForUpdateagain = await agentConfig.findOne({
+    //     //     userId: getuserDetails._id,
+    //     // });
+    //     // // add balance here
+    //     // const maxCreditLimitPriceUp =
+    //     //     getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
     
-        const newBalanceCredit =
-            maxCreditLimitPriceUp +
-            item?.offeredPrice +
-            item?.totalMealPrice +
-            item?.totalBaggagePrice +
-            item?.totalSeatPrice;
-        await agentConfig.updateOne(
-            { userId: getuserDetails._id },
-            { maxcreditLimit: newBalanceCredit }
-        );
-        await ledger.create({
-            userId: getuserDetails._id,
-            companyId: getuserDetails.company_ID._id,
-            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-            transactionAmount:
-                item?.offeredPrice +
-                item?.totalMealPrice +
-                item?.totalBaggagePrice +
-                item?.totalSeatPrice,
-            currencyType: "INR",
-            fop: "CREDIT",
-            transactionType: "DEBIT",
-            runningAmount: newBalanceCredit,
-            remarks: "Booking Amount Dedactive Into Your Account.",
-            transactionBy: getuserDetails._id,
-            cartId: item?.BookingId,
-        });
-    });
+    //     // const newBalanceCredit =
+    //     //     maxCreditLimitPriceUp +
+    //     //     item?.offeredPrice +
+    //     //     item?.totalMealPrice +
+    //     //     item?.totalBaggagePrice +
+    //     //     item?.totalSeatPrice;
+    //     // await agentConfig.updateOne(
+    //     //     { userId: getuserDetails._id },
+    //     //     { maxcreditLimit: newBalanceCredit }
+    //     // );
+    //     // await ledger.create({
+    //     //     userId: getuserDetails._id,
+    //     //     companyId: getuserDetails.company_ID._id,
+    //     //     ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+    //     //     transactionAmount:
+    //     //         item?.offeredPrice +
+    //     //         item?.totalMealPrice +
+    //     //         item?.totalBaggagePrice +
+    //     //         item?.totalSeatPrice,
+    //     //     currencyType: "INR",
+    //     //     fop: "CREDIT",
+    //     //     transactionType: "DEBIT",
+    //     //     runningAmount: newBalanceCredit,
+    //     //     remarks: "Booking Amount Dedactive Into Your Account.",
+    //     //     transactionBy: getuserDetails._id,
+    //     //     cartId: item?.BookingId,
+    //     // });
+    // });
     
-    await Promise.all(updatePromises);
+    //await Promise.all(updatePromises);
       
       let failedHtmlCode = `<!DOCTYPE html>
     <html lang="en">
@@ -741,7 +744,7 @@ const payuFail = async (req, res) => {
     </html>
     `;
 
-      if (updatePromises.length > 0) {
+      if (failedHtmlCode > 0) {
         return failedHtmlCode;
       } else {
         return "Data does not exist";

@@ -222,7 +222,6 @@ const getUserProfile = async (req,res) => {
   let userData = await userModel.findById(userId).populate('roleId', 'name type').populate({
     path: 'company_ID',
     model: 'Company',
-    select: 'companyName type cashBalance creditBalance maxCreditLimit updatedAt',
     populate: {
       path: 'parent',
       model: 'Company',

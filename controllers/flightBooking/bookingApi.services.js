@@ -14,7 +14,8 @@ const getAllBooking = async (req, res) => {
     status,
     fromDate,
     toDate,
-    salesInchargeIds
+    salesInchargeIds,
+    BookedBy
   } = req.body;
   const fieldNames = [
     "userId",
@@ -87,12 +88,12 @@ const getAllBooking = async (req, res) => {
     }
 
     const bookingDetails = await bookingdetails.find(filter)
-      .populate({
-        path: 'userId',
-        populate: {
-          path: 'company_ID'
-        }
-      });
+    // .populate({
+    //   path: 'userId',
+    //   populate: {
+    //     path: 'company_ID'
+    //   }
+    // });
 
 
     if (!bookingDetails || bookingDetails.length === 0) {
@@ -295,10 +296,8 @@ const getAllBooking = async (req, res) => {
       };
     }
   }
-
-
-
 };
+
 const getBookingByBookingId = async (req, res) => {
   const {
     bookingId
@@ -402,7 +401,7 @@ const getBookingBill = async (req, res) => {
     $project: {
       bookingId: 1,
       ticketNo: "$Passengers.Optional.TicketNumber",
-      paxName: { $concat: ["$Passengers.Title", '. ', "$Passengers.FName", " ", "$Passengers.LName"] }
+      paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] }
     }
   }, {
     $lookup: {

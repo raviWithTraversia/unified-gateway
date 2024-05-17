@@ -166,7 +166,6 @@ const updateAgencyProfile = async (req, res) => {
   try {
       let uploadDataId = req.query.id
 
-      console.log(req.body,"shdad")
       let dataForUpdate = {
           ...req.body
       };

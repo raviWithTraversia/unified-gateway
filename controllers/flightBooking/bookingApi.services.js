@@ -59,7 +59,7 @@ const getAllBooking = async (req, res) => {
 
     let filter = { userId: userId };
     if (agencyId !== undefined && agencyId.trim() !== "") {
-      filter.userId = { _id: agencyId };
+      filter.AgencyId = agencyId;
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -88,12 +88,12 @@ const getAllBooking = async (req, res) => {
     }
 
     const bookingDetails = await bookingdetails.find(filter)
-    // .populate({
-    //   path: 'userId',
-    //   populate: {
-    //     path: 'company_ID'
-    //   }
-    // });
+      .populate({
+        path: 'userId',
+        populate: {
+          path: 'company_ID'
+        }
+      }).populate('BookedBy');
 
 
     if (!bookingDetails || bookingDetails.length === 0) {

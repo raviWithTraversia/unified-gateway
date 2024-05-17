@@ -400,7 +400,13 @@ const userInsert = async (req, res) => {
         diSetupIds:agencyGroupId?.diSetupGroupId || null,
         modifyAt: new Date(),
         modifiedBy : req?.user?.id || null,
-        agencyGroupId : agencyGroupId
+        agencyGroupId : agencyGroupId,
+        initiallyLoad:"Fight Search",
+        acencyLogoOnTicketCopy:true,
+        addressOnTicketCopy:true,
+        holdPNRAllowed:true,
+        portalLedgerAllowed:true,
+        fareTypes:["NDF","CPNS1","CPN","MAIN","CDF","SME","CPNS","CRCT","CRCT1","FD","FF"],
         });
         agentConfigsInsert = await agentConfigsInsert.save();
       console.log( 'User Config Insert Sucessfully');

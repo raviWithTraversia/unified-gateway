@@ -1,7 +1,11 @@
 const pgCharges = require("../../models/pgCharges");
 const Role = require ('../../models/Role');
 const User = require('../../models/User')
-
+const Company = require("../../models/Company");
+const Users = require("../../models/User");
+const Supplier = require("../../models/Supplier");
+const agentConfig = require("../../models/AgentConfig");
+const pgchargesGroup = require("../../models/paymentGatewayChargesGroup");
 const addPgCharges = async (req, res) => {
   try {
     const {paymentGatewayProvider, paymentMethod, gatewayChargesOnMethod, gatewayFixchargesOnMethod,companyId } = req.body;
@@ -40,6 +44,78 @@ const addPgCharges = async (req, res) => {
         response : `User Dont have permision to add Pg Charges Details`
     }
 }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+const getAssignPGChargesGroup = async (req, res) => {
+  try {
+    const { UserId } = req.body; 
+
+    if(!UserId){
+      return {
+        response : 'Not Found'
+      }
+    }
+    // check user and its role
+   let agencyUserId;
+   const checkUserRole = await Users.findById(UserId)
+     .populate("company_ID")
+     .populate("roleId");    
+
+   if(checkUserRole){  
+    if (checkUserRole?.roleId.name === "Agency") {
+      agencyUserId = checkUserRole._id;
+    } else {
+      const checkAgencyByCompany = await Users.find({
+        company_ID: checkUserRole.company_ID,
+      })
+        .populate("company_ID")
+        .populate("roleId");
+      const agencyUser = checkAgencyByCompany.find(
+        (user) => user.roleId.name === "Agency"
+      );
+      if (agencyUser) {
+        agencyUserId = agencyUser._id;
+      }
+    }
+   }
+   const getAgentConfig = await agentConfig.findOne({
+    userId: agencyUserId,
+  }).populate({
+    path: "paymentGatewayIds",
+    populate: {
+      path: "paymentGatewayIds"
+    }
+  }).populate({
+    path: "agencyGroupId",
+    populate: {
+      path: "pgChargesGroupId",
+      populate: {
+        path: "paymentGatewayIds"
+      }
+    }
+  }); 
+  if(getAgentConfig && getAgentConfig.paymentGatewayIds !== null){    
+    return {
+      data: getAgentConfig?.paymentGatewayIds?.paymentGatewayIds,
+      response: "Fetch Data Sucessfully",
+    };
+  }else if(getAgentConfig && getAgentConfig.agencyGroupId !== null){
+    return {
+      data: getAgentConfig?.agencyGroupId?.paymentGatewayIds?.paymentGatewayIds,
+      response: "Fetch Data Sucessfully",
+    };
+
+  }else{
+    return {
+      response : 'Not Found'
+    }
+  }
+
+
+
   } catch (error) {
     console.log(error);
     throw error;
@@ -150,8 +226,11 @@ const getPgCharges = async (req,res) => {
     }
 };
 
+
+
 module.exports = {
   addPgCharges,
+  getAssignPGChargesGroup,
   editPgcharges,
   calculatePgCharges,
   getPgCharges

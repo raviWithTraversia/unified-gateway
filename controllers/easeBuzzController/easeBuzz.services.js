@@ -1,5 +1,18 @@
 
-const axios = require('axios');
+const pgCharges = require("../../models/pgCharges");
+const Role = require("../../models/Role");
+const User = require("../../models/User");
+const crypto = require("crypto");
+const UserModel = require("../../models/User");
+const BookingDetails = require("../../models/booking/BookingDetails");
+const transaction = require("../../models/transaction");
+const ledger = require("../../models/Ledger");
+const agentConfig = require("../../models/AgentConfig");
+const Logs = require("../../controllers/logs/PortalApiLogsCommon");
+const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
+const BookingTemp = require("../../models/booking/BookingTemp");
+const axios = require("axios");
+const { v4: uuidv4 } = require("uuid");
 
 const easeBuzz = async (req, res) => {
     try {
@@ -56,6 +69,302 @@ const easeBuzz = async (req, res) => {
     }
 }
 
+const easeBuzzResponce = async (req, res) => {
+    try {
+        const { status, txnid, productinfo, udf1, net_amount_debit } = req.body;
+    if (status === "success") {
+      const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
+      
+      if (BookingTempData) {
+        const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
+        const PassengerPreferences = JSON.parse(
+          convertDataBookingTempRes.PassengerPreferences
+        );
+        const ItineraryPriceCheckResponses = JSON.parse(
+          convertDataBookingTempRes.ItineraryPriceCheckResponses
+        );
+        
+        const Authentication = JSON.parse(
+          convertDataBookingTempRes.Authentication
+        );
+        let credentialType = "D";
+        let createTokenUrl;
+        let flightSearchUrl;
+        if (Authentication.CredentialType === "LIVE") {
+          // Live Url here
+
+          credentialType = "P";
+          createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
+          flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FPNR`;
+        } else {
+          // Test Url here
+          createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
+          flightSearchUrl = `http://stage1.ksofttechnology.com/api/FPNR`;
+        }
+
+        let getuserDetails;
+        
+          getuserDetails = await UserModel.findOne({
+            _id: Authentication.UserId,
+          }).populate("company_ID");
+          if (getuserDetails) {
+            getuserDetails = getuserDetails;
+          } else {
+            getuserDetails = "User Not Found";
+          }        
+        
+        let getconfigAmount; // Declare getconfigAmount outside of the if block
+
+        const getAgentConfigForUpdateagain = await agentConfig.findOne({
+          userId: getuserDetails._id,
+        });  
+        
+        if (getAgentConfigForUpdateagain) {
+          getconfigAmount = getAgentConfigForUpdateagain.maxcreditLimit;
+        } else {
+          return "Agency Config Not Found"; // Return the error message if agent config is not found
+        }   
+         //return getconfigAmount;
+              
+        
+        let totalItemAmount = 0; // Initialize totalItemAmount outside the reduce function
+
+        const totalsAmount = ItineraryPriceCheckResponses.reduce((acc, curr) => {
+          // Add current item prices to the accumulator
+          acc.offeredPrice += curr.offeredPrice;
+          acc.totalMealPrice += curr.totalMealPrice;
+          acc.totalBaggagePrice += curr.totalBaggagePrice;
+          acc.totalSeatPrice += curr.totalSeatPrice;
+        
+          return acc; // Return accumulator
+        }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0 });        
+        // Calculate totalItemAmount by summing up all prices
+        totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice;
+       
+        const newBalanceCredit =
+        getconfigAmount + totalItemAmount;
+       
+        await agentConfig.updateOne(
+              { userId: getuserDetails._id },
+              { maxcreditLimit: newBalanceCredit }
+            );
+              await ledger.create({
+              userId: getuserDetails._id,
+              companyId: getuserDetails.company_ID._id,
+              ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+              transactionAmount:
+                item?.offeredPrice +
+                item?.totalMealPrice +
+                item?.totalBaggagePrice +
+                item?.totalSeatPrice,
+              currencyType: "INR",
+              fop: "CREDIT",
+              transactionType: "DEBIT",
+              runningAmount: newBalanceCredit,
+              remarks: "Booking Amount Dedactive Into Your Account.",
+              transactionBy: getuserDetails._id,
+              cartId: item?.BookingId,
+            });
+
+        //const hitAPI = await Promise.all(
+          const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
+            let requestDataFSearch = {
+              FareChkRes: {
+                Error: item.Error,
+                IsFareUpdate: item.IsFareUpdate,
+                IsAncl: item.IsAncl,
+                Param: item.Param,
+                SelectedFlight: [item.SelectedFlight],
+                FareBreakup: item.FareDifference,
+                GstData: item.GstData,
+                Ancl: null,
+              },
+              PaxInfo: PassengerPreferences,
+            };
+
+            try {
+              let fSearchApiResponse = await axios.post(
+                flightSearchUrl,
+                requestDataFSearch,
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                }
+              );
+              const logData = {
+                traceId: Authentication.TraceId,
+                companyId: Authentication.CompanyId,
+                userId: Authentication.UserId,
+                source: "Kafila",
+                type: "API Log",
+                BookingId: udf1,
+                product: "Flight",
+                logName: "Flight Search",
+                request: requestDataFSearch,
+                responce: fSearchApiResponse?.data,
+              };
+              Logs(logData);
+              if (fSearchApiResponse.data.Status == "failed") {
+                await BookingDetails.updateOne(
+                  {
+                    bookingId: udf1,
+                    "itinerary.IndexNumber": item.IndexNumber,
+                  },
+                  {
+                    $set: {
+                      bookingStatus: "FAILED",
+                      bookingRemarks: error.message,
+                    },
+                  }
+                );
+                return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
+              }
+
+              const bookingResponce = {
+                CartId: item.BookingId,
+                bookingResponce: {
+                  CurrentStatus:
+                    fSearchApiResponse.data.BookingInfo.CurrentStatus,
+                  BookingStatus:
+                    fSearchApiResponse.data.BookingInfo.BookingStatus,
+                  BookingRemark:
+                    fSearchApiResponse.data.BookingInfo.BookingRemark,
+                  BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
+                  providerBookingId:
+                    fSearchApiResponse.data.BookingInfo.BookingId,
+                  PNR: fSearchApiResponse.data.BookingInfo.APnr,
+                  Type: fSearchApiResponse.data.BookingInfo.GPnr,
+                  APnr: fSearchApiResponse.data.BookingInfo.APnr,
+                  GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+                },
+                itinerary: item,
+                PassengerPreferences: PassengerPreferences,
+                userDetails: getuserDetails,
+              };
+              await BookingDetails.updateOne(
+                {
+                  bookingId: udf1,
+                  "itinerary.IndexNumber": item.IndexNumber,
+                },
+                {
+                  $set: {
+                    bookingStatus:
+                      fSearchApiResponse.data.BookingInfo.CurrentStatus,
+                    bookingRemarks:
+                      fSearchApiResponse.data.BookingInfo.BookingRemark,
+                    providerBookingId:
+                      fSearchApiResponse.data.BookingInfo.BookingId,
+                    PNR: fSearchApiResponse.data.BookingInfo.APnr,
+                    APnr: fSearchApiResponse.data.BookingInfo.APnr,
+                    GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+                  },
+                }
+              );
+
+              if (
+                fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
+              ) {
+                return `${fSearchApiResponse.data}-${fSearchApiResponse.data}`;               
+              } else { 
+
+                const getAgentConfigData = await agentConfig.findOne({
+                  userId: getuserDetails._id,
+                });
+                const maxCreditLimitPriceUp = getAgentConfigData?.maxcreditLimit ?? 0;
+                const newBalanceCreditdeductData =
+                maxCreditLimitPriceUp -
+                  (item?.offeredPrice +
+                    item?.totalMealPrice +
+                    item?.totalBaggagePrice +
+                    item?.totalSeatPrice);
+                await agentConfig.updateOne(
+                  { userId: getuserDetails._id },
+                  { maxcreditLimit: newBalanceCreditdeductData }
+                );
+                await ledger.create({
+                  userId: getuserDetails._id,
+                  companyId: getuserDetails.company_ID._id,
+                  ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+                  transactionAmount:
+                    item?.offeredPrice +
+                    item?.totalMealPrice +
+                    item?.totalBaggagePrice +
+                    item?.totalSeatPrice,
+                  currencyType: "INR",
+                  fop: "DEBIT",
+                  transactionType: "CREDIT",
+                  runningAmount: newBalanceCreditdeductData,
+                  remarks: "Booking Amount Add Into Your Account.",
+                  transactionBy: getuserDetails._id,
+                  cartId: item?.BookingId,
+                });
+
+                // Transtion
+                await transaction.updateOne(
+                  { bookingId: item?.BookingId },
+                  { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" }
+                );
+              
+               
+              }
+              //return fSearchApiResponse.data;
+              const barcodeupdate = await updateBarcode2DByBookingId(
+                item?.BookingId,
+                PassengerPreferences,
+                item,
+                fSearchApiResponse.data.BookingInfo.APnr
+              );
+              if (barcodeupdate) {
+                return bookingResponce;
+              } else {
+                return bookingResponce;
+              }
+            } catch (error) {
+              await BookingDetails.updateOne(
+                {
+                  bookingId: item?.BookingId,
+                  "itinerary.IndexNumber": item.IndexNumber,
+                },
+                {
+                  $set: {
+                    bookingStatus: "FAILED",
+                    bookingRemarks: error.message,
+                  },
+                }
+              );             
+              return error.message;
+            }
+          })
+        //);
+        await Promise.all(updatePromises);       
+
+        if (updatePromises.length > 0) {         
+            return {
+                response: "Save Successfully",
+                data: updatePromises,
+              };
+        } else {
+            return {
+                response: "Failed",
+                data: null,
+              };
+        }
+      }
+    }else{
+        return {
+            response: "Failed",
+            data: null,
+          };
+    }
+      
+    } catch (error) {
+        throw error;
+    }
+}
+
+
 module.exports = {
-    easeBuzz
+    easeBuzz,
+    easeBuzzResponce
 }

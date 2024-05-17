@@ -171,7 +171,7 @@ const payuSuccess = async (req, res) => {
         }
 
         let getuserDetails;
-        try {
+        
           getuserDetails = await UserModel.findOne({
             _id: Authentication.UserId,
           }).populate("company_ID");
@@ -179,17 +179,21 @@ const payuSuccess = async (req, res) => {
             getuserDetails = getuserDetails;
           } else {
             getuserDetails = "User Not Found";
-          }
-        } catch (error) {
-          // console.error('Error creating booking:', error);
-          getuserDetails = "User Not Found";
-        }
+          }        
         
+        let getconfigAmount; // Declare getconfigAmount outside of the if block
+
         const getAgentConfigForUpdateagain = await agentConfig.findOne({
           userId: getuserDetails._id,
-        });        
-          
-        const getconfigAmount = getAgentConfigForUpdateagain.maxcreditLimit;        
+        });  
+        
+        if (getAgentConfigForUpdateagain) {
+          getconfigAmount = getAgentConfigForUpdateagain.maxcreditLimit;
+        } else {
+          return "Agency Config Not Found"; // Return the error message if agent config is not found
+        }   
+         //return getconfigAmount;
+              
         
         let totalItemAmount = 0; // Initialize totalItemAmount outside the reduce function
 
@@ -207,7 +211,7 @@ const payuSuccess = async (req, res) => {
        
         const newBalanceCredit =
         getconfigAmount + totalItemAmount;
-        
+       
         await agentConfig.updateOne(
               { userId: getuserDetails._id },
               { maxcreditLimit: newBalanceCredit }
@@ -462,11 +466,7 @@ const payuSuccess = async (req, res) => {
     </body>
     </html>`;
 
-        if (updatePromises.length > 0) {
-          return {
-            response: "Success",
-            data: successHtmlCode,
-          };
+        if (updatePromises.length > 0) {         
           return successHtmlCode;
         } else {
           return "Data does not exist";

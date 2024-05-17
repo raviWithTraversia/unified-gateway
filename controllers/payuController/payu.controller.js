@@ -44,29 +44,29 @@ const payuSuccess = async (req, res) =>
   {
     try {
       const result = await payuServices.payuSuccess(req, res);      
-      //res.sendStatus(result);
-      if (result.response == "Success") {
-        apiSucessRes(
-          res,
-          result.response,
-          result.data,
-          ServerStatusCode.SUCESS_CODE
-        );
-      } else if (result.response == "Data does not exist") {
-        apiErrorres(
-          res,
-          result.response,
-          ServerStatusCode.RESOURCE_NOT_FOUND,
-          true
-        );
-      } else {
-        apiErrorres(
-          res,
-          errorResponse.SOME_UNOWN,
-          ServerStatusCode.INVALID_CRED,
-          true
-        );
-      }
+      res.send(result);
+      // if (result.response == "Success") {
+      //   apiSucessRes(
+      //     res,
+      //     result.response,
+      //     result.data,
+      //     ServerStatusCode.SUCESS_CODE
+      //   );
+      // } else if (result.response == "Data does not exist") {
+      //   apiErrorres(
+      //     res,
+      //     result.response,
+      //     ServerStatusCode.RESOURCE_NOT_FOUND,
+      //     true
+      //   );
+      // } else {
+      //   apiErrorres(
+      //     res,
+      //     errorResponse.SOME_UNOWN,
+      //     ServerStatusCode.INVALID_CRED,
+      //     true
+      //   );
+      // }
     } catch (error) {
       apiErrorres(
         res,

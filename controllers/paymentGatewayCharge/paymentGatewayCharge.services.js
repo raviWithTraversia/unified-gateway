@@ -48,8 +48,13 @@ const editPgcharges = async (req, res) => {
     const updateData = req.body;
     if (updateData?.paymentGatewayProvider || updateData?.paymentMethod) {
       let data = await pgChargesModels.findById(id);
-      const existingPgCharges = await pgChargesModels.findOne({ companyId: data.companyId, paymentGatewayProvider: updateData?.paymentGatewayProvider, paymentMethod: updateData?.paymentMethod });
-      if (existingPgCharges) {
+      let isPgChargesChange = false
+      if (data?.paymentGatewayProvider !== updateData?.paymentGatewayProvider || data?.paymentMethod !== updateData?.paymentMethod || data?.flatFee !== updateData?.flatFee || data?.percentageFee !== updateData?.percentageFee) {
+        isPgChargesChange = true;
+      }
+      // const existingPgCharges = await pgChargesModels.findOne({ companyId: data.companyId, paymentGatewayProvider: updateData?.paymentGatewayProvider, paymentMethod: updateData?.paymentMethod });
+      // console.log("existingPgCharges: ", existingPgCharges)
+      if (!isPgChargesChange) {
         return {
           response: 'Payment gateway charges for this company and provider already exist'
         }
@@ -72,7 +77,6 @@ const editPgcharges = async (req, res) => {
       };
     }
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };

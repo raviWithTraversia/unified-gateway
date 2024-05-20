@@ -1,24 +1,24 @@
 const pgChargesModels = require('../../models/PaymentGatewayCharges');
 const User = require('../../models/User');
 const addPgCharges = async (req, res) => {
-    try {
-      const {paymentGatewayProvider, paymentMethod, flatFee, percentageFee,companyId } = req.body;
-       let userId = req.user._id;
-       const existingPgCharges = await pgChargesModels.findOne({ companyId, paymentGatewayProvider,paymentMethod });
-       if(existingPgCharges){
-        return {
-          response : 'Payment gateway charges for this company and provider already exist'
-        }
-       }
-       let checkIsRole =  await User.findById(userId).populate('roleId').exec();
-       if(checkIsRole.roleId.name == "Tmc" || checkIsRole.roleId.name == "TMC" ){
-          let pgChargesInsert =  await pgChargesModels.create({
-          companyId,
-          paymentGatewayProvider,
-          paymentMethod,
-          flatFee,
-          percentageFee
-        });
+  try {
+    const { paymentGatewayProvider, paymentMethod, flatFee, percentageFee, companyId } = req.body;
+    let userId = req.user._id;
+    const existingPgCharges = await pgChargesModels.findOne({ companyId, paymentGatewayProvider, paymentMethod });
+    if (existingPgCharges) {
+      return {
+        response: 'Payment gateway charges for this company and provider already exist'
+      }
+    }
+    let checkIsRole = await User.findById(userId).populate('roleId').exec();
+    if (checkIsRole.roleId.name == "Tmc" || checkIsRole.roleId.name == "TMC") {
+      let pgChargesInsert = await pgChargesModels.create({
+        companyId,
+        paymentGatewayProvider,
+        paymentMethod,
+        flatFee,
+        percentageFee
+      });
       pgChargesInsert = await pgChargesInsert.save();
       if (pgChargesInsert) {
         return {
@@ -30,134 +30,134 @@ const addPgCharges = async (req, res) => {
           response: "Payment Gateway Charges Not Added",
         };
       }
-     }
-     else{
+    }
+    else {
       return {
-          response : `User Dont have permision to add Pg Charges Details`
+        response: `User Dont have permision to add Pg Charges Details`
       }
+    }
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  };
-  
-  const editPgcharges = async (req, res) => {
-    try {
-      const id = req.query.id;
-      const updateData = req.body;
-      if(updateData?.paymentGatewayProvider || updateData?.paymentMethod){
-         let data = await pgChargesModels.findById(id);
-         const existingPgCharges = await pgChargesModels.findOne({ companyId : data.companyId, paymentGatewayProvider,paymentMethod });
-         if(existingPgCharges){
-          return {
-            response : 'Payment gateway charges for this company and provider already exist'
-          }
-         }
+};
+
+const editPgcharges = async (req, res) => {
+  try {
+    const id = req.query.id;
+    const updateData = req.body;
+    if (updateData?.paymentGatewayProvider || updateData?.paymentMethod) {
+      let data = await pgChargesModels.findById(id);
+      const existingPgCharges = await pgChargesModels.findOne({ companyId: data.companyId, paymentGatewayProvider: updateData?.paymentGatewayProvider, paymentMethod: updateData?.paymentMethod });
+      if (existingPgCharges) {
+        return {
+          response: 'Payment gateway charges for this company and provider already exist'
+        }
       }
-      const updatedUserData = await pgChargesModels.findByIdAndUpdate(
-        id,
-        {
-          $set: updateData,
+    }
+    const updatedUserData = await pgChargesModels.findByIdAndUpdate(
+      id,
+      {
+        $set: updateData,
       },
-        { new: true }
-      );
-      if (updatedUserData) {
-        return {
-          response: "Update Pg Cherges Sucessfully",
-        };
-      } else {
-        return {
-          response: "Pg charges Not Updated",
-        };
-      }
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  };
-  
-  const calculatePgCharges = async (req, res) => {
-    try {
-      const { paymentProviderName, paymentType } = req.query;
-      let payementProviderData = await pgCharges.findOne({
-        paymentGateway: paymentProviderName,
-      });
-      let charge;
-      switch (paymentType) {
-        case "Global":
-         charge = payementProviderData.gatewayChargesOnMethod.paymentType
-          break;
-  
-        case "Upi":
-          charge = payementProviderData.gatewayChargesOnMethod.paymentType
-          break;
-  
-        case "Wallet":
-          charge = payementProviderData.gatewayChargesOnMethod.paymentType;
-          break;
-  
-        case "Card":
-          charge = payementProviderData.gatewayChargesOnMethod.paymentType;
-          break;
-  
-        case "Paylater":
-          charge = payementProviderData.gatewayChargesOnMethod.paymentType;
-          break;
-  
-        case "Emi":
-          charge = payementProviderData.gatewayChargesOnMethod.paymentType;
-          break;
-  
-        case "NetBanking":
-          charge = payementProviderData.gatewayChargesOnMethod.paymentType;
-          break;
-  
-        default:
-          charge = null;
-          break;
+      { new: true }
+    );
+    if (updatedUserData) {
+      return {
+        response: "Update Pg Cherges Sucessfully",
       };
-       if(charge){
-          return {
-              response : `Payment Charge is ${charge}%`,
-              data : charge
-          }
-       }
-       else{
-          return {
-              response : `${paymentType} not exist in this paymeygateway provider`
-          }
-       }
-    } catch (error) {
-      console.log(error);
-      throw error;
+    } else {
+      return {
+        response: "Pg charges Not Updated",
+      };
     }
-  };
-  
-  const getPgCharges = async (req,res) => {
-      try{
-      let companyId = req.query.companyId;
-      let allPaymentMethod = await pgChargesModels.find({companyId : companyId});
-      if(allPaymentMethod){
-          return {
-              response : 'All Payment Method Fetch Sucessful',
-              data : allPaymentMethod
-          }
-      }else{
-          return {
-              response : 'Payment Method Not Found'
-          }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+const calculatePgCharges = async (req, res) => {
+  try {
+    const { paymentProviderName, paymentType } = req.query;
+    let payementProviderData = await pgCharges.findOne({
+      paymentGateway: paymentProviderName,
+    });
+    let charge;
+    switch (paymentType) {
+      case "Global":
+        charge = payementProviderData.gatewayChargesOnMethod.paymentType
+        break;
+
+      case "Upi":
+        charge = payementProviderData.gatewayChargesOnMethod.paymentType
+        break;
+
+      case "Wallet":
+        charge = payementProviderData.gatewayChargesOnMethod.paymentType;
+        break;
+
+      case "Card":
+        charge = payementProviderData.gatewayChargesOnMethod.paymentType;
+        break;
+
+      case "Paylater":
+        charge = payementProviderData.gatewayChargesOnMethod.paymentType;
+        break;
+
+      case "Emi":
+        charge = payementProviderData.gatewayChargesOnMethod.paymentType;
+        break;
+
+      case "NetBanking":
+        charge = payementProviderData.gatewayChargesOnMethod.paymentType;
+        break;
+
+      default:
+        charge = null;
+        break;
+    };
+    if (charge) {
+      return {
+        response: `Payment Charge is ${charge}%`,
+        data: charge
       }
-  
-      }catch(error){
-        console.log(error);
-        throw error;
+    }
+    else {
+      return {
+        response: `${paymentType} not exist in this paymeygateway provider`
       }
-  };
-  
-  module.exports = {
-    addPgCharges,
-    editPgcharges,
-    calculatePgCharges,
-    getPgCharges
-  };
+    }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+const getPgCharges = async (req, res) => {
+  try {
+    let companyId = req.query.companyId;
+    let allPaymentMethod = await pgChargesModels.find({ companyId: companyId });
+    if (allPaymentMethod) {
+      return {
+        response: 'All Payment Method Fetch Sucessful',
+        data: allPaymentMethod
+      }
+    } else {
+      return {
+        response: 'Payment Method Not Found'
+      }
+    }
+
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+module.exports = {
+  addPgCharges,
+  editPgcharges,
+  calculatePgCharges,
+  getPgCharges
+};

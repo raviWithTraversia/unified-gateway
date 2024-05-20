@@ -52,7 +52,7 @@ const getBookingLogs = async (req, res) => {
         const result = await PortalLogService.getBookingLogs(req, res);
         if (!result.response && result.isSometingMissing) {
             apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-        } else if (result.response === "Either userId or companyId does not exist" || result.response === "Data Not Found") {
+        } else if (result.response === "CompanyId does not exist" || result.response === "Data Not Found") {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
         } else if (result.response === "Fetch Data Successfully") {
             apiSucessRes(

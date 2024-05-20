@@ -316,25 +316,44 @@ const KafilaFun = async (
              //pricecheck = BookingIdDetails?.fareRules?.CWBHA === 0 ?
             // fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CWBHA + BookingIdDetails?.fareRules?.SF) ;
             //  newBalance = maxCreditLimit + pricecheck;
+            let tdsAmount = 0;
+            BookingIdDetails.itinerary.PriceBreakup.forEach(item => {
+                if (item) {
+                    const tdsItems = item.CommercialBreakup.filter(commercial => commercial.CommercialType === "TDS");
+                    tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
+                }
+            });
+             //pricecheck = BookingIdDetails?.fareRules?.CWBHA === 0 ?
+            // fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CWBHA + BookingIdDetails?.fareRules?.SF) ;
+            //  newBalance = maxCreditLimit + pricecheck;\
             fSearchApiResponse.data = fSearchApiResponse.data || {};            
             fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
 
-            fSearchApiResponse.data.Charges.RefundableAmt = (fSearchApiResponse.data.Charges.Fare - ((BookingIdDetails.fareRules.CBHA) || 0 + (BookingIdDetails.fareRules.SF || 0)));
+            fSearchApiResponse.data.Charges.RefundableAmt = (BookingIdDetails.bookingTotalAmount || 0 ) - ((BookingIdDetails.fareRules.CBHA || 0) + (BookingIdDetails.fareRules.SF | 0) + (tdsAmount | 0));
             fSearchApiResponse.data.Charges.ServiceFee = BookingIdDetails.fareRules.SF || 0;
             fSearchApiResponse.data.Charges.AirlineRefund = 0; 
             fSearchApiResponse.data.Charges.AirlineCancellationFee = BookingIdDetails.fareRules.CBHA || 0;
             //fSearchApiResponse.data.Charges.Fare = 0; 
              return fSearchApiResponse.data;
+             
           }else{
+            let tdsAmount = 0;
+            BookingIdDetails.itinerary.PriceBreakup.forEach(item => {
+                if (item) {
+                    const tdsItems = item.CommercialBreakup.filter(commercial => commercial.CommercialType === "TDS");
+                    tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
+                }
+            });
             fSearchApiResponse.data = fSearchApiResponse.data || {};            
-            fSearchApiResponse.data.Charges = fSearchApiResponse.data.R_DATA.Charges || {};
-
-            fSearchApiResponse.data.Charges.RefundableAmt = (fSearchApiResponse.data.Charges.Fare - ((BookingIdDetails.fareRules.CWBHA || 0) + (BookingIdDetails.fareRules.SF || 0) ));
+            fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
+            
+            fSearchApiResponse.data.Charges.RefundableAmt = (BookingIdDetails.bookingTotalAmount || 0 ) - ((BookingIdDetails.fareRules.CWBHA || 0) + (BookingIdDetails.fareRules.SF | 0) + (tdsAmount | 0));
             fSearchApiResponse.data.Charges.ServiceFee = BookingIdDetails.fareRules.SF || 0;
             fSearchApiResponse.data.Charges.AirlineRefund = 0; 
             fSearchApiResponse.data.Charges.AirlineCancellationFee = BookingIdDetails.fareRules.CWBHA || 0;
             //fSearchApiResponse.data.Charges.Fare = 0; 
             return fSearchApiResponse.data;
+            
             
             //  pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 ?
             // fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CBHA +  BookingIdDetails?.fareRules?.SF);
@@ -342,7 +361,19 @@ const KafilaFun = async (
           }
         }
       }else{
-        return fSearchApiResponse.data;
+        let tdsAmount = 0;
+        BookingIdDetails.itinerary.PriceBreakup.forEach(item => {
+            if (item) {
+                const tdsItems = item.CommercialBreakup.filter(commercial => commercial.CommercialType === "TDS");
+                tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
+            }
+        });
+       
+        fSearchApiResponse.data = fSearchApiResponse.data || {};            
+        fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
+        fSearchApiResponse.data.Charges.RefundableAmt = (fSearchApiResponse.data.Charges.RefundableAmt || 0) - tdsAmount;
+    return fSearchApiResponse.data;
+        
         // newBalance =
         // maxCreditLimit +
         // fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;

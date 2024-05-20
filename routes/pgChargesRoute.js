@@ -25,7 +25,13 @@ pgCharges_route.get(
     '/pgCharges/getPgCharges',
     auth,
     pgChargesController.getPgCharges
-)
+);
+
+pgCharges_route.post(
+    '/pgCharges/getAssignPGChargesGroupByUserId',    
+    pgChargesController.getAssignPGChargesGroup
+);
+
 pgCharges_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

@@ -43,8 +43,8 @@ const payu = async (req, res) => {
 const payuSuccess = async (req, res) => 
   {
     try {
-      const result = await payuServices.payuSuccess(req, res);
-      res.send(result)
+      const result = await payuServices.payuSuccess(req, res);      
+      res.send(result);
       // if (result.response == "Success") {
       //   apiSucessRes(
       //     res,

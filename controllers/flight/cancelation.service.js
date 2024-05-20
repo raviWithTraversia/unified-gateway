@@ -375,20 +375,41 @@ const KafilaFun = async (
               
               // Checking if the difference is less than 62 hours
               if (timeDifference <= sixtyTwoHoursInMilliseconds) {
+                let tdsAmount = 0;
+                BookingIdDetails.itinerary.PriceBreakup.forEach(item => {
+                    if (item) {
+                        const tdsItems = item.CommercialBreakup.filter(commercial => commercial.CommercialType === "TDS");
+                        tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
+                    }
+                });
                  pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 ?
-                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (fCancelApiResponse.data.R_DATA?.Charges.Fare - (BookingIdDetails?.fareRules?.CBHA + BookingIdDetails?.fareRules?.SF));
+                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : ((BookingIdDetails.bookingTotalAmount || 0 ) - (BookingIdDetails?.fareRules?.CBHA + BookingIdDetails?.fareRules?.SF + (tdsAmount || 0) ));
                  newBalance = maxCreditLimit + pricecheck; 
               }else{
+                let tdsAmount = 0;
+                BookingIdDetails.itinerary.PriceBreakup.forEach(item => {
+                    if (item) {
+                        const tdsItems = item.CommercialBreakup.filter(commercial => commercial.CommercialType === "TDS");
+                        tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
+                    }
+                });
                  pricecheck = BookingIdDetails?.fareRules?.CWBHA === 0 ?
-                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (fCancelApiResponse.data.R_DATA?.Charges.Fare - (BookingIdDetails?.fareRules?.CWBHA +  BookingIdDetails?.fareRules?.SF));
+                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : ((BookingIdDetails.bookingTotalAmount || 0 ) - (BookingIdDetails?.fareRules?.CWBHA +  BookingIdDetails?.fareRules?.SF + (tdsAmount || 0)));
                 newBalance = maxCreditLimit + pricecheck; 
               }
             }
           }else{
+            let tdsAmount = 0;
+            BookingIdDetails.itinerary.PriceBreakup.forEach(item => {
+                if (item) {
+                    const tdsItems = item.CommercialBreakup.filter(commercial => commercial.CommercialType === "TDS");
+                    tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
+                }
+            });
             newBalance =
             maxCreditLimit +
-            fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
-            pricecheck = fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
+            (fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt - tdsAmount||0);
+            pricecheck = fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt - (tdsAmount||0);
           }
          
           await agentConfig.updateOne(

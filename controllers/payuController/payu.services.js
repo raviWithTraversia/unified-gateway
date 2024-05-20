@@ -142,7 +142,7 @@ const payuSuccess = async (req, res) => {
     const { status, txnid, productinfo, udf1 } = req.body;
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
-
+      
       if (BookingTempData) {
         const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
         const PassengerPreferences = JSON.parse(
@@ -151,6 +151,7 @@ const payuSuccess = async (req, res) => {
         const ItineraryPriceCheckResponses = JSON.parse(
           convertDataBookingTempRes.ItineraryPriceCheckResponses
         );
+        
         const Authentication = JSON.parse(
           convertDataBookingTempRes.Authentication
         );
@@ -170,7 +171,7 @@ const payuSuccess = async (req, res) => {
         }
 
         let getuserDetails;
-        try {
+        
           getuserDetails = await UserModel.findOne({
             _id: Authentication.UserId,
           }).populate("company_ID");
@@ -178,11 +179,60 @@ const payuSuccess = async (req, res) => {
             getuserDetails = getuserDetails;
           } else {
             getuserDetails = "User Not Found";
-          }
-        } catch (error) {
-          // console.error('Error creating booking:', error);
-          getuserDetails = "User Not Found";
-        }
+          }        
+        
+        let getconfigAmount; // Declare getconfigAmount outside of the if block
+
+        const getAgentConfigForUpdateagain = await agentConfig.findOne({
+          userId: getuserDetails._id,
+        });  
+        
+        if (getAgentConfigForUpdateagain) {
+          getconfigAmount = getAgentConfigForUpdateagain.maxcreditLimit;
+        } else {
+          return "Agency Config Not Found"; // Return the error message if agent config is not found
+        }   
+         //return getconfigAmount;
+              
+        
+        let totalItemAmount = 0; // Initialize totalItemAmount outside the reduce function
+
+        const totalsAmount = ItineraryPriceCheckResponses.reduce((acc, curr) => {
+          // Add current item prices to the accumulator
+          acc.offeredPrice += curr.offeredPrice;
+          acc.totalMealPrice += curr.totalMealPrice;
+          acc.totalBaggagePrice += curr.totalBaggagePrice;
+          acc.totalSeatPrice += curr.totalSeatPrice;
+        
+          return acc; // Return accumulator
+        }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0 });        
+        // Calculate totalItemAmount by summing up all prices
+        totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice;
+       
+        const newBalanceCredit =
+        getconfigAmount + totalItemAmount;
+       
+        await agentConfig.updateOne(
+              { userId: getuserDetails._id },
+              { maxcreditLimit: newBalanceCredit }
+            );
+              await ledger.create({
+              userId: getuserDetails._id,
+              companyId: getuserDetails.company_ID._id,
+              ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+              transactionAmount:
+                item?.offeredPrice +
+                item?.totalMealPrice +
+                item?.totalBaggagePrice +
+                item?.totalSeatPrice,
+              currencyType: "INR",
+              fop: "CREDIT",
+              transactionType: "DEBIT",
+              runningAmount: newBalanceCredit,
+              remarks: "Booking Amount Dedactive Into Your Account.",
+              transactionBy: getuserDetails._id,
+              cartId: item?.BookingId,
+            });
 
         //const hitAPI = await Promise.all(
           const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
@@ -236,43 +286,6 @@ const payuSuccess = async (req, res) => {
                     },
                   }
                 );
-
-                // Ledget Create After booking Failed
-                const getAgentConfigForUpdate = await agentConfig.findOne({
-                  userId: getuserDetails._id,
-                });
-                // Check if maxCreditLimit exists, otherwise set it to 0
-                const maxCreditLimitPrice =
-                  getAgentConfigForUpdate?.maxcreditLimit ?? 0;
-                const newBalanceCredit =
-                  maxCreditLimitPrice +
-                  item?.offeredPrice +
-                  item?.totalMealPrice +
-                  item?.totalBaggagePrice +
-                  item?.totalSeatPrice;
-                await agentConfig.updateOne(
-                  { userId: getuserDetails._id },
-                  { maxcreditLimit: newBalanceCredit }
-                );
-
-                await ledger.create({
-                  userId: getuserDetails._id,
-                  companyId: getuserDetails.company_ID._id,
-                  ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                  transactionAmount:
-                    item?.offeredPrice +
-                    item?.totalMealPrice +
-                    item?.totalBaggagePrice +
-                    item?.totalSeatPrice,
-                  currencyType: "INR",
-                  fop: "CREDIT",
-                  transactionType: "DEBIT",
-                  runningAmount: newBalanceCredit,
-                  remarks: "Booking Amount Dedactive Into Your Account.",
-                  transactionBy: getuserDetails._id,
-                  cartId: item?.BookingId,
-                });
-
                 return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
               }
 
@@ -320,90 +333,23 @@ const payuSuccess = async (req, res) => {
               if (
                 fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
               ) {
-                const getAgentConfigForUpdate = await agentConfig.findOne({
+                return `${fSearchApiResponse.data}-${fSearchApiResponse.data}`;               
+              } else { 
+
+                const getAgentConfigData = await agentConfig.findOne({
                   userId: getuserDetails._id,
                 });
-                // Check if maxCreditLimit exists, otherwise set it to 0
-                const maxCreditLimitPrice =
-                  getAgentConfigForUpdate?.maxcreditLimit ?? 0;
-
-                const newBalanceCredit =
-                  maxCreditLimitPrice +
-                  item?.offeredPrice +
-                  item?.totalMealPrice +
-                  item?.totalBaggagePrice +
-                  item?.totalSeatPrice;
-                await agentConfig.updateOne(
-                  { userId: getuserDetails._id },
-                  { maxcreditLimit: newBalanceCredit }
-                );
-                await ledger.create({
-                  userId: getuserDetails._id,
-                  companyId: getuserDetails.company_ID._id,
-                  ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                  transactionAmount:
-                    item?.offeredPrice +
-                    item?.totalMealPrice +
-                    item?.totalBaggagePrice +
-                    item?.totalSeatPrice,
-                  currencyType: "INR",
-                  fop: "CREDIT",
-                  transactionType: "DEBIT",
-                  runningAmount: newBalanceCredit,
-                  remarks: "Booking Amount Dedactive Into Your Account.",
-                  transactionBy: getuserDetails._id,
-                  cartId: item?.BookingId,
-                });
-              } else {
-                // confirmed Booking Data ledger here
-                const getAgentConfigForUpdateagain = await agentConfig.findOne({
-                  userId: getuserDetails._id,
-                });
-                // add balance here
-                const maxCreditLimitPriceUp =
-                  getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
-
-                const newBalanceCredit =
-                  maxCreditLimitPriceUp +
-                  item?.offeredPrice +
-                  item?.totalMealPrice +
-                  item?.totalBaggagePrice +
-                  item?.totalSeatPrice;
-                // await agentConfig.updateOne(
-                //   { userId: getuserDetails._id },
-                //   { maxcreditLimit: newBalanceCredit }
-                // );
-                await ledger.create({
-                  userId: getuserDetails._id,
-                  companyId: getuserDetails.company_ID._id,
-                  ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                  transactionAmount:
-                    item?.offeredPrice +
-                    item?.totalMealPrice +
-                    item?.totalBaggagePrice +
-                    item?.totalSeatPrice,
-                  currencyType: "INR",
-                  fop: "CREDIT",
-                  transactionType: "DEBIT",
-                  runningAmount: newBalanceCredit,
-                  remarks: "Booking Amount Dedactive Into Your Account.",
-                  transactionBy: getuserDetails._id,
-                  cartId: item?.BookingId,
-                });
-
-                // dedatc Balance here
-                const maxCreditLimitPricededact = newBalanceCredit;
-
-                const newBalanceCreditdeduct =
-                  maxCreditLimitPricededact -
+                const maxCreditLimitPriceUp = getAgentConfigData?.maxcreditLimit ?? 0;
+                const newBalanceCreditdeductData =
+                maxCreditLimitPriceUp -
                   (item?.offeredPrice +
                     item?.totalMealPrice +
                     item?.totalBaggagePrice +
                     item?.totalSeatPrice);
-                // await agentConfig.updateOne(
-                //   { userId: getuserDetails._id },
-                //   { maxcreditLimit: newBalanceCreditdeduct }
-                // );
+                await agentConfig.updateOne(
+                  { userId: getuserDetails._id },
+                  { maxcreditLimit: newBalanceCreditdeductData }
+                );
                 await ledger.create({
                   userId: getuserDetails._id,
                   companyId: getuserDetails.company_ID._id,
@@ -416,7 +362,7 @@ const payuSuccess = async (req, res) => {
                   currencyType: "INR",
                   fop: "DEBIT",
                   transactionType: "CREDIT",
-                  runningAmount: newBalanceCreditdeduct,
+                  runningAmount: newBalanceCreditdeductData,
                   remarks: "Booking Amount Add Into Your Account.",
                   transactionBy: getuserDetails._id,
                   cartId: item?.BookingId,
@@ -427,6 +373,8 @@ const payuSuccess = async (req, res) => {
                   { bookingId: item?.BookingId },
                   { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" }
                 );
+              
+               
               }
               //return fSearchApiResponse.data;
               const barcodeupdate = await updateBarcode2DByBookingId(
@@ -452,43 +400,7 @@ const payuSuccess = async (req, res) => {
                     bookingRemarks: error.message,
                   },
                 }
-              );
-
-              // Ledget Create After booking Failed
-              const getAgentConfigForUpdate = await agentConfig.findOne({
-                userId: getuserDetails._id,
-              });
-              // Check if maxCreditLimit exists, otherwise set it to 0
-              const maxCreditLimitPrice =
-                getAgentConfigForUpdate?.maxcreditLimit ?? 0;
-
-              const newBalanceCredit =
-                maxCreditLimitPrice +
-                item?.offeredPrice +
-                item?.totalMealPrice +
-                item?.totalBaggagePrice +
-                item?.totalSeatPrice;
-              await agentConfig.updateOne(
-                { userId: getuserDetails._id },
-                { maxcreditLimit: newBalanceCredit }
-              );
-              await ledger.create({
-                userId: getuserDetails._id,
-                companyId: getuserDetails.company_ID._id,
-                ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                transactionAmount:
-                  item?.offeredPrice +
-                  item?.totalMealPrice +
-                  item?.totalBaggagePrice +
-                  item?.totalSeatPrice,
-                currencyType: "INR",
-                fop: "CREDIT",
-                transactionType: "DEBIT",
-                runningAmount: newBalanceCredit,
-                remarks: "Booking Amount Dedactive Into Your Account.",
-                transactionBy: getuserDetails._id,
-                cartId: item?.BookingId,
-              });
+              );             
               return error.message;
             }
           })
@@ -554,7 +466,7 @@ const payuSuccess = async (req, res) => {
     </body>
     </html>`;
 
-        if (updatePromises.length > 0) {
+        if (updatePromises.length > 0) {         
           return successHtmlCode;
         } else {
           return "Data does not exist";
@@ -639,44 +551,44 @@ const payuFail = async (req, res) => {
       //   })
       // );
       
-      const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
-        const getAgentConfigForUpdateagain = await agentConfig.findOne({
-            userId: getuserDetails._id,
-        });
-        // add balance here
-        const maxCreditLimitPriceUp =
-            getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
+    //   const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
+    //     // const getAgentConfigForUpdateagain = await agentConfig.findOne({
+    //     //     userId: getuserDetails._id,
+    //     // });
+    //     // // add balance here
+    //     // const maxCreditLimitPriceUp =
+    //     //     getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
     
-        const newBalanceCredit =
-            maxCreditLimitPriceUp +
-            item?.offeredPrice +
-            item?.totalMealPrice +
-            item?.totalBaggagePrice +
-            item?.totalSeatPrice;
-        await agentConfig.updateOne(
-            { userId: getuserDetails._id },
-            { maxcreditLimit: newBalanceCredit }
-        );
-        await ledger.create({
-            userId: getuserDetails._id,
-            companyId: getuserDetails.company_ID._id,
-            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-            transactionAmount:
-                item?.offeredPrice +
-                item?.totalMealPrice +
-                item?.totalBaggagePrice +
-                item?.totalSeatPrice,
-            currencyType: "INR",
-            fop: "CREDIT",
-            transactionType: "DEBIT",
-            runningAmount: newBalanceCredit,
-            remarks: "Booking Amount Dedactive Into Your Account.",
-            transactionBy: getuserDetails._id,
-            cartId: item?.BookingId,
-        });
-    });
+    //     // const newBalanceCredit =
+    //     //     maxCreditLimitPriceUp +
+    //     //     item?.offeredPrice +
+    //     //     item?.totalMealPrice +
+    //     //     item?.totalBaggagePrice +
+    //     //     item?.totalSeatPrice;
+    //     // await agentConfig.updateOne(
+    //     //     { userId: getuserDetails._id },
+    //     //     { maxcreditLimit: newBalanceCredit }
+    //     // );
+    //     // await ledger.create({
+    //     //     userId: getuserDetails._id,
+    //     //     companyId: getuserDetails.company_ID._id,
+    //     //     ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+    //     //     transactionAmount:
+    //     //         item?.offeredPrice +
+    //     //         item?.totalMealPrice +
+    //     //         item?.totalBaggagePrice +
+    //     //         item?.totalSeatPrice,
+    //     //     currencyType: "INR",
+    //     //     fop: "CREDIT",
+    //     //     transactionType: "DEBIT",
+    //     //     runningAmount: newBalanceCredit,
+    //     //     remarks: "Booking Amount Dedactive Into Your Account.",
+    //     //     transactionBy: getuserDetails._id,
+    //     //     cartId: item?.BookingId,
+    //     // });
+    // });
     
-    await Promise.all(updatePromises);
+    //await Promise.all(updatePromises);
       
       let failedHtmlCode = `<!DOCTYPE html>
     <html lang="en">
@@ -741,7 +653,7 @@ const payuFail = async (req, res) => {
     </html>
     `;
 
-      if (updatePromises.length > 0) {
+      if (failedHtmlCode > 0) {
         return failedHtmlCode;
       } else {
         return "Data does not exist";

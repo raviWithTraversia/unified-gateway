@@ -776,6 +776,7 @@ const KafilaFun = async (
               userId: Authentication?.UserId,
               companyId: Authentication?.CompanyId,
               AgencyId: Authentication?.AgencyId,
+              BookedBy: Authentication?.BookedBy,
               bookingId: itineraryItem?.BookingId, // Changed from item?.BookingId to itineraryItem?.BookingId
               prodBookingId: itineraryItem?.IndexNumber,
               provider: itineraryItem?.Provider,
@@ -1281,6 +1282,7 @@ const kafilaFunOnlinePayment = async (
           userId: Authentication?.UserId,
           companyId: Authentication?.CompanyId,
           AgencyId: Authentication?.AgencyId,
+          BookedBy: Authentication?.BookedBy,
           bookingId: itineraryItem?.BookingId, // Changed from item?.BookingId to itineraryItem?.BookingId
           prodBookingId: itineraryItem?.IndexNumber,
           provider: itineraryItem?.Provider,

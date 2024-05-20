@@ -138,4 +138,36 @@ const getBookingCalendarCount = async (req, res) => {
   }
 }
 
-module.exports = { getIdCreation, getAllBooking, getBookingByBookingId, getBookingCalendarCount };
+const getBookingBill = async (req, res) => {
+  try {
+    const result = await getAllBookingServices.getBookingBill(req);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "Data Not Found") {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "Fetch Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
+module.exports = { getIdCreation, getAllBooking, getBookingByBookingId, getBookingCalendarCount, getBookingBill };

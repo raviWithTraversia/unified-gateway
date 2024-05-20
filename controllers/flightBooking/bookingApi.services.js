@@ -14,7 +14,8 @@ const getAllBooking = async (req, res) => {
     status,
     fromDate,
     toDate,
-    salesInchargeIds
+    salesInchargeIds,
+    BookedBy
   } = req.body;
   const fieldNames = [
     "userId",
@@ -58,7 +59,7 @@ const getAllBooking = async (req, res) => {
 
     let filter = { userId: userId };
     if (agencyId !== undefined && agencyId.trim() !== "") {
-      filter.userId = { _id: agencyId };
+      filter.AgencyId = agencyId;
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -92,7 +93,7 @@ const getAllBooking = async (req, res) => {
         populate: {
           path: 'company_ID'
         }
-      });
+      }).populate('BookedBy');
 
 
     if (!bookingDetails || bookingDetails.length === 0) {
@@ -295,10 +296,8 @@ const getAllBooking = async (req, res) => {
       };
     }
   }
-
-
-
 };
+
 const getBookingByBookingId = async (req, res) => {
   const {
     bookingId
@@ -373,7 +372,12 @@ const getBookingCalendarCount = async (req, res) => {
     }
   }, {
     $group: {
-      _id: "$creationDate", bookingCount: { $sum: 1 }
+      _id: {
+        $dateToString: {
+          format: "%Y-%m-%d",
+          date: "$creationDate"
+        }
+      }, bookingCount: { $sum: 1 }
     }
   }, { $project: { _id: 0, bookingDate: "$_id", bookingCount: 1 } }]);
   if (!checkBookingCount.length) {
@@ -387,8 +391,84 @@ const getBookingCalendarCount = async (req, res) => {
   };
 }
 
+const getBookingBill = async (req, res) => {
+  const { agencyId, fromDate, toDate } = req.body;
+  const bookingBill = await passengerPreferenceSchema.aggregate([{
+    $match: {
+      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate) }
+    }
+  }, { $unwind: "$Passengers" }, {
+    $project: {
+      bookingId: 1,
+      ticketNo: "$Passengers.Optional.TicketNumber",
+      paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] }
+    }
+  }, {
+    $lookup: {
+      from: "bookingdetails",
+      localField: "bookingId",
+      foreignField: "bookingId",
+      as: "bookingData",
+    },
+  }, { $unwind: "$bookingData" }, {
+    $match: {
+      "bookingData.bookingStatus": "CONFIRMED", "bookingData.AgencyId": agencyId ? new ObjectId(agencyId) : { $exists: true }
+    }
+  }, {
+    $lookup: {
+      from: "companies",
+      localField: "bookingData.AgencyId",
+      foreignField: "_id",
+      as: "companiesData",
+    },
+  }, {
+    $project: {
+      bookingId: "$bookingData.providerBookingId",
+      paxName: 1,
+      ticketNo: 1,
+      agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
+      agentId: { $arrayElemAt: ['$companiesData.agentId', 0] },
+      pnr: "$bookingData.PNR",
+      itemAmount: "$bookingData.itinerary.BaseFare",
+      sector: {
+        $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Code', 0] },
+          ' ',
+        { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Code', 0] }]
+      },
+      flightNo: {
+        $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] },
+          ' ',
+        { $arrayElemAt: ['$bookingData.itinerary.Sectors.FltNum', 0] }]
+      },
+      class: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Class', 0] },
+      ccUserName: "AUTO",
+      travelDateOutbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Date', 0] },
+      travelDateInbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
+      issueDate: "$bookingData.bookingDateTime",
+      airlineTax: "$bookingData.itinerary.Taxes",
+      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "0", purchaseCode: "0",
+      flightCode: "$bookingData.Supplier",
+      airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
+      bookingId1: " ",
+    }
+  }]);
+  bookingBill.forEach((element, index) => {
+    element.id = index + 1;
+  });
+  if (!bookingBill.length) {
+    return {
+      response: "Data Not Found",
+    };
+  };
+  return {
+    response: "Fetch Data Successfully",
+    data: bookingBill,
+  };
+}
+
 module.exports = {
   getAllBooking,
   getBookingByBookingId,
-  getBookingCalendarCount
+  getBookingCalendarCount,
+  getBookingBill
 };

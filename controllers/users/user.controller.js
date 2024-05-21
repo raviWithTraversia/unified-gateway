@@ -373,6 +373,70 @@ else {
 
   }
 }
+
+const getCompanyProfle=async(req,res)=>{
+  try{
+    const result=await userServices.getCompanyProfle(req,res)
+    if(result.response==="Company data find successfull"){
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+    
+        ServerStatusCode.SUCESS_CODE
+      );
+    }
+    else if(result.response==="Company Data not Found"){
+      apiErrorres(res, result.response, ServerStatusCode.NOT_EXIST_CODE, true);
+    }
+    else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    }
+    
+    
+  }catch(error){
+    apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
+
+  }
+}
+
+
+const updateCompayProfile=async(req,res)=>{
+try{
+  const result=await userServices.updateCompayProfile(req,res)
+  console.log(result)
+    if(result.response==="company data succefully update"){
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+    
+        ServerStatusCode.SUCESS_CODE
+      );
+    }
+    else if(result.response==="company data not update"){
+      apiErrorres(res, result.response, ServerStatusCode.NOT_EXIST_CODE, true);
+    }
+    else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    }
+    
+  }catch(error){
+    console.log(error)
+    apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
+
+  }
+}
 module.exports = {
   registerUser,
   loginUser,
@@ -385,5 +449,8 @@ module.exports = {
   editUser,
   getUser,
   getAllAgencyAndDistributer,
-  userStatusUpdate
+  userStatusUpdate,
+  getCompanyProfle,
+  updateCompayProfile
+  
 };

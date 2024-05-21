@@ -409,7 +409,6 @@ const getCompanyProfle=async(req,res)=>{
 const updateCompayProfile=async(req,res)=>{
 try{
   const result=await userServices.updateCompayProfile(req,res)
-  console.log(result)
     if(result.response==="company data succefully update"){
       apiSucessRes(
         res,

@@ -377,7 +377,7 @@ const payuSuccess = async (req, res) => {
           }
         })
         //);
-        // await Promise.all(updatePromises);
+        const results = await Promise.all(updatePromises);
         let successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -438,13 +438,12 @@ const payuSuccess = async (req, res) => {
     </body>
     </html>`;
 
-        if (updatePromises.length > 0) {
-
+        if (results.length > 0) {
 
           const runnnigBalance =  newBalanceCredit - itemAmount;      
           await agentConfig.updateOne(
             { userId: getuserDetails._id },
-            { maxcreditLimit: newBalanceCreditdeductData }
+            { maxcreditLimit: runnnigBalance }
           );
           await ledger.create({
             userId: getuserDetails._id,
@@ -457,11 +456,8 @@ const payuSuccess = async (req, res) => {
             runningAmount: runnnigBalance,
             remarks: "Booking Amount Add Into Your Account.",
             transactionBy: getuserDetails._id,
-            cartId: item?.BookingId,
+            cartId: udf1,
           });
-
-
-
 
           return successHtmlCode;
         } else {

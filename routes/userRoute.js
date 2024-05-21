@@ -6,8 +6,17 @@ user_route.use(bodyParser.urlencoded({extended:true}));
 const userController = require("../controllers/users/user.controller");
 const auth = require("../middleware/auth");
 const userValidatior = require('../validation/user.validation');
+const multer =require('multer')
 
-
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      return cb(null, "./Public/agency");
+    },
+    filename: function (req, file, cb) {
+      return cb(null, `${Date.now()}-${file.originalname}`);
+    },
+  });
+  const upload = multer({ storage: storage });
 user_route.post(
     '/register',
     userValidatior.userRegistration,
@@ -311,6 +320,58 @@ user_route.get(
 )
 
 user_route.post("/user/updateStatus",auth,userController.userStatusUpdate)
+
+user_route.get('/get-company/profile',userController.getCompanyProfle)
+
+user_route.patch('/update/company-proflie',  (req, res, next) => {
+    req.body.images = {};
+  
+    if (req.files && req.files.length > 0) {
+      req.files.forEach((file, index) => {
+        let key;
+  
+        switch (file.fieldname) {
+         
+          case 'gst_URL':
+            key = 'gst_URL';
+            break;
+          case 'panUpload_URL':
+            key = 'panUpload_URL';
+            break;
+          case 'logoDocument_URL':
+            key = 'logoDocument_URL';
+            break;
+          case 'signature_URL':
+            key = 'signature_URL';
+            break;
+          case 'aadhar_URL':
+            key = 'aadhar_URL';
+            break;
+          case 'agencyLogo_URL':
+            key = 'agencyLogo_URL';
+            break;
+          default:
+            key = `image${index + 1}`;
+            break;
+        }
+  
+        req.body.images[key] = {
+          path: file.path,
+          filename: file.filename
+        };
+      });
+    }
+  
+    next();
+  },
+  upload.fields([
+    { name: 'gst_URL', maxCount: 1 },
+    { name: 'panUpload_URL', maxCount: 1 },
+    { name: 'logoDocument_URL', maxCount: 1 },
+    { name: 'signature_URL', maxCount: 1 },
+    { name: 'aadhar_URL', maxCount: 1 },
+    { name: 'agencyLogo_URL', maxCount: 1 },
+  ]),userController.updateCompayProfile)
 
 
 user_route.get('/test',auth, function(req, res){

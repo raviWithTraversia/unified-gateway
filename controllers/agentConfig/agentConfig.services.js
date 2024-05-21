@@ -218,8 +218,8 @@ const updateAgencyProfile = async (req, res) => {
 
 const getUserProfile = async (req,res) => {
   try{
-  let {userId} = req.query;
-  let userData = await userModel.findById(userId).populate('roleId', 'name type').populate({
+  let {company_ID} = req.query;
+  let userData = await userModel.find({company_ID:company_ID}).populate('roleId', 'name type').populate({
     path: 'company_ID',
     model: 'Company',
     populate: {
@@ -228,10 +228,14 @@ const getUserProfile = async (req,res) => {
       select: 'companyName type'
     }
   }).populate('cityId').populate('roleId')
-  if(userData){
+
+const filterUserData= userData.filter(user=>user.roleId.name=="Agency")
+
+
+  if(filterUserData){
     return {
       response : 'User data found SucessFully',
-      data : userData
+      data :filterUserData
     }
   }else{
      return {

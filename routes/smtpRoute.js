@@ -1,8 +1,10 @@
 const express = require("express");
-const smtp_route = express();
+const smtp_route = express()
 const bodyParser = require("body-parser");
+
 smtp_route.use(bodyParser.json());
-smtp_route.use(bodyParser.urlencoded({extended:true}));
+smtp_route.use(bodyParser.urlencoded({extended:false}));
+
 const smtpController = require("../controllers/smtp/smpt.controller");
 const auth = require("../middleware/auth");
 
@@ -139,6 +141,9 @@ smtp_route.patch(
     auth,
     smtpController.updateSmtpConfig     
 );
+
+
+smtp_route.post('/smtp/send-mail',auth,smtpController.sendMail)
 
 smtp_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

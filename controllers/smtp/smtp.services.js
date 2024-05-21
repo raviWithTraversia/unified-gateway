@@ -1,5 +1,6 @@
 const SmtpConfig = require("../../models/Smtp");
-
+const { response } = require("../../routes/agencyConfigurationRoute");
+const commonEmailFunction=require('../commonFunctions/common.function')
 
 const smtpConfig = async (req, res) => {
     try {
@@ -67,7 +68,8 @@ const updateSmtpConfig = async (req, res) => {
     try {
         let id = req.query.id; 
         const updates = req.body;
-       // console.log(updates)
+
+        
         let updateSmtpData = await SmtpConfig.findByIdAndUpdate(
             id,
             updates,
@@ -89,9 +91,37 @@ const updateSmtpConfig = async (req, res) => {
     }
 };
 
+const sendMail = async (req, res) => {
+    try {
+        const { companyId} = req.query;
+const bodyData=req.body
+        
+        console.log(bodyData);
+        const mailConfig = await SmtpConfig.findOne({ companyId: companyId });
+        
+        if (mailConfig) {
+            const data = await commonEmailFunction.sendNotificationByEmail(mailConfig,bodyData);
+            
+            return {
+                response: 'SMTP Email sent successfully',
+                data: data
+            };
+        } else {
+            return {
+                response: "Your Smtp data not found"
+            };
+        }
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+
 module.exports = {
     smtpConfig,
     addSmtpConfig,
     removeSmtpConfig,
-    updateSmtpConfig
+    updateSmtpConfig,
+    sendMail
 }

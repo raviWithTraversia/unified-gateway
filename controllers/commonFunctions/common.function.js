@@ -365,6 +365,193 @@ const generateRandomPassword = (length)  => {
 
 
 
+const sendNotificationByEmail=(mailConfig,DATA)=>{
+
+  const data=DATA
+          
+  console.log(data.options[0].Sectors[0],"shadaab")
+  const transporter = nodemailer.createTransport({
+    host: mailConfig.host, 
+    port: mailConfig.port, 
+    secure: false, 
+    auth: {
+      user: mailConfig.userName,
+      pass: mailConfig.password, 
+    },
+  });
+
+  const mailOptions = {
+    from:  mailConfig.emailFrom,
+    to: data.to,
+    subject:data.subject,
+    cc: data.cc, // Add CC recipient
+    bcc: data.bcc ,
+    html: `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+    
+            .itinerary-card {
+                display: flex;
+                flex-direction: column;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-bottom: 20px;
+                background-color: #fff;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+            }
+    
+            .flight-info {
+                display: flex;
+                align-items: center;
+                padding: 10px;
+                border-bottom: 1px solid #eee;
+            }
+    
+            .airline-logo {
+                width: 50px;
+                height: 50px;
+                margin-right: 10px;
+            }
+    
+            .airline-name,
+            .flight-number {
+                margin: 0;
+                font-weight: bold;
+            }
+    
+            .airline-name {
+                margin-right: 10px;
+            }
+    
+            .departure-info {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 10px;
+                background-color: #fafafa;
+            }
+    
+            .departure-info div {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+    
+            .time,
+            .date,
+            .city-code,
+            .city-name {
+                margin: 0;
+            }
+    
+            .layover-time {
+                padding: 10px;
+                text-align: center;
+            }
+    
+            .layover-button {
+                background-color: #007BFF;
+                border: none;
+                color: #fff;
+                border-radius: 3px;
+                padding: 10px 15px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+    
+            .layover-button:hover {
+                background-color: #0056b3;
+            }
+    
+            @media (max-width: 600px) {
+                .flight-info,
+                .departure-info {
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                }
+    
+                .departure-info {
+                    justify-content: center;
+                }
+            }
+        </style>
+    </head>
+    <body>
+    
+        <div class="itinerary-card">
+            <div class="flight-info">
+                <img class="airline-logo" src="https://www.digitravel.co.in/Images/AirLogos/IX.png" alt="Air India Express">
+                <p class="airline-name">${data.options[0].Sectors[0].AirlineName }</p>
+                <p class="flight-number">${data.options[0].Sectors[0].FltNum }</p>
+            </div>
+            <div class="departure-info">
+                <div>
+                    <p class="time">${data.options[0].Sectors[0].Departure.Time }</p>
+                    <p class="date">${data.options[0].Sectors[0].Departure.Date }</p>
+                </div>
+                <div>
+                    <p class="city-code">${data.options[0].Sectors[0].Departure.CityCode}</p>
+                    <p class="city-name">${data.options[0].Sectors[0].Departure.CityCode}</p>
+                </div>
+            </div>
+            <div class="layover-time">
+                <button class="layover-button">${data.options[0].Sectors[0].layover}</button>
+            </div>
+        </div>
+    
+        <div class="itinerary-card">
+            <div class="flight-info">
+                <img class="airline-logo" src="https://www.digitravel.co.in/Images/AirLogos/I5.png" alt="AirAsia">
+                <p class="airline-name">${data.options[0].Sectors[0].AirlineName }</p>
+                <p class="flight-number">${data.options[0].Sectors[0].FltNum }</p>
+            </div>
+            <div class="departure-info">
+                <div>
+                    <p class="time">${data.options[0].Sectors[0].Arrival.Time }</p>
+                    <p class="date">${data.options[0].Sectors[0].Arrival.Date }</p>
+                </div>
+                <div>
+                    <p class="city-code">${data.options[0].Sectors[0].Arrival.Code }</p>
+                    <p class="city-name">${data.options[0].Sectors[0].Arrival.Name }</p>
+                </div>
+            </div>
+           
+        </div>
+    
+    </body>
+    </html>
+     `
+    
+  };
+
+  try{
+    transporter.sendMail(mailOptions);
+    console.log('send successfully')
+    return {
+      response : `Send Email succefully `,
+      data : true
+    }
+
+  }catch(error){
+    return {
+      response : "Error Sending Notification Email:",
+       data : error
+    }
+  }
+
+}
+
 
 
 module.exports = {
@@ -386,5 +573,6 @@ module.exports = {
   commonEmailFunctionOnRegistrationUpdate,
   sendSMS,
   sendPasswordResetEmailLink,
-  generateRandomPassword
+  generateRandomPassword,
+  sendNotificationByEmail
 };

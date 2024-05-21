@@ -174,7 +174,7 @@ const getAllBooking = async (req, res) => {
         populate: {
           path: 'company_ID'
         }
-      });
+      }).populate('BookedBy');
 
     if (!bookingDetails || bookingDetails.length === 0) {
       return {
@@ -253,7 +253,7 @@ const getAllBooking = async (req, res) => {
         populate: {
           path: 'company_ID'
         }
-      });
+      }).populate('BookedBy');
     console.log(bookingDetails);
 
     if (!bookingDetails || bookingDetails.length === 0) {

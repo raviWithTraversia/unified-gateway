@@ -368,7 +368,7 @@ const getBookingCalendarCount = async (req, res) => {
   const checkBookingCount = await bookingdetails.aggregate([{
     $match: {
       userId: new ObjectId(userId), bookingStatus: "CONFIRMED",
-      creationDate: { $gte: new Date(fromDate), $lte: new Date(toDate) }
+      "itinerary.Sectors.Departure.DateTimeStamp": { $gte: new Date(fromDate), $lte: new Date(toDate) }
     }
   }, {
     $group: {
@@ -425,11 +425,11 @@ const getBookingBill = async (req, res) => {
     $project: {
       bookingId: "$bookingData.providerBookingId",
       paxName: 1,
-      ticketNo: 1,
+      ticketNo: "$bookingData.PNR",
       agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
       agentId: { $arrayElemAt: ['$companiesData.agentId', 0] },
       pnr: "$bookingData.PNR",
-      itemAmount: "$bookingData.itinerary.BaseFare",
+      itemAmount: { $add: ["$bookingData.itinerary.BaseFare", "$bookingData.itinerary.Taxes"] },
       sector: {
         $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Code', 0] },
           ' ',

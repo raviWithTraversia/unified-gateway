@@ -113,9 +113,9 @@ const getAllledger = async (req, res) => {
 }else if( checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" ){
     let filter = {};
     
-    if (userId !== undefined && userId.trim() !== "") {
-      filter.userId = userId;
-  }
+  //   if (userId !== undefined && userId.trim() !== "") {
+  //     filter.userId = userId;
+  // }
 
     if (transactionType !== undefined && transactionType.trim() !== "") {
       filter.transactionType = transactionType;

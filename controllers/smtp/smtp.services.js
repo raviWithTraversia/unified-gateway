@@ -96,8 +96,7 @@ const sendMail = async (req, res) => {
         const { companyId} = req.query;
 const bodyData=req.body
         
-        console.log(bodyData);
-        const mailConfig = await SmtpConfig.findOne({ companyId: companyId });
+        const mailConfig = await SmtpConfig.find({ companyId: companyId }).populate("companyId" ,"companyName");
         
         if (mailConfig) {
             const data = await commonEmailFunction.sendNotificationByEmail(mailConfig,bodyData);

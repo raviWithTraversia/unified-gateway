@@ -1,8 +1,9 @@
 const pgChargesModels = require('../../models/PaymentGatewayCharges');
 const User = require('../../models/User');
+
 const addPgCharges = async (req, res) => {
   try {
-    const { paymentGatewayProvider, paymentMethod, flatFee, percentageFee, companyId } = req.body;
+    const { paymentGatewayProvider, paymentMethod, paymentType, flatFee, percentageFee, companyId } = req.body;
     let userId = req.user._id;
     const existingPgCharges = await pgChargesModels.findOne({ companyId, paymentGatewayProvider, paymentMethod });
     if (existingPgCharges) {
@@ -15,6 +16,7 @@ const addPgCharges = async (req, res) => {
       let pgChargesInsert = await pgChargesModels.create({
         companyId,
         paymentGatewayProvider,
+        paymentType,
         paymentMethod,
         flatFee,
         percentageFee

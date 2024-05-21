@@ -54,9 +54,9 @@ const getAllBooking = async (req, res) => {
       response: "User id does not exist",
     };
   }
-  
+
   if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
-    
+
     let filter = { userId: userId };
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.AgencyId = agencyId;
@@ -217,7 +217,7 @@ const getAllBooking = async (req, res) => {
       };
     }
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" || checkUserIdExist?.company_ID?.type === "TMC") {
-    
+
     let filter = {};
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.userId = agencyId;
@@ -624,7 +624,9 @@ const getBookingCalendarCount = async (req, res) => {
       _id: {
         $dateToString: {
           format: "%Y-%m-%d",
-          date: "$creationDate"
+          date: {
+            $arrayElemAt: ["$itinerary.Sectors.Departure.DateTimeStamp", 0]
+          }
         }
       }, bookingCount: { $sum: 1 }
     }

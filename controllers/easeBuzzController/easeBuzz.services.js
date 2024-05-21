@@ -331,15 +331,14 @@ const easeBuzzResponce = async (req, res) => {
             cartId: udf1,
           });
           }
-
           return {
-            response: "Save Successfully",
-            data: updatePromises,
-          };
+            response: "Fetch Data Successfully",
+            data: "Save Successfully",
+          };          
         } else {
           return {
-            response: "Failed",
-            data: null,
+            response: "Fetch Data Successfully",
+            data: "Payment Failed",
           };
         }
       }
@@ -355,8 +354,8 @@ const easeBuzzResponce = async (req, res) => {
       );
 
       return {
-        response: "Failed",
-        data: null,
+        response: "Fetch Data Successfully",
+        data: "Payment Failed",
       };
     }
   } catch (error) {

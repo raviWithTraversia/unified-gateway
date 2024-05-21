@@ -54,7 +54,6 @@ const getAllBooking = async (req, res) => {
       response: "User id does not exist",
     };
   }
-
   if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
 
     let filter = { userId: userId };
@@ -220,7 +219,8 @@ const getAllBooking = async (req, res) => {
 
     let filter = {};
     if (agencyId !== undefined && agencyId.trim() !== "") {
-      filter["userId.company_ID._id"] = agencyId;
+      // filter["userId.company_ID._id"] = agencyId;
+      filter["AgencyId"] = agencyId;
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -246,7 +246,6 @@ const getAllBooking = async (req, res) => {
         $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
       };
     }
-
     const bookingDetails = await bookingdetails.find(filter)
       .populate({
         path: 'userId',
@@ -254,7 +253,6 @@ const getAllBooking = async (req, res) => {
           path: 'company_ID'
         }
       }).populate('BookedBy');
-    console.log(bookingDetails);
 
     if (!bookingDetails || bookingDetails.length === 0) {
       return {
@@ -364,7 +362,7 @@ const getBookingCalendarCount = async (req, res) => {
       response: "UserId id does not exist",
     };
   }
-
+  // console.log([itinerary.Sectors[0].Departure.DateTimeStamp])
   const checkBookingCount = await bookingdetails.aggregate([{
     $match: {
       userId: new ObjectId(userId), bookingStatus: "CONFIRMED",

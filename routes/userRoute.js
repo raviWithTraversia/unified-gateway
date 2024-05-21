@@ -321,9 +321,9 @@ user_route.get(
 
 user_route.post("/user/updateStatus",auth,userController.userStatusUpdate)
 
-user_route.get('/get-company/profile',userController.getCompanyProfle)
+user_route.get('/get-company/profile',auth,userController.getCompanyProfle)
 
-user_route.patch('/update/company-proflie',  (req, res, next) => {
+user_route.patch('/update/company-proflie',auth,  (req, res, next) => {
     req.body.images = {};
   
     if (req.files && req.files.length > 0) {

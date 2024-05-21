@@ -855,7 +855,6 @@ const updateCompayProfile=async(req,res)=>{
     }
 
 const companyData=await Company.findById(companyId)
-console.log(companyData.aadhar_URL)
     if (  req.files?.gst_URL || req.files?.panUpload_URL || req.files?.logoDocument_URL || req.files?.signature_URL || req.files?.aadhar_URL || req.files?.agencyLogo_URL) {
       const updateCompayProfile = await Company.findByIdAndUpdate(
         companyId,
@@ -868,7 +867,7 @@ console.log(companyData.aadhar_URL)
             aadhar_URL: req.files.aadhar_URL ? req.files.aadhar_URL[0].path : companyData.aadhar_URL,
             agencyLogo_URL: req.files.agencyLogo_URL ? req.files.agencyLogo_URL[0].path : companyData.agencyLogo_URL
         }},
-        { new: false }
+        { new: true }
     );
  
   if(updateCompayProfile){

@@ -344,6 +344,16 @@ const easeBuzzResponce = async (req, res) => {
         }
       }
     } else {
+      await BookingDetails.updateMany(
+        { bookingId: udf1 },
+        {
+          $set: {
+            bookingStatus: "FAILED",
+            bookingRemarks: "Payment Failed",
+          },
+        }
+      );
+
       return {
         response: "Failed",
         data: null,

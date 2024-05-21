@@ -474,187 +474,225 @@ const payuFail = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1 } = req.body;
     const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
-    if (BookingTempData) {
-      const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
-      const PassengerPreferences = JSON.parse(
-        convertDataBookingTempRes.PassengerPreferences
-      );
-      const ItineraryPriceCheckResponses = JSON.parse(
-        convertDataBookingTempRes.ItineraryPriceCheckResponses
-      );
-      const Authentication = JSON.parse(
-        convertDataBookingTempRes.Authentication
-      );
 
-      let getuserDetails;
-      try {
-        getuserDetails = await UserModel.findOne({
-          _id: Authentication.UserId,
-        }).populate("company_ID");
-        if (getuserDetails) {
-          getuserDetails = getuserDetails;
-        } else {
-          getuserDetails = "User Not Found";
+    if (!BookingTempData) {
+      return "Data does not exist"; 
+    }
+
+    const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
+    const PassengerPreferences = JSON.parse(convertDataBookingTempRes.PassengerPreferences);
+    const ItineraryPriceCheckResponses = JSON.parse(convertDataBookingTempRes.ItineraryPriceCheckResponses);
+    const Authentication = JSON.parse(convertDataBookingTempRes.Authentication);
+
+    let getuserDetails;
+    try {
+      getuserDetails = await UserModel.findOne({ _id: Authentication.UserId }).populate("company_ID");
+      if (!getuserDetails) {       
+        return "User Not Found"; 
+      }
+    } catch (error) {
+     // console.error('Error retrieving user details:', error);
+     return "Data does not exist"; 
+    }
+
+    try {
+      await BookingDetails.updateMany(
+        { bookingId: udf1 },
+        {
+          $set: {
+            bookingStatus: "FAILED",
+            bookingRemarks: "Payment Failed",
+          },
         }
-      } catch (error) {
-        // console.error('Error creating booking:', error);
-        getuserDetails = "User Not Found";
-      }
+      );
 
-
-
-      // const hitAPI = await Promise.all(
-      //   ItineraryPriceCheckResponses.map(async (item) => {
-
-      //     const getAgentConfigForUpdateagain = await agentConfig.findOne({
-      //       userId: getuserDetails._id,
-      //     });
-      //     // add balance here
-      //     const maxCreditLimitPriceUp =
-      //       getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
-
-      //     const newBalanceCredit =
-      //       maxCreditLimitPriceUp +
-      //       item?.offeredPrice +
-      //       item?.totalMealPrice +
-      //       item?.totalBaggagePrice +
-      //       item?.totalSeatPrice;
-      //     await agentConfig.updateOne(
-      //       { userId: getuserDetails._id },
-      //       { maxcreditLimit: newBalanceCredit }
-      //     );
-      //     await ledger.create({
-      //       userId: getuserDetails._id,
-      //       companyId: getuserDetails.company_ID._id,
-      //       ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-      //       transactionAmount:
-      //         item?.offeredPrice +
-      //         item?.totalMealPrice +
-      //         item?.totalBaggagePrice +
-      //         item?.totalSeatPrice,
-      //       currencyType: "INR",
-      //       fop: "CREDIT",
-      //       transactionType: "DEBIT",
-      //       runningAmount: newBalanceCredit,
-      //       remarks: "Booking Amount Dedactive Into Your Account.",
-      //       transactionBy: getuserDetails._id,
-      //       cartId: item?.BookingId,
-      //     });
-      //   })
-      // );
-
-      //   const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
-      //     // const getAgentConfigForUpdateagain = await agentConfig.findOne({
-      //     //     userId: getuserDetails._id,
-      //     // });
-      //     // // add balance here
-      //     // const maxCreditLimitPriceUp =
-      //     //     getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
-
-      //     // const newBalanceCredit =
-      //     //     maxCreditLimitPriceUp +
-      //     //     item?.offeredPrice +
-      //     //     item?.totalMealPrice +
-      //     //     item?.totalBaggagePrice +
-      //     //     item?.totalSeatPrice;
-      //     // await agentConfig.updateOne(
-      //     //     { userId: getuserDetails._id },
-      //     //     { maxcreditLimit: newBalanceCredit }
-      //     // );
-      //     // await ledger.create({
-      //     //     userId: getuserDetails._id,
-      //     //     companyId: getuserDetails.company_ID._id,
-      //     //     ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-      //     //     transactionAmount:
-      //     //         item?.offeredPrice +
-      //     //         item?.totalMealPrice +
-      //     //         item?.totalBaggagePrice +
-      //     //         item?.totalSeatPrice,
-      //     //     currencyType: "INR",
-      //     //     fop: "CREDIT",
-      //     //     transactionType: "DEBIT",
-      //     //     runningAmount: newBalanceCredit,
-      //     //     remarks: "Booking Amount Dedactive Into Your Account.",
-      //     //     transactionBy: getuserDetails._id,
-      //     //     cartId: item?.BookingId,
-      //     // });
-      // });
-
-      //await Promise.all(updatePromises);
-
-      let failedHtmlCode = `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Payment Success</title>
-      <style>
-      .failed-txt{
-        color: #bd362f;
-      }
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #f2f2f2;
-      }
-      
-      .failed-container {
-        max-width: 400px;
-        width: 100%;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        background-color: #fff;
-        text-align: center;
-      }
-
-      
-      .failed-container p {
-        margin-top: 10px;
-      }
-      
-      .failed-container a {
-        display: inline-block;
-        margin-top: 20px;
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 5px;
-      }
-      
-      .failed-container a:hover {
-        background-color: #0056b3;
-      }
-    </style>
-
-    </head>
-    <body>
-      <div class="failed-container">
-        <h1 class="failed-txt">Payment Failed!</h1>
-        <p class="failed-txt">Your payment has been failed.</p>
-        <p>Please try again later.</p>
-        <a href="https://kafilaui.traversia.net/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
-      </div>
-    </body>
-    </html>
-    `;
-
-      if (failedHtmlCode > 0) {
+      const failedHtmlCode = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Payment Failed</title>
+          <style>
+            .failed-txt {
+              color: #bd362f;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background-color: #f2f2f2;
+            }
+            .failed-container {
+              max-width: 400px;
+              width: 100%;
+              padding: 20px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+              background-color: #fff;
+              text-align: center;
+            }
+            .failed-container p {
+              margin-top: 10px;
+            }
+            .failed-container a {
+              display: inline-block;
+              margin-top: 20px;
+              padding: 10px 20px;
+              background-color: #007bff;
+              color: #fff;
+              text-decoration: none;
+              border-radius: 5px;
+            }
+            .failed-container a:hover {
+              background-color: #0056b3;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="failed-container">
+            <h1 class="failed-txt">Payment Failed!</h1>
+            <p class="failed-txt">Your payment has failed.</p>
+            <p>Please try again later.</p>
+            <a href="https://kafilaui.traversia.net/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+          </div>
+        </body>
+        </html>
+      `;      
         return failedHtmlCode;
-      } else {
-        return "Data does not exist";
-      }
+     
+    } catch (error) {
+      //console.error('Error updating booking details:', error);      
+        return "Data does not exist";     
     }
   } catch (error) {
-    throw error;
+   // console.error('Error handling payuFail request:', error);
+   
+    return "Data does not exist";
+  
   }
 };
+
+// const payuFail = async (req, res) => {
+//   try {
+//     const { status, txnid, productinfo, udf1 } = req.body;
+//     const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
+//     if (BookingTempData) {
+//       const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
+//       const PassengerPreferences = JSON.parse(
+//         convertDataBookingTempRes.PassengerPreferences
+//       );
+//       const ItineraryPriceCheckResponses = JSON.parse(
+//         convertDataBookingTempRes.ItineraryPriceCheckResponses
+//       );
+//       const Authentication = JSON.parse(
+//         convertDataBookingTempRes.Authentication
+//       );
+
+//       let getuserDetails;
+//       try {
+//         getuserDetails = await UserModel.findOne({
+//           _id: Authentication.UserId,
+//         }).populate("company_ID");
+//         if (getuserDetails) {
+//           getuserDetails = getuserDetails;
+//         } else {
+//           getuserDetails = "User Not Found";
+//         }
+//       } catch (error) {
+//         // console.error('Error creating booking:', error);
+//         getuserDetails = "User Not Found";
+//       }
+
+//       const paymentFailed = await BookingDetails.updateMany(
+//         {
+//           bookingId: item?.BookingId,          
+//         },
+//         {
+//           $set: {
+//             bookingStatus: "FAILED",
+//             bookingRemarks: "Payment Failed",
+//           },
+//         }
+//       );
+     
+//       let failedHtmlCode = `<!DOCTYPE html>
+//     <html lang="en">
+//     <head>
+//       <meta charset="UTF-8">
+//       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//       <title>Payment Success</title>
+//       <style>
+//       .failed-txt{
+//         color: #bd362f;
+//       }
+//       body {
+//         font-family: Arial, sans-serif;
+//         margin: 0;
+//         padding: 0;
+//         display: flex;
+//         justify-content: center;
+//         align-items: center;
+//         height: 100vh;
+//         background-color: #f2f2f2;
+//       }
+      
+//       .failed-container {
+//         max-width: 400px;
+//         width: 100%;
+//         padding: 20px;
+//         border: 1px solid #ccc;
+//         border-radius: 5px;
+//         background-color: #fff;
+//         text-align: center;
+//       }
+
+      
+//       .failed-container p {
+//         margin-top: 10px;
+//       }
+      
+//       .failed-container a {
+//         display: inline-block;
+//         margin-top: 20px;
+//         padding: 10px 20px;
+//         background-color: #007bff;
+//         color: #fff;
+//         text-decoration: none;
+//         border-radius: 5px;
+//       }
+      
+//       .failed-container a:hover {
+//         background-color: #0056b3;
+//       }
+//     </style>
+
+//     </head>
+//     <body>
+//       <div class="failed-container">
+//         <h1 class="failed-txt">Payment Failed!</h1>
+//         <p class="failed-txt">Your payment has been failed.</p>
+//         <p>Please try again later.</p>
+//         <a href="https://kafilaui.traversia.net/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+//       </div>
+//     </body>
+//     </html>
+//     `;
+
+//       if (paymentFailed) {
+//         return failedHtmlCode;
+//       } else {
+//         return "Data does not exist";
+//       }
+//     }
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 async function updateBarcode2DByBookingId(
   bookingId,
   passengerPreferencesData,

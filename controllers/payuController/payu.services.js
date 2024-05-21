@@ -34,7 +34,7 @@ const payu = async (req, res) => {
         !amount ||
         !productinfo ||
         !phone,
-      !cartId)
+        !cartId)
     ) {
       return {
         response: "All field are required",
@@ -142,7 +142,7 @@ const payuSuccess = async (req, res) => {
     const { status, txnid, productinfo, udf1 } = req.body;
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
-      
+
       if (BookingTempData) {
         const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
         const PassengerPreferences = JSON.parse(
@@ -151,7 +151,7 @@ const payuSuccess = async (req, res) => {
         const ItineraryPriceCheckResponses = JSON.parse(
           convertDataBookingTempRes.ItineraryPriceCheckResponses
         );
-        
+
         const Authentication = JSON.parse(
           convertDataBookingTempRes.Authentication
         );
@@ -171,30 +171,30 @@ const payuSuccess = async (req, res) => {
         }
 
         let getuserDetails;
-        
-          getuserDetails = await UserModel.findOne({
-            _id: Authentication.UserId,
-          }).populate("company_ID");
-          if (getuserDetails) {
-            getuserDetails = getuserDetails;
-          } else {
-            getuserDetails = "User Not Found";
-          }        
-        
+
+        getuserDetails = await UserModel.findOne({
+          _id: Authentication.UserId,
+        }).populate("company_ID");
+        if (getuserDetails) {
+          getuserDetails = getuserDetails;
+        } else {
+          getuserDetails = "User Not Found";
+        }
+
         let getconfigAmount; // Declare getconfigAmount outside of the if block
 
         const getAgentConfigForUpdateagain = await agentConfig.findOne({
           userId: getuserDetails._id,
-        });  
-        
+        });
+
         if (getAgentConfigForUpdateagain) {
           getconfigAmount = getAgentConfigForUpdateagain.maxcreditLimit;
         } else {
           return "Agency Config Not Found"; // Return the error message if agent config is not found
-        }   
-         //return getconfigAmount;
-              
-        
+        }
+        //return getconfigAmount;
+
+
         let totalItemAmount = 0; // Initialize totalItemAmount outside the reduce function
 
         const totalsAmount = ItineraryPriceCheckResponses.reduce((acc, curr) => {
@@ -203,195 +203,77 @@ const payuSuccess = async (req, res) => {
           acc.totalMealPrice += curr.totalMealPrice;
           acc.totalBaggagePrice += curr.totalBaggagePrice;
           acc.totalSeatPrice += curr.totalSeatPrice;
-        
+
           return acc; // Return accumulator
-        }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0 });        
+        }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0 });
         // Calculate totalItemAmount by summing up all prices
         totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice;
-       
+
         const newBalanceCredit =
-        getconfigAmount + totalItemAmount;
-       
+          getconfigAmount + totalItemAmount;
+
+        let itemAmount = 0;
         await agentConfig.updateOne(
-              { userId: getuserDetails._id },
-              { maxcreditLimit: newBalanceCredit }
-            );
-              await ledger.create({
-              userId: getuserDetails._id,
-              companyId: getuserDetails.company_ID._id,
-              ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-              transactionAmount:
-                item?.offeredPrice +
-                item?.totalMealPrice +
-                item?.totalBaggagePrice +
-                item?.totalSeatPrice,
-              currencyType: "INR",
-              fop: "CREDIT",
-              transactionType: "DEBIT",
-              runningAmount: newBalanceCredit,
-              remarks: "Booking Amount Dedactive Into Your Account.",
-              transactionBy: getuserDetails._id,
-              cartId: item?.BookingId,
-            });
+          { userId: getuserDetails._id },
+          { maxcreditLimit: newBalanceCredit }
+        );
+        await ledger.create({
+          userId: getuserDetails._id,
+          companyId: getuserDetails.company_ID._id,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionAmount: totalItemAmount,
+          currencyType: "INR",
+          fop: "CREDIT",
+          transactionType: "DEBIT",
+          runningAmount: newBalanceCredit,
+          remarks: "Booking Amount Dedactive Into Your Account.",
+          transactionBy: getuserDetails._id,
+          cartId: udf1,
+        });
 
         //const hitAPI = await Promise.all(
-          const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
-            let requestDataFSearch = {
-              FareChkRes: {
-                Error: item.Error,
-                IsFareUpdate: item.IsFareUpdate,
-                IsAncl: item.IsAncl,
-                Param: item.Param,
-                SelectedFlight: [item.SelectedFlight],
-                FareBreakup: item.FareDifference,
-                GstData: item.GstData,
-                Ancl: null,
-              },
-              PaxInfo: PassengerPreferences,
-            };
+        const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
+          let requestDataFSearch = {
+            FareChkRes: {
+              Error: item.Error,
+              IsFareUpdate: item.IsFareUpdate,
+              IsAncl: item.IsAncl,
+              Param: item.Param,
+              SelectedFlight: [item.SelectedFlight],
+              FareBreakup: item.FareDifference,
+              GstData: item.GstData,
+              Ancl: null,
+            },
+            PaxInfo: PassengerPreferences,
+          };
 
-            try {
-              let fSearchApiResponse = await axios.post(
-                flightSearchUrl,
-                requestDataFSearch,
-                {
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                }
-              );
-              const logData = {
-                traceId: Authentication.TraceId,
-                companyId: Authentication.CompanyId,
-                userId: Authentication.UserId,
-                source: "Kafila",
-                type: "API Log",
-                BookingId: udf1,
-                product: "Flight",
-                logName: "Flight Search",
-                request: requestDataFSearch,
-                responce: fSearchApiResponse?.data,
-              };
-              Logs(logData);
-              if (fSearchApiResponse.data.Status == "failed") {
-                await BookingDetails.updateOne(
-                  {
-                    bookingId: udf1,
-                    "itinerary.IndexNumber": item.IndexNumber,
-                  },
-                  {
-                    $set: {
-                      bookingStatus: "FAILED",
-                      bookingRemarks: error.message,
-                    },
-                  }
-                );
-                return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
-              }
-
-              const bookingResponce = {
-                CartId: item.BookingId,
-                bookingResponce: {
-                  CurrentStatus:
-                    fSearchApiResponse.data.BookingInfo.CurrentStatus,
-                  BookingStatus:
-                    fSearchApiResponse.data.BookingInfo.BookingStatus,
-                  BookingRemark:
-                    fSearchApiResponse.data.BookingInfo.BookingRemark,
-                  BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
-                  providerBookingId:
-                    fSearchApiResponse.data.BookingInfo.BookingId,
-                  PNR: fSearchApiResponse.data.BookingInfo.APnr,
-                  Type: fSearchApiResponse.data.BookingInfo.GPnr,
-                  APnr: fSearchApiResponse.data.BookingInfo.APnr,
-                  GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+          try {
+            let fSearchApiResponse = await axios.post(
+              flightSearchUrl,
+              requestDataFSearch,
+              {
+                headers: {
+                  "Content-Type": "application/json",
                 },
-                itinerary: item,
-                PassengerPreferences: PassengerPreferences,
-                userDetails: getuserDetails,
-              };
+              }
+            );
+            const logData = {
+              traceId: Authentication.TraceId,
+              companyId: Authentication.CompanyId,
+              userId: Authentication.UserId,
+              source: "Kafila",
+              type: "API Log",
+              BookingId: udf1,
+              product: "Flight",
+              logName: "Flight Search",
+              request: requestDataFSearch,
+              responce: fSearchApiResponse?.data,
+            };
+            Logs(logData);
+            if (fSearchApiResponse.data.Status == "failed") {
               await BookingDetails.updateOne(
                 {
                   bookingId: udf1,
-                  "itinerary.IndexNumber": item.IndexNumber,
-                },
-                {
-                  $set: {
-                    bookingStatus:
-                      fSearchApiResponse.data.BookingInfo.CurrentStatus,
-                    bookingRemarks:
-                      fSearchApiResponse.data.BookingInfo.BookingRemark,
-                    providerBookingId:
-                      fSearchApiResponse.data.BookingInfo.BookingId,
-                    PNR: fSearchApiResponse.data.BookingInfo.APnr,
-                    APnr: fSearchApiResponse.data.BookingInfo.APnr,
-                    GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
-                  },
-                }
-              );
-
-              if (
-                fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
-              ) {
-                return `${fSearchApiResponse.data}-${fSearchApiResponse.data}`;               
-              } else { 
-
-                const getAgentConfigData = await agentConfig.findOne({
-                  userId: getuserDetails._id,
-                });
-                const maxCreditLimitPriceUp = getAgentConfigData?.maxcreditLimit ?? 0;
-                const newBalanceCreditdeductData =
-                maxCreditLimitPriceUp -
-                  (item?.offeredPrice +
-                    item?.totalMealPrice +
-                    item?.totalBaggagePrice +
-                    item?.totalSeatPrice);
-                await agentConfig.updateOne(
-                  { userId: getuserDetails._id },
-                  { maxcreditLimit: newBalanceCreditdeductData }
-                );
-                await ledger.create({
-                  userId: getuserDetails._id,
-                  companyId: getuserDetails.company_ID._id,
-                  ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                  transactionAmount:
-                    item?.offeredPrice +
-                    item?.totalMealPrice +
-                    item?.totalBaggagePrice +
-                    item?.totalSeatPrice,
-                  currencyType: "INR",
-                  fop: "DEBIT",
-                  transactionType: "CREDIT",
-                  runningAmount: newBalanceCreditdeductData,
-                  remarks: "Booking Amount Add Into Your Account.",
-                  transactionBy: getuserDetails._id,
-                  cartId: item?.BookingId,
-                });
-
-                // Transtion
-                await transaction.updateOne(
-                  { bookingId: item?.BookingId },
-                  { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" }
-                );
-              
-               
-              }
-              //return fSearchApiResponse.data;
-              const barcodeupdate = await updateBarcode2DByBookingId(
-                item?.BookingId,
-                PassengerPreferences,
-                item,
-                fSearchApiResponse.data.BookingInfo.APnr
-              );
-              if (barcodeupdate) {
-                return bookingResponce;
-              } else {
-                return bookingResponce;
-              }
-            } catch (error) {
-              await BookingDetails.updateOne(
-                {
-                  bookingId: item?.BookingId,
                   "itinerary.IndexNumber": item.IndexNumber,
                 },
                 {
@@ -400,12 +282,102 @@ const payuSuccess = async (req, res) => {
                     bookingRemarks: error.message,
                   },
                 }
-              );             
-              return error.message;
+              );
+              return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
             }
-          })
+
+            const bookingResponce = {
+              CartId: item.BookingId,
+              bookingResponce: {
+                CurrentStatus:
+                  fSearchApiResponse.data.BookingInfo.CurrentStatus,
+                BookingStatus:
+                  fSearchApiResponse.data.BookingInfo.BookingStatus,
+                BookingRemark:
+                  fSearchApiResponse.data.BookingInfo.BookingRemark,
+                BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
+                providerBookingId:
+                  fSearchApiResponse.data.BookingInfo.BookingId,
+                PNR: fSearchApiResponse.data.BookingInfo.APnr,
+                Type: fSearchApiResponse.data.BookingInfo.GPnr,
+                APnr: fSearchApiResponse.data.BookingInfo.APnr,
+                GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+              },
+              itinerary: item,
+              PassengerPreferences: PassengerPreferences,
+              userDetails: getuserDetails,
+            };
+            await BookingDetails.updateOne(
+              {
+                bookingId: udf1,
+                "itinerary.IndexNumber": item.IndexNumber,
+              },
+              {
+                $set: {
+                  bookingStatus:
+                    fSearchApiResponse.data.BookingInfo.CurrentStatus,
+                  bookingRemarks:
+                    fSearchApiResponse.data.BookingInfo.BookingRemark,
+                  providerBookingId:
+                    fSearchApiResponse.data.BookingInfo.BookingId,
+                  PNR: fSearchApiResponse.data.BookingInfo.APnr,
+                  APnr: fSearchApiResponse.data.BookingInfo.APnr,
+                  GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+                },
+              }
+            );
+
+            if (
+              fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
+            ) {
+              return `${fSearchApiResponse.data}-${fSearchApiResponse.data}`;
+            } else {
+
+              itemAmount += item?.offeredPrice +
+                item?.totalMealPrice +
+                item?.totalBaggagePrice +
+                item?.totalSeatPrice;
+
+
+              
+              // Transtion
+              await transaction.updateOne(
+                { bookingId: item?.BookingId },
+                { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" }
+              );
+
+
+            }
+            //return fSearchApiResponse.data;
+            const barcodeupdate = await updateBarcode2DByBookingId(
+              item?.BookingId,
+              PassengerPreferences,
+              item,
+              fSearchApiResponse.data.BookingInfo.APnr
+            );
+            if (barcodeupdate) {
+              return bookingResponce;
+            } else {
+              return bookingResponce;
+            }
+          } catch (error) {
+            await BookingDetails.updateOne(
+              {
+                bookingId: item?.BookingId,
+                "itinerary.IndexNumber": item.IndexNumber,
+              },
+              {
+                $set: {
+                  bookingStatus: "FAILED",
+                  bookingRemarks: error.message,
+                },
+              }
+            );
+            return error.message;
+          }
+        })
         //);
-        await Promise.all(updatePromises);
+        // await Promise.all(updatePromises);
         let successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -466,7 +438,31 @@ const payuSuccess = async (req, res) => {
     </body>
     </html>`;
 
-        if (updatePromises.length > 0) {         
+        if (updatePromises.length > 0) {
+
+
+          const runnnigBalance =  newBalanceCredit - itemAmount;      
+          await agentConfig.updateOne(
+            { userId: getuserDetails._id },
+            { maxcreditLimit: newBalanceCreditdeductData }
+          );
+          await ledger.create({
+            userId: getuserDetails._id,
+            companyId: getuserDetails.company_ID._id,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount:itemAmount,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "CREDIT",
+            runningAmount: runnnigBalance,
+            remarks: "Booking Amount Add Into Your Account.",
+            transactionBy: getuserDetails._id,
+            cartId: item?.BookingId,
+          });
+
+
+
+
           return successHtmlCode;
         } else {
           return "Data does not exist";
@@ -509,7 +505,7 @@ const payuFail = async (req, res) => {
         getuserDetails = "User Not Found";
       }
 
-      
+
 
       // const hitAPI = await Promise.all(
       //   ItineraryPriceCheckResponses.map(async (item) => {
@@ -550,46 +546,46 @@ const payuFail = async (req, res) => {
       //     });
       //   })
       // );
-      
-    //   const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
-    //     // const getAgentConfigForUpdateagain = await agentConfig.findOne({
-    //     //     userId: getuserDetails._id,
-    //     // });
-    //     // // add balance here
-    //     // const maxCreditLimitPriceUp =
-    //     //     getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
-    
-    //     // const newBalanceCredit =
-    //     //     maxCreditLimitPriceUp +
-    //     //     item?.offeredPrice +
-    //     //     item?.totalMealPrice +
-    //     //     item?.totalBaggagePrice +
-    //     //     item?.totalSeatPrice;
-    //     // await agentConfig.updateOne(
-    //     //     { userId: getuserDetails._id },
-    //     //     { maxcreditLimit: newBalanceCredit }
-    //     // );
-    //     // await ledger.create({
-    //     //     userId: getuserDetails._id,
-    //     //     companyId: getuserDetails.company_ID._id,
-    //     //     ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-    //     //     transactionAmount:
-    //     //         item?.offeredPrice +
-    //     //         item?.totalMealPrice +
-    //     //         item?.totalBaggagePrice +
-    //     //         item?.totalSeatPrice,
-    //     //     currencyType: "INR",
-    //     //     fop: "CREDIT",
-    //     //     transactionType: "DEBIT",
-    //     //     runningAmount: newBalanceCredit,
-    //     //     remarks: "Booking Amount Dedactive Into Your Account.",
-    //     //     transactionBy: getuserDetails._id,
-    //     //     cartId: item?.BookingId,
-    //     // });
-    // });
-    
-    //await Promise.all(updatePromises);
-      
+
+      //   const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
+      //     // const getAgentConfigForUpdateagain = await agentConfig.findOne({
+      //     //     userId: getuserDetails._id,
+      //     // });
+      //     // // add balance here
+      //     // const maxCreditLimitPriceUp =
+      //     //     getAgentConfigForUpdateagain?.maxcreditLimit ?? 0;
+
+      //     // const newBalanceCredit =
+      //     //     maxCreditLimitPriceUp +
+      //     //     item?.offeredPrice +
+      //     //     item?.totalMealPrice +
+      //     //     item?.totalBaggagePrice +
+      //     //     item?.totalSeatPrice;
+      //     // await agentConfig.updateOne(
+      //     //     { userId: getuserDetails._id },
+      //     //     { maxcreditLimit: newBalanceCredit }
+      //     // );
+      //     // await ledger.create({
+      //     //     userId: getuserDetails._id,
+      //     //     companyId: getuserDetails.company_ID._id,
+      //     //     ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+      //     //     transactionAmount:
+      //     //         item?.offeredPrice +
+      //     //         item?.totalMealPrice +
+      //     //         item?.totalBaggagePrice +
+      //     //         item?.totalSeatPrice,
+      //     //     currencyType: "INR",
+      //     //     fop: "CREDIT",
+      //     //     transactionType: "DEBIT",
+      //     //     runningAmount: newBalanceCredit,
+      //     //     remarks: "Booking Amount Dedactive Into Your Account.",
+      //     //     transactionBy: getuserDetails._id,
+      //     //     cartId: item?.BookingId,
+      //     // });
+      // });
+
+      //await Promise.all(updatePromises);
+
       let failedHtmlCode = `<!DOCTYPE html>
     <html lang="en">
     <head>

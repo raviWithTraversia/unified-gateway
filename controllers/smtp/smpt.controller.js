@@ -133,7 +133,6 @@ if(result.response == 'Smtp Data Updated Successfully'){
 const sendMail = async(req,res)=>{
     try{
 const result=await smtpServices.sendMail(req,res)
-    console.log(result)
 
     if(result.response === 'SMTP Email sent successfully'){
         apiSucessRes(

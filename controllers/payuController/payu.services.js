@@ -439,7 +439,7 @@ const payuSuccess = async (req, res) => {
     </html>`;
 
         if (results.length > 0) {
-
+          if(itemAmount !== 0){
           const runnnigBalance =  newBalanceCredit - itemAmount;      
           await agentConfig.updateOne(
             { userId: getuserDetails._id },
@@ -458,7 +458,7 @@ const payuSuccess = async (req, res) => {
             transactionBy: getuserDetails._id,
             cartId: udf1,
           });
-
+        }
           return successHtmlCode;
         } else {
           return "Data does not exist";

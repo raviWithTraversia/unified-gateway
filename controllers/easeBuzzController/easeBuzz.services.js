@@ -144,6 +144,7 @@ const easeBuzzResponce = async (req, res) => {
         const newBalanceCredit =
           getconfigAmount + totalItemAmount;
 
+        let itemAmount = 0;
         await agentConfig.updateOne(
           { userId: getuserDetails._id },
           { maxcreditLimit: newBalanceCredit }
@@ -264,37 +265,11 @@ const easeBuzzResponce = async (req, res) => {
               return `${fSearchApiResponse.data}-${fSearchApiResponse.data}`;
             } else {
 
-              const getAgentConfigData = await agentConfig.findOne({
-                userId: getuserDetails._id,
-              });
-              const maxCreditLimitPriceUp = getAgentConfigData?.maxcreditLimit ?? 0;
-              const newBalanceCreditdeductData =
-                maxCreditLimitPriceUp -
-                (item?.offeredPrice +
-                  item?.totalMealPrice +
-                  item?.totalBaggagePrice +
-                  item?.totalSeatPrice);
-              await agentConfig.updateOne(
-                { userId: getuserDetails._id },
-                { maxcreditLimit: newBalanceCreditdeductData }
-              );
-              await ledger.create({
-                userId: getuserDetails._id,
-                companyId: getuserDetails.company_ID._id,
-                ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                transactionAmount:
-                  item?.offeredPrice +
-                  item?.totalMealPrice +
-                  item?.totalBaggagePrice +
-                  item?.totalSeatPrice,
-                currencyType: "INR",
-                fop: "DEBIT",
-                transactionType: "CREDIT",
-                runningAmount: newBalanceCreditdeductData,
-                remarks: "Booking Amount Add Into Your Account.",
-                transactionBy: getuserDetails._id,
-                cartId: item?.BookingId,
-              });
+              itemAmount += item?.offeredPrice +
+                item?.totalMealPrice +
+                item?.totalBaggagePrice +
+                item?.totalSeatPrice;
+
 
               // Transtion
               await transaction.updateOne(
@@ -333,9 +308,30 @@ const easeBuzzResponce = async (req, res) => {
           }
         })
         //);
-        // await Promise.all(updatePromises);       
+       const results = await Promise.all(updatePromises);      
 
-        if (updatePromises.length > 0) {
+        if (results.length > 0) {
+          if(itemAmount !== 0){
+          const runnnigBalance =  newBalanceCredit - itemAmount;      
+          await agentConfig.updateOne(
+            { userId: getuserDetails._id },
+            { maxcreditLimit: runnnigBalance }
+          );
+          await ledger.create({
+            userId: getuserDetails._id,
+            companyId: getuserDetails.company_ID._id,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount:itemAmount,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "CREDIT",
+            runningAmount: runnnigBalance,
+            remarks: "Booking Amount Add Into Your Account.",
+            transactionBy: getuserDetails._id,
+            cartId: udf1,
+          });
+          }
+
           return {
             response: "Save Successfully",
             data: updatePromises,

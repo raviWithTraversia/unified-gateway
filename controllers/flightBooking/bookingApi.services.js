@@ -295,19 +295,19 @@ const getAllBooking = async (req, res) => {
         data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)), statusCounts: statusCounts }
       };
     }
-  }else{
-    const userCompanyId = checkUserIdExist.company_ID;    
-    const checkComapnyUser = await User.findOne({company_ID:userCompanyId}).populate({
+  } else {
+    const userCompanyId = checkUserIdExist.company_ID;
+    const checkComapnyUser = await User.findOne({ company_ID: userCompanyId }).populate({
       path: 'roleId',
       match: { type: 'Default' }
     });
     if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Agency") {
-    
+
       let filter = { userId: checkComapnyUser._id };
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.AgencyId = agencyId;
       }
-  
+
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
       }
@@ -317,7 +317,7 @@ const getAllBooking = async (req, res) => {
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
       }
-  
+
       if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
         filter.bookingDateTime = {
           $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
@@ -332,7 +332,7 @@ const getAllBooking = async (req, res) => {
           $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
         };
       }
-  
+
       const bookingDetails = await bookingdetails.find(filter)
         .populate({
           path: 'userId',
@@ -340,14 +340,14 @@ const getAllBooking = async (req, res) => {
             path: 'company_ID'
           }
         }).populate('BookedBy');
-  
-  
+
+
       if (!bookingDetails || bookingDetails.length === 0) {
         return {
           response: "Data Not Found",
         };
       } else {
-  
+
         const statusCounts = {
           "PENDING": 0,
           "CONFIRMED": 0,
@@ -357,7 +357,7 @@ const getAllBooking = async (req, res) => {
           "HOLD": 0,
           "HOLDRELEASED": 0
         };
-  
+
         // Iterate over the bookingDetails array
         bookingDetails.forEach(booking => {
           const status = booking.bookingStatus;
@@ -365,19 +365,19 @@ const getAllBooking = async (req, res) => {
           statusCounts[status]++;
         });
         const allBookingData = [];
-  
+
         await Promise.all(bookingDetails.map(async (booking) => {
           const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
           const configDetails = await config.findOne({ userId: booking.userId });
-  
+
           allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
         }));
-  
+
         let filteredBookingData = allBookingData; // Copy the original data
-  
+
         if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
           filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
-  
+
         }
         return {
           response: "Fetch Data Successfully",
@@ -389,7 +389,7 @@ const getAllBooking = async (req, res) => {
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.userId = { _id: agencyId };
       }
-  
+
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
       }
@@ -413,7 +413,7 @@ const getAllBooking = async (req, res) => {
           $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
         };
       }
-  
+
       const bookingDetails = await bookingdetails.find(filter)
         .populate({
           path: 'userId',
@@ -421,13 +421,13 @@ const getAllBooking = async (req, res) => {
             path: 'company_ID'
           }
         }).populate('BookedBy');
-  
+
       if (!bookingDetails || bookingDetails.length === 0) {
         return {
           response: "Data Not Found",
         };
       } else {
-  
+
         const statusCounts = {
           "PENDING": 0,
           "CONFIRMED": 0,
@@ -437,7 +437,7 @@ const getAllBooking = async (req, res) => {
           "HOLD": 0,
           "HOLDRELEASED": 0
         };
-  
+
         // Iterate over the bookingDetails array
         bookingDetails.forEach(booking => {
           const status = booking.bookingStatus;
@@ -445,17 +445,17 @@ const getAllBooking = async (req, res) => {
           statusCounts[status]++;
         });
         const allBookingData = [];
-  
+
         await Promise.all(bookingDetails.map(async (booking) => {
           const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
           const configDetails = await config.findOne({ userId: booking.userId });
           allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
         }));
         let filteredBookingData = allBookingData; // Copy the original data
-  
+
         if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
           filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
-  
+
         }
         return {
           response: "Fetch Data Successfully",
@@ -463,12 +463,12 @@ const getAllBooking = async (req, res) => {
         };
       }
     } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "TMC" || checkComapnyUser?.company_ID?.type === "TMC") {
-      
+
       let filter = {};
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.userId = agencyId;
       }
-  
+
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
       }
@@ -492,7 +492,7 @@ const getAllBooking = async (req, res) => {
           $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
         };
       }
-  
+
       const bookingDetails = await bookingdetails.find(filter)
         .populate({
           path: 'userId',
@@ -500,8 +500,8 @@ const getAllBooking = async (req, res) => {
             path: 'company_ID'
           }
         }).populate('BookedBy');
-      
-  
+
+
       if (!bookingDetails || bookingDetails.length === 0) {
         return {
           response: "Data Not Found",
@@ -516,7 +516,7 @@ const getAllBooking = async (req, res) => {
           "HOLD": 0,
           "HOLDRELEASED": 0
         };
-  
+
         // Iterate over the bookingDetails array
         bookingDetails.forEach(booking => {
           const status = booking.bookingStatus;
@@ -524,18 +524,18 @@ const getAllBooking = async (req, res) => {
           statusCounts[status]++;
         });
         const allBookingData = [];
-  
+
         await Promise.all(bookingDetails.map(async (booking) => {
           const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
           const configDetails = await config.findOne({ userId: booking.userId });
           allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
         }));
         let filteredBookingData = allBookingData; // Copy the original data
-  
+
         if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
           filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
         }
-  
+
         return {
           response: "Fetch Data Successfully",
           data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)), statusCounts: statusCounts }
@@ -644,9 +644,11 @@ const getBookingCalendarCount = async (req, res) => {
 
 const getBookingBill = async (req, res) => {
   const { agencyId, fromDate, toDate } = req.body;
+  const adjustedEndDate = new Date(toDate);
+  adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
   const bookingBill = await passengerPreferenceSchema.aggregate([{
     $match: {
-      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate) }
+      createdAt: { $gte: new Date(fromDate), $lte: new Date(adjustedEndDate) }
     }
   }, { $unwind: "$Passengers" }, {
     $project: {

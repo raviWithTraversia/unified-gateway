@@ -42,6 +42,13 @@ const easeBuzzResponce = async (req, res) => {
               ServerStatusCode.RESOURCE_NOT_FOUND,
               true
             );
+          }else if (result.response === "Fetch Data Successfully") {
+            apiSucessRes(
+              res,
+              result.response,
+              result.data,
+              ServerStatusCode.SUCESS_CODE
+            );          
           } else {
             apiErrorres(
               res,

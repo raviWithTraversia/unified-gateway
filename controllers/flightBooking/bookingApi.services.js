@@ -54,9 +54,9 @@ const getAllBooking = async (req, res) => {
       response: "User id does not exist",
     };
   }
-
+  
   if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
-
+    
     let filter = { userId: userId };
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.AgencyId = agencyId;
@@ -217,10 +217,10 @@ const getAllBooking = async (req, res) => {
       };
     }
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" || checkUserIdExist?.company_ID?.type === "TMC") {
-
+    
     let filter = {};
     if (agencyId !== undefined && agencyId.trim() !== "") {
-      filter["userId.company_ID._id"] = agencyId;
+      filter.userId = agencyId;
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {

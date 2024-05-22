@@ -323,7 +323,7 @@ user_route.post("/user/updateStatus",auth,userController.userStatusUpdate)
 
 user_route.get('/get-company/profile',auth,userController.getCompanyProfle)
 
-user_route.patch('/update/company-proflie',auth,  (req, res, next) => {
+user_route.patch('/update/company-proflie',  (req, res, next) => {
     req.body.images = {};
   
     if (req.files && req.files.length > 0) {
@@ -371,7 +371,7 @@ user_route.patch('/update/company-proflie',auth,  (req, res, next) => {
     { name: 'signature_URL', maxCount: 1 },
     { name: 'aadhar_URL', maxCount: 1 },
     { name: 'agencyLogo_URL', maxCount: 1 },
-  ]),userController.updateCompayProfile)
+  ]),auth,userController.updateCompayProfile)
 
 
 user_route.get('/test',auth, function(req, res){

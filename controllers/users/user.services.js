@@ -341,7 +341,7 @@ const userInsert = async (req, res) => {
     if(!baseUrl){
      // let cId = '6555f84c991eaa63cb171a9f'
       baseUrl = await webMaster.find({companyId : savedCompany._id});
-      baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'http://localhost:3111/api';
+      baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'https://agent.kafilaholidays.in/api';
     }
     if(userCreated){
       let resetTempPassword = await commonFunction.sendPasswordResetEmailLink(

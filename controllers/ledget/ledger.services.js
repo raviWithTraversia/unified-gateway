@@ -1,6 +1,7 @@
 const Company = require("../../models/Company");
 const User = require("../../models/User");
 const ledger = require("../../models/Ledger");
+const { ObjectId } = require("mongodb");
 const getAllledger = async (req, res) => {
   const {
     userId,
@@ -269,22 +270,50 @@ const getAllledger = async (req, res) => {
 };
 
 const transactionReport = async (req, res) => {
-  const { fromDate, toDate } = req.body;
+  const { userId, fromDate, toDate } = req.body;
   const getLedgerTransaction = await ledger.aggregate([{
     $match: {
-      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
+      userId: new ObjectId(userId), createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
     }
   }, {
     $lookup: {
       from: "bookingdetails",
-      localField: "bookingId",
+      localField: "cartId",
       foreignField: "bookingId",
       as: "bookingData",
     }
-  }])
+  }, { $unwind: "$bookingData" }, {
+    $project: {
+      userId: "$bookingData.userId",
+      aliasId: "$bookingData.providerBookingId",
+      agentId: "$bookingData.AgencyId",
+      currentBalance: "$runningAmount",
+      previousBalance: "0",
+      product: "$bookingData.productType",
+      dealAmount: "0",
+      netAmount: "0",
+      gstAmount: "0",
+      sfAmount: "0",
+      tdsAmount: "0",
+      cbAmount: "0",
+      PromoAmount: "0",
+      eTime: "$bookingData.invoicingDate",
+      remark: "$transactionType",
+      narration: "AUTO"
+    }
+  }]);
+  getLedgerTransaction.forEach((element, index) => {
+    element.id = index + 1;
+  });
+  if (!getLedgerTransaction.length) {
+    return {
+      response: "Data Not Found",
+    };
+  };
   return {
-    getLedgerTransaction
-  }
+    response: "Fetch Data Successfully",
+    data: getLedgerTransaction,
+  };
 }
 
 module.exports = {

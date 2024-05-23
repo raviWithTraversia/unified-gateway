@@ -3,13 +3,12 @@ const userModel = require("../../models/User");
 const markUpCategoryMasterModels = require("../../models/MarkupCategoryMaster");
 const markupLogHistory = require('../../models/MarkupLogHistory');
 const mongoose = require('mongoose');
-
+const EventLogs=require('../logs/EventApiLogsCommon')
 const addMarkup = async (req, res) => {
   try {
     let { markupData, airlineCodeId, markupOn, markupFor, companyId, isDefault } =
       req.body;
     let userId = req.user._id
-    console.log(userId);
     let query = {
       markupOn: markupOn,
       markupFor: markupFor,
@@ -52,6 +51,14 @@ const addMarkup = async (req, res) => {
       });
       markupChargeInsert = await markupChargeInsert.save();
       if (markupChargeInsert) {
+        const LogsData={
+          eventName:"Markup",
+          doerId:req.user._id,
+          companyId:companyId,
+          description:"Add Agent Markup",
+        }
+       EventLogs(LogsData)
+
         return {
           data: markupChargeInsert,
           response: "MarkUp Charges Insert Sucessfully",

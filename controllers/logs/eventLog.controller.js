@@ -55,6 +55,7 @@ const getEventLog = async (req, res) => {
         if (!result.response && result.isSometingMissing) {
             apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
         } else if (result.response === "Either eventName or companyId does not exist" || result.response === "Data Not Found") {
+            console.log("shadaab")
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
         } else if (result.response === "Fetch Data Successfully") {
             apiSucessRes(

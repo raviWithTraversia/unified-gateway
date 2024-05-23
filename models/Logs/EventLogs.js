@@ -1,38 +1,33 @@
 const mongoose = require("mongoose");
 
 const evenLogSchema = new mongoose.Schema({
-    eventName : {
+    eventName: {
         type: String,
-        required: false,        
+        required: false,
         default: null
     },
-    doerId : {
-        type : String,
-        required : false,
-        default : null
-    },
-    doerName : {
-        type : String,
-        required : false,
-        default : null
-    },
-    ipAddress : {
-        type : String,
-        required : false,
-        default : null
-    },
-    companyId : {
-        type : String,
-        required : false,
-        default : null  
-    },
-    description : {
+    doerId: { type: mongoose.Schema.Types.ObjectId,
+         ref: 'User' },
+    doerName: {
         type: String,
-        required: false,        
+        required: false,
         default: null
-    }, 
-},{
+    },
+    ipAddress: {
+        type: String,
+        required: false,
+        default: null
+    },
+    companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
+
+
+    description: {
+        type: String,
+        required: false,
+        default: null
+    },
+}, {
     timestamps: true // Adds created_at and updated_at fields
 });
 
-module.exports = mongoose.model('EventLog' , evenLogSchema);
+module.exports = mongoose.model('EventLog', evenLogSchema);

@@ -50,13 +50,19 @@ const retriveEventLog = async (req, res) => {
 
 const getEventLog = async (req, res) => {
     try {
-        const { eventName, companyId } = req.query;
-        if (!eventName || !companyId) {
+        const { companyId } = req.query;
+        if ( !companyId) {
             return {
-                response: "Either eventName or companyId does not exist",
+                response: "Either companyId does not exist",
             };
         }
-        const getEventLogs = await EventLog.find({ eventName, companyId });
+        const getEventLogs = await EventLog.find({
+            $and: [
+              { companyId: companyId },
+              { doerId: req.user._id }
+            ]
+          }).populate([{ path: "doerId", select:"fname email lastName"}, { path: "companyId", select:"companyName type"}]);
+          console.log(getEventLogs)
         if (!getEventLogs.length) {
             return {
                 response: "Data Not Found",

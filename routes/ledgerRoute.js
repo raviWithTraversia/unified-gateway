@@ -2,7 +2,7 @@ const express = require("express");
 const ledger_route = express();
 const bodyParser = require("body-parser");
 ledger_route.use(bodyParser.json());
-ledger_route.use(bodyParser.urlencoded({extended:true}));
+ledger_route.use(bodyParser.urlencoded({ extended: true }));
 const auth = require("../middleware/auth");
 const ledgetController = require('../controllers/ledget/ledger.controller')
 
@@ -11,8 +11,13 @@ ledger_route.post(
     ledgetController.getAllledger
 )
 
-ledger_route.get('/test',auth, function(req, res){
-    res.status(200).json({status:"success",msg:"this is test responce"});
+ledger_route.post(
+    '/transactionReport',
+    ledgetController.transactionReport
+)
+
+ledger_route.get('/test', auth, function (req, res) {
+    res.status(200).json({ status: "success", msg: "this is test responce" });
 });
 
 

@@ -77,4 +77,30 @@ const getEventLog = async (req, res) => {
     }
 }
 
-module.exports = { addEventLog, retriveEventLog, getEventLog }
+
+const getEventlogbyid=async(req,res)=>{
+    try{
+        const { doucmentId } = req.body;
+        if ( !doucmentId) {
+            return {
+                response: "Either _id does not exist",
+            };
+        }
+        const getEventLogs = await EventLog.find({documentId:doucmentId}).populate([{ path: "doerId", select:"fname email lastName"}, { path: "companyId", select:"companyName type"}]);
+        if (!getEventLogs) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: getEventLogs,
+        };
+
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+
+}
+module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid }

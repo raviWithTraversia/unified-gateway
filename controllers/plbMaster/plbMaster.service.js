@@ -4,7 +4,6 @@ const User = require('../../models/User');
 const PLBMasterHistory =require('../../models/PLBMasterHistory');
 const PLBGroupHasPLBMaster = require('../../models/PLBGroupHasPLBMaster');
 const agencyGroup = require("../../models/AgencyGroup");
-
 const addPLBMaster = async(req, res) => {
     try {
         const {

@@ -3,7 +3,9 @@ const userModel = require("../../models/User");
 const markUpCategoryMasterModels = require("../../models/MarkupCategoryMaster");
 const markupLogHistory = require('../../models/MarkupLogHistory');
 const mongoose = require('mongoose');
-const EventLogs=require('../logs/EventApiLogsCommon')
+const user=require('../../models/User')
+const EventLogs=require('../logs/EventApiLogsCommon');
+const { findById } = require("../../models/ConfigCredential");
 const addMarkup = async (req, res) => {
   try {
     let { markupData, airlineCodeId, markupOn, markupFor, companyId, isDefault } =
@@ -50,11 +52,14 @@ const addMarkup = async (req, res) => {
         isDefault
       });
       markupChargeInsert = await markupChargeInsert.save();
+
+      const userData=await user.findById(req.user._id)
       if (markupChargeInsert) {
         const LogsData={
           eventName:"Markup",
           doerId:req.user._id,
-          companyId:companyId,
+        doerName:userData.fname,
+        companyId:companyId,
           description:"Add Agent Markup",
         }
        EventLogs(LogsData)
@@ -118,6 +123,17 @@ const updateMarkup = async (req, res) => {
 
         const saveMarkupLog = await addMarkupLog.save();
       }
+      const userData=user.findById(req.user._id)
+
+      const LogsData={
+        eventName:"Markup",
+        doerId:req.user._id,
+        doerName:userData.fname,
+  companyId:updateDetails.companyId,
+        description:"Edit Agent Markup",
+      }
+     EventLogs(LogsData)
+
 
       // End................
 
@@ -143,7 +159,18 @@ const deletedMarkup = async (req, res) => {
     const deleteMarkupDetails = await manageMarkupModel.findByIdAndDelete(
       markupId
     );
+    const userData=await user.findById(req.user_id)
     if (deleteMarkupDetails) {
+
+      const LogsData={
+        eventName:"Markup",
+        doerId:req.user._id,
+        doerName:userData.fname,
+companyId:deleteMarkupDetails.companyId,
+        description:"Delete Agent Markup",
+      }
+     EventLogs(LogsData)
+
       return {
         response: "Markup details deleted successfully",
         data: deleteMarkupDetails,

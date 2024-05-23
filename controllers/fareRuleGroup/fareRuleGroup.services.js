@@ -5,6 +5,7 @@ const agentConfig = require("../../models/AgentConfig");
 const UserModule = require("../../models/User");
 const agencyGroup = require("../../models/AgencyGroup");
 const EventLogs=require('../logs/EventApiLogsCommon')
+const user=require('../../models/User')
 
 const addFareRuleGroup = async (req, res) => {
   try {
@@ -41,12 +42,15 @@ const addFareRuleGroup = async (req, res) => {
       isDefault,
     });
     const saveFareRuleGroup = await newFareRuleGroup.save();
+const userData= await user.findById(req.user._id)
+
     if (saveFareRuleGroup) {
 
       const LogsData={
         eventName:"GroupFareRules",
         doerId:req.user._id,
-        companyId:companyId,
+        doerName:userData.fname,
+companyId:companyId,
         description:"Add FareRules For Group",
       }
      EventLogs(LogsData)
@@ -87,6 +91,8 @@ const editFareRuleGroup = async (req, res) => {
       },
       { new: true }
     );
+const userData= await user.findById(req.user._id)
+
     if (updateFareRuleData) {
       //console.log(id);
       await agencyGroup.findOneAndUpdate(
@@ -97,6 +103,8 @@ const editFareRuleGroup = async (req, res) => {
       const LogsData={
         eventName:"GroupFareRules",
         doerId:req.user._id,
+        doerName:userData.fname,
+
         companyId:updateData.companyId,
         description:"Edit FareRules For Group",
       }
@@ -480,12 +488,15 @@ const deleteFareRuleGroup = async (req, res) => {
   try {
     let id = req.query.id;
     let deleteData = await fareRuleGroupModels.findByIdAndDelete(id);
+const userData= await user.findById(req.user._id)
+
     if (deleteData) {
 
       const LogsData={
         eventName:"GroupFareRules",
         doerId:req.user._id,
-        companyId:deleteData.companyId,
+        doerName:userData.fname,
+companyId:deleteData.companyId,
         description:"Delete FareRules For Group",
       }
      EventLogs(LogsData)

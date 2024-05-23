@@ -20,6 +20,11 @@ const evenLogSchema = new mongoose.Schema({
     },
     companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
 
+    documentId:{
+type:mongoose.Schema.Types.ObjectId,
+
+    },
+
 
     description: {
         type: String,

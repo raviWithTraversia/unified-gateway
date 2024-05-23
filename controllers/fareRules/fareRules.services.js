@@ -1,6 +1,7 @@
 const { filter } = require("lodash");
 const fareRulesModel = require("../../models/FareRules");
 const FUNC = require("../commonFunctions/common.function");
+const EventLogs=require('../logs/EventApiLogsCommon')
 
 const addfareRule = async (req, res) => {
   try {
@@ -49,7 +50,15 @@ const addfareRule = async (req, res) => {
       modifyBy: req.user._id,
     });
     addRules = await addRules.save();
+
     if (addRules) {
+      const LogsData={
+        eventName:"FareRules",
+        doerId:req.user._id,
+        companyId:companyId,
+        description:"Add Fare Rules",
+      }
+     EventLogs(LogsData)
       return {
         response: "Fare rule add sucessfully",
         data: addRules,
@@ -59,6 +68,8 @@ const addfareRule = async (req, res) => {
         response: "Fare rule not added",
       };
     }
+
+    
   } catch (error) {
     console.log(error);
     throw error;
@@ -97,6 +108,13 @@ const deleteFareRule = async (req, res) => {
     let id = req.params.id;
     const removeFareRule = await fareRulesModel.findByIdAndDelete(id);
     if (removeFareRule) {
+      const LogsData={
+        eventName:"FareRules",
+        doerId:req.user._id,
+        companyId:removeFareRule.companyId,
+        description:"Delete Fare Rules",
+      }
+     EventLogs(LogsData)
       return {
         response: "Fare Rule Deleted Sucessfully",
       };
@@ -124,6 +142,14 @@ const updateFareRule = async (req, res) => {
       { new: true }
     );
     if (updateFareRuleData) {
+
+      const LogsData={
+        eventName:"FareRules",
+        doerId:req.user._id,
+        companyId:data.companyId,
+        description:"Edit Fare Rules",
+      }
+     EventLogs(LogsData)
       return {
         response: "Fare rule Updated Sucessfully",
       };

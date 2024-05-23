@@ -86,7 +86,7 @@ const getEventlogbyid=async(req,res)=>{
                 response: "Either _id does not exist",
             };
         }
-        const getEventLogs = await EventLog.find({documentId:doucmentId}).populate([{ path: "doerId", select:"fname email lastName"}, { path: "companyId", select:"companyName type"}]);
+        const getEventLogs = await EventLog.find({documentId:doucmentId}).populate([{ path: "doerId", select:"fname email lastName userId"}, { path: "companyId", select:"companyName type"}]);
         if (!getEventLogs) {
             return {
                 response: "Data Not Found",

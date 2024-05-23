@@ -12,6 +12,7 @@ const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const BookingTemp = require("../../models/booking/BookingTemp");
 const axios = require("axios");
+const { Config } = require('../../configs/config');
 const { v4: uuidv4 } = require("uuid");
 
 const easeBuzz = async (req, res) => {
@@ -52,7 +53,7 @@ const easeBuzz = async (req, res) => {
     if (account_no) { data.append('account_no', account_no); }
     if (ifsc) { data.append('ifsc', ifsc); }
 
-    const response = await axios.post('https://testpay.easebuzz.in/payment/initiateLink', data, {
+    const response = await axios.post(Config.EASEBUZZ_PG_URL, data, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -308,33 +309,33 @@ const easeBuzzResponce = async (req, res) => {
           }
         })
         //);
-       const results = await Promise.all(updatePromises);      
+        const results = await Promise.all(updatePromises);
 
         if (results.length > 0) {
-          if(itemAmount !== 0){
-          const runnnigBalance =  newBalanceCredit - itemAmount;      
-          await agentConfig.updateOne(
-            { userId: getuserDetails._id },
-            { maxcreditLimit: runnnigBalance }
-          );
-          await ledger.create({
-            userId: getuserDetails._id,
-            companyId: getuserDetails.company_ID._id,
-            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-            transactionAmount:itemAmount,
-            currencyType: "INR",
-            fop: "DEBIT",
-            transactionType: "CREDIT",
-            runningAmount: runnnigBalance,
-            remarks: "Booking Amount Add Into Your Account.",
-            transactionBy: getuserDetails._id,
-            cartId: udf1,
-          });
+          if (itemAmount !== 0) {
+            const runnnigBalance = newBalanceCredit - itemAmount;
+            await agentConfig.updateOne(
+              { userId: getuserDetails._id },
+              { maxcreditLimit: runnnigBalance }
+            );
+            await ledger.create({
+              userId: getuserDetails._id,
+              companyId: getuserDetails.company_ID._id,
+              ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+              transactionAmount: itemAmount,
+              currencyType: "INR",
+              fop: "DEBIT",
+              transactionType: "CREDIT",
+              runningAmount: runnnigBalance,
+              remarks: "Booking Amount Add Into Your Account.",
+              transactionBy: getuserDetails._id,
+              cartId: udf1,
+            });
           }
           return {
             response: "Fetch Data Successfully",
             data: "Save Successfully",
-          };          
+          };
         } else {
           return {
             response: "Fetch Data Successfully",

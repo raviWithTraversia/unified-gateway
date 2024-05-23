@@ -60,7 +60,8 @@ const addMarkup = async (req, res) => {
           doerId:req.user._id,
         doerName:userData.fname,
         companyId:companyId,
-          description:"Add Agent Markup",
+        documentId:markupChargeInsert._id,
+          description:"Add Agent Markup"
         }
        EventLogs(LogsData)
 
@@ -130,6 +131,7 @@ const updateMarkup = async (req, res) => {
         doerId:req.user._id,
         doerName:userData.fname,
   companyId:updateDetails.companyId,
+  documentId:updateDetails._id,
         description:"Edit Agent Markup",
       }
      EventLogs(LogsData)
@@ -167,6 +169,7 @@ const deletedMarkup = async (req, res) => {
         doerId:req.user._id,
         doerName:userData.fname,
 companyId:deleteMarkupDetails.companyId,
+documentId:deleteMarkupDetails._id,
         description:"Delete Agent Markup",
       }
      EventLogs(LogsData)

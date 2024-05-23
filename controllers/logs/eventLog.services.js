@@ -80,7 +80,7 @@ const getEventLog = async (req, res) => {
 
 const getEventlogbyid=async(req,res)=>{
     try{
-        const { doucmentId } = req.body;
+        const { doucmentId } = req.query;
         if ( !doucmentId) {
             return {
                 response: "Either _id does not exist",

@@ -1,6 +1,6 @@
 const IncentiveMaster = require('../../models/IncentiveMaster');
 const commonFunction = require('../commonFunctions/common.function');
-const User = require('../../models/User');
+const user = require('../../models/User');
 const IncentiveGroupHasIncentiveMaster = require('../../models/IncentiveGroupHasIncentiveMaster');
 const agencyGroup = require("../../models/AgencyGroup");
 const addIncentiveMaster = async (req, res) => {
@@ -28,16 +28,19 @@ const addIncentiveMaster = async (req, res) => {
 
         // Log add 
         const doerId = req.user._id;
-        const loginUser = await User.findById(doerId);
 
-        await commonFunction.eventLogFunction(
-            'IncentiveMaster',
-            doerId,
-            loginUser.fname,
-            req.ip,
-            companyId,
-            'add Incentive Master'
-        );
+        const userData=await user.findById(req.user._id)
+const LogsData={
+            eventName:"IncentiveMaster",
+            doerId:req.user._id,
+        doerName:userData.fname,
+ companyId:companyId,
+ documentId:IncentiveMasterData._id,
+       description:'add Incentive Master'
+        
+          }
+         EventLogs(LogsData)
+       
 
         return {
             response: 'Incentive Master save successfully'
@@ -91,16 +94,17 @@ const incentiveMasterUpdate = async (req, res) => {
 
         // Log add 
         const doerId = req.user._id;
-        const loginUser = await User.findById(doerId);
-
-        await commonFunction.eventLogFunction(
-            'IncentiveMaster',
-            doerId,
-            loginUser.fname,
-            req.ip,
-            loginUser.companyId,
-            'updated Incentive Master'
-        );
+        const userData=await user.findById(req.user._id)
+const LogsData={
+            eventName:"IncentiveMaster",
+            doerId:req.user._id,
+        doerName:userData.fname,
+ companyId:companyId,
+ documentId:IncentiveMasterUpdate._id,
+       description:'Edit Incentive Master'
+        
+          }
+         EventLogs(LogsData)
 
         return {
             response: 'Incentive Master updated successfully'
@@ -125,16 +129,17 @@ const removeIncentiveMaster = async (req, res) => {
 
         // Log add 
         const doerId = req.user._id;
-        const loginUser = await User.findById(doerId);
-
-        await commonFunction.eventLogFunction(
-            'IncentiveMaster',
-            doerId,
-            loginUser.fname,
-            req.ip,
-            loginUser.companyId,
-            'deleted Incentive Master'
-        );
+        const userData=await user.findById(req.user._id)
+        const LogsData={
+                    eventName:"IncentiveMaster",
+                    doerId:req.user._id,
+                doerName:userData.fname,
+         companyId:result.companyId,
+         documentId:result._id,
+               description:'Delete Incentive Master'
+                
+                  }
+                 EventLogs(LogsData)
         return {
             response: 'Incentive Master deleted Successfully!'
         }
@@ -188,16 +193,17 @@ const CopyIncentiveMaster = async (req, res) => {
 
             // Log add 
             const doerId = req.user._id;
-            const loginUser = await User.findById(doerId);
-
-            await commonFunction.eventLogFunction(
-                'IncentiveMaster',
-                doerId,
-                loginUser.fname,
-                req.ip,
-                loginUser.companyId,
-                'Copy Incentive Master'
-            );
+            const userData=await user.findById(req.user._id)
+            const LogsData={
+                        eventName:"IncentiveMaster",
+                        doerId:req.user._id,
+                    doerName:userData.fname,
+             companyId:IncMaster.companyId,
+             documentId:IncMaster._id,
+                   description:'Copu Incentive Master'
+                    
+                      }
+                     EventLogs(LogsData)
 
             return {
                 response: 'Incentive Master copy successfully'

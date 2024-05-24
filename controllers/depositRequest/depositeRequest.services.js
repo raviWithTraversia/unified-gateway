@@ -3,6 +3,7 @@ const Company = require("../../models/Company");
 const User = require("../../models/User");
 const config = require("../../models/AgentConfig");
 const ledger = require("../../models/Ledger");
+const EventLogs=require("../logs/EventApiLogsCommon")
 const adddepositDetails = async (req, res) => {
   try {
     const {
@@ -192,8 +193,9 @@ const approveAndRejectDeposit = async(req, res) => {
                 response : 'Remark and status are required'
             }
         }
+        console.log(req.user._id)
         // const doerId = req.user._id;
-       // const loginUser = await User.findById(doerId);
+       const loginUser = await User.findById(req.user._id);
 
        let updateResponse;
         if(status == "approved") { 
@@ -225,14 +227,15 @@ const approveAndRejectDeposit = async(req, res) => {
               remarks: "Deposit Request Added Into Your Account.",
               transactionBy: updateResponse.userId              
             });
-            // await commonFunction.eventLogFunction(
-            //     'creditRequest' ,
-            //     doerId ,
-            //     loginUser.fname ,
-            //     req.ip , 
-            //     loginUser.company_ID , 
-            //     'Credit request approved'
-            // );
+            const LogsData = {
+              eventName: "creditRequest",
+              doerId: loginUser._id,
+              doerName: loginUser.fname,
+              companyId: updateResponse.companyId,
+              documentId: updateResponse._id,
+              description: "Credit request approved"
+          };
+          EventLogs(LogsData)
             return {
                 response : 'Deposit request approved successfully'
             }
@@ -243,7 +246,17 @@ const approveAndRejectDeposit = async(req, res) => {
                 remarks,
                 status,
             }, { new: true })
+
+            const LogsData = {
+              eventName: "creditRequest",
+              doerId: req.user._id,
+              doerName: loginUser.fname,
+              companyId: updateCreditRequestRejected.companyId,
+              documentId: updateCreditRequestRejected._id,
+              description: "Credit request rejected"
+          };
           
+          EventLogs(LogsData)
             // await commonFunction.eventLogFunction(
             //     'creditRequest' ,
             //     doerId ,
@@ -258,6 +271,7 @@ const approveAndRejectDeposit = async(req, res) => {
         }
 
     } catch (error) {
+      console.log(error)
        throw error 
     }
 }

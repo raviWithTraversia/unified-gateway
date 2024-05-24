@@ -26,7 +26,7 @@ deposit_route.get(
 
 
 deposit_route.patch(
-    '/deposit/approv-reject-deposit/:creditRequestId',    
+     '/deposit/approv-reject-deposit/:creditRequestId',   auth,
     depositRequest.approveRejectDeposit
 );
 

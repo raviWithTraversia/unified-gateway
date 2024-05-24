@@ -69,6 +69,7 @@ const editPgcharges = async (req, res) => {
         }
       }
     }
+    const documents = await pgChargesModels.findOne({_id:id},{_id:0});
     const updatedUserData = await pgChargesModels.findByIdAndUpdate(id, { $set: updateData }, { new: true });
     const userData=await User.findById(req.user._id)
     if (updatedUserData) {
@@ -78,6 +79,8 @@ const editPgcharges = async (req, res) => {
     doerName:userData.fname,
 companyId:updatedUserData.companyId,
 documentId:updatedUserData._id,
+oldValue:documents,
+newValue:updateData,
          description:"Edit PgCharges",
       }
      EventLogs(LogsData)
@@ -90,6 +93,7 @@ documentId:updatedUserData._id,
       };
     }
   } catch (error) {
+    console.log(error)
     throw error;
   }
 };

@@ -3,7 +3,7 @@ const Company = require('../../models/Company');
 const User = require('../../models/User');
 const commonFunction = require('../commonFunctions/common.function');
 const config = require('../../models/AgentConfig');
-
+const EventLogs=require('../logs/EventApiLogsCommon')
 
 const addCreditRequest = async(req , res) => {
     try {
@@ -243,14 +243,15 @@ const approveAndRejectCredit = async(req, res) => {
                 amount: utilizeAmount
             }, { new: true })
 
-            await commonFunction.eventLogFunction(
-                'creditRequest' ,
-                doerId ,
-                loginUser.fname ,
-                req.ip , 
-                loginUser.company_ID , 
-                'Credit request approved'
-            );
+            const LogsData = {
+                eventName: "Credit Request",
+                doerId: doerId,
+                doerName: loginUser.fname,
+                companyId: updateCreditRequestApproved.company_ID,
+                documentId: updateCreditRequestApproved._id, // Replace this with the actual ID
+                description: "Credit request approved"
+            };
+            EventLogs(LogsData)
             return {
                 response : 'Credit request approved successfully'
             }
@@ -263,14 +264,15 @@ const approveAndRejectCredit = async(req, res) => {
                 status,
             }, { new: true })
           
-            await commonFunction.eventLogFunction(
-                'creditRequest' ,
-                doerId ,
-                loginUser.fname ,
-                req.ip , 
-                loginUser.company_ID , 
-                'Credit request rejected'
-            );
+            const LogsData = {
+                eventName: "Credit Request",
+                doerId: doerId,
+                doerName: loginUser.fname,
+                companyId: updateCreditRequestRejected.company_ID,
+                documentId: updateCreditRequestRejected._id, // Replace this with the actual ID
+                description: "Credit request rejected"
+            };
+            EventLogs(LogsData)
             return {
                 response : 'Credit request rejected successfully'
             }

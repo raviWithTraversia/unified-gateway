@@ -1,6 +1,8 @@
 const ssrCommercialGroupModels = require("../../models/SsrCommercialGroup");
 const ssrCommercial = require("../../models/SsrCommercial");
 const agencyGroup = require("../../models/AgencyGroup");
+const user=require('../../models/User')
+const EventLogs=require('../logs/EventApiLogsCommon')
 const addSsrCommercialGroup = async (req, res) => {
   try {
     let { ssrCommercialIds, ssrCommercialName, companyId, isDefault } =
@@ -32,6 +34,16 @@ const addSsrCommercialGroup = async (req, res) => {
     });
     const saveFareRuleGroup = await newSsrCommercialGroup.save();
     if (saveFareRuleGroup) {
+      const userData=await user.findById(req.user._id)
+      const LogsData={
+                  eventName:"Manage SSR Groups",
+                  doerId:req.user._id,
+              doerName:userData.fname,
+       companyId:companyId,
+       documentId:saveFareRuleGroup._id,
+                   description:"Add Manage SSR Groups",
+                }
+               EventLogs(LogsData)
       return {
         response: "Ssr Commercial Group Added Sucessfully",
         data: [],
@@ -60,8 +72,7 @@ const editSsrCommercialGroup = async (req, res) => {
         { isDefault: false }
       );
     }
-    let updateSsrCommercialData =
-      await ssrCommercialGroupModels.findByIdAndUpdate(
+    let updateSsrCommercialData = await ssrCommercialGroupModels.findByIdAndUpdate(
         id,
         {
           $set: updateData,
@@ -70,12 +81,25 @@ const editSsrCommercialGroup = async (req, res) => {
         },
         { new: true }
       );
+
+    const userData=await user.findById(req.user._id)
+
     if (updateSsrCommercialData) {      
       await agencyGroup.findOneAndUpdate(
         { companyId: updateData.companyId, isDefault: true },
         { ssrCommercialGroupId: id },
         { new: true }
       );
+
+      const LogsData={
+        eventName:"Manage SSR Groups",
+        doerId:req.user._id,
+    doerName:userData.fname,
+companyId:updateSsrCommercialData.companyId,
+documentId:updateSsrCommercialData._id,
+         description:"Edit Manage SSR Groups",
+      }
+     EventLogs(LogsData)
       
         return {
           response: "Ssr Commercial Group Updated Sucessfully",
@@ -183,7 +207,18 @@ const deleteSsrCommercialGroup = async (req, res) => {
   try {
     let id = req.query.id;
     let deleteData = await ssrCommercialGroupModels.findByIdAndDelete(id);
+    const userData=await user.findById(req.user._id)
+
     if (deleteData) {
+      const LogsData={
+                  eventName:"Manage SSR Groups",
+                  doerId:req.user._id,
+              doerName:userData.fname,
+       companyId:deleteData.companyId,
+       documentId:deleteData._id,
+                   description:"Delete Manage SSR Groups",
+                }
+               EventLogs(LogsData)
       return {
         response: "Ssr Commercial deleted sucessfully",
       };

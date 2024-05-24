@@ -4,6 +4,7 @@ const bookingdetails = require("../../models/booking/BookingDetails");
 const config = require("../../models/AgentConfig");
 const passengerPreferenceSchema = require("../../models/booking/PassengerPreference");
 const { ObjectId } = require("mongodb");
+const moment = require('moment');
 
 const getAllBooking = async (req, res) => {
   const {
@@ -735,10 +736,123 @@ const getBookingBill = async (req, res) => {
   };
 }
 
+const getSalesReport = async (req, res) => {
+  const { agencyId, fromDate, toDate } = req.body;
+  const salesReport = await passengerPreferenceSchema.aggregate([{
+    $match: {
+      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
+    }
+  }, { $unwind: "$Passengers" },
+  {
+    $project: {
+      userId: 1,
+      bookingId: 1,
+      paxType: "$Passengers.PaxType",
+      passengerName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
+      mealPrice: { $arrayElemAt: ['$Passengers.Meal.Price', 0] },
+      seatPrice: { $arrayElemAt: ['$Passengers.Seat.Price', 0] },
+      baggagePrice: { $arrayElemAt: ['$Passengers.Baggage.Price', 0] }
+    }
+  },
+  {
+    $lookup: {
+      from: "bookingdetails",
+      localField: "bookingId",
+      foreignField: "bookingId",
+      as: "bookingData",
+    },
+  }, { $unwind: "$bookingData" }, {
+    $match: {
+      "bookingData.bookingStatus": "CONFIRMED", "bookingData.AgencyId": agencyId ? new ObjectId(agencyId) : { $exists: true }
+    }
+  }, {
+    $lookup: {
+      from: "companies",
+      localField: "bookingData.AgencyId",
+      foreignField: "_id",
+      as: "companiesData",
+    },
+  }, {
+    $lookup: {
+      from: "users",
+      localField: "bookingData.userId",
+      foreignField: "_id",
+      as: "userData",
+    },
+  },
+  {
+    $project: {
+      _id: 0,
+      bookingId: "$bookingData.providerBookingId",
+      passengerName: 1,
+      paxName: 1,
+      paxType: 1,
+      mealPrice: 1,
+      seatPrice: 1,
+      baggagePrice: 1,
+      agentEmailId: { $arrayElemAt: ['$userData.email', 0] },
+      agentState: "",
+      agentCountry: { $arrayElemAt: ['$userData.nationality', 0] },
+      agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
+      agentId: { $arrayElemAt: ['$companiesData.agentId', 0] },
+      ticketNumber: "$bookingData.PNR",
+      gdsPnr: "$bookingData.GPnr",
+      pnr: "$bookingData.PNR",
+      bookingType: "$bookingData.booking_Type",
+      baseFare: "$bookingData.itinerary.BaseFare",
+      description: {
+        $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Code', 0] },
+          ' ',
+        { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Code', 0] }]
+      },
+      flightNo: { $arrayElemAt: ['$bookingData.itinerary.Sectors.FltNum', 0] },
+      status: "$bookingData.bookingStatus",
+      bookingClass: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Class', 0] },
+      DepartureDateTime: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Date', 0] },
+      ArrivalDateTime: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
+      bookingDate: "$bookingData.bookingDateTime",
+      taxable: "$bookingData.itinerary.Taxes",
+      totalfare: "$bookingData.bookingTotalAmount",
+      phf: "0", ttf: "0", asf: "0", yq: "0", yr: "0", taf: "0", cgst: "0", sgst: "0",
+      igst: "0", ugst: "0", rcf: "0", rsf: "0", udf: "0", jn: "0", airlineGst: "0",
+      ob: "0", oc: "0", serviceFeeGst: "0", grossFare: "0", serviceFee: "0", gst: "0",
+      grossDiscount: "0", tds: "0", netDiscount: "0", netFare: "0", dealAmount: "0",
+      cabinAmount: "0", promoAmount: "0", refundableAmount: "0", othertaxes: "0",
+      flightCode: "$bookingData.Supplier",
+      airlineCode: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] },
+      tripType: "$bookingData.travelType",
+      cabinClass: { $arrayElemAt: ['$bookingData.itinerary.Sectors.CabinClass', 0] },
+      amendmentId: "",
+      amendmentType: "",
+      paymentStatus: "success",
+      amendmentDate: ""
+    }
+  }
+  ]);
+  console.log("salesReport: ", salesReport.length);
+  salesReport.forEach((element, index) => {
+    element.id = index + 1;
+    const targetDate = moment(element.DepartureDateTime);
+    const currentDate = moment();
+    const daysLeft = targetDate.diff(currentDate, 'days');
+    element.daysToTravel = daysLeft
+  });
+  if (!salesReport.length) {
+    return {
+      response: "Data Not Found",
+    };
+  };
+  return {
+    response: "Fetch Data Successfully",
+    data: salesReport,
+  };
+}
+
 module.exports = {
   getAllBooking,
   getBookingByBookingId,
   getBookingCalendarCount,
   getBookingBill,
-  getDeparturesList
+  getDeparturesList,
+  getSalesReport
 };

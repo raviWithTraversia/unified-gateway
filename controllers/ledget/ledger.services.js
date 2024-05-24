@@ -291,7 +291,7 @@ const transactionReport = async (req, res) => {
       bookingAmount: "$transactionAmount",
       agentId: "$bookingData.AgencyId",
       currentBalance: "$runningAmount",
-      previousBalance: "0",
+      previousBalance: { $add: ["$runningAmount", "$transactionAmount"] },
       product: "$bookingData.productType",
       dealAmount: "0",
       netAmount: "0",

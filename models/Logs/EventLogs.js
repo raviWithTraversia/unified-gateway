@@ -18,6 +18,15 @@ const evenLogSchema = new mongoose.Schema({
         required: false,
         default: null
     },
+    oldValue:{
+        type:Object,
+        default:null
+    },
+
+    newValue:{
+        type:Object,
+        default:null
+    },
     companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
 
     documentId:{

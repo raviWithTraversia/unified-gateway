@@ -643,8 +643,7 @@ const getBookingCalendarCount = async (req, res) => {
 
 const getDeparturesList = async (req, res) => {
   const { userId, fromDate, toDate } = req.body;
-
-  if (!userId || !date) {
+  if (!userId) {
     return {
       response: "UserId id does not exist",
     };

@@ -865,7 +865,7 @@ const KafilaFun = async (
                 Gender: passenger?.Gender,
                 Dob: passenger?.Dob,
                 Optional: {
-                  TicketNumber: "123456789",//passenger?.Optional?.TicketNumber,
+                  TicketNumber: passenger?.Optional?.TicketNumber,
                   PassportNo: passenger?.Optional?.PassportNo,
                   PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
                   FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,

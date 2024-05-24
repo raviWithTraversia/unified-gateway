@@ -270,10 +270,10 @@ const getAllledger = async (req, res) => {
 };
 
 const transactionReport = async (req, res) => {
-  const { userId, fromDate, toDate } = req.body;
+  const { agencyId, fromDate, toDate } = req.body;
   const getLedgerTransaction = await ledger.aggregate([{
     $match: {
-      userId: new ObjectId(userId), createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
+      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
     }
   }, {
     $lookup: {
@@ -283,9 +283,12 @@ const transactionReport = async (req, res) => {
       as: "bookingData",
     }
   }, { $unwind: "$bookingData" }, {
+    $match: { "bookingData.bookingStatus": "CONFIRMED", "bookingData.AgencyId": agencyId ? new ObjectId(agencyId) : { $exists: true } }
+  }, {
     $project: {
       userId: "$bookingData.userId",
       aliasId: "$bookingData.providerBookingId",
+      bookingAmount: "$transactionAmount",
       agentId: "$bookingData.AgencyId",
       currentBalance: "$runningAmount",
       previousBalance: "0",

@@ -1,6 +1,7 @@
 const IncentiveMaster = require('../../models/IncentiveMaster');
 const commonFunction = require('../commonFunctions/common.function');
 const user = require('../../models/User');
+EventLogs=require('../logs/EventApiLogsCommon')
 const IncentiveGroupHasIncentiveMaster = require('../../models/IncentiveGroupHasIncentiveMaster');
 const agencyGroup = require("../../models/AgencyGroup");
 const addIncentiveMaster = async (req, res) => {
@@ -47,6 +48,7 @@ const LogsData={
         }
 
     } catch (error) {
+        console.log(error)
         throw error;
     }
 }
@@ -200,7 +202,7 @@ const CopyIncentiveMaster = async (req, res) => {
                     doerName:userData.fname,
              companyId:IncMaster.companyId,
              documentId:IncMaster._id,
-                   description:'Copu Incentive Master'
+                   description:'Copy Incentive Master'
                     
                       }
                      EventLogs(LogsData)

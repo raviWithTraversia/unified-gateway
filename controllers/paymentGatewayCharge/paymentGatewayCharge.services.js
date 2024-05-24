@@ -1,6 +1,6 @@
 const pgChargesModels = require('../../models/PaymentGatewayCharges');
 const User = require('../../models/User');
-
+const EventLogs=require('../logs/EventApiLogsCommon')
 const addPgCharges = async (req, res) => {
   try {
     const { paymentGatewayProvider, paymentMethod, paymentType, flatFee, percentageFee, companyId } = req.body;
@@ -23,6 +23,15 @@ const addPgCharges = async (req, res) => {
       });
       pgChargesInsert = await pgChargesInsert.save();
       if (pgChargesInsert) {
+        const LogsData={
+          eventName:"PgCharges",
+          doerId:req.user._id,
+      doerName:checkIsRole.fname,
+companyId:pgChargesInsert.companyId,
+documentId:pgChargesInsert._id,
+           description:"Add PgCharges",
+        }
+       EventLogs(LogsData)
         return {
           data: pgChargesInsert,
           response: "Payment Gateway Charges Insert Sucessfully",
@@ -61,7 +70,17 @@ const editPgcharges = async (req, res) => {
       }
     }
     const updatedUserData = await pgChargesModels.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+    const userData=await User.findById(req.user._id)
     if (updatedUserData) {
+      const LogsData={
+        eventName:"PgCharges",
+        doerId:req.user._id,
+    doerName:userData.fname,
+companyId:updatedUserData.companyId,
+documentId:updatedUserData._id,
+         description:"Edit PgCharges",
+      }
+     EventLogs(LogsData)
       return {
         response: "Update Pg Cherges Sucessfully",
       };

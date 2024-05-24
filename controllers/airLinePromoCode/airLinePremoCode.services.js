@@ -1,6 +1,7 @@
 const airLinePromo = require('../../models/AirlinePromoCode');
 const FUNC = require('../commonFunctions/common.function');
-
+const EventLogs=require('../logs/EventApiLogsCommon')
+const user=require('../../models/User')
 const addAirlinePromoCode = async (req,res) => {
     try{
     let { companyId, supplierCode, airLineCode,fareFamily,premoCode,displayName,type } = req.body;
@@ -20,7 +21,17 @@ const addAirlinePromoCode = async (req,res) => {
         type
     }) ;
     insertAirlinePromoCode = await insertAirlinePromoCode.save();
+    const userData=await user.findById(req.user._id)
     if(insertAirlinePromoCode){
+        const LogsData={
+            eventName:"AirlinePromoCode",
+            doerId:req.user._id,
+        doerName:userData.fname,
+  companyId:insertAirlinePromoCode.companyId,
+  documentId:insertAirlinePromoCode._id,
+             description:"Add AirlinePromoCode",
+          }
+         EventLogs(LogsData)
         return {
             response : 'Airline PromoCode added sucessfully',
             data : insertAirlinePromoCode
@@ -54,7 +65,18 @@ const editAirlinePromoCode = async (req,res) => {
         { $set: data },
         { new: true }
       );
+      const userData=await user.findById(req.user._id)
       if(updatedPromoCodeData){
+
+        const LogsData={
+            eventName:"AirlinePromoCode",
+            doerId:req.user._id,
+        doerName:userData.fname,
+  companyId:updatedPromoCodeData.companyId,
+  documentId:updatedPromoCodeData._id,
+             description:"Edit AirlinePromoCode",
+          }
+         EventLogs(LogsData)
          return {
             response : 'AirLine PromoCode Data Updated Sucessfully'
          }
@@ -112,8 +134,17 @@ const deletePromoCode = async(req,res) => {
        }
     };
     let deletedPromoCode = await airLinePromo.findByIdAndDelete(airLinePromoCodeId);
-
+const userData=await user.findById(req.user._id)
         if (deletedPromoCode) {
+             const LogsData={
+            eventName:"AirlinePromoCode",
+            doerId:req.user._id,
+        doerName:userData.fname,
+  companyId:deletedPromoCode.companyId,
+  documentId:deletedPromoCode._id,
+             description:"Delete AirlinePromoCode",
+          }
+         EventLogs(LogsData)
            return{
             response : "Promo Code deleted Sucessfully",
            }

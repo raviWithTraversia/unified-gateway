@@ -4,6 +4,7 @@ const ProductPlan = require('../../models/ProductPlan');
 const privilagePlanHasPermission = require('../../models/PrivilagePlanHasPermission')
 const User = require('../../models/User');
 const commonFunction = require('../commonFunctions/common.function');
+const Eventlogs=require('../logs/EventApiLogsCommon')
 const agencyGroup = require("../../models/AgencyGroup");
 const addPrivilagePlan = async(req , res) =>{
     try {
@@ -66,16 +67,18 @@ const addPrivilagePlan = async(req , res) =>{
         // Log add 
         const doerId = req.user._id;
         const loginUser = await User.findById(doerId);
-
-        await commonFunction.eventLogFunction(
-            'privilagePlan' ,
-            doerId ,
-            loginUser.fname ,
-            req.ip , 
-            companyId , 
-            'Privilage plan add'
-        );
-
+        const LogsData = {
+            eventName: "Privilage Plan",
+            doerId: doerId,
+            doerName: loginUser.fname,
+            companyId: companyId,
+            documentId: privilagePlanId,
+            description: "Privilage plan add"
+        };
+        
+        Eventlogs(LogsData);
+        
+console.log(privilagePlanId,"shd")
         return {    
             response : 'Privilage plan created successfully'
         }
@@ -209,7 +212,6 @@ const privilagePlanPatch = async(req , res) => {
             status,
         }, { new: true })
         // privious plan has permission deleted.
-        console.log("=====>>>",updatePrivilage, "<<<<===========")
         const result = await privilagePlanHasPermission.deleteMany({ privilagePlanId: _id });
 
         // Add privilagePlanHasPermission
@@ -227,14 +229,16 @@ const privilagePlanPatch = async(req , res) => {
         const doerId = req.user._id;
         const loginUser = await User.findById(doerId);
 
-        await commonFunction.eventLogFunction(
-            'privilagePlan' ,
-            doerId ,
-            loginUser.fname ,
-            req.ip , 
-            companyId , 
-            'Privilage plan update'
-        );
+        const LogsData = {
+            eventName: "Privilage Plan",
+            doerId: doerId,
+            doerName: loginUser.fname,
+            companyId: companyId,
+            documentId: updatePrivilage._id,
+            description: "Privilage plan Edit"
+        };
+        
+        Eventlogs(LogsData);
         return {    
             response : 'Privilage plan updated successfully'
         }

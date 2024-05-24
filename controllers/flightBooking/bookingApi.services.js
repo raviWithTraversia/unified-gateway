@@ -642,14 +642,14 @@ const getBookingCalendarCount = async (req, res) => {
 }
 
 const getDeparturesList = async (req, res) => {
-  const { userId, date } = req.body;
+  const { userId, fromDate, toDate } = req.body;
 
   if (!userId || !date) {
     return {
       response: "UserId id does not exist",
     };
   }
-  const getDepartureList = await bookingdetails.find({ userId, "itinerary.Sectors.Departure.DateTimeStamp": { $gte: new Date(date), $lte: new Date(date + 'T23:59:59.999Z') } }).populate('BookedBy');;
+  const getDepartureList = await bookingdetails.find({ userId, "itinerary.Sectors.Departure.DateTimeStamp": { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') } }).populate('BookedBy');;
   if (!getDepartureList.length) {
     return {
       response: "Data Not Found",

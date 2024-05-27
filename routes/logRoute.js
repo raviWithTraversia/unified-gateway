@@ -176,5 +176,6 @@ log_route.post('/log/getBookingLogs', auth, portalLogController.getBookingLogs);
 
 log_route.get('/log/getEventLog', auth, eventLogController.getEventLog);
 log_route.get('/log/getbyid',eventLogController.getEventlogbyid)
+log_route.get('/log/getAgency',eventLogController.getAgencyLog)
 
 module.exports = log_route;

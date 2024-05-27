@@ -88,6 +88,7 @@ const editDiSetup = async (req,res) => {
         let updateData = {
           ...req.body
         };
+        const diData=await diSetup.findById(id)
         let updateDiData = await diSetup.findByIdAndUpdate(
             id,
             {
@@ -107,6 +108,8 @@ const editDiSetup = async (req,res) => {
           doerName:userData.fname,
     companyId:updateDiData.companyId,
     documentId:updateDiData._id,
+    oldValue:diData,
+    newValue:updateDiData,
                description:"Edit Deposit Incentive",
             }
            EventLogs(LogsData)

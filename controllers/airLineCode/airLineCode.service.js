@@ -23,9 +23,8 @@ const getAllAirLineCode = async(req , res) => {
 const getAirLineCustumereCare = async(req , res) => {
     try {
         const {AirLineCode}=req.body
-        const result = await AirLineCoustmerCare.find({airlineCode:AirLineCode});
-        console.log(result)
-        if (result.length > 0) {
+        const result = await AirLineCoustmerCare.find({airlineCode:{$in:AirLineCode}});
+        if (result) {
             return {
                 response: 'AirLine code fetch successfully',
                 data: result

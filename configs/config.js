@@ -1,4 +1,6 @@
-module.exports.Config = {   
+module.exports.Config = {
+    // Mode (LIVE or TEST)
+    MODE: 'TEST',       
     PORT: process.env.PORT || 3111,    
     SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",
     MONGODB_URL:process.env.MONGODB_URL || "mongodb+srv://hsbhandari:fl1I9D8gtsbeHzdO@cluster0.xdzp3sk.mongodb.net/b2bportal",
@@ -18,5 +20,28 @@ module.exports.Config = {
     },
     MAIL_CONFIG_ID : '6538c0364756928875840840',
     MONGODB_URL_2 : 'mongodb+srv://kafila:GeFi0weSeFN19FBv@cluster0.c7fohxg.mongodb.net/b2bportal',
+
+    PAYMENT_CREDENTIALS_PAYU: {
+      LIVE: {
+        salt: "qg0bLpmz",
+        key: "WgPtB8",
+      },
+      TEST: {
+        salt: "4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW",
+        key: "gtKFFx",
+      }
+  },
+
+  PAYMENT_CREDENTIALS_EASEBUSS: {
+    LIVE: {
+        salt: "qg0bLpmz",
+        key: "WgPtB8",
+        
+    },
+    TEST: {
+      salt: "4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW",
+      key: "gtKFFx",
+    }
+    }
 
 }

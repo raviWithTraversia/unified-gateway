@@ -10,6 +10,7 @@ const agentConfig = require("../../models/AgentConfig");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const BookingTemp = require("../../models/booking/BookingTemp");
+const config = require("../../configs/config");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 
@@ -49,7 +50,7 @@ const payu = async (req, res) => {
     // const email = 'test@example.com';
     // const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
 
-    const key = "gtKFFx";
+    const key = MODE == "TEST " ? config.PAYMENT_CREDENTIALS_PAYU.TEST.key : config.PAYMENT_CREDENTIALS_PAYU.LIVE.key;
     const txnid = uuidv4();
     const amountres = amount;
     const productinfores = productinfo;
@@ -58,7 +59,7 @@ const payu = async (req, res) => {
     const phoneres = phone;
     const surl = "https://kafila.traversia.net/api/paymentGateway/success";
     const furl = "https://kafila.traversia.net/api/paymentGateway/failed";
-    const salt = "4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW";
+    const salt = MODE == "TEST " ? config.PAYMENT_CREDENTIALS_PAYU.TEST.salt : config.PAYMENT_CREDENTIALS_PAYU.LIVE.salt;
     const cartIdres = cartId;
 
     // Concatenate the transaction details

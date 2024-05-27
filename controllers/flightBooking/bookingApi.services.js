@@ -741,8 +741,7 @@ const getSalesReport = async (req, res) => {
     $match: {
       createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
     }
-  }, { $unwind: "$Passengers" },
-  {
+  }, { $unwind: "$Passengers" }, {
     $project: {
       userId: 1,
       bookingId: 1,
@@ -752,8 +751,7 @@ const getSalesReport = async (req, res) => {
       seatPrice: { $arrayElemAt: ['$Passengers.Seat.Price', 0] },
       baggagePrice: { $arrayElemAt: ['$Passengers.Baggage.Price', 0] }
     }
-  },
-  {
+  }, {
     $lookup: {
       from: "bookingdetails",
       localField: "bookingId",
@@ -778,8 +776,7 @@ const getSalesReport = async (req, res) => {
       foreignField: "_id",
       as: "userData",
     },
-  },
-  {
+  }, {
     $project: {
       _id: 0,
       bookingId: "$bookingData.providerBookingId",
@@ -824,17 +821,75 @@ const getSalesReport = async (req, res) => {
       amendmentId: "",
       amendmentType: "",
       paymentStatus: "success",
-      amendmentDate: ""
+      amendmentDate: "",
+      getCommercialArray: '$bookingData.itinerary.PriceBreakup'
     }
-  }
-  ]);
-  console.log("salesReport: ", salesReport.length);
+  }]);
+
   salesReport.forEach((element, index) => {
+    if (element.paxType == "ADT") {
+      element.getCommercialArray[0].CommercialBreakup.map(item => {
+        if (item.CommercialType == "SegmentKickback") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "Discount") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "GST") {
+          element.dealAmount = parseFloat(element.dealAmount) - parseFloat(item.Amount)
+        } if (item.CommercialType == "TDS") {
+          element.tds = parseFloat(element.tds) + parseFloat(item.Amount)
+        } if (item.CommercialType == "otherTax") {
+          element.grossFare = parseFloat(element.tds) + parseFloat(item.Amount) + element.taxable
+        } if (item.CommercialType == "GST") {
+          element.gst = parseFloat(element.gst) + parseFloat(item.Amount)
+        }
+      })
+    } if (element.paxType == "CHD") {
+      element.getCommercialArray[1].CommercialBreakup.map(item => {
+        if (item.CommercialType == "SegmentKickback") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "Discount") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "GST") {
+          element.dealAmount = parseFloat(element.dealAmount) - parseFloat(item.Amount)
+        } if (item.CommercialType == "TDS") {
+          element.tds = parseFloat(element.tds) + parseFloat(item.Amount)
+        } if (item.CommercialType == "otherTax") {
+          element.grossFare = parseFloat(element.tds) + parseFloat(item.Amount) + element.taxable
+        } if (item.CommercialType == "GST") {
+          element.gst = parseFloat(element.gst) + parseFloat(item.Amount)
+        }
+      })
+    } if (element.paxType == "INF") {
+      element.getCommercialArray[2].CommercialBreakup.map(item => {
+        if (item.CommercialType == "SegmentKickback") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "Discount") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "GST") {
+          element.dealAmount = parseFloat(element.dealAmount) - parseFloat(item.Amount)
+        } if (item.CommercialType == "TDS") {
+          element.tds = parseFloat(element.tds) + parseFloat(item.Amount)
+        } if (item.CommercialType == "otherTax") {
+          element.grossFare = parseFloat(element.tds) + parseFloat(item.Amount) + element.taxable
+        } if (item.CommercialType == "GST") {
+          element.gst = parseFloat(element.gst) + parseFloat(item.Amount)
+        }
+      })
+    }
+    element.netDiscount = element.grossDiscount - element.tds;
+    element.netFare = element.grossFare - element.netDiscount;
     element.id = index + 1;
     const targetDate = moment(element.DepartureDateTime);
     const currentDate = moment();
     const daysLeft = targetDate.diff(currentDate, 'days');
-    element.daysToTravel = daysLeft
+    element.daysToTravel = daysLeft;
+    delete element.getCommercialArray;
   });
   if (!salesReport.length) {
     return {

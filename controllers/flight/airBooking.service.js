@@ -1016,7 +1016,20 @@ const KafilaFun = async (
                     },
                   }
                 );
+                const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.BookingId });
 
+                if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
+                    await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
+                      const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
+                      if (apiPassenger) {
+                        passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
+                        
+                    }                      
+                    }));
+
+                    await getpassengersPrefrence.save();
+                }                
+                
                 if (
                   fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
                 ) {

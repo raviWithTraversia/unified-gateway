@@ -86,7 +86,7 @@ const incentiveMasterUpdate = async (req, res) => {
                 response: 'Company Id is required'
             }
         }
-
+const oldIncentiveValue=await IncentiveMaster.findById(_id)
         const IncentiveMasterUpdate = await IncentiveMaster.findByIdAndUpdate(
             _id,
             {
@@ -103,7 +103,9 @@ const LogsData={
         doerName:userData.fname,
  companyId:companyId,
  documentId:IncentiveMasterUpdate._id,
-       description:'Edit Incentive Master'
+ oldValue:oldIncentiveValue,
+ newValue:IncentiveMasterUpdate,
+  description:'Edit Incentive Master'
         
           }
          EventLogs(LogsData)

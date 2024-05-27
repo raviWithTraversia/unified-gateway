@@ -140,6 +140,7 @@ const editSsrCommercial = async (req,res) => {
         ...req.body
     };
   
+    const findSsrData=await ssrCommercialModel.find({_id:id},{_id:0})
     let existingSsrData = await ssrCommercialModel.findByIdAndUpdate(
         id,
         {
@@ -156,6 +157,8 @@ const editSsrCommercial = async (req,res) => {
                 doerName:userData.fname,
          companyId:existingSsrData.companyId,
          documentId:existingSsrData._id,
+         oldValue:findSsrData,
+         newValue:existingSsrData,
                      description:"Edit Issuance Commercials",
                   }
                  EventLogs(LogsData)

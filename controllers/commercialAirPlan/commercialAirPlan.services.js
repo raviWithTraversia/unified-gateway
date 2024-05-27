@@ -113,6 +113,8 @@ const commercialPlanUpdate = async(req , res) => {
         doerName:userData.fname,
  companyId:result.companyId,
  documentId:result._id,
+ oldValue:checkCommercialAirPlan,
+ newValue:result,
                     description:"Edit CommercialAirPlan",
                   }
                  EventLogs(LogsData)

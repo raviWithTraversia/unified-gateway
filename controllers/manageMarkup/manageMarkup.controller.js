@@ -197,10 +197,50 @@ const getMarkUpCatogeryMaster = async (req,res) => {
     )
   }
 }
+
+
+const getMarkuplogHistory = async (req,res) => {
+  try{
+  const result = await manageMarkUpServices.getMarkuplogHistory(req,res);
+  if(result.response == 'markupLogHistory Data found Sucessfully'){
+    apiSucessRes(
+      res,
+      result.response,
+      result.data,
+      ServerStatusCode.SUCESS_CODE
+    )
+
+  }else if(result.response == 'markupLogHistory Data Not Found'){
+    apiErrorres(
+      res,
+      result.response,
+      ServerStatusCode.RESOURCE_NOT_FOUND,
+      true
+    )
+  }else{
+    apiErrorres(
+      res,
+      errorResponse.SOME_UNOWN,
+      ServerStatusCode.INVALID_CRED,
+      true
+    );
+  }
+
+
+  }catch(error){
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    )
+  }
+}
 module.exports = {
     addMarkup,
     deletedMarkup,
     updateMarkup,
     getMarkUp,
-    getMarkUpCatogeryMaster   
+    getMarkUpCatogeryMaster ,
+    getMarkuplogHistory
 }

@@ -228,10 +228,32 @@ const getMarkUpCatogeryMaster = async (req, res) => {
     throw error
   }
 }
+
+const getMarkuplogHistory = async (req, res) => {
+  try {
+   const {id}=req.query
+    let markupLogHistoryData = await markupLogHistory.find({markupId:id}).populate('markupId'," markupOn markupFor");
+    if (markupLogHistoryData) {
+      return {
+        response: 'markupLogHistory Data found Sucessfully',
+        data: markupLogHistoryData
+      }
+    } else {
+      return {
+        response: 'markupLogHistory Data Not Found'
+      }
+    }
+
+  } catch (error) {
+    console.log(error);
+    throw error
+  }
+}
 module.exports = {
   addMarkup,
   deletedMarkup,
   updateMarkup,
   getMarkUp,
-  getMarkUpCatogeryMaster
+  getMarkUpCatogeryMaster,
+  getMarkuplogHistory
 };

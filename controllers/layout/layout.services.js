@@ -14,13 +14,13 @@ const dashBoardCount = async (req, res) => {
     let data = {};
     let req1 = { params: { companyId: companyId } };
     let fifteenDaysAgo = new Date();
-    fifteenDaysAgo.setDate(new Date().getDate() - 15);
-    console.log(fifteenDaysAgo)
+    fifteenDaysAgo.setDate(new Date().getDate() - 1);
+
 
     let [newRegistrationCount, creditReqCount, getBookingDetails, RegisteredAgentConfig, depositRequest] = await Promise.all([
       registrationServices.getAllRegistrationByCompany(req1, res),
       creditRequest.find({ companyId: companyId }),
-      bookingdetails.find({ createdAt: { $gte: fifteenDaysAgo }, companyId }, { bookingStatus: 1 }),
+      bookingdetails.find({ createdAt: { $gte: new Date((fifteenDaysAgo.toISOString().split("T"))[0]) }, companyId }, { bookingStatus: 1 }),
       company.countDocuments({ parent: companyId }),
       depositDetail.countDocuments({ companyId, status: "pending" })
     ]);
@@ -48,6 +48,7 @@ const dashBoardCount = async (req, res) => {
     data['Registered_Agent_Config'] = RegisteredAgentConfig;
     data['depositRequest'] = depositRequest;
     data['amendement'] = amendement;
+    //cancelPending// status = cancellation pending
 
     if (newRegistrationCount) {
       return {
@@ -61,6 +62,7 @@ const dashBoardCount = async (req, res) => {
       }
     }
   } catch (error) {
+    console.log(error)
     throw error
   }
 };

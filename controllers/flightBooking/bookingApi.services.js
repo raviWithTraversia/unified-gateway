@@ -809,7 +809,7 @@ const getSalesReport = async (req, res) => {
       bookingDate: "$bookingData.bookingDateTime",
       taxable: "$bookingData.itinerary.Taxes",
       totalfare: "$bookingData.bookingTotalAmount",
-      phf: "0", ttf: "0", asf: "0", yq: "0", yr: "0", taf: "0", cgst: "0", sgst: "0",
+      phf: "0", ttf: "0", asf: "0", yq: "0", yr: "0", taf: "0", cgst: "0", sgst: "0", psf: "0",
       igst: "0", ugst: "0", rcf: "0", rsf: "0", udf: "0", jn: "0", airlineGst: "0",
       ob: "0", oc: "0", serviceFeeGst: "0", grossFare: "0", serviceFee: "0", gst: "0",
       grossDiscount: "0", tds: "0", netDiscount: "0", netFare: "0", dealAmount: "0",

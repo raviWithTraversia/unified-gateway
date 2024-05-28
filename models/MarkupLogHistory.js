@@ -4,8 +4,9 @@ const markupMasterData = require('./MangeMarkupMaster')
 const MarkupLogHistory = new mongoose.Schema({
     markupId : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'manageMarkupMaster'
+        ref : 'manageMarkup'
     },
+   
     markupDataNew: [markupMasterData.schema],
     markupDataOld: [markupMasterData.schema],
 });

@@ -3,13 +3,14 @@ const userModel = require("../../models/User");
 const markUpCategoryMasterModels = require("../../models/MarkupCategoryMaster");
 const markupLogHistory = require('../../models/MarkupLogHistory');
 const mongoose = require('mongoose');
-
+const user=require('../../models/User')
+const EventLogs=require('../logs/EventApiLogsCommon');
+const { findById } = require("../../models/ConfigCredential");
 const addMarkup = async (req, res) => {
   try {
     let { markupData, airlineCodeId, markupOn, markupFor, companyId, isDefault } =
       req.body;
     let userId = req.user._id
-    console.log(userId);
     let query = {
       markupOn: markupOn,
       markupFor: markupFor,
@@ -51,7 +52,19 @@ const addMarkup = async (req, res) => {
         isDefault
       });
       markupChargeInsert = await markupChargeInsert.save();
+
+      const userData=await user.findById(req.user._id)
       if (markupChargeInsert) {
+        const LogsData={
+          eventName:"Markup",
+          doerId:req.user._id,
+        doerName:userData.fname,
+        companyId:companyId,
+        documentId:markupChargeInsert._id,
+          description:"Add Agent Markup"
+        }
+       EventLogs(LogsData)
+
         return {
           data: markupChargeInsert,
           response: "MarkUp Charges Insert Sucessfully",
@@ -111,6 +124,18 @@ const updateMarkup = async (req, res) => {
 
         const saveMarkupLog = await addMarkupLog.save();
       }
+      const userData=user.findById(req.user._id)
+
+      const LogsData={
+        eventName:"Markup",
+        doerId:req.user._id,
+        doerName:userData.fname,
+  companyId:updateDetails.companyId,
+  documentId:updateDetails._id,
+        description:"Edit Agent Markup",
+      }
+     EventLogs(LogsData)
+
 
       // End................
 
@@ -136,7 +161,19 @@ const deletedMarkup = async (req, res) => {
     const deleteMarkupDetails = await manageMarkupModel.findByIdAndDelete(
       markupId
     );
+    const userData=await user.findById(req.user_id)
     if (deleteMarkupDetails) {
+
+      const LogsData={
+        eventName:"Markup",
+        doerId:req.user._id,
+        doerName:userData.fname,
+companyId:deleteMarkupDetails.companyId,
+documentId:deleteMarkupDetails._id,
+        description:"Delete Agent Markup",
+      }
+     EventLogs(LogsData)
+
       return {
         response: "Markup details deleted successfully",
         data: deleteMarkupDetails,
@@ -191,10 +228,32 @@ const getMarkUpCatogeryMaster = async (req, res) => {
     throw error
   }
 }
+
+const getMarkuplogHistory = async (req, res) => {
+  try {
+   const {id}=req.query
+    let markupLogHistoryData = await markupLogHistory.find({markupId:id}).populate('markupId'," markupOn markupFor");
+    if (markupLogHistoryData) {
+      return {
+        response: 'markupLogHistory Data found Sucessfully',
+        data: markupLogHistoryData
+      }
+    } else {
+      return {
+        response: 'markupLogHistory Data Not Found'
+      }
+    }
+
+  } catch (error) {
+    console.log(error);
+    throw error
+  }
+}
 module.exports = {
   addMarkup,
   deletedMarkup,
   updateMarkup,
   getMarkUp,
-  getMarkUpCatogeryMaster
+  getMarkUpCatogeryMaster,
+  getMarkuplogHistory
 };

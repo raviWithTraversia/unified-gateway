@@ -1,7 +1,8 @@
 const { filter } = require("lodash");
 const fareRulesModel = require("../../models/FareRules");
 const FUNC = require("../commonFunctions/common.function");
-
+const EventLogs=require('../logs/EventApiLogsCommon')
+const user=require('../../models/User')
 const addfareRule = async (req, res) => {
   try {
     let {
@@ -49,7 +50,18 @@ const addfareRule = async (req, res) => {
       modifyBy: req.user._id,
     });
     addRules = await addRules.save();
+const userData= await user.findById(req.user._id)
     if (addRules) {
+      const LogsData={
+        eventName:"FareRules",
+        doerId:req.user._id,
+        doerName:userData.fname,
+        ipAddress:req.ipAddress,
+        companyId:companyId,
+        documentId:addRules._id,
+        description:"Add Fare Rules",
+      }
+     EventLogs(LogsData)
       return {
         response: "Fare rule add sucessfully",
         data: addRules,
@@ -59,6 +71,8 @@ const addfareRule = async (req, res) => {
         response: "Fare rule not added",
       };
     }
+
+    
   } catch (error) {
     console.log(error);
     throw error;
@@ -96,7 +110,17 @@ const deleteFareRule = async (req, res) => {
   try {
     let id = req.params.id;
     const removeFareRule = await fareRulesModel.findByIdAndDelete(id);
+const userData= await user.findById(req.user._id)
+
     if (removeFareRule) {
+      const LogsData={
+        eventName:"FareRules",
+        doerId:req.user._id,
+  companyId:removeFareRule.companyId,
+  documentId:removeFareRule._id,
+        description:"Delete Fare Rules",
+      }
+     EventLogs(LogsData)
       return {
         response: "Fare Rule Deleted Sucessfully",
       };
@@ -123,7 +147,19 @@ const updateFareRule = async (req, res) => {
       },
       { new: true }
     );
+const userData= await user.findById(req.user._id)
+
     if (updateFareRuleData) {
+
+      const LogsData={
+        eventName:"FareRules",
+        doerId:req.user._id,
+        doerName:userData.fname,
+ companyId:data.companyId,
+ documentId:updateFareRuleData._id,
+        description:"Edit Fare Rules",
+      }
+     EventLogs(LogsData)
       return {
         response: "Fare rule Updated Sucessfully",
       };

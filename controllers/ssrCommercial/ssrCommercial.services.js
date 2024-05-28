@@ -1,5 +1,6 @@
 const ssrCommercialModel = require('../../models/SsrCommercial');
-
+const user=require('../../models/User')
+const EventLogs=require('../logs/EventApiLogsCommon')
 const addSsrCommercial = async(req,res) => {
     try{
         const {
@@ -60,6 +61,18 @@ const addSsrCommercial = async(req,res) => {
       
           const savedServiceRequest = await newServiceRequest.save();
           if(savedServiceRequest){
+
+            const userData=await user.findById(req.user._id)
+const LogsData={
+            eventName:"Issuance Commercials",
+            doerId:req.user._id,
+        doerName:userData.fname,
+ companyId:companyId,
+ documentId:savedServiceRequest._id,
+             description:"Add Issuance Commercials",
+          }
+         EventLogs(LogsData)
+
             return {
                 response : 'Service request added successfully',
                 data: savedServiceRequest,
@@ -127,6 +140,7 @@ const editSsrCommercial = async (req,res) => {
         ...req.body
     };
   
+    const findSsrData=await ssrCommercialModel.find({_id:id},{_id:0})
     let existingSsrData = await ssrCommercialModel.findByIdAndUpdate(
         id,
         {
@@ -134,8 +148,21 @@ const editSsrCommercial = async (req,res) => {
         },
         { new: true }
       );
+      const userData=await user.findById(req.user._id)
     
     if(existingSsrData){
+        const LogsData={
+                    eventName:"Issuance Commercials",
+                    doerId:req.user._id,
+                doerName:userData.fname,
+         companyId:existingSsrData.companyId,
+         documentId:existingSsrData._id,
+         oldValue:findSsrData,
+         newValue:existingSsrData,
+                     description:"Edit Issuance Commercials",
+                  }
+                 EventLogs(LogsData)
+        
         return {
             response : 'Data Updated Sucessfully',
             data : existingSsrData
@@ -155,7 +182,19 @@ const deleteSsrCommercial = async (req,res) => {
     try{
     let {id} = req.query;
     let deleteSsrCommercial = await ssrCommercialModel.findByIdAndDelete(id)
+    const userData=await user.findById(req.user._id)
+
     if(deleteSsrCommercial){
+        const LogsData={
+            eventName:"Issuance Commercials",
+            doerId:req.user._id,
+        doerName:userData.fname,
+ companyId:deleteSsrCommercial.companyId,
+ documentId:deleteSsrCommercial._id,
+             description:"Delete Issuance Commercials",
+          }
+         EventLogs(LogsData)
+
         return {
             response : 'Ssr Commercial Data Deleted Sucessfully',
             data : []

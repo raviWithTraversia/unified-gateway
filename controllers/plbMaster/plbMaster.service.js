@@ -4,7 +4,7 @@ const User = require('../../models/User');
 const PLBMasterHistory =require('../../models/PLBMasterHistory');
 const PLBGroupHasPLBMaster = require('../../models/PLBGroupHasPLBMaster');
 const agencyGroup = require("../../models/AgencyGroup");
-
+const EventLogs=require('../logs/EventApiLogsCommon')
 const addPLBMaster = async(req, res) => {
     try {
         const {
@@ -29,16 +29,17 @@ const addPLBMaster = async(req, res) => {
 
          // Log add 
          const doerId = req.user._id;
-         const loginUser = await User.findById(doerId);
-         await commonFunction.eventLogFunction(
-             'PLBMaster' ,
-             doerId ,
-             loginUser.fname ,
-             req.ip , 
-             companyId , 
-             'add PLB Master'
-         );
-
+         const userData = await User.findById(doerId);
+   
+         const LogsData={
+            eventName:"PLBMaster",
+            doerId:req.user._id,
+            doerName:userData.fname,
+    companyId:companyId,
+    documentId:result._id,
+            description:"Add PLB Master",
+          }
+        EventLogs(LogsData)
         //  History log PLB Master
          logHistoryPLB(req , result);
 
@@ -84,6 +85,7 @@ const PLBMasterUpdate = async(req, res) => {
                 response : 'Company Id is required'
             }
         } 
+const OldPlbmaseterValue=await PLBMaster.findById(_id)
 
         const PLBMasterUpdate = await PLBMaster.findByIdAndUpdate(
             _id, 
@@ -94,17 +96,19 @@ const PLBMasterUpdate = async(req, res) => {
 
              // Log add 
          const doerId = req.user._id;
-         const loginUser = await User.findById(doerId);
+         const userData = await User.findById(doerId);
  
-         await commonFunction.eventLogFunction(
-             'PLBMaster' ,
-             doerId ,
-             loginUser.fname ,
-             req.ip , 
-             loginUser.companyId , 
-             'updated PLB Master'
-         );
-
+         const LogsData={
+            eventName:"PLBMaster",
+            doerId:req.user._id,
+            doerName:userData.fname,
+    companyId:companyId,
+    documentId:PLBMasterUpdate._id,
+    oldValue:OldPlbmaseterValue,
+    newValue:PLBMasterUpdate,
+            description:"Edit PLB Master",
+          }
+        EventLogs(LogsData)
         // History update and create
         PLBMasterUpdateHistory(req , _id);
 
@@ -132,16 +136,17 @@ const removePLBMaster = async(req , res) => {
 
               // Log add 
               const doerId = req.user._id;
-              const loginUser = await User.findById(doerId);
+              const userData = await User.findById(doerId);
       
-              await commonFunction.eventLogFunction(
-                  'PLBMaster' ,
-                  doerId ,
-                  loginUser.fname ,
-                  req.ip , 
-                  loginUser.companyId , 
-                  'deleted PLB Master'
-              );
+              const LogsData={
+                eventName:"PLBMaster",
+                doerId:req.user._id,
+                doerName:userData.fname,
+        companyId:result.companyId,
+        documentId:result._id,
+                description:"Delete PLB Master",
+              }
+            EventLogs(LogsData)
         return {
             response : 'PLB Master deleted Successfully!'
         }
@@ -192,16 +197,19 @@ const CopyPLBMaster = async(req, res) => {
     
              // Log add 
              const doerId = req.user._id;
-             const loginUser = await User.findById(doerId);
-     
-             await commonFunction.eventLogFunction(
-                 'PLBMaster' ,
-                 doerId ,
-                 loginUser.fname ,
-                 req.ip , 
-                 loginUser.companyId , 
-                 'Copy PLB Master'
-             );
+             const userData = await User.findById(doerId);
+      
+              const LogsData={
+                eventName:"PLBMaster",
+                doerId:req.user._id,
+                doerName:userData.fname,
+        companyId:result.companyId,
+        documentId:result._id,
+                description:"Copy PLB Master",
+              }
+            EventLogs(LogsData)
+
+             
 
             return {
                 response: 'PLB Master copy successfully'

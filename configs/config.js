@@ -42,6 +42,6 @@ module.exports.Config = {
       salt: "4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW",
       key: "gtKFFx",
     }
-    }
-
+    },  
+  EASEBUZZ_PG_URL: 'https://testpay.easebuzz.in/payment/initiateLink'
 }

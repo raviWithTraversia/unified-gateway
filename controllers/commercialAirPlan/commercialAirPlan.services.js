@@ -1,7 +1,8 @@
 const { date } = require('joi');
 const CommercialAirPlan = require('../../models/CommercialAirPlan');
 const agencyGroup = require("../../models/AgencyGroup");
-
+const EventLogs=require('../logs/EventApiLogsCommon')
+const user=require("../../models/User")
 // Add Air commercial Plan
 const addCommercialAirPlan = async(req , res) => {
     try {
@@ -21,7 +22,7 @@ const addCommercialAirPlan = async(req , res) => {
                 response: 'Commercial air plan name already exist'
             }
         }
-
+        
         const airCommercialData = new CommercialAirPlan({
             commercialPlanName : commercialPlanName,
             companyId : companyId,
@@ -30,6 +31,16 @@ const addCommercialAirPlan = async(req , res) => {
         });
 
         const result = await airCommercialData.save();
+const userData=await user.findById(req.user._id)
+const LogsData={
+            eventName:"CommercialAirPlan",
+            doerId:req.user._id,
+        doerName:userData.fname,
+ companyId:companyId,
+ documentId:result._id,
+             description:"Add CommercialAirPlan",
+          }
+         EventLogs(LogsData)
 
 
         return {
@@ -37,6 +48,7 @@ const addCommercialAirPlan = async(req , res) => {
         }
 
     } catch (error) {
+        console.log(error)
         throw error;
     }
 }
@@ -87,6 +99,7 @@ const commercialPlanUpdate = async(req , res) => {
             }
         }
 
+        const userData=await user.findById(req.user._id)
             const result = await CommercialAirPlan.findByIdAndUpdate( _id ,
                 {
                     commercialPlanName, 
@@ -94,7 +107,17 @@ const commercialPlanUpdate = async(req , res) => {
                 },
                 { new: true }
                 );
-
+                const LogsData={
+                    eventName:"CommercialAirPlan",
+                    doerId:req.user._id,
+        doerName:userData.fname,
+ companyId:result.companyId,
+ documentId:result._id,
+ oldValue:checkCommercialAirPlan,
+ newValue:result,
+                    description:"Edit CommercialAirPlan",
+                  }
+                 EventLogs(LogsData)
             return {
                 response : 'Commercial air plan updated successfully'
             }

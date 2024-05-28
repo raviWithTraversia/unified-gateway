@@ -416,7 +416,7 @@ const KafilaFun = async (
       (passenger.totalSeatPrice || 0) +
       (passenger.totalBaggagePrice || 0);
   }
-  
+
   function offerPricePlusInAmount(plusKeyName) {
     let returnBoolean = false;
     switch (plusKeyName) {
@@ -538,7 +538,7 @@ const KafilaFun = async (
   const totalSSRWithCalculationPrice =
     calculationOfferPriceWithCommercial + totalssrPrice;
 
-  if(paymentMethodType === "Wallet"){  
+  if (paymentMethodType === "Wallet") {
     try {
 
       // Retrieve agent configuration
@@ -611,7 +611,7 @@ const KafilaFun = async (
       console.error("Error:", error.message);
       return "An error occurred. Please try again later.";
     }
-  }else{
+  } else {
     return await kafilaFunOnlinePayment(
       Authentication,
       supplier,
@@ -630,7 +630,7 @@ const KafilaFun = async (
       ItineraryPriceCheckResponses,
       paymentMethodType,
       paymentGateway
-    ); 
+    );
   }
 
 
@@ -690,7 +690,7 @@ const KafilaFun = async (
             error,
           };
         }
-      };      
+      };
 
       const newArray = await Promise.all(
         ItineraryPriceCheckResponses?.map(async (itineraryItem) => {
@@ -733,7 +733,7 @@ const KafilaFun = async (
                 CabinClass: sector.CabinClass,
                 FltNum: sector.FltNum,
                 FlyingTime: sector.FlyingTime,
-                layover:sector.layover,
+                layover: sector.layover,
                 TravelTime: sector.TravelTime,
                 Departure: departure,
                 Arrival: arrival,
@@ -782,12 +782,12 @@ const KafilaFun = async (
               provider: itineraryItem?.Provider,
               bookingType: "Automated",
               bookingStatus: "PENDING",
-              paymentMethodType:paymentMethodType,
-              paymentGateway:paymentGateway,
+              paymentMethodType: paymentMethodType,
+              paymentGateway: paymentGateway,
               bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
               Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
               travelType: TravelType,
-              fareRules:itineraryItem?.fareRules !== undefined && itineraryItem?.fareRules !== null ? itineraryItem?.fareRules : null,
+              fareRules: itineraryItem?.fareRules !== undefined && itineraryItem?.fareRules !== null ? itineraryItem?.fareRules : null,
               bookingTotalAmount:
                 itineraryItem.offeredPrice +
                 itineraryItem.totalMealPrice +
@@ -866,7 +866,7 @@ const KafilaFun = async (
                 Dob: passenger?.Dob,
                 Optional: {
                   TicketNumber: passenger?.Optional?.TicketNumber,
-                  PassportNo: passenger?.Optional.PassportNo,
+                  PassportNo: passenger?.Optional?.PassportNo,
                   PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
                   FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,
                   Nationality: passenger?.Optional?.Nationality,
@@ -1163,22 +1163,22 @@ const KafilaFun = async (
 
 const kafilaFunOnlinePayment = async (
   Authentication,
-    supplier,
-    TypeOfTrip,
-    Segments,
-    PaxDetail,
-    TravelType,
-    Flexi,
-    Direct,
-    ClassOfService,
-    Airlines,
-    FareFamily,
-    RefundableOnly,
-    Provider,
-    PassengerPreferences,
-    ItineraryPriceCheckResponses,
-    paymentMethodType,
-    paymentGateway
+  supplier,
+  TypeOfTrip,
+  Segments,
+  PaxDetail,
+  TravelType,
+  Flexi,
+  Direct,
+  ClassOfService,
+  Airlines,
+  FareFamily,
+  RefundableOnly,
+  Provider,
+  PassengerPreferences,
+  ItineraryPriceCheckResponses,
+  paymentMethodType,
+  paymentGateway
 ) => {
 
   const createBooking = async (newItem) => {
@@ -1252,7 +1252,7 @@ const kafilaFunOnlinePayment = async (
             CabinClass: sector.CabinClass,
             FltNum: sector.FltNum,
             FlyingTime: sector.FlyingTime,
-            layover:sector.layover,
+            layover: sector.layover,
             TravelTime: sector.TravelTime,
             Departure: departure,
             Arrival: arrival,
@@ -1301,12 +1301,12 @@ const kafilaFunOnlinePayment = async (
           provider: itineraryItem?.Provider,
           bookingType: "Automated",
           bookingStatus: "INCOMPLETE",
-          paymentMethodType:paymentMethodType,
-          paymentGateway:paymentGateway,
+          paymentMethodType: paymentMethodType,
+          paymentGateway: paymentGateway,
           bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
           Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
           travelType: TravelType,
-          fareRules:itineraryItem?.fareRules !== undefined && itineraryItem?.fareRules !== null ? itineraryItem?.fareRules : null,
+          fareRules: itineraryItem?.fareRules !== undefined && itineraryItem?.fareRules !== null ? itineraryItem?.fareRules : null,
           bookingTotalAmount:
             itineraryItem.offeredPrice +
             itineraryItem.totalMealPrice +
@@ -1402,31 +1402,31 @@ const kafilaFunOnlinePayment = async (
         modifyBy: Authentication?.UserId,
       });
       const cardStore = await passengerPreference.save();
-      if(cardStore){
+      if (cardStore) {
         const passengerPreferencesString = JSON.stringify(PassengerPreferences);
         const itineraryPriceCheckResponsesString = JSON.stringify(ItineraryPriceCheckResponses);
-        const authData = JSON.stringify(Authentication); 
+        const authData = JSON.stringify(Authentication);
         const request = JSON.stringify({
           PassengerPreferences: passengerPreferencesString,
           ItineraryPriceCheckResponses: itineraryPriceCheckResponsesString,
-          Authentication:authData
+          Authentication: authData
         });
 
-       const bookingTemp = await BookingTemp.create({
-          companyId:Authentication.companyId,
-          userId:Authentication.userId,
-          source:"Kafila",
-          BookingId:ItineraryPriceCheckResponses[0].BookingId,
-          request:request,
-          responce:"Booking Save Successfully",
+        const bookingTemp = await BookingTemp.create({
+          companyId: Authentication.companyId,
+          userId: Authentication.userId,
+          source: "Kafila",
+          BookingId: ItineraryPriceCheckResponses[0].BookingId,
+          request: request,
+          responce: "Booking Save Successfully",
         });
-        if(bookingTemp){
+        if (bookingTemp) {
           return "Booking Save Successfully";
-        }else{
+        } else {
           return "Booking already exists";
         }
-        
-      }else{
+
+      } else {
         return "Booking already exists";
       }
       // const hitAPI = await Promise.all(
@@ -1672,7 +1672,7 @@ const kafilaFunOnlinePayment = async (
       //     }
       //   })
       // );
-      
+
     } else {
       return "Booking already exists";
     }

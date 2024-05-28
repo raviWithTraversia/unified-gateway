@@ -6,7 +6,7 @@ const commonFunction = require('../commonFunctions/common.function');
 const ProductPlanHasProduct = require('../../models/ProductPlanHasProduct');
 const { object } = require('joi');
 const { default: mongoose } = require('mongoose');
-
+const EventLogs=require('../logs/EventApiLogsCommon')
 const addProductPlan = async (req, res) => {
     try {
         const { productPlanName, companyId , status, product} = req.body;
@@ -53,14 +53,16 @@ const addProductPlan = async (req, res) => {
         const doerId = req.user._id;
         const loginUser = await User.findById(doerId);
 
-        await commonFunction.eventLogFunction(
-            'productPlan' ,
-            doerId ,
-            loginUser.fname ,
-            req.ip , 
-            companyId , 
-            'add product plan'
-        );
+        const LogsData = {
+            eventName: "ProductPlan",
+            doerId: doerId,
+            doerName: loginUser.fname,
+            companyId: companyId,
+            documentId: result._id,
+            description: "ProductPlan add"
+        };
+        
+        EventLogs(LogsData);
         return {
             response: 'Product plan addedd successfully'
         }
@@ -167,15 +169,16 @@ const productPlanUpdateById = async (req, res) => {
             const doerId = req.user._id;
             const loginUser = await User.findById(doerId);
     
-            await commonFunction.eventLogFunction(
-                'productPlan' ,
-                doerId ,
-                loginUser.fname ,
-                req.ip , 
-                loginUser.company_ID , 
-                'update product plan'
-            );
-
+            const LogsData = {
+                eventName: "ProductPlan",
+                doerId: doerId,
+                doerName: loginUser.fname,
+                companyId: companyId,
+                documentId: producPlanId,
+                description: "ProductPlan Edit"
+            };
+            
+            EventLogs(LogsData);
         return {
             response: "Product plan updated successfully"
         }

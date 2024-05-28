@@ -4,6 +4,7 @@ const bookingdetails = require("../../models/booking/BookingDetails");
 const config = require("../../models/AgentConfig");
 const passengerPreferenceSchema = require("../../models/booking/PassengerPreference");
 const { ObjectId } = require("mongodb");
+const moment = require('moment');
 
 const getAllBooking = async (req, res) => {
   const {
@@ -54,9 +55,9 @@ const getAllBooking = async (req, res) => {
       response: "User id does not exist",
     };
   }
-  
+
   if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
-    
+
     let filter = { userId: userId };
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.AgencyId = agencyId;
@@ -217,7 +218,7 @@ const getAllBooking = async (req, res) => {
       };
     }
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" || checkUserIdExist?.company_ID?.type === "TMC") {
-    
+
     let filter = {};
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.userId = agencyId;
@@ -295,19 +296,19 @@ const getAllBooking = async (req, res) => {
         data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)), statusCounts: statusCounts }
       };
     }
-  }else{
-    const userCompanyId = checkUserIdExist.company_ID;    
-    const checkComapnyUser = await User.findOne({company_ID:userCompanyId}).populate({
+  } else {
+    const userCompanyId = checkUserIdExist.company_ID;
+    const checkComapnyUser = await User.findOne({ company_ID: userCompanyId }).populate({
       path: 'roleId',
       match: { type: 'Default' }
     });
     if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Agency") {
-    
+
       let filter = { userId: checkComapnyUser._id };
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.AgencyId = agencyId;
       }
-  
+
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
       }
@@ -317,7 +318,7 @@ const getAllBooking = async (req, res) => {
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
       }
-  
+
       if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
         filter.bookingDateTime = {
           $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
@@ -332,7 +333,7 @@ const getAllBooking = async (req, res) => {
           $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
         };
       }
-  
+
       const bookingDetails = await bookingdetails.find(filter)
         .populate({
           path: 'userId',
@@ -340,14 +341,14 @@ const getAllBooking = async (req, res) => {
             path: 'company_ID'
           }
         }).populate('BookedBy');
-  
-  
+
+
       if (!bookingDetails || bookingDetails.length === 0) {
         return {
           response: "Data Not Found",
         };
       } else {
-  
+
         const statusCounts = {
           "PENDING": 0,
           "CONFIRMED": 0,
@@ -357,7 +358,7 @@ const getAllBooking = async (req, res) => {
           "HOLD": 0,
           "HOLDRELEASED": 0
         };
-  
+
         // Iterate over the bookingDetails array
         bookingDetails.forEach(booking => {
           const status = booking.bookingStatus;
@@ -365,19 +366,19 @@ const getAllBooking = async (req, res) => {
           statusCounts[status]++;
         });
         const allBookingData = [];
-  
+
         await Promise.all(bookingDetails.map(async (booking) => {
           const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
           const configDetails = await config.findOne({ userId: booking.userId });
-  
+
           allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
         }));
-  
+
         let filteredBookingData = allBookingData; // Copy the original data
-  
+
         if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
           filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
-  
+
         }
         return {
           response: "Fetch Data Successfully",
@@ -389,7 +390,7 @@ const getAllBooking = async (req, res) => {
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.userId = { _id: agencyId };
       }
-  
+
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
       }
@@ -413,7 +414,7 @@ const getAllBooking = async (req, res) => {
           $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
         };
       }
-  
+
       const bookingDetails = await bookingdetails.find(filter)
         .populate({
           path: 'userId',
@@ -421,13 +422,13 @@ const getAllBooking = async (req, res) => {
             path: 'company_ID'
           }
         }).populate('BookedBy');
-  
+
       if (!bookingDetails || bookingDetails.length === 0) {
         return {
           response: "Data Not Found",
         };
       } else {
-  
+
         const statusCounts = {
           "PENDING": 0,
           "CONFIRMED": 0,
@@ -437,7 +438,7 @@ const getAllBooking = async (req, res) => {
           "HOLD": 0,
           "HOLDRELEASED": 0
         };
-  
+
         // Iterate over the bookingDetails array
         bookingDetails.forEach(booking => {
           const status = booking.bookingStatus;
@@ -445,17 +446,17 @@ const getAllBooking = async (req, res) => {
           statusCounts[status]++;
         });
         const allBookingData = [];
-  
+
         await Promise.all(bookingDetails.map(async (booking) => {
           const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
           const configDetails = await config.findOne({ userId: booking.userId });
           allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
         }));
         let filteredBookingData = allBookingData; // Copy the original data
-  
+
         if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
           filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
-  
+
         }
         return {
           response: "Fetch Data Successfully",
@@ -463,12 +464,12 @@ const getAllBooking = async (req, res) => {
         };
       }
     } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "TMC" || checkComapnyUser?.company_ID?.type === "TMC") {
-      
+
       let filter = {};
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.userId = agencyId;
       }
-  
+
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
       }
@@ -492,7 +493,7 @@ const getAllBooking = async (req, res) => {
           $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
         };
       }
-  
+
       const bookingDetails = await bookingdetails.find(filter)
         .populate({
           path: 'userId',
@@ -500,8 +501,8 @@ const getAllBooking = async (req, res) => {
             path: 'company_ID'
           }
         }).populate('BookedBy');
-      
-  
+
+
       if (!bookingDetails || bookingDetails.length === 0) {
         return {
           response: "Data Not Found",
@@ -516,7 +517,7 @@ const getAllBooking = async (req, res) => {
           "HOLD": 0,
           "HOLDRELEASED": 0
         };
-  
+
         // Iterate over the bookingDetails array
         bookingDetails.forEach(booking => {
           const status = booking.bookingStatus;
@@ -524,18 +525,18 @@ const getAllBooking = async (req, res) => {
           statusCounts[status]++;
         });
         const allBookingData = [];
-  
+
         await Promise.all(bookingDetails.map(async (booking) => {
           const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
           const configDetails = await config.findOne({ userId: booking.userId });
           allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
         }));
         let filteredBookingData = allBookingData; // Copy the original data
-  
+
         if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
           filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
         }
-  
+
         return {
           response: "Fetch Data Successfully",
           data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)), statusCounts: statusCounts }
@@ -617,14 +618,14 @@ const getBookingCalendarCount = async (req, res) => {
   const checkBookingCount = await bookingdetails.aggregate([{
     $match: {
       userId: new ObjectId(userId), bookingStatus: "CONFIRMED",
-      creationDate: { $gte: new Date(fromDate), $lte: new Date(toDate) }
+      "itinerary.Sectors.Departure.DateTimeStamp": { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
     }
   }, {
     $group: {
       _id: {
         $dateToString: {
           format: "%Y-%m-%d",
-          date: "$creationDate"
+          date: { $arrayElemAt: ["$itinerary.Sectors.Departure.DateTimeStamp", 0] }
         }
       }, bookingCount: { $sum: 1 }
     }
@@ -637,6 +638,25 @@ const getBookingCalendarCount = async (req, res) => {
   return {
     response: "Fetch Data Successfully",
     data: checkBookingCount,
+  };
+}
+
+const getDeparturesList = async (req, res) => {
+  const { userId, fromDate, toDate } = req.body;
+  if (!userId) {
+    return {
+      response: "UserId id does not exist",
+    };
+  }
+  const getDepartureList = await bookingdetails.find({ userId, "itinerary.Sectors.Departure.DateTimeStamp": { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') } }).populate('BookedBy');;
+  if (!getDepartureList.length) {
+    return {
+      response: "Data Not Found",
+    };
+  }
+  return {
+    response: "Fetch Data Successfully",
+    data: getDepartureList,
   };
 }
 
@@ -715,9 +735,178 @@ const getBookingBill = async (req, res) => {
   };
 }
 
+const getSalesReport = async (req, res) => {
+  const { agencyId, fromDate, toDate } = req.body;
+  const salesReport = await passengerPreferenceSchema.aggregate([{
+    $match: {
+      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
+    }
+  }, { $unwind: "$Passengers" }, {
+    $project: {
+      userId: 1,
+      bookingId: 1,
+      paxType: "$Passengers.PaxType",
+      passengerName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
+      mealPrice: { $arrayElemAt: ['$Passengers.Meal.Price', 0] },
+      seatPrice: { $arrayElemAt: ['$Passengers.Seat.Price', 0] },
+      baggagePrice: { $arrayElemAt: ['$Passengers.Baggage.Price', 0] }
+    }
+  }, {
+    $lookup: {
+      from: "bookingdetails",
+      localField: "bookingId",
+      foreignField: "bookingId",
+      as: "bookingData",
+    },
+  }, { $unwind: "$bookingData" }, {
+    $match: {
+      "bookingData.bookingStatus": "CONFIRMED", "bookingData.AgencyId": agencyId ? new ObjectId(agencyId) : { $exists: true }
+    }
+  }, {
+    $lookup: {
+      from: "companies",
+      localField: "bookingData.AgencyId",
+      foreignField: "_id",
+      as: "companiesData",
+    },
+  }, {
+    $lookup: {
+      from: "users",
+      localField: "bookingData.userId",
+      foreignField: "_id",
+      as: "userData",
+    },
+  }, {
+    $project: {
+      _id: 0,
+      bookingId: "$bookingData.providerBookingId",
+      passengerName: 1,
+      paxName: 1,
+      paxType: 1,
+      mealPrice: 1,
+      seatPrice: 1,
+      baggagePrice: 1,
+      agentEmailId: { $arrayElemAt: ['$userData.email', 0] },
+      agentState: "",
+      agentCountry: { $arrayElemAt: ['$userData.nationality', 0] },
+      agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
+      agentId: { $arrayElemAt: ['$companiesData.agentId', 0] },
+      ticketNumber: "$bookingData.PNR",
+      gdsPnr: "$bookingData.GPnr",
+      pnr: "$bookingData.PNR",
+      bookingType: "$bookingData.booking_Type",
+      baseFare: "$bookingData.itinerary.BaseFare",
+      description: {
+        $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Code', 0] },
+          ' ',
+        { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Code', 0] }]
+      },
+      flightNo: { $arrayElemAt: ['$bookingData.itinerary.Sectors.FltNum', 0] },
+      status: "$bookingData.bookingStatus",
+      bookingClass: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Class', 0] },
+      DepartureDateTime: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Date', 0] },
+      ArrivalDateTime: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
+      bookingDate: "$bookingData.bookingDateTime",
+      taxable: "$bookingData.itinerary.Taxes",
+      totalfare: "$bookingData.bookingTotalAmount",
+      phf: "0", ttf: "0", asf: "0", yq: "0", yr: "0", taf: "0", cgst: "0", sgst: "0", psf: "0",
+      igst: "0", ugst: "0", rcf: "0", rsf: "0", udf: "0", jn: "0", airlineGst: "0",
+      ob: "0", oc: "0", serviceFeeGst: "0", grossFare: "0", serviceFee: "0", gst: "0",
+      grossDiscount: "0", tds: "0", netDiscount: "0", netFare: "0", dealAmount: "0",
+      cabinAmount: "0", promoAmount: "0", refundableAmount: "0", othertaxes: "0",
+      flightCode: "$bookingData.Supplier",
+      airlineCode: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] },
+      tripType: "$bookingData.travelType",
+      cabinClass: { $arrayElemAt: ['$bookingData.itinerary.Sectors.CabinClass', 0] },
+      amendmentId: "",
+      amendmentType: "",
+      paymentStatus: "success",
+      amendmentDate: "",
+      getCommercialArray: '$bookingData.itinerary.PriceBreakup'
+    }
+  }]);
+
+  salesReport.forEach((element, index) => {
+    if (element.paxType == "ADT") {
+      element.getCommercialArray[0].CommercialBreakup.map(item => {
+        if (item.CommercialType == "SegmentKickback") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "Discount") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "GST") {
+          element.dealAmount = parseFloat(element.dealAmount) - parseFloat(item.Amount)
+        } if (item.CommercialType == "TDS") {
+          element.tds = parseFloat(element.tds) + parseFloat(item.Amount)
+        } if (item.CommercialType == "otherTax") {
+          element.grossFare = parseFloat(element.tds) + parseFloat(item.Amount) + element.taxable
+        } if (item.CommercialType == "GST") {
+          element.gst = parseFloat(element.gst) + parseFloat(item.Amount)
+        }
+      })
+    } if (element.paxType == "CHD") {
+      element.getCommercialArray[1].CommercialBreakup.map(item => {
+        if (item.CommercialType == "SegmentKickback") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "Discount") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "GST") {
+          element.dealAmount = parseFloat(element.dealAmount) - parseFloat(item.Amount)
+        } if (item.CommercialType == "TDS") {
+          element.tds = parseFloat(element.tds) + parseFloat(item.Amount)
+        } if (item.CommercialType == "otherTax") {
+          element.grossFare = parseFloat(element.tds) + parseFloat(item.Amount) + element.taxable
+        } if (item.CommercialType == "GST") {
+          element.gst = parseFloat(element.gst) + parseFloat(item.Amount)
+        }
+      })
+    } if (element.paxType == "INF") {
+      element.getCommercialArray[2].CommercialBreakup.map(item => {
+        if (item.CommercialType == "SegmentKickback") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "Discount") {
+          element.dealAmount = parseFloat(element.dealAmount) + parseFloat(item.Amount);
+          element.grossDiscount = parseFloat(element.grossDiscount) + parseFloat(item.Amount);
+        } if (item.CommercialType == "GST") {
+          element.dealAmount = parseFloat(element.dealAmount) - parseFloat(item.Amount)
+        } if (item.CommercialType == "TDS") {
+          element.tds = parseFloat(element.tds) + parseFloat(item.Amount)
+        } if (item.CommercialType == "otherTax") {
+          element.grossFare = parseFloat(element.tds) + parseFloat(item.Amount) + element.taxable
+        } if (item.CommercialType == "GST") {
+          element.gst = parseFloat(element.gst) + parseFloat(item.Amount)
+        }
+      })
+    }
+    element.netDiscount = element.grossDiscount - element.tds;
+    element.netFare = element.grossFare - element.netDiscount;
+    element.id = index + 1;
+    const targetDate = moment(element.DepartureDateTime);
+    const currentDate = moment();
+    const daysLeft = targetDate.diff(currentDate, 'days');
+    element.daysToTravel = daysLeft;
+    delete element.getCommercialArray;
+  });
+  if (!salesReport.length) {
+    return {
+      response: "Data Not Found",
+    };
+  };
+  return {
+    response: "Fetch Data Successfully",
+    data: salesReport,
+  };
+}
+
 module.exports = {
   getAllBooking,
   getBookingByBookingId,
   getBookingCalendarCount,
-  getBookingBill
+  getBookingBill,
+  getDeparturesList,
+  getSalesReport
 };

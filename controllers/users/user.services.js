@@ -813,6 +813,91 @@ const updateUserStatus = async(req,res)=>{
     throw error
   }
 }
+
+const getCompanyProfle=async(req,res)=>{
+  try{
+    const {companyId}=req.body
+    if(!companyId){
+      return {
+        response:null,
+        message:"companyId not true"
+
+      }
+    }
+
+  const  CompanyProfileData=await Company.findById(companyId).populate("parent" ,"companyName type")
+  if(CompanyProfileData){
+    return{
+response:"Company data find successfull",
+data:CompanyProfileData
+    }
+  }
+  else{
+    return{
+      response:"Company Data not Found"
+    }
+  }
+
+  }catch(error){
+    throw error
+  }
+}
+
+const updateCompayProfile=async(req,res)=>{
+  try{
+    const {companyId}=req.query
+    if(!companyId){
+      return {
+        response:null,
+        message:"companyId not true"
+
+      }
+    }
+
+const companyData=await Company.findById(companyId)
+    if (  req.files?.gst_URL || req.files?.panUpload_URL || req.files?.logoDocument_URL || req.files?.signature_URL || req.files?.aadhar_URL || req.files?.agencyLogo_URL) {
+      const updateCompayProfile = await Company.findByIdAndUpdate(
+        companyId,
+        {
+            $set:{
+            gst_URL: req.files.gst_URL ? req.files.gst_URL[0].path : companyData.gst_URL,
+            panUpload_URL: req.files.panUpload_URL ? req.files.panUpload_URL[0].path : companyData.panUpload_URL,
+            logoDocument_URL: req.files.logoDocument_URL ? req.files.logoDocument_URL[0].path :companyData.logoDocument_URL,
+            signature_URL: req.files.signature_URL ? req.files.signature_URL[0].path :companyData.signature_URL,
+            aadhar_URL: req.files.aadhar_URL ? req.files.aadhar_URL[0].path : companyData.aadhar_URL,
+            agencyLogo_URL: req.files.agencyLogo_URL ? req.files.agencyLogo_URL[0].path : companyData.agencyLogo_URL
+        }},
+        { new: true }
+    );
+ 
+  if(updateCompayProfile){
+    return{
+      response:"company data succefully update",
+      data:updateCompayProfile
+    }
+  }
+
+  else{
+return{
+response:"company data not update"
+}
+  }
+
+
+
+    }
+
+    else{
+      return {
+        response:null,
+        message:"your doucument name undefined"
+      }
+    }
+  
+  }catch(error){
+    throw error
+  }
+}
 module.exports = {
   registerUser,
   loginUser,
@@ -825,6 +910,8 @@ module.exports = {
   editUser,
   getUser,
   getAllAgencyAndDistributer,
-  updateUserStatus
+  updateUserStatus,
+  getCompanyProfle,
+  updateCompayProfile
 };
 

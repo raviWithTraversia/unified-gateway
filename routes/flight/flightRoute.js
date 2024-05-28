@@ -11,13 +11,15 @@ flight_route.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 
 const flight = require('../../controllers/flight/flight.controller');
 
-flight_route.post('/flight/search' , flight.getSearch);
-flight_route.post('/Pricing/AirPricing' , flight.airPricing);
-flight_route.post('/Flight/startBooking' , flight.startBooking);
-flight_route.post('/flight/ssr' , flight.specialServiceReq);
-flight_route.post('/flight/generic-cart' , flight.genericcart);
-flight_route.post('/flight/fullCancelation' , flight.fullCancelation);
-flight_route.post('/flight/partialCancelation' , flight.partialCancelation);
-flight_route.post('/flight/fullCancelationCharge' , flight.fullCancelationCharge);
-flight_route.post('/flight/partialCancelationCharge' , flight.partialCancelationCharge);
+flight_route.post('/flight/search', flight.getSearch);
+flight_route.post('/Pricing/AirPricing', flight.airPricing);
+flight_route.post('/Flight/startBooking', flight.startBooking);
+flight_route.post('/flight/ssr', flight.specialServiceReq);
+flight_route.post('/flight/generic-cart', flight.genericcart);
+flight_route.post('/flight/fullCancelation', flight.fullCancelation);
+flight_route.post('/flight/partialCancelation', flight.partialCancelation);
+flight_route.post('/flight/fullCancelationCharge', flight.fullCancelationCharge);
+flight_route.post('/flight/partialCancelationCharge', flight.partialCancelationCharge);
+flight_route.post('/flight/updateBookingStatus', flight.updateBookingStatus);
+
 module.exports = flight_route;

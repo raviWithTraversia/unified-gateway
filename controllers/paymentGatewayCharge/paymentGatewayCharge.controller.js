@@ -55,6 +55,7 @@ const addPgCharges = async (req, res) => {
 
   }
 }
+
 const editPgcharges = async (req, res) => {
   try {
     const result = await pgChargesServices.editPgcharges(req, res);
@@ -99,6 +100,7 @@ const editPgcharges = async (req, res) => {
     );
   }
 }
+
 const calculatePgCharges = async (req, res) => {
   try {
     const result = await pgChargesServices.calculatePgCharges(req, res);
@@ -136,6 +138,7 @@ const calculatePgCharges = async (req, res) => {
     );
   }
 };
+
 const getPgCharges = async (req, res) => {
   try {
     const result = await pgChargesServices.getPgCharges(req, res);
@@ -172,6 +175,7 @@ const getPgCharges = async (req, res) => {
     );
   }
 }
+
 module.exports = {
   addPgCharges,
   editPgcharges,

@@ -9,7 +9,8 @@ const diSetupGroupModel = require('../../models/DiSetupGroup');
 const paymentGatewayGroupModel = require('../../models/paymentGatewayChargesGroup');
 const airlinePromoCodeGroupModel = require('../../models/AirlinePromoCodeGroup');
 const ssrCommercialGroupModel = require('../../models/SsrCommercialGroup');
-
+const user=require('../../models/User')
+const EventLogs=require('../logs/EventApiLogsCommon')
 
 const createDefaultDistributerGroup = async (companyId, isDefault, name) => {
   try {
@@ -132,6 +133,8 @@ const addAgencyGroup = async (req, res) => {
         { isDefault: false }
       );
     }
+    const userData=await user.findById(req.user._id)
+
     let newAgencyGroup = new agencyGroupModel({
       privilagePlanId,
       commercialPlanId,
@@ -150,6 +153,16 @@ const addAgencyGroup = async (req, res) => {
     });
     newAgencyGroup = await newAgencyGroup.save();
     if (newAgencyGroup) {
+const LogsData={
+            eventName:"AgencyGroup",
+            doerId:req.user._id,
+        doerName:userData.fname,
+ companyId:companyId,
+ documentId:newAgencyGroup._id,
+             description:"Add AgencyGroup",
+          }
+         EventLogs(LogsData)
+
       return {
         response: "Agency Group  Added Sucessfully",
         data: newAgencyGroup,
@@ -170,13 +183,15 @@ const editAgencyGroup = async (req, res) => {
     let updateData = {
       ...req.body,
     };
-
+const AgencyGroupData=await agencyGroupModel.findById(id)
     if (updateData?.isDefault === true) {
       let checkIsAnydefaultTrue = await agencyGroupModel.updateMany(
         { companyId: updateData.companyId },
         { isDefault: false }
       );
     }
+    const userData=await user.findById(req.user._id)
+
     // let updateAirlinePromoGroupData ;
     let updateAgencyGroupData = await agencyGroupModel.findByIdAndUpdate(
       id,
@@ -187,6 +202,18 @@ const editAgencyGroup = async (req, res) => {
       { new: true }
     );
     if (updateAgencyGroupData) {
+      const LogsData={
+        eventName:"AgencyGroup",
+        doerId:req.user._id,
+    doerName:userData.fname,
+companyId:updateAgencyGroupData.companyId,
+oldValue:AgencyGroupData,
+newValue:updateAgencyGroupData,
+documentId:updateAgencyGroupData._id,
+         description:"Edit AgencyGroup",
+      }
+     EventLogs(LogsData)
+
       return {
         response: "Agency Group Updated Sucessfully",
         data: updateAgencyGroupData,
@@ -232,8 +259,21 @@ const getAgencyGroup = async (req, res) => {
 const deleteAgencyGroup = async (req, res) => {
   try {
     let id = req.query.id;
+    const userData=await user.findById(req.user._id)
+
     let deleteData = await agencyGroupModel.findByIdAndDelete(id);
     if (deleteData) {
+      const LogsData={
+        eventName:"AgencyGroup",
+        doerId:req.user._id,
+    doerName:userData.fname,
+companyId:deleteData.companyId,
+documentId:id,
+         description:"Delete AgencyGroup",
+      }
+     EventLogs(LogsData)
+
+
       return {
         response: "Data deleted sucessfully",
       };

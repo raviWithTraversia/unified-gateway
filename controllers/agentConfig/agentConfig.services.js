@@ -1,7 +1,7 @@
 const agentConfigsModels = require("../../models/AgentConfig");
 const userModel = require("../../models/User");
 const companyModel = require('../../models/Company');
-
+const EventLogs=require('../logs/EventApiLogsCommon')
 
 const addAgentConfiguration = async (req, res) => {
   try {
@@ -103,12 +103,14 @@ const updateAgentConfiguration = async (req, res) => {
   try {
     const id = req.query.id;
     const updates = req.body;
+
     const existingConfig = await agentConfigsModels.findById(id);
+    const userData=await userModel.findById(req.user._id)
    /// console.log("====>", existingConfig);
     if (!existingConfig) {
       return {
         response: "Config not found",
-      };
+      };                                                             
     }
     for (let key in updates) {
       if (existingConfig[key] !== updates[key]) {
@@ -120,6 +122,19 @@ const updateAgentConfiguration = async (req, res) => {
 
     let configRes = await existingConfig.save();
     if (configRes) {
+      const LogsData={
+        eventName:"ConfigAgency",
+        doerId:req.user._id,
+    doerName:userData.fname,
+companyId:configRes.companyId,
+oldValue:existingConfig,
+newValue:configRes,
+documentId:id,
+         description:"Edit ConfigAgency",
+      }
+     EventLogs(LogsData)
+     console.log(LogsData)
+
       return {
         response: "Config updated successfully",
       };

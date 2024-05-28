@@ -365,6 +365,200 @@ const generateRandomPassword = (length)  => {
 
 
 
+const sendNotificationByEmail=(mailConfig,DATA)=>{
+
+  const data=DATA
+  const html=`<br/><br/>
+
+  <table style="border-top: 1px solid #c0c0c0; border-bottom: 1px solid #c0c0c0; background-color: #f0f0f0;" border="0" width="100%" cellpadding="4">
+      <tbody>
+          <tr>
+              <td>&nbsp;</td>
+          </tr>
+          <tr>
+              <td>&nbsp;</td>
+              <td>
+                  <table style="font-size: 13px; border: 1px solid #000000; background-color: #ffffff;" width="100%">
+                      <tbody>
+                          <tr>
+                              <td colspan="3">
+                                  <h1 style="text-align: center; font-size: 16px; font-weight: bold; background-color: #084886;
+                                  color: #ffffff; padding: 2px; margin: 0px;">${data.subject}</h1>
+                              </td>
+                          </tr>
+                          <tr>
+                              <th style="text-align: left; font-size: 14px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Email Sender</th>
+                              <td>:</td>
+                              <td>${mailConfig[0].companyId.companyName}</td>
+                          </tr>
+                          <tr>
+                              <td colspan="3">&nbsp;</td>
+                          </tr>
+                          <tr valign="top">
+                              <th style="text-align: left; font-size: 14px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Itinerary</th>
+                              <td>:</td>
+                              <td>${data.options[0].Sectors[0].Departure.CityName} - ${data.options[0].Sectors[0].Arrival.CityName} <span>:</span>${data.options[0].Sectors[0].Departure.Date }</td>
+                          </tr>
+                          <tr>
+                              <th style="text-align: left; font-size: 14px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Passenger(s)</th>
+                              <td>:</td>
+                              <td>
+                              ${data.options[0].PriceBreakup[0].NoOfPassenger}       ${data.options[0].PriceBreakup[0].PassengerType}(s)  
+                              </td>
+                          </tr>
+  
+  
+                          <tr>
+                              <td colspan="3">&nbsp;</td>
+                          </tr>
+  
+                              <tr>
+                                  <td colspan="3">
+                                      <h1 style="text-align: center; font-size: 16px; font-weight: bold; background-color: #084886;
+                                      color: #ffffff; padding: 2px; margin: 0px;">${data.options[0].Sectors[0].Departure.CityName} - ${data.options[0].Sectors[0].Arrival.CityName} Options</h1>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td colspan="3">
+                                      <table style="font-size: 13px; border: 1px solid #a0a0a0;" width="100%">
+                                          <tbody>
+                                              <tr>
+                                                  <th style="text-align: left; font-size: 13px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;" colspan="2">Flight</th>
+                                                  <th style="text-align: left; font-size: 13px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Departure</th>
+                                                  <th style="text-align: left; font-size: 13px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Arrival</th>
+                                                  <th style="text-align: left; font-size: 13px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Duration</th>
+                                                  <th style="text-align: left; font-size: 13px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Time between Flights</th>
+                                                  <th style="text-align: right; font-size: 13px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Total Price</th>
+                                                  <th style="text-align: right; font-size: 13px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Remarks</th>
+                                                  <th style="text-align: left; font-size: 13px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Baggage Info</th>
+                                                  <th style="text-align: left; font-size: 13px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">HandBaggage</th>
+                                              </tr>
+                                                  <tr valign="top">
+  
+  
+  
+                                                      <tr>
+  
+                                                              <td rowspan="2">
+                                                                  <img class="x_CToWUd" style="width: 80px;" alt="" border="0" data-imagetype="External"
+                                                       src="https://www.digitravel.co.in/images/airlogos/6E.png" />
+                                                              </td>
+                                                              <td>${data.options[0].Sectors[0].AirlineName }</td>
+  
+                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[0].Departure.Time }</span>   </span>${data.options[0].Sectors[0].Departure.Date }</td>
+                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[0].Arrival.Time }</span></span>  ${data.options[0].Sectors[0].Arrival.Date }</td>
+                                                          <td>${data.options[0].Sectors[0].FlyingTime}</td>
+                                                              <td>&nbsp;</td>
+                                                              <td align="right">${data.options[0].TotalPrice} ${data.options[0].Currency}</td>
+                                                              <td>&nbsp;<span style="padding: 1px; font-weight: bold;" title="Non-Refundable"><strong>Non-Refundable</strong></span></td>
+                                                              
+                                                      </tr>
+                                                      <tr valign="top">
+                                                          <td rowspan="2"><img class="x_CToWUd" style="width: 100px;" alt="" border="0" data-imagetype="External" /></td>
+                                                          <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[0].FltNum }</td>
+                                                          <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[0].Departure.CityName} (${data.options[0].Sectors[0].Departure.CityCode})<br />Terminal:${data.options[0].Sectors[0].Departure.Terminal}</td>
+                                                          <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[0].Arrival.CityName} (${data.options[0].Sectors[0].Arrival.CityCode})<br />Terminal::${data.options[0].Sectors[0].Arrival.Terminal}</td>
+                                                          <td>&nbsp;</td>
+                                                          <td>&nbsp;</td>
+                                                          <td>&nbsp;</td>
+                                                          <td style="text-align: right; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;" rowspan="1"><strong>BaggageInfo : ${data.options[0].Sectors[0].BaggageInfo} </strong></td>
+                                                           <td style="text-align: right; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;" rowspan="1"><strong>HandBaggage : ${data.options[0].Sectors[0].HandBaggage} </strong></td>
+
+                                                      </tr>
+                                                      <tr>
+                                                          <th colspan="9"><hr /></th>
+                                                      </tr>
+                                                      <tr>
+  
+                                                              <td rowspan="2">
+                                                                  <img class="x_CToWUd" style="width: 80px;" alt="" border="0" data-imagetype="External"
+                                                       src="https://www.digitravel.co.in/images/airlogos/6E.png" />
+                                                              </td>
+                                                              <td>${data.options[0].Sectors[1].AirlineName }</td>
+  
+                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[1].Departure.Time }  </span></span>${data.options[0].Sectors[1].Departure.Date }</td>
+                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[1].Arrival.Time }</span>   </span>${data.options[0].Sectors[1].Arrival.Date }</td>
+                                                          <td>${data.options[0].Sectors[1].FlyingTime}</td>
+                                                              <td>&nbsp;</td>
+                                                              <td align="right"></td>
+                                                              <td>&nbsp;<span style="padding: 1px; font-weight: bold;" title="Non-Refundable"><strong>&nbsp;</strong></span></td>
+                                                      </tr>
+                                                      <tr valign="top">
+                                                          <td rowspan="2"><img class="x_CToWUd" style="width: 100px;" alt="" border="0" data-imagetype="External" /></td>
+                                                          <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[1].FltNum }</td>
+                                                          <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[1].Departure.CityName} (${data.options[0].Sectors[1].Departure.CityCode})<br />Terminal:${data.options[0].Sectors[1].Departure.Terminal}</td>
+                                                          <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[1].Arrival.CityName} (${data.options[0].Sectors[1].Departure.CityCode})<br />Terminal:${data.options[0].Sectors[1].Arrival.Terminal}</td>
+                                                          <td>&nbsp;</td>
+                                                          <td>&nbsp;</td>
+                                                          <td>&nbsp;</td>
+                                                          <td style="text-align: right; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;" rowspan="1"><strong>BaggageInfo : ${data.options[0].Sectors[1].BaggageInfo} </strong></td>
+                                                           <td style="text-align: right; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;" rowspan="1"><strong>HandBaggage : ${data.options[0].Sectors[1].HandBaggage} </strong></td>
+
+                                                      </tr>
+                                                      <tr>
+                                                          <th colspan="9"><hr /></th>
+                                                      </tr>
+                                  </tr>
+                              <!--//loop close-->
+                          </tbody>
+                      </table>
+                  </td>
+              </tr>
+              <tr>
+                  <td colspan="3">&nbsp;</td>
+              </tr>
+  
+  
+      </tbody>
+  </table>
+  <br />
+  <br />Best Regards - Team Traversia Dev
+  <br />
+              </td>
+  <td>&nbsp;</td>
+          </tr>
+      </tbody>
+  </table>
+  
+  
+  `
+
+  const transporter = nodemailer.createTransport({
+    host: mailConfig[0].host, 
+    port: mailConfig[0].port, 
+    secure: false, 
+    auth: {
+      user: mailConfig[0].userName,
+      pass: mailConfig[0].password, 
+    },
+  });
+
+  const mailOptions = {
+    from:  mailConfig[0].emailFrom,
+    to: data.to,
+    subject:data.subject,
+    cc: data.cc, // Add CC recipient
+    bcc: data.bcc ,
+    html: html
+    
+  };
+
+  try{
+    transporter.sendMail(mailOptions);
+    return {
+      response : `Send Email succefully `,
+      data : true
+    }
+
+  }catch(error){
+    return {
+      response : "Error Sending Notification Email:",
+       data : error
+    }
+  }
+
+}
+
 
 
 module.exports = {
@@ -386,5 +580,6 @@ module.exports = {
   commonEmailFunctionOnRegistrationUpdate,
   sendSMS,
   sendPasswordResetEmailLink,
-  generateRandomPassword
+  generateRandomPassword,
+  sendNotificationByEmail
 };

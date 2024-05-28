@@ -12,4 +12,6 @@ air_line_code_route.get(
     auth,
     AirLineController.getAirLineCode
 );
+
+air_line_code_route.post('/airline-code/custumereCare',AirLineController.getAirLineCustumereCare)
 module.exports = air_line_code_route

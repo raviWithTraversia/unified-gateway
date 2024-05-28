@@ -10,7 +10,6 @@ const paymentGateway = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    unique: true,
   },
   paymentMethod: {
     type: String,

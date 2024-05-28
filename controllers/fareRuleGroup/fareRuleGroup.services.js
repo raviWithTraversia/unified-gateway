@@ -4,6 +4,9 @@ const Company = require("../../models/Company");
 const agentConfig = require("../../models/AgentConfig");
 const UserModule = require("../../models/User");
 const agencyGroup = require("../../models/AgencyGroup");
+const EventLogs=require('../logs/EventApiLogsCommon')
+const user=require('../../models/User')
+
 const addFareRuleGroup = async (req, res) => {
   try {
     let {
@@ -39,7 +42,18 @@ const addFareRuleGroup = async (req, res) => {
       isDefault,
     });
     const saveFareRuleGroup = await newFareRuleGroup.save();
+const userData= await user.findById(req.user._id)
+
     if (saveFareRuleGroup) {
+
+      const LogsData={
+        eventName:"GroupFareRules",
+        doerId:req.user._id,
+        doerName:userData.fname,
+companyId:companyId,
+        description:"Add FareRules For Group",
+      }
+     EventLogs(LogsData)
       return {
         response: "FareRule Group Added Sucessfully",
         data: saveFareRuleGroup,
@@ -77,6 +91,8 @@ const editFareRuleGroup = async (req, res) => {
       },
       { new: true }
     );
+const userData= await user.findById(req.user._id)
+
     if (updateFareRuleData) {
       //console.log(id);
       await agencyGroup.findOneAndUpdate(
@@ -84,6 +100,16 @@ const editFareRuleGroup = async (req, res) => {
         { fareRuleGroupId: id },
         { new: true }
       );
+      const LogsData={
+        eventName:"GroupFareRules",
+        doerId:req.user._id,
+        doerName:userData.fname,
+
+        companyId:updateData.companyId,
+        description:"Edit FareRules For Group",
+      }
+     EventLogs(LogsData)
+      
       return {
         response: "Fare rule Updated Sucessfully",
         data: updateFareRuleData,
@@ -462,7 +488,18 @@ const deleteFareRuleGroup = async (req, res) => {
   try {
     let id = req.query.id;
     let deleteData = await fareRuleGroupModels.findByIdAndDelete(id);
+const userData= await user.findById(req.user._id)
+
     if (deleteData) {
+
+      const LogsData={
+        eventName:"GroupFareRules",
+        doerId:req.user._id,
+        doerName:userData.fname,
+companyId:deleteData.companyId,
+        description:"Delete FareRules For Group",
+      }
+     EventLogs(LogsData)
       return {
         response: "Data deleted sucessfully",
       };

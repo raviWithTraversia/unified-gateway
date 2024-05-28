@@ -85,6 +85,7 @@ const PLBMasterUpdate = async(req, res) => {
                 response : 'Company Id is required'
             }
         } 
+const OldPlbmaseterValue=await PLBMaster.findById(_id)
 
         const PLBMasterUpdate = await PLBMaster.findByIdAndUpdate(
             _id, 
@@ -103,6 +104,8 @@ const PLBMasterUpdate = async(req, res) => {
             doerName:userData.fname,
     companyId:companyId,
     documentId:PLBMasterUpdate._id,
+    oldValue:OldPlbmaseterValue,
+    newValue:PLBMasterUpdate,
             description:"Edit PLB Master",
           }
         EventLogs(LogsData)

@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongodb");
 const EventLog = require("../../models/Logs/EventLogs");
 
 const addEventLog = async (req, res) => {
@@ -103,4 +104,78 @@ const getEventlogbyid=async(req,res)=>{
     }
 
 }
-module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid }
+
+const getAgencyLog=async(req,res)=>{
+    try{
+        const { doucmentId } = req.query;
+        if ( !doucmentId) {
+            return {
+                response: "Either _id does not exist",
+            };
+        }
+        // const getEventLogs = await EventLog.aggregate([{$match:{documentId:new ObjectId(doucmentId)}},
+        //     {
+        //         $lookup: {
+        //             from: 'users', // The name of the collection to join
+        //             localField: 'doerId', // Field from the input documents
+        //             foreignField: '_id', // Field from the documents of the "joined" collection
+        //             as: 'doerDetails' // Output array field
+        //         }
+        //     },
+        //     {
+        //         $unwind: '$doerDetails' // Unwind the array to denormalize the data
+        //     },
+        //     {
+        //         $lookup:{
+        //             from: 'commercialairplans', // The name of the collection to join
+        //             localField: 'oldValue.commercialPlanId', // Field from the input documents
+        //             foreignField: '_id', // Field from the documents of the "joined" collection
+        //             as: 'commercialplan' //
+        //         }
+              
+
+        //     },
+
+        // {  $unwind:"$commercialplan"}
+        // ])
+
+        const getEventLogs=await EventLog.find({documentId:doucmentId}).populate([
+            { path: "doerId", select:"fname email lastName userId"}, { path: "companyId", select:"companyName type"},
+            { path: 'oldValue.commercialPlanId', model: 'CommercialAirPlan' ,select:"commercialPlanName modifiedDate" },
+            { path: 'oldValue.plbGroupId', model: 'PLBGroupMaster', select:"PLBGroupName"},
+            { path: 'oldValue.privilagePlanId', model: 'privilagePlan', select:"privilagePlanName" },
+            {path:"oldValue.incentiveGroupId",model:"IncentiveGroupMaster",select:"incentiveGroupName"},
+            {path:"oldValue.fairRuleGroupId",model:"fareRuleGroup" ,select:"fareRuleGroupName modifyAt"},
+            {path:"oldValue.diSetupGroupId",model:"diSetupGroupModel",select:"diSetupGroupName modifyAt"},
+            {path:"oldValue.pgChargesGroupId",model:"paymentGatewayGroupModel", select:"paymentGatewayGroupName modifyAt"},
+            {path:"oldValue.airlinePromoCodeGroupId",model:"airlinePromoCodeGroupModel",select:"airlinePromcodeGroupName modifyAt"},
+            {path:"oldValue.ssrCommercialGroupId",model:"ssrCommercialGroup",select:"ssrCommercialName modifyAt"},
+            { path: 'newValue.commercialPlanId', model: 'CommercialAirPlan' ,select:"commercialPlanName modifiedDate" },
+            { path: 'newValue.plbGroupId', model: 'PLBGroupMaster', select:"PLBGroupName"},
+            { path: 'newValue.privilagePlanId', model: 'privilagePlan', select:"privilagePlanName" },
+            {path:"newValue.incentiveGroupId",model:"IncentiveGroupMaster",select:"incentiveGroupName"},
+            {path:"newValue.fairRuleGroupId",model:"fareRuleGroup" ,select:"fareRuleGroupName modifyAt"},
+            {path:"newValue.diSetupGroupId",model:"diSetupGroupModel",select:"diSetupGroupName modifyAt"},
+            {path:"newValue.pgChargesGroupId",model:"paymentGatewayGroupModel", select:"paymentGatewayGroupName modifyAt"},
+            {path:"newValue.airlinePromoCodeGroupId",model:"airlinePromoCodeGroupModel",select:"airlinePromcodeGroupName modifyAt"},
+            {path:"newValue.ssrCommercialGroupId",model:"ssrCommercialGroup",select:"ssrCommercialName modifyAt"},  
+ ]
+    
+
+ )
+        if (!getEventLogs) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: getEventLogs,
+        };
+
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog }

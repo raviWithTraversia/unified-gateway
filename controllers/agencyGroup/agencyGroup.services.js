@@ -183,7 +183,7 @@ const editAgencyGroup = async (req, res) => {
     let updateData = {
       ...req.body,
     };
-
+const AgencyGroupData=await agencyGroupModel.findById(id)
     if (updateData?.isDefault === true) {
       let checkIsAnydefaultTrue = await agencyGroupModel.updateMany(
         { companyId: updateData.companyId },
@@ -207,6 +207,8 @@ const editAgencyGroup = async (req, res) => {
         doerId:req.user._id,
     doerName:userData.fname,
 companyId:updateAgencyGroupData.companyId,
+oldValue:AgencyGroupData,
+newValue:updateAgencyGroupData,
 documentId:updateAgencyGroupData._id,
          description:"Edit AgencyGroup",
       }

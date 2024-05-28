@@ -11,7 +11,7 @@ const evenLogSchema = new mongoose.Schema({
     doerName: {
         type: String,
         required: false,
-        default: null
+        default: null 
     },
     ipAddress: {
         type: String,

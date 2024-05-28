@@ -268,7 +268,7 @@ const approveAndRejectCredit = async(req, res) => {
                 eventName: "Credit Request",
                 doerId: doerId,
                 doerName: loginUser.fname,
-                companyId: updateCreditRequestRejected.company_ID,
+                companyId: updateCreditRequestRejected.company_Id,
                 documentId: updateCreditRequestRejected._id, // Replace this with the actual ID
                 description: "Credit request rejected"
             };

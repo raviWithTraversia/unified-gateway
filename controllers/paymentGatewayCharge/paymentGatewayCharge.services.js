@@ -1,6 +1,7 @@
 const pgChargesModels = require('../../models/PaymentGatewayCharges');
 const User = require('../../models/User');
-const EventLogs=require('../logs/EventApiLogsCommon')
+const EventLogs = require('../logs/EventApiLogsCommon');
+
 const addPgCharges = async (req, res) => {
   try {
     const { paymentGatewayProvider, paymentMethod, paymentType, flatFee, percentageFee, companyId } = req.body;
@@ -23,15 +24,15 @@ const addPgCharges = async (req, res) => {
       });
       pgChargesInsert = await pgChargesInsert.save();
       if (pgChargesInsert) {
-        const LogsData={
-          eventName:"PgCharges",
-          doerId:req.user._id,
-      doerName:checkIsRole.fname,
-companyId:pgChargesInsert.companyId,
-documentId:pgChargesInsert._id,
-           description:"Add PgCharges",
+        const LogsData = {
+          eventName: "PgCharges",
+          doerId: req.user._id,
+          doerName: checkIsRole.fname,
+          companyId: pgChargesInsert.companyId,
+          documentId: pgChargesInsert._id,
+          description: "Add PgCharges",
         }
-       EventLogs(LogsData)
+        EventLogs(LogsData)
         return {
           data: pgChargesInsert,
           response: "Payment Gateway Charges Insert Sucessfully",
@@ -57,33 +58,33 @@ const editPgcharges = async (req, res) => {
   try {
     const id = req.query.id;
     const updateData = req.body;
-    if (updateData?.paymentGatewayProvider || updateData?.paymentMethod) {
-      let data = await pgChargesModels.findById(id);
-      let isPgChargesChange = false
-      if (data?.paymentGatewayProvider !== updateData?.paymentGatewayProvider || data?.paymentMethod !== updateData?.paymentMethod || data?.flatFee !== updateData?.flatFee || data?.percentageFee !== updateData?.percentageFee) {
-        isPgChargesChange = true;
+    const { paymentGatewayProvider, paymentMethod, paymentType, companyId } = req.body;
+    if (!id || !paymentGatewayProvider || !paymentMethod || !paymentType || !companyId) {
+      return {
+        response: 'Please provide required fields!'
       }
-      if (!isPgChargesChange) {
-        return {
-          response: 'Payment gateway charges for this company and provider already exist'
-        }
-      }
+    };
+    let data = await pgChargesModels.findById(id);
+    if (!data) { return { response: "No data found" } }
+    let checkPaymentMethod = await pgChargesModels.findOne({ companyId, paymentGatewayProvider, paymentMethod });
+    if (data._id.toString() !== checkPaymentMethod._id.toString()) {
+      return { response: `Payment gateway charges for this company and provider already exist` }
     }
-    const documents = await pgChargesModels.findOne({_id:id},{_id:0});
+    const documents = await pgChargesModels.findOne({ _id: id }, { _id: 0 });
     const updatedUserData = await pgChargesModels.findByIdAndUpdate(id, { $set: updateData }, { new: true });
-    const userData=await User.findById(req.user._id)
+    const userData = await User.findById(req.user._id)
     if (updatedUserData) {
-      const LogsData={
-        eventName:"PgCharges",
-        doerId:req.user._id,
-    doerName:userData.fname,
-companyId:updatedUserData.companyId,
-documentId:updatedUserData._id,
-oldValue:documents,
-newValue:updateData,
-         description:"Edit PgCharges",
+      const LogsData = {
+        eventName: "PgCharges",
+        doerId: req.user._id,
+        doerName: userData.fname,
+        companyId: updatedUserData.companyId,
+        documentId: updatedUserData._id,
+        oldValue: documents,
+        newValue: updateData,
+        description: "Edit PgCharges",
       }
-     EventLogs(LogsData)
+      EventLogs(LogsData)
       return {
         response: "Update Pg Cherges Sucessfully",
       };

@@ -59,7 +59,7 @@ const editAirlinePromoCode = async (req,res) => {
             response : 'Invalid Mongo Object Id'
          }
       }
-
+const promoCode=await airLinePromo.findById(id)
        const updatedPromoCodeData = await airLinePromo.findByIdAndUpdate(
          id,
         { $set: data },
@@ -72,6 +72,8 @@ const editAirlinePromoCode = async (req,res) => {
             eventName:"AirlinePromoCode",
             doerId:req.user._id,
         doerName:userData.fname,
+        oldValue:promoCode,
+        newValue:updatedPromoCodeData,
   companyId:updatedPromoCodeData.companyId,
   documentId:updatedPromoCodeData._id,
              description:"Edit AirlinePromoCode",

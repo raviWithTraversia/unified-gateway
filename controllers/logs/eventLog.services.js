@@ -139,6 +139,7 @@ const getAgencyLog=async(req,res)=>{
     
 
  )
+ 
         if (!getEventLogs) {
             return {
                 response: "Data Not Found",
@@ -196,6 +197,7 @@ const getAgencyLogConfig=async(req,res)=>{
           
           const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions);
           
+          
         if (!getEventLogs) {
             return {
                 response: "Data Not Found",
@@ -211,4 +213,55 @@ const getAgencyLogConfig=async(req,res)=>{
         throw error;
     }
 }
-module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig}
+
+
+
+
+const getairCommercialfilterlog=async(req,res)=>{
+    try{
+        const { doucmentId } = req.query;
+        if ( !doucmentId) {
+            return {
+                response: "Either _id does not exist",
+            };
+        }
+       
+
+        const populateOptions = [
+            { path: "doerId", select: "fname email lastName userId" },
+            { path: "companyId", select: "companyName type" },
+            { path: 'oldValue.commercialAirPlanId', model: 'CommercialAirPlan' ,select:"commercialPlanName modifiedDate status"},
+            { path: 'oldValue.carrier', model: 'AirlineCode',select:""},
+            { path: 'oldValue.supplier', model: 'SupplierCode',select:"supplierCode status"},
+            { path: 'oldValue.source', model: 'SupplierCode',select:"supplierCode status"},
+
+            { path: 'oldValue.fareFamily', model: 'FareFamilyMaster',select:"fareFamilyCode fareFamilyName status"},
+           
+
+            { path: 'newValue.commercialAirPlanId', model: 'CommercialAirPlan' ,select:"commercialPlanName modifiedDate status"},
+            { path: 'newValue.carrier', model: 'AirlineCode',select:""},
+            { path: 'newValue.supplier', model: 'SupplierCode',select:"supplierCode status"},
+            { path: 'newValue.fareFamily', model: 'FareFamilyMaster',select:"fareFamilyCode fareFamilyName status"},
+            { path: 'oldValue.source', model: 'SupplierCode',select:"supplierCode status"},
+
+          ];
+          
+          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions);
+          
+          
+        if (!getEventLogs) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: getEventLogs,
+        };
+
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog}

@@ -164,12 +164,12 @@ async function handleflight(
     };
   }
 
-  if (!TraceId) {
-    return {
-      IsSucess: false,
-      response: "Trace Id Required",
-    };
-  }
+  // if (!TraceId) {
+  //   return {
+  //     IsSucess: false,
+  //     response: "Trace Id Required",
+  //   };
+  // }
 
   const responsesApi = await Promise.all(
     supplierCredentials.map(async (supplier) => {
@@ -349,6 +349,11 @@ const KafilaFun = async (
           modifyAt: new Date(),
         });
 
+        
+
+
+        await cancelationBookingInstance.save();
+
         if(fCancelApiResponse?.data?.R_DATA?.Status != null && fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() ===
         "PENDING"){
           await bookingDetails.findOneAndUpdate(
@@ -357,9 +362,6 @@ const KafilaFun = async (
             { new: true } // To return the updated document
           );
         }
-
-
-        await cancelationBookingInstance.save();
         return fCancelApiResponse?.data;
       } else if (
         fCancelApiResponse?.data?.R_DATA?.Status === null &&

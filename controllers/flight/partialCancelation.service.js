@@ -163,12 +163,12 @@ async function handleflight(
     };
   } 
 
-  if (!TraceId) {
-    return {
-      IsSucess: false,
-      response: "Trace Id Required",
-    };
-  }
+  // if (!TraceId) {
+  //   return {
+  //     IsSucess: false,
+  //     response: "Trace Id Required",
+  //   };
+  // }
 
   
   const responsesApi = await Promise.all(
@@ -341,7 +341,18 @@ const KafilaFun = async (
             modifyBy: Authentication?.UserId || null,
             modifyAt: new Date(),
           });
+
+
           await cancelationBookingInstance.save();
+
+          if(fCancelApiResponse?.data?.R_DATA?.Status != null && fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() ===
+        "PENDING"){
+          await bookingDetails.findOneAndUpdate(
+            { _id: BookingIdDetails._id },
+            { $set: { bookingStatus: "CANCELLATION PENDING" } },
+            { new: true } // To return the updated document
+          );
+        }
           return fCancelApiResponse?.data;
         } catch (error) {
           throw new Error({error:"Error saving cancellation data (Pending)" , responce: fCancelApiResponse?.data});

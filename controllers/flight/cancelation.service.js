@@ -348,6 +348,17 @@ const KafilaFun = async (
           modifyBy: Authentication?.UserId || null,
           modifyAt: new Date(),
         });
+
+        if(fCancelApiResponse?.data?.R_DATA?.Status != null && fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() ===
+        "PENDING"){
+          await bookingDetails.findOneAndUpdate(
+            { _id: BookingIdDetails._id },
+            { $set: { bookingStatus: "CANCELLATION PENDING" } },
+            { new: true } // To return the updated document
+          );
+        }
+
+
         await cancelationBookingInstance.save();
         return fCancelApiResponse?.data;
       } else if (

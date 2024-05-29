@@ -21,5 +21,5 @@ flight_route.post('/flight/partialCancelation', flight.partialCancelation);
 flight_route.post('/flight/fullCancelationCharge', flight.fullCancelationCharge);
 flight_route.post('/flight/partialCancelationCharge', flight.partialCancelationCharge);
 flight_route.post('/flight/updateBookingStatus', flight.updateBookingStatus);
-
+flight_route.post('/flight/amendment', flight.amendment);
 module.exports = flight_route;

@@ -107,9 +107,9 @@ const commercialPlanUpdate = async(req , res) => {
                 },
                 { new: true }
                 );
-                const LogsData={
-                    eventName:"CommercialAirPlan",
-                    doerId:req.user._id,
+     const LogsData={
+      eventName:"CommercialAirPlan",
+      doerId:req.user._id,
         doerName:userData.fname,
  companyId:result.companyId,
  documentId:result._id,

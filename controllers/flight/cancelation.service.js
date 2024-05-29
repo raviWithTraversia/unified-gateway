@@ -599,8 +599,6 @@ const updateBookingStatus = async (req, res) => {
       }
     }))?.data;
 
-    console.log("response: ", response);
-
     bulkOps.push({
       updateOne: {
         filter: { _id: item._id },
@@ -611,11 +609,11 @@ const updateBookingStatus = async (req, res) => {
   if (bulkOps.length) {
     await bookingDetails.bulkWrite(bulkOps);
     return {
-      resposne: "Status updated Successfully!"
+      response: "Status updated Successfully!"
     }
   } else {
     return {
-      resposne: "Error in updating Status!"
+      response: "Error in updating Status!"
     }
   }
 }

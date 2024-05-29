@@ -541,15 +541,10 @@ const KafilaFun = async (
 };
 
 const updateBookingStatus = async (req, res) => {
-  const { _BookingId, credentialsType, companyId } = req.body;
-  if (!_BookingId.length || !companyId) {
+  //get data from bookingid and take provider and pupulate that provider in suppliercode and then populate that in supplier and match suppliercodeid
+  const { _BookingId, credentialsType } = req.body;
+  if (!_BookingId.length) {
     return { response: "_BookingId or companyId or credentialsType does not exist" }
-  }
-  const getBookingbyBookingId = await bookingDetails.find({ _id: { $in: _BookingId } }, { providerBookingId: 1, "itinerary.TraceId": 1 });
-  if (!getBookingbyBookingId.length) {
-    return {
-      response: "No booking Found!"
-    }
   }
   if (!["LIVE", "TEST"].includes(credentialsType)) {
     return {
@@ -557,13 +552,54 @@ const updateBookingStatus = async (req, res) => {
       response: "Credential Type does not exist",
     };
   }
-  const supplierCredentials = await Supplier.findOne({ companyId, credentialsType, status: true });
-  if (!supplierCredentials) {
+  const objectIdArray = _BookingId.map(id => new ObjectId(id));
+  const getBookingbyBookingId = await bookingDetails.aggregate([{ $match: { _id: { $in: objectIdArray } } }, {
+    $lookup: {
+      from: "suppliercodes",
+      localField: "provider",
+      foreignField: "supplierCode",
+      as: "supplierData",
+    },
+  }, { $unwind: "$supplierData" }, {
+    $lookup: {
+      from: "suppliers",
+      localField: "supplierData._id",
+      foreignField: "supplierCodeId",
+      as: "supplyData",
+    },
+  }, {
+    $project: {
+      providerBookingId: 1,
+      "itinerary.TraceId": 1,
+      credentialsTypeData: {
+        $filter: {
+          input: "$supplyData",
+          as: "item",
+          cond: {
+            $and: [
+              { $eq: ["$$item.credentialsType", "TEST"] },
+              { $eq: ["$$item.status", true] }
+            ]
+          }
+        }
+      }
+    }
+  }, { $unwind: "$credentialsTypeData" }, {
+    $project: {
+      providerBookingId: 1,
+      traceId: "$itinerary.TraceId",
+      supplierUserId: "$credentialsTypeData.supplierUserId",
+      supplierPassword: "$credentialsTypeData.supplierPassword",
+      supplierWsapSesssion: "$credentialsTypeData.supplierWsapSesssion"
+    }
+  }]);
+
+  if (!getBookingbyBookingId.length) {
     return {
-      IsSucess: false,
-      response: "Supplier credentials does not exist",
-    };
+      response: "No booking Found!"
+    }
   }
+
   let createTokenUrl;
   let credentialEnv = "D";
   if (credentialsType === "LIVE") {
@@ -573,9 +609,9 @@ const updateBookingStatus = async (req, res) => {
     createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`; // Test Url here
   }
 
-  const concatenatedString = ((`${supplierCredentials.supplierUserId}|${supplierCredentials.supplierPassword}`).toUpperCase());
   const bulkOps = [];
   for (const item of getBookingbyBookingId) {
+    const concatenatedString = ((`${item.supplierUserId}|${item.supplierPassword}`).toUpperCase());
     let postData = {
       P_TYPE: "API",
       R_TYPE: "FLIGHT",
@@ -583,9 +619,9 @@ const updateBookingStatus = async (req, res) => {
       R_DATA: {
         TYPE: "PNRRES",
         BOOKING_ID: item.providerBookingId,
-        TRACE_ID: item.itinerary.TraceId
+        TRACE_ID: item.traceId
       },
-      AID: supplierCredentials.supplierWsapSesssion,
+      AID: item.supplierWsapSesssion,
       MODULE: "B2B",
       IP: "182.73.146.154",
       TOKEN: crypto.createHash('md5').update(concatenatedString).digest('hex'),

@@ -16,7 +16,6 @@ const dashBoardCount = async (req, res) => {
     let fifteenDaysAgo = new Date();
     fifteenDaysAgo.setDate(new Date().getDate() - 1);
 
-
     let [newRegistrationCount, creditReqCount, getBookingDetails, RegisteredAgentConfig, depositRequest] = await Promise.all([
       registrationServices.getAllRegistrationByCompany(req1, res),
       creditRequest.find({ companyId: companyId }),
@@ -25,7 +24,7 @@ const dashBoardCount = async (req, res) => {
       depositDetail.countDocuments({ companyId, status: "pending" })
     ]);
 
-    let pending = 0, hold = 0, failedAtPayment = 0, allFailed = 0, refund = 0, refundPending = 0, amendement = 0
+    let cancelPending = 0, pending = 0, hold = 0, failedAtPayment = 0, allFailed = 0, refund = 0, refundPending = 0, amendement = 0
 
     getBookingDetails.map(item => {
       if (item.bookingStatus == "PENDING") pending++;
@@ -33,6 +32,7 @@ const dashBoardCount = async (req, res) => {
       if (item.bookingStatus == "FAILEDPAYMENT") failedAtPayment++;
       if (item.bookingStatus == "FAILED") allFailed++;
       if (item.bookingStatus == "REFUND") refund++;
+      if (item.bookingStatus == "CANCELLATION PENDING") cancelPending++;
     });
 
     newRegistrationCount = newRegistrationCount?.data?.length || 0;
@@ -48,7 +48,7 @@ const dashBoardCount = async (req, res) => {
     data['Registered_Agent_Config'] = RegisteredAgentConfig;
     data['depositRequest'] = depositRequest;
     data['amendement'] = amendement;
-    //cancelPending// status = cancellation pending
+    data['cancelPending'] = cancelPending;
 
     if (newRegistrationCount) {
       return {

@@ -9,7 +9,8 @@ const CommercialFilterExcInd = require('../../models/CommercialFilterExcludeIncl
 const { response } = require('../../routes/airCommercialRoute');
 const AirCommercialFilter = require('../../models/AirCommercialFilter');
 const CommercialHistory = require('../../models/CommercialHistory');
-
+const EventLogs=require('../logs/EventApiLogsCommon')
+const user=require('../../models/User')
 
 const addAirCommercial = async (req, res) => {
     try {
@@ -25,6 +26,8 @@ const addAirCommercial = async (req, res) => {
             fareFamily,
             companyId
         } = req.body;
+
+        const userData=await user.findById(req.user._id)
         if (!commercialAirPlanId) {
             return {
                 response: 'Commercial air plan Id field are required'
@@ -104,6 +107,15 @@ const addAirCommercial = async (req, res) => {
             });
 
             const filterCreated = await createFilter.save();
+            const LogsData={
+                eventName:"AirCommercial",
+                doerId:req.user._id,
+            doerName:userData.fname,
+        companyId:companyId,
+        documentId:result._id,
+                 description:"Add AirCommercial",
+              }
+             EventLogs(LogsData)
 
         }
         return {
@@ -163,6 +175,9 @@ const addCommercialType = async (req, res) => {
             companyId,
             textType
         } = req.body;
+
+        const userData=await user.findById(req.user._id)
+
         if (!airCommercialId || !AirCommertialColumnMasterId || !AirCommertialRowMasterId || !companyId || !textType) {
             return {
                 response: 'All fields are required'
@@ -177,6 +192,16 @@ const addCommercialType = async (req, res) => {
                 textType
             });
             const result = await saveResult.save();
+
+            const LogsData={
+                eventName:"AirCommercial",
+                doerId:req.user._id,
+            doerName:userData.fname,
+        companyId:companyId,
+        documentId:result._id,
+                 description:"Add Commercial Type",
+              }
+             EventLogs(LogsData)
             return {
                 response: "Air commercial type added successfully"
             }
@@ -223,6 +248,7 @@ const commercialRowColoumnAdd = async (req, res) => {
         });
 
         const result = await storeData.save();
+      
         return {
             response: "Commercial row / coloumn created successfully"
         }
@@ -549,7 +575,8 @@ const getSingleAirComList = async (req, res) => {
 const getCommercialHistoryList = async (req, res) => {
     try {
         const commercialId = req.params.commercialId;
-        const coloumnData = await CommercialHistory.find({ commercialId: commercialId });
+        const coloumnData = await CommercialHistory.find({ commercialId: commercialId }).populate({path:'newValue.AirCommertialRowMasterId', model:"AirCommercialFilter"})
+    ;
         if (coloumnData.length > 0) {
             return {
                 data: coloumnData,
@@ -568,6 +595,7 @@ const updateAirCommercialFilter = async (req,res) => {
   try{
     const { id } = req.query;
    const updates = req.body;
+   const userData=await user.findById(req.user._id)
  let data = await AirCommercial.find({_id : id});
 const updatedAirCommercial = await AirCommercial.findOneAndUpdate(
    { _id : id},
@@ -577,6 +605,18 @@ const updatedAirCommercial = await AirCommercial.findOneAndUpdate(
     }
   );
     if(updatedAirCommercial){
+        const LogsData={
+            eventName:"AirCommercial",
+            doerId:req.user._id,
+        doerName:userData.fname,
+    companyId:updatedAirCommercial.companyId,
+    oldValue:data[0],
+    documentId:id,
+    newValue:updatedAirCommercial,
+             description:"Edit AirCommercial",
+          }
+         EventLogs(LogsData)
+
        return {
         response : "AirCommercial Data Upadted Sucessfully",
         data : updatedAirCommercial

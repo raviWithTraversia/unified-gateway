@@ -542,7 +542,6 @@ const updateBookingStatus = async (req, res) => {
     };
   }
   const objectIdArray = _BookingId.map(id => new ObjectId(id));
-  console.log(objectIdArray)
   const getBookingbyBookingId = await bookingDetails.aggregate([{ $match: { _id: { $in: objectIdArray } } }, {
     $lookup: {
       from: "suppliercodes",

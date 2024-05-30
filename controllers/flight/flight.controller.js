@@ -352,9 +352,9 @@ const updateBookingStatus = async (req, res) => {
   }
 };
 
-const amendment = async (req, res) => {
+const amendmentDetails = async (req, res) => {
   try {
-    const result = await partialChargeServices.partialCancelationCharge(req, res);
+    const result = await amendment.amendment(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid" || result.response === "Booking Id does not exist") {
@@ -385,4 +385,4 @@ const amendment = async (req, res) => {
   }
 };
 
-module.exports = { getSearch, airPricing, startBooking, specialServiceReq, genericcart, fullCancelation, partialCancelation, partialCancelationCharge, fullCancelationCharge, updateBookingStatus, amendment };
+module.exports = { getSearch, airPricing, startBooking, specialServiceReq, genericcart, fullCancelation, partialCancelation, partialCancelationCharge, fullCancelationCharge, updateBookingStatus, amendmentDetails };

@@ -18,10 +18,10 @@ const dashBoardCount = async (req, res) => {
 
     let [newRegistrationCount, creditReqCount, getBookingDetails, RegisteredAgentConfig, depositRequest] = await Promise.all([
       registrationServices.getAllRegistrationByCompany(req1, res),
-      creditRequest.find({ companyId: companyId, createdAt: { $gte: new Date((fifteenDaysAgo.toISOString().split("T"))[0]) } }),
+      creditRequest.find({ companyId: companyId }),
       bookingdetails.find({ createdAt: { $gte: new Date((fifteenDaysAgo.toISOString().split("T"))[0]) }, companyId }, { bookingStatus: 1 }),
-      company.countDocuments({ parent: companyId, createdAt: { $gte: new Date((fifteenDaysAgo.toISOString().split("T"))[0]) } }),
-      depositDetail.countDocuments({ companyId, status: "pending", createdAt: { $gte: new Date((fifteenDaysAgo.toISOString().split("T"))[0]) } })
+      company.countDocuments({ parent: companyId }),
+      depositDetail.countDocuments({ companyId, status: "pending" })
     ]);
 
     let cancelPending = 0, pending = 0, hold = 0, failedAtPayment = 0, allFailed = 0, refund = 0, refundPending = 0, amendement = 0

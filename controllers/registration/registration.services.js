@@ -211,8 +211,7 @@ const getAllRegistrationByCompany = async (req, res) => {
       let aggregationRes = await registration.find({
         $or: [
           { companyId: companyId },
-          { parent: companyId },
-          { createdAt: { $gte: new Date((fifteenDaysAgo.toISOString().split("T"))[0]) } }
+          { parent: companyId }
         ]
       })
         .populate("statusId", "name")
@@ -234,7 +233,7 @@ const getAllRegistrationByCompany = async (req, res) => {
       }
     } else {
       let aggregationRes = await registration
-        .find({ companyId: companyId, createdAt: { $gte: new Date((fifteenDaysAgo.toISOString().split("T"))[0]) } })
+        .find({ companyId: companyId })
         .populate("statusId", "name")
         .populate("roleId", "name")
         .populate("saleInChargeId city")

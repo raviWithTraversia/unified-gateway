@@ -151,7 +151,6 @@ const getAgencyLog=async(req,res)=>{
         };
 
     }catch(error){
-        console.log(error);
         throw error;
     }
 }
@@ -209,7 +208,6 @@ const getAgencyLogConfig=async(req,res)=>{
         };
 
     }catch(error){
-        console.log(error);
         throw error;
     }
 }
@@ -260,7 +258,6 @@ const getairCommercialfilterlog=async(req,res)=>{
         };
 
     }catch(error){
-        console.log(error);
         throw error;
     }
 }

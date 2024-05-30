@@ -9,10 +9,10 @@ const CommercialHistory = new mongoose.Schema({
         type: 'object',
         properties: {
             AirCommertialRowMasterId:{type:mongoose.Schema.Types.ObjectId,
-                ref:"aircommertialcolumnmasters"
+                ref:"AirCommertialColumnMaster"
             },
             AirCommertialColumnMasterId:{type:mongoose.Schema.Types.ObjectId,
-                ref:"aircommertialcolumnmasters"
+                ref:"AirCommertialColumnMaster"
             },
             numberValue: { type: 'number' },
             stringValue: { type: 'string' },
@@ -23,10 +23,10 @@ const CommercialHistory = new mongoose.Schema({
         type: 'object',
          properties: {
             AirCommertialRowMasterId:{type:mongoose.Schema.Types.ObjectId,
-                ref:"aircommertialcolumnmasters"
+                ref:"AirCommertialColumnMaster"
             },
             AirCommertialColumnMasterId:{type:mongoose.Schema.Types.ObjectId,
-                ref:"aircommertialcolumnmasters"
+                ref:"AirCommertialColumnMaster"
             },
             numberValue: { type: 'number' },
             stringValue: { type: 'string' },

@@ -575,7 +575,16 @@ const getSingleAirComList = async (req, res) => {
 const getCommercialHistoryList = async (req, res) => {
     try {
         const commercialId = req.params.commercialId;
-        const coloumnData = await CommercialHistory.find({ commercialId: commercialId }).populate([{path:'commercialFilterNewValue.commercialFilterId', model:"AirCommercialFilter"},{path:'commercialFilterOldValue.commercialFilterId',model:"AirCommercialFilter"}])
+        const coloumnData = await CommercialHistory.find({ commercialId: commercialId })
+        .populate([ {path:"newValue.AirCommertialRowMasterId",model:"AirCommertialColumnMaster"},
+        {path:"newValue.AirCommertialColumnMasterId",model:"AirCommertialColumnMaster"},
+        {path:"oldValue.AirCommertialRowMasterId",model:"AirCommertialColumnMaster"},
+        {path:"oldValue.AirCommertialColumnMasterId",model:"AirCommertialColumnMaster"},
+            
+            {path:'commercialFilterNewValue.commercialFilterId', model:"AirCommercialFilter"},{path:'commercialFilterOldValue.commercialFilterId',model:"AirCommercialFilter"},
+           
+
+        ])
 
     ;
         if (coloumnData.length > 0) {

@@ -1,7 +1,7 @@
 const agentConfigsModels = require("../../models/AgentConfig");
 const userModel = require("../../models/User");
 const companyModel = require('../../models/Company');
-const EventLogs=require('../logs/EventApiLogsCommon')
+const EventLogs = require('../logs/EventApiLogsCommon')
 
 const addAgentConfiguration = async (req, res) => {
   try {
@@ -105,12 +105,12 @@ const updateAgentConfiguration = async (req, res) => {
     const updates = req.body;
 
     const existingConfig = await agentConfigsModels.findById(id);
-    const userData=await userModel.findById(req.user._id)
-   /// console.log("====>", existingConfig);
+    const userData = await userModel.findById(req.user._id)
+    /// console.log("====>", existingConfig);
     if (!existingConfig) {
       return {
         response: "Config not found",
-      };                                                             
+      };
     }
     for (let key in updates) {
       if (existingConfig[key] !== updates[key]) {
@@ -122,18 +122,18 @@ const updateAgentConfiguration = async (req, res) => {
 
     let configRes = await existingConfig.save();
     if (configRes) {
-      const LogsData={
-        eventName:"ConfigAgency",
-        doerId:req.user._id,
-    doerName:userData.fname,
-companyId:configRes.companyId,
-oldValue:existingConfig,
-newValue:configRes,
-documentId:id,
-         description:"Edit ConfigAgency",
+      const LogsData = {
+        eventName: "ConfigAgency",
+        doerId: req.user._id,
+        doerName: userData.fname,
+        companyId: configRes.companyId,
+        oldValue: existingConfig,
+        newValue: configRes,
+        documentId: id,
+        description: "Edit ConfigAgency",
       }
-     EventLogs(LogsData)
-     console.log(LogsData)
+      EventLogs(LogsData)
+      console.log(LogsData)
 
       return {
         response: "Config updated successfully",
@@ -146,9 +146,9 @@ documentId:id,
 };
 const getAgentConfig = async (req, res) => {
   try {
-    let {id} = req.query;
+    let { id } = req.query;
     let agentConfigData = await agentConfigsModels
-      .findOne({userId  : id})
+      .findOne({ userId: id })
       .populate("userId")
       .populate("companyId")
       .populate("privilegePlansIds")
@@ -179,61 +179,61 @@ const getAgentConfig = async (req, res) => {
 };
 const updateAgencyProfile = async (req, res) => {
   try {
-      let uploadDataId = req.query.id
+    let uploadDataId = req.query.id
 
-      let dataForUpdate = {
-          ...req.body
+    let dataForUpdate = {
+      ...req.body
+    };
+
+
+    let updateCompayProfile;
+
+    if (req.files?.upload_TDS_Exemption_Certificate_URL || req.files?.gst_URL || req.files?.panUpload_URL || req.files?.logoDocument_URL || req.files?.signature_URL || req.files?.aadhar_URL || req.files?.agencyLogo_URL) {
+
+
+      updateCompayProfile = await companyModel.findByIdAndUpdate(
+        uploadDataId,
+        {
+          $set: dataForUpdate,
+          tds_exemption_certificate_URL: req.files.tds_exemption_certificate_URL ? req.files.tds_exemption_certificate_URL[0].path : null,
+          gst_URL: req.files.gst_URL ? req.files.gst_URL[0].path : null,
+          panUpload_URL: req.files.panUpload_URL ? req.files.panUpload_URL[0].path : null,
+          logoDocument_URL: req.files.logoDocument_URL ? req.files.logoDocument_URL[0].path : null,
+          signature_URL: req.files.signature_URL ? req.files.signature_URL[0].path : null,
+          aadhar_URL: req.files.aadhar_URL ? req.files.aadhar_URL[0].path : null,
+          agencyLogo_URL: req.files.agencyLogo_URL ? req.files.agencyLogo_URL[0].path : null
+        },
+        { new: true }
+      );
+    } else {
+      updateCompayProfile = await companyModel.findByIdAndUpdate(
+        uploadDataId,
+        {
+          $set: dataForUpdate,
+        },
+        { new: true }
+      );
+    }
+
+    if (updateCompayProfile) {
+      return {
+        response: 'Agency/Distributor details updated successfully',
+        data: updateCompayProfile
       };
-
-
-      let updateCompayProfile;
-
-      if (req.files?.upload_TDS_Exemption_Certificate_URL || req.files?.gst_URL || req.files?.panUpload_URL || req.files?.logoDocument_URL || req.files?.signature_URL || req.files?.aadhar_URL || req.files?.agencyLogo_URL) {
-
-        
-          updateCompayProfile = await companyModel.findByIdAndUpdate(
-              uploadDataId,
-              {
-                  $set: dataForUpdate,
-                  tds_exemption_certificate_URL: req.files.tds_exemption_certificate_URL ? req.files.tds_exemption_certificate_URL[0].path : null,
-                  gst_URL: req.files.gst_URL ? req.files.gst_URL[0].path : null,
-                  panUpload_URL: req.files.panUpload_URL ? req.files.panUpload_URL[0].path : null,
-                  logoDocument_URL: req.files.logoDocument_URL ? req.files.logoDocument_URL[0].path : null,
-                  signature_URL: req.files.signature_URL ? req.files.signature_URL[0].path : null,
-                  aadhar_URL: req.files.aadhar_URL ? req.files.aadhar_URL[0].path : null,
-                  agencyLogo_URL: req.files.agencyLogo_URL ? req.files.agencyLogo_URL[0].path : null
-              },
-              { new: true }
-          );
-      } else {
-          updateCompayProfile = await companyModel.findByIdAndUpdate(
-              uploadDataId,
-              {
-                  $set: dataForUpdate,
-              },
-              { new: true }
-          );
-      }
-
-      if (updateCompayProfile) {
-          return {
-              response: 'Agency/Distributor details updated successfully',
-              data: updateCompayProfile
-          };
-      } else {
-          return {
-              response: 'Agency/Distributor details not updated'
-          };
-      }
+    } else {
+      return {
+        response: 'Agency/Distributor details not updated'
+      };
+    }
   } catch (error) {
-      console.log('Error updating agency profile:', error); // Log error
-      throw error;
+    console.log('Error updating agency profile:', error); // Log error
+    throw error;
   }
 };
 
-const getUserProfile = async (req,res) => {
-  try{
-    let {userId} = req.query;
+const getUserProfile = async (req, res) => {
+  try {
+    let { userId } = req.query;
     let userData = await userModel.findById(userId).populate('roleId', 'name type').populate({
       path: 'company_ID',
       model: 'Company',
@@ -243,18 +243,18 @@ const getUserProfile = async (req,res) => {
         select: 'companyName type'
       }
     }).populate('cityId').populate('roleId')
-  if(userData){
-    return {
-      response : 'User data found SucessFully',
-      data : userData
+    if (userData) {
+      return {
+        response: 'User data found SucessFully',
+        data: userData
+      }
+    } else {
+      return {
+        response: 'User data not found'
+      }
     }
-  }else{
-     return {
-      response : 'User data not found'
-     }
-  }
-  
-  }catch(error){
+
+  } catch (error) {
     console.log(error);
     throw error
   }

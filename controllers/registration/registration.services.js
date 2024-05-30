@@ -82,7 +82,7 @@ const addRegistration = async (req, res) => {
 
     if (isState === "Invalid Mongo Object Id" || iscompanyId === "Invalid Mongo Object Id") {
       return {
-        response: `${isState ||iscompanyId } Id is not valid`,
+        response: `${isState || iscompanyId} Id is not valid`,
       };
     }
 
@@ -121,8 +121,8 @@ const addRegistration = async (req, res) => {
     }
     let checkCompanyType = await companyModels.findById(companyId);
     let parent;
-    if(checkCompanyType.type === "Distributer"){
-       parent = checkCompanyType?.parent 
+    if (checkCompanyType.type === "Distributer") {
+      parent = checkCompanyType?.parent
     }
     const newRegistration = new registration({
       companyId,
@@ -150,10 +150,10 @@ const addRegistration = async (req, res) => {
       gstState: gstState || null,
       gstPinCode: gstPinCode || null,
       agencyGroupId,
-      parent 
+      parent
     });
     let newRegistrationRes = await newRegistration.save();
-   // console.log(newRegistrationRes);
+    // console.log(newRegistrationRes);
     let mailText = newRegistrationRes;
     let mailSubject = `New registration created successfully`;
     let smsUrl = await configCred.findOne({ companyId: companyId });
@@ -184,7 +184,7 @@ const getAllRegistration = async (req, res) => {
       .populate("statusId", "name")
       .populate("roleId", "name")
       .populate("saleInChargeId city")
-      .populate("companyId" , "companyName")
+      .populate("companyId", "companyName")
       .exec();
     return {
       response: "All registrationData fetch",
@@ -207,11 +207,12 @@ const getAllRegistrationByCompany = async (req, res) => {
     };
 
     let checkCompayType = await companyModels.findById(companyId);
-    if(checkCompayType.type  === "TMC"){
+    if (checkCompayType.type === "TMC") {
       let aggregationRes = await registration.find({
         $or: [
           { companyId: companyId },
-          { parent: companyId }
+          { parent: companyId },
+          { createdAt: { $gte: new Date((fifteenDaysAgo.toISOString().split("T"))[0]) } }
         ]
       })
         .populate("statusId", "name")
@@ -231,14 +232,14 @@ const getAllRegistrationByCompany = async (req, res) => {
           data: aggregationRes,
         };
       }
-    }else{
+    } else {
       let aggregationRes = await registration
-      .find({companyId: companyId})
-      .populate("statusId", "name")
-      .populate("roleId", "name")
-      .populate("saleInChargeId city")
-      .populate("companyId" , "companyName")
-      .exec();
+        .find({ companyId: companyId, createdAt: { $gte: new Date((fifteenDaysAgo.toISOString().split("T"))[0]) } })
+        .populate("statusId", "name")
+        .populate("roleId", "name")
+        .populate("saleInChargeId city")
+        .populate("companyId", "companyName")
+        .exec();
       if (!aggregationRes) {
         return {
           response: null,
@@ -251,7 +252,7 @@ const getAllRegistrationByCompany = async (req, res) => {
         };
       }
     }
-  
+
   } catch (error) {
     console.log(error);
     throw error;
@@ -327,7 +328,7 @@ const updateRegistration = async (req, res) => {
       );
       // console.log(statusData , "<<<===========" ,comapnyId )
       if (mailSent.responce) {
-        console.log("Mail Sent "); 
+        console.log("Mail Sent ");
       }
       return {
         response: "Registration data updated sucessfully",

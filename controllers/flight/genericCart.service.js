@@ -749,7 +749,7 @@ const KafilaFun = async (
           provider: itineraryItem?.Provider,
           bookingType: "Manual",
           bookingStatus: "CONFIRMED",
-          //paymentMethodType:paymentMethodType,
+          paymentMethodType:"Wallet",
           //paymentGateway:paymentGateway,
           bookingTotalAmount: itineraryItem?.GrandTotal || 0, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
           Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
@@ -775,9 +775,9 @@ const KafilaFun = async (
             GrandTotal: itineraryItem.GrandTotal,
             FareFamily: itineraryItem.FareFamily,
             offeredPrice:itineraryItem.offeredPrice,
-            // PNR:itineraryItem.PNR,
-            // APnr:itineraryItem.APnr,
-            // GPnr:itineraryItem.GPnr,
+            PNR:itineraryItem.PNR,
+            APnr:itineraryItem.APnr,
+            GPnr:itineraryItem.GPnr,
             IndexNumber: itineraryItem.IndexNumber,
             Provider: itineraryItem.Provider,
             ValCarrier: itineraryItem.ValCarrier,

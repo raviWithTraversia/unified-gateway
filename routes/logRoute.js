@@ -179,7 +179,7 @@ log_route.get('/log/getbyid',eventLogController.getEventlogbyid)
 log_route.post('/log/getAgency',eventLogController.getAgencyLog)
 log_route.post('/log/getAgencyConfig',eventLogController.getAgencyLogConfig)
 
-log_route.get('/log/getaircommercial',eventLogController.getairCommercialfilterlog)
+log_route.get('/log/getaircommercialeventlog',eventLogController.getairCommercialfilterlog)
 
 
 

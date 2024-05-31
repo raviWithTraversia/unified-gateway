@@ -748,7 +748,7 @@ const KafilaFun = async (
           prodBookingId: itineraryItem?.IndexNumber,
           provider: itineraryItem?.Provider,
           bookingType: "Manual",
-          bookingStatus: "PENDING",
+          bookingStatus: "CONFIRMED",
           //paymentMethodType:paymentMethodType,
           //paymentGateway:paymentGateway,
           bookingTotalAmount: itineraryItem?.GrandTotal || 0, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
@@ -774,9 +774,10 @@ const KafilaFun = async (
             TotalPrice: itineraryItem.TotalPrice,
             GrandTotal: itineraryItem.GrandTotal,
             FareFamily: itineraryItem.FareFamily,
-            PNR:itineraryItem.PNR,
-            APnr:itineraryItem.APnr,
-            GPnr:itineraryItem.GPnr,
+            offeredPrice:itineraryItem.offeredPrice,
+            // PNR:itineraryItem.PNR,
+            // APnr:itineraryItem.APnr,
+            // GPnr:itineraryItem.GPnr,
             IndexNumber: itineraryItem.IndexNumber,
             Provider: itineraryItem.Provider,
             ValCarrier: itineraryItem.ValCarrier,
@@ -856,7 +857,7 @@ const KafilaFun = async (
       await passengerPreference.save();
       return "Generic Cart Save Successfully";
     } else {
-      return "Booking already exists";
+      return "Some Parameter Missing";
     }
   } else {
     return "Some Technical Issue";

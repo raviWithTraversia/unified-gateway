@@ -50,7 +50,7 @@ const amendment = async (req, res) => {
     const { AmendmentBy } = Authentication;
     const BookingIdDetails = await bookingDetails.find({
       bookingId: CartId,
-    });
+    }).lean();
 
     if (!BookingIdDetails) {
       return {
@@ -88,8 +88,7 @@ const amendment = async (req, res) => {
         response: "Amendment with this AmendmentId already exists",
       };
     }
-
-    //let amendmentBookingDetails;
+    
 
     const getSector = BookingIdDetails.find((sector) => {
       const sectors = sector.itinerary?.Sectors;
@@ -113,21 +112,19 @@ const amendment = async (req, res) => {
         response: "SRC DESC does not exist",
       };
     }
-    getSector.amendmentType = AmendmentType;
-    getSector.amendmentId = AmendmentId;
-    getSector.assignToUser = assignuserbyAmendmentType;    
-    getSector.amendmentStatus = "OPEN";
-    getSector.paymentStatus = "NOT PROCESSED";
-    getSector.amendmentRemarks = AmendmentRemarks;
-    getSector.AmendmentBy = AmendmentBy;
+    const updatedSector = { ...getSector }; // Creating a shallow copy
+
+    updatedSector.amendmentType = AmendmentType;
+    updatedSector.amendmentId = AmendmentId;
+    updatedSector.assignToUser = assignuserbyAmendmentType;
+    updatedSector.amendmentStatus = "OPEN";
+    updatedSector.paymentStatus = "NOT PROCESSED";
+    updatedSector.amendmentRemarks = AmendmentRemarks;
+    updatedSector.AmendmentBy = AmendmentBy;
    
-    return {
-      response: "Fetch Data Successfully",
-      data: getSector,
-      apiReq: getSector,
-    };
+    
     const amendmentBookingSave = await amendmentDetails.create(
-      amendmentBookingDetails
+      updatedSector
     );
 
     if (!amendmentBookingSave) {
@@ -136,16 +133,19 @@ const amendment = async (req, res) => {
         response: "Not Save Booking Data",
       };
     }
-
+    
     const getPassengerPreference = await passengerPreferenceModel.findOne({
       bookingId: CartId,
-    });
+    }).lean();
     if (!getPassengerPreference) {
+      await amendmentDetails.deleteOne({ _id: amendmentBookingSave._id });
       return {
         IsSucess: false,
         response: "PassengerPrefence Not Exits",
       };
     }
+
+
 
     let passngerall = [];
     Sector.Passengers.forEach((pasngr) => {
@@ -159,16 +159,23 @@ const amendment = async (req, res) => {
         passngerall.push(apiPassenger);
       }
     });
-    getPassengerPreference.Passengers = passngerall;
 
-    const passngerupdatedata = {
-      ...getPassengerPreference,
-      amendmentId: AmendmentId,
-    };
+    if(passngerall.length === 0){
+      await amendmentDetails.deleteOne({ _id: amendmentBookingSave._id });
+      return {
+        IsSucess: false,
+        response: "PassengerPrefence Not Exits",
+      };
+    }
+
+    const passngerupdatedata = { ...getPassengerPreference }; // Creating a shallow copy    
+    passngerupdatedata.amendmentId = AmendmentId;
+    passngerupdatedata.Passengers = passngerall; 
 
     const createAmendmentPassengerPrefence =
       await amendmentPassengerPreference.create(passngerupdatedata);
     if (!createAmendmentPassengerPrefence) {
+      await amendmentDetails.deleteOne({ _id: amendmentBookingSave._id });
       return {
         IsSucess: false,
         response: "PassengerPrefence Not Exits",

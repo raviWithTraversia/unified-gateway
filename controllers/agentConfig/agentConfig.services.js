@@ -106,8 +106,9 @@ const updateAgentConfiguration = async (req, res) => {
     const updates = req.body;
 
     const existingConfig = await agentConfigsModels.findById(id);
-    console.log(existingConfig,"sh")
     const userData = await userModel.findById(req.user._id)
+    const updateData=await agentConfigsModels.findByIdAndUpdate(id,updates,{new:true})
+
     /// console.log("====>", existingConfig);
     // if (!existingConfig) {
     //   return {
@@ -124,8 +125,6 @@ const updateAgentConfiguration = async (req, res) => {
 
     // let configRes = await existingConfig.save();
 
-    const updateData=await agentConfigsModels.findByIdAndUpdate(id,updates,{new:true})
-    console.log(updateData)
     if (updateData) {
       const LogsData = {
         eventName: "ConfigAgency",

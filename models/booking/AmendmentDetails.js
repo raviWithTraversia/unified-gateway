@@ -18,6 +18,11 @@ const amendmentDetailsSchema = new mongoose.Schema(
         type: String,
         default: "OPEN",
       },
+    AmendmentBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },  
+
     paymentStatus: {  // NOT PROCESSED, COMPLETED , Under process, ABORTED,PENDING
     type: String,
     default: "Under process",

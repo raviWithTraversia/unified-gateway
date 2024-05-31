@@ -140,17 +140,84 @@ const getAgencyLog=async(req,res)=>{
 
  )
  
-        if (!getEventLogs) {
+ const result = getEventLogs.map(item => {
+    const updatedValues = {};
+
+    if (item.oldValue?.privilagePlanId?.privilagePlanName !== item.newValue?.privilagePlanId?.privilagePlanName) {
+        updatedValues.privilagePlanId = {
+            oldValue: item.oldValue?.privilagePlanId?.privilagePlanName,
+            newValue: item.newValue?.privilagePlanId?.privilagePlanName
+        };
+    }
+
+    if (item.oldValue?.commercialPlanId?.commercialPlanName !== item.newValue?.commercialPlanId?.commercialPlanName) {
+        updatedValues.commercialPlanId = {
+            oldValue: item.oldValue?.commercialPlanId?.commercialPlanName,
+            newValue: item.newValue?.commercialPlanId?.commercialPlanName
+        };
+    }
+
+    if (item.oldValue?.plbGroupId?.PLBGroupName!==item.newValue?.plbGroupId?.PLBGroupName) {
+        updatedValues.commercialPlanId = {
+            oldValue: item.oldValue?.plbGroupId?.PLBGroupName,
+            newValue: item.newValue?.plbGroupId?.PLBGroupName
+        };
+    }  if (item.oldValue?.incentiveGroupId?.incentiveGroupName!==item.newValue?.incentiveGroupId?.incentiveGroupName) {
+        updatedValues.incentiveGroupId = {
+            oldValue: item.oldValue?.incentiveGroupId?.incentiveGroupName,
+            newValue: item.newValue?.incentiveGroupId?.incentiveGroupName
+        };
+    }  if (item.oldValue?.fairRuleGroupId?.fareRuleGroupName!==item.newValue?.fairRuleGroupId?.fareRuleGroupName) {
+        updatedValues.fairRuleGroupId = {
+            oldValue: item.oldValue?.fairRuleGroupId?.fareRuleGroupName,
+            newValue: item.newValue?.fairRuleGroupId?.fareRuleGroupName
+        };
+    }  
+    if (item.oldValue?.diSetupGroupId?.diSetupGroupName!==item.newValue?.diSetupGroupId?.diSetupGroupName) {
+        updatedValues.diSetupGroupId = {
+            oldValue: item.oldValue?.diSetupGroupId?.diSetupGroupName,
+            newValue: item.newValue?.diSetupGroupId?.diSetupGroupName
+        };
+    }
+
+    if (item.oldValue?.pgChargesGroupId?.paymentGatewayGroupName!==item.newValue?.pgChargesGroupId?.paymentGatewayGroupName) {
+        updatedValues.pgChargesGroupId = {
+            oldValue: item.oldValue?.pgChargesGroupId?.paymentGatewayGroupName,
+            newValue: item.newValue?.pgChargesGroupId?.paymentGatewayGroupName
+        };
+    } if (item.oldValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName!==item.newValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName) {
+        updatedValues.airlinePromoCodeGroupId = {
+            oldValue: item.oldValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName,
+            newValue: item.newValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName
+        };
+    }
+    // Repeat this pattern for other properties
+
+    return {
+        _id: item._id, // Include other necessary fields here
+        eventName:item.eventName,
+        doerId:item.doerId,
+        doerName:item.doerName,
+        companyId:item.companyId,
+        description:item.description,
+        createdAt:item.createdAt,
+        updatedAt:item.updatedAt,
+        updatedValues
+    };
+}).filter(item => Object.keys(item.updatedValues).length > 0);
+
+        if (!result) {
             return {
                 response: "Data Not Found",
             };
         }
         return {
             response: "Fetch Data Successfully",
-            data: getEventLogs,
+            data: result,
         };
 
     }catch(error){
+        console.log(error)
         throw error;
     }
 }

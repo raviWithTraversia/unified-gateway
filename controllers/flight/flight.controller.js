@@ -1,13 +1,13 @@
 const flightSearch = require("./flight.service");
 const airPricingCheck = require("./airPricing.service");
 const airBooking = require("./airBooking.service");
-const ssrServices = require('../flight/ssr.service');
-const cancelationServices = require('../flight/cancelation.service');
-const partialServices = require('../flight/partialCancelation.service');
-const cancelationChargeServices = require('../flight/cancelationCharge.service');
-const partialChargeServices = require('../flight/partialCalcelationCharge.service');
-const genericCart = require('../flight/genericCart.service');
-const amendment = require('../flight/amendment.service');
+const ssrServices = require("../flight/ssr.service");
+const cancelationServices = require("../flight/cancelation.service");
+const partialServices = require("../flight/partialCancelation.service");
+const cancelationChargeServices = require("../flight/cancelationCharge.service");
+const partialChargeServices = require("../flight/partialCalcelationCharge.service");
+const genericCart = require("../flight/genericCart.service");
+const amendment = require("../flight/amendment.service");
 
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
@@ -15,14 +15,21 @@ const {
   errorResponse,
   CrudMessage,
 } = require("../../utils/constants");
-const flightSerchLogServices = require('../../controllers/flightSearchLog/flightSearchLog.services');
+const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
 
 const getSearch = async (req, res) => {
   try {
     const result = await flightSearch.getSearch(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid") {
+    } else if (
+      result.response === "Trace Id Required" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Company or User id field are required" ||
+      result.response === "TMC Compnay id does not exist" ||
+      result.response === "Travel Type Not Valid"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
@@ -31,7 +38,7 @@ const getSearch = async (req, res) => {
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-      await flightSerchLogServices.addFlightSerchReport(req)
+      await flightSerchLogServices.addFlightSerchReport(req);
     } else {
       apiErrorres(
         res,
@@ -56,7 +63,14 @@ const airPricing = async (req, res) => {
     const result = await airPricingCheck.airPricing(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid") {
+    } else if (
+      result.response === "Trace Id Required" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Company or User id field are required" ||
+      result.response === "TMC Compnay id does not exist" ||
+      result.response === "Travel Type Not Valid"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
@@ -90,7 +104,14 @@ const startBooking = async (req, res) => {
     const result = await airBooking.startBooking(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid") {
+    } else if (
+      result.response === "Trace Id Required" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Company or User id field are required" ||
+      result.response === "TMC Compnay id does not exist" ||
+      result.response === "Travel Type Not Valid"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
@@ -124,7 +145,15 @@ const specialServiceReq = async (req, res) => {
 
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid" || result.response === "Data Not Found") {
+    } else if (
+      result.response === "Trace Id Required" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Company or User id field are required" ||
+      result.response === "TMC Compnay id does not exist" ||
+      result.response === "Travel Type Not Valid" ||
+      result.response === "Data Not Found"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
@@ -150,7 +179,7 @@ const specialServiceReq = async (req, res) => {
       true
     );
   }
-}
+};
 
 const genericcart = async (req, res) => {
   try {
@@ -158,7 +187,15 @@ const genericcart = async (req, res) => {
 
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid" || result.response === "Data Not Found") {
+    } else if (
+      result.response === "Trace Id Required" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Company or User id field are required" ||
+      result.response === "TMC Compnay id does not exist" ||
+      result.response === "Travel Type Not Valid" ||
+      result.response === "Data Not Found"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
@@ -184,15 +221,22 @@ const genericcart = async (req, res) => {
       true
     );
   }
-}
-
+};
 
 const fullCancelation = async (req, res) => {
   try {
     const result = await cancelationServices.fullCancelation(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid" || result.response === "Booking Id does not exist") {
+    } else if (
+      result.response === "Trace Id Required" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Company or User id field are required" ||
+      result.response === "TMC Compnay id does not exist" ||
+      result.response === "Travel Type Not Valid" ||
+      result.response === "Booking Id does not exist"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
@@ -222,10 +266,21 @@ const fullCancelation = async (req, res) => {
 
 const fullCancelationCharge = async (req, res) => {
   try {
-    const result = await cancelationChargeServices.fullCancelationCharge(req, res);
+    const result = await cancelationChargeServices.fullCancelationCharge(
+      req,
+      res
+    );
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid" || result.response === "Booking Id does not exist") {
+    } else if (
+      result.response === "Trace Id Required" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Company or User id field are required" ||
+      result.response === "TMC Compnay id does not exist" ||
+      result.response === "Travel Type Not Valid" ||
+      result.response === "Booking Id does not exist"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
@@ -258,7 +313,15 @@ const partialCancelation = async (req, res) => {
     const result = await partialServices.partialCancelation(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid" || result.response === "Booking Id does not exist") {
+    } else if (
+      result.response === "Trace Id Required" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Company or User id field are required" ||
+      result.response === "TMC Compnay id does not exist" ||
+      result.response === "Travel Type Not Valid" ||
+      result.response === "Booking Id does not exist"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
@@ -288,10 +351,21 @@ const partialCancelation = async (req, res) => {
 
 const partialCancelationCharge = async (req, res) => {
   try {
-    const result = await partialChargeServices.partialCancelationCharge(req, res);
+    const result = await partialChargeServices.partialCancelationCharge(
+      req,
+      res
+    );
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid" || result.response === "Booking Id does not exist") {
+    } else if (
+      result.response === "Trace Id Required" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Company or User id field are required" ||
+      result.response === "TMC Compnay id does not exist" ||
+      result.response === "Travel Type Not Valid" ||
+      result.response === "Booking Id does not exist"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
@@ -324,7 +398,14 @@ const updateBookingStatus = async (req, res) => {
     const result = await cancelationServices.updateBookingStatus(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "_BookingId or companyId or credentialsType does not exist" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Error in updating Status!" || result.response === "No booking Found!") {
+    } else if (
+      result.response ===
+        "_BookingId or companyId or credentialsType does not exist" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Error in updating Status!" ||
+      result.response === "No booking Found!"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Status updated Successfully!") {
       apiSucessRes(
@@ -357,7 +438,17 @@ const amendmentDetails = async (req, res) => {
     const result = await amendment.amendment(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Trace Id Required" || result.response === "Credential Type does not exist" || result.response === "Supplier credentials does not exist" || result.response === "Company or User id field are required" || result.response === "TMC Compnay id does not exist" || result.response === "Travel Type Not Valid" || result.response === "Booking Id does not exist") {
+    } else if (
+      result.response === "Booking Id does not exist" ||
+      result.response === "Config does not exist" ||
+      result.response === "Not Save Booking Data" ||
+      result.response === "Amendment with this AmendmentId already exists" ||
+      result.response === "Failed to create passenger preference amendment" ||
+      result.response === "PassengerPrefence Not Exits" ||
+      result.responce === "Failed to save booking data" ||
+      result.responce === "Sector not found" ||
+      result.responce === "SRC DESC does not exist"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
@@ -385,4 +476,16 @@ const amendmentDetails = async (req, res) => {
   }
 };
 
-module.exports = { getSearch, airPricing, startBooking, specialServiceReq, genericcart, fullCancelation, partialCancelation, partialCancelationCharge, fullCancelationCharge, updateBookingStatus, amendmentDetails };
+module.exports = {
+  getSearch,
+  airPricing,
+  startBooking,
+  specialServiceReq,
+  genericcart,
+  fullCancelation,
+  partialCancelation,
+  partialCancelationCharge,
+  fullCancelationCharge,
+  updateBookingStatus,
+  amendmentDetails,
+};

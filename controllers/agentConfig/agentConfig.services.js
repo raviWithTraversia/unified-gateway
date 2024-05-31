@@ -1,7 +1,8 @@
 const agentConfigsModels = require("../../models/AgentConfig");
 const userModel = require("../../models/User");
 const companyModel = require('../../models/Company');
-const EventLogs = require('../logs/EventApiLogsCommon')
+const EventLogs = require('../logs/EventApiLogsCommon');
+const { update } = require("lodash");
 
 const addAgentConfiguration = async (req, res) => {
   try {
@@ -105,35 +106,38 @@ const updateAgentConfiguration = async (req, res) => {
     const updates = req.body;
 
     const existingConfig = await agentConfigsModels.findById(id);
+    console.log(existingConfig,"sh")
     const userData = await userModel.findById(req.user._id)
     /// console.log("====>", existingConfig);
-    if (!existingConfig) {
-      return {
-        response: "Config not found",
-      };
-    }
-    for (let key in updates) {
-      if (existingConfig[key] !== updates[key]) {
-        existingConfig[key] = updates[key];
-      } else {
-        existingConfig[key] = existingConfig[key];
-      }
-    }
+    // if (!existingConfig) {
+    //   return {
+    //     response: "Config not found",
+    //   };
+    // }
+    // for (let key in updates) {
+    //   if (existingConfig[key] !== updates[key]) {
+    //     existingConfig[key] = updates[key];
+    //   } else {
+    //     existingConfig[key] = existingConfig[key];
+    //   }
+    // }
 
-    let configRes = await existingConfig.save();
-    if (configRes) {
+    // let configRes = await existingConfig.save();
+
+    const updateData=await agentConfigsModels.findByIdAndUpdate(id,updates,{new:true})
+    console.log(updateData)
+    if (updateData) {
       const LogsData = {
         eventName: "ConfigAgency",
         doerId: req.user._id,
         doerName: userData.fname,
-        companyId: configRes.companyId,
+        companyId: updates.companyId,
         oldValue: existingConfig,
-        newValue: configRes,
+        newValue: updates,
         documentId: id,
         description: "Edit ConfigAgency",
       }
       EventLogs(LogsData)
-      console.log(LogsData)
 
       return {
         response: "Config updated successfully",

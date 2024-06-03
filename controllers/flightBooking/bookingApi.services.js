@@ -5,6 +5,7 @@ const config = require("../../models/AgentConfig");
 const passengerPreferenceSchema = require("../../models/booking/PassengerPreference");
 const { ObjectId } = require("mongodb");
 const moment = require('moment');
+const { Config } = require('../../configs/config');
 
 const getAllBooking = async (req, res) => {
   const {
@@ -662,6 +663,10 @@ const getDeparturesList = async (req, res) => {
 
 const getBookingBill = async (req, res) => {
   const { agencyId, fromDate, toDate } = req.body;
+  let MODEENV = D
+  if (Config.MODE === "LIVE") {
+    MODEENV = P
+  }
   const bookingBill = await passengerPreferenceSchema.aggregate([{
     $match: {
       createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
@@ -718,7 +723,11 @@ const getBookingBill = async (req, res) => {
       tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "0", purchaseCode: "0",
       flightCode: "$bookingData.Supplier",
       airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
-      bookingId1: " ",
+      bookingId1: {
+        $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] }, "$bookingData.SalePurchase", `${MODEENV}~`,
+        { $arrayElemAt: ['$bookingData.itinerary.FareFamily', 0] }
+        ]
+      },
     }
   }]);
   bookingBill.forEach((element, index) => {

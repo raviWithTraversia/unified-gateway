@@ -33,6 +33,7 @@ const passengerPreferenceSchema = new mongoose.Schema({
       LName:{ type: String, default:null },
       Gender:{ type: String, default:null },
       Dob:{ type: String, default:null },
+      AmendmentType:{ type: Boolean, default:false },
       barCode2D:[{        
         FCode:{ type: String, default:null },
         FNo:{ type: String, default:null }, 
@@ -46,7 +47,7 @@ const passengerPreferenceSchema = new mongoose.Schema({
       PassportExpiryDate:{ type: String, default:null },
       FrequentFlyerNo:{ type: String, default:null },
       Nationality:{ type: String, default:null },
-      ResidentCountry:{ type: String, default:null }
+      ResidentCountry:{ type: String, default:null },      
       },
       Meal:[{
       Trip:{ type: String, default:null },

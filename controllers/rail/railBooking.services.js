@@ -2,7 +2,7 @@ const axios = require('axios');
 
 const getRailSearch = async (req, res) => {
     try {
-        const { from, to, date } = req.body;
+        const { from, to, date/*, quota, class */ } = req.body;
         if (!from, !to, !date) { return { response: "Provide required fields" } };
         let renewDate = date.split("-");
         const url = `http://43.205.65.20:8000/eticketing/webservices/taenqservices/tatwnstns/${from}/${to}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;

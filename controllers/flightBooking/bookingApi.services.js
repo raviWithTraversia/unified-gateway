@@ -725,8 +725,7 @@ const getBookingBill = async (req, res) => {
       airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
       bookingId1: {
         $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] }, "$bookingData.SalePurchase", `${MODEENV}~`,
-        { $arrayElemAt: ['$bookingData.itinerary.FareFamily', 0] }
-        ]
+          '$bookingData.itinerary.FareFamily']
       },
     }
   }]);

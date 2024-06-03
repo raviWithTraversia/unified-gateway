@@ -72,6 +72,8 @@ const ledgerRoute = require('../routes/ledgerRoute');
 const payuRoute = require('../routes/payuRoute');
 const easeBuzzRoute = require("../routes/easeBuzzRoute");
 const depositRequestRoute = require('../routes/depositRequestRoute');
+const railRoute = require("../routes/railRoute");
+
 class RoutesLoader {
     static initRoutes(app) {
         app.use('/api', userRoute);
@@ -301,6 +303,10 @@ class RoutesLoader {
 
         // deposite Request
         app.use('/api', depositRequestRoute);
+
+
+        //railRoute
+        app.use('/api', railRoute);
 
     }
 }

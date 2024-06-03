@@ -543,7 +543,6 @@ const KafilaFun = async (
 };
 
 const updateBookingStatus = async (req, res) => {
-  //get data from bookingid and take provider and pupulate that provider in suppliercode and then populate that in supplier and match suppliercodeid
   const { _BookingId, credentialsType } = req.body;
   if (!_BookingId.length) {
     return { response: "_BookingId or companyId or credentialsType does not exist" }

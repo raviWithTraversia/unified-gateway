@@ -9,8 +9,7 @@ const railSearch = async (req, res) => {
         const result = await railSearchServices.getRailSearch(req, res);
         if (!result.response && result.isSometingMissing) {
             apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-        }
-        else if (
+        } else if (
             result.response === "Provide required fields" ||
             result.response === "Error in fetching data" //||
             // result.response === "Supplier credentials does not exist" ||
@@ -19,15 +18,13 @@ const railSearch = async (req, res) => {
             // result.response === "Travel Type Not Valid"
         ) {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
-        }
-        else if (result.response === "Fetch Data Successfully") {
+        } else if (result.response === "Fetch Data Successfully") {
             apiSucessRes(
                 res,
                 result.response,
                 result.data,
                 ServerStatusCode.SUCESS_CODE
             );
-            //     await flightSerchLogServices.addFlightSerchReport(req);
         } else {
             apiErrorres(
                 res,

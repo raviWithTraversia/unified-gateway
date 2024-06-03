@@ -663,9 +663,9 @@ const getDeparturesList = async (req, res) => {
 
 const getBookingBill = async (req, res) => {
   const { agencyId, fromDate, toDate } = req.body;
-  let MODEENV = D
+  let MODEENV = "D"
   if (Config.MODE === "LIVE") {
-    MODEENV = P
+    MODEENV = "P"
   }
   const bookingBill = await passengerPreferenceSchema.aggregate([{
     $match: {

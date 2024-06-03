@@ -918,7 +918,7 @@ const KafilaFun = async (
                   type: "API Log",
                   BookingId: item?.BookingId,
                   product: "Flight",
-                  logName: "Flight Search",
+                  logName: "Air Booking",
                   request: requestDataFSearch,
                   responce: fSearchApiResponse?.data,
                 };
@@ -1013,6 +1013,7 @@ const KafilaFun = async (
                       PNR: fSearchApiResponse.data.BookingInfo.APnr,
                       APnr: fSearchApiResponse.data.BookingInfo.APnr,
                       GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+                      SalePurchase: fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails.Account,
                     },
                   }
                 );

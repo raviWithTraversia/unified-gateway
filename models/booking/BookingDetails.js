@@ -78,7 +78,10 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    
+    SalePurchase:{
+      type: String,
+      default: null,
+    },
     bookingTotalAmount: {
       type: Number,
       default: 0,

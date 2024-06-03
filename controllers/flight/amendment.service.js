@@ -148,7 +148,8 @@ const amendment = async (req, res) => {
 
 
     let passngerall = [];
-    Sector.Passengers.forEach((pasngr) => {
+    //Sector.Passengers.forEach((pasngr) => {
+      for (const pasngr of Sector.Passengers) {
       const apiPassenger = getPassengerPreference.Passengers.find(
         (p) =>
           p.Title === pasngr.Title &&
@@ -157,8 +158,14 @@ const amendment = async (req, res) => {
       );
       if (apiPassenger) {
         passngerall.push(apiPassenger);
+        await passengerPreferenceModel.updateOne(
+          { bookingId: CartId, 'Passengers._id': apiPassenger._id },
+          { $set: { 'Passengers.$.AmendmentType': true } }
+        );
       }
-    });
+    }
+    //});
+
 
     if(passngerall.length === 0){
       await amendmentDetails.deleteOne({ _id: amendmentBookingSave._id });
@@ -174,6 +181,7 @@ const amendment = async (req, res) => {
 
     const createAmendmentPassengerPrefence =
       await amendmentPassengerPreference.create(passngerupdatedata);
+
     if (!createAmendmentPassengerPrefence) {
       await amendmentDetails.deleteOne({ _id: amendmentBookingSave._id });
       return {

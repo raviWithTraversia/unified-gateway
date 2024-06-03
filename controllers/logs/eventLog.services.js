@@ -84,7 +84,7 @@ const getEventlogbyid=async(req,res)=>{
         const { doucmentId } = req.query;
         if ( !doucmentId) {
             return {
-                response: "Either _id does not exist",
+                response: "Either doucment_id does not exist",
             };
         }
         const getEventLogs = await EventLog.find({documentId:doucmentId}).populate([{ path: "doerId", select:"fname email lastName userId"}, { path: "companyId", select:"companyName type"}]);
@@ -110,7 +110,7 @@ const getAgencyLog=async(req,res)=>{
         const { doucmentId } = req.query;
         if ( !doucmentId) {
             return {
-                response: "Either _id does not exist",
+                response: "Either doucment_id does not exist",
             };
         }
        
@@ -248,7 +248,7 @@ const getAgencyLogConfig=async(req,res)=>{
         const { doucmentId } = req.query;
         if ( !doucmentId) {
             return {
-                response: "Either _id does not exist",
+                response: "Either doucment_id does not exist",
             };
         }
        
@@ -441,13 +441,322 @@ const getAgencyLogConfig=async(req,res)=>{
             data: result,
         };
 
-    }catch(error){
+    }
+    catch(error){
+        throw error;
+    }
+}
+
+const getDisetuplog=async(req,res)=>{
+    try{
+        const { doucmentId } = req.query;
+        if ( !doucmentId) {
+            return {
+                response: "Either doucment_id does not exist",
+            };
+        }
+        const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
+            { path: "doerId", select: "fname email lastName userId" },
+            { path: "companyId", select: "companyName type" },
+        ])
+
+        const result = getEventLogs.map(item => {
+            const updatedValues = {};
+            if (item.oldValue?.diType !== item.newValue?.diType) {
+                updatedValues.diType = {
+                    oldValue: item.oldValue?.diType,
+                    newValue: item.newValue?.diType
+                };
+            }
+
+            if (item.oldValue?.minAmount !== item.newValue?.minAmount) {
+                updatedValues.minAmount = {
+                    oldValue: item.oldValue?.minAmount,
+                    newValue: item.newValue?.minAmount
+                };
+            }
+           
+            if (item.oldValue?.diPersentage !== item.newValue?.diPersentage) {
+                updatedValues.diPersentage = {
+                    oldValue: item.oldValue?.diPersentage,
+                    newValue: item.newValue?.diPersentage
+                };
+            }
+
+            if (item.oldValue?.status !== item.newValue?.status) {
+                updatedValues.status = {
+                    oldValue: item.oldValue?.status,
+                    newValue: item.newValue?.status
+                };
+            }
+
+            if (Date(item.oldValue?.validFromDate) !== Date(item.newValue?.validFromDate)) {
+                updatedValues.validFromDate = {
+                    oldValue: item.oldValue?.validFromDate,
+                    newValue: item.newValue?.validFromDate
+                };
+            }
+
+            if (Date(item.oldValue?.validToDate) !== Date(item.newValue?.validToDate)) {
+                updatedValues.validToDate = {
+                    oldValue: item.oldValue?.validToDate,
+                    newValue: item.newValue?.validToDate
+                };
+            }
+            return {
+                _id: item._id, // Include other necessary fields here
+                eventName:item.eventName,
+                doerId:item.doerId,
+                doerName:item.doerName,
+                companyId:item.companyId,
+                description:item.description,
+                createdAt:item.createdAt,
+                updatedAt:item.updatedAt,
+                updatedValues
+            };
+        }).filter(item => Object.keys(item.updatedValues).length > 0);
+        
+        if (!result) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: result,
+        };
+
+    }
+    catch(error){
         throw error;
     }
 }
 
 
+const getSsrlog=async(req,res)=>{
+    try{
+        const { doucmentId } = req.query;
+        if ( !doucmentId) {
+            return {
+                response: "Either doucment_id does not exist",
+            };
+        }
+        const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
+            { path: "doerId", select: "fname email lastName userId" },
+            { path: "companyId", select: "companyName type" },
+            { path: "oldValue.airlineCodeId", model:"AirlineCode"},
+            { path: "oldValue.supplierCode", model:"SupplierCode" },
+            { path: "newValue.airlineCodeId", model:"AirlineCode"},
+            { path: "newValue.supplierCode", model:"SupplierCode" },
 
+
+        ])
+
+        const result = getEventLogs.map(item => {
+            const updatedValues = {};
+            const categories = ['seat', 'meal', 'baggage'];
+            const subcategories = ['bookingFee', 'markup', 'discount'];
+            const fields = ['fixCharge', 'percentCharge', 'maxValue'];
+        
+            categories.forEach(category => {
+                subcategories.forEach(subcategory => {
+                    fields.forEach(field => {
+                        if (item.oldValue?.[category]?.[subcategory]?.[field] !== item.newValue?.[category]?.[subcategory]?.[field]) {
+                            if (!updatedValues[category]) {
+                                updatedValues[category] = {};
+                            }
+                            if (!updatedValues[category][subcategory]) {
+                                updatedValues[category][subcategory] = { oldValue: {}, newValue: {} };
+                            }
+                            updatedValues[category][subcategory].oldValue[field] = item.oldValue?.[category]?.[subcategory]?.[field];
+                            updatedValues[category][subcategory].newValue[field] = item.newValue?.[category]?.[subcategory]?.[field];
+                        }
+                    });
+                });
+            });
+            if (item.oldValue?.bookingType !== item.newValue?.bookingType) {
+                updatedValues.bookingType = {
+                    oldValue: item.oldValue?.bookingType,
+                    newValue: item.newValue?.bookingType
+                };
+            }
+            if (item.oldValue?.travelType !== item.newValue?.travelType) {
+                updatedValues.travelType = {
+                    oldValue: item.oldValue?.travelType,
+                    newValue: item.newValue?.travelType
+                };
+            }
+            if (item.oldValue?.status !== item.newValue?.status) {
+                updatedValues.status = {
+                    oldValue: item.oldValue?.status,
+                    newValue: item.newValue?.status
+                };
+            }
+            if (Date(item.oldValue?.validDateFrom) !== Date(item.newValue?.validDateFrom)) {
+                updatedValues.validFromDate = {
+                    oldValue: item.oldValue?.validDateFrom,
+                    newValue: item.newValue?.validDateFrom
+                };
+            }
+
+            if (Date(item.oldValue?.validDateTo) !== Date(item.newValue?.validDateTo)) {
+                updatedValues.validDateTo = {
+                    oldValue: item.oldValue?.validDateTo,
+                    newValue: item.newValue?.validDateTo
+                };
+            }
+            
+            if (item.oldValue?.airlineCodeId?._id !== item.newValue?.airlineCodeId?._id) {
+                updatedValues.airlineCodeId = {
+                    oldValue:{airlineName: item.oldValue?.airlineCodeId?.airlineName,
+                        airlineCode:item.oldValue?.airlineCodeId?.airlineCode
+                    },
+                    newValue:{airlineName: item.newValue?.airlineCodeId?.airlineName,
+                        airlineCode:item.newValue?.airlineCodeId?.airlineCode
+                    },
+                };}
+
+                if (item.oldValue?.supplierCode?._id !== item.newValue?.supplierCode?._id) {
+                    updatedValues.supplierCode = {
+                        oldValue:{supplierCode: item.oldValue?.supplierCode?.supplierCode,
+                            status:item.oldValue?.supplierCode?.status
+                        },
+                        newValue:{supplierCode: item.newValue?.supplierCode?.supplierCode,
+                            status:item.newValue?.supplierCode?.status
+                        },
+                    };}
+            return {
+                _id: item._id, // Include other necessary fields here
+                eventName:item.eventName,
+                doerId:item.doerId,
+                doerName:item.doerName,
+                companyId:item.companyId,
+                description:item.description,
+                createdAt:item.createdAt,
+                updatedAt:item.updatedAt,
+                updatedValues
+            };
+        }).filter(item => Object.keys(item.updatedValues).length > 0);
+        
+        if (!result) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: result,
+        };
+
+    }
+    catch(error){
+        console.log(error)
+
+        throw error;
+    }
+}
+
+
+const getIncenctivelog=async(req,res)=>{
+    try{
+        const { doucmentId } = req.query;
+        if ( !doucmentId) {
+            return {
+                response: "Either doucment_id does not exist",
+            };
+        }
+        const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
+            { path: "doerId", select: "fname email lastName userId" },
+            { path: "companyId", select: "companyName type" },
+            { path: "oldValue.airlineCode", model:"AirlineCode"},
+            { path: "oldValue.supplierCode", model:"SupplierCode" },
+            { path: "newValue.airlineCode", model:"AirlineCode"},
+            { path: "newValue.cabinClass", model:"CabinClassMaster"},
+            { path: "oldValue.cabinClass", model:"CabinClassMaster"},
+
+            { path: "newValue.supplierCode", model:"SupplierCode" },
+            { path: 'oldValue.fareFamily', model: 'FareFamilyMaster',  },
+            { path: 'newValue.fareFamily', model: 'FareFamilyMaster',  },
+
+
+        ])
+
+        const result = getEventLogs.map(item => {
+            const updatedValues = {};
+            const categories = ["origin","destination","rbd","PLBApplyOnBasefare","PLBApplyOnYQ","PLBApplyOnYR","PLBApplyOnTotalAmount","PLBApplyOnAllTAxes","minPrice","maxPrice","travelDateFrom","travelDateTo","PLBValueType","PLBValue","PLBType","status","datefIssueFrom","datefIssueTo","deductTDS","isdeleted","flightNo","dealcode","farebasis"];
+           
+            categories.forEach(category => {
+                
+                    
+                        if (item.oldValue?.[category] !== item.newValue?.[category]) {
+                            if (!updatedValues[category]) {
+                                updatedValues[category] = {};
+                            }
+                            if (!updatedValues[category]) {
+                                updatedValues[category] = { oldValue: {}, newValue: {} };
+                            }
+  updatedValues[category].oldValue = item.oldValue?.[category];
+                            updatedValues[category].newValue= item.newValue?.[category]
+                        }
+                    });
+                    if (item.oldValue?.supplierCode?._id !== item.newValue?.supplierCode?._id) {
+                        updatedValues.supplierCode = {
+                            oldValue:{supplierCode: item.oldValue?.supplierCode?.supplierCode,
+                                status:item.oldValue?.supplierCode?.status
+                            },
+                            newValue:{supplierCode: item.newValue?.supplierCode?.supplierCode,
+                                status:item.newValue?.supplierCode?.status
+                            },
+                        };}
+
+                        if (item.oldValue?.cabinClass?.cabinClassCode!==item.newValue?.cabinClass?.cabinClassCode) {
+                            updatedValues.cabinClass = {
+                                oldValue:{cabinClassCode: item.oldValue?.cabinClass?.cabinClassCode,cabinClassName: item.oldValue?.cabinClass?.cabinClassName},
+                                newValue:{cabinClassCode: item.newValue?.cabinClass?.cabinClassCode,cabinClassName: item.newValue?.cabinClass?.cabinClassName},
+                            };
+                        }  
+
+                        if (item.oldValue?.fareFamily?.fareFamilyCode!==item.newValue?.fareFamily?.fareFamilyCode) {
+                            updatedValues.fareFamily = {
+                                oldValue:{fareFamilyCode: item.oldValue?.fareFamily?.fareFamilyCode,fareFamilyName: item.oldValue?.fareFamily?.fareFamilyName},
+                                newValue:{fareFamilyCode: item.newValue?.fareFamily?.fareFamilyCode,fareFamilyName: item.newValue?.fareFamily?.fareFamilyName},
+                            };
+                        }  
+                        if (item.oldValue?.airlineCode?.airlineCode!==item.newValue?.airlineCode?.airlineCode) {
+                            updatedValues.airlineCode = {
+                                oldValue:{airlineCode: item.oldValue?.airlineCode?.airlineCode,airlineName: item.oldValue?.airlineCode?.airlineName},
+                                newValue:{airlineCode: item.newValue?.airlineCode?.airlineCode,airlineName: item.newValue?.airlineCode?.airlineName},
+                            };
+                        }  
+            return {
+                _id: item._id, // Include other necessary fields here
+                eventName:item.eventName,
+                doerId:item.doerId,
+                doerName:item.doerName,
+                companyId:item.companyId,
+                description:item.description,
+                createdAt:item.createdAt,
+                updatedAt:item.updatedAt,
+                updatedValues
+            };
+        }).filter(item => Object.keys(item.updatedValues).length > 0);
+        
+        if (!result) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: result,
+        };
+
+    }
+    catch(error){
+        console.log(error)
+        throw error;
+    }
+}
 
 const getairCommercialfilterlog=async(req,res)=>{
     try{
@@ -552,4 +861,4 @@ const getairCommercialfilterlog=async(req,res)=>{
         throw error;
     }
 }
-module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog}
+module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog}

@@ -180,7 +180,10 @@ log_route.post('/log/getAgency',eventLogController.getAgencyLog)
 log_route.post('/log/getAgencyConfig',eventLogController.getAgencyLogConfig)
 
 log_route.get('/log/getaircommercialeventlog',eventLogController.getairCommercialfilterlog)
+log_route.get('/log/getdisetup',eventLogController.getDisetuplog)
+log_route.get('/log/getSsr',eventLogController.getSsrlog)
 
+log_route.get('/log/getincentivelog',eventLogController.getIncenctivelog)
 
 
 module.exports = log_route;

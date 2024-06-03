@@ -153,10 +153,10 @@ const editSsrCommercial = async (req,res) => {
     if(existingSsrData){
         const LogsData={
                     eventName:"Issuance Commercials",
-                    doerId:req.user._id,
-                doerName:userData.fname,
-         companyId:existingSsrData.companyId,
-         documentId:existingSsrData._id,
+                    doerId:req.user?._id,
+                doerName:userData?.fname,
+         companyId:existingSsrData?.companyId,
+         documentId:existingSsrData?._id,
          oldValue:findSsrData[0],
          newValue:existingSsrData,
                      description:"Edit Issuance Commercials",

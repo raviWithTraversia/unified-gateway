@@ -9,6 +9,14 @@ const MarkupLogHistory = new mongoose.Schema({
    
     markupDataNew: [markupMasterData.schema],
     markupDataOld: [markupMasterData.schema],
+
+    doerId:{
+        
+            type : mongoose.Schema.Types.ObjectId,
+            ref : 'User'
+        
+       
+    },
 });
 
 module.exports = mongoose.model('MarkupLogHistory' , MarkupLogHistory);

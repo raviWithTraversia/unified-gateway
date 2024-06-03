@@ -324,6 +324,7 @@ const payuSuccess = async (req, res) => {
                   PNR: fSearchApiResponse.data.BookingInfo.APnr,
                   APnr: fSearchApiResponse.data.BookingInfo.APnr,
                   GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+                  SalePurchase: fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails.Account,
                 },
               }
             );

@@ -110,7 +110,7 @@ const genericcart = async (req, res) => {
       FareFamily,
       RefundableOnly,
       PassengerPreferences,
-      ItineraryPriceCheckResponses,
+      ItineraryPriceCheckResponses
       // paymentMethodType,
       // paymentGateway
     );
@@ -152,7 +152,7 @@ async function handleflight(
   FareFamily,
   RefundableOnly,
   PassengerPreferences,
-  ItineraryPriceCheckResponses,
+  ItineraryPriceCheckResponses
   // paymentMethodType,
   // paymentGateway
 ) {
@@ -218,7 +218,7 @@ async function handleflight(
               RefundableOnly,
               supplier.supplierCodeId.supplierCode,
               PassengerPreferences,
-              ItineraryPriceCheckResponses,
+              ItineraryPriceCheckResponses
               // paymentMethodType,
               // paymentGateway
             );
@@ -255,7 +255,7 @@ const KafilaFun = async (
   RefundableOnly,
   Provider,
   PassengerPreferences,
-  ItineraryPriceCheckResponses,
+  ItineraryPriceCheckResponses
   // paymentMethodType,
   // paymentGateway
 ) => {
@@ -416,7 +416,7 @@ const KafilaFun = async (
       (passenger.totalSeatPrice || 0) +
       (passenger.totalBaggagePrice || 0);
   }
-  
+
   function offerPricePlusInAmount(plusKeyName) {
     let returnBoolean = false;
     switch (plusKeyName) {
@@ -536,12 +536,10 @@ const KafilaFun = async (
 
   // Check Balance Available or Not Available
   const totalSSRWithCalculationPrice =
-    calculationOfferPriceWithCommercial + totalssrPrice;  
- // if(paymentMethodType === "Wallet"){  
-    
-  //}
+    calculationOfferPriceWithCommercial + totalssrPrice;
+  // if(paymentMethodType === "Wallet"){
 
-    
+  //}
 
   // Calculation End here
   // return totalSSRWithCalculationPrice;
@@ -557,324 +555,320 @@ const KafilaFun = async (
   // };
 
   //try {
-    // let response = await axios.post(createTokenUrl, tokenData, {
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
+  // let response = await axios.post(createTokenUrl, tokenData, {
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  // });
+  //if (response.data.Status === "success") {
+
+  const existingBooking = await BookingDetails.findOne({
+    bookingId: ItineraryPriceCheckResponses[0].BookingId,
+  });
+
+  if (existingBooking) {
+    return {
+      msg: "Booking already exists",
+      bookingId: ItineraryPriceCheckResponses[0].BookingId,
+    };
+  }  
+  try {
+    // Retrieve agent configuration
+    const getAgentConfig = await agentConfig.findOne({
+      userId: getuserDetails._id,
+    });
+    // const getcreditRequest = await creditRequest.find({
+    //   agencyId: getuserDetails.company_ID,
+    //   expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
+    //   status: "approved",
+    //   product: "Flight",
     // });
-    //if (response.data.Status === "success") {
-
-    
-      
-        const existingBooking = await BookingDetails.findOne({
-          bookingId: ItineraryPriceCheckResponses[0].BookingId,
-        });
-        
-        if (existingBooking) {
-          return {
-            msg: "Booking already exists",
-            bookingId: ItineraryPriceCheckResponses[0].BookingId,
-          };
-        }
-      
-        
-
-      try {
-
-        // Retrieve agent configuration
-        const getAgentConfig = await agentConfig.findOne({
-          userId: getuserDetails._id,
-        });
-        // const getcreditRequest = await creditRequest.find({
-        //   agencyId: getuserDetails.company_ID,
-        //   expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
-        //   status: "approved",
-        //   product: "Flight",
-        // });
-        // let creditTotal = 0;
-        // if (getcreditRequest && getcreditRequest.length > 0) {
-        //   getcreditRequest.forEach((request) => {
-        //     creditTotal += request.amount;
-        //   });
-        // } else {
-        //   creditTotal = 0;
-        // }
-        // Check if maxCreditLimit exists, otherwise set it to 0
-        //const checkCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
-        const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
-  
-        // Check if balance is sufficient
-        // if (checkCreditLimit < totalSSRWithCalculationPrice) {
-        //   return "Your Balance is not sufficient";
-        // }
-  
-        // Deduct balance from user configuration and update in DB
-        const newBalance = maxCreditLimit - totalSSRWithCalculationPrice;
-        await agentConfig.updateOne(
-          { userId: getuserDetails._id },
-          { maxcreditLimit: newBalance }
-        );
-        
-        // Generate random ledger ID
-        const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-  
-        // Create ledger entry
-        await ledger.create({
-          userId: getuserDetails._id,
-          companyId: getuserDetails.company_ID._id,
-          ledgerId: ledgerId,
-          transactionAmount: totalSSRWithCalculationPrice,
-          currencyType: "INR",
-          fop: "CREDIT",
-          transactionType: "CREDIT",
-          runningAmount: newBalance,
-          remarks: "Generic Cart Amount Added Into Your Account.",
-          transactionBy: getuserDetails._id,
-          cartId: ItineraryPriceCheckResponses[0].BookingId,
-        });
-  
-        // Create transaction Entry
-        await transaction.create({
-          userId: getuserDetails._id,
-          companyId: getuserDetails.company_ID._id,
-          trnsNo: Math.floor(100000 + Math.random() * 900000),
-          trnsType: "DEBIT",
-          paymentMode: "CL",
-          trnsStatus: "success",
-          transactionBy: getuserDetails._id,
-          bookingId: ItineraryPriceCheckResponses[0].BookingId,
-        });
-  
-        //return addToLedger;
-      } catch (error) {
-        // Handle errors
-        console.error("Error:", error.message);
-        return "An error occurred. Please try again later.";
-      }
-      
-      const createBooking = async (newItem) => {
-        try {
-          let bookingDetailsCreate = await BookingDetails.create(newItem);
-
-          return {
-            msg: "Booking created successfully",
-            bookingId: newItem.bookingId,
-            bid: bookingDetailsCreate._id,
-          };
-        } catch (error) {
-          // console.error('Error creating booking:', error);
-          return {
-            IsSucess: false,
-            response: "Error creating booking:",
-            error,
-          };
-        }
-      };      
-
-      const newArray = await Promise.all(
-        ItineraryPriceCheckResponses?.map(async (itineraryItem) => {
-          if (itineraryItem.Provider === "Kafila") {
-            const sectorsArray = itineraryItem?.Sectors?.map((sector) => {
-              // Construct departure and arrival objects
-              const departure = {
-                Terminal: sector.Departure?.Terminal,
-                Date: sector.Departure?.Date,
-                Time: sector.Departure?.Time,
-                Day: sector.Departure?.Day,
-                DateTimeStamp: sector.Departure?.DateTimeStamp,
-                Code: sector.Departure?.Code,
-                Name: sector.Departure?.Name,
-                CityCode: sector.Departure?.CityCode,
-                CityName: sector.Departure?.CityName,
-                CountryCode: sector.Departure?.CountryCode,
-                CountryName: sector.Departure?.CountryName,
-              };
-
-              const arrival = {
-                Terminal: sector.Arrival?.Terminal,
-                Date: sector.Arrival?.Date,
-                Time: sector.Arrival?.Time,
-                Day: sector.Arrival?.Day,
-                DateTimeStamp: sector.Arrival?.DateTimeStamp,
-                Code: sector.Arrival?.Code,
-                Name: sector.Arrival?.Name,
-                CityCode: sector.Arrival?.CityCode,
-                CityName: sector.Arrival?.CityName,
-                CountryCode: sector.Arrival?.CountryCode,
-                CountryName: sector.Arrival?.CountryName,
-              };
-
-              // Construct sector object
-              const sectorObject = {
-                AirlineCode: sector.AirlineCode,
-                AirlineName: sector.AirlineName,
-                Class: sector.Class,
-                CabinClass: sector.CabinClass,
-                FltNum: sector.FltNum,
-                FlyingTime: sector.FlyingTime,
-                layover:sector.layover,
-                TravelTime: sector.TravelTime,
-                Departure: departure,
-                Arrival: arrival,
-              };
-
-              return sectorObject; // Return the constructed sector object
-            });
-
-            // Construct PriceBreakup array
-            const priceBreakupArray = itineraryItem?.PriceBreakup?.map(
-              (price) => {
-                return {
-                  PassengerType: price.PassengerType,
-                  NoOfPassenger: price.NoOfPassenger,
-                  Tax: price.Tax,
-                  BaseFare: price.BaseFare,
-                  TaxBreakup: price?.TaxBreakup?.map((tax) => ({
-                    TaxType: tax.TaxType,
-                    Amount: tax.Amount,
-                  })),
-                  CommercialBreakup: price?.CommercialBreakup?.map(
-                    (commercial) => ({
-                      CommercialType: commercial.CommercialType,
-                      onCommercialApply: commercial.onCommercialApply,
-                      Amount: commercial.Amount,
-                      SupplierType: commercial.SupplierType,
-                    })
-                  ),
-                  AgentMarkupBreakup: {
-                    BookingFee: price?.AgentMarkupBreakup?.BookingFee,
-                    Basic: price?.AgentMarkupBreakup?.Basic,
-                    Tax: price?.AgentMarkupBreakup?.Tax,
-                  },
-                };
-              }
-            );
-
-            // Construct item object with populated itineraryArray
-            const newItem = {
-              userId: Authentication?.UserId,
-              companyId: Authentication?.CompanyId,
-              AgencyId: Authentication?.AgencyId,
-              BookedBy: Authentication?.BookedBy,
-              bookingId: itineraryItem?.BookingId, // Changed from item?.BookingId to itineraryItem?.BookingId
-              prodBookingId: itineraryItem?.IndexNumber,
-              provider: itineraryItem?.Provider,
-              bookingType: "Manual",
-              bookingStatus: "PENDING",
-              //paymentMethodType:paymentMethodType,
-              //paymentGateway:paymentGateway,
-              bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
-              Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
-              travelType: TravelType,
-              fareRules:itineraryItem?.fareRules !== undefined && itineraryItem?.fareRules !== null ? itineraryItem?.fareRules : null,
-              bookingTotalAmount:
-                itineraryItem.offeredPrice +
-                itineraryItem.totalMealPrice +
-                itineraryItem.totalBaggagePrice +
-                itineraryItem.totalSeatPrice,
-              totalMealPrice: itineraryItem.totalMealPrice,
-              totalBaggagePrice: itineraryItem.totalBaggagePrice,
-              totalSeatPrice: itineraryItem.totalSeatPrice,
-              itinerary: {
-                UID: itineraryItem.UID,
-                BaseFare: itineraryItem.BaseFare,
-                Taxes: itineraryItem.Taxes,
-                TotalPrice: itineraryItem.TotalPrice,
-                GrandTotal: itineraryItem.GrandTotal,
-                FareFamily: itineraryItem.FareFamily,
-                IndexNumber: itineraryItem.IndexNumber,
-                Provider: itineraryItem.Provider,
-                ValCarrier: itineraryItem.ValCarrier,
-                LastTicketingDate: itineraryItem.LastTicketingDate,
-                TravelTime: itineraryItem.TravelTime,
-                advanceAgentMarkup: {
-                  adult: {
-                    baseFare: itineraryItem.advanceAgentMarkup.adult.baseFare,
-                    taxesFare: itineraryItem.advanceAgentMarkup.adult.taxesFare,
-                    feesFare: itineraryItem.advanceAgentMarkup.adult.feesFare,
-                    gstFare: itineraryItem.advanceAgentMarkup.adult.gstFare,
-                  },
-                  child: {
-                    baseFare: itineraryItem.advanceAgentMarkup.child.baseFare,
-                    taxesFare: itineraryItem.advanceAgentMarkup.child.taxesFare,
-                    feesFare: itineraryItem.advanceAgentMarkup.child.feesFare,
-                    gstFare: itineraryItem.advanceAgentMarkup.child.gstFare,
-                  },
-                  infant: {
-                    baseFare: itineraryItem.advanceAgentMarkup.infant.baseFare,
-                    taxesFare:
-                      itineraryItem.advanceAgentMarkup.infant.taxesFare,
-                    feesFare: itineraryItem.advanceAgentMarkup.infant.feesFare,
-                    gstFare: itineraryItem.advanceAgentMarkup.infant.gstFare,
-                  },
-                },
-                PriceBreakup: priceBreakupArray,
-                Sectors: sectorsArray,
-                TraceId: Authentication?.TraceId,
-              },
-            };
-
-            return await createBooking(newItem); // Call function to create booking
-          }
-        })
-      );
-
-      // return newArray;
-      //console.log(newArray);
-      if (Array.isArray(newArray) && newArray.length > 0) {
-        const response = newArray[0];
-
-        if (response.msg === "Booking created successfully") {
-          const passengerPreferencesData = PassengerPreferences;
-          const passengerPreference = new passengerPreferenceModel({
-            userId: Authentication?.UserId,
-            companyId: Authentication?.CompanyId,
-            bookingId: response?.bookingId,
-            bid: response?.bid,
-            GstData: passengerPreferencesData?.GstData,
-            PaxEmail: passengerPreferencesData?.PaxEmail,
-            PaxMobile: passengerPreferencesData?.PaxMobile,
-            Passengers: passengerPreferencesData?.Passengers?.map(
-              (passenger) => ({
-                PaxType: passenger?.PaxType,
-                passengarSerialNo: passenger?.passengarSerialNo,
-                Title: passenger?.Title,
-                FName: passenger?.FName,
-                LName: passenger?.LName,
-                Gender: passenger?.Gender,
-                Dob: passenger?.Dob,
-                Optional: {
-                  TicketNumber: passenger?.Optional?.TicketNumber,
-                  PassportNo: passenger?.Optional.PassportNo,
-                  PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
-                  FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,
-                  Nationality: passenger?.Optional?.Nationality,
-                  ResidentCountry: passenger?.Optional?.ResidentCountry,
-                },
-                Meal: passenger?.Meal,
-                Baggage: passenger?.Baggage,
-                Seat: passenger?.Seat,
-                totalBaggagePrice: passenger?.totalBaggagePrice,
-                totalMealPrice: passenger?.totalMealPrice,
-                totalSeatPrice: passenger?.totalSeatPrice,
-              })
-            ),
-            modifyBy: Authentication?.UserId,
-          });
-          await passengerPreference.save();
-          return "Generic Cart Save Successfully";
-        } else {
-          return "Booking already exists";
-        }
-      } else {
-        return "Some Technical Issue";
-      }
+    // let creditTotal = 0;
+    // if (getcreditRequest && getcreditRequest.length > 0) {
+    //   getcreditRequest.forEach((request) => {
+    //     creditTotal += request.amount;
+    //   });
     // } else {
-    //   return {
-    //     IsSucess: false,
-    //     response: response.data.ErrorMessage,
-    //   };
+    //   creditTotal = 0;
     // }
+    // Check if maxCreditLimit exists, otherwise set it to 0
+    //const checkCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
+    const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
+
+    // Check if balance is sufficient
+    // if (checkCreditLimit < totalSSRWithCalculationPrice) {
+    //   return "Your Balance is not sufficient";
+    // }
+
+    // Deduct balance from user configuration and update in DB
+    const newBalance = maxCreditLimit - totalSSRWithCalculationPrice;
+    await agentConfig.updateOne(
+      { userId: getuserDetails._id },
+      { maxcreditLimit: newBalance }
+    );
+
+    // Generate random ledger ID
+    const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+
+    // Create ledger entry
+    await ledger.create({
+      userId: getuserDetails._id,
+      companyId: getuserDetails.company_ID._id,
+      ledgerId: ledgerId,
+      transactionAmount: totalSSRWithCalculationPrice,
+      currencyType: "INR",
+      fop: "CREDIT",
+      transactionType: "CREDIT",
+      runningAmount: newBalance,
+      remarks: "Generic Cart Amount Added Into Your Account.",
+      transactionBy: getuserDetails._id,
+      cartId: ItineraryPriceCheckResponses[0].BookingId,
+    });
+
+    // Create transaction Entry
+    await transaction.create({
+      userId: getuserDetails._id,
+      companyId: getuserDetails.company_ID._id,
+      trnsNo: Math.floor(100000 + Math.random() * 900000),
+      trnsType: "DEBIT",
+      paymentMode: "CL",
+      trnsStatus: "success",
+      transactionBy: getuserDetails._id,
+      bookingId: ItineraryPriceCheckResponses[0].BookingId,
+    });
+
+    //return addToLedger;
+  } catch (error) {
+    // Handle errors
+    console.error("Error:", error.message);
+    return "An error occurred. Please try again later.";
+  }
+
+  const createBooking = async (newItem) => {
+    try {
+      let bookingDetailsCreate = await BookingDetails.create(newItem);
+
+      return {
+        msg: "Booking created successfully",
+        bookingId: newItem.bookingId,
+        bid: bookingDetailsCreate._id,
+      };
+    } catch (error) {
+      // console.error('Error creating booking:', error);
+      return {
+        IsSucess: false,
+        response: "Error creating booking:",
+        error,
+      };
+    }
+  };
+
+  const newArray = await Promise.all(
+    ItineraryPriceCheckResponses?.map(async (itineraryItem) => {
+      if (itineraryItem.Provider === "Kafila") {
+        const sectorsArray = itineraryItem?.Sectors?.map((sector) => {
+          // Construct departure and arrival objects
+          const departure = {
+            Terminal: sector.Departure?.Terminal,
+            Date: sector.Departure?.Date,
+            Time: sector.Departure?.Time,
+            Day: sector.Departure?.Day,
+            DateTimeStamp: sector.Departure?.DateTimeStamp,
+            Code: sector.Departure?.Code,
+            Name: sector.Departure?.Name,
+            CityCode: sector.Departure?.CityCode,
+            CityName: sector.Departure?.CityName,
+            CountryCode: sector.Departure?.CountryCode,
+            CountryName: sector.Departure?.CountryName,
+          };
+
+          const arrival = {
+            Terminal: sector.Arrival?.Terminal,
+            Date: sector.Arrival?.Date,
+            Time: sector.Arrival?.Time,
+            Day: sector.Arrival?.Day,
+            DateTimeStamp: sector.Arrival?.DateTimeStamp,
+            Code: sector.Arrival?.Code,
+            Name: sector.Arrival?.Name,
+            CityCode: sector.Arrival?.CityCode,
+            CityName: sector.Arrival?.CityName,
+            CountryCode: sector.Arrival?.CountryCode,
+            CountryName: sector.Arrival?.CountryName,
+          };
+
+          // Construct sector object
+          const sectorObject = {
+            AirlineCode: sector.AirlineCode,
+            AirlineName: sector.AirlineName,
+            Class: sector.Class,
+            CabinClass: sector.CabinClass,
+            FltNum: sector.FltNum,
+            FlyingTime: sector.FlyingTime,
+            layover: sector.layover,
+            TravelTime: sector.TravelTime,
+            Departure: departure,
+            Arrival: arrival,
+          };
+
+          return sectorObject; // Return the constructed sector object
+        });
+
+        // Construct PriceBreakup array
+        const priceBreakupArray = itineraryItem?.PriceBreakup?.map((price) => {
+          return {
+            PassengerType: price.PassengerType,
+            NoOfPassenger: price.NoOfPassenger,
+            Tax: price.Tax,
+            BaseFare: price.BaseFare,
+            TaxBreakup: price?.TaxBreakup?.map((tax) => ({
+              TaxType: tax.TaxType,
+              Amount: tax.Amount,
+            })),
+            CommercialBreakup: price?.CommercialBreakup?.map((commercial) => ({
+              CommercialType: commercial.CommercialType,
+              onCommercialApply: commercial.onCommercialApply,
+              Amount: commercial.Amount,
+              SupplierType: commercial.SupplierType,
+            })),
+            AgentMarkupBreakup: {
+              BookingFee: price?.AgentMarkupBreakup?.BookingFee,
+              Basic: price?.AgentMarkupBreakup?.Basic,
+              Tax: price?.AgentMarkupBreakup?.Tax,
+            },
+          };
+        });
+
+        // Construct item object with populated itineraryArray
+        const newItem = {
+          userId: Authentication?.UserId,
+          companyId: Authentication?.CompanyId,
+          AgencyId: Authentication?.AgencyId,
+          BookedBy: Authentication?.BookedBy,
+          bookingId: itineraryItem?.BookingId, // Changed from item?.BookingId to itineraryItem?.BookingId
+          prodBookingId: itineraryItem?.IndexNumber,
+          provider: itineraryItem?.Provider,
+          bookingType: "Manual",
+          bookingStatus: "CONFIRMED",
+          paymentMethodType:"Wallet",
+          //paymentGateway:paymentGateway,
+          bookingTotalAmount: itineraryItem?.GrandTotal || 0, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
+          Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
+          travelType: TravelType,
+          fareRules:
+            itineraryItem?.fareRules !== undefined &&
+            itineraryItem?.fareRules !== null
+              ? itineraryItem?.fareRules
+              : null,
+          bookingTotalAmount:
+            itineraryItem.offeredPrice || 0 +
+            itineraryItem.totalMealPrice || 0 +
+            itineraryItem.totalBaggagePrice || 0 +
+            itineraryItem.totalSeatPrice || 0,
+          totalMealPrice: itineraryItem.totalMealPrice,
+          totalBaggagePrice: itineraryItem.totalBaggagePrice,
+          totalSeatPrice: itineraryItem.totalSeatPrice,
+          itinerary: {
+            UID: itineraryItem.UID,
+            BaseFare: itineraryItem.BaseFare,
+            Taxes: itineraryItem.Taxes,
+            TotalPrice: itineraryItem.TotalPrice,
+            GrandTotal: itineraryItem.GrandTotal,
+            FareFamily: itineraryItem.FareFamily,
+            offeredPrice:itineraryItem.offeredPrice,
+            PNR:itineraryItem.PNR,
+            APnr:itineraryItem.APnr,
+            GPnr:itineraryItem.GPnr,
+            IndexNumber: itineraryItem.IndexNumber,
+            Provider: itineraryItem.Provider,
+            ValCarrier: itineraryItem.ValCarrier,
+            LastTicketingDate: itineraryItem.LastTicketingDate,
+            TravelTime: itineraryItem.TravelTime,
+            advanceAgentMarkup: {
+              adult: {
+                baseFare: itineraryItem.advanceAgentMarkup.adult.baseFare,
+                taxesFare: itineraryItem.advanceAgentMarkup.adult.taxesFare,
+                feesFare: itineraryItem.advanceAgentMarkup.adult.feesFare,
+                gstFare: itineraryItem.advanceAgentMarkup.adult.gstFare,
+              },
+              child: {
+                baseFare: itineraryItem.advanceAgentMarkup.child.baseFare,
+                taxesFare: itineraryItem.advanceAgentMarkup.child.taxesFare,
+                feesFare: itineraryItem.advanceAgentMarkup.child.feesFare,
+                gstFare: itineraryItem.advanceAgentMarkup.child.gstFare,
+              },
+              infant: {
+                baseFare: itineraryItem.advanceAgentMarkup.infant.baseFare,
+                taxesFare: itineraryItem.advanceAgentMarkup.infant.taxesFare,
+                feesFare: itineraryItem.advanceAgentMarkup.infant.feesFare,
+                gstFare: itineraryItem.advanceAgentMarkup.infant.gstFare,
+              },
+            },
+            PriceBreakup: priceBreakupArray,
+            Sectors: sectorsArray,
+            TraceId: Authentication?.TraceId,
+          },
+        };
+
+        return await createBooking(newItem); // Call function to create booking
+      }
+    })
+  );
+
+  // return newArray;
+  
+  if (Array.isArray(newArray) && newArray.length > 0) {
+    const response = newArray[0];
+    console.log(response);
+    if (response.msg === "Booking created successfully") {
+      const passengerPreferencesData = PassengerPreferences;
+      const passengerPreference = new passengerPreferenceModel({
+        userId: Authentication?.UserId,
+        companyId: Authentication?.CompanyId,
+        bookingId: response?.bookingId,
+        bid: response?.bid,
+        GstData: passengerPreferencesData?.GstData,
+        PaxEmail: passengerPreferencesData?.PaxEmail,
+        PaxMobile: passengerPreferencesData?.PaxMobile,
+        Passengers: passengerPreferencesData?.Passengers?.map((passenger) => ({
+          PaxType: passenger?.PaxType,
+          passengarSerialNo: passenger?.passengarSerialNo,
+          Title: passenger?.Title,
+          FName: passenger?.FName,
+          LName: passenger?.LName,
+          Gender: passenger?.Gender,
+          Dob: passenger?.Dob,
+          Optional: {
+            TicketNumber: passenger?.Optional?.TicketNumber,
+            PassportNo: passenger?.Optional.PassportNo,
+            PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
+            FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,
+            Nationality: passenger?.Optional?.Nationality,
+            ResidentCountry: passenger?.Optional?.ResidentCountry,
+          },
+          Meal: passenger?.Meal,
+          Baggage: passenger?.Baggage,
+          Seat: passenger?.Seat,
+          totalBaggagePrice: passenger?.totalBaggagePrice,
+          totalMealPrice: passenger?.totalMealPrice,
+          totalSeatPrice: passenger?.totalSeatPrice,
+        })),
+        modifyBy: Authentication?.UserId,
+      });
+      await passengerPreference.save();
+      return "Generic Cart Save Successfully";
+    } else {
+      return "Some Parameter Missing";
+    }
+  } else {
+    return "Some Technical Issue";
+  }
+
+  // } else {
+  //   return {
+  //     IsSucess: false,
+  //     response: response.data.ErrorMessage,
+  //   };
+  // }
   // } catch (error) {
   //   return {
   //     IsSucess: false,
@@ -976,5 +970,5 @@ async function updateBarcode2DByBookingId(
 }
 
 module.exports = {
-    genericcart,
+  genericcart,
 };

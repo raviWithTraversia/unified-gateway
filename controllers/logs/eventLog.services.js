@@ -758,6 +758,8 @@ const getIncenctivelog=async(req,res)=>{
     }
 }
 
+
+
 const getairCommercialfilterlog=async(req,res)=>{
     try{
         const { doucmentId } = req.query;
@@ -861,4 +863,107 @@ const getairCommercialfilterlog=async(req,res)=>{
         throw error;
     }
 }
-module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog}
+
+
+const getFairRuleslog=async(req,res)=>{
+    try{
+        const { doucmentId } = req.query;
+        if ( !doucmentId) {
+            return {
+                response: "Either doucment_id does not exist",
+            };
+        }
+        const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
+            { path: "doerId", select: "fname email lastName userId" },
+            { path: "companyId", select: "companyName type" },
+            { path: "oldValue.airlineCodeId", model:"AirlineCode"},
+            { path: "oldValue.providerId", model:"SupplierCode" },
+            { path: "newValue.airlineCodeId", model:"AirlineCode"},
+            { path: "newValue.cabinclassId", model:"CabinClassMaster"},
+            { path: "oldValue.cabinclassId", model:"CabinClassMaster"},
+
+            { path: "newValue.providerId", model:"SupplierCode" },
+            { path: 'oldValue.fareFamilyId', model: 'FareFamilyMaster',  },
+            { path: 'newValue.fareFamilyId', model: 'FareFamilyMaster',  },
+
+
+        ])
+
+        const result = getEventLogs.map(item => {
+            const updatedValues = {};
+            const categories = ["origin","destination","rbd","travelType","validDateFrom","validDateTo","status","PLBApplyOnAllTAxes","fareBasis","CBHA","CWBHA","RBHA","RWBHA","SF"];
+           
+            categories.forEach(category => {
+                
+                    
+                        if (item.oldValue?.[category] !== item.newValue?.[category]) {
+                            if (!updatedValues[category]) {
+                                updatedValues[category] = {};
+                            }
+                            if (!updatedValues[category]) {
+                                updatedValues[category] = { oldValue: {}, newValue: {} };
+                            }
+  updatedValues[category].oldValue = item.oldValue?.[category];
+                            updatedValues[category].newValue= item.newValue?.[category]
+                        }
+                    });
+                    if (item.oldValue?.providerId?._id !== item.newValue?.providerId?._id) {
+                        updatedValues.providerId = {
+                            oldValue:{providerId: item.oldValue?.providerId?.supplierCode,
+                                status:item.oldValue?.providerId?.status
+                            },
+                            newValue:{providerId: item.newValue?.providerId?.supplierCode,
+                                status:item.newValue?.supplierCode?.status
+                            },
+                        };}
+
+                        if (item.oldValue?.cabinclassId?.cabinClassCode!==item.newValue?.cabinclassId?.cabinClassCode) {
+                            updatedValues.cabinClass = {
+                                oldValue:{cabinClassCode: item.oldValue?.cabinclassId?.cabinClassCode,cabinClassName: item.oldValue?.cabinclassId?.cabinClassName},
+                                newValue:{cabinClassCode: item.newValue?.cabinclassId?.cabinClassCode,cabinClassName: item.newValue?.cabinclassId?.cabinClassName},
+                            };
+                        }  
+
+                        if (item.oldValue?.fareFamilyId?.fareFamilyCode!==item.newValue?.fareFamilyId?.fareFamilyCode) {
+                            updatedValues.fareFamily = {
+                                oldValue:{fareFamilyCode: item.oldValue?.fareFamilyId?.fareFamilyCode,fareFamilyName: item.oldValue?.fareFamilyId?.fareFamilyName},
+                                newValue:{fareFamilyCode: item.newValue?.fareFamilyId?.fareFamilyCode,fareFamilyName: item.newValue?.fareFamilyId?.fareFamilyName},
+                            };
+                        }  
+                        if (item.oldValue?.airlineCodeId?.airlineCode!==item.newValue?.airlineCodeId?.airlineCode) {
+                            updatedValues.airlineCode = {
+                                oldValue:{airlineCode: item.oldValue?.airlineCodeId?.airlineCode,airlineName: item.oldValue?.airlineCodeId?.airlineName},
+                                newValue:{airlineCode: item.newValue?.airlineCodeId?.airlineCode,airlineName: item.newValue?.airlineCodeId?.airlineName},
+                            };
+                        }  
+            return {
+                _id: item._id, // Include other necessary fields here
+                eventName:item.eventName,
+                doerId:item.doerId,
+                doerName:item.doerName,
+                companyId:item.companyId,
+                description:item.description,
+                createdAt:item.createdAt,
+                updatedAt:item.updatedAt,
+                updatedValues
+            };
+        }).filter(item => Object.keys(item.updatedValues).length > 0);
+        
+        if (!result) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: result,
+        };
+
+    }
+    catch(error){
+        console.log(error)
+        throw error;
+    }
+}
+
+module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog,getFairRuleslog}

@@ -13,13 +13,16 @@ const ledgerSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    transationDate: {     
-        type: Date,
-        default: Date.now,
+    transationDate: {
+      type: Date,
+      default: Date.now,
     },
     transactionAmount: {
       type: Number,
       default: null,
+    },
+    product: {
+      type: String,
     },
     currencyType: {  // INR 
       type: String,
@@ -32,10 +35,10 @@ const ledgerSchema = new mongoose.Schema(
     transactionType: { // Debit, Credit
       type: String,
       default: null,
-    },    
+    },
     accountType: {
       type: String,
-      default: null,      
+      default: null,
     },
     runningAmount: {
       type: Number,
@@ -48,19 +51,19 @@ const ledgerSchema = new mongoose.Schema(
     remarks: {
       type: String,
       default: null,
-    },    
+    },
     transactionBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     cartId: {
       type: String,
       default: null,
-    },  
+    },
     creationDate: {
       type: Date,
       default: Date.now(),
-    },        
+    },
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

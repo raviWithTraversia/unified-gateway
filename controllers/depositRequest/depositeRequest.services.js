@@ -234,7 +234,8 @@ const approveAndRejectDeposit = async (req, res) => {
         transactionType: "Credit",
         runningAmount,
         remarks: "Deposit Request Added Into Your Account.",
-        transactionBy: updateResponse.userId
+        transactionBy: updateResponse.userId,
+        product: updateResponse.product
       });
       const LogsData = {
         eventName: "creditRequest",

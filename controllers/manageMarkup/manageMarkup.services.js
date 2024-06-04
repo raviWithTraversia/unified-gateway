@@ -254,7 +254,7 @@ const result = markupLogHistoryData.map(item => {
                       updatedValues.markupData = [];
                   }
 
-                  let existingChange = updatedValues.markupData.find(change => change.markUpCategoryId === oldMarkup.markUpCategoryId);
+                  let existingChange = updatedValues.markupData.find(change => change.markUpCategoryId !== oldMarkup.markUpCategoryId);
 
                   if (!existingChange) {
                       existingChange = {

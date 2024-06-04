@@ -1024,7 +1024,7 @@ const KafilaFun = async (
                       const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
                       if (apiPassenger) {
                         passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
-                        
+                        // passenger.Status = "CONFIRMED";
                     }                      
                     }));
 

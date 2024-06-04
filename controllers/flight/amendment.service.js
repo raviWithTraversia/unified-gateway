@@ -286,7 +286,7 @@ const getAllAmendment = async (req, res) => {
       };
     }
 
-    const amendmentDetails = await amendmentDetails.find(filter)
+    const amendmentdetails = await amendmentDetails.find(filter)
       .populate({
         path: 'userId',
         populate: {
@@ -295,7 +295,7 @@ const getAllAmendment = async (req, res) => {
       }).populate('BookedBy');
 
 
-    if (!amendmentDetails || amendmentDetails.length === 0) {
+    if (!amendmentdetails || amendmentdetails.length === 0) {
       return {
         response: "Data Not Found",
       };
@@ -312,18 +312,18 @@ const getAllAmendment = async (req, res) => {
       };
 
       // Iterate over the amendmentDetails array
-      amendmentDetails.forEach(booking => {
+      amendmentdetails.forEach(booking => {
         const status = booking.bookingStatus;
         // Increment the count corresponding to the status
         statusCounts[status]++;
       });
       const allBookingData = [];
 
-      await Promise.all(amendmentDetails.map(async (booking) => {
+      await Promise.all(amendmentdetails.map(async (booking) => {
         const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
         const configDetails = await config.findOne({ userId: booking.userId });
 
-        allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        allBookingData.push({ amendmentdetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
       }));
 
       let filteredBookingData = allBookingData; // Copy the original data
@@ -334,7 +334,7 @@ const getAllAmendment = async (req, res) => {
       }
       return {
         response: "Fetch Data Successfully",
-        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime - new Date(a.amendmentDetails.bookingDateTime))), statusCounts: statusCounts }
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime - new Date(a.amendmentdetails.bookingDateTime))), statusCounts: statusCounts }
       };
     }
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer") {
@@ -367,7 +367,7 @@ const getAllAmendment = async (req, res) => {
       };
     }
 
-    const amendmentDetails = await amendmentDetails.find(filter)
+    const amendmentdetails = await amendmentDetails.find(filter)
       .populate({
         path: 'userId',
         populate: {
@@ -375,7 +375,7 @@ const getAllAmendment = async (req, res) => {
         }
       }).populate('BookedBy');
 
-    if (!amendmentDetails || amendmentDetails.length === 0) {
+    if (!amendmentdetails || amendmentdetails.length === 0) {
       return {
         response: "Data Not Found",
       };
@@ -391,18 +391,18 @@ const getAllAmendment = async (req, res) => {
         "HOLDRELEASED": 0
       };
 
-      // Iterate over the amendmentDetails array
-      amendmentDetails.forEach(booking => {
+      // Iterate over the amendmentdetails array
+      amendmentdetails.forEach(booking => {
         const status = booking.bookingStatus;
         // Increment the count corresponding to the status
         statusCounts[status]++;
       });
       const allBookingData = [];
 
-      await Promise.all(amendmentDetails.map(async (booking) => {
+      await Promise.all(amendmentdetails.map(async (booking) => {
         const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
         const configDetails = await config.findOne({ userId: booking.userId });
-        allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        allBookingData.push({ amendmentdetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
       }));
       let filteredBookingData = allBookingData; // Copy the original data
 
@@ -412,7 +412,7 @@ const getAllAmendment = async (req, res) => {
       }
       return {
         response: "Fetch Data Successfully",
-        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime) - new Date(a.amendmentDetails.bookingDateTime)), statusCounts: statusCounts }
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
       };
     }
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" || checkUserIdExist?.company_ID?.type === "TMC") {
@@ -446,16 +446,16 @@ const getAllAmendment = async (req, res) => {
       };
     }
 
-    const amendmentDetails = await amendmentDetails.find(filter)
+    const amendmentdetails = await amendmentDetails.find(filter)
       .populate({
         path: 'userId',
         populate: {
           path: 'company_ID'
         }
       }).populate('BookedBy');
-    console.log(amendmentDetails);
+    console.log(amendmentdetails);
 
-    if (!amendmentDetails || amendmentDetails.length === 0) {
+    if (!amendmentdetails || amendmentdetails.length === 0) {
       return {
         response: "Data Not Found",
       };
@@ -471,17 +471,17 @@ const getAllAmendment = async (req, res) => {
       };
 
       // Iterate over the amendmentDetails array
-      amendmentDetails.forEach(booking => {
+      amendmentdetails.forEach(booking => {
         const status = booking.bookingStatus;
         // Increment the count corresponding to the status
         statusCounts[status]++;
       });
       const allBookingData = [];
 
-      await Promise.all(amendmentDetails.map(async (booking) => {
+      await Promise.all(amendmentdetails.map(async (booking) => {
         const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
         const configDetails = await config.findOne({ userId: booking.userId });
-        allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        allBookingData.push({ amendmentdetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
       }));
       let filteredBookingData = allBookingData; // Copy the original data
 
@@ -491,7 +491,7 @@ const getAllAmendment = async (req, res) => {
 
       return {
         response: "Fetch Data Successfully",
-        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime) - new Date(a.amendmentDetails.bookingDateTime)), statusCounts: statusCounts }
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
       };
     }
   } else {
@@ -532,7 +532,7 @@ const getAllAmendment = async (req, res) => {
         };
       }
 
-      const amendmentDetails = await amendmentDetails.find(filter)
+      const amendmentdetails = await amendmentDetails.find(filter)
         .populate({
           path: 'userId',
           populate: {
@@ -541,7 +541,7 @@ const getAllAmendment = async (req, res) => {
         }).populate('BookedBy');
 
 
-      if (!amendmentDetails || amendmentDetails.length === 0) {
+      if (!amendmentdetails || amendmentdetails.length === 0) {
         return {
           response: "Data Not Found",
         };
@@ -558,18 +558,18 @@ const getAllAmendment = async (req, res) => {
         };
 
         // Iterate over the amendmentDetails array
-        amendmentDetails.forEach(booking => {
+        amendmentdetails.forEach(booking => {
           const status = booking.bookingStatus;
           // Increment the count corresponding to the status
           statusCounts[status]++;
         });
         const allBookingData = [];
 
-        await Promise.all(amendmentDetails.map(async (booking) => {
+        await Promise.all(amendmentdetails.map(async (booking) => {
           const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
           const configDetails = await config.findOne({ userId: booking.userId });
 
-          allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          allBookingData.push({ amendmentdetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
         }));
 
         let filteredBookingData = allBookingData; // Copy the original data
@@ -580,7 +580,7 @@ const getAllAmendment = async (req, res) => {
         }
         return {
           response: "Fetch Data Successfully",
-          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime - new Date(a.amendmentDetails.bookingDateTime))), statusCounts: statusCounts }
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime - new Date(a.amendmentdetails.bookingDateTime))), statusCounts: statusCounts }
         };
       }
     } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Distributer") {
@@ -613,7 +613,7 @@ const getAllAmendment = async (req, res) => {
         };
       }
 
-      const amendmentDetails = await amendmentDetails.find(filter)
+      const amendmentdetails = await amendmentDetails.find(filter)
         .populate({
           path: 'userId',
           populate: {
@@ -621,7 +621,7 @@ const getAllAmendment = async (req, res) => {
           }
         }).populate('BookedBy');
 
-      if (!amendmentDetails || amendmentDetails.length === 0) {
+      if (!amendmentdetails || amendmentdetails.length === 0) {
         return {
           response: "Data Not Found",
         };
@@ -638,17 +638,17 @@ const getAllAmendment = async (req, res) => {
         };
 
         // Iterate over the bookingDetails array
-        amendmentDetails.forEach(booking => {
+        amendmentdetails.forEach(booking => {
           const status = booking.bookingStatus;
           // Increment the count corresponding to the status
           statusCounts[status]++;
         });
         const allBookingData = [];
 
-        await Promise.all(amendmentDetails.map(async (booking) => {
+        await Promise.all(amendmentdetails.map(async (booking) => {
           const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
           const configDetails = await config.findOne({ userId: booking.userId });
-          allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          allBookingData.push({ amendmentdetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
         }));
         let filteredBookingData = allBookingData; // Copy the original data
 
@@ -658,7 +658,7 @@ const getAllAmendment = async (req, res) => {
         }
         return {
           response: "Fetch Data Successfully",
-          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime) - new Date(a.amendmentDetails.bookingDateTime)), statusCounts: statusCounts }
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
         };
       }
     } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "TMC" || checkComapnyUser?.company_ID?.type === "TMC") {
@@ -692,7 +692,7 @@ const getAllAmendment = async (req, res) => {
         };
       }
 
-      const amendmentDetails = await amendmentDetails.find(filter)
+      const amendmentdetails = await amendmentDetails.find(filter)
         .populate({
           path: 'userId',
           populate: {
@@ -701,7 +701,7 @@ const getAllAmendment = async (req, res) => {
         }).populate('BookedBy');
 
 
-      if (!amendmentDetails || amendmentDetails.length === 0) {
+      if (!amendmentdetails || amendmentdetails.length === 0) {
         return {
           response: "Data Not Found",
         };
@@ -716,18 +716,18 @@ const getAllAmendment = async (req, res) => {
           "HOLDRELEASED": 0
         };
 
-        // Iterate over the amendmentDetails array
-        amendmentDetails.forEach(booking => {
+        // Iterate over the amendmentdetails array
+        amendmentdetails.forEach(booking => {
           const status = booking.bookingStatus;
           // Increment the count corresponding to the status
           statusCounts[status]++;
         });
         const allBookingData = [];
 
-        await Promise.all(amendmentDetails.map(async (booking) => {
+        await Promise.all(amendmentdetails.map(async (booking) => {
           const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
           const configDetails = await config.findOne({ userId: booking.userId });
-          allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          allBookingData.push({ amendmentdetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
         }));
         let filteredBookingData = allBookingData; // Copy the original data
 
@@ -737,7 +737,7 @@ const getAllAmendment = async (req, res) => {
 
         return {
           response: "Fetch Data Successfully",
-          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime) - new Date(a.amendmentDetails.bookingDateTime)), statusCounts: statusCounts }
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
         };
       }
     }

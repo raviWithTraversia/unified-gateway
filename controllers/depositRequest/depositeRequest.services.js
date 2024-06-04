@@ -195,7 +195,6 @@ const approveAndRejectDeposit = async (req, res) => {
         response: 'Remark and status are required'
       }
     }
-    console.log(req.user._id)
     // const doerId = req.user._id;
     const loginUser = await User.findById(req.user._id);
 
@@ -214,7 +213,15 @@ const approveAndRejectDeposit = async (req, res) => {
           response: 'User not found'
         }
       }
-      configData.maxcreditLimit += updateResponse.amount;
+      let runningAmount = 0;
+      if (updateResponse.product === "Rail") {
+        configData.maxRailCredit += updateResponse.amount;
+        runningAmount = configData.maxRailCredit
+      }
+      if (updateResponse.product === "Flight") {
+        configData.maxcreditLimit += updateResponse.amount
+        runningAmount = configData.maxcreditLimit
+      }
       await configData.save();
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
       await ledger.create({
@@ -225,7 +232,7 @@ const approveAndRejectDeposit = async (req, res) => {
         currencyType: "INR",
         fop: "Credit",
         transactionType: "Credit",
-        runningAmount: configData.maxcreditLimit,
+        runningAmount,
         remarks: "Deposit Request Added Into Your Account.",
         transactionBy: updateResponse.userId
       });

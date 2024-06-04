@@ -1,6 +1,6 @@
 const Company = require("../../models/Company");
 const Supplier = require("../../models/Supplier");
-const Users = require("../../models/User");
+const User = require("../../models/User");
 const bookingDetails = require("../../models/booking/BookingDetails");
 const amendmentDetails = require("../../models/booking/AmendmentDetails");
 const amendmentPassengerPreference = require("../../models/booking/AmendmentPassengerPrefence");
@@ -88,7 +88,7 @@ const amendment = async (req, res) => {
         response: "Amendment with this AmendmentId already exists",
       };
     }
-    
+      
 
     const getSector = BookingIdDetails.find((sector) => {
       const sectors = sector.itinerary?.Sectors;
@@ -105,7 +105,7 @@ const amendment = async (req, res) => {
         lastSector.Arrival.Code === Sector.DES
       );
     });
-
+    //console.log(getSector);
     if (!getSector) {
       return {
         IsSucess: false,
@@ -160,7 +160,7 @@ const amendment = async (req, res) => {
         passngerall.push(apiPassenger);
         await passengerPreferenceModel.updateOne(
           { bookingId: CartId, 'Passengers._id': apiPassenger._id },
-          { $set: { 'Passengers.$.AmendmentType': true } }
+          { $set: { 'Passengers.$.AmendmentType': true, 'Passengers.$.Status': "Amendment" } }
         );
       }
     }
@@ -204,6 +204,550 @@ const amendment = async (req, res) => {
   }
 };
 
+const getAllAmendment = async (req, res) => {
+  const {
+    userId,
+    agencyId,
+    bookingId,
+    pnr,
+    status,
+    fromDate,
+    toDate,
+    salesInchargeIds,
+    BookedBy
+  } = req.body;
+  const fieldNames = [
+    "userId",
+    "agencyId",
+    "bookingId",
+    "pnr",
+    "status",
+    "fromDate",
+    "toDate",
+    "salesInchargeIds"
+  ];
+  const missingFields = fieldNames.filter(
+    (fieldName) =>
+      req.body[fieldName] === null || req.body[fieldName] === undefined
+  );
+
+  if (missingFields.length > 0) {
+    const missingFieldsString = missingFields.join(", ");
+
+    return {
+      response: null,
+      isSometingMissing: true,
+      data: `Missing or null fields: ${missingFieldsString}`,
+    };
+  }
+  if (!userId) {
+    return {
+      response: "User id does not exist",
+    };
+  }
+
+  // Check if company Id exists
+  const checkUserIdExist = await User.findById(userId).populate('roleId').populate("company_ID");
+  if (!checkUserIdExist) {
+    return {
+      response: "User id does not exist",
+    };
+  }
+
+  if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
+
+    let filter = { userId: userId };
+    if (agencyId !== undefined && agencyId.trim() !== "") {
+      filter.AgencyId = agencyId;
+    }
+
+    if (bookingId !== undefined && bookingId.trim() !== "") {
+      filter.bookingId = bookingId;
+    }
+    if (pnr !== undefined && pnr.trim() !== "") {
+      filter.PNR = pnr;
+    }
+    if (status !== undefined && status.trim() !== "") {
+      filter.bookingStatus = status;
+    }
+
+    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      filter.bookingDateTime = {
+        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      };
+    } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      filter.bookingDateTime = {
+        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      };
+    } else if (toDate !== undefined && toDate.trim() !== "") {
+      filter.bookingDateTime = {
+        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      };
+    }
+
+    const amendmentDetails = await amendmentDetails.find(filter)
+      .populate({
+        path: 'userId',
+        populate: {
+          path: 'company_ID'
+        }
+      }).populate('BookedBy');
+
+
+    if (!amendmentDetails || amendmentDetails.length === 0) {
+      return {
+        response: "Data Not Found",
+      };
+    } else {
+
+      const statusCounts = {
+        "PENDING": 0,
+        "CONFIRMED": 0,
+        "FAILED": 0,
+        "CANCELLED": 0,
+        "INCOMPLETE": 0,
+        "HOLD": 0,
+        "HOLDRELEASED": 0
+      };
+
+      // Iterate over the amendmentDetails array
+      amendmentDetails.forEach(booking => {
+        const status = booking.bookingStatus;
+        // Increment the count corresponding to the status
+        statusCounts[status]++;
+      });
+      const allBookingData = [];
+
+      await Promise.all(amendmentDetails.map(async (booking) => {
+        const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
+        const configDetails = await config.findOne({ userId: booking.userId });
+
+        allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+      }));
+
+      let filteredBookingData = allBookingData; // Copy the original data
+
+      if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
+        filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
+
+      }
+      return {
+        response: "Fetch Data Successfully",
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime - new Date(a.amendmentDetails.bookingDateTime))), statusCounts: statusCounts }
+      };
+    }
+  } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer") {
+    let filter = { companyId: checkUserIdExist.company_ID._id };
+    if (agencyId !== undefined && agencyId.trim() !== "") {
+      filter.userId = { _id: agencyId };
+    }
+
+    if (bookingId !== undefined && bookingId.trim() !== "") {
+      filter.bookingId = bookingId;
+    }
+    if (pnr !== undefined && pnr.trim() !== "") {
+      filter.PNR = pnr;
+    }
+    if (status !== undefined && status.trim() !== "") {
+      filter.bookingStatus = status;
+    }
+    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      filter.bookingDateTime = {
+        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      };
+    } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      filter.bookingDateTime = {
+        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      };
+    } else if (toDate !== undefined && toDate.trim() !== "") {
+      filter.bookingDateTime = {
+        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      };
+    }
+
+    const amendmentDetails = await amendmentDetails.find(filter)
+      .populate({
+        path: 'userId',
+        populate: {
+          path: 'company_ID'
+        }
+      }).populate('BookedBy');
+
+    if (!amendmentDetails || amendmentDetails.length === 0) {
+      return {
+        response: "Data Not Found",
+      };
+    } else {
+
+      const statusCounts = {
+        "PENDING": 0,
+        "CONFIRMED": 0,
+        "FAILED": 0,
+        "CANCELLED": 0,
+        "INCOMPLETE": 0,
+        "HOLD": 0,
+        "HOLDRELEASED": 0
+      };
+
+      // Iterate over the amendmentDetails array
+      amendmentDetails.forEach(booking => {
+        const status = booking.bookingStatus;
+        // Increment the count corresponding to the status
+        statusCounts[status]++;
+      });
+      const allBookingData = [];
+
+      await Promise.all(amendmentDetails.map(async (booking) => {
+        const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
+        const configDetails = await config.findOne({ userId: booking.userId });
+        allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+      }));
+      let filteredBookingData = allBookingData; // Copy the original data
+
+      if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
+        filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
+
+      }
+      return {
+        response: "Fetch Data Successfully",
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime) - new Date(a.amendmentDetails.bookingDateTime)), statusCounts: statusCounts }
+      };
+    }
+  } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" || checkUserIdExist?.company_ID?.type === "TMC") {
+
+    let filter = {};
+    if (agencyId !== undefined && agencyId.trim() !== "") {
+      filter.userId = agencyId;
+    }
+
+    if (bookingId !== undefined && bookingId.trim() !== "") {
+      filter.bookingId = bookingId;
+    }
+    if (pnr !== undefined && pnr.trim() !== "") {
+      filter.PNR = pnr;
+    }
+    if (status !== undefined && status.trim() !== "") {
+      filter.bookingStatus = status;
+    }
+    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      filter.bookingDateTime = {
+        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      };
+    } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      filter.bookingDateTime = {
+        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      };
+    } else if (toDate !== undefined && toDate.trim() !== "") {
+      filter.bookingDateTime = {
+        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      };
+    }
+
+    const amendmentDetails = await amendmentDetails.find(filter)
+      .populate({
+        path: 'userId',
+        populate: {
+          path: 'company_ID'
+        }
+      }).populate('BookedBy');
+    console.log(amendmentDetails);
+
+    if (!amendmentDetails || amendmentDetails.length === 0) {
+      return {
+        response: "Data Not Found",
+      };
+    } else {
+      const statusCounts = {
+        "PENDING": 0,
+        "CONFIRMED": 0,
+        "FAILED": 0,
+        "CANCELLED": 0,
+        "INCOMPLETE": 0,
+        "HOLD": 0,
+        "HOLDRELEASED": 0
+      };
+
+      // Iterate over the amendmentDetails array
+      amendmentDetails.forEach(booking => {
+        const status = booking.bookingStatus;
+        // Increment the count corresponding to the status
+        statusCounts[status]++;
+      });
+      const allBookingData = [];
+
+      await Promise.all(amendmentDetails.map(async (booking) => {
+        const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
+        const configDetails = await config.findOne({ userId: booking.userId });
+        allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+      }));
+      let filteredBookingData = allBookingData; // Copy the original data
+
+      if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
+        filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
+      }
+
+      return {
+        response: "Fetch Data Successfully",
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime) - new Date(a.amendmentDetails.bookingDateTime)), statusCounts: statusCounts }
+      };
+    }
+  } else {
+    const userCompanyId = checkUserIdExist.company_ID;
+    const checkComapnyUser = await User.findOne({ company_ID: userCompanyId }).populate({
+      path: 'roleId',
+      match: { type: 'Default' }
+    });
+    if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Agency") {
+
+      let filter = { userId: checkComapnyUser._id };
+      if (agencyId !== undefined && agencyId.trim() !== "") {
+        filter.AgencyId = agencyId;
+      }
+
+      if (bookingId !== undefined && bookingId.trim() !== "") {
+        filter.bookingId = bookingId;
+      }
+      if (pnr !== undefined && pnr.trim() !== "") {
+        filter.PNR = pnr;
+      }
+      if (status !== undefined && status.trim() !== "") {
+        filter.bookingStatus = status;
+      }
+
+      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+        filter.bookingDateTime = {
+          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+        };
+      } else if (fromDate !== undefined && fromDate.trim() !== "") {
+        filter.bookingDateTime = {
+          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+        };
+      } else if (toDate !== undefined && toDate.trim() !== "") {
+        filter.bookingDateTime = {
+          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+        };
+      }
+
+      const amendmentDetails = await amendmentDetails.find(filter)
+        .populate({
+          path: 'userId',
+          populate: {
+            path: 'company_ID'
+          }
+        }).populate('BookedBy');
+
+
+      if (!amendmentDetails || amendmentDetails.length === 0) {
+        return {
+          response: "Data Not Found",
+        };
+      } else {
+
+        const statusCounts = {
+          "PENDING": 0,
+          "CONFIRMED": 0,
+          "FAILED": 0,
+          "CANCELLED": 0,
+          "INCOMPLETE": 0,
+          "HOLD": 0,
+          "HOLDRELEASED": 0
+        };
+
+        // Iterate over the amendmentDetails array
+        amendmentDetails.forEach(booking => {
+          const status = booking.bookingStatus;
+          // Increment the count corresponding to the status
+          statusCounts[status]++;
+        });
+        const allBookingData = [];
+
+        await Promise.all(amendmentDetails.map(async (booking) => {
+          const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
+          const configDetails = await config.findOne({ userId: booking.userId });
+
+          allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        }));
+
+        let filteredBookingData = allBookingData; // Copy the original data
+
+        if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
+          filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
+
+        }
+        return {
+          response: "Fetch Data Successfully",
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime - new Date(a.amendmentDetails.bookingDateTime))), statusCounts: statusCounts }
+        };
+      }
+    } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Distributer") {
+      let filter = { companyId: checkComapnyUser.company_ID._id };
+      if (agencyId !== undefined && agencyId.trim() !== "") {
+        filter.userId = { _id: agencyId };
+      }
+
+      if (bookingId !== undefined && bookingId.trim() !== "") {
+        filter.bookingId = bookingId;
+      }
+      if (pnr !== undefined && pnr.trim() !== "") {
+        filter.PNR = pnr;
+      }
+      if (status !== undefined && status.trim() !== "") {
+        filter.bookingStatus = status;
+      }
+      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+        filter.bookingDateTime = {
+          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+        };
+      } else if (fromDate !== undefined && fromDate.trim() !== "") {
+        filter.bookingDateTime = {
+          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+        };
+      } else if (toDate !== undefined && toDate.trim() !== "") {
+        filter.bookingDateTime = {
+          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+        };
+      }
+
+      const amendmentDetails = await amendmentDetails.find(filter)
+        .populate({
+          path: 'userId',
+          populate: {
+            path: 'company_ID'
+          }
+        }).populate('BookedBy');
+
+      if (!amendmentDetails || amendmentDetails.length === 0) {
+        return {
+          response: "Data Not Found",
+        };
+      } else {
+
+        const statusCounts = {
+          "PENDING": 0,
+          "CONFIRMED": 0,
+          "FAILED": 0,
+          "CANCELLED": 0,
+          "INCOMPLETE": 0,
+          "HOLD": 0,
+          "HOLDRELEASED": 0
+        };
+
+        // Iterate over the bookingDetails array
+        amendmentDetails.forEach(booking => {
+          const status = booking.bookingStatus;
+          // Increment the count corresponding to the status
+          statusCounts[status]++;
+        });
+        const allBookingData = [];
+
+        await Promise.all(amendmentDetails.map(async (booking) => {
+          const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
+          const configDetails = await config.findOne({ userId: booking.userId });
+          allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        }));
+        let filteredBookingData = allBookingData; // Copy the original data
+
+        if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
+          filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
+
+        }
+        return {
+          response: "Fetch Data Successfully",
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime) - new Date(a.amendmentDetails.bookingDateTime)), statusCounts: statusCounts }
+        };
+      }
+    } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "TMC" || checkComapnyUser?.company_ID?.type === "TMC") {
+
+      let filter = {};
+      if (agencyId !== undefined && agencyId.trim() !== "") {
+        filter.userId = agencyId;
+      }
+
+      if (bookingId !== undefined && bookingId.trim() !== "") {
+        filter.bookingId = bookingId;
+      }
+      if (pnr !== undefined && pnr.trim() !== "") {
+        filter.PNR = pnr;
+      }
+      if (status !== undefined && status.trim() !== "") {
+        filter.bookingStatus = status;
+      }
+      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+        filter.bookingDateTime = {
+          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+        };
+      } else if (fromDate !== undefined && fromDate.trim() !== "") {
+        filter.bookingDateTime = {
+          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+        };
+      } else if (toDate !== undefined && toDate.trim() !== "") {
+        filter.bookingDateTime = {
+          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+        };
+      }
+
+      const amendmentDetails = await amendmentDetails.find(filter)
+        .populate({
+          path: 'userId',
+          populate: {
+            path: 'company_ID'
+          }
+        }).populate('BookedBy');
+
+
+      if (!amendmentDetails || amendmentDetails.length === 0) {
+        return {
+          response: "Data Not Found",
+        };
+      } else {
+        const statusCounts = {
+          "PENDING": 0,
+          "CONFIRMED": 0,
+          "FAILED": 0,
+          "CANCELLED": 0,
+          "INCOMPLETE": 0,
+          "HOLD": 0,
+          "HOLDRELEASED": 0
+        };
+
+        // Iterate over the amendmentDetails array
+        amendmentDetails.forEach(booking => {
+          const status = booking.bookingStatus;
+          // Increment the count corresponding to the status
+          statusCounts[status]++;
+        });
+        const allBookingData = [];
+
+        await Promise.all(amendmentDetails.map(async (booking) => {
+          const passengerPreference = await amendmentPassengerPreference.find({ bookingId: booking.bookingId });
+          const configDetails = await config.findOne({ userId: booking.userId });
+          allBookingData.push({ amendmentDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        }));
+        let filteredBookingData = allBookingData; // Copy the original data
+
+        if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
+          filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
+        }
+
+        return {
+          response: "Fetch Data Successfully",
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentDetails.bookingDateTime) - new Date(a.amendmentDetails.bookingDateTime)), statusCounts: statusCounts }
+        };
+      }
+    }
+
+
+  }
+};
+
+
 module.exports = {
   amendment,
+  getAllAmendment
 };

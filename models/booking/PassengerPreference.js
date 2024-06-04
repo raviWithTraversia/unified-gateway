@@ -34,6 +34,7 @@ const passengerPreferenceSchema = new mongoose.Schema({
       Gender:{ type: String, default:null },
       Dob:{ type: String, default:null },
       AmendmentType:{ type: Boolean, default:false },
+      Status:{ type: String, default:null },
       barCode2D:[{        
         FCode:{ type: String, default:null },
         FNo:{ type: String, default:null }, 

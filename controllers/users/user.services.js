@@ -380,6 +380,18 @@ const userInsert = async (req, res) => {
       }else{
         agencyGroupId = await agencyGroupModel.findOne({isDefault : true});
       }
+    }else{
+      let findParentRoleId = await User.findOne({company_ID : parent});
+      let findParentRole = await Role.findOne({_id : findParentRoleId.roleId });
+      if(findParentRole.name == "TMC"){
+      // if agencyParent is tmc then find agencyGroup by their parentCompany id and isdefault true and assign that agent
+      agencyGroupId = await agencyGroupModel.findOne({companyId : parent, isDefault : true});
+      }else if(findParentRole.name == "Distributer"){
+      // if agencyParent is distributer then find agencyGroup by their distributerparent and assign that agency
+      agencyGroupId = await agencyGroupModel.findOne({companyId : parent, isDefault : true});
+      }else{
+        agencyGroupId = await agencyGroupModel.findOne({_id:agencyGroupId});
+      }
     };
 
   //  console.log(privilegePlansIds ,commercialPlanIds ,fareRuleGroupIds,agencyGroupId)
@@ -406,7 +418,7 @@ const userInsert = async (req, res) => {
         addressOnTicketCopy:true,
         holdPNRAllowed:true,
         portalLedgerAllowed:true,
-        fareTypes:["NDF","CPNS1","CPN","MAIN","CDF","SME","CPNS","CRCT","CRCT1","FD","FF"],
+        fareTypes:["NDF","CPNS1","CPN","MAIN","CDF","SME","CPNS","CRCT","CRCT1","FD","FF","TBF"],
         });
         agentConfigsInsert = await agentConfigsInsert.save();
       console.log( 'User Config Insert Sucessfully');

@@ -966,4 +966,67 @@ const getFairRuleslog=async(req,res)=>{
     }
 }
 
-module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog,getFairRuleslog}
+
+const getPgChargeslog=async(req,res)=>{
+    try{
+        const { doucmentId } = req.query;
+        if ( !doucmentId) {
+            return {
+                response: "Either doucment_id does not exist",
+            };
+        }
+        const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
+            { path: "doerId", select: "fname email lastName userId" },
+            { path: "companyId", select: "companyName type" },
+            ])
+
+        const result = getEventLogs.map(item => {
+            const updatedValues = {};
+            const categories = ["paymentGatewayProvider","paymentMethod","paymentType","isActive","flatFee","percentageFee"];
+           
+            categories.forEach(category => {
+                
+                    
+                        if (item.oldValue?.[category] !== item.newValue?.[category]) {
+                            if (!updatedValues[category]) {
+                                updatedValues[category] = {};
+                            }
+                            if (!updatedValues[category]) {
+                                updatedValues[category] = { oldValue: {}, newValue: {} };
+                            }
+  updatedValues[category].oldValue = item.oldValue?.[category];
+                            updatedValues[category].newValue= item.newValue?.[category]
+                        }
+                    });
+                 
+            return {
+                _id: item._id, // Include other necessary fields here
+                eventName:item.eventName,
+                doerId:item.doerId,
+                doerName:item.doerName,
+                companyId:item.companyId,
+                description:item.description,
+                createdAt:item.createdAt,
+                updatedAt:item.updatedAt,
+                updatedValues
+            };
+        }).filter(item => Object.keys(item.updatedValues).length > 0);
+        
+        if (!result) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: result,
+        };
+
+    }
+    catch(error){
+        console.log(error)
+        throw error;
+    }
+}
+
+module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog,getFairRuleslog,getPgChargeslog}

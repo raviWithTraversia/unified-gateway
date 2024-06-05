@@ -299,22 +299,20 @@ const getAllAmendment = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
-
-    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-      };
-    }
-
+    // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+    //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+    //   };
+    // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+    //   };
+    // } else if (toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+    //   };
+    // }
     const amendmentdetails = await amendmentDetails.find(filter)
       .populate({
         path: 'userId',
@@ -363,7 +361,7 @@ const getAllAmendment = async (req, res) => {
       }
       return {
         response: "Fetch Data Successfully",
-        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime - new Date(a.amendmentdetails.bookingDateTime))), statusCounts: statusCounts }
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt - new Date(a.amendmentdetails.createdAt))), statusCounts: statusCounts }
       };
     }
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer") {
@@ -385,20 +383,20 @@ const getAllAmendment = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
-    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-      };
-    }
+    // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+    //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+    //   };
+    // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+    //   };
+    // } else if (toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+    //   };
+    // }
 
     const amendmentdetails = await amendmentDetails.find(filter)
       .populate({
@@ -445,7 +443,7 @@ const getAllAmendment = async (req, res) => {
       }
       return {
         response: "Fetch Data Successfully",
-        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt) - new Date(a.amendmentdetails.createdAt)), statusCounts: statusCounts }
       };
     }
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" || checkUserIdExist?.company_ID?.type === "TMC") {
@@ -468,20 +466,20 @@ const getAllAmendment = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
-    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-      };
-    }
+    // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+    //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+    //   };
+    // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+    //   };
+    // } else if (toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+    //   };
+    // }
 
     const amendmentdetails = await amendmentDetails.find(filter)
       .populate({
@@ -490,7 +488,6 @@ const getAllAmendment = async (req, res) => {
           path: 'company_ID'
         }
       }).populate('AmendmentBy');
-    console.log(amendmentdetails);
 
     if (!amendmentdetails || amendmentdetails.length === 0) {
       return {
@@ -528,7 +525,7 @@ const getAllAmendment = async (req, res) => {
 
       return {
         response: "Fetch Data Successfully",
-        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt) - new Date(a.amendmentdetails.createdAt)), statusCounts: statusCounts }
       };
     }
   } else {
@@ -543,6 +540,10 @@ const getAllAmendment = async (req, res) => {
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.AgencyId = agencyId;
       }
+      if (amendmentId) { filter.amendmentId = amendmentId }
+      if (paymentStatus) { filter.paymentStatus = paymentStatus }
+      if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+      if (amendmentType) { filter.amendmentType = amendmentType }
 
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
@@ -554,20 +555,20 @@ const getAllAmendment = async (req, res) => {
         filter.bookingStatus = status;
       }
 
-      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-        };
-      }
+      // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+      //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      //   };
+      // }
 
       const amendmentdetails = await amendmentDetails.find(filter)
         .populate({
@@ -617,7 +618,7 @@ const getAllAmendment = async (req, res) => {
         }
         return {
           response: "Fetch Data Successfully",
-          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime - new Date(a.amendmentdetails.bookingDateTime))), statusCounts: statusCounts }
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt - new Date(a.amendmentdetails.createdAt))), statusCounts: statusCounts }
         };
       }
     } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Distributer") {
@@ -625,6 +626,10 @@ const getAllAmendment = async (req, res) => {
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.userId = { _id: agencyId };
       }
+      if (amendmentId) { filter.amendmentId = amendmentId }
+      if (paymentStatus) { filter.paymentStatus = paymentStatus }
+      if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+      if (amendmentType) { filter.amendmentType = amendmentType }
 
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
@@ -635,20 +640,20 @@ const getAllAmendment = async (req, res) => {
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
       }
-      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-        };
-      }
+      // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+      //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      //   };
+      // }
 
       const amendmentdetails = await amendmentDetails.find(filter)
         .populate({
@@ -695,7 +700,7 @@ const getAllAmendment = async (req, res) => {
         }
         return {
           response: "Fetch Data Successfully",
-          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt) - new Date(a.amendmentdetails.createdAt)), statusCounts: statusCounts }
         };
       }
     } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "TMC" || checkComapnyUser?.company_ID?.type === "TMC") {
@@ -704,6 +709,10 @@ const getAllAmendment = async (req, res) => {
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.userId = agencyId;
       }
+      if (amendmentId) { filter.amendmentId = amendmentId }
+      if (paymentStatus) { filter.paymentStatus = paymentStatus }
+      if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+      if (amendmentType) { filter.amendmentType = amendmentType }
 
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
@@ -714,20 +723,20 @@ const getAllAmendment = async (req, res) => {
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
       }
-      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-        };
-      }
+      // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+      //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      //   };
+      // }
 
       const amendmentdetails = await amendmentDetails.find(filter)
         .populate({
@@ -774,7 +783,7 @@ const getAllAmendment = async (req, res) => {
 
         return {
           response: "Fetch Data Successfully",
-          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt) - new Date(a.amendmentdetails.createdAt)), statusCounts: statusCounts }
         };
       }
     }

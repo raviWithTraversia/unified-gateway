@@ -783,8 +783,23 @@ const getAllAmendment = async (req, res) => {
   }
 };
 
+const assignAmendmentUser = async (req, res) => {
+  const { amendmentId, assignedUser } = req.body;
+  if (!amendmentId || !assignedUser) { return { response: "Provide required fields" } };
+  const getUser = await User.findById(assignedUser);
+  if (!getUser) {
+    return { response: "User id does not exist" }
+  }
+  const updatedAmendment = await amendmentDetails.findOneAndUpdate({ amendmentId }, { $set: { assignToUser: assignedUser } });
+  if (!updatedAmendment) {
+    return { response: "Error in updating assignedUser" }
+  }
+  return { response: "User assigned Successfully" }
+}
+
 
 module.exports = {
   amendment,
-  getAllAmendment
+  getAllAmendment,
+  assignAmendmentUser
 };

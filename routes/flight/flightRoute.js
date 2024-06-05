@@ -23,4 +23,6 @@ flight_route.post('/flight/partialCancelationCharge', auth, flight.partialCancel
 flight_route.post('/flight/updateBookingStatus', auth, flight.updateBookingStatus);
 flight_route.post('/flight/amendment', auth, flight.amendmentDetails);
 flight_route.post('/flight/allAmendment', auth, flight.getAllAmendment);
+flight_route.post('/flight/assignAmendmentUser', auth, flight.assignAmendmentUser);
+
 module.exports = flight_route;

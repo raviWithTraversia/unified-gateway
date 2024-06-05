@@ -213,8 +213,7 @@ const getAllAmendment = async (req, res) => {
     status,
     fromDate,
     toDate,
-    salesInchargeIds,
-    BookedBy
+    salesInchargeIds
   } = req.body;
   const fieldNames = [
     "userId",
@@ -373,7 +372,7 @@ const getAllAmendment = async (req, res) => {
         populate: {
           path: 'company_ID'
         }
-      }).populate('BookedBy');
+      }).populate('AmendmentBy');
 
     if (!amendmentdetails || amendmentdetails.length === 0) {
       return {
@@ -452,7 +451,7 @@ const getAllAmendment = async (req, res) => {
         populate: {
           path: 'company_ID'
         }
-      }).populate('BookedBy');
+      }).populate('AmendmentBy');
     console.log(amendmentdetails);
 
     if (!amendmentdetails || amendmentdetails.length === 0) {
@@ -538,7 +537,7 @@ const getAllAmendment = async (req, res) => {
           populate: {
             path: 'company_ID'
           }
-        }).populate('BookedBy');
+        }).populate('AmendmentBy');
 
 
       if (!amendmentdetails || amendmentdetails.length === 0) {
@@ -619,7 +618,7 @@ const getAllAmendment = async (req, res) => {
           populate: {
             path: 'company_ID'
           }
-        }).populate('BookedBy');
+        }).populate('AmendmentBy');
 
       if (!amendmentdetails || amendmentdetails.length === 0) {
         return {
@@ -698,7 +697,7 @@ const getAllAmendment = async (req, res) => {
           populate: {
             path: 'company_ID'
           }
-        }).populate('BookedBy');
+        }).populate('AmendmentBy');
 
 
       if (!amendmentdetails || amendmentdetails.length === 0) {

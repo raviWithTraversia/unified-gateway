@@ -73,6 +73,7 @@ const payuRoute = require('../routes/payuRoute');
 const easeBuzzRoute = require("../routes/easeBuzzRoute");
 const depositRequestRoute = require('../routes/depositRequestRoute');
 const railRoute = require("../routes/railRoute");
+const interTransferCreditRoute = require("../routes/interTransferCreditRoute")
 
 class RoutesLoader {
     static initRoutes(app) {
@@ -307,6 +308,9 @@ class RoutesLoader {
 
         //railRoute
         app.use('/api', railRoute);
+
+        //interTransferCreditRoute
+        app.use('/api', interTransferCreditRoute)
 
     }
 }

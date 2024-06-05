@@ -88,7 +88,7 @@ const amendment = async (req, res) => {
         response: "Amendment with this AmendmentId already exists",
       };
     }
-      
+
 
     const getSector = BookingIdDetails.find((sector) => {
       const sectors = sector.itinerary?.Sectors;
@@ -121,8 +121,8 @@ const amendment = async (req, res) => {
     updatedSector.paymentStatus = "NOT PROCESSED";
     updatedSector.amendmentRemarks = AmendmentRemarks;
     updatedSector.AmendmentBy = AmendmentBy;
-   
-    
+
+
     const amendmentBookingSave = await amendmentDetails.create(
       updatedSector
     );
@@ -133,7 +133,7 @@ const amendment = async (req, res) => {
         response: "Not Save Booking Data",
       };
     }
-    
+
     const getPassengerPreference = await passengerPreferenceModel.findOne({
       bookingId: CartId,
     }).lean();
@@ -149,7 +149,7 @@ const amendment = async (req, res) => {
 
     let passngerall = [];
     //Sector.Passengers.forEach((pasngr) => {
-      for (const pasngr of Sector.Passengers) {
+    for (const pasngr of Sector.Passengers) {
       const apiPassenger = getPassengerPreference.Passengers.find(
         (p) =>
           p.Title === pasngr.Title &&
@@ -167,7 +167,7 @@ const amendment = async (req, res) => {
     //});
 
 
-    if(passngerall.length === 0){
+    if (passngerall.length === 0) {
       await amendmentDetails.deleteOne({ _id: amendmentBookingSave._id });
       return {
         IsSucess: false,
@@ -177,7 +177,7 @@ const amendment = async (req, res) => {
 
     const passngerupdatedata = { ...getPassengerPreference }; // Creating a shallow copy    
     passngerupdatedata.amendmentId = AmendmentId;
-    passngerupdatedata.Passengers = passngerall; 
+    passngerupdatedata.Passengers = passngerall;
 
     const createAmendmentPassengerPrefence =
       await amendmentPassengerPreference.create(passngerupdatedata);
@@ -292,7 +292,7 @@ const getAllAmendment = async (req, res) => {
         populate: {
           path: 'company_ID'
         }
-      }).populate('BookedBy');
+      }).populate('AmendmentBy');
 
 
     if (!amendmentdetails || amendmentdetails.length === 0) {

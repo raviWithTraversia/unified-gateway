@@ -135,8 +135,5 @@ const agentConfigSchema = new mongoose.Schema({
   defaultPgMode: { type: String }
 }, { timestamps: true, });
 
-const AgentConfiguration = mongoose.model(
-  "AgentConfiguration",
-  agentConfigSchema
-);
+const AgentConfiguration = mongoose.model("AgentConfiguration", agentConfigSchema);
 module.exports = AgentConfiguration;

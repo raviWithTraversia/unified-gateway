@@ -185,5 +185,11 @@ log_route.get('/log/getSsr',eventLogController.getSsrlog)
 
 log_route.get('/log/getincentivelog',eventLogController.getIncenctivelog)
 
+log_route.get('/log/getFarerules',eventLogController.getFairRuleslog)
+
+log_route.get('/log/getPgCharges',eventLogController.getPgChargeslog)
+
+
+
 
 module.exports = log_route;

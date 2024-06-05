@@ -206,24 +206,50 @@ const amendment = async (req, res) => {
 
 const getAllAmendment = async (req, res) => {
   const {
+    // userId,
+    // agencyId,
+    // bookingId,
+    // pnr,
+    // status,
+    // fromDate,
+    // toDate,
+    // salesInchargeIds
     userId,
     agencyId,
-    bookingId,
     pnr,
+    amendmentId,
     status,
+    paymentStatus,
+    amendmentStatus,
+    amendmentType,
     fromDate,
     toDate,
-    salesInchargeIds
+    bookingId,
+    salesInchargeIds,
+    invoicingStatus
   } = req.body;
   const fieldNames = [
+    // "userId",
+    // "agencyId",
+    // "bookingId",
+    // "pnr",
+    // "status",
+    // "fromDate",
+    // "toDate",
+    // "salesInchargeIds"
     "userId",
     "agencyId",
-    "bookingId",
     "pnr",
+    "amendmentId",
     "status",
+    "paymentStatus",
+    "amendmentStatus",
+    "amendmentType",
     "fromDate",
     "toDate",
-    "salesInchargeIds"
+    "bookingId",
+    "salesInchargeIds",
+    "invoicingStatus"
   ];
   const missingFields = fieldNames.filter(
     (fieldName) =>
@@ -259,6 +285,10 @@ const getAllAmendment = async (req, res) => {
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.AgencyId = agencyId;
     }
+    if (amendmentId) { filter.amendmentId = amendmentId }
+    if (paymentStatus) { filter.paymentStatus = paymentStatus }
+    if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+    if (amendmentType) { filter.amendmentType = amendmentType }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;
@@ -341,6 +371,10 @@ const getAllAmendment = async (req, res) => {
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.userId = { _id: agencyId };
     }
+    if (amendmentId) { filter.amendmentId = amendmentId }
+    if (paymentStatus) { filter.paymentStatus = paymentStatus }
+    if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+    if (amendmentType) { filter.amendmentType = amendmentType }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;
@@ -420,6 +454,10 @@ const getAllAmendment = async (req, res) => {
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.userId = agencyId;
     }
+    if (amendmentId) { filter.amendmentId = amendmentId }
+    if (paymentStatus) { filter.paymentStatus = paymentStatus }
+    if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+    if (amendmentType) { filter.amendmentType = amendmentType }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;

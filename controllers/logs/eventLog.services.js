@@ -665,6 +665,7 @@ const getIncenctivelog=async(req,res)=>{
                 response: "Either doucment_id does not exist",
             };
         }
+        console.log('shdadaabali')
         const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
             { path: "doerId", select: "fname email lastName userId" },
             { path: "companyId", select: "companyName type" },
@@ -701,31 +702,29 @@ const getIncenctivelog=async(req,res)=>{
                     });
                     if (item.oldValue?.supplierCode?._id !== item.newValue?.supplierCode?._id) {
                         updatedValues.supplierCode = {
-                            oldValue:{supplierCode: item.oldValue?.supplierCode?.supplierCode,
-                                status:item.oldValue?.supplierCode?.status
-                            },
-                            newValue:{supplierCode: item.newValue?.supplierCode?.supplierCode,
-                                status:item.newValue?.supplierCode?.status
-                            },
+                            oldValue: item.oldValue?.supplierCode?.supplierCode,
+                               
+                            newValue: item.newValue?.supplierCode?.supplierCode,
+                                
                         };}
 
                         if (item.oldValue?.cabinClass?.cabinClassCode!==item.newValue?.cabinClass?.cabinClassCode) {
                             updatedValues.cabinClass = {
-                                oldValue:{cabinClassCode: item.oldValue?.cabinClass?.cabinClassCode,cabinClassName: item.oldValue?.cabinClass?.cabinClassName},
-                                newValue:{cabinClassCode: item.newValue?.cabinClass?.cabinClassCode,cabinClassName: item.newValue?.cabinClass?.cabinClassName},
+                                oldValue:  item.oldValue?.cabinClass?.cabinClassName,
+                                newValue: item.newValue?.cabinClass?.cabinClassName
                             };
                         }  
 
                         if (item.oldValue?.fareFamily?.fareFamilyCode!==item.newValue?.fareFamily?.fareFamilyCode) {
                             updatedValues.fareFamily = {
-                                oldValue:{fareFamilyCode: item.oldValue?.fareFamily?.fareFamilyCode,fareFamilyName: item.oldValue?.fareFamily?.fareFamilyName},
-                                newValue:{fareFamilyCode: item.newValue?.fareFamily?.fareFamilyCode,fareFamilyName: item.newValue?.fareFamily?.fareFamilyName},
+                                oldValue:item.oldValue?.fareFamily?.fareFamilyName,
+                                newValue:item.newValue?.fareFamily?.fareFamilyName
                             };
                         }  
                         if (item.oldValue?.airlineCode?.airlineCode!==item.newValue?.airlineCode?.airlineCode) {
                             updatedValues.airlineCode = {
-                                oldValue:{airlineCode: item.oldValue?.airlineCode?.airlineCode,airlineName: item.oldValue?.airlineCode?.airlineName},
-                                newValue:{airlineCode: item.newValue?.airlineCode?.airlineCode,airlineName: item.newValue?.airlineCode?.airlineName},
+                                oldValue:item.oldValue?.airlineCode?.airlineName,
+                                newValue: item.newValue?.airlineCode?.airlineName
                             };
                         }  
             return {

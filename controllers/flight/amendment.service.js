@@ -806,9 +806,18 @@ const assignAmendmentUser = async (req, res) => {
   return { response: "User assigned Successfully" }
 }
 
+const deleteAmendmentDetail = async (req, res) => {
+  const { amendmentId } = req.query;
+  if (!amendmentId) { return { response: "Provide required fields" } };
+  await amendmentDetails.deleteMany({ amendmentId });
+  await amendmentPassengerPreference.deleteMany({ amendmentId })
+  return { response: "Amendment deleted Successfully" }
+}
+
 
 module.exports = {
   amendment,
   getAllAmendment,
-  assignAmendmentUser
+  assignAmendmentUser,
+  deleteAmendmentDetail
 };

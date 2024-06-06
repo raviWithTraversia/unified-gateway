@@ -150,21 +150,21 @@ const getAgencyLog=async(req,res)=>{
     }
 
 
-    if (item.oldValue?.privilagePlanId?._id !== item.newValue?.privilagePlanId?._id) {
+    if (item.oldValue?.privilagePlanId?.privilagePlanName !== item.newValue?.privilagePlanId?.privilagePlanName) {
         updatedValues.privilagePlanId = {
             oldValue: item.oldValue?.privilagePlanId?.privilagePlanName,
             newValue: item.newValue?.privilagePlanId?.privilagePlanName
         };
     }
 
-    if (item.oldValue?.commercialPlanId?._id !== item.newValue?.commercialPlanId?._id) {
+    if (item.oldValue?.commercialPlanId?.commercialPlanName !== item.newValue?.commercialPlanId?.commercialPlanName) {
         updatedValues.commercialPlanId = {
             oldValue: item.oldValue?.commercialPlanId?.commercialPlanName,
             newValue: item.newValue?.commercialPlanId?.commercialPlanName
         };
     }
 
-    if (item.oldValue?.plbGroupId?._id!==item.newValue?.plbGroupId?._id) {
+    if (item.oldValue?.plbGroupId?.PLBGroupName!==item.newValue?.plbGroupId?.PLBGroupName) {
         updatedValues.plbGroupId = {
             oldValue: item.oldValue?.plbGroupId?.PLBGroupName,
             newValue: item.newValue?.plbGroupId?.PLBGroupName
@@ -176,21 +176,21 @@ const getAgencyLog=async(req,res)=>{
         };
     }  
     
-    if (item.oldValue?.diSetupGroupId?._id!==item.newValue?.diSetupGroupId?._id) {
+    if (item.oldValue?.diSetupGroupId?.diSetupGroupName!==item.newValue?.diSetupGroupId?.diSetupGroupName) {
         updatedValues.diSetupGroupId = {
             oldValue: item.oldValue?.diSetupGroupId?.diSetupGroupName,
             newValue: item.newValue?.diSetupGroupId?.diSetupGroupName
         };
     }
    
-    if (item.oldValue?.airlinePromoCodeGroupId?._id!==item.newValue?.airlinePromoCodeGroupId?._id) {
+    if (item.oldValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName!==item.newValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName) {
         updatedValues.airlinePromoCodeGroupId = {
             oldValue: item.oldValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName,
             newValue: item.newValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName
         };
     }
 
-    if (item.oldValue?.fairRuleGroupId?._id!==item.newValue?.fairRuleGroupId?._id) {
+    if (item.oldValue?.fairRuleGroupId?.fareRuleGroupName!==item.newValue?.fairRuleGroupId?.fareRuleGroupName) {
         updatedValues.fairRuleGroupId = {
             oldValue: item.oldValue?.fairRuleGroupId?.fareRuleGroupName,
             newValue: item.newValue?.fairRuleGroupId?.fareRuleGroupName
@@ -198,13 +198,13 @@ const getAgencyLog=async(req,res)=>{
     }  
 
     
-    if (item.oldValue?.ssrCommercialGroupId?._id!==item.newValue?.ssrCommercialGroupId?._id) {
+    if (item.oldValue?.ssrCommercialGroupId?.ssrCommercialName!==item.newValue?.ssrCommercialGroupId?.ssrCommercialName) {
         updatedValues.ssrCommercialGroupId = {
             oldValue: item.oldValue?.ssrCommercialGroupId?.ssrCommercialName,
             newValue: item.newValue?.ssrCommercialGroupId?.ssrCommercialName
         };
     }
-    if (item.oldValue?.pgChargesGroupId?._id!==item.newValue?.pgChargesGroupId?._id) {
+    if (item.oldValue?.pgChargesGroupId?.paymentGatewayGroupName!==item.newValue?.pgChargesGroupId?.paymentGatewayGroupName) {
         updatedValues.pgChargesGroupId = {
             oldValue: item.oldValue?.pgChargesGroupId?.paymentGatewayGroupName,
             newValue: item.newValue?.pgChargesGroupId?.paymentGatewayGroupName
@@ -411,8 +411,8 @@ const getAgencyLogConfig=async(req,res)=>{
 
             if (item.oldValue?.salesInchargeIds?._id!==item.newValue?.salesInchargeIds?._id) {
                 updatedValues.salesInchargeIds = {
-                    oldValue: [item.oldValue?.salesInchargeIds?.email,item.oldValue?.salesInchargeIds?.fname,item.oldValue?.salesInchargeIds?.lastname,],
-                    newValue: [item.newValue?.salesInchargeIds?.email,item.newValue?.salesInchargeIds?.fname,item.newValue?.salesInchargeIds?.lastname,],
+                    oldValue: item.oldValue?.salesInchargeIds?.fname,
+                    newValue: item.newValue?.salesInchargeIds?.fname
                 };
             } 
             // Repeat this pattern for other properties

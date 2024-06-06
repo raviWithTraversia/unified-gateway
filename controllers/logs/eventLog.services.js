@@ -490,14 +490,14 @@ const getDisetuplog=async(req,res)=>{
                 };
             }
 
-            if (Date(item.oldValue?.validFromDate) !== Date(item.newValue?.validFromDate)) {
+            if (item.oldValue?.validFromDate !== item.newValue?.validFromDate) {
                 updatedValues.validFromDate = {
                     oldValue: item.oldValue?.validFromDate,
                     newValue: item.newValue?.validFromDate
                 };
             }
 
-            if (Date(item.oldValue?.validToDate) !== Date(item.newValue?.validToDate)) {
+            if (item.oldValue?.validToDate !== item.newValue?.validToDate) {
                 updatedValues.validToDate = {
                     oldValue: item.oldValue?.validToDate,
                     newValue: item.newValue?.validToDate
@@ -528,6 +528,7 @@ const getDisetuplog=async(req,res)=>{
 
     }
     catch(error){
+
         throw error;
     }
 }

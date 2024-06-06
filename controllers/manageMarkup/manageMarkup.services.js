@@ -110,11 +110,11 @@ const updateMarkup = async (req, res) => {
       { markupId: CheckMarkupLogExist.markupId},
         {
             markupDataNew: req.body.markupData,
+            markupDataOld:CheckMarkupLogExist.markupDataNew,
             doerId:req.user._id
           },
           { new: true }
         );
-
       } else {
         const addMarkupLog = new markupLogHistory({
           markupId,
@@ -237,56 +237,14 @@ const getMarkuplogHistory = async (req, res) => {
       {path:"doerId",select:"fname lastName email"}
      ]);
 
-const result = markupLogHistoryData.map(item => {
-  const updatedValues = {};
-
-  const fields = ['markupRate', 'adultFixed', 'childFixed', 'infantFixed', 'maxMarkup', 'sectorWise', 'flightWise'];
-
-  const oldMarkupData = item.markupDataOld;
-  const newMarkupData = item.markupDataNew;
-  oldMarkupData.forEach(oldMarkup => {
-      const newMarkup = newMarkupData.find(m => m.markUpCategoryId !== oldMarkup.markUpCategoryId);
-      
-      if (newMarkup) {
-          fields.forEach(field => {
-              if (oldMarkup[field] !== newMarkup[field]) {
-                  if (!updatedValues.markupData) {
-                      updatedValues.markupData = [];
-                  }
-
-                  let existingChange = updatedValues.markupData.find(change => change.markUpCategoryId !== oldMarkup.markUpCategoryId);
-
-                  if (!existingChange) {
-                      existingChange = {
-                          markUpCategoryId: oldMarkup.markUpCategoryId,
-                          oldValue: {},
-                          newValue: {}
-                      };
-                      updatedValues.markupData.push(existingChange);
-                  }
-
-               existingChange.oldValue[field] = oldMarkup[field];
-          existingChange.newValue[field] = newMarkup[field]
-              }
-          });
-      }
-  });
-
-  return {
-      _id: item._id,
-      markupId: item.markupId,
-      doerId:item.doerId,
-      updatedValues,
-      __v: item.__v
-  };
-}).filter(item => Object.keys(item.updatedValues).length > 0);
-
+   
+  
 
   
     if (markupLogHistoryData) {
       return {
         response: 'markupLogHistory Data found Sucessfully',
-        data: result
+        data: markupLogHistoryData
       }
     } else {
       return {

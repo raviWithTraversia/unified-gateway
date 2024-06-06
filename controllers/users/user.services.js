@@ -760,7 +760,7 @@ const getAllAgencyAndDistributer = async (req,res) => {
     const users = await User.find({ company_ID: { $in: ids } }).populate('roleId').populate('cityId').populate({
       path: 'company_ID',
       model: 'Company',
-      select: 'companyName type cashBalance creditBalance maxCreditLimit updatedAt',
+      select: 'companyName type cashBalance companyStatus creditBalance maxCreditLimit updatedAt',
       populate: {
         path: 'parent',
         model: 'Company',

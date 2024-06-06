@@ -16,7 +16,7 @@ const addAgentConfiguration = async (req, res) => {
       incentiveGroupIds,
       accountCode,
       tds,
-      maxcreditLimit,
+      // maxcreditLimit,
       holdPNRAllowed,
       acencyLogoOnTicketCopy,
       addressOnTicketCopy,
@@ -41,7 +41,7 @@ const addAgentConfiguration = async (req, res) => {
         incentiveGroupIds,
         accountCode,
         tds,
-        maxcreditLimit,
+        // maxcreditLimit,
         holdPNRAllowed,
         acencyLogoOnTicketCopy,
         addressOnTicketCopy,
@@ -71,7 +71,7 @@ const addAgentConfiguration = async (req, res) => {
         incentiveGroupIds,
         accountCode,
         tds,
-        maxcreditLimit,
+        // maxcreditLimit,
         holdPNRAllowed,
         acencyLogoOnTicketCopy,
         addressOnTicketCopy,
@@ -107,7 +107,7 @@ const updateAgentConfiguration = async (req, res) => {
 
     const existingConfig = await agentConfigsModels.findById(id);
     const userData = await userModel.findById(req.user._id)
-    const updateData=await agentConfigsModels.findByIdAndUpdate(id,updates,{new:true})
+    const updateData = await agentConfigsModels.findByIdAndUpdate(id, updates, { new: true })
 
     /// console.log("====>", existingConfig);
     // if (!existingConfig) {

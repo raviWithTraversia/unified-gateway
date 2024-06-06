@@ -3,11 +3,11 @@ const Company = require('../../models/Company');
 const User = require('../../models/User');
 const commonFunction = require('../commonFunctions/common.function');
 const config = require('../../models/AgentConfig');
-const EventLogs=require('../logs/EventApiLogsCommon')
+const EventLogs = require('../logs/EventApiLogsCommon')
 
-const addCreditRequest = async(req , res) => {
+const addCreditRequest = async (req, res) => {
     try {
-        const {companyId,
+        const { companyId,
             agencyId,
             date,
             duration,
@@ -22,28 +22,28 @@ const addCreditRequest = async(req , res) => {
             product
         } = req.body;
 
-        if(!companyId || !createdBy || !requestedAmount || !agencyId) {
+        if (!companyId || !createdBy || !requestedAmount || !agencyId) {
             return {
-                response : 'All field are required'
+                response: 'All field are required'
             }
         }
-       
+
         // check companyId exist or not
         const checkExistCompany = await Company.findById(companyId);
-        if(!checkExistCompany) {
+        if (!checkExistCompany) {
             return {
-                response : 'companyId does not exist'
+                response: 'companyId does not exist'
             }
         }
-        
+
         // Check created BY id exist or not
         const checkUserIdExist = await User.findById(createdBy);
-        if(!checkUserIdExist) {
+        if (!checkUserIdExist) {
             return {
-                response : 'createdBy id does not exist'
+                response: 'createdBy id does not exist'
             }
         }
-       
+
         const saveResult = new CreditRequest({
             companyId,
             agencyId,
@@ -56,29 +56,29 @@ const addCreditRequest = async(req , res) => {
             expireDate,
             createdDate,
             createdBy,
-            requestedAmount ,
+            requestedAmount,
             product
         })
-        
+
         const result = await saveResult.save();
-        if (result) {     
-       
-        // Log add 
-        // const doerId = req.user._id;
-        // const loginUser = await User.findById(doerId);
+        if (result) {
 
-        // await commonFunction.eventLogFunction(
-        //     'creditRequest',
-        //     doerId ,
-        //     loginUser.fname ,
-        //     req.ip , 
-        //     companyId , 
-        //     'add credit request'
-        // );
+            // Log add 
+            // const doerId = req.user._id;
+            // const loginUser = await User.findById(doerId);
 
-        return {
-            response : 'Credit request created successfully'
-        }
+            // await commonFunction.eventLogFunction(
+            //     'creditRequest',
+            //     doerId ,
+            //     loginUser.fname ,
+            //     req.ip , 
+            //     companyId , 
+            //     'add credit request'
+            // );
+
+            return {
+                response: 'Credit request created successfully'
+            }
         } else {
             console.log("Failed to save result!");
         }
@@ -86,70 +86,70 @@ const addCreditRequest = async(req , res) => {
         throw error;
     }
 }
-const addwallettopup = async(req , res) => {
+const addwallettopup = async (req, res) => {
     try {
         const {
             companyId,
-            agencyId,                     
-            amount,            
-            remarks,            
+            agencyId,
+            amount,
+            remarks,
             createdDate,
-            createdBy,            
+            createdBy,
             product,
             modeofpayment
         } = req.body;
 
-        if(!companyId || !createdBy || !agencyId || !remarks || !createdDate || !product || !modeofpayment) {
+        if (!companyId || !createdBy || !agencyId || !remarks || !createdDate || !product || !modeofpayment) {
             return {
-                response : 'All field are required'
+                response: 'All field are required'
             }
         }
-        
+
         // check companyId exist or not
         const checkExistCompany = await Company.findById(companyId);
-        if(!checkExistCompany) {
+        if (!checkExistCompany) {
             return {
-                response : 'companyId does not exist'
+                response: 'companyId does not exist'
             }
         }
-        
+
         // Check created BY id exist or not
         const checkUserIdExist = await User.findById(createdBy);
-        if(!checkUserIdExist) {
+        if (!checkUserIdExist) {
             return {
-                response : 'createdBy id does not exist'
+                response: 'createdBy id does not exist'
             }
         }
-       
+
         const getResult = await config.findOne({ userId: agencyId });
         //console.log(getResult);
-        if (getResult) {            
+        if (getResult) {
             const maxCreditLimit = getResult.maxcreditLimit;
             const updatedMaxCreditLimit = maxCreditLimit + amount;
             const result = await config.updateOne({ userId: agencyId }, { maxcreditLimit: updatedMaxCreditLimit });
-            if (result) { 
+            if (result) {
                 return {
-                    response : 'Topup request created successfully'
+                    response: 'Topup request created successfully'
                 }
             } else {
                 console.log("Failed to save result!");
-            }    
-       }else{
-        console.log("Agency Not Found!");
-       }  
-        
-        
-        
-       
+            }
+        } else {
+            console.log("Agency Not Found!");
+        }
+
+
+
+
     } catch (error) {
         throw error;
     }
 }
 
 
-const getAllCreditList = async(req , res) => {
+const getAllCreditList = async (req, res) => {
     try {
-        const result = await CreditRequest.find().populate('companyId' , 'companyName');
+        const result = await CreditRequest.find().populate('companyId', 'companyName');
         if (result.length > 0) {
             return {
                 data: result
@@ -168,12 +168,12 @@ const getAllCreditList = async(req , res) => {
 
 
 
-const getCredirRequestByCompanyId = async(req , res) => {
+const getCredirRequestByCompanyId = async (req, res) => {
     try {
         const CompanyId = req.params.companyId;
         // const getAllAgency = await Company.find({_id: CompanyId});
         // console.log(getAllAgency);
-        const result = await CreditRequest.find({companyId : CompanyId}).populate('companyId' , 'companyName').populate('agencyId');
+        const result = await CreditRequest.find({ companyId: CompanyId }).populate('companyId', 'companyName').populate('agencyId');
         if (result.length > 0) {
             return {
                 data: result
@@ -190,12 +190,12 @@ const getCredirRequestByCompanyId = async(req , res) => {
     }
 }
 
-const getCredirRequestByAgentId = async(req , res) => {
+const getCredirRequestByAgentId = async (req, res) => {
     try {
         const CompanyId = req.params.companyId;
         // const getAllAgency = await Company.find({_id: CompanyId});
         // console.log(getAllAgency);
-        const result = await CreditRequest.find({agencyId : CompanyId}).populate('companyId' , 'companyName').populate('agencyId');
+        const result = await CreditRequest.find({ agencyId: CompanyId }).populate('companyId', 'companyName').populate('agencyId');
         if (result.length > 0) {
             return {
                 data: result
@@ -214,35 +214,34 @@ const getCredirRequestByAgentId = async(req , res) => {
 
 // accept and reject credit request
 
-const approveAndRejectCredit = async(req, res) => {
+const approveAndRejectCredit = async (req, res) => {
     try {
-        const {expireDate , utilizeAmount , remarks , status} = req.body;
+        const { expireDate, utilizeAmount, remarks, status } = req.body;
         const _id = req.params.creditRequestId;
-        if(!remarks || !status) {
+        if (!remarks || !status) {
             return {
-                response : 'Remark and status are required'
+                response: 'Remark and status are required'
             }
         }
         const doerId = req.user._id;
         const loginUser = await User.findById(doerId);
 
 
-        if(status == "approved") {
-            if(!expireDate || !utilizeAmount) {
+        if (status == "approved") {
+            if (!expireDate || !utilizeAmount) {
                 return {
-                    response : 'All field are required',
+                    response: 'All field are required',
                 }
             }
-    
+
             // Approved
-            const updateCreditRequestApproved =  await CreditRequest.findByIdAndUpdate(_id, {
+            const updateCreditRequestApproved = await CreditRequest.findByIdAndUpdate(_id, {
                 expireDate,
                 utilizeAmount,
                 remarks,
                 status,
                 amount: utilizeAmount
             }, { new: true })
-
             const LogsData = {
                 eventName: "Credit Request",
                 doerId: doerId,
@@ -253,17 +252,17 @@ const approveAndRejectCredit = async(req, res) => {
             };
             EventLogs(LogsData)
             return {
-                response : 'Credit request approved successfully'
+                response: 'Credit request approved successfully'
             }
-        }else{
+        } else {
 
-           
+
             // Rejected
-            const updateCreditRequestRejected =  await CreditRequest.findByIdAndUpdate(_id, {
+            const updateCreditRequestRejected = await CreditRequest.findByIdAndUpdate(_id, {
                 remarks,
                 status,
             }, { new: true })
-          
+
             const LogsData = {
                 eventName: "Credit Request",
                 doerId: doerId,
@@ -274,20 +273,20 @@ const approveAndRejectCredit = async(req, res) => {
             };
             EventLogs(LogsData)
             return {
-                response : 'Credit request rejected successfully'
+                response: 'Credit request rejected successfully'
             }
         }
 
     } catch (error) {
-       throw error 
+        throw error
     }
 }
 
 module.exports = {
-     addCreditRequest ,
-     getAllCreditList , 
-     getCredirRequestByCompanyId ,
-     approveAndRejectCredit,
-     getCredirRequestByAgentId,
-     addwallettopup
-    }
+    addCreditRequest,
+    getAllCreditList,
+    getCredirRequestByCompanyId,
+    approveAndRejectCredit,
+    getCredirRequestByAgentId,
+    addwallettopup
+}

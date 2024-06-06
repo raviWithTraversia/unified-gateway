@@ -400,7 +400,7 @@ const updateBookingStatus = async (req, res) => {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response ===
-        "_BookingId or companyId or credentialsType does not exist" ||
+      "_BookingId or companyId or credentialsType does not exist" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Supplier credentials does not exist" ||
       result.response === "Error in updating Status!" ||
@@ -551,6 +551,39 @@ const getAllAmendment = async (req, res) => {
   }
 };
 
+const assignAmendmentUser = async (req, res) => {
+  try {
+    const result = await amendment.assignAmendmentUser(req, res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "User id does not exist" || result.response === "Error in updating assignedUser") {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "User assigned Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+
 module.exports = {
   getSearch,
   airPricing,
@@ -564,5 +597,6 @@ module.exports = {
   updateBookingStatus,
   amendmentDetails,
   amendmentCartCreate,
-  getAllAmendment
+  getAllAmendment,
+  assignAmendmentUser
 };

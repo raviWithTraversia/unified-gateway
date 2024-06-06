@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { Config } = require("../../configs/config");
 
 const getRailSearch = async (req, res) => {
     try {
@@ -7,6 +8,9 @@ const getRailSearch = async (req, res) => {
         let renewDate = date.split("-");
         const url = `http://43.205.65.20:8000/eticketing/webservices/taenqservices/tatwnstns/${from}/${to}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
         const auth = 'Basic V05FUFRQTDAwMDAwOlRlc3Rpbmcx';
+        if (Config.MODE === "LIVE") {
+            url = `http://43.205.65.20:8000/eticketing/webservices/taenqservices/tatwnstns/${from}/${to}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
+        }
         const response = (await axios.get(url, { headers: { 'Authorization': auth } }))?.data;
         if (!response?.trainBtwnStnsList?.length) {
             return {

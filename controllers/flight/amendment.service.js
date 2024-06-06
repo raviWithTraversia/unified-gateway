@@ -88,7 +88,7 @@ const amendment = async (req, res) => {
         response: "Amendment with this AmendmentId already exists",
       };
     }
-      
+
 
     const getSector = BookingIdDetails.find((sector) => {
       const sectors = sector.itinerary?.Sectors;
@@ -121,8 +121,8 @@ const amendment = async (req, res) => {
     updatedSector.paymentStatus = "NOT PROCESSED";
     updatedSector.amendmentRemarks = AmendmentRemarks;
     updatedSector.AmendmentBy = AmendmentBy;
-   
-    
+
+
     const amendmentBookingSave = await amendmentDetails.create(
       updatedSector
     );
@@ -133,7 +133,7 @@ const amendment = async (req, res) => {
         response: "Not Save Booking Data",
       };
     }
-    
+
     const getPassengerPreference = await passengerPreferenceModel.findOne({
       bookingId: CartId,
     }).lean();
@@ -149,7 +149,7 @@ const amendment = async (req, res) => {
 
     let passngerall = [];
     //Sector.Passengers.forEach((pasngr) => {
-      for (const pasngr of Sector.Passengers) {
+    for (const pasngr of Sector.Passengers) {
       const apiPassenger = getPassengerPreference.Passengers.find(
         (p) =>
           p.Title === pasngr.Title &&
@@ -167,7 +167,7 @@ const amendment = async (req, res) => {
     //});
 
 
-    if(passngerall.length === 0){
+    if (passngerall.length === 0) {
       await amendmentDetails.deleteOne({ _id: amendmentBookingSave._id });
       return {
         IsSucess: false,
@@ -177,7 +177,7 @@ const amendment = async (req, res) => {
 
     const passngerupdatedata = { ...getPassengerPreference }; // Creating a shallow copy    
     passngerupdatedata.amendmentId = AmendmentId;
-    passngerupdatedata.Passengers = passngerall; 
+    passngerupdatedata.Passengers = passngerall;
 
     const createAmendmentPassengerPrefence =
       await amendmentPassengerPreference.create(passngerupdatedata);
@@ -206,25 +206,50 @@ const amendment = async (req, res) => {
 
 const getAllAmendment = async (req, res) => {
   const {
+    // userId,
+    // agencyId,
+    // bookingId,
+    // pnr,
+    // status,
+    // fromDate,
+    // toDate,
+    // salesInchargeIds
     userId,
     agencyId,
-    bookingId,
     pnr,
+    amendmentId,
     status,
+    paymentStatus,
+    amendmentStatus,
+    amendmentType,
     fromDate,
     toDate,
+    bookingId,
     salesInchargeIds,
-    BookedBy
+    invoicingStatus
   } = req.body;
   const fieldNames = [
+    // "userId",
+    // "agencyId",
+    // "bookingId",
+    // "pnr",
+    // "status",
+    // "fromDate",
+    // "toDate",
+    // "salesInchargeIds"
     "userId",
     "agencyId",
-    "bookingId",
     "pnr",
+    "amendmentId",
     "status",
+    "paymentStatus",
+    "amendmentStatus",
+    "amendmentType",
     "fromDate",
     "toDate",
-    "salesInchargeIds"
+    "bookingId",
+    "salesInchargeIds",
+    "invoicingStatus"
   ];
   const missingFields = fieldNames.filter(
     (fieldName) =>
@@ -260,6 +285,10 @@ const getAllAmendment = async (req, res) => {
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.AgencyId = agencyId;
     }
+    if (amendmentId) { filter.amendmentId = amendmentId }
+    if (paymentStatus) { filter.paymentStatus = paymentStatus }
+    if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+    if (amendmentType) { filter.amendmentType = amendmentType }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;
@@ -270,29 +299,27 @@ const getAllAmendment = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
-
-    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-      };
-    }
-
+    // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+    //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+    //   };
+    // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+    //   };
+    // } else if (toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+    //   };
+    // }
     const amendmentdetails = await amendmentDetails.find(filter)
       .populate({
         path: 'userId',
         populate: {
           path: 'company_ID'
         }
-      }).populate('BookedBy');
+      }).populate('AmendmentBy').populate('assignToUser');
 
 
     if (!amendmentdetails || amendmentdetails.length === 0) {
@@ -334,7 +361,7 @@ const getAllAmendment = async (req, res) => {
       }
       return {
         response: "Fetch Data Successfully",
-        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime - new Date(a.amendmentdetails.bookingDateTime))), statusCounts: statusCounts }
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt - new Date(a.amendmentdetails.createdAt))), statusCounts: statusCounts }
       };
     }
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer") {
@@ -342,6 +369,10 @@ const getAllAmendment = async (req, res) => {
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.userId = { _id: agencyId };
     }
+    if (amendmentId) { filter.amendmentId = amendmentId }
+    if (paymentStatus) { filter.paymentStatus = paymentStatus }
+    if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+    if (amendmentType) { filter.amendmentType = amendmentType }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;
@@ -352,20 +383,20 @@ const getAllAmendment = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
-    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-      };
-    }
+    // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+    //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+    //   };
+    // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+    //   };
+    // } else if (toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+    //   };
+    // }
 
     const amendmentdetails = await amendmentDetails.find(filter)
       .populate({
@@ -373,7 +404,7 @@ const getAllAmendment = async (req, res) => {
         populate: {
           path: 'company_ID'
         }
-      }).populate('BookedBy');
+      }).populate('AmendmentBy').populate('assignToUser');
 
     if (!amendmentdetails || amendmentdetails.length === 0) {
       return {
@@ -412,7 +443,7 @@ const getAllAmendment = async (req, res) => {
       }
       return {
         response: "Fetch Data Successfully",
-        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt) - new Date(a.amendmentdetails.createdAt)), statusCounts: statusCounts }
       };
     }
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" || checkUserIdExist?.company_ID?.type === "TMC") {
@@ -421,6 +452,10 @@ const getAllAmendment = async (req, res) => {
     if (agencyId !== undefined && agencyId.trim() !== "") {
       filter.userId = agencyId;
     }
+    if (amendmentId) { filter.amendmentId = amendmentId }
+    if (paymentStatus) { filter.paymentStatus = paymentStatus }
+    if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+    if (amendmentType) { filter.amendmentType = amendmentType }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;
@@ -431,20 +466,20 @@ const getAllAmendment = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
-    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-      };
-    }
+    // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+    //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+    //   };
+    // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+    //   };
+    // } else if (toDate !== undefined && toDate.trim() !== "") {
+    //   filter.createdAt = {
+    //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+    //   };
+    // }
 
     const amendmentdetails = await amendmentDetails.find(filter)
       .populate({
@@ -452,8 +487,7 @@ const getAllAmendment = async (req, res) => {
         populate: {
           path: 'company_ID'
         }
-      }).populate('BookedBy');
-    console.log(amendmentdetails);
+      }).populate('AmendmentBy').populate('assignToUser');
 
     if (!amendmentdetails || amendmentdetails.length === 0) {
       return {
@@ -491,7 +525,7 @@ const getAllAmendment = async (req, res) => {
 
       return {
         response: "Fetch Data Successfully",
-        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
+        data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt) - new Date(a.amendmentdetails.createdAt)), statusCounts: statusCounts }
       };
     }
   } else {
@@ -506,6 +540,10 @@ const getAllAmendment = async (req, res) => {
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.AgencyId = agencyId;
       }
+      if (amendmentId) { filter.amendmentId = amendmentId }
+      if (paymentStatus) { filter.paymentStatus = paymentStatus }
+      if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+      if (amendmentType) { filter.amendmentType = amendmentType }
 
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
@@ -517,20 +555,20 @@ const getAllAmendment = async (req, res) => {
         filter.bookingStatus = status;
       }
 
-      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-        };
-      }
+      // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+      //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      //   };
+      // }
 
       const amendmentdetails = await amendmentDetails.find(filter)
         .populate({
@@ -538,7 +576,7 @@ const getAllAmendment = async (req, res) => {
           populate: {
             path: 'company_ID'
           }
-        }).populate('BookedBy');
+        }).populate('AmendmentBy').populate('assignToUser');
 
 
       if (!amendmentdetails || amendmentdetails.length === 0) {
@@ -580,7 +618,7 @@ const getAllAmendment = async (req, res) => {
         }
         return {
           response: "Fetch Data Successfully",
-          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime - new Date(a.amendmentdetails.bookingDateTime))), statusCounts: statusCounts }
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt - new Date(a.amendmentdetails.createdAt))), statusCounts: statusCounts }
         };
       }
     } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Distributer") {
@@ -588,6 +626,10 @@ const getAllAmendment = async (req, res) => {
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.userId = { _id: agencyId };
       }
+      if (amendmentId) { filter.amendmentId = amendmentId }
+      if (paymentStatus) { filter.paymentStatus = paymentStatus }
+      if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+      if (amendmentType) { filter.amendmentType = amendmentType }
 
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
@@ -598,20 +640,20 @@ const getAllAmendment = async (req, res) => {
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
       }
-      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-        };
-      }
+      // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+      //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      //   };
+      // }
 
       const amendmentdetails = await amendmentDetails.find(filter)
         .populate({
@@ -619,7 +661,7 @@ const getAllAmendment = async (req, res) => {
           populate: {
             path: 'company_ID'
           }
-        }).populate('BookedBy');
+        }).populate('AmendmentBy').populate('assignToUser');
 
       if (!amendmentdetails || amendmentdetails.length === 0) {
         return {
@@ -658,7 +700,7 @@ const getAllAmendment = async (req, res) => {
         }
         return {
           response: "Fetch Data Successfully",
-          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt) - new Date(a.amendmentdetails.createdAt)), statusCounts: statusCounts }
         };
       }
     } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "TMC" || checkComapnyUser?.company_ID?.type === "TMC") {
@@ -667,6 +709,10 @@ const getAllAmendment = async (req, res) => {
       if (agencyId !== undefined && agencyId.trim() !== "") {
         filter.userId = agencyId;
       }
+      if (amendmentId) { filter.amendmentId = amendmentId }
+      if (paymentStatus) { filter.paymentStatus = paymentStatus }
+      if (amendmentStatus) { filter.amendmentStatus = amendmentStatus }
+      if (amendmentType) { filter.amendmentType = amendmentType }
 
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
@@ -677,20 +723,20 @@ const getAllAmendment = async (req, res) => {
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
       }
-      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-        };
-      }
+      // if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+      //     $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.createdAt = {
+      //     $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      //   };
+      // }
 
       const amendmentdetails = await amendmentDetails.find(filter)
         .populate({
@@ -698,7 +744,7 @@ const getAllAmendment = async (req, res) => {
           populate: {
             path: 'company_ID'
           }
-        }).populate('BookedBy');
+        }).populate('AmendmentBy').populate('assignToUser');
 
 
       if (!amendmentdetails || amendmentdetails.length === 0) {
@@ -737,7 +783,7 @@ const getAllAmendment = async (req, res) => {
 
         return {
           response: "Fetch Data Successfully",
-          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.bookingDateTime) - new Date(a.amendmentdetails.bookingDateTime)), statusCounts: statusCounts }
+          data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.amendmentdetails.createdAt) - new Date(a.amendmentdetails.createdAt)), statusCounts: statusCounts }
         };
       }
     }
@@ -746,8 +792,23 @@ const getAllAmendment = async (req, res) => {
   }
 };
 
+const assignAmendmentUser = async (req, res) => {
+  const { amendmentId, assignedUser } = req.body;
+  if (!amendmentId || !assignedUser) { return { response: "Provide required fields" } };
+  const getUser = await User.findById(assignedUser);
+  if (!getUser) {
+    return { response: "User id does not exist" }
+  }
+  const updatedAmendment = await amendmentDetails.findOneAndUpdate({ amendmentId }, { $set: { assignToUser: assignedUser } });
+  if (!updatedAmendment) {
+    return { response: "Error in updating assignedUser" }
+  }
+  return { response: "User assigned Successfully" }
+}
+
 
 module.exports = {
   amendment,
-  getAllAmendment
+  getAllAmendment,
+  assignAmendmentUser
 };

@@ -138,6 +138,7 @@ const updateFareRule = async (req, res) => {
   try {
     let { id } = req.query;
     let data = req.body;
+    const existData=await fareRulesModel.findById(id)
     let updateFareRuleData = await fareRulesModel.findByIdAndUpdate(
       id,
       {
@@ -156,6 +157,8 @@ const userData= await user.findById(req.user._id)
         doerId:req.user._id,
         doerName:userData.fname,
  companyId:data.companyId,
+ oldValue:existData,
+ newValue:updateFareRuleData,
  documentId:updateFareRuleData._id,
         description:"Edit Fare Rules",
       }

@@ -122,21 +122,27 @@ const agentConfigSchema = new mongoose.Schema({
   assignAmendmentCancellation: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+    default: null
   },
   assignAmendmentReschedule: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+    default: null
   },
   assignAmendmentMisc: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+    default: null
   },
-  defaultPg: { type: String },
-  defaultPgMode: { type: String }
+  defaultPg: {
+    type: String,
+    default: null
+  },
+  defaultPgMode: {
+    type: String,
+    default: null
+  }
 }, { timestamps: true, });
 
-const AgentConfiguration = mongoose.model(
-  "AgentConfiguration",
-  agentConfigSchema
-);
+const AgentConfiguration = mongoose.model("AgentConfiguration", agentConfigSchema);
 module.exports = AgentConfiguration;

@@ -319,7 +319,7 @@ const getAllAmendment = async (req, res) => {
         populate: {
           path: 'company_ID'
         }
-      }).populate('AmendmentBy');
+      }).populate('AmendmentBy').populate('assignToUser');
 
 
     if (!amendmentdetails || amendmentdetails.length === 0) {
@@ -404,7 +404,7 @@ const getAllAmendment = async (req, res) => {
         populate: {
           path: 'company_ID'
         }
-      }).populate('AmendmentBy');
+      }).populate('AmendmentBy').populate('assignToUser');
 
     if (!amendmentdetails || amendmentdetails.length === 0) {
       return {
@@ -487,7 +487,7 @@ const getAllAmendment = async (req, res) => {
         populate: {
           path: 'company_ID'
         }
-      }).populate('AmendmentBy');
+      }).populate('AmendmentBy').populate('assignToUser');
 
     if (!amendmentdetails || amendmentdetails.length === 0) {
       return {
@@ -576,7 +576,7 @@ const getAllAmendment = async (req, res) => {
           populate: {
             path: 'company_ID'
           }
-        }).populate('AmendmentBy');
+        }).populate('AmendmentBy').populate('assignToUser');
 
 
       if (!amendmentdetails || amendmentdetails.length === 0) {
@@ -661,7 +661,7 @@ const getAllAmendment = async (req, res) => {
           populate: {
             path: 'company_ID'
           }
-        }).populate('AmendmentBy');
+        }).populate('AmendmentBy').populate('assignToUser');
 
       if (!amendmentdetails || amendmentdetails.length === 0) {
         return {
@@ -744,7 +744,7 @@ const getAllAmendment = async (req, res) => {
           populate: {
             path: 'company_ID'
           }
-        }).populate('AmendmentBy');
+        }).populate('AmendmentBy').populate('assignToUser');
 
 
       if (!amendmentdetails || amendmentdetails.length === 0) {

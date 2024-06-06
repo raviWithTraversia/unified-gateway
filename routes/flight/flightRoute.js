@@ -24,6 +24,6 @@ flight_route.post('/flight/updateBookingStatus', auth, flight.updateBookingStatu
 flight_route.post('/flight/amendment', auth, flight.amendmentDetails);
 flight_route.post('/flight/allAmendment', auth, flight.getAllAmendment);
 flight_route.post('/flight/assignAmendmentUser', auth, flight.assignAmendmentUser);
-flight_route.post('/flight/deleteAmendmentDetail', auth, flight.deleteAmendmentDetail);
+flight_route.get('/flight/deleteAmendmentDetail', auth, flight.deleteAmendmentDetail);
 
 module.exports = flight_route;

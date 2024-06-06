@@ -490,14 +490,14 @@ const getDisetuplog=async(req,res)=>{
                 };
             }
 
-            if (Date(item.oldValue?.validFromDate) !== Date(item.newValue?.validFromDate)) {
+            if (item.oldValue?.validFromDate !== item.newValue?.validFromDate) {
                 updatedValues.validFromDate = {
                     oldValue: item.oldValue?.validFromDate,
                     newValue: item.newValue?.validFromDate
                 };
             }
 
-            if (Date(item.oldValue?.validToDate) !== Date(item.newValue?.validToDate)) {
+            if (item.oldValue?.validToDate !== item.newValue?.validToDate) {
                 updatedValues.validToDate = {
                     oldValue: item.oldValue?.validToDate,
                     newValue: item.newValue?.validToDate
@@ -528,6 +528,7 @@ const getDisetuplog=async(req,res)=>{
 
     }
     catch(error){
+
         throw error;
     }
 }
@@ -608,22 +609,14 @@ const getSsrlog=async(req,res)=>{
             
             if (item.oldValue?.airlineCodeId?._id !== item.newValue?.airlineCodeId?._id) {
                 updatedValues.airlineCodeId = {
-                    oldValue:{airlineName: item.oldValue?.airlineCodeId?.airlineName,
-                        airlineCode:item.oldValue?.airlineCodeId?.airlineCode
-                    },
-                    newValue:{airlineName: item.newValue?.airlineCodeId?.airlineName,
-                        airlineCode:item.newValue?.airlineCodeId?.airlineCode
-                    },
+                    oldValue: item.oldValue?.airlineCodeId?.airlineName,
+                    newValue: item.newValue?.airlineCodeId?.airlineName,
                 };}
 
                 if (item.oldValue?.supplierCode?._id !== item.newValue?.supplierCode?._id) {
                     updatedValues.supplierCode = {
-                        oldValue:{supplierCode: item.oldValue?.supplierCode?.supplierCode,
-                            status:item.oldValue?.supplierCode?.status
-                        },
-                        newValue:{supplierCode: item.newValue?.supplierCode?.supplierCode,
-                            status:item.newValue?.supplierCode?.status
-                        },
+                        oldValue: item.oldValue?.supplierCode?.supplierCode,
+                        newValue: item.newValue?.supplierCode?.supplierCode,
                     };}
             return {
                 _id: item._id, // Include other necessary fields here

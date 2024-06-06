@@ -176,8 +176,8 @@ log_route.post('/log/getBookingLogs', auth, portalLogController.getBookingLogs);
 
 log_route.get('/log/getEventLog', auth, eventLogController.getEventLog);
 log_route.get('/log/getbyid',eventLogController.getEventlogbyid)
-log_route.post('/log/getAgency',eventLogController.getAgencyLog)
-log_route.post('/log/getAgencyConfig',eventLogController.getAgencyLogConfig)
+log_route.get('/log/getAgency',eventLogController.getAgencyLog)
+log_route.get('/log/getAgencyConfig',eventLogController.getAgencyLogConfig)
 
 log_route.get('/log/getaircommercialeventlog',eventLogController.getairCommercialfilterlog)
 log_route.get('/log/getdisetup',eventLogController.getDisetuplog)

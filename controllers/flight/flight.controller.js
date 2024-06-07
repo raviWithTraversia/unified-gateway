@@ -514,9 +514,9 @@ const assignAmendmentUser = async (req, res) => {
     const result = await amendment.assignAmendmentUser(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "User id does not exist") {
+    } else if (result.response === "Provide either assignedUser or newCartId" || result.response === "User id does not exist") {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
-    } else if (result.response === "User assigned Successfully") {
+    } else if (result.response === "User assigned Successfully" || result.response === "assignedUser and newCartId assigned successfully" || result.response === "newCartId assigned Successfully") {
       apiSucessRes(
         res,
         result.response,

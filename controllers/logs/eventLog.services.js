@@ -138,7 +138,7 @@ const getAgencyLog=async(req,res)=>{
  ]
     
 
- )
+ ).sort({createdAt:-1})
  
  const result = getEventLogs.map(item => {
     const updatedValues = {};
@@ -280,7 +280,7 @@ const getAgencyLogConfig=async(req,res)=>{
 
           ];
           
-          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions);
+          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions).sort({createdAt:-1});
           
           const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -458,7 +458,7 @@ const getDisetuplog=async(req,res)=>{
         const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
             { path: "doerId", select: "fname email lastName userId" },
             { path: "companyId", select: "companyName type" },
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -551,14 +551,14 @@ const getSsrlog=async(req,res)=>{
             { path: "newValue.supplierCode", model:"SupplierCode" },
 
 
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
             const categories = ['seat', 'meal', 'baggage'];
             const subcategories = ['bookingFee', 'markup', 'discount'];
             const fields = ['fixCharge', 'percentCharge', 'maxValue'];
-        
+          
             categories.forEach(category => {
                 subcategories.forEach(subcategory => {
                     fields.forEach(field => {
@@ -673,7 +673,7 @@ const getIncenctivelog=async(req,res)=>{
             { path: 'newValue.fareFamily', model: 'FareFamilyMaster',  },
 
 
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -781,7 +781,7 @@ const getairCommercialfilterlog=async(req,res)=>{
 
           ];
           
-          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions);
+          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions).sort({createdAt:-1});
           
           const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -879,7 +879,7 @@ const getFairRuleslog=async(req,res)=>{
             { path: 'newValue.fareFamilyId', model: 'FareFamilyMaster',  },
 
 
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -970,7 +970,7 @@ const getPgChargeslog=async(req,res)=>{
         const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
             { path: "doerId", select: "fname email lastName userId" },
             { path: "companyId", select: "companyName type" },
-            ])
+            ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};

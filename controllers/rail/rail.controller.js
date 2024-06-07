@@ -1,4 +1,4 @@
-const railSearchServices = require("./railBooking.services");
+const railSearchServices = require("./railSearch.services");
 
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const { ServerStatusCode, errorResponse, CrudMessage, } = require("../../utils/constants");

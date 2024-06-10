@@ -36,23 +36,18 @@ const getRailSearch = async (req, res) => {
 
 const getTrainStation=async(req,res)=>{
     try{
-        const { StationCode, StationName, Location } = req.body; 
-    if(!StationCode&&!StationName&&!Location){
+        const { Station} = req.body; 
+    if(!Station){
         return {
 response:"Station Code and StationName not found"
         }
     }
 else{
     let orConditions = [];
-    if (StationCode) {
-      orConditions.push({ StationCode: new RegExp(StationCode, 'i') });
+    if (Station) {
+      orConditions.push({ StationCode: new RegExp(Station, 'i') },{stationName:new RegExp(Station, 'i')},{Location:new RegExp(Station, 'i')});
     }
-    if (StationName) {
-      orConditions.push({ StationName: new RegExp(StationName, 'i') });
-    }
-    if (Location) {
-      orConditions.push({ Location: new RegExp(Location, 'i') });
-    }
+   
 
     let query = {};
     if (orConditions.length > 0) {

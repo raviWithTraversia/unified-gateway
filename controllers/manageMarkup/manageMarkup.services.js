@@ -31,12 +31,10 @@ const addMarkup = async (req, res) => {
         response: "This Markup already exists!",
       };
     }
-    console.log(userId)
     let checkIsRole = await userModel
       .findById(userId)
       .populate("roleId")
       .exec();
-
     if (
       checkIsRole.roleId.name == "Agency" ||
       checkIsRole.roleId.name == "Distributer"
@@ -51,8 +49,9 @@ const addMarkup = async (req, res) => {
         createdBy: userId,
         isDefault
       });
+      
       markupChargeInsert = await markupChargeInsert.save();
-
+console.log(markupChargeInsert)
       const userData=await user.findById(req.user._id)
       if (markupChargeInsert) {
         const LogsData={
@@ -95,7 +94,7 @@ const updateMarkup = async (req, res) => {
       },
       { new: true }
     );
-
+console.log(updateDetails)
     if (!updateDetails) {
       return {
         response: "MarkUp data not found",
@@ -111,7 +110,9 @@ const updateMarkup = async (req, res) => {
         {
             markupDataNew: req.body.markupData,
             markupDataOld:CheckMarkupLogExist.markupDataNew,
-            doerId:req.user._id
+            doerId:req.user._id,
+          updateDate:new Date()
+
           },
           { new: true }
         );
@@ -120,9 +121,9 @@ const updateMarkup = async (req, res) => {
           markupId,
           markupDataNew: req.body.markupData,
           markupDataOld: req.body.markupData,
-          doerId:req.user._id
-        });
+          doerId:req.user._id,
 
+        });
         const saveMarkupLog = await addMarkupLog.save();
       }
       const userData=user.findById(req.user._id)
@@ -234,8 +235,12 @@ const getMarkuplogHistory = async (req, res) => {
   try {
    const {id}=req.query
     let markupLogHistoryData = await markupLogHistory.find({markupId:id}).populate([{path:'markupId', select:" markupOn markupFor"},
-      {path:"doerId",select:"fname lastName email"}
-     ]);
+      {path:"doerId",select:"fname lastName email"},
+      {path:'markupDataNew.markUpCategoryId',select:"markUpCategoryName"},
+    {path:'markupDataOld.markUpCategoryId',select:'markUpCategoryName'}
+
+     ])
+     
 
    
   

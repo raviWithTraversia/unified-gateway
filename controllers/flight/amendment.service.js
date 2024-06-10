@@ -793,22 +793,51 @@ const getAllAmendment = async (req, res) => {
 };
 
 const assignAmendmentUser = async (req, res) => {
-  const { amendmentId, assignedUser } = req.body;
-  if (!amendmentId || !assignedUser) { return { response: "Provide required fields" } };
-  const getUser = await User.findById(assignedUser);
-  if (!getUser) {
-    return { response: "User id does not exist" }
+  const { amendmentId, assignedUser, newCartId } = req.body;
+  if (!amendmentId) { return { response: "Provide required fields" } };
+  if (!assignedUser && !newCartId) { return { response: "Provide either assignedUser or newCartId" } };
+  let setUpdate = {}, response;
+  if (assignedUser && newCartId) {
+    const getUser = await User.findById(assignedUser);
+    if (!getUser) {
+      return { response: "User id does not exist" }
+    }
+    setUpdate.assignToUser = assignedUser;
+    setUpdate.newCartId = newCartId;
+    response = "assignedUser and newCartId assigned successfully"
   }
-  const updatedAmendment = await amendmentDetails.findOneAndUpdate({ amendmentId }, { $set: { assignToUser: assignedUser } });
+  if (assignedUser && !newCartId) {
+    const getUser = await User.findById(assignedUser);
+    if (!getUser) {
+      return { response: "User id does not exist" }
+    }
+    setUpdate.assignToUser = assignedUser;
+    response = "User assigned Successfully"
+  };
+  if (newCartId && !assignedUser) {
+    setUpdate.newCartId = newCartId;
+    response = "newCartId assigned Successfully"
+  };
+
+  const updatedAmendment = await amendmentDetails.findOneAndUpdate({ amendmentId }, { $set: setUpdate });
   if (!updatedAmendment) {
     return { response: "Error in updating assignedUser" }
   }
-  return { response: "User assigned Successfully" }
+  return { response }
+}
+
+const deleteAmendmentDetail = async (req, res) => {
+  const { amendmentId } = req.query;
+  if (!amendmentId) { return { response: "Provide required fields" } };
+  await amendmentDetails.deleteMany({ amendmentId });
+  await amendmentPassengerPreference.deleteMany({ amendmentId })
+  return { response: "Amendment deleted Successfully" }
 }
 
 
 module.exports = {
   amendment,
   getAllAmendment,
-  assignAmendmentUser
+  assignAmendmentUser,
+  deleteAmendmentDetail
 };

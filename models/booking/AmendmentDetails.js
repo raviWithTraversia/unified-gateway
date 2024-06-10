@@ -15,22 +15,24 @@ const amendmentDetailsSchema = new mongoose.Schema(
       default: null,
     },
     amendmentStatus: {  // OPEN, COMPLETED , Under process, ABORTED, PENDING
-        type: String,
-        default: "OPEN",
-      },
+      type: String,
+      default: "OPEN",
+    },
     AmendmentBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-    },  
-
+    },
+    newCartId: {
+      type: String, default: ""
+    },
     paymentStatus: {  // NOT PROCESSED, COMPLETED , Under process, ABORTED,PENDING
-    type: String,
-    default: "Under process",
-    },  
-    amendmentRemarks: {  
-        type: String,
-        default: null,
-      },  
+      type: String,
+      default: "Under process",
+    },
+    amendmentRemarks: {
+      type: String,
+      default: null,
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -44,4 +44,40 @@ const railSearch = async (req, res) => {
     }
 };
 
-module.exports = { railSearch };
+const getTrainStation=async(req,res)=>{
+    try{
+        const result = await railSearchServices.getTrainStation(req, res);
+        if (result.response ==="Station(s) found successfully") {
+            apiSucessRes(
+                res,
+                result.response,
+                result.data,
+                ServerStatusCode.SUCESS_CODE
+            );
+
+
+        } else if (
+            result.response === "Station Code and StationName not found"
+
+        )  {
+            apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+        } else {
+            apiErrorres(
+                res,
+                errorResponse.SOME_UNOWN,
+                ServerStatusCode.UNPROCESSABLE,
+                true
+            );
+        }
+    }catch(error){
+        console.error(error);
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        );
+    }
+}
+
+module.exports = { railSearch,getTrainStation };

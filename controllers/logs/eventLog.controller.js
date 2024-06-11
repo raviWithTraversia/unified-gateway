@@ -188,6 +188,7 @@ const getAgencyLogConfig=async(req,res)=>{
 const getairCommercialfilterlog=async(req,res)=>{
     try{
         const result = await EventLogServices.getairCommercialfilterlog(req);
+        console.log(result)
         if (!result.response && result.isSometingMissing) {
             apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
         } else if (result.response === "Either doucment_id does not exist" || result.response === "Data Not Found") {

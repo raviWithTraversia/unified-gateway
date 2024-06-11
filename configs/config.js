@@ -1,6 +1,6 @@
 module.exports.Config = {
     // Mode (LIVE or TEST)
-    MODE: 'TEST',       
+    MODE: 'LIVE',       
     PORT: process.env.PORT || 3111,    
     SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",
     MONGODB_URL:process.env.MONGODB_URL || "mongodb+srv://hsbhandari:fl1I9D8gtsbeHzdO@cluster0.xdzp3sk.mongodb.net/b2bportal",

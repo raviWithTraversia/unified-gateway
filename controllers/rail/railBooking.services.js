@@ -45,7 +45,7 @@ response:"Station Code and StationName not found"
 else{
     let orConditions = [];
     if (Station) {
-      orConditions.push({ StationCode: new RegExp(Station, 'i') },{stationName:new RegExp(Station, 'i')},{Location:new RegExp(Station, 'i')});
+      orConditions.push({ StationCode: new RegExp(`^${Station}`, 'i') },{stationName:new RegExp(`^${Station}`, 'i')},{Location:new RegExp(`^${Station}`, 'i')});
     }
    
 
@@ -54,7 +54,7 @@ else{
       query.$or = orConditions;
     }
 
-    const findTrainStation = await trainStation.find(query);
+    const findTrainStation = await trainStation.find(query)
 
     if(findTrainStation.length>0){
         return {
@@ -66,12 +66,7 @@ else{
 
     }catch(error){
         console.error(error);
-        apiErrorres(
-            res,
-            errorResponse.SOMETHING_WRONG,
-            ServerStatusCode.SERVER_ERROR,
-            true
-        );
+        throw error;
     }
 }
 

@@ -782,7 +782,7 @@ const getairCommercialfilterlog=async(req,res)=>{
           ];
           
           const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions).sort({createdAt:-1});
-          
+          console.log(getEventLogs)
           const result = getEventLogs.map(item => {
             const updatedValues = {};
             if (item.oldValue?.name !== item.newValue?.name) {
@@ -821,11 +821,12 @@ const getairCommercialfilterlog=async(req,res)=>{
             
             if (item.oldValue?.fareFamily?._id!==item.newValue?.fareFamily?._id) {
                 updatedValues.fareFamily = {
-                    oldValue: [item.oldValue?.fareFamily?.fareFamilyCode,  item.oldValue?.fareFamily?.fareFamilyName],
-                    newValue: [item.newValue?.fareFamily?.fareFamilyCode ,item.oldValue?.fareFamily?.fareFamilyName]
+                    oldValue:  item.oldValue?.fareFamily?.fareFamilyName,
+                    newValue: item.oldValue?.fareFamily?.fareFamilyName
                 };
             }
            
+            console.log(result)
          
         
             return {
@@ -901,31 +902,29 @@ const getFairRuleslog=async(req,res)=>{
                     });
                     if (item.oldValue?.providerId?._id !== item.newValue?.providerId?._id) {
                         updatedValues.providerId = {
-                            oldValue:{providerId: item.oldValue?.providerId?.supplierCode,
-                                status:item.oldValue?.providerId?.status
-                            },
-                            newValue:{providerId: item.newValue?.providerId?.supplierCode,
-                                status:item.newValue?.supplierCode?.status
-                            },
+                            oldValue:item.oldValue?.providerId?.supplierCode,
+                            newValue: item.newValue?.providerId?.supplierCode,
+                                
+                            
                         };}
 
                         if (item.oldValue?.cabinclassId?.cabinClassCode!==item.newValue?.cabinclassId?.cabinClassCode) {
                             updatedValues.cabinClass = {
-                                oldValue:{cabinClassCode: item.oldValue?.cabinclassId?.cabinClassCode,cabinClassName: item.oldValue?.cabinclassId?.cabinClassName},
-                                newValue:{cabinClassCode: item.newValue?.cabinclassId?.cabinClassCode,cabinClassName: item.newValue?.cabinclassId?.cabinClassName},
+                                oldValue:item.oldValue?.cabinclassId?.cabinClassName,
+                                newValue:item.newValue?.cabinclassId?.cabinClassName
                             };
                         }  
 
                         if (item.oldValue?.fareFamilyId?.fareFamilyCode!==item.newValue?.fareFamilyId?.fareFamilyCode) {
                             updatedValues.fareFamily = {
-                                oldValue:{fareFamilyCode: item.oldValue?.fareFamilyId?.fareFamilyCode,fareFamilyName: item.oldValue?.fareFamilyId?.fareFamilyName},
-                                newValue:{fareFamilyCode: item.newValue?.fareFamilyId?.fareFamilyCode,fareFamilyName: item.newValue?.fareFamilyId?.fareFamilyName},
+                                oldValue: item.oldValue?.fareFamilyId?.fareFamilyName,
+                                newValue: item.newValue?.fareFamilyId?.fareFamilyName
                             };
                         }  
                         if (item.oldValue?.airlineCodeId?.airlineCode!==item.newValue?.airlineCodeId?.airlineCode) {
                             updatedValues.airlineCode = {
-                                oldValue:{airlineCode: item.oldValue?.airlineCodeId?.airlineCode,airlineName: item.oldValue?.airlineCodeId?.airlineName},
-                                newValue:{airlineCode: item.newValue?.airlineCodeId?.airlineCode,airlineName: item.newValue?.airlineCodeId?.airlineName},
+                                oldValue:item.oldValue?.airlineCodeId?.airlineName,
+                                newValue: item.newValue?.airlineCodeId?.airlineName
                             };
                         }  
             return {

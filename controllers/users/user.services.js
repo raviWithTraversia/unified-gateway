@@ -382,7 +382,9 @@ const userInsert = async (req, res) => {
       }
     }else{
       let findParentRoleId = await User.findOne({company_ID : parent});
+      console.log("findParentRoleId: ", findParentRoleId)
       let findParentRole = await Role.findOne({_id : findParentRoleId.roleId });
+      console.log("findParentRole: ", findParentRole)
       if(findParentRole.name == "TMC"){
       // if agencyParent is tmc then find agencyGroup by their parentCompany id and isdefault true and assign that agent
       agencyGroupId = await agencyGroupModel.findOne({companyId : parent, isDefault : true});

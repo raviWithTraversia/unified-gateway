@@ -8,6 +8,7 @@ const {
 
 const addMarkup = async (req,res) => {
   const result = await manageMarkUpServices.addMarkup(req,res);
+  console.log("result: ", result);
   if(result.response == 'MarkUp Charges Insert Sucessfully'){
     apiSucessRes(
         res,
@@ -24,7 +25,7 @@ const addMarkup = async (req,res) => {
         true
     )
 
-  }else if(result.response == 'User Dont have permision to add MarkUp Charges'){
+  }else if(result.response == 'User Dont have permision to add MarkUp Charges '){
     apiErrorres(
         res,
         result.response,

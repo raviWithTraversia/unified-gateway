@@ -18,6 +18,7 @@ const addMarkup = async (req, res) => {
       airlineCodeId: airlineCodeId
     };
     let checkMarkupExist = await manageMarkupModel.find(query);
+    // console.log("checkMarkupExist: ", checkMarkupExist)
     if (isDefault === true) {
       let checkIsAnydefaultTrue =
         await manageMarkupModel.updateMany(
@@ -163,7 +164,8 @@ const deletedMarkup = async (req, res) => {
     const deleteMarkupDetails = await manageMarkupModel.findByIdAndDelete(
       markupId
     );
-    const userData=await user.findById(req.user_id)
+    const userData=await user.findById(req.user._id)
+    console.log("userData: ", userData)
     if (deleteMarkupDetails) {
 
       const LogsData={

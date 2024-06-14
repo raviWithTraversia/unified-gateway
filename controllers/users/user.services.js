@@ -4,7 +4,7 @@ const commonFunction = require("../commonFunctions/common.function");
 const { Status } = require("../../utils/constants");
 const Smtp = require("../../models/Smtp");
 const Role = require("../../models/Role");
-const {TMC_ROLE ,DISTRIBUTER_ROLE,HOST_ROLE} = require("../../utils/constants");
+const { TMC_ROLE, DISTRIBUTER_ROLE, HOST_ROLE } = require("../../utils/constants");
 const webMaster = require("../../models/WebsiteManager");
 const Registration = require('../../models/Registration');
 const agentConfigModel = require('../../models/AgentConfig');
@@ -18,9 +18,10 @@ const commercialPlanModel = require('../../models/CommercialAirPlan');
 const fareRuleGroupModel = require('../../models/FareRuleGroup');
 const agencyGroupModel = require('../../models/AgencyGroup');
 const { response } = require("../../routes/userRoute");
-const {Config} = require("../../configs/config");
+const { Config } = require("../../configs/config");
 const agencyGroupServices = require("../../controllers/agencyGroup/agencyGroup.services");
 const { status } = require("../../utils/commonResponce");
+const bcrypt = require('bcryptjs');
 
 const registerUser = async (req, res) => {
   try {
@@ -92,7 +93,6 @@ const loginUser = async (req, res) => {
     }
     // Compare the provided password with the stored hashed password
     const isPasswordValid = await user.isPasswordCorrect(password)
-    console.log(isPasswordValid)
     if (!isPasswordValid) {
       return {
         response: "Invalid password",
@@ -105,21 +105,21 @@ const loginUser = async (req, res) => {
       email: user.email,
       phoneNumber: user.phoneNumber,
       companyId: user.company_ID,
-      roleId : user?.roleId?._id || null,
+      roleId: user?.roleId?._id || null,
       userType: user?.roleId?.name || null,
       token: token,
-      lastLogin : user?.last_LoginDate ||new Date(),
-      userId : user?.userId || ""
+      lastLogin: user?.last_LoginDate || new Date(),
+      userId: user?.userId || ""
     };
-    if(user.roleId){
+    if (user.roleId) {
       let userRoleName = await Role.findOne({})
     }
-  //console.log(userDetails)
+    // console.log(userDetails)
     user = {
-      ip_address : req.ip,
-      last_LoginDate : new Date()
+      ip_address: req.ip,
+      last_LoginDate: new Date()
     }
-    await User.findOneAndUpdate({ email: email}, user);
+    await User.findOneAndUpdate({ email: email }, user);
     return {
       response: "Login successful",
       data: userDetails,
@@ -223,23 +223,23 @@ const userInsert = async (req, res) => {
       maxCreditLimit,
       agencyGroupId
     } = req.body;
-   
+
     const existingUser = await User.findOne({ email });
-    if (existingUser ) {
+    if (existingUser) {
       return {
         response: "User with this email already exists",
         data: null
       };
     }
-    const existingCompany = await Company.findOne({companyName: companyName });
+    const existingCompany = await Company.findOne({ companyName: companyName });
     if (existingCompany) {
       return {
         response: "Company with this companyName already exists",
         data: null,
       };
     };
-    let findRole = await Role.findOne({_id : roleId })
-    if(!type){
+    let findRole = await Role.findOne({ _id: roleId })
+    if (!type) {
       type = findRole?.name || null
     }
     const newCompany = new Company({
@@ -247,7 +247,7 @@ const userInsert = async (req, res) => {
       parent,
       type,
       companyStatus,
-      modifiedBy : req?.user?.id || null,
+      modifiedBy: req?.user?.id || null,
       logo_URL,
       office_Type,
       isAutoInvoicing,
@@ -264,42 +264,42 @@ const userInsert = async (req, res) => {
       hierarchy_Level,
       pan_upload,
       gstState: gstState || null,
-      gstPinCode : gstPinCode || null,
-      gstCity : gstCity || null,
-      gstNumber : gstNumber || null,
-      gstName : gstName || null,
-      gstAddress_1 : gstAddress_1 || null,
-      gstAddress_2 : gstAddress_2 || null,
-      isIATA : isIATA || false,
-      holdPnrAllowed : holdPnrAllowed || false
+      gstPinCode: gstPinCode || null,
+      gstCity: gstCity || null,
+      gstNumber: gstNumber || null,
+      gstName: gstName || null,
+      gstAddress_1: gstAddress_1 || null,
+      gstAddress_2: gstAddress_2 || null,
+      isIATA: isIATA || false,
+      holdPnrAllowed: holdPnrAllowed || false
     });
     let createdComapanyId = newCompany._id;
     savedCompany = await newCompany.save();
-   // console.log(createdComapanyId, "=====================");
-    if(findRole?.name === HOST_ROLE.TMC){
+    // console.log(createdComapanyId, "=====================");
+    if (findRole?.name === HOST_ROLE.TMC) {
       const rolesToInsert = [
-        { name: TMC_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
-        { name: TMC_ROLE.Distrbuter, companyId:  newCompany._id, type: 'Default' },
-        { name: TMC_ROLE.Supplier, companyId:  newCompany._id, type: 'Default' }
+        { name: TMC_ROLE.Agency, companyId: newCompany._id, type: 'Default' },
+        { name: TMC_ROLE.Distrbuter, companyId: newCompany._id, type: 'Default' },
+        { name: TMC_ROLE.Supplier, companyId: newCompany._id, type: 'Default' }
       ];
       const insertedRoles = await Role.insertMany(rolesToInsert);
       console.log("Default Role Created Sucessfully")
     }
-    if(findRole?.name === HOST_ROLE.DISTRIBUTER ){
-      let createDefaultDistributerGroup = await agencyGroupServices.createDefaultDistributerGroup(savedCompany._id,true,savedCompany.companyName);
+    if (findRole?.name === HOST_ROLE.DISTRIBUTER) {
+      let createDefaultDistributerGroup = await agencyGroupServices.createDefaultDistributerGroup(savedCompany._id, true, savedCompany.companyName);
       const rolesToInsert = [
-        { name: DISTRIBUTER_ROLE.Agency, companyId:  newCompany._id, type: 'Default' },
-        { name: DISTRIBUTER_ROLE.Staff, companyId:  newCompany._id, type: 'Manual' },
+        { name: DISTRIBUTER_ROLE.Agency, companyId: newCompany._id, type: 'Default' },
+        { name: DISTRIBUTER_ROLE.Staff, companyId: newCompany._id, type: 'Manual' },
       ];
       const insertedRoles = await Role.insertMany(rolesToInsert);
       console.log("Default Role Created Sucessfully");
     }
-    if(password == null || password == undefined){
-     password = commonFunction.generateRandomPassword(10)     
+    if (password == null || password == undefined) {
+      password = commonFunction.generateRandomPassword(10)
     }
     ///const securePassword = await commonFunction.securePassword(password);
     const resetToken = Math.random().toString(36).slice(2);
-     newUser = new User({
+    newUser = new User({
       userType,
       login_Id,
       email,
@@ -326,24 +326,24 @@ const userInsert = async (req, res) => {
       personalPanCardUpload,
       roleId,
       company_ID: savedCompany._id,
-      modifiedBy : req?.user?.id || null, 
+      modifiedBy: req?.user?.id || null,
       cityId,
-      resetToken : resetToken
+      resetToken: resetToken
     });
 
     let userCreated = await newUser.save();
-    let mailConfig = await Smtp.findOne({ companyId: parent});
+    let mailConfig = await Smtp.findOne({ companyId: parent });
     if (!mailConfig) {
       let id = Config.MAIL_CONFIG_ID;
       mailConfig = await Smtp.findById(id);
     };
-    let baseUrl = await webMaster.findOne({companyId : savedCompany._id});
-    if(!baseUrl){
-     // let cId = '6555f84c991eaa63cb171a9f'
-      baseUrl = await webMaster.find({companyId : savedCompany._id});
+    let baseUrl = await webMaster.findOne({ companyId: savedCompany._id });
+    if (!baseUrl) {
+      // let cId = '6555f84c991eaa63cb171a9f'
+      baseUrl = await webMaster.find({ companyId: savedCompany._id });
       baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'https://agent.kafilaholidays.in';
     }
-    if(userCreated){
+    if (userCreated) {
       let resetTempPassword = await commonFunction.sendPasswordResetEmailLink(
         email,
         resetToken,
@@ -352,77 +352,77 @@ const userInsert = async (req, res) => {
         password,
         baseUrl
       );
-      if (resetTempPassword.response == "Password reset email sent"||  resetTempPassword.data == true) {
-        console.log( "Password reset email sent");
+      if (resetTempPassword.response == "Password reset email sent" || resetTempPassword.data == true) {
+        console.log("Password reset email sent");
       }
-      else if(resetTempPassword.response === "forgetPassWordMail"){
+      else if (resetTempPassword.response === "forgetPassWordMail") {
         console.log("Error sending password reset email");
       }
-    let privilegePlansIds = await privilagePlanModel.findOne({companyId :parent,IsDefault : true});
-    let commercialPlanIds = await commercialPlanModel.findOne({companyId :parent,IsDefault : true});
-    let fareRuleGroupIds = await fareRuleGroupModel.findOne({companyId :parent,IsDefault : true});
-    let plbGroupIds = await plbGroupModel.findOne({companyId :parent,IsDefault : true});
-    let incentiveGroupIds = await incentiveGroupModel.findOne({companyId :parent,IsDefault : true});
-    let airlinePromocodeIds = await airlinePromocodeModel.findOne({companyId :parent,IsDefault : true});
-    let paymentGatewayIds = await paymentGatewayModel.findOne({companyId :parent,IsDefault : true});
-    let ssrCommercialGroupId = await ssrCommercialGroupModel.findOne({companyId :parent,IsDefault : true});
-    
-    if(!agencyGroupId){
-      // check agency parent is distributer or TMC
-      let findParentRoleId = await User.findOne({company_ID : parent});
-      let findParentRole = await Role.findOne({_id : findParentRoleId.roleId });
-      if(findParentRole.name == "TMC"){
-      // if agencyParent is tmc then find agencyGroup by their parentCompany id and isdefault true and assign that agent
-      agencyGroupId = await agencyGroupModel.findOne({companyId : parent, isDefault : true});
-      }else if(findParentRole.name == "Distributer"){
-      // if agencyParent is distributer then find agencyGroup by their distributerparent and assign that agency
-      agencyGroupId = await agencyGroupModel.findOne({companyId : parent, isDefault : true});
-      }else{
-        agencyGroupId = await agencyGroupModel.findOne({isDefault : true});
-      }
-    }else{
-      let findParentRoleId = await User.findOne({company_ID : parent});
-      let findParentRole = await Role.findOne({_id : findParentRoleId.roleId });
-      if(findParentRole.name == "TMC"){
-      // if agencyParent is tmc then find agencyGroup by their parentCompany id and isdefault true and assign that agent
-      agencyGroupId = await agencyGroupModel.findOne({companyId : parent, isDefault : true});
-      }else if(findParentRole.name == "Distributer"){
-      // if agencyParent is distributer then find agencyGroup by their distributerparent and assign that agency
-      agencyGroupId = await agencyGroupModel.findOne({companyId : parent, isDefault : true});
-      }else{
-        agencyGroupId = await agencyGroupModel.findOne({_id:agencyGroupId});
-      }
-    };
+      let privilegePlansIds = await privilagePlanModel.findOne({ companyId: parent, IsDefault: true });
+      let commercialPlanIds = await commercialPlanModel.findOne({ companyId: parent, IsDefault: true });
+      let fareRuleGroupIds = await fareRuleGroupModel.findOne({ companyId: parent, IsDefault: true });
+      let plbGroupIds = await plbGroupModel.findOne({ companyId: parent, IsDefault: true });
+      let incentiveGroupIds = await incentiveGroupModel.findOne({ companyId: parent, IsDefault: true });
+      let airlinePromocodeIds = await airlinePromocodeModel.findOne({ companyId: parent, IsDefault: true });
+      let paymentGatewayIds = await paymentGatewayModel.findOne({ companyId: parent, IsDefault: true });
+      let ssrCommercialGroupId = await ssrCommercialGroupModel.findOne({ companyId: parent, IsDefault: true });
 
-  //  console.log(privilegePlansIds ,commercialPlanIds ,fareRuleGroupIds,agencyGroupId)
+      if (!agencyGroupId) {
+        // check agency parent is distributer or TMC
+        let findParentRoleId = await User.findOne({ company_ID: parent });
+        let findParentRole = await Role.findOne({ _id: findParentRoleId.roleId });
+        if (findParentRole.name == "TMC") {
+          // if agencyParent is tmc then find agencyGroup by their parentCompany id and isdefault true and assign that agent
+          agencyGroupId = await agencyGroupModel.findOne({ companyId: parent, isDefault: true });
+        } else if (findParentRole.name == "Distributer") {
+          // if agencyParent is distributer then find agencyGroup by their distributerparent and assign that agency
+          agencyGroupId = await agencyGroupModel.findOne({ companyId: parent, isDefault: true });
+        } else {
+          agencyGroupId = await agencyGroupModel.findOne({ isDefault: true });
+        }
+      } else {
+        let findParentRoleId = await User.findOne({ company_ID: parent });
+        let findParentRole = await Role.findOne({ _id: findParentRoleId.roleId });
+        if (findParentRole.name == "TMC") {
+          // if agencyParent is tmc then find agencyGroup by their parentCompany id and isdefault true and assign that agent
+          agencyGroupId = await agencyGroupModel.findOne({ companyId: parent, isDefault: true });
+        } else if (findParentRole.name == "Distributer") {
+          // if agencyParent is distributer then find agencyGroup by their distributerparent and assign that agency
+          agencyGroupId = await agencyGroupModel.findOne({ companyId: parent, isDefault: true });
+        } else {
+          agencyGroupId = await agencyGroupModel.findOne({ _id: agencyGroupId });
+        }
+      };
+
+      //  console.log(privilegePlansIds ,commercialPlanIds ,fareRuleGroupIds,agencyGroupId)
       let agentConfigsInsert = await agentConfigModel.create({
-        userId : userCreated._id,
-        companyId : savedCompany._id ,
-        salesInchargeIds : saleInChargeId || null,
-        maxcreditLimit : maxCreditLimit,
-        holdPNRAllowed : holdPnrAllowed,
-        commercialPlanIds : agencyGroupId?.commercialPlanId || null,
-        privilegePlansIds:agencyGroupId?.privilagePlanId || null,
-        fareRuleGroupIds:agencyGroupId?.fareRuleGroupId || null,
-        plbGroupIds:agencyGroupId?.plbGroupId || null,
-        incentiveGroupIds:agencyGroupId?.incentiveGroupId || null,
-        airlinePromocodeIds:agencyGroupId?.airlinePromoCodeGroupId || null,
-        paymentGatewayIds:agencyGroupId?.pgChargesGroupId || null,
-        ssrCommercialGroupId:agencyGroupId?.ssrCommercialGroupId || null,
-        diSetupIds:agencyGroupId?.diSetupGroupId || null,
+        userId: userCreated._id,
+        companyId: savedCompany._id,
+        salesInchargeIds: saleInChargeId || null,
+        maxcreditLimit: maxCreditLimit,
+        holdPNRAllowed: holdPnrAllowed,
+        commercialPlanIds: agencyGroupId?.commercialPlanId || null,
+        privilegePlansIds: agencyGroupId?.privilagePlanId || null,
+        fareRuleGroupIds: agencyGroupId?.fareRuleGroupId || null,
+        plbGroupIds: agencyGroupId?.plbGroupId || null,
+        incentiveGroupIds: agencyGroupId?.incentiveGroupId || null,
+        airlinePromocodeIds: agencyGroupId?.airlinePromoCodeGroupId || null,
+        paymentGatewayIds: agencyGroupId?.pgChargesGroupId || null,
+        ssrCommercialGroupId: agencyGroupId?.ssrCommercialGroupId || null,
+        diSetupIds: agencyGroupId?.diSetupGroupId || null,
         modifyAt: new Date(),
-        modifiedBy : req?.user?.id || null,
-        agencyGroupId : agencyGroupId,
-        initiallyLoad:"Fight Search",
-        acencyLogoOnTicketCopy:true,
-        addressOnTicketCopy:true,
-        holdPNRAllowed:true,
-        portalLedgerAllowed:true,
-        fareTypes:["NDF","CPNS1","CPN","MAIN","CDF","SME","CPNS","CRCT","CRCT1","FD","FF","TBF"],
-        });
-        agentConfigsInsert = await agentConfigsInsert.save();
-      console.log( 'User Config Insert Sucessfully');
-      await Registration.deleteOne({email : email});
+        modifiedBy: req?.user?.id || null,
+        agencyGroupId: agencyGroupId,
+        initiallyLoad: "Fight Search",
+        acencyLogoOnTicketCopy: true,
+        addressOnTicketCopy: true,
+        holdPNRAllowed: true,
+        portalLedgerAllowed: true,
+        fareTypes: ["NDF", "CPNS1", "CPN", "MAIN", "CDF", "SME", "CPNS", "CRCT", "CRCT1", "FD", "FF", "TBF"],
+      });
+      agentConfigsInsert = await agentConfigsInsert.save();
+      console.log('User Config Insert Sucessfully');
+      await Registration.deleteOne({ email: email });
       //console.log("Registration details deleted");
     }
     return {
@@ -430,16 +430,16 @@ const userInsert = async (req, res) => {
       data: { newUser, newCompany },
     };
   } catch (error) {
-    if (savedCompany == null || newUser == null ) {
+    if (savedCompany == null || newUser == null) {
       console.log(error);
       throw error;
-    }else{
+    } else {
       await Company.deleteOne(savedCompany._id);
       await User.deleteOne(newUser._id);
       console.log(error);
       throw error;
     }
-   
+
   }
 };
 const forgotPassword = async (req, res) => {
@@ -457,19 +457,19 @@ const forgotPassword = async (req, res) => {
       };
     }
     const comapnyIds = !companyId ? user?.company_ID : companyId;
-    let mailConfig = await Smtp.findOne({ companyId : comapnyIds });
-    if(!mailConfig){
-      let parentCompanyId = await Company.findById({_id : comapnyIds});
+    let mailConfig = await Smtp.findOne({ companyId: comapnyIds });
+    if (!mailConfig) {
+      let parentCompanyId = await Company.findById({ _id: comapnyIds });
       parentCompanyId = parentCompanyId.parent;
       mailConfig = await Smtp.find({ companyId: parentCompanyId });
       mailConfig = mailConfig[0];
     }
-    let baseUrl = await webMaster.find({companyId : comapnyIds});
-    if(!baseUrl){
+    let baseUrl = await webMaster.find({ companyId: comapnyIds });
+    if (!baseUrl) {
       let cId = '6555f84c991eaa63cb171a9f'
-      baseUrl = await webMaster.find({companyId : cId});
+      baseUrl = await webMaster.find({ companyId: cId });
     };
-    baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL :'http://localhost:3111/api';
+    baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'http://localhost:3111/api';
     const forgetPassWordMail = await commonFunction.sendPasswordResetEmail(
       email,
       resetToken,
@@ -477,15 +477,15 @@ const forgotPassword = async (req, res) => {
       user,
       baseUrl
     );
-    if (forgetPassWordMail.response == "Password reset email sent"||  forgetPassWordMail.data == true) {
+    if (forgetPassWordMail.response == "Password reset email sent" || forgetPassWordMail.data == true) {
       return {
         response: "Password reset email sent",
-        data  : true
+        data: true
       };
     }
-    else if(forgetPassWordMail.response === "forgetPassWordMail"){
+    else if (forgetPassWordMail.response === "forgetPassWordMail") {
       return {
-      response : "Error sending password reset email"    
+        response: "Error sending password reset email"
       }
     }
   } catch (error) {
@@ -493,33 +493,33 @@ const forgotPassword = async (req, res) => {
     throw error;
   }
 };
-const varifyTokenForForgetPassword = async(req,res) => {
-  try{
-    let { userId , token } = req.query;
+const varifyTokenForForgetPassword = async (req, res) => {
+  try {
+    let { userId, token } = req.query;
     let user = await User.findOne({ _id: userId, resetToken: token });
     if (!user) {
       return {
         response: "Invalid reset token",
       };
-    }else{
+    } else {
       user = {
-        resetToken  : "verify"
+        resetToken: "verify"
       }
-      await User.findOneAndUpdate({ _id: userId}, user)
+      await User.findOneAndUpdate({ _id: userId }, user)
       return {
-        response : "Token varified sucessfully"
+        response: "Token varified sucessfully"
       }
     }
 
-  }catch(error){
+  } catch (error) {
     console.log(error);
     throw error
   }
 };
 const resetPassword = async (req, res) => {
   try {
-    const { userId,  newPassword,oldPassword } = req.body;
-    let user = await User.findOne({ _id:userId , resetToken  : "verify"});
+    const { userId, newPassword, oldPassword } = req.body;
+    let user = await User.findOne({ _id: userId, resetToken: "verify" });
     if (!user) {
       return {
         response: "Inavalid User or User not found",
@@ -527,8 +527,8 @@ const resetPassword = async (req, res) => {
     };
 
     user.password = newPassword
-    await user.save({validateBeforeSave: false})
-  //  const spassword = await commonFunction.securePassword(newPassword);
+    await user.save({ validateBeforeSave: false })
+    //  const spassword = await commonFunction.securePassword(newPassword);
     // await User.findOneAndUpdate(
     //   { _id : userId },
     //   { $set: { password: spassword, resetToken: null } }
@@ -545,33 +545,33 @@ const resetPassword = async (req, res) => {
 };
 const changePassword = async (req, res) => {
   try {
-    let { currentPassword, newPassword, email, id,parentId } = req.body;
-    let user = await User.findOne({ $or : [{email : email}, {_id : id}]});
+    let { currentPassword, newPassword, email, id, parentId } = req.body;
+    let user = await User.findOne({ $or: [{ email: email }, { _id: id }] });
     if (user) {
-      if(currentPassword){
+      if (currentPassword) {
         const isPasswordCorrect = await user.isPasswordCorrect(currentPassword);
-        if(!isPasswordCorrect){
+        if (!isPasswordCorrect) {
           return {
-            response : 'Invalid Current Password'
+            response: 'Invalid Current Password'
           }
         }
         user.password = newPassword;
-        await user.save({validateBeforeSave: false});
+        await user.save({ validateBeforeSave: false });
         return {
-          response : 'Password Change Sucessfully'
+          response: 'Password Change Sucessfully'
         }
-      }else{
+      } else {
         let findUser = await User.findById(parentId);
-        let findRole = await Role.findOne({_id : findUser?.roleId });
-        if(findRole?.name == 'TMC' ||findRole?.name == 'Distributer'||findRole?.name == 'Distributor'||findRole?.name == 'Supplier'){
+        let findRole = await Role.findOne({ _id: findUser?.roleId });
+        if (findRole?.name == 'TMC' || findRole?.name == 'Distributer' || findRole?.name == 'Distributor' || findRole?.name == 'Supplier') {
           user.password = newPassword;
-          await user.save({validateBeforeSave: false});
+          await user.save({ validateBeforeSave: false });
           return {
-            response : 'Password Change Sucessfully'
+            response: 'Password Change Sucessfully'
           }
-        }else{
+        } else {
           return {
-            response : 'User Dont Have Permision To Chnage Password Without Current Password'
+            response: 'User Dont Have Permision To Chnage Password Without Current Password'
           }
         }
       }
@@ -585,22 +585,22 @@ const changePassword = async (req, res) => {
     throw error;
   }
 };
-const addUser = async (req,res) => {
-  try{
+const addUser = async (req, res) => {
+  try {
     let requiredFeild = [
-       'title',
-       'firstName',
-       'lastName',
-       'email',
-       'phoneNumber',
-       'sales_In_Charge',
-       'type',
-       'password',
-       'roleId'
+      'title',
+      'firstName',
+      'lastName',
+      'email',
+      'phoneNumber',
+      'sales_In_Charge',
+      'type',
+      'password',
+      'roleId'
     ];
 
     const missingFields = requiredFeild.filter(
-    (fieldName) =>   req.body[fieldName] === null || req.body[fieldName] === undefined
+      (fieldName) => req.body[fieldName] === null || req.body[fieldName] === undefined
     );
     if (missingFields.length > 0) {
       const missingFieldsString = missingFields.join(", ");
@@ -611,151 +611,151 @@ const addUser = async (req,res) => {
       };
     };
 
-    let { 
-      title , 
-      firstName , 
-      lastName ,
-      email, 
-      phoneNumber, 
-      sales_In_Charge ,
-      isMailSent, 
+    let {
+      title,
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      sales_In_Charge,
+      isMailSent,
       type,
       password,
       roleId
-      } = req.body;
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return {
-          response: "User with this email already exists",
-          data: null,
-        };
+    } = req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return {
+        response: "User with this email already exists",
+        data: null,
       };
+    };
 
-      let company = await User.findOne({_id: req.user._id});
-      let companyId = company.company_ID;
-     // const securePassword = await commonFunction.securePassword(password);
-      const newUser = new User({
-        company_ID : companyId,
-        title , 
-        fname :firstName, 
-        lastName,
-        email, 
-        phoneNumber, 
-        sales_In_Charge,
-        isMailSent, 
-        type,
-        password,
-        userStatus : "Active",
-        roleId,
+    let company = await User.findOne({ _id: req.user._id });
+    let companyId = company.company_ID;
+    // const securePassword = await commonFunction.securePassword(password);
+    const newUser = new User({
+      company_ID: companyId,
+      title,
+      fname: firstName,
+      lastName,
+      email,
+      phoneNumber,
+      sales_In_Charge,
+      isMailSent,
+      type,
+      password,
+      userStatus: "Active",
+      roleId,
 
-      });
-      // Save the User document to the database
-     let saveUser = await newUser.save();
-     let companyName = await Company.findById(companyId);
-     if(isMailSent == true){
+    });
+    // Save the User document to the database
+    let saveUser = await newUser.save();
+    let companyName = await Company.findById(companyId);
+    if (isMailSent == true) {
       let mailText = {
-        companyName, 
-        firstName, 
-        lastName, 
-        mobile: phoneNumber, 
+        companyName,
+        firstName,
+        lastName,
+        mobile: phoneNumber,
         email
       }
-      let mailConfig = await Smtp.findOne({ companyId : companyId });
-    // if not mailconfig then we send their parant mail config
-    if(!mailConfig){
-      let parentCompanyId = await Company.findById({_id : comapnyIds});
-      parentCompanyId = parentCompanyId.parent;
-      mailConfig = await Smtp.find({ companyId: parentCompanyId });
-      mailConfig = mailConfig[0];
-    }
-    let mailSubject = 'User Created Sucessfully'
-      let mailSend = await commonFunction.commonEmailFunction(email,mailConfig,mailText,mailSubject);
-    }
-     if(saveUser){
-      return {
-        response : 'New User Created Sucessfully',
-        data : saveUser
+      let mailConfig = await Smtp.findOne({ companyId: companyId });
+      // if not mailconfig then we send their parant mail config
+      if (!mailConfig) {
+        let parentCompanyId = await Company.findById({ _id: comapnyIds });
+        parentCompanyId = parentCompanyId.parent;
+        mailConfig = await Smtp.find({ companyId: parentCompanyId });
+        mailConfig = mailConfig[0];
       }
-     }
-     else{
-        return {
-          response : 'User Not created sucessfully'
-        }
-     }
-  }catch(error){
-     console.log(error);
-     throw error
+      let mailSubject = 'User Created Sucessfully'
+      let mailSend = await commonFunction.commonEmailFunction(email, mailConfig, mailText, mailSubject);
+    }
+    if (saveUser) {
+      return {
+        response: 'New User Created Sucessfully',
+        data: saveUser
+      }
+    }
+    else {
+      return {
+        response: 'User Not created sucessfully'
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    throw error
   }
 };
-const editUser = async (req,res) => {
-  try{
+const editUser = async (req, res) => {
+  try {
     const userId = req.query.id;
-    const updateData = req.body; 
+    const updateData = req.body;
 
     const updatedUserData = await User.findByIdAndUpdate(
       userId,
       { $set: updateData },
       { new: true }
     );
-    if(updatedUserData){
+    if (updatedUserData) {
       return {
-        response : 'User details updated sucessfully',
-        data : updatedUserData
+        response: 'User details updated sucessfully',
+        data: updatedUserData
       }
-    }else{
+    } else {
       return {
-        response : 'Failed to update User details'
+        response: 'Failed to update User details'
       }
     }
-  }catch(error){
-     console.log(error);
-     throw error
-  }
-};
-const getUser = async (req,res) => {
-  try{
-  let {companyId} = req.query;
-  let userData = await User.find({company_ID :companyId }).populate('roleId', 'name type').populate({
-    path: 'company_ID',
-    model: 'Company',
-    select: 'companyName type cashBalance creditBalance maxCreditLimit updatedAt',
-    populate: {
-      path: 'parent',
-      model: 'Company',
-      select: 'companyName type'
-    }
-  }).populate('cityId')
-  if(userData){
-    return {
-      response : 'User data found SucessFully',
-      data : userData
-    }
-  }else{
-     return {
-      response : 'User data not found'
-     }
-  }
-  
-  }catch(error){
+  } catch (error) {
     console.log(error);
     throw error
   }
 };
-const getAllAgencyAndDistributer = async (req,res) => {
-  try{
+const getUser = async (req, res) => {
+  try {
+    let { companyId } = req.query;
+    let userData = await User.find({ company_ID: companyId }).populate('roleId', 'name type').populate({
+      path: 'company_ID',
+      model: 'Company',
+      select: 'companyName type cashBalance creditBalance maxCreditLimit updatedAt',
+      populate: {
+        path: 'parent',
+        model: 'Company',
+        select: 'companyName type'
+      }
+    }).populate('cityId')
+    if (userData) {
+      return {
+        response: 'User data found SucessFully',
+        data: userData
+      }
+    } else {
+      return {
+        response: 'User data not found'
+      }
+    }
+
+  } catch (error) {
+    console.log(error);
+    throw error
+  }
+};
+const getAllAgencyAndDistributer = async (req, res) => {
+  try {
     let parentId = req.query.id;
     let agency = await Company.find({
       $or: [
-          { parent: parentId },
-          { _id: parentId }
+        { parent: parentId },
+        { _id: parentId }
       ]
-  })
-    if(agency.length == 0){
+    })
+    if (agency.length == 0) {
       return {
-        response : 'No Agency with this TMC'
+        response: 'No Agency with this TMC'
       }
     }
-    
+
     const ids = agency.map(item => item._id.toString());
     const users = await User.find({ company_ID: { $in: ids } }).populate('roleId').populate('cityId').populate({
       path: 'company_ID',
@@ -767,36 +767,36 @@ const getAllAgencyAndDistributer = async (req,res) => {
         select: 'companyName type'
       }
     }).exec();
-//console.log("=======>>>", users);
+    //console.log("=======>>>", users);
     let data = [];
-    for(let i = 0;i < users.length; i++){
-      if(users[i].roleId.type == 'Manual'){
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].roleId.type == 'Manual') {
         continue;
-      }else{
+      } else {
         data.push(users[i])
       }
     }
-    if(users.length != 0){
+    if (users.length != 0) {
       return {
-        response : 'Agency Data fetch Sucessfully',
-        data : data
+        response: 'Agency Data fetch Sucessfully',
+        data: data
       }
-    }else{
+    } else {
       return {
-        response : 'Agency Data not found'
+        response: 'Agency Data not found'
       }
     }
 
-  }catch(error){
-     console.log(error);
-     throw error
+  } catch (error) {
+    console.log(error);
+    throw error
   }
 };
 
-const updateUserStatus = async(req,res)=>{
-  try{
+const updateUserStatus = async (req, res) => {
+  try {
 
-    const {userId,status}=req.query
+    const { userId, status } = req.query
 
     if (!userId || !status) {
       return {
@@ -805,108 +805,109 @@ const updateUserStatus = async(req,res)=>{
       };
     };
 
-    
-    const result=await Company.findByIdAndUpdate({_id:userId},{companyStatus:status},{new:true})
 
-    if(result){
+    const result = await Company.findByIdAndUpdate({ _id: userId }, { companyStatus: status }, { new: true })
+
+    if (result) {
       return {
-        response : 'Upate Successfully',
-      
+        response: 'Upate Successfully',
+
       }
-    }else{
-       return {
-        response : 'User data not found'
-       }
+    } else {
+      return {
+        response: 'User data not found'
+      }
     }
-    
+
 
   }
-  catch(error){
+  catch (error) {
     throw error
   }
 }
 
-const getCompanyProfle=async(req,res)=>{
-  try{
-    const {companyId}=req.body
-    if(!companyId){
+const getCompanyProfle = async (req, res) => {
+  try {
+    const { companyId } = req.body
+    if (!companyId) {
       return {
-        response:null,
-        message:"companyId not true"
+        response: null,
+        message: "companyId not true"
 
       }
     }
 
-  const  CompanyProfileData=await Company.findById(companyId).populate("parent" ,"companyName type")
-  if(CompanyProfileData){
-    return{
-response:"Company data find successfull",
-data:CompanyProfileData
+    const CompanyProfileData = await Company.findById(companyId).populate("parent", "companyName type")
+    if (CompanyProfileData) {
+      return {
+        response: "Company data find successfull",
+        data: CompanyProfileData
+      }
     }
-  }
-  else{
-    return{
-      response:"Company Data not Found"
+    else {
+      return {
+        response: "Company Data not Found"
+      }
     }
-  }
 
-  }catch(error){
+  } catch (error) {
     throw error
   }
 }
 
-const updateCompayProfile=async(req,res)=>{
-  try{
-    const {companyId}=req.query
-    if(!companyId){
+const updateCompayProfile = async (req, res) => {
+  try {
+    const { companyId } = req.query
+    if (!companyId) {
       return {
-        response:null,
-        message:"companyId not true"
+        response: null,
+        message: "companyId not true"
 
       }
     }
 
-const companyData=await Company.findById(companyId)
-    if (  req.files?.gst_URL || req.files?.panUpload_URL || req.files?.logoDocument_URL || req.files?.signature_URL || req.files?.aadhar_URL || req.files?.agencyLogo_URL) {
+    const companyData = await Company.findById(companyId)
+    if (req.files?.gst_URL || req.files?.panUpload_URL || req.files?.logoDocument_URL || req.files?.signature_URL || req.files?.aadhar_URL || req.files?.agencyLogo_URL) {
       const updateCompayProfile = await Company.findByIdAndUpdate(
         companyId,
         {
-            $set:{
+          $set: {
             gst_URL: req.files.gst_URL ? req.files.gst_URL[0].path : companyData.gst_URL,
             panUpload_URL: req.files.panUpload_URL ? req.files.panUpload_URL[0].path : companyData.panUpload_URL,
-            logoDocument_URL: req.files.logoDocument_URL ? req.files.logoDocument_URL[0].path :companyData.logoDocument_URL,
-            signature_URL: req.files.signature_URL ? req.files.signature_URL[0].path :companyData.signature_URL,
+            logoDocument_URL: req.files.logoDocument_URL ? req.files.logoDocument_URL[0].path : companyData.logoDocument_URL,
+            signature_URL: req.files.signature_URL ? req.files.signature_URL[0].path : companyData.signature_URL,
             aadhar_URL: req.files.aadhar_URL ? req.files.aadhar_URL[0].path : companyData.aadhar_URL,
             agencyLogo_URL: req.files.agencyLogo_URL ? req.files.agencyLogo_URL[0].path : companyData.agencyLogo_URL
-        }},
+          }
+        },
         { new: true }
-    );
- 
-  if(updateCompayProfile){
-    return{
-      response:"company data succefully update",
-      data:updateCompayProfile
+      );
+
+      if (updateCompayProfile) {
+        return {
+          response: "company data succefully update",
+          data: updateCompayProfile
+        }
+      }
+
+      else {
+        return {
+          response: "company data not update"
+        }
+      }
+
+
+
     }
-  }
 
-  else{
-return{
-response:"company data not update"
-}
-  }
-
-
-
-    }
-
-    else{
+    else {
       return {
-        response:null,
-        message:"your doucument name undefined"
+        response: null,
+        message: "your doucument name undefined"
       }
     }
-  
-  }catch(error){
+
+  } catch (error) {
     throw error
   }
 }

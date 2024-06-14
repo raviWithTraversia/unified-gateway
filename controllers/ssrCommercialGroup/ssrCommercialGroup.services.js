@@ -1,8 +1,8 @@
 const ssrCommercialGroupModels = require("../../models/SsrCommercialGroup");
 const ssrCommercial = require("../../models/SsrCommercial");
 const agencyGroup = require("../../models/AgencyGroup");
-const user=require('../../models/User')
-const EventLogs=require('../logs/EventApiLogsCommon')
+const user = require('../../models/User')
+const EventLogs = require('../logs/EventApiLogsCommon')
 const addSsrCommercialGroup = async (req, res) => {
   try {
     let { ssrCommercialIds, ssrCommercialName, companyId, isDefault } =
@@ -34,16 +34,16 @@ const addSsrCommercialGroup = async (req, res) => {
     });
     const saveFareRuleGroup = await newSsrCommercialGroup.save();
     if (saveFareRuleGroup) {
-      const userData=await user.findById(req.user._id)
-      const LogsData={
-                  eventName:"Manage SSR Groups",
-                  doerId:req.user._id,
-              doerName:userData.fname,
-       companyId:companyId,
-       documentId:saveFareRuleGroup._id,
-                   description:"Add Manage SSR Groups",
-                }
-               EventLogs(LogsData)
+      const userData = await user.findById(req.user._id)
+      const LogsData = {
+        eventName: "Manage SSR Groups",
+        doerId: req.user._id,
+        doerName: userData.fname,
+        companyId: companyId,
+        documentId: saveFareRuleGroup._id,
+        description: "Add Manage SSR Groups",
+      }
+      EventLogs(LogsData)
       return {
         response: "Ssr Commercial Group Added Sucessfully",
         data: [],
@@ -73,40 +73,40 @@ const editSsrCommercialGroup = async (req, res) => {
       );
     }
     let updateSsrCommercialData = await ssrCommercialGroupModels.findByIdAndUpdate(
-        id,
-        {
-          $set: updateData,
-          modifyAt: new Date(),
-          modifyBy: req.user._id,
-        },
-        { new: true }
-      );
+      id,
+      {
+        $set: updateData,
+        modifyAt: new Date(),
+        modifyBy: req.user._id,
+      },
+      { new: true }
+    );
 
-    const userData=await user.findById(req.user._id)
+    const userData = await user.findById(req.user._id)
 
-    if (updateSsrCommercialData) {      
+    if (updateSsrCommercialData) {
       await agencyGroup.findOneAndUpdate(
         { companyId: updateData.companyId, isDefault: true },
         { ssrCommercialGroupId: id },
         { new: true }
       );
 
-      const LogsData={
-        eventName:"Manage SSR Groups",
-        doerId:req.user._id,
-    doerName:userData.fname,
-companyId:updateSsrCommercialData.companyId,
-documentId:updateSsrCommercialData._id,
-         description:"Edit Manage SSR Groups",
+      const LogsData = {
+        eventName: "Manage SSR Groups",
+        doerId: req.user._id,
+        doerName: userData.fname,
+        companyId: updateSsrCommercialData.companyId,
+        documentId: updateSsrCommercialData._id,
+        description: "Edit Manage SSR Groups",
       }
-     EventLogs(LogsData)
-      
-        return {
-          response: "Ssr Commercial Group Updated Sucessfully",
-          data: updateSsrCommercialData,
-        };
-      
-      
+      EventLogs(LogsData)
+
+      return {
+        response: "Ssr Commercial Group Updated Sucessfully",
+        data: updateSsrCommercialData,
+      };
+
+
     } else {
       return {
         response: "Ssr Commercial Group Not Updated",
@@ -120,32 +120,32 @@ documentId:updateSsrCommercialData._id,
 
 const getSsrCommercialGroup = async (req, res) => {
   try {
-    let {companyId , bookingType} = req.query;
+    let { companyId, bookingType } = req.query;
     let getSsrCommercial;
-    if(!bookingType){
+    if (!bookingType) {
       try {
         getSsrCommercial = await ssrCommercialGroupModels.find({
           companyId: companyId,
         });
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getSsrCommercial, "<<<<<<<<<<<")
-  
+        // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>", getSsrCommercial, "<<<<<<<<<<<")
+
         for (let i = 0; i < getSsrCommercial.length; i++) {
           let converteSsrCommercialIds = getSsrCommercial[i].ssrCommercialIds.map(
             (id) => id.toString()
           );
           // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",converteSsrCommercialIds)
-  
+
           let documents = await ssrCommercial
-          .find({
-            _id: { $in: converteSsrCommercialIds }, 
-           // bookingType: { $in: bookingType }      
-          })
-          .exec();
+            .find({
+              _id: { $in: converteSsrCommercialIds },
+              // bookingType: { $in: bookingType }      
+            })
+            .exec();
           // console.log("==>>>",documents)
           getSsrCommercial[i].ssrCommercialIds = documents;
           //console.log("[[[[[[[[[[[[[[[[[[[",documents)
         }
-         console.log("[[[[[[[[[[[[[[[[[[[",getSsrCommercial, "]]]]]]]]]]]]]]]]]]")
+        //  console.log("[[[[[[[[[[[[[[[[[[[",getSsrCommercial, "]]]]]]]]]]]]]]]]]]")
         if (getSsrCommercial) {
           return {
             response: "Ssr Commercial Group Fetch Sucessfully",
@@ -159,30 +159,30 @@ const getSsrCommercialGroup = async (req, res) => {
       } catch (error) {
         throw error;
       }
-    }else{
+    } else {
       try {
         getSsrCommercial = await ssrCommercialGroupModels.find({
           companyId: companyId,
         });
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>",getSsrCommercial, "<<<<<<<<<<<")
-  
+        // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>", getSsrCommercial, "<<<<<<<<<<<")
+
         for (let i = 0; i < getSsrCommercial.length; i++) {
           let converteSsrCommercialIds = getSsrCommercial[i].ssrCommercialIds.map(
             (id) => id.toString()
           );
           // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",converteSsrCommercialIds)
-  
+
           let documents = await ssrCommercial
-          .find({
-            _id: { $in: converteSsrCommercialIds }, 
-            bookingType: { $in: bookingType }      
-          })
-          .exec();
+            .find({
+              _id: { $in: converteSsrCommercialIds },
+              bookingType: { $in: bookingType }
+            })
+            .exec();
           // console.log("==>>>",documents)
           getSsrCommercial[i].ssrCommercialIds = documents;
           //console.log("[[[[[[[[[[[[[[[[[[[",documents)
         }
-         console.log("[[[[[[[[[[[[[[[[[[[",getSsrCommercial, "]]]]]]]]]]]]]]]]]]")
+        //  console.log("[[[[[[[[[[[[[[[[[[[",getSsrCommercial, "]]]]]]]]]]]]]]]]]]")
         if (getSsrCommercial) {
           return {
             response: "Ssr Commercial Group Fetch Sucessfully",
@@ -196,7 +196,7 @@ const getSsrCommercialGroup = async (req, res) => {
       } catch (error) {
         throw error;
       }
-    }  
+    }
   } catch (error) {
     console.log(error);
     throw error
@@ -207,18 +207,18 @@ const deleteSsrCommercialGroup = async (req, res) => {
   try {
     let id = req.query.id;
     let deleteData = await ssrCommercialGroupModels.findByIdAndDelete(id);
-    const userData=await user.findById(req.user._id)
+    const userData = await user.findById(req.user._id)
 
     if (deleteData) {
-      const LogsData={
-                  eventName:"Manage SSR Groups",
-                  doerId:req.user._id,
-              doerName:userData.fname,
-       companyId:deleteData.companyId,
-       documentId:deleteData._id,
-                   description:"Delete Manage SSR Groups",
-                }
-               EventLogs(LogsData)
+      const LogsData = {
+        eventName: "Manage SSR Groups",
+        doerId: req.user._id,
+        doerName: userData.fname,
+        companyId: deleteData.companyId,
+        documentId: deleteData._id,
+        description: "Delete Manage SSR Groups",
+      }
+      EventLogs(LogsData)
       return {
         response: "Ssr Commercial deleted sucessfully",
       };

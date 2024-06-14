@@ -24,7 +24,7 @@ const addMarkup = async (req,res) => {
         true
     )
 
-  }else if(result.response == 'User Dont have permision to add MarkUp Charges'){
+  }else if(result.response == 'User Dont have permision to add MarkUp Charges '){
     apiErrorres(
         res,
         result.response,

@@ -999,26 +999,18 @@ const contryData = [
     }
 ]
 
-
-
-
 const seedCountry = async () => {
     try {
         // Check if any country already exist
         const existing = await Country.find();
-
         if (existing.length === 0) {
             await Country.create(contryData);
-            console.log('country table seeded successfully.');
-
-        } else {
-          //  console.log('country table already exists. Skipping seeding.');
+            console.log('Country seeded successfully.');
         }
     } catch (err) {
-        console.error('Error seeding country table:', err);
+        console.error('Error seeding Country: ', err);
     }
 };
-
 
 module.exports = {
     seedCountry

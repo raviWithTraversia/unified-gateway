@@ -4,7 +4,7 @@ const commonStatus = require("../../utils/constants")
 
 const getSalesInCharge = async (req, res) => {
   try {
-    const  companyId  = req.params.companyId;
+    const companyId  = req.params.companyId;
     let isValidcCmpanyId = FUNC.checkIsValidId(companyId);
     if (!isValidcCmpanyId) {
       return {

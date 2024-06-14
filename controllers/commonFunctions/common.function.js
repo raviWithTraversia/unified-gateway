@@ -25,21 +25,21 @@ const securePassword = async (password) => {
   }
 };
 // Function to send a password reset email
-const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig , user, baseUrl) => {
+const sendPasswordResetEmail = async (recipientEmail, resetToken, mailConfig, user, baseUrl) => {
   // Create a Nodemailer transporter using your email service provider's SMTP settings
   const transporter = nodemailer.createTransport({
-    host: mailConfig.host, 
-    port: mailConfig.port, 
-    secure: false, 
+    host: mailConfig.host,
+    port: mailConfig.port,
+    secure: false,
     auth: {
       user: mailConfig.userName,
-      pass: mailConfig.password, 
+      pass: mailConfig.password,
     },
   });
 
   // Email content
   const mailOptions = {
-    from:  mailConfig.emailFrom,
+    from: mailConfig.emailFrom,
     to: recipientEmail,
     subject: "Password Reset Request",
     text: `Click the following link to reset your password:
@@ -50,14 +50,14 @@ const sendPasswordResetEmail = async (recipientEmail,resetToken,mailConfig , use
   try {
     await transporter.sendMail(mailOptions);
     return {
-      response : `Password reset email sent `,
-      data : true
+      response: `Password reset email sent `,
+      data: true
     }
   } catch (error) {
     console.error("Error sending password reset email:", error);
     return {
-      response : "Error sending password reset email:",
-       data : error
+      response: "Error sending password reset email:",
+      data: error
     }
   }
 };
@@ -81,7 +81,7 @@ const getPagingDataOfSp = async (Data, page, limit) => {
   return { totalItems: total, data: Data, totalPages, currentPage };
 };
 
-const checkIsValidId =  (Id) => {
+const checkIsValidId = (Id) => {
   let validId = mongoose.isValidObjectId(Id);
   if (validId) {
     return "Valid Mongo Object Id";
@@ -213,15 +213,14 @@ const sendOtpOnPhone = async (recipientPhone, otp) => {
   }
 };
 
-const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSubject) => {
-  const { companyName,firstName, lastName, mobile, email, name } = mailText;
-  console.log("================>>>>>>>>>>>>>>>>>>>",mailText, "====================================");
+const commonEmailFunction = async (recipientEmail, smtpDetails, mailText, mailSubject) => {
+  const { companyName, firstName, lastName, mobile, email, name } = mailText;
   const htmlTemplate = fs.readFileSync('./view/Account_Registration.html', 'utf8');
   const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName.companyName)
-  .replace(/\${firstName}/g, firstName)
-  .replace(/\${lastName}/g, lastName)
-  .replace(/\${mobile}/g, mobile)
-  .replace(/\${email}/g, email);
+    .replace(/\${firstName}/g, firstName)
+    .replace(/\${lastName}/g, lastName)
+    .replace(/\${mobile}/g, mobile)
+    .replace(/\${email}/g, email);
   const transporter = nodemailer.createTransport({
     host: smtpDetails.host, // SMTP server hostname or IP address
     port: smtpDetails.port, // Port number for SMTP with STARTTLS
@@ -253,19 +252,19 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText,mailSub
   }
 };
 
-const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetails, mailText,mailSubject) => {
+const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetails, mailText, mailSubject) => {
   //console.log(mailText, "<<<<<<<<<<???????????????????????????????",recipientEmail);
-  let  { companyName, firstName, lastName, email, mobile, statusName : [{name}] } = mailText[0];
+  let { companyName, firstName, lastName, email, mobile, statusName: [{ name }] } = mailText[0];
   const htmlTemplate = fs.readFileSync('./view/Account_Registration.html', 'utf8');
   const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName)
-  .replace(/\${firstName}/g, firstName)
-  .replace(/\${lastName}/g, lastName)
-  .replace(/\${mobile}/g, mobile)
-  .replace(/\${email}/g, email);
+    .replace(/\${firstName}/g, firstName)
+    .replace(/\${lastName}/g, lastName)
+    .replace(/\${mobile}/g, mobile)
+    .replace(/\${email}/g, email);
   const transporter = nodemailer.createTransport({
-    host: smtpDetails.host, 
-    port: smtpDetails.port, 
-    secure: false, 
+    host: smtpDetails.host,
+    port: smtpDetails.port,
+    secure: false,
     auth: {
       user: smtpDetails.userName,
       pass: smtpDetails.password, // Verify the password for leading/trailing spaces
@@ -298,31 +297,31 @@ const sendSMS = async (mobileno, otp) => {
     let message = `Your OTP for authentication is:${otp} Kafila Hospitality & Travels Pvt. Ltd`;
     let url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(mobileno)}&msg=${encodeURIComponent(message)}&sid=KAFILA&type=0&entityid=1701157909411808398&tempid=1707170089574543263&dtNow=${encodeURIComponent(new Date().toLocaleString())}`;
 
-      const response = await fetch(url);
-      const strSMSResponseString = await response.text();
+    const response = await fetch(url);
+    const strSMSResponseString = await response.text();
 
-      if (strSMSResponseString.startsWith("100")) {
-          return {
-            response : `Sms sent to ${mobileno}`
-          };
-      } else {
-          return false;
-      }
-  } catch (error) {
-      console.error('Error sending SMS:', error);
+    if (strSMSResponseString.startsWith("100")) {
+      return {
+        response: `Sms sent to ${mobileno}`
+      };
+    } else {
       return false;
+    }
+  } catch (error) {
+    console.error('Error sending SMS:', error);
+    return false;
   }
 };
 
-const sendPasswordResetEmailLink = async (recipientEmail,resetToken,mailConfig , user, password,baseUrl) => {
+const sendPasswordResetEmailLink = async (recipientEmail, resetToken, mailConfig, user, password, baseUrl) => {
   // Create a Nodemailer transporter using your email service provider's SMTP settings
   const transporter = nodemailer.createTransport({
-    host: mailConfig.host, 
-    port: mailConfig.port, 
-    secure: false, 
+    host: mailConfig.host,
+    port: mailConfig.port,
+    secure: false,
     auth: {
       user: mailConfig.userName,
-      pass: mailConfig.password, 
+      pass: mailConfig.password,
     },
   });
   const htmlContent = `
@@ -333,25 +332,25 @@ const sendPasswordResetEmailLink = async (recipientEmail,resetToken,mailConfig ,
     to: recipientEmail,
     subject: "Password Reset Request",
     text: `Click the following link to reset your password: ${baseUrl}/auth/verifyToken?token=${resetToken}&userId=${user._id}`,
-    html: htmlContent, 
+    html: htmlContent,
   };
 
   // Send the email
   try {
     await transporter.sendMail(mailOptions);
     return {
-      response : `Password reset email sent `,
-      data : true
+      response: `Password reset email sent `,
+      data: true
     }
   } catch (error) {
     console.error("Error sending password reset email:", error);
     return {
-      response : "Error sending password reset email:",
-       data : error
+      response: "Error sending password reset email:",
+      data: error
     }
   }
 };
-const generateRandomPassword = (length)  => {
+const generateRandomPassword = (length) => {
   const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
   let password = "";
 
@@ -365,10 +364,10 @@ const generateRandomPassword = (length)  => {
 
 
 
-const sendNotificationByEmail=(mailConfig,DATA)=>{
+const sendNotificationByEmail = (mailConfig, DATA) => {
 
-  const data=DATA
-  const html=`<br/><br/>
+  const data = DATA
+  const html = `<br/><br/>
 
   <table style="border-top: 1px solid #c0c0c0; border-bottom: 1px solid #c0c0c0; background-color: #f0f0f0;" border="0" width="100%" cellpadding="4">
       <tbody>
@@ -397,7 +396,7 @@ const sendNotificationByEmail=(mailConfig,DATA)=>{
                           <tr valign="top">
                               <th style="text-align: left; font-size: 14px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Itinerary</th>
                               <td>:</td>
-                              <td>${data.options[0].Sectors[0].Departure.CityName} - ${data.options[0].Sectors[0].Arrival.CityName} <span>:</span>${data.options[0].Sectors[0].Departure.Date }</td>
+                              <td>${data.options[0].Sectors[0].Departure.CityName} - ${data.options[0].Sectors[0].Arrival.CityName} <span>:</span>${data.options[0].Sectors[0].Departure.Date}</td>
                           </tr>
                           <tr>
                               <th style="text-align: left; font-size: 14px; font-weight: bold; background-color: #d7ebff; color: #004cba; padding: 2px; margin: 0px; border: 1px solid #e0e0e0;">Passenger(s)</th>
@@ -443,10 +442,10 @@ const sendNotificationByEmail=(mailConfig,DATA)=>{
                                                                   <img class="x_CToWUd" style="width: 80px;" alt="" border="0" data-imagetype="External"
                                                        src="https://www.digitravel.co.in/images/airlogos/6E.png" />
                                                               </td>
-                                                              <td>${data.options[0].Sectors[0].AirlineName }</td>
+                                                              <td>${data.options[0].Sectors[0].AirlineName}</td>
   
-                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[0].Departure.Time }</span>   </span>${data.options[0].Sectors[0].Departure.Date }</td>
-                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[0].Arrival.Time }</span></span>  ${data.options[0].Sectors[0].Arrival.Date }</td>
+                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[0].Departure.Time}</span>   </span>${data.options[0].Sectors[0].Departure.Date}</td>
+                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[0].Arrival.Time}</span></span>  ${data.options[0].Sectors[0].Arrival.Date}</td>
                                                           <td>${data.options[0].Sectors[0].FlyingTime}</td>
                                                               <td>&nbsp;</td>
                                                               <td align="right">${data.options[0].TotalPrice} ${data.options[0].Currency}</td>
@@ -455,7 +454,7 @@ const sendNotificationByEmail=(mailConfig,DATA)=>{
                                                       </tr>
                                                       <tr valign="top">
                                                           <td rowspan="2"><img class="x_CToWUd" style="width: 100px;" alt="" border="0" data-imagetype="External" /></td>
-                                                          <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[0].FltNum }</td>
+                                                          <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[0].FltNum}</td>
                                                           <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[0].Departure.CityName} (${data.options[0].Sectors[0].Departure.CityCode})<br />Terminal:${data.options[0].Sectors[0].Departure.Terminal}</td>
                                                           <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[0].Arrival.CityName} (${data.options[0].Sectors[0].Arrival.CityCode})<br />Terminal::${data.options[0].Sectors[0].Arrival.Terminal}</td>
                                                           <td>&nbsp;</td>
@@ -474,10 +473,10 @@ const sendNotificationByEmail=(mailConfig,DATA)=>{
                                                                   <img class="x_CToWUd" style="width: 80px;" alt="" border="0" data-imagetype="External"
                                                        src="https://www.digitravel.co.in/images/airlogos/6E.png" />
                                                               </td>
-                                                              <td>${data.options[0].Sectors[1].AirlineName }</td>
+                                                              <td>${data.options[0].Sectors[1].AirlineName}</td>
   
-                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[1].Departure.Time }  </span></span>${data.options[0].Sectors[1].Departure.Date }</td>
-                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[1].Arrival.Time }</span>   </span>${data.options[0].Sectors[1].Arrival.Date }</td>
+                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[1].Departure.Time}  </span></span>${data.options[0].Sectors[1].Departure.Date}</td>
+                                                          <td><span class="x_aBn" tabindex="0"><span class="x_aQJ">${data.options[0].Sectors[1].Arrival.Time}</span>   </span>${data.options[0].Sectors[1].Arrival.Date}</td>
                                                           <td>${data.options[0].Sectors[1].FlyingTime}</td>
                                                               <td>&nbsp;</td>
                                                               <td align="right"></td>
@@ -485,7 +484,7 @@ const sendNotificationByEmail=(mailConfig,DATA)=>{
                                                       </tr>
                                                       <tr valign="top">
                                                           <td rowspan="2"><img class="x_CToWUd" style="width: 100px;" alt="" border="0" data-imagetype="External" /></td>
-                                                          <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[1].FltNum }</td>
+                                                          <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[1].FltNum}</td>
                                                           <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[1].Departure.CityName} (${data.options[0].Sectors[1].Departure.CityCode})<br />Terminal:${data.options[0].Sectors[1].Departure.Terminal}</td>
                                                           <td style="text-align: left; font-size: 12px; font-weight: normal; text-decoration: none; color: #084886;">${data.options[0].Sectors[1].Arrival.CityName} (${data.options[0].Sectors[1].Departure.CityCode})<br />Terminal:${data.options[0].Sectors[1].Arrival.Terminal}</td>
                                                           <td>&nbsp;</td>
@@ -524,36 +523,36 @@ const sendNotificationByEmail=(mailConfig,DATA)=>{
   `
 
   const transporter = nodemailer.createTransport({
-    host: mailConfig[0].host, 
-    port: mailConfig[0].port, 
-    secure: false, 
+    host: mailConfig[0].host,
+    port: mailConfig[0].port,
+    secure: false,
     auth: {
       user: mailConfig[0].userName,
-      pass: mailConfig[0].password, 
+      pass: mailConfig[0].password,
     },
   });
 
   const mailOptions = {
-    from:  mailConfig[0].emailFrom,
+    from: mailConfig[0].emailFrom,
     to: data.to,
-    subject:data.subject,
+    subject: data.subject,
     cc: data.cc, // Add CC recipient
-    bcc: data.bcc ,
+    bcc: data.bcc,
     html: html
-    
+
   };
 
-  try{
+  try {
     transporter.sendMail(mailOptions);
     return {
-      response : `Send Email succefully `,
-      data : true
+      response: `Send Email succefully `,
+      data: true
     }
 
-  }catch(error){
+  } catch (error) {
     return {
-      response : "Error Sending Notification Email:",
-       data : error
+      response: "Error Sending Notification Email:",
+      data: error
     }
   }
 

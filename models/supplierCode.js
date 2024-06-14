@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
 
 const supplierCodeSchema = new mongoose.Schema({
-    supplierCode : {
-        type : String
+    supplierCode: {
+        type: String
     },
-    status : {
-        type : Boolean
+    status: {
+        type: Boolean,
+        default: true
     }
 }, {
-    timestamps : true
+    timestamps: true
 });
 const SupplierCode = mongoose.model("SupplierCode", supplierCodeSchema);
 

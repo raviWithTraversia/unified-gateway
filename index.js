@@ -8,7 +8,7 @@ const basicAuth = require('express-basic-auth');
 
 let MongoUrl = Config.MONGODB_URL
 if (Config.MODE === "LIVE") { MongoUrl = Config.MONGODB_URL_2 }
-connectionMongoDb("mongodb://localhost:27017/b2bKafilaTesting");
+connectionMongoDb(MongoUrl);
 
 const app = ExpressLoader.init();
 

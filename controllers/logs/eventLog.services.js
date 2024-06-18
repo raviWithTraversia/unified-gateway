@@ -1020,4 +1020,44 @@ const getPgChargeslog=async(req,res)=>{
     }
 }
 
-module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog,getFairRuleslog,getPgChargeslog}
+
+const getMarkuplog=async(req,res)=>{
+    try{
+        const { doucmentId } = req.query;
+        if ( !doucmentId) {
+            return {
+                response: "Either doucment_id does not exist",
+            };
+        }
+        const getEventLogs = await EventLog.find({ documentId:doucmentId })
+      .populate([
+        { path: "doerId", select: "fname email lastName userId" },
+        { path: "companyId", select: "companyName type" },
+        { path: "oldValue.markupData.markUpCategoryId",model:"markUpCategoryModel", select: "markUpCategoryName" },
+        { path: "newValue.markupData.markUpCategoryId",model:"markUpCategoryModel", select: "markUpCategoryName" },
+        { path: "oldValue.airlineCodeId", model: "AirlineCode" },
+        { path: "newValue.airlineCodeId", model: "AirlineCode" },
+      ])
+      .sort({ createdAt: -1 });
+
+
+    
+        
+        if (!getEventLogs) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: getEventLogs,
+        };
+
+    }
+    catch(error){
+        console.log(error)
+        throw error;
+    }
+}
+
+module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog,getFairRuleslog,getPgChargeslog,getMarkuplog}

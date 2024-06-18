@@ -88,6 +88,7 @@ const updateMarkup = async (req, res) => {
   try {
     let { markupId } = req.query;
     let dataForUpdate = { ...req.body };
+    let oldDeatail=await manageMarkupModel.findById(markupId)
     let updateDetails = await manageMarkupModel.findByIdAndUpdate(
       markupId,
       {
@@ -95,7 +96,6 @@ const updateMarkup = async (req, res) => {
       },
       { new: true }
     );
-console.log(updateDetails)
     if (!updateDetails) {
       return {
         response: "MarkUp data not found",
@@ -103,7 +103,6 @@ console.log(updateDetails)
     } else {
 
       // BY ALAM 16-01-2024
-      const getOldValue = await manageMarkupModel.findOne({ _id: markupId })
       const CheckMarkupLogExist = await markupLogHistory.findOne({ markupId: markupId });
       if (CheckMarkupLogExist) {
         const updateMarkupLog = await markupLogHistory.findOneAndUpdate(
@@ -134,12 +133,14 @@ console.log(updateDetails)
         doerId:req.user._id,
         doerName:userData.fname,
   companyId:updateDetails.companyId,
+oldValue:oldDeatail,
+newValue:updateDetails,
   documentId:updateDetails._id,
         description:"Edit Agent Markup",
       }
      EventLogs(LogsData)
 
-
+console.log(LogsData)
       // End................
 
       return {

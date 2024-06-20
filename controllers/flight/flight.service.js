@@ -328,7 +328,7 @@ const KafilaFun = async (
   if (Authentication.CredentialType === "LIVE") {
     // Live Url here
     credentialType = "P";
-    let fSearchToken = "be6e3eb87611e080340d57473b038cae"
+    fSearchToken = "be6e3eb87611e080340d57473b038cae"
     createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
     flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FSearch`;
     //createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;

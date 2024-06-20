@@ -12,7 +12,6 @@ const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
 const moment = require("moment");
-const { Config } = require("../../configs/config");
 
 const getSearch = async (req, res) => {
   const {
@@ -408,15 +407,15 @@ const KafilaFun = async (
     DDate: segment.DepartureDate,
   }));
 
-  let tokenData = {
-    P_TYPE: "API",
-    R_TYPE: "FLIGHT",
-    R_NAME: "GetToken",
-    AID: supplier.supplierWsapSesssion,
-    UID: supplier.supplierUserId,
-    PWD: supplier.supplierPassword,
-    Version: "1.0.0.0.0.0",
-  };
+  // let tokenData = {
+  //   P_TYPE: "API",
+  //   R_TYPE: "FLIGHT",
+  //   R_NAME: "GetToken",
+  //   AID: supplier.supplierWsapSesssion,
+  //   UID: supplier.supplierUserId,
+  //   PWD: supplier.supplierPassword,
+  //   Version: "1.0.0.0.0.0",
+  // };
   try {
     // let response = await axios.post(createTokenUrl, tokenData, {
     //   headers: {
@@ -438,7 +437,7 @@ const KafilaFun = async (
       Ver: "1.0.0.0",
       Auth: {
         AgentId: supplier.supplierWsapSesssion,
-        Token: Config.FSEARCH,
+        Token: fSearchToken,
       },
       Env: credentialType,
       Module: "B2B",

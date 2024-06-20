@@ -1,5 +1,5 @@
 const railSearchServices = require("./railSearch.services");
-
+const railBookingServices = require("./railBooking.services");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const { ServerStatusCode, errorResponse, CrudMessage, } = require("../../utils/constants");
 // const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
@@ -83,5 +83,40 @@ const railSearchBtwnDate = async (req, res) => {
         );
     }
 };
+const getTrainStation=async(req,res)=>{
+    try{
+        const result = await railBookingServices.getTrainStation(req, res);
+        if (result.response ==="Station(s) found successfully") {
+            apiSucessRes(
+                res,
+                result.response,
+                result.data,
+                ServerStatusCode.SUCESS_CODE
+            );
 
-module.exports = { railSearch, railSearchBtwnDate };
+
+        } else if (
+            result.response === "Station Code and StationName not found"
+
+        )  {
+            apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+        } else {
+            apiErrorres(
+                res,
+                errorResponse.SOME_UNOWN,
+                ServerStatusCode.UNPROCESSABLE,
+                true
+            );
+        }
+    }catch(error){
+        console.error(error);
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        );
+    }
+}
+
+module.exports = { railSearch, railSearchBtwnDate,getTrainStation };

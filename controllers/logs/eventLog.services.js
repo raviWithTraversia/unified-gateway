@@ -138,7 +138,7 @@ const getAgencyLog=async(req,res)=>{
  ]
     
 
- )
+ ).sort({createdAt:-1})
  
  const result = getEventLogs.map(item => {
     const updatedValues = {};
@@ -280,7 +280,7 @@ const getAgencyLogConfig=async(req,res)=>{
 
           ];
           
-          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions);
+          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions).sort({createdAt:-1});
           
           const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -458,7 +458,7 @@ const getDisetuplog=async(req,res)=>{
         const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
             { path: "doerId", select: "fname email lastName userId" },
             { path: "companyId", select: "companyName type" },
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -551,14 +551,14 @@ const getSsrlog=async(req,res)=>{
             { path: "newValue.supplierCode", model:"SupplierCode" },
 
 
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
             const categories = ['seat', 'meal', 'baggage'];
             const subcategories = ['bookingFee', 'markup', 'discount'];
             const fields = ['fixCharge', 'percentCharge', 'maxValue'];
-        
+          
             categories.forEach(category => {
                 subcategories.forEach(subcategory => {
                     fields.forEach(field => {
@@ -673,7 +673,7 @@ const getIncenctivelog=async(req,res)=>{
             { path: 'newValue.fareFamily', model: 'FareFamilyMaster',  },
 
 
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -781,8 +781,8 @@ const getairCommercialfilterlog=async(req,res)=>{
 
           ];
           
-          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions);
-          
+          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions).sort({createdAt:-1});
+          console.log(getEventLogs)
           const result = getEventLogs.map(item => {
             const updatedValues = {};
             if (item.oldValue?.name !== item.newValue?.name) {
@@ -821,11 +821,12 @@ const getairCommercialfilterlog=async(req,res)=>{
             
             if (item.oldValue?.fareFamily?._id!==item.newValue?.fareFamily?._id) {
                 updatedValues.fareFamily = {
-                    oldValue: [item.oldValue?.fareFamily?.fareFamilyCode,  item.oldValue?.fareFamily?.fareFamilyName],
-                    newValue: [item.newValue?.fareFamily?.fareFamilyCode ,item.oldValue?.fareFamily?.fareFamilyName]
+                    oldValue:  item.oldValue?.fareFamily?.fareFamilyName,
+                    newValue: item.oldValue?.fareFamily?.fareFamilyName
                 };
             }
            
+            console.log(result)
          
         
             return {
@@ -879,7 +880,7 @@ const getFairRuleslog=async(req,res)=>{
             { path: 'newValue.fareFamilyId', model: 'FareFamilyMaster',  },
 
 
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -901,31 +902,29 @@ const getFairRuleslog=async(req,res)=>{
                     });
                     if (item.oldValue?.providerId?._id !== item.newValue?.providerId?._id) {
                         updatedValues.providerId = {
-                            oldValue:{providerId: item.oldValue?.providerId?.supplierCode,
-                                status:item.oldValue?.providerId?.status
-                            },
-                            newValue:{providerId: item.newValue?.providerId?.supplierCode,
-                                status:item.newValue?.supplierCode?.status
-                            },
+                            oldValue:item.oldValue?.providerId?.supplierCode,
+                            newValue: item.newValue?.providerId?.supplierCode,
+                                
+                            
                         };}
 
                         if (item.oldValue?.cabinclassId?.cabinClassCode!==item.newValue?.cabinclassId?.cabinClassCode) {
                             updatedValues.cabinClass = {
-                                oldValue:{cabinClassCode: item.oldValue?.cabinclassId?.cabinClassCode,cabinClassName: item.oldValue?.cabinclassId?.cabinClassName},
-                                newValue:{cabinClassCode: item.newValue?.cabinclassId?.cabinClassCode,cabinClassName: item.newValue?.cabinclassId?.cabinClassName},
+                                oldValue:item.oldValue?.cabinclassId?.cabinClassName,
+                                newValue:item.newValue?.cabinclassId?.cabinClassName
                             };
                         }  
 
                         if (item.oldValue?.fareFamilyId?.fareFamilyCode!==item.newValue?.fareFamilyId?.fareFamilyCode) {
                             updatedValues.fareFamily = {
-                                oldValue:{fareFamilyCode: item.oldValue?.fareFamilyId?.fareFamilyCode,fareFamilyName: item.oldValue?.fareFamilyId?.fareFamilyName},
-                                newValue:{fareFamilyCode: item.newValue?.fareFamilyId?.fareFamilyCode,fareFamilyName: item.newValue?.fareFamilyId?.fareFamilyName},
+                                oldValue: item.oldValue?.fareFamilyId?.fareFamilyName,
+                                newValue: item.newValue?.fareFamilyId?.fareFamilyName
                             };
                         }  
                         if (item.oldValue?.airlineCodeId?.airlineCode!==item.newValue?.airlineCodeId?.airlineCode) {
                             updatedValues.airlineCode = {
-                                oldValue:{airlineCode: item.oldValue?.airlineCodeId?.airlineCode,airlineName: item.oldValue?.airlineCodeId?.airlineName},
-                                newValue:{airlineCode: item.newValue?.airlineCodeId?.airlineCode,airlineName: item.newValue?.airlineCodeId?.airlineName},
+                                oldValue:item.oldValue?.airlineCodeId?.airlineName,
+                                newValue: item.newValue?.airlineCodeId?.airlineName
                             };
                         }  
             return {
@@ -970,7 +969,7 @@ const getPgChargeslog=async(req,res)=>{
         const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
             { path: "doerId", select: "fname email lastName userId" },
             { path: "companyId", select: "companyName type" },
-            ])
+            ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -1021,4 +1020,44 @@ const getPgChargeslog=async(req,res)=>{
     }
 }
 
-module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog,getFairRuleslog,getPgChargeslog}
+
+const getMarkuplog=async(req,res)=>{
+    try{
+        const { doucmentId } = req.query;
+        if ( !doucmentId) {
+            return {
+                response: "Either doucment_id does not exist",
+            };
+        }
+        const getEventLogs = await EventLog.find({ documentId:doucmentId })
+      .populate([
+        { path: "doerId", select: "fname email lastName userId" },
+        { path: "companyId", select: "companyName type" },
+        { path: "oldValue.markupData.markUpCategoryId",model:"markUpCategoryModel", select: "markUpCategoryName" },
+        { path: "newValue.markupData.markUpCategoryId",model:"markUpCategoryModel", select: "markUpCategoryName" },
+        { path: "oldValue.airlineCodeId", model: "AirlineCode" },
+        { path: "newValue.airlineCodeId", model: "AirlineCode" },
+      ])
+      .sort({ createdAt: -1 });
+
+
+    
+        
+        if (!getEventLogs) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: getEventLogs,
+        };
+
+    }
+    catch(error){
+        console.log(error)
+        throw error;
+    }
+}
+
+module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog,getFairRuleslog,getPgChargeslog,getMarkuplog}

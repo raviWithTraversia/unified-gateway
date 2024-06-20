@@ -18,6 +18,7 @@ const addMarkup = async (req, res) => {
       airlineCodeId: airlineCodeId
     };
     let checkMarkupExist = await manageMarkupModel.find(query);
+    // console.log("checkMarkupExist: ", checkMarkupExist)
     if (isDefault === true) {
       let checkIsAnydefaultTrue =
         await manageMarkupModel.updateMany(
@@ -31,12 +32,10 @@ const addMarkup = async (req, res) => {
         response: "This Markup already exists!",
       };
     }
-    console.log(userId)
     let checkIsRole = await userModel
       .findById(userId)
       .populate("roleId")
       .exec();
-
     if (
       checkIsRole.roleId.name == "Agency" ||
       checkIsRole.roleId.name == "Distributer"
@@ -51,8 +50,9 @@ const addMarkup = async (req, res) => {
         createdBy: userId,
         isDefault
       });
+      
       markupChargeInsert = await markupChargeInsert.save();
-
+console.log(markupChargeInsert)
       const userData=await user.findById(req.user._id)
       if (markupChargeInsert) {
         const LogsData={
@@ -88,6 +88,7 @@ const updateMarkup = async (req, res) => {
   try {
     let { markupId } = req.query;
     let dataForUpdate = { ...req.body };
+    let oldDeatail=await manageMarkupModel.findById(markupId)
     let updateDetails = await manageMarkupModel.findByIdAndUpdate(
       markupId,
       {
@@ -95,7 +96,6 @@ const updateMarkup = async (req, res) => {
       },
       { new: true }
     );
-
     if (!updateDetails) {
       return {
         response: "MarkUp data not found",
@@ -103,7 +103,6 @@ const updateMarkup = async (req, res) => {
     } else {
 
       // BY ALAM 16-01-2024
-      const getOldValue = await manageMarkupModel.findOne({ _id: markupId })
       const CheckMarkupLogExist = await markupLogHistory.findOne({ markupId: markupId });
       if (CheckMarkupLogExist) {
         const updateMarkupLog = await markupLogHistory.findOneAndUpdate(
@@ -111,7 +110,9 @@ const updateMarkup = async (req, res) => {
         {
             markupDataNew: req.body.markupData,
             markupDataOld:CheckMarkupLogExist.markupDataNew,
-            doerId:req.user._id
+            doerId:req.user._id,
+          updateDate:new Date()
+
           },
           { new: true }
         );
@@ -120,9 +121,9 @@ const updateMarkup = async (req, res) => {
           markupId,
           markupDataNew: req.body.markupData,
           markupDataOld: req.body.markupData,
-          doerId:req.user._id
-        });
+          doerId:req.user._id,
 
+        });
         const saveMarkupLog = await addMarkupLog.save();
       }
       const userData=user.findById(req.user._id)
@@ -132,12 +133,14 @@ const updateMarkup = async (req, res) => {
         doerId:req.user._id,
         doerName:userData.fname,
   companyId:updateDetails.companyId,
+oldValue:oldDeatail,
+newValue:updateDetails,
   documentId:updateDetails._id,
         description:"Edit Agent Markup",
       }
      EventLogs(LogsData)
 
-
+console.log(LogsData)
       // End................
 
       return {
@@ -162,7 +165,8 @@ const deletedMarkup = async (req, res) => {
     const deleteMarkupDetails = await manageMarkupModel.findByIdAndDelete(
       markupId
     );
-    const userData=await user.findById(req.user_id)
+    const userData=await user.findById(req.user._id)
+    console.log("userData: ", userData)
     if (deleteMarkupDetails) {
 
       const LogsData={
@@ -233,8 +237,12 @@ const getMarkuplogHistory = async (req, res) => {
   try {
    const {id}=req.query
     let markupLogHistoryData = await markupLogHistory.find({markupId:id}).populate([{path:'markupId', select:" markupOn markupFor"},
-      {path:"doerId",select:"fname lastName email"}
-     ]);
+      {path:"doerId",select:"fname lastName email"},
+      {path:'markupDataNew.markUpCategoryId',select:"markUpCategoryName"},
+    {path:'markupDataOld.markUpCategoryId',select:'markUpCategoryName'}
+
+     ])
+     
 
    
   

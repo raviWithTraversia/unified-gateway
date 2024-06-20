@@ -17,6 +17,9 @@ const MarkupLogHistory = new mongoose.Schema({
         
        
     },
+    updateDate:{
+        type:Date,
+    }
 });
 
 module.exports = mongoose.model('MarkupLogHistory' , MarkupLogHistory);

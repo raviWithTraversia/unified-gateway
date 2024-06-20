@@ -6,6 +6,7 @@ const getSalesInCharge = async (req, res) => {
   try {
     const companyId  = req.params.companyId;
     let isValidcCmpanyId = FUNC.checkIsValidId(companyId);
+    console.log("isValidcCmpanyId: ", isValidcCmpanyId)
     if (!isValidcCmpanyId) {
       return {
         response: "companyId is not valid",
@@ -16,6 +17,7 @@ const getSalesInCharge = async (req, res) => {
       sales_In_Charge: true,
       userStatus: commonStatus.Status.Active
     }, {fname : 1,lastName: 1,_id: 1});
+    console.log("salesInchageData: ", salesInchageData)
     if (!salesInchageData.length) {
       return {
         response: "No sales incharge exist",

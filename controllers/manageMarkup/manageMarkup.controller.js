@@ -8,6 +8,7 @@ const {
 
 const addMarkup = async (req,res) => {
   const result = await manageMarkUpServices.addMarkup(req,res);
+  console.log("result: ", result);
   if(result.response == 'MarkUp Charges Insert Sucessfully'){
     apiSucessRes(
         res,

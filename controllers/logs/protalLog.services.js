@@ -59,7 +59,7 @@ const getPortalLog = async (req, res) => {
 }
 
 const getBookingLogs = async (req, res) => {
-    const { companyId, traceId, BookingId } = req.body;
+    const { companyId, traceId, BookingId, type } = req.body;
     let fifteenDaysAgo = new Date();
     fifteenDaysAgo.setDate(new Date().getDate() - 5); //get 15 days before date for deleting the previous data
     const getFifteenDaysBeforeData = await PortalLog.find({ createdAt: { $lt: new Date(fifteenDaysAgo) } });
@@ -71,7 +71,7 @@ const getBookingLogs = async (req, res) => {
             response: "CompanyId does not exist",
         };
     }
-    const getPortalBookingLogs = await PortalLog.find({ companyId, traceId, BookingId });
+    const getPortalBookingLogs = await PortalLog.find({ companyId, traceId, BookingId, type });
     if (!getPortalBookingLogs.length) {
         return {
             response: "Data Not Found",

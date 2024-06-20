@@ -6,17 +6,17 @@ const Smtp = require("../../models/Smtp");
 const Role = require("../../models/Role");
 const { TMC_ROLE, DISTRIBUTER_ROLE, HOST_ROLE } = require("../../utils/constants");
 const webMaster = require("../../models/WebsiteManager");
-const Registration = require("../../models/Registration");
-const agentConfigModel = require("../../models/AgentConfig");
-const privilagePlanModel = require("../../models/PrivilagePlan");
-const plbGroupModel = require("../../models/PLBGroupMaster");
-const incentiveGroupModel = require("../../models/IncentiveGroupMaster");
-const airlinePromocodeModel = require("../../models/AirlinePromoCodeGroup");
-const paymentGatewayModel = require("../../models/paymentGatewayChargesGroup");
-const ssrCommercialGroupModel = require("../../models/SsrCommercialGroup");
-const commercialPlanModel = require("../../models/CommercialAirPlan");
-const fareRuleGroupModel = require("../../models/FareRuleGroup");
-const agencyGroupModel = require("../../models/AgencyGroup");
+const Registration = require('../../models/Registration');
+const agentConfigModel = require('../../models/AgentConfig');
+const privilagePlanModel = require('../../models/PrivilagePlan');
+const plbGroupModel = require('../../models/PLBGroupMaster');
+const incentiveGroupModel = require('../../models/IncentiveGroupMaster');
+const airlinePromocodeModel = require('../../models/AirlinePromoCodeGroup');
+const paymentGatewayModel = require('../../models/paymentGatewayChargesGroup');
+const ssrCommercialGroupModel = require('../../models/SsrCommercialGroup');
+const commercialPlanModel = require('../../models/CommercialAirPlan');
+const fareRuleGroupModel = require('../../models/FareRuleGroup');
+const agencyGroupModel = require('../../models/AgencyGroup');
 const { response } = require("../../routes/userRoute");
 const { Config } = require("../../configs/config");
 const agencyGroupServices = require("../../controllers/agencyGroup/agencyGroup.services");
@@ -86,10 +86,7 @@ const loginUser = async (req, res) => {
         response: "User not found",
       };
     }
-    if (
-      user.userStatus === Status.InActive ||
-      user.userStatus === Status.Inactive
-    ) {
+    if (user.userStatus === Status.InActive || user.userStatus === Status.Inactive) {
       return {
         response: "User is not active",
       };
@@ -165,7 +162,7 @@ const userInsert = async (req, res) => {
         isSometingMissing: true,
         data: `Missing or null fields: ${missingFieldsString}`,
       };
-    }
+    };
     let {
       companyName,
       parent,
@@ -224,14 +221,14 @@ const userInsert = async (req, res) => {
       cityId,
       creditBalance,
       maxCreditLimit,
-      agencyGroupId,
+      agencyGroupId
     } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return {
         response: "User with this email already exists",
-        data: null,
+        data: null
       };
     }
     const existingCompany = await Company.findOne({ companyName: companyName });
@@ -442,6 +439,7 @@ const userInsert = async (req, res) => {
       console.log(error);
       throw error;
     }
+
   }
 };
 const forgotPassword = async (req, res) => {
@@ -515,7 +513,7 @@ const varifyTokenForForgetPassword = async (req, res) => {
 
   } catch (error) {
     console.log(error);
-    throw error;
+    throw error
   }
 };
 const resetPassword = async (req, res) => {
@@ -526,7 +524,7 @@ const resetPassword = async (req, res) => {
       return {
         response: "Inavalid User or User not found",
       };
-    }
+    };
 
     user.password = newPassword
     await user.save({ validateBeforeSave: false })
@@ -542,7 +540,7 @@ const resetPassword = async (req, res) => {
     };
   } catch (error) {
     console.error(error);
-    throw error;
+    throw error
   }
 };
 const changePassword = async (req, res) => {
@@ -611,7 +609,7 @@ const addUser = async (req, res) => {
         isSometingMissing: true,
         data: `Missing or null fields: ${missingFieldsString}`,
       };
-    }
+    };
 
     let {
       title,
@@ -649,6 +647,7 @@ const addUser = async (req, res) => {
       password,
       userStatus: "Active",
       roleId,
+
     });
     // Save the User document to the database
     let saveUser = await newUser.save();
@@ -710,7 +709,7 @@ const editUser = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    throw error;
+    throw error
   }
 };
 const getUser = async (req, res) => {
@@ -804,7 +803,7 @@ const updateUserStatus = async (req, res) => {
         response: null,
         message: "user Id not true",
       };
-    }
+    };
 
 
     const result = await Company.findByIdAndUpdate({ _id: userId }, { companyStatus: status }, { new: true })
@@ -906,17 +905,12 @@ const updateCompayProfile = async (req, res) => {
         response: null,
         message: "your doucument name undefined"
       }
-    } else {
-      return {
-        response: null,
-        message: "your doucument name undefined",
-      };
     }
 
   } catch (error) {
     throw error
   }
-};
+}
 module.exports = {
   registerUser,
   loginUser,
@@ -931,5 +925,5 @@ module.exports = {
   getAllAgencyAndDistributer,
   updateUserStatus,
   getCompanyProfle,
-  updateCompayProfile,
+  updateCompayProfile
 };

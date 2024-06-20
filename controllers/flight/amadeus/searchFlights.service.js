@@ -1,124 +1,50 @@
 const soap = require('soap');
+const path = require('path');
+// // Replace with your actual WSDL URL provided by Amadeus
+// const AMADEUS_WSDL_URL = "https://nodeD1.test.webservices.amadeus.com/1ASIWMOTVX1";
+// const AMADEUS_USER_ID = "WSVX1MOT";
+// const AMADEUS_PASSWORD = "AMADEUS100";
+// const AMADEUS_ORG_ID = "1ASIWMOTVX1";
+// const AMADEUS_SYSTEM_ID = "DELWI2152";
 
-// Replace with your actual WSDL URL provided by Amadeus
-const AMADEUS_WSDL_URL = "https://nodeD1.test.webservices.amadeus.com/1ASIWMOTVX1";
-const AMADEUS_USER_ID = "WSVX1MOT";
-const AMADEUS_PASSWORD = "AMADEUS100";
-const AMADEUS_ORG_ID = "1ASIWMOTVX1";
-const AMADEUS_SYSTEM_ID = "DELWI2152";
-
-// Function to create the SOAP client
-async function createClient(wsdlUrl) {
-  return new Promise((resolve, reject) => {
-    soap.createClient(wsdlUrl, (err, client) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(client);
-    });
-  });
-}
-
-// Function to perform the Master Pricer Travelboard Search
-async function searchFlights(client, params) {
-  return new Promise((resolve, reject) => {
-    client.Fare_MasterPricerTravelBoardSearch(params, (err, result) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(result);
-    });
-  });
-}
-
-async function search() {
+const wsdlPath = path.join(__dirname, '1ASIWKAFK4H_PDT_20240620_082423/1ASIWKAFK4H_PDT_20240620_082423.wsdl');
+// Function to create SOAP client and make request
+const search = async () => {
   try {
-    const client = await createClient(AMADEUS_WSDL_URL);
-    console.log(client);
-    // Set the authentication headers
-    client.addSoapHeader({
-      'Session': {
-        'SessionId': '',
-        'SequenceNumber': '',
-        'SecurityToken': ''
-      },
-      'AMA_SecurityHostedUser': {
-        'UserID': {
-          'RequestorType': {
-            'Type': 'U',
-            'ID': AMADEUS_USER_ID
-          },
-          'Company': {
-            'ID': AMADEUS_ORG_ID,
-            'Code': AMADEUS_SYSTEM_ID
-          }
-        },
-        'Password': {
-          'Value': AMADEUS_PASSWORD
-        }
-      }
-    }, '', 'http://xml.amadeus.com/FMPTBR_23_1_1A');
+    console.log(wsdlPath, 'pathInvalid');
+    // Create SOAP client
+    const client = await soap.createClientAsync(wsdlPath);
 
-    const params = {
-      'Fare_MasterPricerTravelBoardSearch': {
-        'numberOfUnit': {
-          'unitNumberDetail': [
-            {
-              'numberOfUnits': 1,
-              'typeOfUnit': 'PX'
-            },
-            {
-              'numberOfUnits': 1,
-              'typeOfUnit': 'RC'
-            }
-          ]
+    // Define the request parameters
+    const requestArgs = {
+      // Example request arguments, modify these according to the Amadeus API specifications
+      Fare_MasterPricerTravelBoardSearch: {
+        numberOfUnit: {
+          unitNumberDetail: {
+            numberOfUnits: 1,
+            typeOfUnit: 'PX'
+          }
         },
-        'paxReference': [
-          {
-            'ptc': 'ADT',
-            'traveller': [
-              {
-                'ref': 1
-              }
-            ]
-          }
-        ],
-        'itinerary': [
-          {
-            'requestedSegmentRef': {
-              'segRef': 1
-            },
-            'departureLocalization': {
-              'depMultiCity': {
-                'locationId': 'NYC'
-              }
-            },
-            'arrivalLocalization': {
-              'arrivalMultiCity': {
-                'locationId': 'LON'
-              }
-            },
-            'timeDetails': {
-              'firstDateTimeDetail': {
-                'date': '20230701'
-              }
-            }
-          }
-        ],
-        'travelFlightInfo': {
-          'cabinId': {
-            'cabin': 'C'
-          }
-        }
+        // Add other required parameters here
       }
     };
-
-    const result = await searchFlights(client, params);
-    console.log(result);
+    console.log('clientASY');
+    // Set the security headers (if required)
+    client.setSecurity(new soap.BasicAuthSecurity('WSVX1MOT', 'AMADEUS100'));
+    console.log('userpass');
+    // Make the SOAP request
+    const [result] = await client.Fare_MasterPricerTravelBoardSearchAsync(requestArgs);
+    console.log('result');
+    // Handle the response
+    console.log('Response:', result);
   } catch (error) {
-    console.error('Error fetching flight offers:', error);
+    console.error('Error:', error);
   }
-}
+};
+
+
+
+
 
 module.exports = {
   search

@@ -344,20 +344,20 @@ const userInsert = async (req, res) => {
       baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'https://agent.kafilaholidays.in';
     }
     if (userCreated) {
-      let resetTempPassword = await commonFunction.sendPasswordResetEmailLink(
-        email,
-        resetToken,
-        mailConfig,
-        newUser,
-        password,
-        baseUrl
-      );
-      if (resetTempPassword.response == "Password reset email sent" || resetTempPassword.data == true) {
-        console.log("Password reset email sent");
-      }
-      else if (resetTempPassword.response === "forgetPassWordMail") {
-        console.log("Error sending password reset email");
-      }
+      // let resetTempPassword = await commonFunction.sendPasswordResetEmailLink(
+      //   email,
+      //   resetToken,
+      //   mailConfig,
+      //   newUser,
+      //   password,
+      //   baseUrl
+      // );
+      // if (resetTempPassword.response == "Password reset email sent" || resetTempPassword.data == true) {
+      //   console.log("Password reset email sent");
+      // }
+      // else if (resetTempPassword.response === "forgetPassWordMail") {
+      //   console.log("Error sending password reset email");
+      // }
       let privilegePlansIds = await privilagePlanModel.findOne({ companyId: parent, IsDefault: true });
       let commercialPlanIds = await commercialPlanModel.findOne({ companyId: parent, IsDefault: true });
       let fareRuleGroupIds = await fareRuleGroupModel.findOne({ companyId: parent, IsDefault: true });

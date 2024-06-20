@@ -138,7 +138,7 @@ const getAgencyLog=async(req,res)=>{
  ]
     
 
- )
+ ).sort({createdAt:-1})
  
  const result = getEventLogs.map(item => {
     const updatedValues = {};
@@ -150,21 +150,21 @@ const getAgencyLog=async(req,res)=>{
     }
 
 
-    if (item.oldValue?.privilagePlanId?._id !== item.newValue?.privilagePlanId?._id) {
+    if (item.oldValue?.privilagePlanId?.privilagePlanName !== item.newValue?.privilagePlanId?.privilagePlanName) {
         updatedValues.privilagePlanId = {
             oldValue: item.oldValue?.privilagePlanId?.privilagePlanName,
             newValue: item.newValue?.privilagePlanId?.privilagePlanName
         };
     }
 
-    if (item.oldValue?.commercialPlanId?._id !== item.newValue?.commercialPlanId?._id) {
+    if (item.oldValue?.commercialPlanId?.commercialPlanName !== item.newValue?.commercialPlanId?.commercialPlanName) {
         updatedValues.commercialPlanId = {
             oldValue: item.oldValue?.commercialPlanId?.commercialPlanName,
             newValue: item.newValue?.commercialPlanId?.commercialPlanName
         };
     }
 
-    if (item.oldValue?.plbGroupId?._id!==item.newValue?.plbGroupId?._id) {
+    if (item.oldValue?.plbGroupId?.PLBGroupName!==item.newValue?.plbGroupId?.PLBGroupName) {
         updatedValues.plbGroupId = {
             oldValue: item.oldValue?.plbGroupId?.PLBGroupName,
             newValue: item.newValue?.plbGroupId?.PLBGroupName
@@ -176,21 +176,21 @@ const getAgencyLog=async(req,res)=>{
         };
     }  
     
-    if (item.oldValue?.diSetupGroupId?._id!==item.newValue?.diSetupGroupId?._id) {
+    if (item.oldValue?.diSetupGroupId?.diSetupGroupName!==item.newValue?.diSetupGroupId?.diSetupGroupName) {
         updatedValues.diSetupGroupId = {
             oldValue: item.oldValue?.diSetupGroupId?.diSetupGroupName,
             newValue: item.newValue?.diSetupGroupId?.diSetupGroupName
         };
     }
    
-    if (item.oldValue?.airlinePromoCodeGroupId?._id!==item.newValue?.airlinePromoCodeGroupId?._id) {
+    if (item.oldValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName!==item.newValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName) {
         updatedValues.airlinePromoCodeGroupId = {
             oldValue: item.oldValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName,
             newValue: item.newValue?.airlinePromoCodeGroupId?.airlinePromcodeGroupName
         };
     }
 
-    if (item.oldValue?.fairRuleGroupId?._id!==item.newValue?.fairRuleGroupId?._id) {
+    if (item.oldValue?.fairRuleGroupId?.fareRuleGroupName!==item.newValue?.fairRuleGroupId?.fareRuleGroupName) {
         updatedValues.fairRuleGroupId = {
             oldValue: item.oldValue?.fairRuleGroupId?.fareRuleGroupName,
             newValue: item.newValue?.fairRuleGroupId?.fareRuleGroupName
@@ -198,13 +198,13 @@ const getAgencyLog=async(req,res)=>{
     }  
 
     
-    if (item.oldValue?.ssrCommercialGroupId?._id!==item.newValue?.ssrCommercialGroupId?._id) {
+    if (item.oldValue?.ssrCommercialGroupId?.ssrCommercialName!==item.newValue?.ssrCommercialGroupId?.ssrCommercialName) {
         updatedValues.ssrCommercialGroupId = {
             oldValue: item.oldValue?.ssrCommercialGroupId?.ssrCommercialName,
             newValue: item.newValue?.ssrCommercialGroupId?.ssrCommercialName
         };
     }
-    if (item.oldValue?.pgChargesGroupId?._id!==item.newValue?.pgChargesGroupId?._id) {
+    if (item.oldValue?.pgChargesGroupId?.paymentGatewayGroupName!==item.newValue?.pgChargesGroupId?.paymentGatewayGroupName) {
         updatedValues.pgChargesGroupId = {
             oldValue: item.oldValue?.pgChargesGroupId?.paymentGatewayGroupName,
             newValue: item.newValue?.pgChargesGroupId?.paymentGatewayGroupName
@@ -280,7 +280,7 @@ const getAgencyLogConfig=async(req,res)=>{
 
           ];
           
-          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions);
+          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions).sort({createdAt:-1});
           
           const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -411,8 +411,8 @@ const getAgencyLogConfig=async(req,res)=>{
 
             if (item.oldValue?.salesInchargeIds?._id!==item.newValue?.salesInchargeIds?._id) {
                 updatedValues.salesInchargeIds = {
-                    oldValue: [item.oldValue?.salesInchargeIds?.email,item.oldValue?.salesInchargeIds?.fname,item.oldValue?.salesInchargeIds?.lastname,],
-                    newValue: [item.newValue?.salesInchargeIds?.email,item.newValue?.salesInchargeIds?.fname,item.newValue?.salesInchargeIds?.lastname,],
+                    oldValue: item.oldValue?.salesInchargeIds?.fname,
+                    newValue: item.newValue?.salesInchargeIds?.fname
                 };
             } 
             // Repeat this pattern for other properties
@@ -458,7 +458,7 @@ const getDisetuplog=async(req,res)=>{
         const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
             { path: "doerId", select: "fname email lastName userId" },
             { path: "companyId", select: "companyName type" },
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -490,14 +490,14 @@ const getDisetuplog=async(req,res)=>{
                 };
             }
 
-            if (Date(item.oldValue?.validFromDate) !== Date(item.newValue?.validFromDate)) {
+            if (item.oldValue?.validFromDate !== item.newValue?.validFromDate) {
                 updatedValues.validFromDate = {
                     oldValue: item.oldValue?.validFromDate,
                     newValue: item.newValue?.validFromDate
                 };
             }
 
-            if (Date(item.oldValue?.validToDate) !== Date(item.newValue?.validToDate)) {
+            if (item.oldValue?.validToDate !== item.newValue?.validToDate) {
                 updatedValues.validToDate = {
                     oldValue: item.oldValue?.validToDate,
                     newValue: item.newValue?.validToDate
@@ -528,6 +528,7 @@ const getDisetuplog=async(req,res)=>{
 
     }
     catch(error){
+
         throw error;
     }
 }
@@ -550,14 +551,14 @@ const getSsrlog=async(req,res)=>{
             { path: "newValue.supplierCode", model:"SupplierCode" },
 
 
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
             const categories = ['seat', 'meal', 'baggage'];
             const subcategories = ['bookingFee', 'markup', 'discount'];
             const fields = ['fixCharge', 'percentCharge', 'maxValue'];
-        
+          
             categories.forEach(category => {
                 subcategories.forEach(subcategory => {
                     fields.forEach(field => {
@@ -608,22 +609,14 @@ const getSsrlog=async(req,res)=>{
             
             if (item.oldValue?.airlineCodeId?._id !== item.newValue?.airlineCodeId?._id) {
                 updatedValues.airlineCodeId = {
-                    oldValue:{airlineName: item.oldValue?.airlineCodeId?.airlineName,
-                        airlineCode:item.oldValue?.airlineCodeId?.airlineCode
-                    },
-                    newValue:{airlineName: item.newValue?.airlineCodeId?.airlineName,
-                        airlineCode:item.newValue?.airlineCodeId?.airlineCode
-                    },
+                    oldValue: item.oldValue?.airlineCodeId?.airlineName,
+                    newValue: item.newValue?.airlineCodeId?.airlineName,
                 };}
 
                 if (item.oldValue?.supplierCode?._id !== item.newValue?.supplierCode?._id) {
                     updatedValues.supplierCode = {
-                        oldValue:{supplierCode: item.oldValue?.supplierCode?.supplierCode,
-                            status:item.oldValue?.supplierCode?.status
-                        },
-                        newValue:{supplierCode: item.newValue?.supplierCode?.supplierCode,
-                            status:item.newValue?.supplierCode?.status
-                        },
+                        oldValue: item.oldValue?.supplierCode?.supplierCode,
+                        newValue: item.newValue?.supplierCode?.supplierCode,
                     };}
             return {
                 _id: item._id, // Include other necessary fields here
@@ -680,7 +673,7 @@ const getIncenctivelog=async(req,res)=>{
             { path: 'newValue.fareFamily', model: 'FareFamilyMaster',  },
 
 
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -788,8 +781,8 @@ const getairCommercialfilterlog=async(req,res)=>{
 
           ];
           
-          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions);
-          
+          const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate(populateOptions).sort({createdAt:-1});
+          console.log(getEventLogs)
           const result = getEventLogs.map(item => {
             const updatedValues = {};
             if (item.oldValue?.name !== item.newValue?.name) {
@@ -828,11 +821,12 @@ const getairCommercialfilterlog=async(req,res)=>{
             
             if (item.oldValue?.fareFamily?._id!==item.newValue?.fareFamily?._id) {
                 updatedValues.fareFamily = {
-                    oldValue: [item.oldValue?.fareFamily?.fareFamilyCode,  item.oldValue?.fareFamily?.fareFamilyName],
-                    newValue: [item.newValue?.fareFamily?.fareFamilyCode ,item.oldValue?.fareFamily?.fareFamilyName]
+                    oldValue:  item.oldValue?.fareFamily?.fareFamilyName,
+                    newValue: item.oldValue?.fareFamily?.fareFamilyName
                 };
             }
            
+            console.log(result)
          
         
             return {
@@ -886,7 +880,7 @@ const getFairRuleslog=async(req,res)=>{
             { path: 'newValue.fareFamilyId', model: 'FareFamilyMaster',  },
 
 
-        ])
+        ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -908,31 +902,29 @@ const getFairRuleslog=async(req,res)=>{
                     });
                     if (item.oldValue?.providerId?._id !== item.newValue?.providerId?._id) {
                         updatedValues.providerId = {
-                            oldValue:{providerId: item.oldValue?.providerId?.supplierCode,
-                                status:item.oldValue?.providerId?.status
-                            },
-                            newValue:{providerId: item.newValue?.providerId?.supplierCode,
-                                status:item.newValue?.supplierCode?.status
-                            },
+                            oldValue:item.oldValue?.providerId?.supplierCode,
+                            newValue: item.newValue?.providerId?.supplierCode,
+                                
+                            
                         };}
 
                         if (item.oldValue?.cabinclassId?.cabinClassCode!==item.newValue?.cabinclassId?.cabinClassCode) {
                             updatedValues.cabinClass = {
-                                oldValue:{cabinClassCode: item.oldValue?.cabinclassId?.cabinClassCode,cabinClassName: item.oldValue?.cabinclassId?.cabinClassName},
-                                newValue:{cabinClassCode: item.newValue?.cabinclassId?.cabinClassCode,cabinClassName: item.newValue?.cabinclassId?.cabinClassName},
+                                oldValue:item.oldValue?.cabinclassId?.cabinClassName,
+                                newValue:item.newValue?.cabinclassId?.cabinClassName
                             };
                         }  
 
                         if (item.oldValue?.fareFamilyId?.fareFamilyCode!==item.newValue?.fareFamilyId?.fareFamilyCode) {
                             updatedValues.fareFamily = {
-                                oldValue:{fareFamilyCode: item.oldValue?.fareFamilyId?.fareFamilyCode,fareFamilyName: item.oldValue?.fareFamilyId?.fareFamilyName},
-                                newValue:{fareFamilyCode: item.newValue?.fareFamilyId?.fareFamilyCode,fareFamilyName: item.newValue?.fareFamilyId?.fareFamilyName},
+                                oldValue: item.oldValue?.fareFamilyId?.fareFamilyName,
+                                newValue: item.newValue?.fareFamilyId?.fareFamilyName
                             };
                         }  
                         if (item.oldValue?.airlineCodeId?.airlineCode!==item.newValue?.airlineCodeId?.airlineCode) {
                             updatedValues.airlineCode = {
-                                oldValue:{airlineCode: item.oldValue?.airlineCodeId?.airlineCode,airlineName: item.oldValue?.airlineCodeId?.airlineName},
-                                newValue:{airlineCode: item.newValue?.airlineCodeId?.airlineCode,airlineName: item.newValue?.airlineCodeId?.airlineName},
+                                oldValue:item.oldValue?.airlineCodeId?.airlineName,
+                                newValue: item.newValue?.airlineCodeId?.airlineName
                             };
                         }  
             return {
@@ -977,7 +969,7 @@ const getPgChargeslog=async(req,res)=>{
         const getEventLogs = await EventLog.find({ documentId:doucmentId }).populate([
             { path: "doerId", select: "fname email lastName userId" },
             { path: "companyId", select: "companyName type" },
-            ])
+            ]).sort({createdAt:-1})
 
         const result = getEventLogs.map(item => {
             const updatedValues = {};
@@ -1028,4 +1020,44 @@ const getPgChargeslog=async(req,res)=>{
     }
 }
 
-module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog,getFairRuleslog,getPgChargeslog}
+
+const getMarkuplog=async(req,res)=>{
+    try{
+        const { doucmentId } = req.query;
+        if ( !doucmentId) {
+            return {
+                response: "Either doucment_id does not exist",
+            };
+        }
+        const getEventLogs = await EventLog.find({ documentId:doucmentId })
+      .populate([
+        { path: "doerId", select: "fname email lastName userId" },
+        { path: "companyId", select: "companyName type" },
+        { path: "oldValue.markupData.markUpCategoryId",model:"markUpCategoryModel", select: "markUpCategoryName" },
+        { path: "newValue.markupData.markUpCategoryId",model:"markUpCategoryModel", select: "markUpCategoryName" },
+        { path: "oldValue.airlineCodeId", model: "AirlineCode" },
+        { path: "newValue.airlineCodeId", model: "AirlineCode" },
+      ])
+      .sort({ createdAt: -1 });
+
+
+    
+        
+        if (!getEventLogs) {
+            return {
+                response: "Data Not Found",
+            };
+        }
+        return {
+            response: "Fetch Data Successfully",
+            data: getEventLogs,
+        };
+
+    }
+    catch(error){
+        console.log(error)
+        throw error;
+    }
+}
+
+module.exports = { addEventLog, retriveEventLog, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog,getFairRuleslog,getPgChargeslog,getMarkuplog}

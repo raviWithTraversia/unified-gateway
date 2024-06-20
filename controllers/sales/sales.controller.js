@@ -4,7 +4,8 @@ const {ServerStatusCode, errorResponse, ADMIN_USER_TYPE, CrudMessage}  = require
 
 const getSalesInCharge = async (req,res) => {
     try{
-      const result = await salesInCharge.getSalesInCharge(req,res);
+      const result = await salesInCharge.getSalesInCharge(req,res); 
+      console.log("result: ", result);
       if(result.response === "companyId is not valid"){
         apiErrorres(
             res,

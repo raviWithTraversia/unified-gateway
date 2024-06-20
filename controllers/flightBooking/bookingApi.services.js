@@ -696,12 +696,19 @@ const getBookingBill = async (req, res) => {
       as: "companiesData",
     },
   }, {
+    $lookup: {
+      from: "users",
+      localField: "bookingData.userId",
+      foreignField: "_id",
+      as: "userdata",
+    },
+  }, {
     $project: {
       bookingId: "$bookingData.providerBookingId",
       paxName: 1,
       ticketNo: 1,
       agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
-      agentId: { $arrayElemAt: ['$companiesData.agentId', 0] },
+      agentId: { $arrayElemAt: ['$userdata.userId', 0] },
       pnr: "$bookingData.PNR",
       itemAmount: "$bookingData.itinerary.BaseFare",
       sector: {
@@ -730,6 +737,7 @@ const getBookingBill = async (req, res) => {
     }
   }]);
   bookingBill.forEach((element, index) => {
+    element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr
     element.id = index + 1;
   });
   if (!bookingBill.length) {

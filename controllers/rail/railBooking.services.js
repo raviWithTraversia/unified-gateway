@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { Config } = require("../../configs/config");
-
+const trainStation=require('../../models/TrainStation');
+const { response } = require('../../routes/railRoute');
 const getRailSearch = async (req, res) => {
     try {
         const { from, to, date/*, quota, class */ } = req.body;
@@ -33,4 +34,41 @@ const getRailSearch = async (req, res) => {
     }
 }
 
-module.exports = { getRailSearch }
+const getTrainStation=async(req,res)=>{
+    try{
+        const { Station} = req.body; 
+    if(!Station){
+        return {
+response:"Station Code and StationName not found"
+        }
+    }
+else{
+    let orConditions = [];
+    if (Station) {
+      orConditions.push({ StationCode: new RegExp(`^${Station}`, 'i') },{stationName:new RegExp(`^${Station}`, 'i')},{Location:new RegExp(`^${Station}`, 'i')});
+    }
+   
+
+    let query = {};
+    if (orConditions.length > 0) {
+      query.$or = orConditions;
+    }
+
+    const findTrainStation = await trainStation.find(query)
+
+    if(findTrainStation.length>0){
+        return {
+            response:"Station(s) found successfully",
+            data:findTrainStation
+        }
+    }
+}
+
+    }catch(error){
+        console.error(error);
+        throw error;
+    }
+}
+
+
+module.exports = { getRailSearch ,getTrainStation}

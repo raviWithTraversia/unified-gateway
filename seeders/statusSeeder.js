@@ -1,44 +1,29 @@
-const status = require("../models/Status") ;
+const status = require("../models/Status");
 
-const statusData = [
-    {
-        name : "Pending", 
-        type :  "registration", 
-        timestamp : "2023-10-10T12:00:00Z"
-    },
-    {
-        name : "In-progress", 
-        type :  "registration", 
-        timestamp : "2023-10-10T12:00:00Z"
-    },
-    {
-        name : "Approved", 
-        type :  "registration", 
-        timestamp : "2023-10-10T12:00:00Z"
-    },
-    {
-        name : "Registration", 
-        type :  "registration", 
-        timestamp : "2023-10-10T12:00:00Z"
-    },
-    {
-        name : "Decline", 
-        type :  "registration", 
-        timestamp : "2023-10-10T12:00:00Z"
-    }
-    
-    
- ];
+const statusData = [{
+  name: "Pending",
+  type: "registration"
+}, {
+  name: "In-progress",
+  type: "registration"
+}, {
+  name: "Approved",
+  type: "registration"
+}, {
+  "name": "Pending",
+  "type": "GST varification"
+}, {
+  name: "Decline",
+  type: "registration"
+}];
 
 const seedStatus = async () => {
   try {
     // Check if any companies already exist
     const existingStatus = await status.find();
-    
-    if (existingStatus.length === 0) {     
-      await status.create(statusData); 
-      console.log('Status table seeded successfully.');     
-      
+    if (existingStatus.length === 0) {
+      await status.create(statusData);
+      console.log('Status table seeded successfully.');
     } else {
       //console.log('Status table already exists. Skipping seeding.');
     }
@@ -47,7 +32,6 @@ const seedStatus = async () => {
   }
 };
 
-
 module.exports = {
-    seedStatus
+  seedStatus
 };

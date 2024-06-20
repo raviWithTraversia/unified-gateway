@@ -9,6 +9,7 @@ const partialChargeServices = require("../flight/partialCalcelationCharge.servic
 const genericCart = require("../flight/genericCart.service");
 const amendment = require("../flight/amendment.service");
 const amendmentCart = require("../flight/amendmentCart.service");
+const amadeus = require("../flight/amadeus/searchFlights.service");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
@@ -584,6 +585,41 @@ const assignAmendmentUser = async (req, res) => {
   }
 };
 
+
+const amadeusTest = async (req, res) => {
+  try {
+    const result = await amadeus.search(req, res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "User id does not exist" || result.response === "Error in updating assignedUser") {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "User assigned Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+
+
 module.exports = {
   getSearch,
   airPricing,
@@ -598,5 +634,6 @@ module.exports = {
   amendmentDetails,
   amendmentCartCreate,
   getAllAmendment,
-  assignAmendmentUser
+  assignAmendmentUser,
+  amadeusTest
 };

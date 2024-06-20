@@ -43,5 +43,20 @@ module.exports.Config = {
       key: "gtKFFx",
     }
     },  
+    // Amadeus credentianls 
+    WSAP_AMADEUS: {
+      LIVE: {
+        WSAP_ENDPOINT: "https://test-wsap.example.com",
+        WSAP_CLIENT_ID:"your_test_client_id",
+        WSAP_CLIENT_SECRET:"your_test_client_secret",
+          
+      },
+      TEST: {
+        WSAP_ENDPOINT: "https://test-wsap.example.com",
+        WSAP_CLIENT_ID:"your_test_client_id",
+        WSAP_CLIENT_SECRET:"your_test_client_secret",
+      }
+      }, 
+
   EASEBUZZ_PG_URL: 'https://testpay.easebuzz.in/payment/initiateLink'
 }

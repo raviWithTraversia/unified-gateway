@@ -77,6 +77,8 @@ const interTransferCreditRoute = require("../routes/interTransferCreditRoute")
 
 class RoutesLoader {
     static initRoutes(app) {
+
+        
         app.use('/api', userRoute);
 
         //  logs route By AlamShah 

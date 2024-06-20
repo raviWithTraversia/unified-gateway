@@ -737,6 +737,7 @@ const getBookingBill = async (req, res) => {
     }
   }]);
   bookingBill.forEach((element, index) => {
+    element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr
     element.id = index + 1;
   });
   if (!bookingBill.length) {

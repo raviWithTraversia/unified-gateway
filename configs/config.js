@@ -43,6 +43,5 @@ module.exports.Config = {
       key: "gtKFFx",
     }
   },
-  EASEBUZZ_PG_URL: 'https://testpay.easebuzz.in/payment/initiateLink',
-  FSEARCH: 'be6e3eb87611e080340d57473b038cae'
+  EASEBUZZ_PG_URL: 'https://testpay.easebuzz.in/payment/initiateLink'
 }

@@ -325,9 +325,11 @@ const KafilaFun = async (
   }
   // add api with here oneway round multicity
   let credentialType = "D";
+  let fSearchToken = "fd58e3d2b1e517f4ee46063ae176eee1"
   if (Authentication.CredentialType === "LIVE") {
     // Live Url here
     credentialType = "P";
+    let fSearchToken = "be6e3eb87611e080340d57473b038cae"
     createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
     flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FSearch`;
     //createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;

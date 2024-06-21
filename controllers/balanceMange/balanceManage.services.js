@@ -143,10 +143,16 @@ const manualDebitCredit = async (req, res) => {
         }
       }
       if (product === "Rail") {
+        if (configData?.maxcreditLimit < amount) {
+          return { response: "Insufficient Balance" }
+        }
         configData.maxRailCredit -= amount;
         runningAmount = configData.maxRailCredit
       }
       if (product === "Flight") {
+        if (configData?.maxcreditLimit < amount) {
+          return { response: "Insufficient Balance" }
+        }
         configData.maxcreditLimit -= amount;
         runningAmount = configData.maxcreditLimit
       }

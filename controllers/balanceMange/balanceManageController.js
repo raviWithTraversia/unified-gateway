@@ -45,7 +45,7 @@ const manualDebitCredit = async (req, res) => {
     const result = await balanceService.manualDebitCredit(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "User id does not exist" || result.response === "User not found") {
+    } else if (result.response === "User id does not exist" || result.response === "User not found" || result.response === "Insufficient Balance") {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Amount Transfer Successfully") {
       apiSucessRes(

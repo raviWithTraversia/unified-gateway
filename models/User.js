@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
     company_ID: {
@@ -153,9 +154,11 @@ const userSchema = new mongoose.Schema({
         type: Number,
         unique: true,
     },
-}, {
-    timestamps: true
-});
+    encryptUserId: {
+        type: Object,
+        default: {}
+    }
+}, { timestamps: true });
 const counterSchema = new mongoose.Schema({
     _id: { type: String, required: true },
     seq: { type: Number, default: 1000 },
@@ -172,14 +175,31 @@ userSchema.pre("save", async function (next) {
     if (!this.isNew) return next();
 
     try {
-        const counter = await Counter.findByIdAndUpdate(
-            { _id: "userId" },
-            { $inc: { seq: 1 } },
-            { new: true, upsert: true }
-        );
-        console.log("====>>>>", counter,)
+        const counter = await Counter.findByIdAndUpdate({ _id: "userId" }, { $inc: { seq: 1 } }, { new: true, upsert: true });
         this.userId = counter.seq;
-        console.log(this.userId)
+        const algorithm = 'aes-256-cbc';
+        const key = crypto.randomBytes(32);
+        const iv = crypto.randomBytes(16);
+
+        const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+        let encrypted = cipher.update(this.userId.toString());
+        encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+        // Convert to base64 and truncate/pad to desired length
+        let encryptedText = encrypted.toString('base64').substring(0, 5);
+        this.encryptUserId = { encryptedText, key: key.toString('hex'), iv: iv.toString('hex') };
+        //-=-=-=-=-=-=-=-=-=-=-=-=* function for decrypting the above encryption *=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=
+        // function decrypt(encryptedText, key, iv) {
+        //     const algorithm = 'aes-256-cbc';
+
+        //     let encryptedBuffer = Buffer.from(encryptedText, 'base64');
+        //     const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key, 'hex'), Buffer.from(iv, 'hex'));
+        //     let decrypted = decipher.update(encryptedBuffer);
+        //     decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+        //     return decrypted.toString();
+        // }
+        //-=-=-==-=-=--=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-==-=-=-=-=        
         next();
     } catch (error) {
         next(error);

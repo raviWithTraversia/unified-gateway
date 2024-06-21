@@ -663,7 +663,7 @@ const addUser = async (req, res) => {
       let mailConfig = await Smtp.findOne({ companyId: companyId });
       // if not mailconfig then we send their parant mail config
       if (!mailConfig) {
-        let parentCompanyId = await Company.findById({ _id: comapnyIds });
+        let parentCompanyId = await Company.findById({ _id: companyId });
         parentCompanyId = parentCompanyId.parent;
         mailConfig = await Smtp.find({ companyId: parentCompanyId });
         mailConfig = mailConfig[0];

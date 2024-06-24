@@ -915,15 +915,15 @@ const updateCompayProfile = async (req, res) => {
 const agencyChangePassword = async (req, res) => {
   try {
     const { id, newPassword } = req.body;
-    let getUserByCompanyId = await User.findOne({ _id: id }).populate('roleId');
-    if (getUserByCompanyId.roleId.name == "Distributer" || getUserByCompanyId.roleId.name == "Agency") {
-      await User.findOneAndUpdate({ _id: id }, { $set: { password: newPassword } });
-      return {
-        response: 'Password Change Sucessfully'
-      }
-    } else {
-      return { response: "Permission Denied" }
+    let getUserByCompanyId = await User.findOne({ _id: id });
+    if (!getUserByCompanyId) {
+      return { response: "User doesn't exist" }
     }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.findOneAndUpdate({ _id: id }, { $set: { password: hashedPassword } });
+    return {
+      response: 'Password Change Sucessfully'
+    };
   } catch (error) {
     throw error
   }

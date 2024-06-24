@@ -441,7 +441,7 @@ const updateCompayProfile = async (req, res) => {
 const agencyChangePassword = async (req, res) => {
   try {
     const result = await userServices.agencyChangePassword(req, res);
-    if (result.response === "User for this mail-id not exist") {
+    if (result.response === "User doesn't exist") {
       apiErrorres(
         res,
         result.response,
@@ -455,15 +455,7 @@ const agencyChangePassword = async (req, res) => {
         result.response,
         ServerStatusCode.SUCESS_CODE
       );
-    } else if (result.response == 'Permission Denied') {
-      apiErrorres(
-        res,
-        result.response,
-        ServerStatusCode.PRECONDITION_FAILED,
-        true
-      );
-    }
-    else {
+    } else {
       apiErrorres(
         res,
         errorResponse.NOT_AVALIABLE,

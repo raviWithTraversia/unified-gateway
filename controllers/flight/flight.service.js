@@ -149,8 +149,7 @@ async function handleflight(
   }).populate({
     path: "supplierCodeId",
     select: "supplierCode",
-  })
-    .exec();
+  }).exec();
   if (!supplierCredentials || !supplierCredentials.length) {
     return {
       IsSucess: false,
@@ -205,6 +204,7 @@ async function handleflight(
               FareFamily,
               RefundableOnly,
               supplier.supplierCodeId.supplierCode,
+              supplier.supplierOfficeId,
               airportDetails
             );
 
@@ -255,11 +255,13 @@ async function handleflight(
       commonArray.push(...seriesArray.response);
     }
   }
+  
   console.log(`[${new Date().toISOString()}] - Commertial Apply Start`);
   //apply commercial function
   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
     Authentication,
     TravelType,
+
     commonArray
   );
   console.log(`[${new Date().toISOString()}] - Commertioal end`);
@@ -293,6 +295,7 @@ const KafilaFun = async (
   FareFamily,
   RefundableOnly,
   Provider,
+  fSearchToken,
   airportDetails
 ) => {
   const cacheKey = JSON.stringify({
@@ -308,6 +311,7 @@ const KafilaFun = async (
     FareFamily,
     RefundableOnly,
     Provider,
+    fSearchToken,
     airportDetails
   });
 
@@ -327,11 +331,9 @@ const KafilaFun = async (
   console.log(`[${new Date().toISOString()}] - Before APi Hit`);
   // add api with here oneway round multicity
   let credentialType = "D";
-  let fSearchToken = "fd58e3d2b1e517f4ee46063ae176eee1"
   if (Authentication.CredentialType === "LIVE") {
     // Live Url here
     credentialType = "P";
-    fSearchToken = "be6e3eb87611e080340d57473b038cae"
     createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
     flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FSearch`;
     //createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
@@ -453,7 +455,6 @@ const KafilaFun = async (
         TPnr: false,
       },
     };
-
     let fSearchApiResponse = await axios.post(
       flightSearchUrl,
       requestDataFSearch,
@@ -463,7 +464,6 @@ const KafilaFun = async (
         },
       }
     );
-
     const logData = {
       traceId: Authentication.TraceId,
       companyId: Authentication.CompanyId,

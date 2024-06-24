@@ -666,7 +666,7 @@ const addUser = async (req, res) => {
       let mailConfig = await Smtp.findOne({ companyId: companyId });
       // if not mailconfig then we send their parant mail config
       if (!mailConfig) {
-        let parentCompanyId = await Company.findById({ _id: comapnyIds });
+        let parentCompanyId = await Company.findById({ _id: companyId });
         parentCompanyId = parentCompanyId.parent;
         mailConfig = await Smtp.find({ companyId: parentCompanyId });
         mailConfig = mailConfig[0];
@@ -913,6 +913,24 @@ const updateCompayProfile = async (req, res) => {
     throw error
   }
 }
+
+const agencyChangePassword = async (req, res) => {
+  try {
+    const { id, newPassword } = req.body;
+    let getUserByCompanyId = await User.findOne({ _id: id });
+    if (!getUserByCompanyId) {
+      return { response: "User doesn't exist" }
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.findOneAndUpdate({ _id: id }, { $set: { password: hashedPassword } });
+    return {
+      response: 'Password Change Sucessfully'
+    };
+  } catch (error) {
+    throw error
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
@@ -927,5 +945,6 @@ module.exports = {
   getAllAgencyAndDistributer,
   updateUserStatus,
   getCompanyProfle,
-  updateCompayProfile
+  updateCompayProfile,
+  agencyChangePassword
 };

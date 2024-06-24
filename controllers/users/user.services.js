@@ -911,6 +911,24 @@ const updateCompayProfile = async (req, res) => {
     throw error
   }
 }
+
+const agencyChangePassword = async (req, res) => {
+  try {
+    const { id, newPassword } = req.body;
+    let getUserByCompanyId = await User.findOne({ _id: id }).populate('roleId');
+    if (getUserByCompanyId.roleId.name == "Distributer" || getUserByCompanyId.roleId.name == "Agency") {
+      await User.findOneAndUpdate({ _id: id }, { $set: { password: newPassword } });
+      return {
+        response: 'Password Change Sucessfully'
+      }
+    } else {
+      return { response: "Permission Denied" }
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
@@ -925,5 +943,6 @@ module.exports = {
   getAllAgencyAndDistributer,
   updateUserStatus,
   getCompanyProfle,
-  updateCompayProfile
+  updateCompayProfile,
+  agencyChangePassword
 };

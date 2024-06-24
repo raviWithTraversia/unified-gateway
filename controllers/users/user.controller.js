@@ -65,7 +65,7 @@ const loginUser = async (req, res) => {
 
 const userInsert = async (req, res) => {
   try {
-    const result = await userServices.userInsert(req,res);
+    const result = await userServices.userInsert(req, res);
     if (!result.response || result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.BAD_REQUEST, true);
     } else if (
@@ -188,7 +188,7 @@ const changePassword = async (req, res) => {
         result.response,
         ServerStatusCode.SUCESS_CODE
       );
-    } else if(result.response == 'User Dont Have Permision To Chnage Password Without Current Password'){
+    } else if (result.response == 'User Dont Have Permision To Chnage Password Without Current Password') {
       apiErrorres(
         res,
         result.response,
@@ -196,7 +196,7 @@ const changePassword = async (req, res) => {
         true
       );
     }
-     else {
+    else {
       apiErrorres(
         res,
         errorResponse.NOT_AVALIABLE,
@@ -213,6 +213,7 @@ const changePassword = async (req, res) => {
     );
   }
 };
+
 const varifyTokenForForgetPassword = async (req, res) => {
   try {
     const result = await userServices.varifyTokenForForgetPassword(req, res);
@@ -312,9 +313,9 @@ const getUser = async (req, res) => {
   }
 };
 
-const getAllAgencyAndDistributer = async (req,res) => {
-  try{
-    let result = await userServices.getAllAgencyAndDistributer(req,res);
+const getAllAgencyAndDistributer = async (req, res) => {
+  try {
+    let result = await userServices.getAllAgencyAndDistributer(req, res);
     if (result.response === "Agency Data fetch Sucessfully") {
       apiSucessRes(
         res,
@@ -324,10 +325,10 @@ const getAllAgencyAndDistributer = async (req,res) => {
       );
     } else if (result.response === "No Agency with this TMC") {
       apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
-    }else if (result.response === "Agency Data not found") {
+    } else if (result.response === "Agency Data not found") {
       apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
-    } 
-    else{
+    }
+    else {
       apiErrorres(
         res,
         errorResponse.SOME_UNOWN,
@@ -336,57 +337,26 @@ const getAllAgencyAndDistributer = async (req,res) => {
       );
     }
 
-  }catch(error){
-    apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
-     
-  }
-}
-
-
-const userStatusUpdate=async(req,res)=>{
-  try{
-    const result=await userServices.updateUserStatus(req,res)
-if(result.response==="Upate Successfully"){
-  apiSucessRes(
-    res,
-    result.response,
-    result.data,
-
-    ServerStatusCode.SUCESS_CODE
-  );
-}
-else if(result.response==="User data not found"){
-  apiErrorres(res, result.response, ServerStatusCode.NOT_EXIST_CODE, true);
-}
-else {
-  apiErrorres(
-    res,
-    errorResponse.SOME_UNOWN,
-    ServerStatusCode.RESOURCE_NOT_FOUND,
-    true
-  );
-}
-
-  }
-  catch(error){
+  } catch (error) {
     apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
 
   }
 }
 
-const getCompanyProfle=async(req,res)=>{
-  try{
-    const result=await userServices.getCompanyProfle(req,res)
-    if(result.response==="Company data find successfull"){
+
+const userStatusUpdate = async (req, res) => {
+  try {
+    const result = await userServices.updateUserStatus(req, res)
+    if (result.response === "Upate Successfully") {
       apiSucessRes(
         res,
         result.response,
         result.data,
-    
+
         ServerStatusCode.SUCESS_CODE
       );
     }
-    else if(result.response==="Company Data not Found"){
+    else if (result.response === "User data not found") {
       apiErrorres(res, result.response, ServerStatusCode.NOT_EXIST_CODE, true);
     }
     else {
@@ -397,28 +367,27 @@ const getCompanyProfle=async(req,res)=>{
         true
       );
     }
-    
-    
-  }catch(error){
+
+  }
+  catch (error) {
     apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
 
   }
 }
 
-
-const updateCompayProfile=async(req,res)=>{
-try{
-  const result=await userServices.updateCompayProfile(req,res)
-    if(result.response==="company data succefully update"){
+const getCompanyProfle = async (req, res) => {
+  try {
+    const result = await userServices.getCompanyProfle(req, res)
+    if (result.response === "Company data find successfull") {
       apiSucessRes(
         res,
         result.response,
         result.data,
-    
+
         ServerStatusCode.SUCESS_CODE
       );
     }
-    else if(result.response==="company data not update"){
+    else if (result.response === "Company Data not Found") {
       apiErrorres(res, result.response, ServerStatusCode.NOT_EXIST_CODE, true);
     }
     else {
@@ -429,13 +398,89 @@ try{
         true
       );
     }
-    
-  }catch(error){
+
+
+  } catch (error) {
+    apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
+
+  }
+}
+
+
+const updateCompayProfile = async (req, res) => {
+  try {
+    const result = await userServices.updateCompayProfile(req, res)
+    if (result.response === "company data succefully update") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+
+        ServerStatusCode.SUCESS_CODE
+      );
+    }
+    else if (result.response === "company data not update") {
+      apiErrorres(res, result.response, ServerStatusCode.NOT_EXIST_CODE, true);
+    }
+    else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    }
+
+  } catch (error) {
     console.log(error)
     apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
 
   }
-}
+};
+
+const agencyChangePassword = async (req, res) => {
+  try {
+    const result = await userServices.agencyChangePassword(req, res);
+    if (result.response === "User for this mail-id not exist") {
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    } else if (result.response === "Password Change Sucessfully") {
+      apiSucessRes(
+        res,
+        CrudMessage.PASSWORD_RESET,
+        result.response,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else if (result.response == 'Permission Denied') {
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.PRECONDITION_FAILED,
+        true
+      );
+    }
+    else {
+      apiErrorres(
+        res,
+        errorResponse.NOT_AVALIABLE,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -450,6 +495,6 @@ module.exports = {
   getAllAgencyAndDistributer,
   userStatusUpdate,
   getCompanyProfle,
-  updateCompayProfile
-  
+  updateCompayProfile,
+  agencyChangePassword
 };

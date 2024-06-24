@@ -652,6 +652,7 @@ const addUser = async (req,res) => {
 
       });
       // Save the User document to the database
+
      let saveUser = await newUser.save();
      let companyName = await Company.findById(companyId);
      if(isMailSent == true){
@@ -693,7 +694,15 @@ const editUser = async (req,res) => {
   try{
     const userId = req.query.id;
     const updateData = req.body; 
+  const findUserData=await User.findById(userId)
 
+if(updateData.password !== findUserData.password){
+  const spassword = await commonFunction.securePassword(updateData?.password);
+   updateData.password=spassword
+}else{
+
+  updateData.password=findUserData.password
+}
     const updatedUserData = await User.findByIdAndUpdate(
       userId,
       { $set: updateData },

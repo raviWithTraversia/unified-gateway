@@ -55932,35 +55932,32 @@ const seedState = async () => {
     try {
         // Check if any state already exist
         const existing = await State.find();
-
         if (existing.length === 0) {
-            stateData.forEach(async(element) => {
+            stateData.forEach(async (element) => {
                 const countryCode = element.country_code
-                const result =  await Country.findOne({countryCode : countryCode});
-                if(result) {
-                    const insertData = new State ({
-                        name : element.name,
-                        countryId :result._id,
-                        stateCode : element.stateCode,
-                        country_code : element.country_code,
-                        country_name : element.country_name,
-                        latitude : element.latitude,
-                        longitude : element.longitude
+                const result = await Country.findOne({ countryCode: countryCode });
+                if (result) {
+                    const insertData = new State({
+                        name: element.name,
+                        countryId: result._id,
+                        stateCode: element.stateCode,
+                        country_code: element.country_code,
+                        country_name: element.country_name,
+                        latitude: element.latitude,
+                        longitude: element.longitude
                     });
                     await insertData.save();
                 }
             });
-            // await State.create(contryData);
-            console.log('state table seeded successfully.');
+            console.log('State seeded successfully.');
 
         } else {
-           // console.log('state table already exists. Skipping seeding.');
+            // console.log('state table already exists. Skipping seeding.');
         }
     } catch (err) {
         console.error('Error seeding state table:', err);
     }
 };
-
 
 module.exports = {
     seedState

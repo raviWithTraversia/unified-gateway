@@ -197,7 +197,6 @@ const getMarkUp = async (req, res) => {
   try {
     let { companyId } = req.query;
     let data = await manageMarkupModel.find({ companyId }).populate('airlineCodeId')
-    console.log("====>>>>>>>>>>>>>>", data, "data");
     if (data) {
       return {
         response: "Markup Data Fetch Sucessfully",

@@ -447,13 +447,13 @@ const getFareRuleGroup = async (req, res) => {
     let getFareRule;
     try {
       getFareRule = await fareRuleGroupModels.find({ companyId: companyId });
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>", getFareRule, "<<<<<<<<<<<");
+      // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>", getFareRule, "<<<<<<<<<<<");
 
       for (let i = 0; i < getFareRule.length; i++) {
         let convertedFareRuleIds = getFareRule[i].fareRuleIds.map((id) =>
           id.toString()
         );
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", convertedFareRuleIds);
+        // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", convertedFareRuleIds);
 
         let documents = await fareRuleModel
           .find({ _id: { $in: convertedFareRuleIds } })

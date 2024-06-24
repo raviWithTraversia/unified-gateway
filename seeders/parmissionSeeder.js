@@ -1,254 +1,369 @@
-const Permission = require('../models/Permission'); 
+const Permission = require('../models/Permission');
 
-const permission = [
-    {
-      productName : "Config",
-      categoryName : "Main agent management",
-      permissionName : "Manage Uploads",
-      permissionDescription : "Upload the images and banners"
-    },
-    {
-      productName : "Config",
-      categoryName : "Main agent management",
-      permissionName : "Manage Airline Commission",
-      permissionDescription : "Setup the airlines commissions"
-    },
-    {
-      productName : "Config",
-      categoryName : "Main agent management",
-      permissionName : "Manage Mirror Setup",
-      permissionDescription : "User can manage Mirror ID setup"
-    },
-    {
-      productName : "Config",
-      categoryName : "Main agent management",
-      permissionName : "Manage Fare Rules",
-      permissionDescription : "User can view/edit/add custom fare rules"
-    },
-    {
-      productName : "Config",
-      categoryName : "Main agent management",
-      permissionName : "Generic Cart",
-      permissionDescription : "Use can create generic cart"
-    },
-    {
-      productName : "Config",
-      categoryName : "Main agent management",
-      permissionName : "Email Config",
-      permissionDescription : "User can view/edit/add email configurations"
-    },
-    {
-      productName : "Config",
-      categoryName : "Main agent management",
-      permissionName : "Credit note issue",
-      permissionDescription : "User can generate credit note"
-    },
-    {
-      productName : "Config",
-      categoryName : "Main agent management",
-      permissionName : "Manage card details",
-      permissionDescription : "User can manage FOP card details"
-    },
-    {
-      productName : "Config",
-      categoryName : "Main agent management",
-      permissionName : "Manage bank details",
-      permissionDescription : "User can manage bank details"
-    },
-    {
-      productName : "Config",
-      categoryName : "Main agent management",
-      permissionName : "Emulate User",
-      permissionDescription : "Access another user/agency dashboard"
-    },
-    {
-      productName : "Config",
-      categoryName : "Main agent management",
-      permissionName : "Series booking",
-      permissionDescription : "User can edit/load series data"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Approve an agent (Registration)",
-      permissionDescription : "Change registration status to approved"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Register an agent (Registration)",
-      permissionDescription : "Change registration status to registered"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Manage PLB",
-      permissionDescription : "User can view/edit/add PLB"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Manage Commercials",
-      permissionDescription : "Can view/create/edit commercials plans"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Manage Incentive",
-      permissionDescription : "User can view/edit/add incentives"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Non-air products markup",
-      permissionDescription : "Use can create/edit markups for non-air products"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Create Product Plan",
-      permissionDescription : "Create a Product Plan that allow products"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Manage Product Plan",
-      permissionDescription : "Allow users to modify the plan"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Manage Privilege Plan",
-      permissionDescription : "Allow users to modify the privilege plan"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Create Privilege Plan",
-      permissionDescription : "Create a privilege plan"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Create Credit Plan",
-      permissionDescription : "Create Credit Plan"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Update Credit Plan",
-      permissionDescription : "Update Credit Plan"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Update Config",
-      permissionDescription : "User can change agent's configuration"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent registration and setup",
-      permissionName : "Agency Management",
-      permissionDescription : "Agency Management"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent management",
-      permissionName : "DI Setup",
-      permissionDescription : "DI Setup"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent management",
-      permissionName : "Update Payment",
-      permissionDescription : "Approve/decline agent's topup request"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent management",
-      permissionName : "Action - Credit request",
-      permissionDescription : "Can approve/decline credit request"
-    },
-    {
-      productName : "Config",
-      categoryName : "Agent management",
-      permissionName : "Action - Deposit request",
-      permissionDescription : "Can approve/decline deposit request"
-    },
-    {
-      productName : "Config",
-      categoryName : "Queues",
-      permissionName : "New Registrations Queue",
-      permissionDescription : "New Registrations Queue"
-    },
-    {
-      productName : "Config",
-      categoryName : "Queues",
-      permissionName : "Registred agent config Queue",
-      permissionDescription : "Registred agent config Queue"
-    },
-    {
-      productName : "Config",
-      categoryName : "Queues",
-      permissionName : "Temp Credit RQ Queue",
-      permissionDescription : "View temp credit request queue (view only - not action)"
-    },
-    {
-      productName : "Config",
-      categoryName : "Queues",
-      permissionName : "Deposit RQ Queue",
-      permissionDescription : "View deposit request queue (view only - not action)"
-    },
-    {
-      productName : "Config",
-      categoryName : "Queues",
-      permissionName : "Amendment Queue",
-      permissionDescription : "Amendment Queue"
-    },
-    {
-      productName : "Config",
-      categoryName : "Reports",
-      permissionName : "Credit txn report",
-      permissionDescription : ""
-    },
-    {
-      productName : "Config",
-      categoryName : "Reports",
-      permissionName : "Deposit nett txn report",
-      permissionDescription : ""
-    },
-    {
-      productName : "Config",
-      categoryName : "Reports",
-      permissionName : "Credit nett txn report",
-      permissionDescription : ""
-    },
-    {
-      productName : "Config",
-      categoryName : "Reports",
-      permissionName : "Manage ledger",
-      permissionDescription : ""
-    },
-];
+const permission = [{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Create-Product-Plan",
+  "permissionDescription": "For Creating Product Plan"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Product-Plan",
+  "permissionDescription": "For View Product Plan List"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Privellage-Plan",
+  "permissionDescription": "For View Privellage Plan List"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Create-Privellage-Plan",
+  "permissionDescription": "For Creating Privellage Plan"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "New-Registrations-List",
+  "permissionDescription": "For View All New Registrations"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Agency",
+  "permissionDescription": "For View All Agency  and Distributor  Configration"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Roles-Permission",
+  "permissionDescription": "For Assign Role Permission"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Bank-Details",
+  "permissionDescription": "For View Bank Details List"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Fare-Rules",
+  "permissionDescription": "For View Fare Rules List"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Add-Fare-Rules",
+  "permissionDescription": "For Adding Fare Rules"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Deposite-Incentive",
+  "permissionDescription": "For View Deposite Incentive List"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Credit-Requests",
+  "permissionDescription": "For View  Credit Requests List"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Uploads",
+  "permissionDescription": "For Setting System Uploads "
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Payment-Gatway-Charges",
+  "permissionDescription": "For View Payment Gatway Charges List "
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-PLB-Master",
+  "permissionDescription": "For View PLB Master List "
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Incentive-Master",
+  "permissionDescription": "For View Incentive Master List "
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Airline-Promocode",
+  "permissionDescription": "For View Airline PromocodeList "
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Agency-Group",
+  "permissionDescription": "For View Airline Agency-Group List "
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Commercial-Plans",
+  "permissionDescription": "For View  Commercial Plans List "
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Agent-Markup",
+  "permissionDescription": "For View  Agent Markup List "
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Country-Mapping-List",
+  "permissionDescription": "Country mapping for PLB and Incentive"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Country-Mapping-List_For_PLB_And_Incentive",
+  "permissionDescription": "Country mapping for PLB and Incentive"
+},
+{
+  "productName": "Flight",
+  "categoryName": "Flight",
+  "permissionName": "Flight-Search",
+  "permissionDescription": "Enable Flight Search to The User"
+},
+{
+  "productName": "Flight",
+  "categoryName": "Flight",
+  "permissionName": "Flight-Booking",
+  "permissionDescription": "Enable Flight Booking  to The User"
+},
+{
+  "productName": "Flight",
+  "categoryName": "Flight",
+  "permissionName": "Flight-Hold",
+  "permissionDescription": "allow  Hold Ticket to The User"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-SSR-Commercials",
+  "permissionDescription": "Manage SSR Commercials is Used for Applay Commercials on Seat,Meal,Baggage"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-Deposit-Incentive",
+  "permissionDescription": "Manage Deposit Incentive is Used for DI"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Import PNR",
+  "permissionDescription": "Import PNR"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage Email Config",
+  "permissionDescription": "Manage Email Config"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage Card Details",
+  "permissionDescription": "Manage Card Details"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "My Booking Air",
+  "permissionDescription": "My Booking Air"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Generic Cart Flight Booking",
+  "permissionDescription": "Generic Cart Flight Booking"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Booking Calender",
+  "permissionDescription": "Booking Calender"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage Amendment",
+  "permissionDescription": "Manage Amendment"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage Fix Departures",
+  "permissionDescription": "Manage Fix Departures"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Group Booking Passenger",
+  "permissionDescription": "Group Booking Passenger"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "DSR Reports",
+  "permissionDescription": "DSR Reports"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Transation Reports",
+  "permissionDescription": "Transation Reports"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Booking Reports",
+  "permissionDescription": "Booking Reports"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Cancellation Reports",
+  "permissionDescription": "Cancellation Reports"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Flight Search Reports",
+  "permissionDescription": "Flight Search Reports"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Ledger",
+  "permissionDescription": "Ledger"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Top-Performance-List",
+  "permissionDescription": "Top-Performance-List"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Manage-User",
+  "permissionDescription": "Manage-User"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Pending-Queues",
+  "permissionDescription": "Pending-Queues"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Hold-Queues",
+  "permissionDescription": "Hold-Queues"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "All-Failed-Queues",
+  "permissionDescription": "All-Failed-Queues"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Refund-Pending-Queues",
+  "permissionDescription": "Refund-Pending-Queues"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Registe-Agent-Config-Queues",
+  "permissionDescription": "Registe-AgentConfig-Queues"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Amendement-Queues",
+  "permissionDescription": "Amendement-Queues"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Deposit Requests",
+  "permissionDescription": "Deposit Requests"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Billing-Reports",
+  "permissionDescription": "Billing-Reports"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Download-Api-Log",
+  "permissionDescription": "Download-Api-Log"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Download-Portal-Log",
+  "permissionDescription": "Download-Portal-Log"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Sales Reports",
+  "permissionDescription": "Sales Reports"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Pending Cancel Booking",
+  "permissionDescription": "Pending Cancel Booking"
+},
+{
+  "productName": "Application Config",
+  "categoryName": "Application Config",
+  "permissionName": "Amendment Cart",
+  "permissionDescription": "Amendment Cart"
+},
+{
+  "productName": "Rail",
+  "categoryName": "Rail",
+  "permissionName": "Rail-Search",
+  "permissionDescription": "Rail Serach"
+}];
 
 const seedPermissions = async () => {
   try {
     // Check if any companies already exist
     const existing = await Permission.find();
-    
-    if (existing.length === 0) {     
-      await Permission.create(permission); 
-      console.log('Permission table seeded successfully.');     
-      
+    if (existing.length === 0) {
+      await Permission.create(permission);
+      console.log('Permissions seeded successfully.');
     } else {
-     // console.log('Permission table already exists. Skipping seeding.');
+      // console.log('Permission table already exists. Skipping seeding.');
     }
   } catch (err) {
     console.error('Error seeding companies table:', err);
   }
 };
 
-
 module.exports = {
-    seedPermissions
+  seedPermissions
 };

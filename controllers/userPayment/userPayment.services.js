@@ -18,7 +18,6 @@ const manualPaymentForBalance = async (req,res) => {
     }
      // check agencyId parant is tmc or distributer
      let checkUserRole = await userModel.find({_id : userId}).populate('roleId').sort({minAmount : 1});
-     console.log("====>>>>", checkUserRole, "<<<=====");
      if(checkUserRole[0].roleId.name == HOST_ROLE.TMC){
         
      }

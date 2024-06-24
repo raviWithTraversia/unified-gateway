@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://xml.amadeus.com/TAUSCQ_09_1_1A" xmlns="http://xml.amadeus.com/TAUSCQ_09_1_1A" elementFormDefault="qualified">
+  <xs:element name="Ticket_CreateTSMFromPricing">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Create a TSM for Service query (Avg size : 330 bytes, Max size : 900 bytes)</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="pnrLocatorData" minOccurs="0" type="ReservationControlInformationTypeI">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">PNR record locator information for this transaction. This PNR record locator is used for tracing purpose, no internal retrieve.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="psaList" maxOccurs="1980">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">List of recommendations to take into account for TSM creation.</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="itemReference" type="ItemReferencesAndVersionsType">
+                <xs:annotation>
+                  <xs:documentation xml:lang="en">Reference of the recommendation selected.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="paxReference" minOccurs="0" type="ReferenceInformationTypeI">
+                <xs:annotation>
+                  <xs:documentation xml:lang="en">Reference information on passengers.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="ItemReferencesAndVersionsType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Exchange and link unique identifiers</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="referenceType" minOccurs="0" type="AlphaNumericString_Length1To3">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">qualifies the type of the reference used. Code set to define</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="uniqueReference" minOccurs="0" type="NumericInteger_Length1To5">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Reference of the recommendation</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ReferenceInformationTypeI">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">To provide specific reference identification.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="refDetails" minOccurs="0" maxOccurs="99" type="ReferencingDetailsTypeI">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Passenger/segment/TST/fare reference details</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ReferencingDetailsTypeI">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">To provide reference identification.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="refQualifier" minOccurs="0" type="AlphaNumericString_Length1To3">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Qualifyer of the reference (Pax/Seg/Tst/Fare tattoo)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="refNumber" minOccurs="0" type="NumericInteger_Length1To5">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Passenger/segment/TSM/fare tattoo reference number</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ReservationControlInformationDetailsTypeI">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">To specify the information required to identify a reservation.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="controlNumber" type="AlphaNumericString_Length1To20">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Record locator.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ReservationControlInformationTypeI">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">To specify a reference to a reservation.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="reservationInformation" type="ReservationControlInformationDetailsTypeI">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Reservation control information</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="AlphaNumericString_Length1To3">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Format limitations: an..3</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+      <xs:maxLength value="3" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="NumericInteger_Length1To5">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Format limitations: n..5</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:integer">
+      <xs:pattern value="-?[0-9]{1,5}" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="AlphaNumericString_Length1To20">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Format limitations: an..20</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+      <xs:maxLength value="20" />
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+<!-- SchemaRules="2010/01"-->
+<!--Created with SchemaBuilder 4.2 by Amadeus S.A.S.-->
+<!--"Amadeus Proprietary and Confidential Information: unauthorized use and disclosure strictly forbidden. 2010 - Amadeus s.a.s - All Rights Reserved."-->
+<!--Build Key:
+1F8B080000000000000095534D6FDB300CBDEB5708BBEC30C471D2F5D0003AB8F9C280A5CD12F71620502D26112A4B9E2817F18AFEF751B6B376977D5C0C8A941FA9F71E97F3BBF926CBE7B3FDFD9D18A7A3D120BD1A8CC73CAF01956CF8E87A727D3D195DF1E52AFF94A6933465D92A0B4D05B8D006AC2C4150627F2B5117794C276754EC5122DC510D2B59803885504D86C3736912594A053526852B87AC3841F1B4A56F2945F035B0C229400828ACB3F1549660E9D4D7CA4ADA26A20A5B1B4389AAF1FA780AE243D6A1F2B57795D710A46FB8B48A4F9D3D6845185A1AFEC51E9C2F65D0CE4E786D651D4ECEEB1FA0788DD05E571A0BE3B0F6C031785D04D370FAE7512BC24838D193F201BF34C3442618CFC6F04D9C03F986A6F7CFA0920F4CC141D6262C7D155951E2200D0253AE7E34B085EF35D802D63214A7BE02F6F69F3803FB76E725EAF0BA7F79068FF42A8A3C1820188AE4913A34AFEC402A6D6A439CB928587B6E556B7F8ED15F008C2BA4E92937EEA8B417B3C96EAEF441162177CEE06E9EEF671A83B4614A22917424DA6E25FD13046D8FDD1D6C65C6DD577724187B6C67D0EADE9A8695E08FD0F3D0C60B0D46E1D6F9F08B397A33D24819463A7FCFCD48706D7AD3D8FF62A772DA863B089D12ADCFBC73E11D39AC1B3C52887141D2613AEA73B8703E339A107B8B46F175013823EB50477261471B96D28788F66075A143D38F1FBCB4685A43122B82C8C5618F9C67ABE18B02A36978498E794DA8CAE250EAFDBE903BA69725E93029D312D46EA8B6053BA309F775A8EAB07046811731C1D860B0EAC8FB885CBF2DC660C03A6AC42863EFFA8B6C9DED735D90A2FB9BCF67F27129B515EBCD9CC1B9229DF612F7B3F952E49B87F945172E3D48311EA79784C8B387EDF41BAB6809349E48DB8EF14E1631A2E85947AD286CC9912D8FA26F3C25B800F976B5F0AE5CD37E92B9D845A83F5EEA2D20D21BF6135C7D0787F1040000
+-->
+

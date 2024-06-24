@@ -11,8 +11,10 @@ const createRoles = async (req, res) => {
         response: "companyId is not valid",
       };
     }
-    const roleExist = await role.findOne({ name: name
-        , companyId:companyId, type:type });
+    const roleExist = await role.findOne({
+      name: name
+      , companyId: companyId, type: type
+    });
     if (!roleExist) {
       const addRole = new role({
         name,
@@ -37,14 +39,14 @@ const createRoles = async (req, res) => {
 
 const findRoles = async (req, res) => {
   try {
-    const companyId  = req.params.companyId;
+    const companyId = req.params.companyId;
     let isValidcCmpanyId = FUNC.checkIsValidId(companyId);
     if (!isValidcCmpanyId) {
       return {
         response: "companyId is not valid",
       };
     }
-    let findAllRole = await role.find({companyId:companyId});
+    let findAllRole = await role.find({ companyId: companyId, name: { $ne: "TMC" } });
     if (findAllRole.length) {
       return {
         response: "Role Fetch sucessfully",

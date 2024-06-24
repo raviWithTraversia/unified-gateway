@@ -456,7 +456,10 @@ const forgotPassword = async (req, res) => {
         response: "User not found",
       };
     }
+
+    
     const comapnyIds = !companyId ? user?.company_ID : companyId;
+    
     let mailConfig = await Smtp.findOne({ companyId: comapnyIds });
     if (!mailConfig) {
       let parentCompanyId = await Company.findById({ _id: comapnyIds });
@@ -811,7 +814,6 @@ const updateUserStatus = async (req, res) => {
     if (result) {
       return {
         response: 'Upate Successfully',
-
       }
     } else {
       return {

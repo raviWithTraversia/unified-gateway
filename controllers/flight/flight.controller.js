@@ -632,6 +632,13 @@ const amadeusTest = async (req, res) => {
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
+    }else if (result.response === "Fetch Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );      
     } else {
       apiErrorres(
         res,

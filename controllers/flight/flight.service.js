@@ -14,6 +14,7 @@ const flightCache = new NodeCache();
 const moment = require("moment");
 
 const getSearch = async (req, res) => {
+
   const {
     Authentication,
     TypeOfTrip,
@@ -72,7 +73,7 @@ const getSearch = async (req, res) => {
   }
   // Also CHeck Role Of TMC by Company Id( PENDING )
   // Logs Pending
-
+   console.log(`[${new Date().toISOString()}] - Start Search`);
   // Check Travel Type ( International / Domestic )
   let result;
   if (TravelType !== "International" && TravelType !== "Domestic") {
@@ -254,14 +255,17 @@ async function handleflight(
       commonArray.push(...seriesArray.response);
     }
   }
-
+  
+  console.log(`[${new Date().toISOString()}] - Commertial Apply Start`);
   //apply commercial function
   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
     Authentication,
     TravelType,
+
     commonArray
   );
-
+  console.log(`[${new Date().toISOString()}] - Commertioal end`);
+  console.log(`[${new Date().toISOString()}] - Responce`);
   return {
     IsSucess: true,
     response: getApplyAllCommercialVar.IsSucess ? getApplyAllCommercialVar.response.sort(
@@ -324,6 +328,7 @@ const KafilaFun = async (
       response: "Type of trip does not exist",
     };
   }
+  console.log(`[${new Date().toISOString()}] - Before APi Hit`);
   // add api with here oneway round multicity
   let credentialType = "D";
   if (Authentication.CredentialType === "LIVE") {
@@ -482,10 +487,11 @@ const KafilaFun = async (
           fSearchApiResponse.data.WarningMessage,
       };
     }
-
+    console.log(`[${new Date().toISOString()}] -  APi responce`);
     //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
     let apiResponse = fSearchApiResponse.data;
     let apiResponseCommon = [];
+    console.log(`[${new Date().toISOString()}] - Comman responce start`);
     for (let index = 0; index < apiResponse.Schedules[0].length; index++) {
       let schedule = apiResponse.Schedules[0][index];
       let randomUID = uuid.v4();
@@ -711,7 +717,7 @@ const KafilaFun = async (
         OI: schedule.OI ?? null
       });
     }
-
+    console.log(`[${new Date().toISOString()}] - Common Responce end`);
     return {
       IsSucess: true,
       response: apiResponseCommon,

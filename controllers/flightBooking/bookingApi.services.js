@@ -128,7 +128,7 @@ const getAllBooking = async (req, res) => {
       await Promise.all(bookingDetails.map(async (booking) => {
         let filter2 = { bookingId: booking.bookingId }
         if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
-          filter2.Passengers.Optional.TicketNumber = ticketNumber
+          filter2['Passengers.Optional.TicketNumber'] = ticketNumber
         }
         const passengerPreference = await passengerPreferenceSchema.find(filter2);
         const configDetails = await config.findOne({ userId: booking.userId });
@@ -211,7 +211,11 @@ const getAllBooking = async (req, res) => {
       const allBookingData = [];
 
       await Promise.all(bookingDetails.map(async (booking) => {
-        const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+        let filter2 = { bookingId: booking.bookingId }
+        if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+          filter2['Passengers.Optional.TicketNumber'] = ticketNumber
+        }
+        const passengerPreference = await passengerPreferenceSchema.find(filter2);
         const configDetails = await config.findOne({ userId: booking.userId });
         if (passengerPreference.length) {
           allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
@@ -294,7 +298,7 @@ const getAllBooking = async (req, res) => {
       await Promise.all(bookingDetails.map(async (booking) => {
         let filter2 = { bookingId: booking.bookingId }
         if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
-          filter2.Passengers.Optional.TicketNumber = ticketNumber
+          filter2['Passengers.Optional.TicketNumber'] = ticketNumber
         }
         const passengerPreference = await passengerPreferenceSchema.find(filter2);
         const configDetails = await config.findOne({ userId: booking.userId });
@@ -387,7 +391,7 @@ const getAllBooking = async (req, res) => {
         await Promise.all(bookingDetails.map(async (booking) => {
           let filter2 = { bookingId: booking.bookingId }
           if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
-            filter2.Passengers.Optional.TicketNumber = ticketNumber
+            filter2['Passengers.Optional.TicketNumber'] = ticketNumber
           }
           const passengerPreference = await passengerPreferenceSchema.find(filter2);
           const configDetails = await config.findOne({ userId: booking.userId });
@@ -472,7 +476,7 @@ const getAllBooking = async (req, res) => {
         await Promise.all(bookingDetails.map(async (booking) => {
           let filter2 = { bookingId: booking.bookingId }
           if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
-            filter2.Passengers.Optional.TicketNumber = ticketNumber
+            filter2['Passengers.Optional.TicketNumber'] = ticketNumber
           }
           const passengerPreference = await passengerPreferenceSchema.find(filter2);
           const configDetails = await config.findOne({ userId: booking.userId });
@@ -557,7 +561,7 @@ const getAllBooking = async (req, res) => {
         await Promise.all(bookingDetails.map(async (booking) => {
           let filter2 = { bookingId: booking.bookingId }
           if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
-            filter2.Passengers.Optional.TicketNumber = ticketNumber
+            filter2['Passengers.Optional.TicketNumber'] = ticketNumber
           }
           const passengerPreference = await passengerPreferenceSchema.find(filter2);
           const configDetails = await config.findOne({ userId: booking.userId });

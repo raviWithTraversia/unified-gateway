@@ -13,6 +13,8 @@ const getAllBooking = async (req, res) => {
     agencyId,
     bookingId,
     pnr,
+    ticketNumber,
+    paxName,
     status,
     fromDate,
     toDate,
@@ -24,6 +26,7 @@ const getAllBooking = async (req, res) => {
     "agencyId",
     "bookingId",
     "pnr",
+    "ticketNumber",
     "status",
     "fromDate",
     "toDate",
@@ -123,10 +126,15 @@ const getAllBooking = async (req, res) => {
       const allBookingData = [];
 
       await Promise.all(bookingDetails.map(async (booking) => {
-        const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+        let filter2 = { bookingId: booking.bookingId }
+        if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+          filter2.Passengers.Optional.TicketNumber = ticketNumber
+        }
+        const passengerPreference = await passengerPreferenceSchema.find(filter2);
         const configDetails = await config.findOne({ userId: booking.userId });
-
-        allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        if (passengerPreference.length) {
+          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        }
       }));
 
       let filteredBookingData = allBookingData; // Copy the original data
@@ -205,7 +213,9 @@ const getAllBooking = async (req, res) => {
       await Promise.all(bookingDetails.map(async (booking) => {
         const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
         const configDetails = await config.findOne({ userId: booking.userId });
-        allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        if (passengerPreference.length) {
+          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        }
       }));
       let filteredBookingData = allBookingData; // Copy the original data
 
@@ -282,9 +292,15 @@ const getAllBooking = async (req, res) => {
       const allBookingData = [];
 
       await Promise.all(bookingDetails.map(async (booking) => {
-        const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+        let filter2 = { bookingId: booking.bookingId }
+        if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+          filter2.Passengers.Optional.TicketNumber = ticketNumber
+        }
+        const passengerPreference = await passengerPreferenceSchema.find(filter2);
         const configDetails = await config.findOne({ userId: booking.userId });
-        allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        if (passengerPreference.length) {
+          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        }
       }));
       let filteredBookingData = allBookingData; // Copy the original data
 
@@ -369,10 +385,15 @@ const getAllBooking = async (req, res) => {
         const allBookingData = [];
 
         await Promise.all(bookingDetails.map(async (booking) => {
-          const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+          let filter2 = { bookingId: booking.bookingId }
+          if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+            filter2.Passengers.Optional.TicketNumber = ticketNumber
+          }
+          const passengerPreference = await passengerPreferenceSchema.find(filter2);
           const configDetails = await config.findOne({ userId: booking.userId });
-
-          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          if (passengerPreference.length) {
+            allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          }
         }));
 
         let filteredBookingData = allBookingData; // Copy the original data
@@ -449,9 +470,15 @@ const getAllBooking = async (req, res) => {
         const allBookingData = [];
 
         await Promise.all(bookingDetails.map(async (booking) => {
-          const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+          let filter2 = { bookingId: booking.bookingId }
+          if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+            filter2.Passengers.Optional.TicketNumber = ticketNumber
+          }
+          const passengerPreference = await passengerPreferenceSchema.find(filter2);
           const configDetails = await config.findOne({ userId: booking.userId });
-          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          if (passengerPreference.length) {
+            allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          }
         }));
         let filteredBookingData = allBookingData; // Copy the original data
 
@@ -528,9 +555,15 @@ const getAllBooking = async (req, res) => {
         const allBookingData = [];
 
         await Promise.all(bookingDetails.map(async (booking) => {
-          const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+          let filter2 = { bookingId: booking.bookingId }
+          if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+            filter2.Passengers.Optional.TicketNumber = ticketNumber
+          }
+          const passengerPreference = await passengerPreferenceSchema.find(filter2);
           const configDetails = await config.findOne({ userId: booking.userId });
-          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          if (passengerPreference.length) {
+            allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          }
         }));
         let filteredBookingData = allBookingData; // Copy the original data
 

@@ -26,7 +26,6 @@ const getAllBooking = async (req, res) => {
     "agencyId",
     "bookingId",
     "pnr",
-    "ticketNumber",
     "status",
     "fromDate",
     "toDate",

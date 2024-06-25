@@ -269,7 +269,6 @@ const getAllBooking = async (req, res) => {
           path: 'company_ID'
         }
       }).populate('BookedBy');
-    console.log(bookingDetails);
 
     if (!bookingDetails || bookingDetails.length === 0) {
       return {

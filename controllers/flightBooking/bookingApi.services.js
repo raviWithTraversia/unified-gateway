@@ -976,8 +976,22 @@ const getBookingByPaxDetails = async (req, res) => {
       items?.passengerPreference.map(item => { delete item.bookingDetails })
     });
     if (!getPaxByTicket.length) {
+      const getPaxByPnr = await bookingdetails.findOne({ PNR: ticketNumber });
+      if (!getPaxByPnr) {
+        return {
+          response: "Data Not Found",
+        };
+      }
+      const getPassPre = await passengerPreferenceSchema.find({ bookingId: getPaxByPnr?.bookingId });
+      if (!getPassPre) {
+        return {
+          response: "Data Not Found",
+        };
+      }
+      let getPassengerbyPnr = [{ bookingDetails: getPaxByPnr, passengerPreference: getPassPre }]
       return {
-        response: "Data Not Found",
+        response: "Fetch Data Successfully",
+        data: { bookingList: getPassengerbyPnr.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)) }
       };
     }
     return {
@@ -1033,7 +1047,8 @@ const getBookingByPaxDetails = async (req, res) => {
     return {
       response: "Data Not Found",
     };
-  } return {
+  }
+  return {
     response: "Fetch Data Successfully",
     data: { bookingList: getPassenger.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)) }
   };

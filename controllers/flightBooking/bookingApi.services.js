@@ -1157,6 +1157,34 @@ const getBookingBillByAuthKey = async (req, res) => {
   };
 }
 
+const updatePassengerAccountPost = async (req, res) => {
+  const { accountPostArr } = req.body;
+  if (!accountPostArr.length) {
+    return {
+      response: "Please provide valid AccountPost"
+    }
+  }
+  const bulkOps = [];
+  for (let item of accountPostArr) {
+    bulkOps.push({
+      updateOne: {
+        filter: { _id: item._id },
+        update: { $set: { accountPost: item.accountPost } }
+      }
+    });
+  }
+  if (!bulkOps.length) {
+    return {
+      response: "Data Not Found"
+    }
+  }
+  await passengerPreferenceSchema.bulkWrite(bulkOps);
+
+  return {
+    response: "AccountPost Updated Successfully",
+  }
+}
+
 module.exports = {
   getAllBooking,
   getBookingByBookingId,
@@ -1165,5 +1193,6 @@ module.exports = {
   getDeparturesList,
   getSalesReport,
   getBookingByPaxDetails,
-  getBookingBillByAuthKey
+  getBookingBillByAuthKey,
+  updatePassengerAccountPost
 };

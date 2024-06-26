@@ -14,5 +14,7 @@ flight_booking_route.post('/flightbooking/getBookingCalendarCount', flight.getBo
 flight_booking_route.post('/flightbooking/getDeparturesList', flight.getDeparturesList);
 flight_booking_route.post('/flightbooking/getBookingBill', flight.getBookingBill);
 flight_booking_route.post('/flightbooking/getSalesReport', flight.getSalesReport);
+flight_booking_route.post('/flightbooking/getBookingByPaxDetails', flight.getBookingByPaxDetails);
+flight_booking_route.post('/flightbooking/getBookingBillByAuthKey', flight.getBookingBillByAuthKey);
 
 module.exports = flight_booking_route;

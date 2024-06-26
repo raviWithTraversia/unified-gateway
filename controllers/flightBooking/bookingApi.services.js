@@ -972,11 +972,15 @@ const getBookingByPaxDetails = async (req, res) => {
         _id: "$bookingDetails._id", bookingDetails: { $first: "$bookingDetails" }, passengerPreference: { $push: "$$ROOT" }
       }
     }]);
+    await bookingdetails.populate(getPaxByTicket, [
+      { path: 'bookingDetails.companyId', model: 'Company' },
+      { path: 'bookingDetails.BookedBy', model: 'User' }
+    ])
     getPaxByTicket.map(items => {
       items?.passengerPreference.map(item => { delete item.bookingDetails })
     });
     if (!getPaxByTicket.length) {
-      const getPaxByPnr = await bookingdetails.findOne({ PNR: ticketNumber });
+      const getPaxByPnr = await bookingdetails.findOne({ PNR: ticketNumber }).populate('companyId').populate('BookedBy');
       if (!getPaxByPnr) {
         return {
           response: "Data Not Found",
@@ -1040,6 +1044,10 @@ const getBookingByPaxDetails = async (req, res) => {
       _id: "$bookingDetails._id", bookingDetails: { $first: "$bookingDetails" }, passengerPreference: { $push: "$$ROOT" }
     }
   }]);
+  await bookingdetails.populate(getPaxByTicket, [
+    { path: 'bookingDetails.companyId', model: 'Company' },
+    { path: 'bookingDetails.BookedBy', model: 'User' }
+  ])
   getPassenger.map(items => {
     items?.passengerPreference.map(item => { delete item.bookingDetails })
   })

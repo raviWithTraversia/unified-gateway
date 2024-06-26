@@ -762,7 +762,7 @@ const getBookingBill = async (req, res) => {
       travelDateInbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
       issueDate: "$bookingData.bookingDateTime",
       airlineTax: "$bookingData.itinerary.Taxes",
-      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "0", purchaseCode: "0",
+      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "$bookingData.accountPost", purchaseCode: "0",
       flightCode: "$bookingData.Supplier",
       airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
       bookingId1: {
@@ -1118,7 +1118,7 @@ const getBookingBillByAuthKey = async (req, res) => {
       travelDateInbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
       issueDate: "$bookingData.bookingDateTime",
       airlineTax: "$bookingData.itinerary.Taxes",
-      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "0", purchaseCode: "0",
+      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "$bookingData.accountPost", purchaseCode: "0",
       flightCode: "$bookingData.Supplier",
       airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
       bookingId1: {

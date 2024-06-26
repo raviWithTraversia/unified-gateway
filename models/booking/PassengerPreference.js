@@ -12,7 +12,7 @@ const passengerPreferenceSchema = new mongoose.Schema({
     type: String,
     default: null
   },
-  accountPost: { type: Number, default: 0 },
+  accountPost: { type: String, default: "0" },
   bid: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "BookingDetails",

@@ -148,6 +148,8 @@ email_config_route.post(
     auth,
     emailController.addEmailConfig
 );
+email_config_route.delete('/mailconfig/delete',auth,emailController.deleteEmailConfig)
+
 
 email_config_route.patch(
     '/getEmailConfig/upadteEmailConfig',

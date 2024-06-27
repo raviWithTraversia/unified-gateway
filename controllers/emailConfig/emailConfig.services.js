@@ -130,10 +130,29 @@ const upadteEmailConfig = async (req,res) => {
   }
 }
 
+const deleteEmailConfig = async (req,res) => {
+  const { id } = req.query;
+  try {
+    const updatedConfig = await emailConfig.findByIdAndDelete(id)
+
+    if (!updatedConfig) {
+      return {
+         response: 'Email configuration not found'
+         };
+    }
+    return{
+       response: 'Email configuration Delete successfully',
+      };
+  } catch (error) {
+    console.error('Error Delete email configuration:', error);
+    throw error
+  }
+}
 
 
 module.exports = {
   getEmailConfig,
   addEmailConfig,
-  upadteEmailConfig
+  upadteEmailConfig,
+  deleteEmailConfig
 };

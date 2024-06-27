@@ -22,26 +22,26 @@ const { WebsiteManagerSeeder } = require("../seeders/websiteManagerSeeder");
 
 async function runSeeders() {
   try {
-    await seedCompanies();
-    await seedPermissions();
-    await seedProduct();
-    await seedProductPlan();
-    await productPlanHasProductSeeder();
-    // await seedCompaniesSmtp();
-    // await seedEmailConfigDescription();
-    await seedCountry(); //seeder working!!!
-    await seedState(); //seeder working!!!
-    await seedCity(); //seeder working!!!
-    // await seedCabinClassMaster();
-    await seedStatus();
-    await seedFareFamilyMaster();
-    await seedCarrierSeeder();
-    // // await seedAirCommercialRowMaster();
-    // await seedCommercialColumnMaster();
-    // await AirCommercialFilterSeeder();
-    await seedMarkUpCategoryData();
-    // await seedPassportDetailMandatoryForAirline();
-    await WebsiteManagerSeeder();
+    // await seedCompanies();
+    // await seedPermissions();
+    // await seedProduct();
+    // await seedProductPlan();
+    // await productPlanHasProductSeeder();
+    // // await seedCompaniesSmtp();
+    // // await seedEmailConfigDescription();
+    // await seedCountry(); //seeder working!!!
+    // await seedState(); //seeder working!!!
+    // await seedCity(); //seeder working!!!
+    // // await seedCabinClassMaster();
+    // await seedStatus();
+    // await seedFareFamilyMaster();
+    // await seedCarrierSeeder();
+    // // // await seedAirCommercialRowMaster();
+    // // await seedCommercialColumnMaster();
+    // // await AirCommercialFilterSeeder();
+    // await seedMarkUpCategoryData();
+    // // await seedPassportDetailMandatoryForAirline();
+    // await WebsiteManagerSeeder();
     console.log('All seeders completed.');
   } catch (err) {
     console.error('Error running seeders:', err);

@@ -115,8 +115,48 @@ const upadteEmailConfig = async (req, res) => {
   }
 }
 
+const deleteEmailConfig=async(req,res)=>{
+  try{
+    let result = await emailConfigServices.deleteEmailConfig(req,res);
+    if(result.response == 'Email configuration Delete successfully'){
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE,
+       ) 
+    }
+    else if(result.response == 'Email configuration not found' ){
+    
+     apiErrorres(
+      res,
+      result.response,
+      ServerStatusCode.RECORD_NOTEXIST,
+      true
+    )
+    }else{
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      )
+    }
+
+  }catch(error){
+    apiErrorres(
+      res,
+      error,
+      ServerStatusCode.UNPROCESSABLE,
+      true
+    )
+
+  }
+}
+
 module.exports = {
     getEmailConfig,
     addEmailConfig,
-    upadteEmailConfig
+    upadteEmailConfig,
+    deleteEmailConfig
 }

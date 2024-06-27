@@ -13,6 +13,8 @@ const getAllBooking = async (req, res) => {
     agencyId,
     bookingId,
     pnr,
+    ticketNumber,
+    paxName,
     status,
     fromDate,
     toDate,
@@ -123,10 +125,15 @@ const getAllBooking = async (req, res) => {
       const allBookingData = [];
 
       await Promise.all(bookingDetails.map(async (booking) => {
-        const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+        let filter2 = { bookingId: booking.bookingId }
+        if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+          filter2['Passengers.Optional.TicketNumber'] = ticketNumber
+        }
+        const passengerPreference = await passengerPreferenceSchema.find(filter2);
         const configDetails = await config.findOne({ userId: booking.userId });
-
-        allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        if (passengerPreference.length) {
+          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        }
       }));
 
       let filteredBookingData = allBookingData; // Copy the original data
@@ -203,9 +210,15 @@ const getAllBooking = async (req, res) => {
       const allBookingData = [];
 
       await Promise.all(bookingDetails.map(async (booking) => {
-        const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+        let filter2 = { bookingId: booking.bookingId }
+        if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+          filter2['Passengers.Optional.TicketNumber'] = ticketNumber
+        }
+        const passengerPreference = await passengerPreferenceSchema.find(filter2);
         const configDetails = await config.findOne({ userId: booking.userId });
-        allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        if (passengerPreference.length) {
+          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        }
       }));
       let filteredBookingData = allBookingData; // Copy the original data
 
@@ -256,7 +269,6 @@ const getAllBooking = async (req, res) => {
           path: 'company_ID'
         }
       }).populate('BookedBy');
-    console.log(bookingDetails);
 
     if (!bookingDetails || bookingDetails.length === 0) {
       return {
@@ -282,9 +294,15 @@ const getAllBooking = async (req, res) => {
       const allBookingData = [];
 
       await Promise.all(bookingDetails.map(async (booking) => {
-        const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+        let filter2 = { bookingId: booking.bookingId }
+        if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+          filter2['Passengers.Optional.TicketNumber'] = ticketNumber
+        }
+        const passengerPreference = await passengerPreferenceSchema.find(filter2);
         const configDetails = await config.findOne({ userId: booking.userId });
-        allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        if (passengerPreference.length) {
+          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+        }
       }));
       let filteredBookingData = allBookingData; // Copy the original data
 
@@ -369,10 +387,15 @@ const getAllBooking = async (req, res) => {
         const allBookingData = [];
 
         await Promise.all(bookingDetails.map(async (booking) => {
-          const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+          let filter2 = { bookingId: booking.bookingId }
+          if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+            filter2['Passengers.Optional.TicketNumber'] = ticketNumber
+          }
+          const passengerPreference = await passengerPreferenceSchema.find(filter2);
           const configDetails = await config.findOne({ userId: booking.userId });
-
-          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          if (passengerPreference.length) {
+            allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          }
         }));
 
         let filteredBookingData = allBookingData; // Copy the original data
@@ -449,9 +472,15 @@ const getAllBooking = async (req, res) => {
         const allBookingData = [];
 
         await Promise.all(bookingDetails.map(async (booking) => {
-          const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+          let filter2 = { bookingId: booking.bookingId }
+          if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+            filter2['Passengers.Optional.TicketNumber'] = ticketNumber
+          }
+          const passengerPreference = await passengerPreferenceSchema.find(filter2);
           const configDetails = await config.findOne({ userId: booking.userId });
-          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          if (passengerPreference.length) {
+            allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          }
         }));
         let filteredBookingData = allBookingData; // Copy the original data
 
@@ -528,9 +557,15 @@ const getAllBooking = async (req, res) => {
         const allBookingData = [];
 
         await Promise.all(bookingDetails.map(async (booking) => {
-          const passengerPreference = await passengerPreferenceSchema.find({ bookingId: booking.bookingId });
+          let filter2 = { bookingId: booking.bookingId }
+          if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+            filter2['Passengers.Optional.TicketNumber'] = ticketNumber
+          }
+          const passengerPreference = await passengerPreferenceSchema.find(filter2);
           const configDetails = await config.findOne({ userId: booking.userId });
-          allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          if (passengerPreference.length) {
+            allBookingData.push({ bookingDetails: booking, passengerPreference: passengerPreference, salesInchargeIds: configDetails?.salesInchargeIds });
+          }
         }));
         let filteredBookingData = allBookingData; // Copy the original data
 
@@ -727,7 +762,7 @@ const getBookingBill = async (req, res) => {
       travelDateInbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
       issueDate: "$bookingData.bookingDateTime",
       airlineTax: "$bookingData.itinerary.Taxes",
-      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "0", purchaseCode: "0",
+      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "$bookingData.accountPost", purchaseCode: "0",
       flightCode: "$bookingData.Supplier",
       airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
       bookingId1: {
@@ -918,11 +953,256 @@ const getSalesReport = async (req, res) => {
   };
 }
 
+const getBookingByPaxDetails = async (req, res) => {
+  const { paxName, userId, ticketNumber } = req.body;
+  if (ticketNumber) {
+    const getPaxByTicket = await passengerPreferenceSchema.aggregate([{
+      $match: {
+        userId: new ObjectId(userId), "Passengers.Optional.TicketNumber": ticketNumber
+      }
+    }, { $unwind: "$Passengers" }, {
+      $lookup: {
+        from: "bookingdetails",
+        localField: "bookingId",
+        foreignField: "bookingId",
+        as: "bookingDetails",
+      }
+    }, { $unwind: "$bookingDetails" }, {
+      $group: {
+        _id: "$bookingDetails._id", bookingDetails: { $first: "$bookingDetails" }, passengerPreference: { $push: "$$ROOT" }
+      }
+    }]);
+    await bookingdetails.populate(getPaxByTicket, [
+      { path: 'bookingDetails.companyId', model: 'Company' },
+      { path: 'bookingDetails.BookedBy', model: 'User' }
+    ])
+    getPaxByTicket.map(items => {
+      items?.passengerPreference.map(item => { delete item.bookingDetails })
+    });
+    if (!getPaxByTicket.length) {
+      const getPaxByPnr = await bookingdetails.findOne({ PNR: ticketNumber }).populate('companyId').populate('BookedBy');
+      if (!getPaxByPnr) {
+        return {
+          response: "Data Not Found",
+        };
+      }
+      const getPassPre = await passengerPreferenceSchema.find({ bookingId: getPaxByPnr?.bookingId });
+      if (!getPassPre) {
+        return {
+          response: "Data Not Found",
+        };
+      }
+      let getPassengerbyPnr = [{ bookingDetails: getPaxByPnr, passengerPreference: getPassPre }]
+      return {
+        response: "Fetch Data Successfully",
+        data: { bookingList: getPassengerbyPnr.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)) }
+      };
+    }
+    return {
+      response: "Fetch Data Successfully",
+      data: { bookingList: getPaxByTicket.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)) }
+    };
+  }
+  if (!paxName) {
+    return {
+      response: "If there is not ticketNumber then provide paxName"
+    }
+  }
+  let splitData = paxName.trim().split(' ');
+  let regexFilter = {};
+  if (splitData.length == 1) {
+    regexFilter = {
+      $or: [
+        { "Passengers.FName": new RegExp(splitData[0], 'i') },
+        { "Passengers.LName": new RegExp(splitData[0], 'i') }
+      ]
+    };
+  }
+  if (splitData.length == 2) {
+    regexFilter["Passengers.FName"] = new RegExp(splitData[0], 'i')
+    regexFilter["Passengers.LName"] = new RegExp(splitData[1], 'i')
+  }
+  if (splitData.length == 3) {
+    regexFilter["Passengers.FName"] = new RegExp(splitData.slice(0, -1).join(' '), 'i')//new RegExp(splitData[0], 'i') new RegExp(splitData[1], 'i');
+    regexFilter["Passengers.LName"] = new RegExp(splitData[2], 'i')
+  }
+  const getPassenger = await passengerPreferenceSchema.aggregate([{
+    $match: {
+      userId: new ObjectId(userId)
+    }
+  }, { $unwind: "$Passengers" }, {
+    $match: regexFilter
+  }, {
+    $lookup: {
+      from: "bookingdetails",
+      localField: "bookingId",
+      foreignField: "bookingId",
+      as: "bookingDetails",
+    }
+  }, { $unwind: "$bookingDetails" }, {
+    $group: {
+      _id: "$bookingDetails._id", bookingDetails: { $first: "$bookingDetails" }, passengerPreference: { $push: "$$ROOT" }
+    }
+  }]);
+  await bookingdetails.populate(getPaxByTicket, [
+    { path: 'bookingDetails.companyId', model: 'Company' },
+    { path: 'bookingDetails.BookedBy', model: 'User' }
+  ])
+  getPassenger.map(items => {
+    items?.passengerPreference.map(item => { delete item.bookingDetails })
+  })
+  if (!getPassenger.length) {
+    return {
+      response: "Data Not Found",
+    };
+  }
+  return {
+    response: "Fetch Data Successfully",
+    data: { bookingList: getPassenger.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)) }
+  };
+}
+
+const getBillingData = async (req, res) => {
+  const { key, fromDate, toDate } = req.query;
+  if (!fromDate || !toDate || !key) {
+    return {
+      response: "Please provide required fields"
+    }
+  }
+  let MODEENV = "D"
+
+  let authKey = "667bd5d44dccc9b2d2b80690"
+  if (Config.MODE === "LIVE") {
+    MODEENV = "P"
+    authKey = "667bd64d2ca70f085a8328ca"
+  }
+  if (authKey != key) {
+    return {
+      response: "Access Denied! Provide a valid Key!"
+    }
+  }
+  const bookingBill = await passengerPreferenceSchema.aggregate([{
+    $match: {
+      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
+    }
+  }, { $unwind: "$Passengers" }, {
+    $project: {
+      accountPost: 1,
+      bookingId: 1,
+      ticketNo: "$Passengers.Optional.TicketNumber",
+      paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] }
+    }
+  }, {
+    $lookup: {
+      from: "bookingdetails",
+      localField: "bookingId",
+      foreignField: "bookingId",
+      as: "bookingData",
+    },
+  }, { $unwind: "$bookingData" }, {
+    $match: {
+      "bookingData.bookingStatus": "CONFIRMED"
+    }
+  }, {
+    $lookup: {
+      from: "companies",
+      localField: "bookingData.AgencyId",
+      foreignField: "_id",
+      as: "companiesData",
+    },
+  }, {
+    $lookup: {
+      from: "users",
+      localField: "bookingData.userId",
+      foreignField: "_id",
+      as: "userdata",
+    },
+  }, {
+    $project: {
+      accountPost: 1,
+      bookingId: "$bookingData.providerBookingId",
+      paxName: 1,
+      ticketNo: 1,
+      agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
+      agentId: { $arrayElemAt: ['$userdata.userId', 0] },
+      pnr: "$bookingData.PNR",
+      itemAmount: "$bookingData.itinerary.BaseFare",
+      sector: {
+        $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Code', 0] },
+          ' ',
+        { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Code', 0] }]
+      },
+      flightNo: {
+        $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] },
+          ' ',
+        { $arrayElemAt: ['$bookingData.itinerary.Sectors.FltNum', 0] }]
+      },
+      class: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Class', 0] },
+      ccUserName: "AUTO",
+      travelDateOutbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Date', 0] },
+      travelDateInbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
+      issueDate: "$bookingData.bookingDateTime",
+      airlineTax: "$bookingData.itinerary.Taxes",
+      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", purchaseCode: "0",
+      flightCode: "$bookingData.Supplier",
+      airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
+      bookingId1: {
+        $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] }, "$bookingData.SalePurchase", `${MODEENV}~`,
+          '$bookingData.itinerary.FareFamily']
+      },
+    }
+  }]);
+  bookingBill.forEach((element, index) => {
+    element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr
+    element.id = index + 1;
+  });
+  if (!bookingBill.length) {
+    return {
+      response: "Data Not Found",
+    };
+  };
+  return {
+    response: "Fetch Data Successfully",
+    data: bookingBill,
+  };
+}
+
+const updateBillPost = async (req, res) => {
+  const { accountPostArr } = req.body;
+  if (!accountPostArr.length) {
+    return {
+      response: "Please provide valid AccountPost"
+    }
+  }
+  const bulkOps = [];
+  for (let item of accountPostArr) {
+    bulkOps.push({
+      updateOne: {
+        filter: { _id: item._id },
+        update: { $set: { accountPost: item.accountPost } }
+      }
+    });
+  }
+  if (!bulkOps.length) {
+    return {
+      response: "Data Not Found"
+    }
+  }
+  await passengerPreferenceSchema.bulkWrite(bulkOps);
+
+  return {
+    response: "AccountPost Updated Successfully",
+  }
+}
+
 module.exports = {
   getAllBooking,
   getBookingByBookingId,
   getBookingCalendarCount,
   getBookingBill,
   getDeparturesList,
-  getSalesReport
+  getSalesReport,
+  getBookingByPaxDetails,
+  getBillingData,
+  updateBillPost
 };

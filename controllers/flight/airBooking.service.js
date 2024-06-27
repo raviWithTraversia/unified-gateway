@@ -662,7 +662,7 @@ const KafilaFun = async (
         if (existingBooking) {
           return {
             msg: "Booking already exists",
-            bookingId: newItem.bookingId,
+            bookingId: ItineraryPriceCheckResponses[0].BookingId,
           };
         }
       } catch (error) {
@@ -924,18 +924,14 @@ const KafilaFun = async (
                 };
                 Logs(logData);
                 if (fSearchApiResponse?.data?.Status == "failed" || fSearchApiResponse?.data?.IsError == true) {
-                  await BookingDetails.updateOne(
-                    {
-                      bookingId: item?.BookingId,
-                      "itinerary.IndexNumber": item.IndexNumber,
+                  await BookingDetails.updateOne({
+                    bookingId: item?.BookingId,
+                    "itinerary.IndexNumber": item.IndexNumber,
+                  }, {
+                    $set: {
+                      bookingStatus: "FAILED", bookingRemarks: error.message,
                     },
-                    {
-                      $set: {
-                        bookingStatus: "FAILED",
-                        bookingRemarks: error.message,
-                      },
-                    }
-                  );
+                  });
 
                   // Ledget Create After booking Failed
                   const getAgentConfigForUpdate = await agentConfig.findOne({
@@ -1020,17 +1016,17 @@ const KafilaFun = async (
                 const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.BookingId });
 
                 if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
-                    await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
-                      const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
-                      if (apiPassenger) {
-                        passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
-                        // passenger.Status = "CONFIRMED";
-                    }                      
-                    }));
+                  await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
+                    const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
+                    if (apiPassenger) {
+                      passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
+                      // passenger.Status = "CONFIRMED";
+                    }
+                  }));
 
-                    await getpassengersPrefrence.save();
-                }                
-                
+                  await getpassengersPrefrence.save();
+                }
+
                 if (
                   fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
                 ) {

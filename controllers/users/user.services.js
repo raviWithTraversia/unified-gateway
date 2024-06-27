@@ -693,8 +693,16 @@ const addUser = async (req, res) => {
 const editUser = async (req, res) => {
   try {
     const userId = req.query.id;
-    const updateData = req.body;
+    const updateData = req.body; 
+  const findUserData=await User.findById(userId)
 
+if(updateData.password !== findUserData.password){
+  const spassword = await commonFunction.securePassword(updateData?.password);
+   updateData.password=spassword
+}else{
+
+  updateData.password=findUserData.password
+}
     const updatedUserData = await User.findByIdAndUpdate(
       userId,
       { $set: updateData },

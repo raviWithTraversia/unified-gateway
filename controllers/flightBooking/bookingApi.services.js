@@ -1083,7 +1083,7 @@ const getBillingData = async (req, res) => {
   }
   const bookingBill = await passengerPreferenceSchema.aggregate([{
     $match: {
-      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
+      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }, accountPost: "0"
     }
   }, { $unwind: "$Passengers" }, {
     $project: {

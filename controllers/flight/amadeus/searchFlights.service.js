@@ -2,10 +2,9 @@ const soap = require('soap');
 const path = require('path');
 const builder = require('xmlbuilder');
 
-//const rp = require('request-promise');
 const wsdlUrl = path.join(__dirname, '1ASIWKAFK4H_PDT_20240624_105626/1ASIWKAFK4H_PDT_20240624_105626.wsdl');
 
-const endpoint = 'https://nodeD1.test.webservices.amadeus.com/1ASIWKAFK4H'; // Replace with the actual endpoint URL
+const endpoint = 'https://nodeD1.test.webservices.amadeus.com/1ASIWKAFK4H'; // Replace with actual endpoint URL
 
 const wsap = '1ASIWKAFK4H';
 const userId = 'WSK4HKAF';
@@ -14,27 +13,44 @@ const base64Password = 'M0ZaQFpaVmVSaVMr';
 const officeId = 'DELVS317Q';
 const dutyCode = 'SU';
 
-const authData = {
-    'userId': userId,
-    'passwordData': base64Password,
-    'officeId': officeId,
-    'dutyCode': dutyCode
-};
-
 // Function to initiate a session
 async function startSession() {
     const sessionClient = await soap.createClientAsync(wsdlUrl, { endpoint });
-    const sessionHeader = {
+
+    const soapHeaders = {
+        'Action': 'http://webservices.amadeus.com/FMPTBQ_18_1_1A',
+        'MessageID': 'urn:uuid:8f9761ce-9b8c-44bb-8672-c80bb8202eb2',
+        'ReplyTo': 'http://www.w3.org/2005/08/addressing/anonymous',
         'Security': {
-            'UserID': wsap,
-            'Password': clearPassword,
-            'OfficeID': officeId,
-            'DutyCode': dutyCode
+            'UsernameToken': {
+                'Username': userId,
+                'Password': {
+                    'Type': 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest',
+                    'Value': base64Password
+                },
+                'Nonce': {
+                    'EncodingType': 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary',
+                    'Value': 'flSmzAj+W2ND++ryKGG6qw=='
+                },
+                'Created': '2024-06-24T12:04:31Z'
+            }
+        },
+        'AMA_SecurityHostedUser': {
+            'UserID': {
+                'POS_Type': '1',
+                'PseudoCityCode': officeId,
+                'AgentDutyCode': 'SU',
+                'RequestorType': 'U',
+                'RequestorID': {
+                    'CompanyName': '1A'
+                }
+            }
         }
     };
 
-    sessionClient.addSoapHeader(sessionHeader);
-    
+    // Add the SOAP headers
+    sessionClient.addSoapHeader(soapHeaders);
+
     sessionClient.on('request', (xml) => {
         console.log('Request XML:', xml);
     });
@@ -42,87 +58,91 @@ async function startSession() {
         console.log('Response XML:', xml);
     });
 
-
     return sessionClient;
 }
 
 // Function to call Fare_MasterPricerTravelBoardSearch
 async function searchFares(sessionClient) {
-  const searchRequest = {
-    Fare_MasterPricerTravelBoardSearch: {
-        numberOfUnit: {
-            unitNumberDetail: [
-                {
-                    numberOfUnits: 250,
-                    typeOfUnit: 'RC'
-                },
-                {
-                    numberOfUnits: 2,
-                    typeOfUnit: 'PX'
-                }
-            ]
-        },
-        paxReference: [
-            {
-                ptc: ['IIT', 'ADT'],
+    const searchRequest = {
+        Fare_MasterPricerTravelBoardSearch: {
+            numberOfUnit: {
+                unitNumberDetail: [
+                    {
+                        numberOfUnits: 250,
+                        typeOfUnit: 'RC'
+                    },
+                    {
+                        numberOfUnits: 1,
+                        typeOfUnit: 'PX'
+                    }
+                ]
+            },
+            paxReference: {
+                ptc: 'ADT',
                 traveller: {
                     ref: 1
                 }
             },
-            {
-                ptc: ['INN', 'CNN'],
-                traveller: {
-                    ref: 2
+            fareOptions: {
+                pricingTickInfo: {
+                    pricingTicketing: {
+                        priceType: ['RP', 'RU', 'TAC', 'ET', 'XND', 'IFS']
+                    }
+                },
+                feeIdDescription: {
+                    feeId: [
+                        {
+                            feeType: 'FFI',
+                            feeIdNumber: 3
+                        },
+                        {
+                            feeType: 'UPH',
+                            feeIdNumber: 3
+                        }
+                    ]
                 }
             },
-            {
-                ptc: ['ITF', 'INF'],
-                traveller: {
-                    ref: 1,
-                    infantIndicator: 1
+            travelFlightInfo: {
+                cabinId: {
+                    cabin: 'M'
+                },
+                companyIdentity: {
+                    carrierQualifier: 'X',
+                    carrierId: ['HR', 'H1']
                 }
-            }
-        ],
-        fareOptions: {
-            pricingTickInfo: {
-                pricingTicketing: {
-                    priceType: ['RP', 'RU', 'TAC', 'ET']
-                }
-            }
-        },
-        itinerary: [
-            {
+            },
+            itinerary: {
                 requestedSegmentRef: {
                     segRef: 1
                 },
                 departureLocalization: {
                     departurePoint: {
-                        locationId: 'BEY'
+                        locationId: 'DEL'
                     }
                 },
                 arrivalLocalization: {
                     arrivalPointDetails: {
-                        locationId: 'IST'
+                        locationId: 'LKO'
                     }
                 },
                 timeDetails: {
                     firstDateTimeDetail: {
-                        date: '071024'
+                        timeQualifier: 'TD',
+                        date: '300624',
+                        time: '0001'
                     }
                 }
             }
-        ]
-    }
-};
-    // const xml = builder.create(searchRequest).end({ pretty: true });
-    // console.log(xml);
+        }
+    };
+
     return await sessionClient.Fare_MasterPricerTravelBoardSearchAsync(searchRequest);
 }
 
 // Function to close the session
 async function closeSession(sessionClient) {
     const logoutRequest = {
-        // Fill in with your actual logout request data
+        // Fill in with your actual logout request data if needed
     };
     return await sessionClient.Security_AuthenticateAsync(logoutRequest);
 }
@@ -131,18 +151,16 @@ async function closeSession(sessionClient) {
 async function search() {
     try {
         const sessionClient = await startSession();
-        //console.log('Session started', sessionClient);
-        
         const searchResponse = await searchFares(sessionClient);
-        //console.log('Search response:', searchResponse);
-        return false;
+        console.log('Search response:', searchResponse); // Handle response as needed
+
         await closeSession(sessionClient);
         console.log('Session closed');
     } catch (error) {
-        // console.error('Error:', error);
+        console.error('Error:', error);
     }
 }
 
 module.exports = {
-  search
+    search
 };

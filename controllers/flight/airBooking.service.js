@@ -971,7 +971,7 @@ const KafilaFun = async (
 
                   return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
                 }
-                if (fSearchApiResponse.data.Status == null) {
+                if (fSearchApiResponse?.data?.IsError == true) {
                   await BookingDetails.updateOne(
                     {
                       bookingId: item?.BookingId,

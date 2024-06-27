@@ -1062,8 +1062,8 @@ const getBookingByPaxDetails = async (req, res) => {
   };
 }
 
-const getBookingBillByAuthKey = async (req, res) => {
-  const { key, fromDate, toDate } = req.body;
+const getBillingData = async (req, res) => {
+  const { key, fromDate, toDate } = req.query;
   if (!fromDate || !toDate || !key) {
     return {
       response: "Please provide required fields"
@@ -1087,6 +1087,7 @@ const getBookingBillByAuthKey = async (req, res) => {
     }
   }, { $unwind: "$Passengers" }, {
     $project: {
+      accountPost: 1,
       bookingId: 1,
       ticketNo: "$Passengers.Optional.TicketNumber",
       paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] }
@@ -1118,6 +1119,7 @@ const getBookingBillByAuthKey = async (req, res) => {
     },
   }, {
     $project: {
+      accountPost: 1,
       bookingId: "$bookingData.providerBookingId",
       paxName: 1,
       ticketNo: 1,
@@ -1141,7 +1143,7 @@ const getBookingBillByAuthKey = async (req, res) => {
       travelDateInbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
       issueDate: "$bookingData.bookingDateTime",
       airlineTax: "$bookingData.itinerary.Taxes",
-      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "$bookingData.accountPost", purchaseCode: "0",
+      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", purchaseCode: "0",
       flightCode: "$bookingData.Supplier",
       airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
       bookingId1: {
@@ -1165,7 +1167,7 @@ const getBookingBillByAuthKey = async (req, res) => {
   };
 }
 
-const updatePassengerAccountPost = async (req, res) => {
+const updateBillPost = async (req, res) => {
   const { accountPostArr } = req.body;
   if (!accountPostArr.length) {
     return {
@@ -1201,6 +1203,6 @@ module.exports = {
   getDeparturesList,
   getSalesReport,
   getBookingByPaxDetails,
-  getBookingBillByAuthKey,
-  updatePassengerAccountPost
+  getBillingData,
+  updateBillPost
 };

@@ -972,15 +972,11 @@ const getBookingByPaxDetails = async (req, res) => {
         _id: "$bookingDetails._id", bookingDetails: { $first: "$bookingDetails" }, passengerPreference: { $push: "$$ROOT" }
       }
     }]);
-    await bookingdetails.populate(getPaxByTicket, [
-      { path: 'bookingDetails.companyId', model: 'Company' },
-      { path: 'bookingDetails.BookedBy', model: 'User' }
-    ])
     getPaxByTicket.map(items => {
       items?.passengerPreference.map(item => { delete item.bookingDetails })
     });
     if (!getPaxByTicket.length) {
-      const getPaxByPnr = await bookingdetails.findOne({ PNR: ticketNumber }).populate('companyId').populate('BookedBy');
+      const getPaxByPnr = await bookingdetails.findOne({ PNR: ticketNumber });
       if (!getPaxByPnr) {
         return {
           response: "Data Not Found",
@@ -1026,46 +1022,87 @@ const getBookingByPaxDetails = async (req, res) => {
     regexFilter["Passengers.FName"] = new RegExp(splitData.slice(0, -1).join(' '), 'i')//new RegExp(splitData[0], 'i') new RegExp(splitData[1], 'i');
     regexFilter["Passengers.LName"] = new RegExp(splitData[2], 'i')
   }
-  const getPassenger = await passengerPreferenceSchema.aggregate([{
-    $match: {
-      userId: new ObjectId(userId)
+  const getPassenger = await passengerPreferenceSchema.aggregate([
+    {
+      $match: regexFilter
+    },
+    {
+      $lookup: {
+        from: "bookingdetails",
+        localField: "bookingId",
+        foreignField: "bookingId",
+        as: "bookingDetails"
+      }
+    },
+    { $unwind: "$bookingDetails" },
+   
+    {
+      $lookup: {
+        from: "users",
+        localField: "bookingDetails.userId",
+        foreignField: "_id",
+        as: "userData"
+      }
+    },
+    { $unwind: { path: "$userData", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "companies",
+        localField: "userData.company_ID",
+        foreignField: "_id",
+        as: "companyData"
+      }
+    },
+    { $unwind: { path: "$companyData", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "agencies",
+        localField: "bookingDetails.AgencyId",
+        foreignField: "_id",
+        as: "agencyData"
+      }
+    },
+    { $unwind: { path: "$agencyData", preserveNullAndEmptyArrays: true } },
+    {
+      $group: {
+        _id: "$bookingDetails._id",
+        bookingDetails: { $first: "$bookingDetails" },
+        passengerPreference: { $push: "$$ROOT" },
+        companyData: { $first: "$companyData" },
+        userId: { $first: "$userData" },
+        agencyData: { $first: "$agencyData" }
+      }
     }
-  }, { $unwind: "$Passengers" }, {
-    $match: regexFilter
-  }, {
-    $lookup: {
-      from: "bookingdetails",
-      localField: "bookingId",
-      foreignField: "bookingId",
-      as: "bookingDetails",
+  ]);
+  
+  getPassenger.forEach(items => {
+    if (items?.passengerPreference && Array.isArray(items.passengerPreference)) {
+      items.passengerPreference.forEach(item => {
+        delete item.bookingDetails;
+      });
     }
-  }, { $unwind: "$bookingDetails" }, {
-    $group: {
-      _id: "$bookingDetails._id", bookingDetails: { $first: "$bookingDetails" }, passengerPreference: { $push: "$$ROOT" }
-    }
-  }]);
-  await bookingdetails.populate(getPaxByTicket, [
-    { path: 'bookingDetails.companyId', model: 'Company' },
-    { path: 'bookingDetails.BookedBy', model: 'User' }
-  ])
-  getPassenger.map(items => {
-    items?.passengerPreference.map(item => { delete item.bookingDetails })
-  })
+  });
+  
   if (!getPassenger.length) {
     return {
-      response: "Data Not Found",
+      response: "Data Not Found"
     };
   }
+  
   return {
     response: "Fetch Data Successfully",
-    data: { bookingList: getPassenger.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)) }
+    data: {
+      bookingList: getPassenger.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime))
+    }
   };
+  
 }
 
 const getBookingBillByAuthKey = async (req, res) => {
   const { key, fromDate, toDate } = req.body;
   if (!fromDate || !toDate || !key) {
     return {
+
       response: "Please provide required fields"
     }
   }

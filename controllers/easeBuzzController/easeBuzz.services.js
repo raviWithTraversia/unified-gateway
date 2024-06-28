@@ -53,7 +53,11 @@ const easeBuzz = async (req, res) => {
     if (account_no) { data.append('account_no', account_no); }
     if (ifsc) { data.append('ifsc', ifsc); }
 
-    const response = await axios.post(Config.EASEBUZZ_PG_URL, data, {
+    let PgUrl = Config.EASEBUZZ_PG_URL
+    if (Config.MODE === "LIVE") {
+      PgUrl = "https://pay.easebuzz.in/payment/initiateLink"
+    }
+    const response = await axios.post(PgUrl, data, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -263,17 +267,17 @@ const easeBuzzResponce = async (req, res) => {
 
             const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: udf1 });
 
-                if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
-                    await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
-                      const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
-                      if (apiPassenger) {
-                        passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber; 
-                        //passenger.Status = "CONFIRMED";                       
-                    }                      
-                    }));
+            if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
+              await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
+                const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
+                if (apiPassenger) {
+                  passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
+                  //passenger.Status = "CONFIRMED";                       
+                }
+              }));
 
-                    await getpassengersPrefrence.save();
-                }      
+              await getpassengersPrefrence.save();
+            }
 
             if (
               fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"

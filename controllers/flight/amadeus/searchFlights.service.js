@@ -57,61 +57,67 @@ async function searchFares(sessionClient) {
                     typeOfUnit: 'RC'
                 },
                 {
-                    numberOfUnits: 2,
+                    numberOfUnits: 1,
                     typeOfUnit: 'PX'
                 }
             ]
         },
-        paxReference: [
-            {
-                ptc: ['IIT', 'ADT'],
-                traveller: {
-                    ref: 1
-                }
-            },
-            {
-                ptc: ['INN', 'CNN'],
-                traveller: {
-                    ref: 2
-                }
-            },
-            {
-                ptc: ['ITF', 'INF'],
-                traveller: {
-                    ref: 1,
-                    infantIndicator: 1
-                }
+        paxReference: {
+            ptc: 'ADT',
+            traveller: {
+                ref: 1
             }
-        ],
+        },
         fareOptions: {
             pricingTickInfo: {
                 pricingTicketing: {
-                    priceType: ['RP', 'RU', 'TAC', 'ET']
+                    priceType: ['RP', 'RU', 'TAC', 'ET', 'XND', 'IFS']
                 }
+            },
+            feeIdDescription: {
+                feeId: [
+                    {
+                        feeType: 'FFI',
+                        feeIdNumber: 3
+                    },
+                    {
+                        feeType: 'UPH',
+                        feeIdNumber: 3
+                    }
+                ]
             }
         },
-        itinerary: [
-            {
-                requestedSegmentRef: {
-                    segRef: 1
-                },
-                departureLocalization: {
-                    departurePoint: {
-                        locationId: 'BEY'
-                    }
-                },
-                arrivalLocalization: {
-                    arrivalPointDetails: {
-                        locationId: 'IST'
-                    }
-                },
-                timeDetails: {
-                    firstDateTimeDetail: {
-                        date: '071024'
-                    }
+        travelFlightInfo: {
+            cabinId: {
+                cabin: 'M'
+            },
+            companyIdentity: {
+                carrierQualifier: 'X',
+                carrierId: ['HR', 'H1']
+            }
+        },
+        itinerary: {
+            requestedSegmentRef: {
+                segRef: 1
+            },
+            departureLocalization: {
+                departurePoint: {
+                    locationId: 'DEL'
+                }
+            },
+            arrivalLocalization: {
+                arrivalPointDetails: {
+                    locationId: 'LKO'
+                }
+            },
+            timeDetails: {
+                firstDateTimeDetail: {
+                    timeQualifier: 'TD',
+                    date: '300624',
+                    time: '0001'
                 }
             }
-        ]
+        }
     }
 };
     // const xml = builder.create(searchRequest).end({ pretty: true });

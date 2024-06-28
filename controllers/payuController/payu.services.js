@@ -279,7 +279,7 @@ const payuSuccess = async (req, res) => {
               responce: fSearchApiResponse?.data,
             };
             Logs(logData);
-            if (fSearchApiResponse.data.Status == "failed" || fSearchApiResponse?.data?.IsError == true) {
+            if (fSearchApiResponse.data.Status == "failed") {
               await BookingDetails.updateOne(
                 {
                   bookingId: udf1,
@@ -332,7 +332,7 @@ const payuSuccess = async (req, res) => {
                   PNR: fSearchApiResponse.data.BookingInfo.APnr,
                   APnr: fSearchApiResponse.data.BookingInfo.APnr,
                   GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
-                  SalePurchase: fSearchApiResponse.data.BookingInfo?.SalePurchase?.ATDetails?.Account,
+                  SalePurchase: fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails.Account,
                 },
               }
             );

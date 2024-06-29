@@ -1070,7 +1070,6 @@ const getBillingData = async (req, res) => {
     }
   }
   let MODEENV = "D"
-
   let authKey = "667bd5d44dccc9b2d2b80690"
   if (Config.MODE === "LIVE") {
     MODEENV = "P"
@@ -1081,18 +1080,11 @@ const getBillingData = async (req, res) => {
       response: "Access Denied! Provide a valid Key!"
     }
   }
-  const bookingBill = await passengerPreferenceSchema.aggregate([{
+  const billingData = await passengerPreferenceSchema.aggregate([{
     $match: {
-      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate) }, accountPost: "0"
+      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate) }
     }
   }, { $unwind: "$Passengers" }, {
-    $project: {
-      accountPost: 1,
-      bookingId: 1,
-      ticketNo: "$Passengers.Optional.TicketNumber",
-      paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] }
-    }
-  }, {
     $lookup: {
       from: "bookingdetails",
       localField: "bookingId",
@@ -1101,7 +1093,7 @@ const getBillingData = async (req, res) => {
     },
   }, { $unwind: "$bookingData" }, {
     $match: {
-      "bookingData.bookingStatus": "CONFIRMED"
+      "bookingData.bookingStatus": "CONFIRMED", "Passengers.accountPost": "0"
     }
   }, {
     $lookup: {
@@ -1119,10 +1111,11 @@ const getBillingData = async (req, res) => {
     },
   }, {
     $project: {
-      accountPost: 1,
+      _id: "$Passengers._id",
+      accountPost: "$Passengers.accountPost",
       bookingId: "$bookingData.providerBookingId",
-      paxName: 1,
-      ticketNo: 1,
+      ticketNo: "$Passengers.Optional.TicketNumber",
+      paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
       agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
       agentId: { $arrayElemAt: ['$userdata.userId', 0] },
       pnr: "$bookingData.PNR",
@@ -1152,18 +1145,18 @@ const getBillingData = async (req, res) => {
       },
     }
   }]);
-  bookingBill.forEach((element, index) => {
+  billingData.forEach((element, index) => {
     element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr
     element.id = index + 1;
   });
-  if (!bookingBill.length) {
+  if (!billingData.length) {
     return {
       response: "Data Not Found",
     };
   };
   return {
     response: "Fetch Data Successfully",
-    data: bookingBill,
+    data: billingData,
   };
 }
 
@@ -1178,8 +1171,8 @@ const updateBillPost = async (req, res) => {
   for (let item of accountPostArr) {
     bulkOps.push({
       updateOne: {
-        filter: { _id: item._id },
-        update: { $set: { accountPost: item.accountPost } }
+        filter: { 'Passengers._id': item._id },
+        update: { $set: { 'Passengers.$.accountPost': item.accountPost } }
       }
     });
   }

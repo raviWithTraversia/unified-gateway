@@ -12,7 +12,6 @@ const passengerPreferenceSchema = new mongoose.Schema({
     type: String,
     default: null
   },
-  accountPost: { type: String, default: "0" },
   bid: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "BookingDetails",
@@ -27,6 +26,7 @@ const passengerPreferenceSchema = new mongoose.Schema({
   PaxEmail: { type: String, default: null },
   PaxMobile: { type: String, default: null },
   Passengers: [{
+    accountPost: { type: String, default: "0" },
     PaxType: { type: String, default: null },
     passengarSerialNo: { type: Number, default: null },
     Title: { type: String, default: null },
@@ -101,7 +101,7 @@ const passengerPreferenceSchema = new mongoose.Schema({
     totalBaggagePrice: { type: Number, default: 0 },
     totalMealPrice: { type: Number, default: 0 },
     totalSeatPrice: { type: Number, default: 0 },
-  }],
+  }, { _id: true }],
   modifyBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

@@ -50,7 +50,7 @@ const payu = async (req, res) => {
     // const email = 'test@example.com';
     // const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
 
-    const key = MODE == "TEST " ? config.PAYMENT_CREDENTIALS_PAYU.TEST.key : config.PAYMENT_CREDENTIALS_PAYU.LIVE.key;
+    const key = MODE == "TEST" ? config.PAYMENT_CREDENTIALS_PAYU.TEST.key : config.PAYMENT_CREDENTIALS_PAYU.LIVE.key;
     const txnid = uuidv4();
     const amountres = amount;
     const productinfores = productinfo;
@@ -59,7 +59,7 @@ const payu = async (req, res) => {
     const phoneres = phone;
     const surl = "https://kafila.traversia.net/api/paymentGateway/success";
     const furl = "https://kafila.traversia.net/api/paymentGateway/failed";
-    const salt = MODE == "TEST " ? config.PAYMENT_CREDENTIALS_PAYU.TEST.salt : config.PAYMENT_CREDENTIALS_PAYU.LIVE.salt;
+    const salt = MODE == "TEST" ? config.PAYMENT_CREDENTIALS_PAYU.TEST.salt : config.PAYMENT_CREDENTIALS_PAYU.LIVE.salt;
     const cartIdres = cartId;
 
     // Concatenate the transaction details
@@ -331,17 +331,17 @@ const payuSuccess = async (req, res) => {
 
             const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: udf1 });
 
-                if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
-                    await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
-                      const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
-                      if (apiPassenger) {
-                        passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
-                        //passenger.Status = "CONFIRMED";
-                    }                      
-                    }));
+            if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
+              await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
+                const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
+                if (apiPassenger) {
+                  passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
+                  //passenger.Status = "CONFIRMED";
+                }
+              }));
 
-                    await getpassengersPrefrence.save();
-                }      
+              await getpassengersPrefrence.save();
+            }
 
 
             if (
@@ -356,7 +356,7 @@ const payuSuccess = async (req, res) => {
                 item?.totalSeatPrice;
 
 
-              
+
               // Transtion
               await transaction.updateOne(
                 { bookingId: item?.BookingId },
@@ -456,26 +456,26 @@ const payuSuccess = async (req, res) => {
     </html>`;
 
         if (results.length > 0) {
-          if(itemAmount !== 0){
-          const runnnigBalance =  newBalanceCredit - itemAmount;      
-          await agentConfig.updateOne(
-            { userId: getuserDetails._id },
-            { maxcreditLimit: runnnigBalance }
-          );
-          await ledger.create({
-            userId: getuserDetails._id,
-            companyId: getuserDetails.company_ID._id,
-            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-            transactionAmount:itemAmount,
-            currencyType: "INR",
-            fop: "DEBIT",
-            transactionType: "CREDIT",
-            runningAmount: runnnigBalance,
-            remarks: "Booking Amount Add Into Your Account.",
-            transactionBy: getuserDetails._id,
-            cartId: udf1,
-          });
-        }
+          if (itemAmount !== 0) {
+            const runnnigBalance = newBalanceCredit - itemAmount;
+            await agentConfig.updateOne(
+              { userId: getuserDetails._id },
+              { maxcreditLimit: runnnigBalance }
+            );
+            await ledger.create({
+              userId: getuserDetails._id,
+              companyId: getuserDetails.company_ID._id,
+              ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+              transactionAmount: itemAmount,
+              currencyType: "INR",
+              fop: "DEBIT",
+              transactionType: "CREDIT",
+              runningAmount: runnnigBalance,
+              remarks: "Booking Amount Add Into Your Account.",
+              transactionBy: getuserDetails._id,
+              cartId: udf1,
+            });
+          }
           return successHtmlCode;
         } else {
           return "Data does not exist";
@@ -493,7 +493,7 @@ const payuFail = async (req, res) => {
     const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
     if (!BookingTempData) {
-      return "Data does not exist"; 
+      return "Data does not exist";
     }
 
     const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
@@ -504,12 +504,12 @@ const payuFail = async (req, res) => {
     let getuserDetails;
     try {
       getuserDetails = await UserModel.findOne({ _id: Authentication.UserId }).populate("company_ID");
-      if (!getuserDetails) {       
-        return "User Not Found"; 
+      if (!getuserDetails) {
+        return "User Not Found";
       }
     } catch (error) {
-     // console.error('Error retrieving user details:', error);
-     return "Data does not exist"; 
+      // console.error('Error retrieving user details:', error);
+      return "Data does not exist";
     }
 
     try {
@@ -579,18 +579,18 @@ const payuFail = async (req, res) => {
           </div>
         </body>
         </html>
-      `;      
-        return failedHtmlCode;
-     
+      `;
+      return failedHtmlCode;
+
     } catch (error) {
       //console.error('Error updating booking details:', error);      
-        return "Data does not exist";     
+      return "Data does not exist";
     }
   } catch (error) {
-   // console.error('Error handling payuFail request:', error);
-   
+    // console.error('Error handling payuFail request:', error);
+
     return "Data does not exist";
-  
+
   }
 };
 
@@ -636,7 +636,7 @@ const payuFail = async (req, res) => {
 //           },
 //         }
 //       );
-     
+
 //       let failedHtmlCode = `<!DOCTYPE html>
 //     <html lang="en">
 //     <head>
@@ -657,7 +657,7 @@ const payuFail = async (req, res) => {
 //         height: 100vh;
 //         background-color: #f2f2f2;
 //       }
-      
+
 //       .failed-container {
 //         max-width: 400px;
 //         width: 100%;
@@ -668,11 +668,11 @@ const payuFail = async (req, res) => {
 //         text-align: center;
 //       }
 
-      
+
 //       .failed-container p {
 //         margin-top: 10px;
 //       }
-      
+
 //       .failed-container a {
 //         display: inline-block;
 //         margin-top: 20px;
@@ -682,7 +682,7 @@ const payuFail = async (req, res) => {
 //         text-decoration: none;
 //         border-radius: 5px;
 //       }
-      
+
 //       .failed-container a:hover {
 //         background-color: #0056b3;
 //       }

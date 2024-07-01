@@ -923,7 +923,7 @@ const KafilaFun = async (
                   responce: fSearchApiResponse?.data,
                 };
                 Logs(logData);
-                if (fSearchApiResponse?.data?.Status == "failed" || fSearchApiResponse?.data?.IsError == true) {
+                if (fSearchApiResponse.data.Status == "failed") {
                   await BookingDetails.updateOne({
                     bookingId: item?.BookingId,
                     "itinerary.IndexNumber": item.IndexNumber,
@@ -932,6 +932,58 @@ const KafilaFun = async (
                       bookingStatus: "FAILED", bookingRemarks: error.message,
                     },
                   });
+
+                  // Ledget Create After booking Failed
+                  const getAgentConfigForUpdate = await agentConfig.findOne({
+                    userId: getuserDetails._id,
+                  });
+                  // Check if maxCreditLimit exists, otherwise set it to 0
+                  const maxCreditLimitPrice =
+                    getAgentConfigForUpdate?.maxcreditLimit ?? 0;
+                  const newBalanceCredit =
+                    maxCreditLimitPrice +
+                    item?.offeredPrice +
+                    item?.totalMealPrice +
+                    item?.totalBaggagePrice +
+                    item?.totalSeatPrice;
+                  await agentConfig.updateOne(
+                    { userId: getuserDetails._id },
+                    { maxcreditLimit: newBalanceCredit }
+                  );
+                  await ledger.create({
+                    userId: getuserDetails._id,
+                    companyId: getuserDetails.company_ID._id,
+                    ledgerId:
+                      "LG" + Math.floor(100000 + Math.random() * 900000),
+                    transactionAmount:
+                      item?.offeredPrice +
+                      item?.totalMealPrice +
+                      item?.totalBaggagePrice +
+                      item?.totalSeatPrice,
+                    currencyType: "INR",
+                    fop: "CREDIT",
+                    transactionType: "DEBIT",
+                    runningAmount: newBalanceCredit,
+                    remarks: "Booking Amount Dedactive Into Your Account.",
+                    transactionBy: getuserDetails._id,
+                    cartId: item?.BookingId,
+                  });
+
+                  return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
+                }
+                if (fSearchApiResponse?.data?.IsError == true) {
+                  await BookingDetails.updateOne(
+                    {
+                      bookingId: item?.BookingId,
+                      "itinerary.IndexNumber": item.IndexNumber,
+                    },
+                    {
+                      $set: {
+                        bookingStatus: "FAILED",
+                        bookingRemarks: fSearchApiResponse.data.ErrorMessage,
+                      },
+                    }
+                  );
 
                   // Ledget Create After booking Failed
                   const getAgentConfigForUpdate = await agentConfig.findOne({
@@ -1009,7 +1061,7 @@ const KafilaFun = async (
                       PNR: fSearchApiResponse.data.BookingInfo.APnr,
                       APnr: fSearchApiResponse.data.BookingInfo.APnr,
                       GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
-                      SalePurchase: fSearchApiResponse.data.BookingInfo?.SalePurchase?.ATDetails?.Account,
+                      SalePurchase: fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails.Account,
                     },
                   }
                 );

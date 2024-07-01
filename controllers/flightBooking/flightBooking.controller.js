@@ -269,9 +269,9 @@ const getBookingByPaxDetails = async (req, res) => {
   }
 }
 
-const getBillingData = async (req, res) => {
+const getBookingBillByAuthKey = async (req, res) => {
   try {
-    const result = await getAllBookingServices.getBillingData(req);
+    const result = await getAllBookingServices.getBookingBillByAuthKey(req);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (result.response === "Data Not Found" || result.response === "Please provide required fields" || result.response === "Access Denied! Provide a valid Key!") {
@@ -302,9 +302,9 @@ const getBillingData = async (req, res) => {
   }
 };
 
-const updateBillPost = async (req, res) => {
+const updatePassengerAccountPost = async (req, res) => {
   try {
-    const result = await getAllBookingServices.updateBillPost(req);
+    const result = await getAllBookingServices.updatePassengerAccountPost(req);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (result.response === "Data Not Found" || result.response === "Please provide valid AccountPost") {
@@ -344,6 +344,6 @@ module.exports = {
   getDeparturesList,
   getSalesReport,
   getBookingByPaxDetails,
-  getBillingData,
-  updateBillPost
+  getBookingBillByAuthKey,
+  updatePassengerAccountPost
 };

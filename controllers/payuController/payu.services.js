@@ -10,7 +10,7 @@ const agentConfig = require("../../models/AgentConfig");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const BookingTemp = require("../../models/booking/BookingTemp");
-const config = require("../../configs/config");
+const { Config } = require("../../configs/config");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 
@@ -50,7 +50,7 @@ const payu = async (req, res) => {
     // const email = 'test@example.com';
     // const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
 
-    const key = MODE == "TEST" ? config.PAYMENT_CREDENTIALS_PAYU.TEST.key : config.PAYMENT_CREDENTIALS_PAYU.LIVE.key;
+    const key = Config.MODE == "TEST" ? Config.PAYMENT_CREDENTIALS_PAYU.TEST.key : Config.PAYMENT_CREDENTIALS_PAYU.LIVE.key;
     const txnid = uuidv4();
     const amountres = amount;
     const productinfores = productinfo;
@@ -59,15 +59,14 @@ const payu = async (req, res) => {
     const phoneres = phone;
     const surl = "https://kafila.traversia.net/api/paymentGateway/success";
     const furl = "https://kafila.traversia.net/api/paymentGateway/failed";
-    const salt = MODE == "TEST" ? config.PAYMENT_CREDENTIALS_PAYU.TEST.salt : config.PAYMENT_CREDENTIALS_PAYU.LIVE.salt;
+    const salt = Config.MODE == "TEST" ? Config.PAYMENT_CREDENTIALS_PAYU.TEST.salt : Config.PAYMENT_CREDENTIALS_PAYU.LIVE.salt;
     const cartIdres = cartId;
-
+     
     // Concatenate the transaction details
     const hashString = `${key}|${txnid}|${amountres}|${productinfores}|${firstnameres}|${emailres}|${cartIdres}||||||||||${salt}`;
 
     // Calculate the SHA-512 hash
-    const hash = crypto.createHash("sha512").update(hashString).digest("hex");
-
+    const hash = crypto.createHash("sha512").update(hashString).digest("hex");    
     payDetails = {
       key: key,
       txnid: txnid,
@@ -81,7 +80,11 @@ const payu = async (req, res) => {
       furl: furl,
       hash: hash,
       udf1: cartIdres,
-    }; // Add the hash to payment details
+    }; 
+    
+    
+    
+    // Add the hash to payment details
     // check companyId exist or not
     // const checkExistCompany = await Company.findById(companyId);
     // if(!checkExistCompany) {
@@ -134,6 +137,10 @@ const payu = async (req, res) => {
       };
     }
   } catch (error) {
+    // return {
+    //   response: "Data does not exist",
+    //   data: error,
+    // };
     throw error;
   }
 };
@@ -271,7 +278,7 @@ const payuSuccess = async (req, res) => {
               responce: fSearchApiResponse?.data,
             };
             Logs(logData);
-            if (fSearchApiResponse.data.Status == "failed" || fSearchApiResponse?.data?.IsError == true) {
+            if (fSearchApiResponse.data.Status == "failed") {
               await BookingDetails.updateOne(
                 {
                   bookingId: udf1,
@@ -324,7 +331,7 @@ const payuSuccess = async (req, res) => {
                   PNR: fSearchApiResponse.data.BookingInfo.APnr,
                   APnr: fSearchApiResponse.data.BookingInfo.APnr,
                   GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
-                  SalePurchase: fSearchApiResponse.data.BookingInfo?.SalePurchase?.ATDetails?.Account,
+                  SalePurchase: fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails.Account,
                 },
               }
             );

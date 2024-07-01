@@ -11,15 +11,51 @@ const searchForUserEmulate = async (req, res) => {
         const getUserId = await UserModule.findOne({_id : userId , roleId: { $exists: true, $ne: null }});
         
         const getRole = await RoleModel.findOne({_id : getUserId.roleId});
-       
+        const searchRegex = new RegExp(search, 'i');
+        const searchNumber =new RegExp(userId, 'i');
+        
+        const matchConditions = [];
+        
+        if (!isNaN(searchNumber)) {
+          matchConditions.push({"userData.userId": searchNumber });
+          console.log("shaa")
+        }
+        
+        matchConditions.push({ 'companyData.companyName': searchRegex });
+        
         //if(getRole.name == 'TMC' || getRole.name == 'Distributer' || getRole.name == 'Supplier') {
-            const getCompaniesDetails = await CompanyModel.find({
-                parent: getUserId.company_ID,
-                $or: [
-                    { companyName: new RegExp(search, 'i') }
-                ]
-            });
-            
+            const getCompaniesDetails = await UserModule.aggregate([
+                {
+                  $lookup: {
+                    from: 'companies',
+                    localField: 'company_ID',
+                    foreignField: '_id',
+                    as: 'companyData'
+                  }
+                },
+                { $unwind: { path: '$companyData', preserveNullAndEmptyArrays: true } },
+               
+                {
+                    $addFields: {
+                      userIdString: { $toString: '$userId' }
+                    }
+                  },
+                {
+                  $match: {
+                    'companyData.parent': getUserId.company_ID,
+                    $or:[{userIdString: new RegExp(search, 'i') },
+                        {'companyData.companyName':new RegExp(search, 'i')}
+                    ]
+                  }
+                },{
+                $group: {
+                    _id: "$companyData._id",
+                    companyName:{$first:"$companyData.companyName"},
+                  }
+                }
+
+              ]);
+            console.log(getCompaniesDetails)
             let companiesList = [];
             for (let i = 0; i < getCompaniesDetails.length; i++) {
                 const companyDetails = getCompaniesDetails[i];
@@ -32,14 +68,28 @@ const searchForUserEmulate = async (req, res) => {
                                 
             }
             
-            const getUserDetails = await UserModule.find({
-                company_ID: getUserId.company_ID,
-                userStatus:"Active",
-                $or: [
-                    { fname: new RegExp(search, 'i') },
-                    { lastName: new RegExp(search, 'i') }                    
-                ]
-            });
+            const getUserDetails = await UserModule.aggregate([
+                {
+                  $match: {
+                    company_ID: getUserId.company_ID,
+                    userStatus: "Active"
+                  }
+                },
+                {
+                  $addFields: {
+                    userIdString: { $toString: "$userId" }
+                  }
+                },
+                {
+                  $match: {
+                    $or: [
+                      { fname: new RegExp(search, 'i') },
+                      { lastName: new RegExp(search, 'i') },
+                      { userIdString: new RegExp(search, 'i') }
+                    ]
+                  }
+                }
+              ]);
              
             for (let i = 0; i < getUserDetails.length; i++) {
                 const userDetails = getUserDetails[i];
@@ -80,6 +130,7 @@ const searchForUserEmulate = async (req, res) => {
         //}
 
     } catch (error) {
+        console.log(error)
         throw error;
     }
 };

@@ -71,11 +71,7 @@ const getBookingLogs = async (req, res) => {
             response: "CompanyId does not exist",
         };
     }
-    let filter = { companyId, traceId, type };
-    if (BookingId) {
-        filter.BookingId = BookingId;
-    }
-    const getPortalBookingLogs = await PortalLog.find(filter);
+    const getPortalBookingLogs = await PortalLog.find({ companyId, traceId, BookingId, type });
     if (!getPortalBookingLogs.length) {
         return {
             response: "Data Not Found",

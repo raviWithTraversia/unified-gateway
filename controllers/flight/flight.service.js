@@ -11,7 +11,6 @@ const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
-const logMessage = require('./logger');
 const moment = require("moment");
 
 const getSearch = async (req, res) => {
@@ -73,8 +72,8 @@ const getSearch = async (req, res) => {
     };
   }
   // Also CHeck Role Of TMC by Company Id( PENDING )
-  // Logs Pending   
-   logMessage(`[${new Date().toISOString()}] - Start Search`);
+  // Logs Pending
+   console.log(`[${new Date().toISOString()}] - Start Search`);
   // Check Travel Type ( International / Domestic )
   let result;
   if (TravelType !== "International" && TravelType !== "Domestic") {
@@ -256,18 +255,17 @@ async function handleflight(
       commonArray.push(...seriesArray.response);
     }
   }
- 
-  logMessage(`[${new Date().toISOString()}] - Commertial Apply Start`);
+  
+  console.log(`[${new Date().toISOString()}] - Commertial Apply Start`);
   //apply commercial function
   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
     Authentication,
     TravelType,
+
     commonArray
   );
-  
-  logMessage(`[${new Date().toISOString()}] - Commertioal end`);
-  logMessage(`[${new Date().toISOString()}] - Responce`);
-  
+  console.log(`[${new Date().toISOString()}] - Commertioal end`);
+  console.log(`[${new Date().toISOString()}] - Responce`);
   return {
     IsSucess: true,
     response: getApplyAllCommercialVar.IsSucess ? getApplyAllCommercialVar.response.sort(
@@ -329,8 +327,8 @@ const KafilaFun = async (
       IsSucess: false,
       response: "Type of trip does not exist",
     };
-  }  
-  logMessage(`[${new Date().toISOString()}] - Before APi Hit`);
+  }
+  console.log(`[${new Date().toISOString()}] - Before APi Hit`);
   // add api with here oneway round multicity
   let credentialType = "D";
   if (Authentication.CredentialType === "LIVE") {
@@ -489,11 +487,11 @@ const KafilaFun = async (
           fSearchApiResponse.data.WarningMessage,
       };
     }
-    logMessage(`[${new Date().toISOString()}] - APi responce`);    
+    console.log(`[${new Date().toISOString()}] -  APi responce`);
     //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
     let apiResponse = fSearchApiResponse.data;
-    let apiResponseCommon = [];    
-    logMessage(`[${new Date().toISOString()}] - Comman responce start`);  
+    let apiResponseCommon = [];
+    console.log(`[${new Date().toISOString()}] - Comman responce start`);
     for (let index = 0; index < apiResponse.Schedules[0].length; index++) {
       let schedule = apiResponse.Schedules[0][index];
       let randomUID = uuid.v4();
@@ -719,8 +717,7 @@ const KafilaFun = async (
         OI: schedule.OI ?? null
       });
     }
-    
-    logMessage(`[${new Date().toISOString()}] - Comman responce end`);  
+    console.log(`[${new Date().toISOString()}] - Common Responce end`);
     return {
       IsSucess: true,
       response: apiResponseCommon,

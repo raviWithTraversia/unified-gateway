@@ -1035,7 +1035,6 @@ const getBookingByPaxDetails = async (req, res) => {
       }
     },
     { $unwind: "$bookingDetails" },
-   
     {
       $lookup: {
         from: "users",
@@ -1074,7 +1073,7 @@ const getBookingByPaxDetails = async (req, res) => {
       }
     }
   ]);
-  
+
   getPassenger.forEach(items => {
     if (items?.passengerPreference && Array.isArray(items.passengerPreference)) {
       items.passengerPreference.forEach(item => {
@@ -1082,24 +1081,24 @@ const getBookingByPaxDetails = async (req, res) => {
       });
     }
   });
-  
+
   if (!getPassenger.length) {
     return {
       response: "Data Not Found"
     };
   }
-  
+
   return {
     response: "Fetch Data Successfully",
     data: {
       bookingList: getPassenger.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime))
     }
   };
-  
+
 }
 
-const getBookingBillByAuthKey = async (req, res) => {
-  const { key, fromDate, toDate } = req.body;
+const getBillingData = async (req, res) => {
+  const { key, fromDate, toDate } = req.query;
   if (!fromDate || !toDate || !key) {
     return {
       response: "Please provide required fields"
@@ -1172,7 +1171,7 @@ const getBookingBillByAuthKey = async (req, res) => {
       travelDateInbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
       issueDate: "$bookingData.bookingDateTime",
       airlineTax: "$bookingData.itinerary.Taxes",
-      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "$bookingData.accountPost", purchaseCode: "0",
+      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", purchaseCode: "0",
       flightCode: "$bookingData.Supplier",
       airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
       bookingId1: {
@@ -1196,7 +1195,7 @@ const getBookingBillByAuthKey = async (req, res) => {
   };
 }
 
-const updatePassengerAccountPost = async (req, res) => {
+const updateBillPost = async (req, res) => {
   const { accountPostArr } = req.body;
   if (!accountPostArr.length) {
     return {
@@ -1232,6 +1231,6 @@ module.exports = {
   getDeparturesList,
   getSalesReport,
   getBookingByPaxDetails,
-  getBookingBillByAuthKey,
-  updatePassengerAccountPost
+  getBillingData,
+  updateBillPost
 };

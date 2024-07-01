@@ -34,16 +34,10 @@ const searchForUserEmulate = async (req, res) => {
                   }
                 },
                 { $unwind: { path: '$companyData', preserveNullAndEmptyArrays: true } },
-                {$lookup:{
-                    from:"users",
-                    localField:"_id",
-                    foreignField:"_id",
-                    as:"userData"
-                }},
-                { $unwind: { path: '$userData', preserveNullAndEmptyArrays: true } },
+               
                 {
                     $addFields: {
-                      userIdString: { $toString: '$userData.userId' }
+                      userIdString: { $toString: '$userId' }
                     }
                   },
                 {
@@ -57,7 +51,6 @@ const searchForUserEmulate = async (req, res) => {
                 $group: {
                     _id: "$companyData._id",
                     companyName:{$first:"$companyData.companyName"},
-                    userData:{$first:"$userData"}
                   }
                 }
 
@@ -75,14 +68,28 @@ const searchForUserEmulate = async (req, res) => {
                                 
             }
             
-            const getUserDetails = await UserModule.find({
-                company_ID: getUserId.company_ID,
-                userStatus:"Active",
-                $or: [
-                    { fname: new RegExp(search, 'i') },
-                    { lastName: new RegExp(search, 'i') }                    
-                ]
-            });
+            const getUserDetails = await UserModule.aggregate([
+                {
+                  $match: {
+                    company_ID: getUserId.company_ID,
+                    userStatus: "Active"
+                  }
+                },
+                {
+                  $addFields: {
+                    userIdString: { $toString: "$userId" }
+                  }
+                },
+                {
+                  $match: {
+                    $or: [
+                      { fname: new RegExp(search, 'i') },
+                      { lastName: new RegExp(search, 'i') },
+                      { userIdString: new RegExp(search, 'i') }
+                    ]
+                  }
+                }
+              ]);
              
             for (let i = 0; i < getUserDetails.length; i++) {
                 const userDetails = getUserDetails[i];

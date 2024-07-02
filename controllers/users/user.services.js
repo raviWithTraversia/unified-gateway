@@ -109,7 +109,8 @@ const loginUser = async (req, res) => {
       userType: user?.roleId?.name || null,
       token: token,
       lastLogin: user?.last_LoginDate || new Date(),
-      userId: user?.userId || ""
+      userId: user?.userId || "",
+      encryptUserId: user?.encryptUserId || {}
     };
     if (user.roleId) {
       let userRoleName = await Role.findOne({})
@@ -457,9 +458,9 @@ const forgotPassword = async (req, res) => {
       };
     }
 
-    
+
     const comapnyIds = !companyId ? user?.company_ID : companyId;
-    
+
     let mailConfig = await Smtp.findOne({ companyId: comapnyIds });
     if (!mailConfig) {
       let parentCompanyId = await Company.findById({ _id: comapnyIds });
@@ -693,16 +694,16 @@ const addUser = async (req, res) => {
 const editUser = async (req, res) => {
   try {
     const userId = req.query.id;
-    const updateData = req.body; 
-  const findUserData=await User.findById(userId)
+    const updateData = req.body;
+    const findUserData = await User.findById(userId)
 
-if(updateData.password !== findUserData.password){
-  const spassword = await commonFunction.securePassword(updateData?.password);
-   updateData.password=spassword
-}else{
+    if (updateData.password !== findUserData.password) {
+      const spassword = await commonFunction.securePassword(updateData?.password);
+      updateData.password = spassword
+    } else {
 
-  updateData.password=findUserData.password
-}
+      updateData.password = findUserData.password
+    }
     const updatedUserData = await User.findByIdAndUpdate(
       userId,
       { $set: updateData },

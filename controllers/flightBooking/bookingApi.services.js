@@ -1216,8 +1216,12 @@ const updateBillPost = async (req, res) => {
       response: "Data Not Found"
     }
   }
-  await passengerPreferenceSchema.bulkWrite(bulkOps);
-
+  let updatedData = await passengerPreferenceSchema.bulkWrite(bulkOps);
+  if (updatedData.modifiedCount < 1) {
+    return {
+      response: "Error in Updating AccountPost",
+    }
+  }
   return {
     response: "AccountPost Updated Successfully",
   }

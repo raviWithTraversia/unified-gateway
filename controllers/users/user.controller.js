@@ -6,6 +6,8 @@ const {
   ADMIN_USER_TYPE,
   CrudMessage,
 } = require("../../utils/constants");
+const User = require("../../models/User");
+const crypto = require('crypto');
 
 const registerUser = async (req, res) => {
   try {
@@ -473,6 +475,53 @@ const agencyChangePassword = async (req, res) => {
   }
 };
 
+// const addMissingEncryptedUserId = async (req, res) => {
+//   const getAllUser = await User.find({ encryptUserId: { $exists: false } });
+//   if (!getAllUser.length) {
+//     return res.send({
+//       message: "No user found without encryptUserId!"
+//     })
+//   }
+//   //-=-=---=-=-=-=-=-=-=-=-=-=- EncryptId -=-=-=-=-=-=-=-=-=-=-=-=-=--=-==-==-
+//   const bulkOps = [];
+//   for (const item of getAllUser) {
+//     console.log("item.UserId: ", item.userId, item.encryptUserId)
+//     const algorithm = 'aes-256-cbc';
+//     const key = crypto.randomBytes(32);
+//     const iv = crypto.randomBytes(16);
+
+//     const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+//     let encrypted = cipher.update(item.userId.toString());
+//     encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+//     // Convert to base64 and truncate/pad to desired length
+//     let encryptedText = encrypted.toString('base64').substring(0, 5);
+//     let encryptUserId = { encryptedText, key: key.toString('hex'), iv: iv.toString('hex') };
+//     console.log("encryptUserId: ", encryptUserId);
+//     bulkOps.push({
+//       updateOne: {
+//         filter: { encryptUserId: { $exists: false } },
+//         update: { $set: { encryptUserId } }
+//       }
+//     });
+//   }
+//   if (!bulkOps.length) {
+//     return res.send({
+//       message: "No data found for update"
+//     })
+//   }
+//   let updatedData = await User.bulkWrite(bulkOps);
+//   //-=-=-=-=-=-=-=-=-=-==-=-=- Encrypt End -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//   if (updatedData.modifiedCount < 1) {
+//     return res.send({
+//       message: "Error in Updating EncryptedUserId",
+//     })
+//   }
+//   return res.send({
+//     message: "EncryptedUserId added Successfully",
+//   })
+// }
+
 module.exports = {
   registerUser,
   loginUser,
@@ -489,4 +538,5 @@ module.exports = {
   getCompanyProfle,
   updateCompayProfile,
   agencyChangePassword
+  // addMissingEncryptedUserId
 };

@@ -307,7 +307,7 @@ const updateBillPost = async (req, res) => {
     const result = await getAllBookingServices.updateBillPost(req);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Data Not Found" || result.response === "Please provide valid AccountPost") {
+    } else if (result.response === "Data Not Found" || result.response === "Please provide valid AccountPost" || result.response === "Error in Updating AccountPost") {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "AccountPost Updated Successfully") {
       apiSucessRes(

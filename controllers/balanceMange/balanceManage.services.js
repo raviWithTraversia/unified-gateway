@@ -108,13 +108,13 @@ const manualDebitCredit = async (req, res) => {
           response: 'User not found'
         }
       }
-
-      if (product === "Rail") {
-        configData.maxRailCredit += amount;
+      let DIdata = await recieveDI(configData, findUser, product, amount, loginUser._id);
+      if (updateResponse.product === "Rail") {
+        configData.maxRailCredit += (updateResponse.amount + DIdata);
         runningAmount = configData.maxRailCredit
       }
-      if (product === "Flight") {
-        configData.maxcreditLimit += amount;
+      if (updateResponse.product === "Flight") {
+        configData.maxcreditLimit += (updateResponse.amount + DIdata);
         runningAmount = configData.maxcreditLimit
       }
       await configData.save();
@@ -131,8 +131,7 @@ const manualDebitCredit = async (req, res) => {
         remarks,
         transactionBy: loginUser._id,
         product
-      });
-      await recieveDI(configData, findUser, product,amount, loginUser._id)
+      })
 
       const LogsData = {
         eventName: "creditRequest",

@@ -531,7 +531,7 @@ const sendNotificationByEmail = (mailConfig, DATA) => {
 const recieveDI = async (configData, findUser, product, amount, transactionBy) => {
   configData.diSetupIds.diSetupIds = await configData.diSetupIds.diSetupIds.filter(diSetup =>
     diSetup.status === true &&
-    diSetup.companyId.toString() === findUser.company_ID.toString() &&
+    // diSetup.companyId.toString() === findUser.company_ID.toString() &&
     new Date() >= new Date(diSetup.validFromDate) &&
     new Date() <= new Date(diSetup.validToDate)
   );
@@ -592,6 +592,7 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
       product
     });
   }
+  return bonusAmount;
 }
 
 module.exports = {

@@ -220,13 +220,14 @@ const approveAndRejectDeposit = async (req, res) => {
           response: 'User not found'
         }
       }
+      let DIdata = await recieveDI(configData, findUser, updateResponse?.product, updateResponse?.amount, loginUser._id)
       let runningAmount = 0;
       if (updateResponse.product === "Rail") {
-        configData.maxRailCredit += updateResponse.amount;
+        configData.maxRailCredit += (updateResponse.amount + DIdata);
         runningAmount = configData.maxRailCredit
       }
       if (updateResponse.product === "Flight") {
-        configData.maxcreditLimit += updateResponse.amount
+        configData.maxcreditLimit += (updateResponse.amount + DIdata);
         runningAmount = configData.maxcreditLimit
       }
       await configData.save();
@@ -245,7 +246,6 @@ const approveAndRejectDeposit = async (req, res) => {
         product: updateResponse.product
       });
 
-      await recieveDI(configData, findUser, updateResponse?.product, updateResponse?.amount, loginUser._id)
       const LogsData = {
         eventName: "creditRequest",
         doerId: loginUser._id,

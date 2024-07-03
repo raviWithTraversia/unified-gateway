@@ -553,6 +553,7 @@ const KafilaFun = async (
     //   apiReq: requestDataFSearch
     // };
    // console.log(requestDataFSearch, "API Responce")
+   
    //console.log(requestDataFSearch, "Request")
       let fSearchApiResponse = await axios.post(
         flightSearchUrl,
@@ -563,6 +564,7 @@ const KafilaFun = async (
           },
         }
       );
+      
       //logger.info(fSearchApiResponse.data);
       const logData = {
         traceId: Authentication.TraceId,
@@ -576,7 +578,7 @@ const KafilaFun = async (
         responce: fSearchApiResponse?.data
       };  
       Logs(logData);
-    //  console.log(fSearchApiResponse.data, "API Responce")
+      
       if (fSearchApiResponse.data.Status == "failed") {
         return {
           IsSucess: false,

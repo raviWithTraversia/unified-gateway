@@ -1,5 +1,5 @@
 const diSetupGroupModels = require("../../models/DiSetupGroup");
-const diSetupModel = require('../../models/DiSetup');
+const {diSetupModel} = require('../../models/DiSetup');
 const agencyGroup = require("../../models/AgencyGroup");
 
 const addDiSetupGroup = async (req, res) => {

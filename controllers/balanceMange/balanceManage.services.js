@@ -3,7 +3,7 @@ const agentConfig = require("../../models/AgentConfig");
 const creditRequest = require("../../models/CreditRequest");
 const EventLogs = require('../logs/EventApiLogsCommon');
 const ledger = require("../../models/Ledger");
-const AgentDiRecieve = require("../../models/AgentDiRecieve");
+const { recieveDI } = require("../commonFunctions/common.function");
 
 const getBalance = async (req, res) => {
   const { userId } = req.body;
@@ -108,51 +108,7 @@ const manualDebitCredit = async (req, res) => {
           response: 'User not found'
         }
       }
-      configData.diSetupIds.diSetupIds = await configData.diSetupIds.diSetupIds.filter(diSetup =>
-        diSetup.status === true &&
-        diSetup.companyId.toString() === findUser.company_ID.toString() &&
-        new Date() >= new Date(diSetup.validFromDate) &&
-        new Date() <= new Date(diSetup.validToDate)
-      );
-      let slabOptions = configData?.diSetupIds?.diSetupIds;
-      let bonusAmount = 0; let isMultipleSlab = false;
-      let slabBreakups = [];
-      if (slabOptions[slabOptions.length - 1]?.minAmount < amount) {
-        bonusAmount = (parseInt(slabOptions[slabOptions.length - 1]?.diPersentage) / 100) * amount;
-        slabBreakups.push(slabOptions[slabOptions.length - 1]);
-      } else {
-        for (let i = 0; i < slabOptions.length; i++) {
-          if (!isMultipleSlab) {
-            if (slabOptions[i].minAmount == amount) {
-              bonusAmount = (parseInt(slabOptions[i].diPersentage) / 100) * amount;
-              slabBreakups.push(slabOptions[i]);
-              break;
-            }
-          }
-          if (slabOptions[i].minAmount > amount) {
-            isMultipleSlab = true;
-            let mainAmountBonus = ((parseInt(slabOptions[i - 1]?.diPersentage) || 0) / 100) * (parseInt(slabOptions[i - 1]?.minAmount || 0));
-            let restAmount = amount - slabOptions[i - 1]?.minAmount || 0
-            let restAmountBonus = ((parseInt(slabOptions[i]?.diPersentage) || 0) / 100) * restAmount;
-            bonusAmount = mainAmountBonus + restAmountBonus;
-            if (bonusAmount > 0) {
-              if (!slabOptions[i - 1]) {
-                slabBreakups.push(slabOptions[i])
-              } else {
-                slabBreakups.push(slabOptions[i - 1], slabOptions[i])
-              }
-            }
-            break;
-          }
-        }
-      }
-      const ADRdata = new AgentDiRecieve({
-        userId: findUser._id,
-        companyId: findUser.company_ID,
-        amountDeposit: amount,
-        diAmount: bonusAmount,
-        slabBreakups: slabBreakups
-      });
+
       if (product === "Rail") {
         configData.maxRailCredit += amount;
         runningAmount = configData.maxRailCredit
@@ -176,23 +132,7 @@ const manualDebitCredit = async (req, res) => {
         transactionBy: loginUser._id,
         product
       });
-      if (slabBreakups.length) {
-        await ADRdata.save();
-        const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-        await ledger.create({
-          userId: findUser._id,
-          companyId: findUser.company_ID,
-          ledgerId: ledgerIds,
-          transactionAmount: bonusAmount,
-          currencyType: "INR",
-          fop: "Credit",
-          transactionType: "Credit",
-          // runningAmount,
-          remarks: `Incentive Credited for amount ${amount}`,
-          transactionBy: loginUser._id,
-          product
-        });
-      }
+      await recieveDI(configData, findUser, product,amount, loginUser._id)
 
       const LogsData = {
         eventName: "creditRequest",

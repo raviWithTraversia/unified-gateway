@@ -7,6 +7,8 @@ const EventLog = require("../../models/Logs/EventLogs");
 const PortalLog = require("../../models/Logs/PortalApiLogs");
 const fs = require('fs');
 const smsConfigCred = require('../../models/ConfigCredential');
+const ledger = require("../../models/Ledger");
+const AgentDiRecieve = require("../../models/AgentDiRecieve");
 
 const createToken = async (id) => {
   try {
@@ -362,13 +364,11 @@ const generateRandomPassword = (length) => {
   return password;
 };
 
-
-
 const sendNotificationByEmail = (mailConfig, DATA) => {
 
   const data1 = DATA
-  
-  const html =  data1.options.map((data)=>
+
+  const html = data1.options.map((data) =>
 
     `<br/><br/>
 
@@ -528,7 +528,71 @@ const sendNotificationByEmail = (mailConfig, DATA) => {
 
 }
 
+const recieveDI = async (configData, findUser, product, amount, transactionBy) => {
+  configData.diSetupIds.diSetupIds = await configData.diSetupIds.diSetupIds.filter(diSetup =>
+    diSetup.status === true &&
+    diSetup.companyId.toString() === findUser.company_ID.toString() &&
+    new Date() >= new Date(diSetup.validFromDate) &&
+    new Date() <= new Date(diSetup.validToDate)
+  );
+  let slabOptions = configData?.diSetupIds?.diSetupIds;
+  let bonusAmount = 0; let isMultipleSlab = false;
+  let slabBreakups = [];
+  if (slabOptions[slabOptions.length - 1]?.minAmount < amount) {
+    bonusAmount = (parseInt(slabOptions[slabOptions.length - 1]?.diPersentage) / 100) * amount;
+    slabBreakups.push(slabOptions[slabOptions.length - 1]);
+  } else {
+    for (let i = 0; i < slabOptions.length; i++) {
+      if (!isMultipleSlab) {
+        if (slabOptions[i].minAmount == amount) {
+          bonusAmount = (parseInt(slabOptions[i].diPersentage) / 100) * amount;
+          slabBreakups.push(slabOptions[i]);
+          break;
+        }
+      }
+      if (slabOptions[i].minAmount > amount) {
+        isMultipleSlab = true;
+        let mainAmountBonus = ((parseInt(slabOptions[i - 1]?.diPersentage) || 0) / 100) * (parseInt(slabOptions[i - 1]?.minAmount || 0));
+        let restAmount = amount - slabOptions[i - 1]?.minAmount || 0
+        let restAmountBonus = ((parseInt(slabOptions[i]?.diPersentage) || 0) / 100) * restAmount;
+        bonusAmount = mainAmountBonus + restAmountBonus;
+        if (bonusAmount > 0) {
+          if (!slabOptions[i - 1]) {
+            slabBreakups.push(slabOptions[i])
+          } else {
+            slabBreakups.push(slabOptions[i - 1], slabOptions[i])
+          }
+        }
+        break;
+      }
+    }
+  }
+  const ADRdata = new AgentDiRecieve({
+    userId: findUser._id,
+    companyId: findUser.company_ID,
+    amountDeposit: amount,
+    diAmount: bonusAmount,
+    slabBreakups: slabBreakups
+  });
 
+  if (slabBreakups.length) {
+    await ADRdata.save();
+    const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+    await ledger.create({
+      userId: findUser._id,
+      companyId: findUser.company_ID,
+      ledgerId: ledgerIds,
+      transactionAmount: bonusAmount,
+      currencyType: "INR",
+      fop: "Credit",
+      transactionType: "Credit",
+      // runningAmount,
+      remarks: `Incentive Credited for amount ${amount}`,
+      transactionBy,
+      product
+    });
+  }
+}
 
 module.exports = {
   createToken,
@@ -550,5 +614,6 @@ module.exports = {
   sendSMS,
   sendPasswordResetEmailLink,
   generateRandomPassword,
-  sendNotificationByEmail
+  sendNotificationByEmail,
+  recieveDI
 };

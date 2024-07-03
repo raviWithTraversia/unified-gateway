@@ -103,17 +103,22 @@ const manualDebitCredit = async (req, res) => {
           model: 'diSetup'
         }
       });
-      let slabOptions = configData?.diSetupIds?.diSetupIds;
-      if (!configData || !slabOptions.length) {
+      if (!configData) {
         return {
           response: 'User not found'
         }
       }
-
+      configData.diSetupIds.diSetupIds = await configData.diSetupIds.diSetupIds.filter(diSetup =>
+        diSetup.status === true &&
+        diSetup.companyId.toString() === findUser.company_ID.toString() &&
+        new Date() >= new Date(diSetup.validFromDate) &&
+        new Date() <= new Date(diSetup.validToDate)
+      );
+      let slabOptions = configData?.diSetupIds?.diSetupIds;
       let bonusAmount = 0; let isMultipleSlab = false;
       let slabBreakups = [];
-      if (slabOptions[slabOptions.length - 1].minAmount < amount) {
-        bonusAmount = (parseInt(slabOptions[slabOptions.length - 1].diPersentage) / 100) * amount;
+      if (slabOptions[slabOptions.length - 1]?.minAmount < amount) {
+        bonusAmount = (parseInt(slabOptions[slabOptions.length - 1]?.diPersentage) / 100) * amount;
         slabBreakups.push(slabOptions[slabOptions.length - 1]);
       } else {
         for (let i = 0; i < slabOptions.length; i++) {
@@ -148,7 +153,6 @@ const manualDebitCredit = async (req, res) => {
         diAmount: bonusAmount,
         slabBreakups: slabBreakups
       });
-      await ADRdata.save();
       if (product === "Rail") {
         configData.maxRailCredit += amount;
         runningAmount = configData.maxRailCredit
@@ -172,6 +176,24 @@ const manualDebitCredit = async (req, res) => {
         transactionBy: loginUser._id,
         product
       });
+      if (slabBreakups.length) {
+        await ADRdata.save();
+        const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+        await ledger.create({
+          userId: findUser._id,
+          companyId: findUser.company_ID,
+          ledgerId: ledgerIds,
+          transactionAmount: bonusAmount,
+          currencyType: "INR",
+          fop: "Credit",
+          transactionType: "Credit",
+          // runningAmount,
+          remarks: `Incentive Credited for amount ${amount}`,
+          transactionBy: loginUser._id,
+          product
+        });
+      }
+
       const LogsData = {
         eventName: "creditRequest",
         doerId: loginUser._id,

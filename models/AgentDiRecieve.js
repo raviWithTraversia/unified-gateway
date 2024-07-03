@@ -18,7 +18,52 @@ const AgentDiRecieveSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  slabBreakups: [diSetupSchema]
+  slabBreakups: [{
+    diType: {
+      type: String,
+    },
+    minAmount: {
+      type: String,
+    },
+    maxAmount: {
+      type: String,
+    },
+    diPersentage: {
+      type: String,
+    },
+    diOfferType: {
+      type: String,
+    },
+    companyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
+    validFromDate: {
+      type: Date,
+    },
+    validToDate: {
+      type: Date,
+    },
+    gst: {
+      type: Boolean,
+    },
+    tds: {
+      type: Boolean,
+    },
+    status: {
+      type: Boolean,
+      default: true,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    modifiedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('AgentDiRecieve', AgentDiRecieveSchema);

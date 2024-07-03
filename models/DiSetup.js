@@ -49,4 +49,4 @@ const diSetupSchema = new mongoose.Schema(
   }, { timestamps: true });
 
 const diSetup = mongoose.model("diSetup", diSetupSchema);
-module.exports = { diSetup, diSetupSchema };
+module.exports = diSetup;

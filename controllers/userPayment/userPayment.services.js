@@ -1,7 +1,7 @@
-const { diModel } = require('../../models/DiSetup');
+const diModel = require('../../models/DiSetup');
 const depositePayment = require('../../models/DepositePayment');
 const userBalanceModel = require('../../models/UserCashBalance');
-const { diSetupModel } = require('../../models/DiSetup')
+const diSetupModel = require('../../models/DiSetup')
 const userModel = require('../../models/User');
 const companyModel = require('../../models/Company');
 const { HOST_ROLE, Status } = require('../../utils/constants');

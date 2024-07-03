@@ -1,4 +1,4 @@
-const { diSetup } = require('../../models/DiSetup');
+const diSetup = require('../../models/DiSetup');
 const user = require('../../models/User')
 const EventLogs = require('../logs/EventApiLogsCommon')
 const addDiSetup = async (req, res) => {

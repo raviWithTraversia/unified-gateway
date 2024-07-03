@@ -3,6 +3,7 @@ const agentConfig = require("../../models/AgentConfig");
 const creditRequest = require("../../models/CreditRequest");
 const EventLogs = require('../logs/EventApiLogsCommon');
 const ledger = require("../../models/Ledger");
+const AgentDiRecieve = require("../../models/AgentDiRecieve");
 
 const getBalance = async (req, res) => {
   const { userId } = req.body;
@@ -95,12 +96,59 @@ const manualDebitCredit = async (req, res) => {
     const loginUser = await User.findById(doerId);
     if (amountStatus == "credit") {
       const findUser = await User.findById(userId);
-      const configData = await agentConfig.findOne({ userId });
-      if (!configData) {
+      const configData = await agentConfig.findOne({ userId }).populate('diSetupIds').populate({
+        path: 'diSetupIds',
+        populate: {
+          path: 'diSetupIds', // If diSetupIds contains another reference
+          model: 'diSetup'
+        }
+      });
+      let slabOptions = configData?.diSetupIds?.diSetupIds;
+      if (!configData || !slabOptions.length) {
         return {
           response: 'User not found'
         }
       }
+
+      let bonusAmount = 0; let isMultipleSlab = false;
+      let slabBreakups = [];
+      if (slabOptions[slabOptions.length - 1].minAmount < amount) {
+        bonusAmount = (parseInt(slabOptions[slabOptions.length - 1].diPersentage) / 100) * amount;
+        slabBreakups.push(slabOptions[slabOptions.length - 1]);
+      } else {
+        for (let i = 0; i < slabOptions.length; i++) {
+          if (!isMultipleSlab) {
+            if (slabOptions[i].minAmount == amount) {
+              bonusAmount = (parseInt(slabOptions[i].diPersentage) / 100) * amount;
+              slabBreakups.push(slabOptions[i]);
+              break;
+            }
+          }
+          if (slabOptions[i].minAmount > amount) {
+            isMultipleSlab = true;
+            let mainAmountBonus = ((parseInt(slabOptions[i - 1]?.diPersentage) || 0) / 100) * (parseInt(slabOptions[i - 1]?.minAmount || 0));
+            let restAmount = amount - slabOptions[i - 1]?.minAmount || 0
+            let restAmountBonus = ((parseInt(slabOptions[i]?.diPersentage) || 0) / 100) * restAmount;
+            bonusAmount = mainAmountBonus + restAmountBonus;
+            if (bonusAmount > 0) {
+              if (!slabOptions[i - 1]) {
+                slabBreakups.push(slabOptions[i])
+              } else {
+                slabBreakups.push(slabOptions[i - 1], slabOptions[i])
+              }
+            }
+            break;
+          }
+        }
+      }
+      const ADRdata = new AgentDiRecieve({
+        userId: findUser._id,
+        companyId: findUser.company_ID,
+        amountDeposit: amount,
+        diAmount: bonusAmount,
+        slabBreakups: slabBreakups
+      });
+      await ADRdata.save();
       if (product === "Rail") {
         configData.maxRailCredit += amount;
         runningAmount = configData.maxRailCredit

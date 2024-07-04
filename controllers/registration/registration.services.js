@@ -344,9 +344,39 @@ const updateRegistration = async (req, res) => {
   }
 };
 
+const DeleteRegistraiton = async (req, res) => {
+  try {
+    const _id = req.params.id;
+    if (!_id) {
+      return {
+        response: null,
+        message: "Id not true",
+      };
+    };
+
+      let aggregationRes = await registration.findByIdAndDelete(_id)
+          if (!aggregationRes) {
+        return {
+          response: null,
+          message: "Registration Data not found by this _id",
+        };
+      } else {
+        return {
+          response: "Registration Delete sucessfully",
+          data: aggregationRes,
+        };
+      }
+   
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
 module.exports = {
   addRegistration,
   getAllRegistration,
   getAllRegistrationByCompany,
   updateRegistration,
+  DeleteRegistraiton
 };

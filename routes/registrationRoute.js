@@ -190,6 +190,7 @@ registation_route.get(
   registrationController.updateRegistration
  )
 
+ registation_route.delete('/registration/deletebyid/:id',registrationController.DeleteRegistraiton)
 
 registation_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

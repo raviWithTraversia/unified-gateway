@@ -22,6 +22,7 @@ const { Config } = require("../../configs/config");
 const agencyGroupServices = require("../../controllers/agencyGroup/agencyGroup.services");
 const { status } = require("../../utils/commonResponce");
 const bcrypt = require('bcryptjs');
+const mongoose=require('mongoose')
 
 const registerUser = async (req, res) => {
   try {
@@ -768,17 +769,132 @@ const getAllAgencyAndDistributer = async (req, res) => {
       }
     }
 
-    const ids = agency.map(item => item._id.toString());
-    const users = await User.find({ company_ID: { $in: ids } }).populate('roleId').populate('cityId').populate({
-      path: 'company_ID',
-      model: 'Company',
-      select: 'companyName type cashBalance companyStatus creditBalance maxCreditLimit updatedAt',
-      populate: {
-        path: 'parent',
-        model: 'Company',
-        select: 'companyName type'
+    const ids = agency.map(item =>new mongoose.Types.ObjectId(item._id));
+    const users = await User.aggregate([
+      { $match: { company_ID: { $in: ids } } },
+      { 
+        $lookup: {
+          from: 'roles', // Name of the roles collection
+          localField: 'roleId',
+          foreignField: '_id',
+          as: 'roleId'
+        }
+      },
+      { 
+        $unwind: {
+          path: '$roleId',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { 
+        $lookup: {
+          from: 'cities', // Name of the cities collection
+          localField: 'cityId',
+          foreignField: '_id',
+          as: 'cityId'
+        }
+      },
+      { 
+        $unwind: {
+          path: '$cityId',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { 
+        $lookup: {
+          from: 'companies', // Name of the companies collection
+          localField: 'company_ID',
+          foreignField: '_id',
+          as: 'company_ID'
+        }
+      },
+      { 
+        $unwind: {
+          path: '$company_ID',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { 
+        $lookup: {
+          from: 'companies',
+          localField: 'company_ID.parent',
+          foreignField: '_id',
+          as: 'company_ID.parent'
+        }
+      },
+      { 
+        $unwind: {
+          path: '$company_ID.parent',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup:{
+          from:'agentconfigurations',
+          localField:'_id',
+          foreignField:"salesInchargeIds",
+          as:"salesIncharge"
+
+        },
+      },
+      
+      { 
+        $project: {
+          _id: 1,
+          'company_ID._id': 1,
+          'company_ID.companyName': 1,
+          'company_ID.type': 1,
+          'company_ID.companyStatus': 1,
+          'company_ID.cashBalance': 1,
+          'company_ID.creditBalance': 1,
+          'company_ID.maxCreditLimit': 1,
+          'company_ID.updatedAt': 1,
+          'company_ID.parent._id': 1,
+          'company_ID.parent.companyName': 1,
+          'company_ID.parent.type': 1,
+         salesIncharge:{$first:'$salesIncharge.salesInchargeIds'},
+          userType: 1,
+          login_Id: 1,
+          email: 1,
+          deactivation_Date: 1,
+          logoURI: 1,
+          roleId: 1,
+          title: 1,
+          fname: 1,
+          lastName: 1,
+          password: 1,
+          securityStamp: 1,
+          phoneNumber: 1,
+          twoFactorEnabled: 1,
+          lockoutEnabled: 1,
+          accessfailedCount: 1,
+          emailConfirmed: 1,
+          phoneNumberConfirmed: 1,
+          userStatus: 1,
+          userPanName: 1,
+          userPanNumber: 1,
+          sex: 1,
+          dob: 1,
+          nationality: 1,
+          deviceToken: 1,
+          deviceID: 1,
+          user_planType: 1,
+          sales_In_Charge: 1,
+          personalPanCardUpload: 1,
+          created_Date: 1,
+          lastModifiedDate: 1,
+          last_LoginDate: 1,
+          activation_Date: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          resetToken: 1,
+          ip_address: 1,
+          userId: 1,
+          encryptUserId: 1
+        }
       }
-    }).exec();
+    ]).exec();
+    
     //console.log("=======>>>", users);
     let data = [];
     for (let i = 0; i < users.length; i++) {

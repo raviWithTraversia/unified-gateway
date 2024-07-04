@@ -587,7 +587,7 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
       fop: "Credit",
       transactionType: "Credit",
       // runningAmount,
-      remarks: `Incentive Credited for amount ${amount}`,
+      remarks: `DI against ${amount} deposit.`,
       transactionBy,
       product
     });

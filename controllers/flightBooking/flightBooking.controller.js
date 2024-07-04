@@ -335,6 +335,39 @@ const updateBillPost = async (req, res) => {
   }
 }
 
+const manuallyUpdateBookingStatus = async (req, res) => {
+  try {
+    const result = await getAllBookingServices.manuallyUpdateBookingStatus(req);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "No booking Found for this BookingId." || result.response === "Please provide required fields" /*|| result.response === "Error in Updating Booking"*/) {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "Booking Status Updated Successfully.") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.log(error)
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
 module.exports = {
   getIdCreation,
   getAllBooking,
@@ -345,5 +378,6 @@ module.exports = {
   getSalesReport,
   getBookingByPaxDetails,
   getBillingData,
-  updateBillPost
+  updateBillPost,
+  manuallyUpdateBookingStatus
 };

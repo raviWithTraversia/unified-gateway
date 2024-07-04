@@ -199,9 +199,43 @@ const updateRegistration = async (req,res) => {
         )
     }
 }
+const DeleteRegistraiton= async (req,res) => {
+    try {
+    const result = await registrationServices.DeleteRegistraiton(req,res);
+     if(!result.response){
+        apiErrorres(
+            res,
+            result.message,
+            ServerStatusCode.BAD_REQUEST,
+            true
+        )
+
+     }else{
+        apiSucessRes(
+            res,
+            CrudMessage.FETCH_REG_DATA,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+
+     }
+
+    } catch(error){
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true 
+         
+            )
+
+    }
+}
+
 module.exports = {
     addRegistration,
     getAllRegistration,
     getAllRegistrationByCompany,
-    updateRegistration 
+    updateRegistration ,
+    DeleteRegistraiton
 }

@@ -109,12 +109,12 @@ const manualDebitCredit = async (req, res) => {
         }
       }
       let DIdata = await recieveDI(configData, findUser, product, amount, loginUser._id);
-      if (updateResponse.product === "Rail") {
-        configData.maxRailCredit += (updateResponse.amount + DIdata);
+      if (product === "Rail") {
+        configData.maxRailCredit += (amount + DIdata);
         runningAmount = configData.maxRailCredit
       }
-      if (updateResponse.product === "Flight") {
-        configData.maxcreditLimit += (updateResponse.amount + DIdata);
+      if (product === "Flight") {
+        configData.maxcreditLimit += (amount + DIdata);
         runningAmount = configData.maxcreditLimit
       }
       await configData.save();

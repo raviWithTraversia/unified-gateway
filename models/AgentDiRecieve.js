@@ -1,7 +1,24 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const { diSetupSchema } = require('./DiSetup');
 
-const diSetupSchema = new mongoose.Schema(
-  {
+const AgentDiRecieveSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  companyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Company'
+  },
+  amountDeposit: {
+    type: Number,
+    required: true
+  },
+  diAmount: {
+    type: Number,
+    default: 0
+  },
+  slabBreakups: [{
     diType: {
       type: String,
     },
@@ -46,7 +63,7 @@ const diSetupSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-  }, { timestamps: true });
+  }]
+}, { timestamps: true });
 
-const diSetup = mongoose.model("diSetup", diSetupSchema);
-module.exports = diSetup;
+module.exports = mongoose.model('AgentDiRecieve', AgentDiRecieveSchema);

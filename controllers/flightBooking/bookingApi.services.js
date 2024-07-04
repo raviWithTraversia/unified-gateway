@@ -7,6 +7,18 @@ const { ObjectId } = require("mongodb");
 const moment = require('moment');
 const { Config } = require('../../configs/config');
 
+const ISOTime = async (time) => {
+  const utcDate = new Date(time);
+  const istDate = new Date(utcDate.getTime() - 5.5 * 60 * 60 * 1000);
+  return istDate.toISOString();
+}
+
+const ISTTime = async (time) => {
+  const utcDate = new Date(time);
+  const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
+  return istDate.toISOString();
+}
+
 const getAllBooking = async (req, res) => {
   const {
     userId,
@@ -1099,6 +1111,9 @@ const getBookingByPaxDetails = async (req, res) => {
 
 const getBillingData = async (req, res) => {
   const { key, fromDate, toDate } = req.query;
+  const istDateString = await ISOTime(fromDate);
+  const istDateString2 = await ISOTime(toDate)
+
   if (!fromDate || !toDate || !key) {
     return {
       response: "Please provide required fields"
@@ -1117,7 +1132,7 @@ const getBillingData = async (req, res) => {
   }
   const billingData = await passengerPreferenceSchema.aggregate([{
     $match: {
-      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate) }
+      createdAt: { $gte: new Date(istDateString), $lte: new Date(istDateString2) }
     }
   }, { $unwind: "$Passengers" }, {
     $lookup: {
@@ -1180,9 +1195,13 @@ const getBillingData = async (req, res) => {
       },
     }
   }]);
-  billingData.forEach((element, index) => {
+
+  billingData.forEach(async (element, index) => {
     element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr
     element.id = index + 1;
+    element.travelDateOutbound = await ISTTime(element.travelDateOutbound);
+    element.travelDateInbound = await ISTTime(element.travelDateInbound);
+    element.issueDate = await ISTTime(element.issueDate);
   });
   if (!billingData.length) {
     return {

@@ -3,7 +3,8 @@ const Company = require("../../models/Company");
 const User = require("../../models/User");
 const config = require("../../models/AgentConfig");
 const ledger = require("../../models/Ledger");
-const EventLogs = require("../logs/EventApiLogsCommon")
+const EventLogs = require("../logs/EventApiLogsCommon");
+const { recieveDI } = require("../commonFunctions/common.function")
 
 const adddepositDetails = async (req, res) => {
   try {
@@ -205,20 +206,28 @@ const approveAndRejectDeposit = async (req, res) => {
         status
       }, { new: true });
       //console.log(updateResponse);
-      const configData = await config.findOne({ userId: updateResponse.userId });
+      const findUser = await User.findById(updateResponse.userId);
+      const configData = await config.findOne({ userId: updateResponse.userId }).populate('diSetupIds').populate({
+        path: 'diSetupIds',
+        populate: {
+          path: 'diSetupIds', // If diSetupIds contains another reference
+          model: 'diSetup'
+        }
+      });;
       //console.log(updateResponse);
       if (!configData) {
         return {
           response: 'User not found'
         }
       }
+      let DIdata = await recieveDI(configData, findUser, updateResponse?.product, updateResponse?.amount, loginUser._id)
       let runningAmount = 0;
       if (updateResponse.product === "Rail") {
-        configData.maxRailCredit += updateResponse.amount;
+        configData.maxRailCredit += (updateResponse.amount + DIdata);
         runningAmount = configData.maxRailCredit
       }
       if (updateResponse.product === "Flight") {
-        configData.maxcreditLimit += updateResponse.amount
+        configData.maxcreditLimit += (updateResponse.amount + DIdata);
         runningAmount = configData.maxcreditLimit
       }
       await configData.save();
@@ -236,6 +245,7 @@ const approveAndRejectDeposit = async (req, res) => {
         transactionBy: updateResponse.userId,
         product: updateResponse.product
       });
+
       const LogsData = {
         eventName: "creditRequest",
         doerId: loginUser._id,

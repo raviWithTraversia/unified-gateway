@@ -207,7 +207,7 @@ const easeBuzzResponce = async (req, res) => {
               responce: fSearchApiResponse?.data,
             };
             Logs(logData);
-            if (fSearchApiResponse.data.Status == "failed") {
+            if (fSearchApiResponse.data.Status == "failed" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
               await BookingDetails.updateOne(
                 {
                   bookingId: udf1,
@@ -216,7 +216,7 @@ const easeBuzzResponce = async (req, res) => {
                 {
                   $set: {
                     bookingStatus: "FAILED",
-                    bookingRemarks: error.message,
+                    bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED" ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark : error.message,
                   },
                 }
               );

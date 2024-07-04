@@ -1035,7 +1035,6 @@ const getBookingByPaxDetails = async (req, res) => {
       }
     },
     { $unwind: "$bookingDetails" },
-   
     {
       $lookup: {
         from: "users",
@@ -1074,7 +1073,7 @@ const getBookingByPaxDetails = async (req, res) => {
       }
     }
   ]);
-  
+
   getPassenger.forEach(items => {
     if (items?.passengerPreference && Array.isArray(items.passengerPreference)) {
       items.passengerPreference.forEach(item => {
@@ -1082,32 +1081,30 @@ const getBookingByPaxDetails = async (req, res) => {
       });
     }
   });
-  
+
   if (!getPassenger.length) {
     return {
       response: "Data Not Found"
     };
   }
-  
+
   return {
     response: "Fetch Data Successfully",
     data: {
       bookingList: getPassenger.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime))
     }
   };
-  
+
 }
 
-const getBookingBillByAuthKey = async (req, res) => {
-  const { key, fromDate, toDate } = req.body;
+const getBillingData = async (req, res) => {
+  const { key, fromDate, toDate } = req.query;
   if (!fromDate || !toDate || !key) {
     return {
-
       response: "Please provide required fields"
     }
   }
   let MODEENV = "D"
-
   let authKey = "667bd5d44dccc9b2d2b80690"
   if (Config.MODE === "LIVE") {
     MODEENV = "P"
@@ -1118,17 +1115,11 @@ const getBookingBillByAuthKey = async (req, res) => {
       response: "Access Denied! Provide a valid Key!"
     }
   }
-  const bookingBill = await passengerPreferenceSchema.aggregate([{
+  const billingData = await passengerPreferenceSchema.aggregate([{
     $match: {
-      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate + 'T23:59:59.999Z') }
+      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate) }
     }
   }, { $unwind: "$Passengers" }, {
-    $project: {
-      bookingId: 1,
-      ticketNo: "$Passengers.Optional.TicketNumber",
-      paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] }
-    }
-  }, {
     $lookup: {
       from: "bookingdetails",
       localField: "bookingId",
@@ -1137,7 +1128,7 @@ const getBookingBillByAuthKey = async (req, res) => {
     },
   }, { $unwind: "$bookingData" }, {
     $match: {
-      "bookingData.bookingStatus": "CONFIRMED"
+      "bookingData.bookingStatus": "CONFIRMED", "Passengers.accountPost": "0"
     }
   }, {
     $lookup: {
@@ -1155,9 +1146,11 @@ const getBookingBillByAuthKey = async (req, res) => {
     },
   }, {
     $project: {
+      _id: "$Passengers._id",
+      accountPost: "$Passengers.accountPost",
       bookingId: "$bookingData.providerBookingId",
-      paxName: 1,
-      ticketNo: 1,
+      ticketNo: "$Passengers.Optional.TicketNumber",
+      paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
       agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
       agentId: { $arrayElemAt: ['$userdata.userId', 0] },
       pnr: "$bookingData.PNR",
@@ -1178,7 +1171,7 @@ const getBookingBillByAuthKey = async (req, res) => {
       travelDateInbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
       issueDate: "$bookingData.bookingDateTime",
       airlineTax: "$bookingData.itinerary.Taxes",
-      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "$bookingData.accountPost", purchaseCode: "0",
+      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", purchaseCode: "0",
       flightCode: "$bookingData.Supplier",
       airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
       bookingId1: {
@@ -1187,22 +1180,22 @@ const getBookingBillByAuthKey = async (req, res) => {
       },
     }
   }]);
-  bookingBill.forEach((element, index) => {
+  billingData.forEach((element, index) => {
     element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr
     element.id = index + 1;
   });
-  if (!bookingBill.length) {
+  if (!billingData.length) {
     return {
       response: "Data Not Found",
     };
   };
   return {
     response: "Fetch Data Successfully",
-    data: bookingBill,
+    data: billingData,
   };
 }
 
-const updatePassengerAccountPost = async (req, res) => {
+const updateBillPost = async (req, res) => {
   const { accountPostArr } = req.body;
   if (!accountPostArr.length) {
     return {
@@ -1213,8 +1206,8 @@ const updatePassengerAccountPost = async (req, res) => {
   for (let item of accountPostArr) {
     bulkOps.push({
       updateOne: {
-        filter: { _id: item._id },
-        update: { $set: { accountPost: item.accountPost } }
+        filter: { 'Passengers._id': item._id },
+        update: { $set: { 'Passengers.$.accountPost': item.accountPost } }
       }
     });
   }
@@ -1223,8 +1216,12 @@ const updatePassengerAccountPost = async (req, res) => {
       response: "Data Not Found"
     }
   }
-  await passengerPreferenceSchema.bulkWrite(bulkOps);
-
+  let updatedData = await passengerPreferenceSchema.bulkWrite(bulkOps);
+  if (updatedData.modifiedCount < 1) {
+    return {
+      response: "Error in Updating AccountPost",
+    }
+  }
   return {
     response: "AccountPost Updated Successfully",
   }
@@ -1238,6 +1235,6 @@ module.exports = {
   getDeparturesList,
   getSalesReport,
   getBookingByPaxDetails,
-  getBookingBillByAuthKey,
-  updatePassengerAccountPost
+  getBillingData,
+  updateBillPost
 };

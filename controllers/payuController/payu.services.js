@@ -287,7 +287,7 @@ const payuSuccess = async (req, res) => {
                 {
                   $set: {
                     bookingStatus: "FAILED",
-                    bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED" ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark : error.message,
+                    bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED" ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark : fSearchApiResponse?.data?.ErrorMessage || error.message,
                   },
                 }
               );

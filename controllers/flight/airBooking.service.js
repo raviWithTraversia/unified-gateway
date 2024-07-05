@@ -929,7 +929,7 @@ const KafilaFun = async (
                     "itinerary.IndexNumber": item.IndexNumber,
                   }, {
                     $set: {
-                      bookingStatus: "FAILED", bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED" ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark : error.message,
+                      bookingStatus: "FAILED", bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED" ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark : fSearchApiResponse?.data?.ErrorMessage || error.message,
                     },
                   });
 

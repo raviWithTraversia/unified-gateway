@@ -4,7 +4,6 @@ const debounce = require('lodash/debounce');
 const addAirportDetail = async (req , res)=> {
     try{
     let { 
-        Airport_DetailsId,
         City_Name,
         Country_Name,
         Country_Code,
@@ -19,7 +18,6 @@ const addAirportDetail = async (req , res)=> {
     } = req.body;
 
     const requiredFields = [
-        "Airport_DetailsId",
         "City_Name",
         "Country_Name",
         "Country_Code",
@@ -47,7 +45,6 @@ const addAirportDetail = async (req , res)=> {
       };
 
       let newAirport = new airportModels({
-        Airport_DetailsId,
         City_Name,
         Country_Name,
         Country_Code,
@@ -147,8 +144,66 @@ const getAirportDetails = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+const editAirportDetails=async(req,res)=>{
+  try{
+const {id}=req.params
+if(!id){
+    return {
+        response:"_id not found"
+    }
+}
+
+        let { 
+            City_Name,
+            Country_Name,
+            Country_Code,
+            Country_Code_3Letter,
+            Airport_Name,
+            Airport_Code,
+            City_Code,
+            INS_GEO_Code,
+            Continent_Name,
+            Continent_Code,
+            Language_Code
+        } = req.body;
+    const oldAirprotDetail=await airportModels.findById(id)
+    let UpdateAirport = await airportModels.findByIdAndUpdate(
+        id,
+        {
+            City_Name: City_Name ? City_Name : oldAirprotDetail.City_Name,
+            Country_Name: Country_Name ? Country_Name : oldAirprotDetail.Country_Name,
+            Country_Code: Country_Code ? Country_Code : oldAirprotDetail.Country_Code,
+            Country_Code_3Letter: Country_Code_3Letter ? Country_Code_3Letter : oldAirprotDetail.Country_Code_3Letter,
+            Airport_Name: Airport_Name ? Airport_Name : oldAirprotDetail.Airport_Name,
+            Airport_Code: Airport_Code ? Airport_Code : oldAirprotDetail.Airport_Code,
+            City_Code: City_Code ? City_Code : oldAirprotDetail.City_Code,
+            INS_GEO_Code: INS_GEO_Code ? INS_GEO_Code : oldAirprotDetail.INS_GEO_Code,
+            Continent_Name: Continent_Name ? Continent_Name : oldAirprotDetail.Continent_Name,
+            Continent_Code: Continent_Code ? Continent_Code : oldAirprotDetail.Continent_Code,
+            Language_Code: Language_Code ? Language_Code : oldAirprotDetail.Language_Code
+        },
+        { new: true }
+    );
+    if(!UpdateAirport){
+        return{
+            response:'Airport data Not Found'
+        }
+    }
+        return {
+            response : 'Update Airport Sucessfully',
+            data : UpdateAirport
+        }
+    
+        }catch(error){
+            console.log(error);
+            throw error
+        }
+
+}
 module.exports = {
     addAirportDetail,
-    getAirportDetails
+    getAirportDetails,
+    editAirportDetails
 };
 

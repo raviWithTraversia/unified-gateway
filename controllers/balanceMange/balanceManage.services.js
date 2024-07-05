@@ -3,6 +3,7 @@ const agentConfig = require("../../models/AgentConfig");
 const creditRequest = require("../../models/CreditRequest");
 const EventLogs = require('../logs/EventApiLogsCommon');
 const ledger = require("../../models/Ledger");
+const { recieveDI } = require("../commonFunctions/common.function");
 
 const getBalance = async (req, res) => {
   const { userId } = req.body;
@@ -95,18 +96,25 @@ const manualDebitCredit = async (req, res) => {
     const loginUser = await User.findById(doerId);
     if (amountStatus == "credit") {
       const findUser = await User.findById(userId);
-      const configData = await agentConfig.findOne({ userId });
+      const configData = await agentConfig.findOne({ userId }).populate('diSetupIds').populate({
+        path: 'diSetupIds',
+        populate: {
+          path: 'diSetupIds', // If diSetupIds contains another reference
+          model: 'diSetup'
+        }
+      });
       if (!configData) {
         return {
           response: 'User not found'
         }
       }
+      let DIdata = await recieveDI(configData, findUser, product, amount, loginUser._id);
       if (product === "Rail") {
-        configData.maxRailCredit += amount;
+        configData.maxRailCredit += (amount + DIdata);
         runningAmount = configData.maxRailCredit
       }
       if (product === "Flight") {
-        configData.maxcreditLimit += amount;
+        configData.maxcreditLimit += (amount + DIdata);
         runningAmount = configData.maxcreditLimit
       }
       await configData.save();
@@ -123,7 +131,8 @@ const manualDebitCredit = async (req, res) => {
         remarks,
         transactionBy: loginUser._id,
         product
-      });
+      })
+
       const LogsData = {
         eventName: "creditRequest",
         doerId: loginUser._id,

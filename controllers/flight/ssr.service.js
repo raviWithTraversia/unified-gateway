@@ -475,6 +475,7 @@ const processSsrArray = (reqArray, provider) => {
           DDate,
           Deck,
           OI,
+          SsrProperty
         } = seat;
         let seatRowObj = resArray.SeatRow.find(
           (row) => row.Number === seat.SeatRow
@@ -484,7 +485,7 @@ const processSsrArray = (reqArray, provider) => {
           resArray.SeatRow.push(seatRowObj);
         }
         seatRowObj.Facilities.push({
-          ProviderDefinedType: provider,
+          //ProviderDefinedType: provider,
           Compartemnt: Compartemnt,
           Type: "Seat",
           Seatcode: SeatCode,
@@ -502,6 +503,7 @@ const processSsrArray = (reqArray, provider) => {
           Group: Group,
           DDate: DDate,
           Deck: Deck,
+          SsrProperty:SsrProperty
         });
       });
     });

@@ -41,7 +41,7 @@ const getApplyAllCommercial = async (
   let commertialMatrixValueHandle = null;
   if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {
     // TMC-Agency // // one time apply commertioal
-    console.log('TMC-Agency');
+    //console.log('TMC-Agency');
     const [
       commercialPlanDetails,
       incentivePlanDetails,
@@ -69,546 +69,272 @@ const getApplyAllCommercial = async (
       }
     );
 
-    const commonArrayDummy = [
-      {
-        UID: "4431439e-2aa6-4a7e-9e93-9ed9e996a854",
-        BaseFare: 24288,
-        Taxes: 4945,
-        TotalPrice: 29233,
-        ExtraCharges: 0,
-        TaxMarkUp: 0,
-        MarkUp: 0,
-        Commission: 0,
-        Fees: 0,
-        BookingFees: 0,
-        ServiceFee: 0,
-        CancellationFees: 0,
-        RescheduleFees: 0,
-        AdminFees: 0,
-        Discount: 0,
-        TDS: 0,
-        BaseCharges: 0,
-        SupplierDiscount: 0,
-        SupplierDiscountPercent: 0,
-        GrandTotal: 29233,
-        Currency: "INR",
-        FareType: "Economy",
-        TourCode: "",
-        PricingMethod: "Guaranteed",
-        FareFamily: "FF",
-        PromotionalFare: false,
-        FareFamilyDN: null,
-        PromotionalCode: "",
-        PromoCodeType: "",
-        RefundableFare: true,
-        IndexNumber: 0,
-        Provider: "Kafila",
-        ValCarrier: "SG",
-        LastTicketingDate: "",
-        TravelTime: "1d:0h:50m",
-        PriceBreakup: [
-          {
-            PassengerType: "ADT",
-            NoOfPassenger: 3,
-            Tax: 999,
-            BaseFare: 5060,
-            MarkUp: 0,
-            TaxMarkUp: 0,
-            Commission: 0,
-            Fees: 0,
-            BookingFees: 0,
-            CancellationFees: 0,
-            RescheduleFees: 0,
-            AdminFees: 0,
-            TDS: 0,
-            gst: 0.0,
-            ServiceFees: 0,
-            Discount: 0,
-            BaseCharges: 0,
-            TaxBreakup: [
-              {
-                TaxType: "YQ",
-                Amount: 100,
-              },
-
-              {
-                TaxType: "K2",
-                Amount: 55,
-              },
-              {
-                TaxType: "p2",
-                Amount: 322,
-              },
-            ],
-            AirPenalty: [],
-            CommercialBreakup: [],
-            AgentMarkupBreakup: {
-              BookingFee: 0.0,
-              Basic: 0.0,
-              Tax: 0.0,
-            },
-            Key: null,
-          },
-          {
-            PassengerType: "CHD",
-            NoOfPassenger: 2,
-            Tax: 974,
-            BaseFare: 4554,
-            MarkUp: 0,
-            TaxMarkUp: 0,
-            Commission: 0,
-            Fees: 0,
-            BookingFees: 0,
-            CancellationFees: 0,
-            RescheduleFees: 0,
-            AdminFees: 0,
-            TDS: 0,
-            gst: 0.0,
-            ServiceFees: 0,
-            Discount: 0,
-            BaseCharges: 0,
-            TaxBreakup: [
-              {
-                TaxType: "YQ",
-                Amount: 0,
-              },
-
-              {
-                TaxType: "K2",
-                Amount: 55,
-              },
-              {
-                TaxType: "p2",
-                Amount: 322,
-              },
-            ],
-            AirPenalty: [],
-            CommercialBreakup: [],
-
-            AgentMarkupBreakup: {
-              BookingFee: 0.0,
-              Basic: 0.0,
-              Tax: 0.0,
-            },
-            Key: null,
-          },
-          {
-            PassengerType: "INF",
-            NoOfPassenger: 1,
-            Tax: 222,
-            BaseFare: 3000,
-            MarkUp: 0,
-            TaxMarkUp: 0,
-            Commission: 0,
-            Fees: 0,
-            BookingFees: 0,
-            CancellationFees: 0,
-            RescheduleFees: 0,
-            AdminFees: 0,
-            TDS: 0,
-            gst: 0.0,
-            ServiceFees: 0,
-            Discount: 0,
-            BaseCharges: 0,
-            TaxBreakup: [
-              {
-                TaxType: "YQ",
-                Amount: 0,
-              },
-
-              {
-                TaxType: "K2",
-                Amount: 55,
-              },
-              {
-                TaxType: "p2",
-                Amount: 322,
-              },
-            ],
-            AirPenalty: [],
-            CommercialBreakup: [],
-            AgentMarkupBreakup: {
-              BookingFee: 0.0,
-              Basic: 0.0,
-              Tax: 0.0,
-            },
-            Key: null,
-          },
-        ],
-        Sectors: [
-          {
-            IsConnect: false,
-            AirlineCode: "AI",
-            AirlineName: "AirIndia",
-            Class: "S",
-            CabinClass: "Economy",
-            BookingCounts: "",
-            NoSeats: 9,
-            FltNum: "831",
-            EquipType: "32N",
-            FlyingTime: "0d:2h:15m",
-            TravelTime: "0d:2h:15m",
-            TechStopOver: 1,
-            Status: "",
-            OperatingCarrier: null,
-            MarketingCarrier: null,
-            BaggageInfo: "20 Kilograms",
-            HandBaggage: "7 KG",
-            TransitTime: null,
-            MealCode: null,
-            Key: "",
-            Distance: "708",
-            ETicket: "No",
-            ChangeOfPlane: "",
-            ParticipantLevel: "",
-            OptionalServicesIndicator: false,
-            AvailabilitySource: "",
-            Group: "0",
-            LinkAvailability: "true",
-            PolledAvailabilityOption: "",
-            FareBasisCode: "SEPP",
-            HostTokenRef: "",
-            APISRequirementsRef: "",
-            Departure: {
-              Terminal: "3",
-              Date: "2024-02-11",
-              Time: "21:30",
-              Day: null,
-              DateTimeStamp: "2024-02-11T21:30:00.000+05:30",
-              Code: "DEL",
-              Name: "Delhi Indira Gandhi Intl",
-              CityCode: "DEL",
-              CityName: "Delhi",
-              CountryCode: "IN",
-              CountryName: "India",
-            },
-            Arrival: {
-              Terminal: "",
-              Date: "2024-02-11",
-              Time: "23:45",
-              Day: null,
-              DateTimeStamp: "2024-02-11T23:45:00.000+05:30",
-              Code: "HYD",
-              Name: "Shamshabad Rajiv Gandhi Intl Arpt",
-              CityCode: "HYD",
-              CityName: "Hyderabad",
-              CountryCode: "IN",
-              CountryName: "India",
-            },
-          },
-          {
-            IsConnect: false,
-            AirlineCode: "AI",
-            AirlineName: "AirIndia",
-            Class: "S",
-            CabinClass: "Economy",
-            BookingCounts: "",
-            NoSeats: 9,
-            FltNum: "839",
-            EquipType: "359",
-            FlyingTime: "0d:1h:10m",
-            TravelTime: "0d:1h:10m",
-            TechStopOver: 1,
-            Status: "",
-            OperatingCarrier: null,
-            MarketingCarrier: null,
-            BaggageInfo: "20 Kilograms",
-            HandBaggage: "7 KG",
-            TransitTime: null,
-            MealCode: null,
-            Key: "",
-            Distance: "708",
-            ETicket: "No",
-            ChangeOfPlane: "",
-            ParticipantLevel: "",
-            OptionalServicesIndicator: false,
-            AvailabilitySource: "",
-            Group: "0",
-            LinkAvailability: "true",
-            PolledAvailabilityOption: "",
-            FareBasisCode: "SEPP",
-            HostTokenRef: "",
-            APISRequirementsRef: "",
-            Departure: {
-              Terminal: "",
-              Date: "2024-02-12",
-              Time: "21:10",
-              Day: null,
-              DateTimeStamp: "2024-02-12T21:10:00.000+05:30",
-              Code: "HYD",
-              Name: "Shamshabad Rajiv Gandhi Intl Arpt",
-              CityCode: "HYD",
-              CityName: "Hyderabad",
-              CountryCode: "IN",
-              CountryName: "India",
-            },
-            Arrival: {
-              Terminal: "2",
-              Date: "2024-02-12",
-              Time: "22:20",
-              Day: null,
-              DateTimeStamp: "2024-02-12T22:20:00.000+05:30",
-              Code: "BLR",
-              Name: "Bengaluru Intl Arpt",
-              CityCode: "BLR",
-              CityName: "Bengaluru",
-              CountryCode: "IN",
-              CountryName: "India",
-            },
-          },
-        ],
-        HostTokens: null,
-        Key: "",
-        SearchID: "",
-        TRCNumber: null,
-        TraceId: "12343253",
-      },
-      {
-        UID: "a981ed02-945b-4610-b16c-1ae7134ccbd9",
-        BaseFare: 28512,
-        Taxes: 4265,
-        TotalPrice: 32777,
-        ExtraCharges: 0,
-        TaxMarkUp: 0,
-        MarkUp: 0,
-        Commission: 0,
-        Fees: 0,
-        BookingFees: 0,
-        ServiceFee: 0,
-        CancellationFees: 0,
-        RescheduleFees: 0,
-        AdminFees: 0,
-        Discount: 0,
-        TDS: 0,
-        BaseCharges: 0,
-        SupplierDiscount: 0,
-        SupplierDiscountPercent: 0,
-        GrandTotal: 32777,
-        Currency: "INR",
-        FareType: "Economy",
-        TourCode: "",
-        PricingMethod: "Guaranteed",
-        FareFamily: "GAL_PCC_AI",
-        PromotionalFare: false,
-        FareFamilyDN: null,
-        PromotionalCode: "",
-        PromoCodeType: "",
-        RefundableFare: true,
-        IndexNumber: 1,
-        Provider: "Kafila",
-        ValCarrier: "AI",
-        LastTicketingDate: "",
-        TravelTime: "0d:2h:55m",
-        PriceBreakup: [
-          {
-            PassengerType: "ADT",
-            NoOfPassenger: 3,
-            Tax: 865,
-            BaseFare: 5940,
-            MarkUp: 0,
-            TaxMarkUp: 0,
-            Commission: 0,
-            Fees: 0,
-            BookingFees: 0,
-            CancellationFees: 0,
-            RescheduleFees: 0,
-            AdminFees: 0,
-            TDS: 0,
-            gst: 0.0,
-            ServiceFees: 0,
-            Discount: 0,
-            BaseCharges: 0,
-            TaxBreakup: [
-              {
-                TaxType: "YQ",
-                Amount: 100,
-              },
-              {
-                TaxType: "K2",
-                Amount: 55,
-              },
-              {
-                TaxType: "p2",
-                Amount: 322,
-              },
-            ],
-            AirPenalty: [],
-            CommercialBreakup: [],
-            AgentMarkupBreakup: {
-              BookingFee: 0.0,
-              Basic: 0.0,
-              Tax: 0.0,
-            },
-            Key: null,
-          },
-          {
-            PassengerType: "CHD",
-            NoOfPassenger: 2,
-            Tax: 835,
-            BaseFare: 5346,
-            MarkUp: 0,
-            TaxMarkUp: 0,
-            Commission: 0,
-            Fees: 0,
-            BookingFees: 0,
-            CancellationFees: 0,
-            RescheduleFees: 0,
-            AdminFees: 0,
-            TDS: 0,
-            gst: 0.0,
-            ServiceFees: 0,
-            Discount: 0,
-            BaseCharges: 0,
-            TaxBreakup: [
-              {
-                TaxType: "YQ",
-                Amount: 0,
-              },
-
-              {
-                TaxType: "K2",
-                Amount: 55,
-              },
-              {
-                TaxType: "p2",
-                Amount: 322,
-              },
-            ],
-            AirPenalty: [],
-            CommercialBreakup: [],
-            AgentMarkupBreakup: {
-              BookingFee: 0.0,
-              Basic: 0.0,
-              Tax: 0.0,
-            },
-            Key: null,
-          },
-          {
-            PassengerType: "INF",
-            NoOfPassenger: 1,
-            Tax: 322,
-            BaseFare: 2000,
-            MarkUp: 0,
-            TaxMarkUp: 0,
-            Commission: 0,
-            Fees: 0,
-            BookingFees: 0,
-            CancellationFees: 0,
-            RescheduleFees: 0,
-            AdminFees: 0,
-            TDS: 0,
-            gst: 0.0,
-            ServiceFees: 0,
-            Discount: 0,
-            BaseCharges: 0,
-            TaxBreakup: [
-              {
-                TaxType: "YQ",
-                Amount: 0,
-              },
-
-              {
-                TaxType: "K2",
-                Amount: 55,
-              },
-              {
-                TaxType: "p2",
-                Amount: 322,
-              },
-            ],
-
-            AirPenalty: [],
-            CommercialBreakup: [],
-            AgentMarkupBreakup: {
-              BookingFee: 0.0,
-              Basic: 0.0,
-              Tax: 0.0,
-            },
-            Key: null,
-          },
-        ],
-        Sectors: [
-          {
-            IsConnect: false,
-            AirlineCode: "AI",
-            AirlineName: "AirIndia",
-            Class: "T",
-            CabinClass: "Economy",
-            BookingCounts: "",
-            NoSeats: 9,
-            FltNum: "803",
-            EquipType: "321",
-            FlyingTime: "0d:2h:55m",
-            TravelTime: "0d:2h:55m",
-            TechStopOver: 1,
-            Status: "",
-            OperatingCarrier: null,
-            MarketingCarrier: null,
-            BaggageInfo: "20 Kilograms",
-            HandBaggage: "7 KG",
-            TransitTime: null,
-            MealCode: null,
-            Key: "",
-            Distance: "708",
-            ETicket: "No",
-            ChangeOfPlane: "",
-            ParticipantLevel: "",
-            OptionalServicesIndicator: false,
-            AvailabilitySource: "",
-            Group: "0",
-            LinkAvailability: "true",
-            PolledAvailabilityOption: "",
-            FareBasisCode: "TIPYL",
-            HostTokenRef: "",
-            APISRequirementsRef: "",
-            Departure: {
-              Terminal: "3",
-              Date: "2024-02-11",
-              Time: "06:00",
-              Day: null,
-              DateTimeStamp: "2024-02-11T06:00:00.000+05:30",
-              Code: "DEL",
-              Name: "Delhi Indira Gandhi Intl",
-              CityCode: "DEL",
-              CityName: "Delhi",
-              CountryCode: "IN",
-              CountryName: "India",
-            },
-            Arrival: {
-              Terminal: "2",
-              Date: "2024-02-11",
-              Time: "08:55",
-              Day: null,
-              DateTimeStamp: "2024-02-11T08:55:00.000+05:30",
-              Code: "BLR",
-              Name: "Bengaluru Intl Arpt",
-              CityCode: "BLR",
-              CityName: "Bengaluru",
-              CountryCode: "IN",
-              CountryName: "India",
-            },
-          },
-        ],
-        HostTokens: null,
-        Key: "",
-        SearchID: "",
-        TRCNumber: null,
-        TraceId: "12343253",
-      },
-    ];
-
+    // const commonArrayDummy = [
+    //   {
+    //     "UID": "9fce863d-ba44-4c63-971f-9e7e25e3f102",
+    //     "BaseFare": 5971,
+    //     "Taxes": 792,
+    //     "TotalPrice": 6763,
+    //     "GrandTotal": 6763,
+    //     "Currency": "INR",
+    //     "FareType": null,
+    //     "Stop": "0",
+    //     "IsVia": false,
+    //     "TourCode": "",
+    //     "PricingMethod": "Guaranteed",
+    //     "FareFamily": "FLX",
+    //     "PromotionalFare": false,
+    //     "FareFamilyDN": null,
+    //     "PromotionalCode": "",
+    //     "PromoCodeType": "",
+    //     "RefundableFare": true,
+    //     "IndexNumber": 385,
+    //     "Provider": "Kafila",
+    //     "ValCarrier": "6E",
+    //     "LastTicketingDate": "",
+    //     "TravelTime": "0d:2h:45m",
+    //     "PriceBreakup": [
+    //         {
+    //             "PassengerType": "ADT",
+    //             "NoOfPassenger": 1,
+    //             "Tax": 792,
+    //             "BaseFare": 5971,
+    //             "TaxBreakup": [
+    //                 {
+    //                     "TaxType": "YQ",
+    //                     "Amount": 0
+    //                 }
+    //             ],
+    //             "AirPenalty": [],
+    //             "CommercialBreakup": [],
+    //             "AgentMarkupBreakup": {
+    //                 "BookingFee": 0,
+    //                 "Basic": 0,
+    //                 "Tax": 0
+    //             },
+    //             "Key": null,
+    //             "OI": [
+    //                 {
+    //                     "FAT": "Route",
+    //                     "FSK": "0~R~~6E~RUIP~2002~~0~123~~X"
+    //                 }
+    //             ]
+    //         },
+    //         {},
+    //         {}
+    //     ],
+    //     "Sectors": [
+    //         {
+    //             "IsConnect": false,
+    //             "AirlineCode": "6E",
+    //             "AirlineName": "GoIndigo",
+    //             "Class": "R",
+    //             "CabinClass": "J",
+    //             "BookingCounts": "",
+    //             "NoSeats": 8,
+    //             "FltNum": "5308",
+    //             "EquipType": "321",
+    //             "FlyingTime": "0d:2h:45m",
+    //             "TravelTime": "0d:2h:45m",
+    //             "TechStopOver": 1,
+    //             "layover": "",
+    //             "Status": "",
+    //             "OperatingCarrier": null,
+    //             "MarketingCarrier": null,
+    //             "BaggageInfo": "15KG",
+    //             "HandBaggage": "7KG",
+    //             "TransitTime": null,
+    //             "MealCode": null,
+    //             "Key": "",
+    //             "Distance": "",
+    //             "ETicket": "No",
+    //             "ChangeOfPlane": "",
+    //             "ParticipantLevel": "",
+    //             "OptionalServicesIndicator": false,
+    //             "AvailabilitySource": "",
+    //             "Group": "0",
+    //             "LinkAvailability": "true",
+    //             "PolledAvailabilityOption": "",
+    //             "FareBasisCode": "RUIP",
+    //             "HostTokenRef": "",
+    //             "APISRequirementsRef": "",
+    //             "Departure": {
+    //                 "Terminal": "3",
+    //                 "Date": "2024-07-06",
+    //                 "Time": "05:45",
+    //                 "Day": null,
+    //                 "DateTimeStamp": "2024-07-06T05:45:00",
+    //                 "Code": "DEL",
+    //                 "Name": "Delhi Indira Gandhi Intl",
+    //                 "CityCode": "DEL",
+    //                 "CityName": "Delhi",
+    //                 "CountryCode": "IN",
+    //                 "CountryName": "India"
+    //             },
+    //             "Arrival": {
+    //                 "Terminal": "1",
+    //                 "Date": "2024-07-06",
+    //                 "Time": "08:30",
+    //                 "Day": null,
+    //                 "DateTimeStamp": "2024-07-06T08:30:00",
+    //                 "Code": "BLR",
+    //                 "Name": "Bengaluru Intl Arpt",
+    //                 "CityCode": "BLR",
+    //                 "CityName": "Bengaluru",
+    //                 "CountryCode": "IN",
+    //                 "CountryName": "India"
+    //             },
+    //             "OI": [
+    //                 "SSK=6E~5308~ ~~DEL~07/06/2024 05:45~BLR~07/06/2024 08:30~~"
+    //             ]
+    //         }
+    //     ],
+    //     "FareRule": {
+    //         "CBNBG": "7KG",
+    //         "CHKNBG": "15KG",
+    //         "CBH": "96HRS",
+    //         "CWBH": "96HRS-4HRS",
+    //         "RBH": "96HRS",
+    //         "RWBH": "96HRS-4HRS",
+    //         "CBHA": 3999,
+    //         "CWBHA": 3999,
+    //         "RBHA": 2250,
+    //         "RWBHA": 2999,
+    //         "SF": 60
+    //     },
+    //     "apiItinerary": {
+    //         "PId": 0,
+    //         "Id": 385,
+    //         "TId": 0,
+    //         "Src": "DEL",
+    //         "Des": "BLR",
+    //         "FCode": "6E",
+    //         "FName": "GoIndigo",
+    //         "FNo": "5308",
+    //         "DDate": "2024-07-06T05:45:00",
+    //         "ADate": "2024-07-06T08:30:00",
+    //         "Dur": "0d:2h:45m",
+    //         "Stop": "0",
+    //         "Seat": 8,
+    //         "Sector": "DEL,BLR",
+    //         "Itinerary": [
+    //             {
+    //                 "Id": 0,
+    //                 "Src": "DEL",
+    //                 "SrcName": "Delhi",
+    //                 "Des": "BLR",
+    //                 "DesName": "Bengaluru",
+    //                 "FLogo": "0 -123px",
+    //                 "FCode": "6E",
+    //                 "FName": "GoIndigo",
+    //                 "FNo": "5308",
+    //                 "DDate": "2024-07-06T05:45:00",
+    //                 "ADate": "2024-07-06T08:30:00",
+    //                 "DTrmnl": "3",
+    //                 "ATrmnl": "1",
+    //                 "DArpt": "Delhi Indira Gandhi Intl",
+    //                 "AArpt": "Bengaluru Intl Arpt",
+    //                 "Dur": "0d:2h:45m",
+    //                 "layover": "",
+    //                 "Seat": 8,
+    //                 "FClass": "R",
+    //                 "PClass": "J",
+    //                 "FBasis": "RUIP",
+    //                 "FlightType": "321",
+    //                 "OI": [
+    //                     "SSK=6E~5308~ ~~DEL~07/06/2024 05:45~BLR~07/06/2024 08:30~~"
+    //                 ]
+    //             }
+    //         ],
+    //         "Fare": {
+    //             "GrandTotal": 6763,
+    //             "BasicTotal": 5971,
+    //             "YqTotal": 0,
+    //             "TaxesTotal": 792,
+    //             "Adt": {
+    //                 "Basic": 5971,
+    //                 "Yq": 0,
+    //                 "Taxes": 792,
+    //                 "Total": 6763
+    //             },
+    //             "Chd": null,
+    //             "Inf": null,
+    //             "OI": [
+    //                 {
+    //                     "FAT": "Route",
+    //                     "FSK": "0~R~~6E~RUIP~2002~~0~123~~X"
+    //                 }
+    //             ]
+    //         },
+    //         "FareRule": {
+    //             "CBNBG": "7KG",
+    //             "CHKNBG": "15KG",
+    //             "CBH": "96HRS",
+    //             "CWBH": "96HRS-4HRS",
+    //             "RBH": "96HRS",
+    //             "RWBH": "96HRS-4HRS",
+    //             "CBHA": 3999,
+    //             "CWBHA": 3999,
+    //             "RBHA": 2250,
+    //             "RWBHA": 2999,
+    //             "SF": 60
+    //         },
+    //         "Alias": "FLX",
+    //         "FareType": null,
+    //         "PFClass": "J-R",
+    //         "Offer": {
+    //             "Msg": "",
+    //             "Refund": "Refundable",
+    //             "IsPromoAvailable": true,
+    //             "IsGstMandatory": false,
+    //             "IsLcc": true
+    //         },
+    //         "OI": {
+    //             "Jsk": "6E~5308~ ~~DEL~07/06/2024 05:45~BLR~07/06/2024 08:30~~",
+    //             "Pcc": "364549474E3030303343507E464C58",
+    //             "Security": "6EIGN0003CP~FLX"
+    //         },
+    //         "Deal": {
+    //             "NETFARE": 6692,
+    //             "TDISC": 75,
+    //             "TDS": 4,
+    //             "GST": 14,
+    //             "DISCOUNT": {
+    //                 "DIS": 75,
+    //                 "SF": 0,
+    //                 "PDIS": 0,
+    //                 "CB": 0
+    //             }
+    //         }
+    //     },
+    //     "HostTokens": null,
+    //     "Key": "",
+    //     "SearchID": "",
+    //     "TRCNumber": null,
+    //     "TraceId": "6687937e3e08fbb9bc130a02",
+    //     "OI": {
+    //         "Jsk": "6E~5308~ ~~DEL~07/06/2024 05:45~BLR~07/06/2024 08:30~~",
+    //         "Pcc": "364549474E3030303343507E464C58",
+    //         "Security": "6EIGN0003CP~FLX"
+    //     }
+    // }     
+    // ];
+    
+  //console.log(commonArrayDummy[0].PriceBreakup);
     for (const singleFlightDetails of commonArray) {
-      //for (const singleFlightDetails of commonArrayDummy) {
+    // for (const singleFlightDetails of commonArrayDummy) {
       // Check Commertial status and Commertial Apply
-      if (commercialPlanDetails.IsSuccess === true) {
-        // console.log(commercialPlanDetails.data);
+      if (commercialPlanDetails.IsSuccess === true) { 
+        //console.log(commercialPlanDetails.data);        
         // get group of priority base
         groupPriority = await makePriorityGroup(
           TravelType,
           singleFlightDetails,
           commercialPlanDetails
         );
+        
         if (groupPriority.length > 0) {
+          
           const sortedGroupPriority = groupPriority.sort((a, b) => {
             if (a.carrier === null && b.carrier === null) {
               return 0;
@@ -621,10 +347,10 @@ const getApplyAllCommercial = async (
             }
             return a.priority - b.priority;
           });
-
+          
           for (let i = 0; i < sortedGroupPriority.length; i++) {
             const commList = sortedGroupPriority[i];
-
+            
             if (
               TravelType === commList.travelType &&
               commList.carrier === singleFlightDetails.ValCarrier &&
@@ -633,6 +359,7 @@ const getApplyAllCommercial = async (
               commList.fareFamily === singleFlightDetails.FareFamily &&
               !["FD", "FF"].includes(singleFlightDetails.FareFamily)
             ) {
+              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
                 singleFlightDetails,
@@ -829,7 +556,7 @@ const getApplyAllCommercial = async (
                 // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 break;
               }
-            } else if (
+            } else if (              
               commList.fareFamily === singleFlightDetails.FareFamily &&
               ["FD", "FF"].includes(singleFlightDetails.FareFamily)
             ) {
@@ -945,7 +672,7 @@ const getApplyAllCommercial = async (
 
         // singleFlightDetails.PriceBreakup = checkPLBFilterfun.checkMarkupFilterfun;
       }
-
+      
       // this is last update and push function
       applyResponceCommercialArray.push(singleFlightDetails);
     }
@@ -7285,6 +7012,7 @@ const commertialMatrixValue = async (
   configDetails,
   supplierTypeFor
 ) => {
+    
   // console.log("Total=====>>",singleFlightDetails.TotalPrice)
   //  console.log("b=====>>",singleFlightDetails.PriceBreakup[0].BaseFare)
   //   "[[[[[[[[[[[[[[[[",singleFlightDetails,
@@ -7330,6 +7058,7 @@ const commertialMatrixValue = async (
     oldTaxFareInf = singleFlightDetails.PriceBreakup[2].Tax;
     oldTaxBreakupInf = singleFlightDetails.PriceBreakup[2].TaxBreakup;
   }
+  
 
   // Markup Rate start Here
   const markupRateAllColumn = commList.updateaircommercialmatrixes.data.filter(
@@ -7346,7 +7075,7 @@ const commertialMatrixValue = async (
         filter.AirCommertialColumnMasterId.commercialType === "rate" &&
         filter.AirCommertialColumnMasterId.type === "coloumn"
     );
-
+    
     if (
       rateSingleColumn &&
       rateSingleColumn.textType === "number" &&

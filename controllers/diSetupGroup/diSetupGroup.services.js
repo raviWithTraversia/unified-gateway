@@ -16,7 +16,7 @@ const addDiSetupGroup = async (req, res) => {
         diSetupGroupName: diSetupGroupName
       });
     console.log(
-        diSetupGroupNameExist,
+      diSetupGroupNameExist,
       "<<<<<<<<<<<>>>>>>>>>>>>>>"
     );
     if (diSetupGroupNameExist) {
@@ -33,14 +33,14 @@ const addDiSetupGroup = async (req, res) => {
         );
     };
     function areElementsUnique(arr) {
-        return new Set(arr).size === arr.length;
+      return new Set(arr).size === arr.length;
     }
-    
-   let checkAllIdIsUnique = areElementsUnique(diSetupIds);
-    if(checkAllIdIsUnique == false){
-        return {
-            response : ' all Id should be unique'
-        }
+
+    let checkAllIdIsUnique = areElementsUnique(diSetupIds);
+    if (checkAllIdIsUnique == false) {
+      return {
+        response: ' all Id should be unique'
+      }
     }
     const newDiSetupGroupName = new diSetupGroupModels({
       diSetupIds,
@@ -82,7 +82,7 @@ const editDiSetupGroup = async (req, res) => {
           { isDefault: false }
         );
     }
-   // let updateAirlinePromoGroupData ;
+    // let updateAirlinePromoGroupData ;
     let updateDiSetupGroupData =
       await diSetupGroupModels.findByIdAndUpdate(
         id,
@@ -129,7 +129,7 @@ const getDiSetupGroup = async (req, res) => {
         .find({ _id: { $in: convertedDiSetupIds } })
         .populate("companyId")
         .exec();
-        diSetupGroup[i].diSetupIds = documents;
+      diSetupGroup[i].diSetupIds = documents;
     }
 
     if (diSetupGroup.length > 0) {

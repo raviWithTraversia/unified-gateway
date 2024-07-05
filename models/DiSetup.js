@@ -46,11 +46,7 @@ const diSetupSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-  },
-  {
-    timestamps: true,
-  }
-);
+  }, { timestamps: true });
 
 const diSetup = mongoose.model("diSetup", diSetupSchema);
 module.exports = diSetup;

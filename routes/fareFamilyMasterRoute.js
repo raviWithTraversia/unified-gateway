@@ -30,6 +30,15 @@ fare_family_route.get(
     fareFamilyMaster.getFareFamilyListData
 );
 
+fare_family_route.post(
+    '/fare/add-fare-family-list' , 
+    fareFamilyMaster.addFareFamilyMaster
+);
+
+fare_family_route.patch(
+    '/fare/edit-fare-family-list/:_id' , 
+    fareFamilyMaster.editFareFamilyMaster
+);
 
 
 module.exports = fare_family_route

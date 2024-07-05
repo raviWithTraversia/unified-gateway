@@ -1055,6 +1055,33 @@ const agencyChangePassword = async (req, res) => {
   }
 }
 
+const userFindEncrypted=async(req,res)=>{
+  try{
+    const {encryptedText}=req.query;
+if(!encryptedText){
+  return{
+    response:"encrypted Id not find"
+  }
+
+}
+const userDetail=await User.find({"encryptUserId.encryptedText":encryptedText}).populate({path:'company_ID' , select:"companyName type companyStatus pan_Number gstNumber",populate:{path:"parent",select:"companyName type"}})
+if(!userDetail){
+  return{
+    response:"userData not found"
+  }
+}
+
+return {
+  response:"userData found Sucessfully",
+  data:userDetail
+}
+
+  }
+  catch(error){
+    throw error
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
@@ -1070,5 +1097,6 @@ module.exports = {
   updateUserStatus,
   getCompanyProfle,
   updateCompayProfile,
-  agencyChangePassword
+  agencyChangePassword,
+  userFindEncrypted
 };

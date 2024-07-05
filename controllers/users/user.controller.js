@@ -473,6 +473,41 @@ const agencyChangePassword = async (req, res) => {
   }
 };
 
+const userFindEncrypted = async (req, res) => {
+  try {
+    const result = await userServices.userFindEncrypted(req, res);
+    if (result.response === "encrypted Id not find"||result.response==="userData not found") {
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    } else if (result.response === "userData found Sucessfully") {
+      apiSucessRes(
+        res,
+        result.response,
+ result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.NOT_AVALIABLE,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    }
+  } catch (error) {
+    console.log(error)
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
 module.exports = {
   registerUser,
   loginUser,
@@ -488,5 +523,6 @@ module.exports = {
   userStatusUpdate,
   getCompanyProfle,
   updateCompayProfile,
-  agencyChangePassword
+  agencyChangePassword,
+  userFindEncrypted
 };

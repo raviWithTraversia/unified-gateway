@@ -328,6 +328,10 @@ user_route.post("/user/updateStatus", auth, userController.userStatusUpdate)
 
 user_route.get('/get-company/profile', auth, userController.getCompanyProfle)
 
+user_route.get('/get-find-userdata/encryptedid', userController.userFindEncrypted)
+
+
+
 user_route.patch('/update/company-proflie', (req, res, next) => {
   req.body.images = {};
 

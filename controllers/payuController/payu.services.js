@@ -57,8 +57,8 @@ const payu = async (req, res) => {
     const firstnameres = firstName;
     const emailres = email;
     const phoneres = phone;
-    const surl = "https://kafila.traversia.net/api/paymentGateway/success";
-    const furl = "https://kafila.traversia.net/api/paymentGateway/failed";
+    const surl = "https://agent.kafilaholidays.in/api/paymentGateway/success";
+    const furl = "https://agent.kafilaholidays.in/api/paymentGateway/failed";
     const salt = Config.MODE == "TEST" ? Config.PAYMENT_CREDENTIALS_PAYU.TEST.salt : Config.PAYMENT_CREDENTIALS_PAYU.LIVE.salt;
     const cartIdres = cartId;
      

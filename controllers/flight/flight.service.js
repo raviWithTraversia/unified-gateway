@@ -218,7 +218,7 @@ async function handleflight(
       }
     })
   );
-  //console.log(responsesApi)
+  
 
   // Combine the responses here
   const combineResponseObj = {};
@@ -244,7 +244,7 @@ async function handleflight(
       commonArray.push(...combineResponseObj[key].response);
     }
   }
-
+  
   // Check Series Booking 
   const series = await seriesDeparture.find({ CompanyId: Authentication.CompanyId, isactive: true });
   if (series && series.length > 0) {
@@ -254,18 +254,18 @@ async function handleflight(
     if (seriesArray.IsSucess) {
       commonArray.push(...seriesArray.response);
     }
-  }
-  
+  }  
+
   console.log(`[${new Date().toISOString()}] - Commertial Apply Start`);
   //apply commercial function
   const getApplyAllCommercialVar = await flightcommercial.getApplyAllCommercial(
     Authentication,
     TravelType,
-
     commonArray
   );
   console.log(`[${new Date().toISOString()}] - Commertioal end`);
   console.log(`[${new Date().toISOString()}] - Responce`);
+  
   return {
     IsSucess: true,
     response: getApplyAllCommercialVar.IsSucess ? getApplyAllCommercialVar.response.sort(
@@ -465,7 +465,7 @@ const KafilaFun = async (
       }
     );
     const logData = {
-      traceId: Authentication.TraceId,
+      traceId: fSearchApiResponse?.data?.Param?.OtherInfo?.TraceId,
       companyId: Authentication.CompanyId,
       userId: Authentication.UserId,
       source: "Kafila",

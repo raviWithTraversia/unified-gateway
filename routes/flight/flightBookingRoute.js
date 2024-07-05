@@ -17,5 +17,6 @@ flight_booking_route.post('/flightbooking/getSalesReport', flight.getSalesReport
 flight_booking_route.post('/flightbooking/getBookingByPaxDetails', flight.getBookingByPaxDetails);
 flight_booking_route.get('/flightbooking/getBillingData', flight.getBillingData);
 flight_booking_route.post('/flightbooking/updateBillPost', flight.updateBillPost);
+flight_booking_route.post('/flightbooking/manuallyUpdateBookingStatus', flight.manuallyUpdateBookingStatus);
 
 module.exports = flight_booking_route;

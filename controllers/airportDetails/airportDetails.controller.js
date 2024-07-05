@@ -79,7 +79,48 @@ const getAirportDetails = async (req,res) => {
         apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
     }
 }
+
+
+const editAirportDetails = async (req,res) => {
+    try{
+    const result = await airportDetailsController.editAirportDetails(req,res);
+    if(result.response == '_id not found'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true 
+         )
+    }else if(result.response == 'Update Airport Sucessfully'){
+        apiSucessRes(
+            res,
+            result.response,
+            result.data,
+            ServerStatusCode.SUCESS_CODE
+        )
+    }else if(result.response == 'Airport data Not Found'){
+        apiErrorres(
+            res,
+            result.response,
+            ServerStatusCode.PRECONDITION_FAILED,
+            true 
+         )
+    }
+    else{
+        apiErrorres(
+            res,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
+            errorResponse.SOME_UNOWN,
+            true
+          );
+    }
+
+    }catch(error){
+        apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
+    }
+}
 module.exports = {
     addAirportDetail,
-    getAirportDetails 
+    getAirportDetails,
+    editAirportDetails 
 }

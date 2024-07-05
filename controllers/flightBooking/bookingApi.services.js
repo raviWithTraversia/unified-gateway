@@ -1246,6 +1246,29 @@ const updateBillPost = async (req, res) => {
   }
 }
 
+const manuallyUpdateBookingStatus = async (req, res) => {
+  try {
+    const { bookingId, status } = req.body;
+    if (!bookingId || !status) {
+      return {
+        response: "Please provide required fields"
+      }
+    }
+    let getBooking = await bookingdetails.findById(bookingId);
+    if (!getBooking) {
+      return {
+        response: "No booking Found for this BookingId."
+      }
+    }
+    await bookingdetails.findByIdAndUpdate(bookingId, { bookingStatus: status });
+    return {
+      response: "Booking Status Updated Successfully."
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 module.exports = {
   getAllBooking,
   getBookingByBookingId,
@@ -1255,5 +1278,6 @@ module.exports = {
   getSalesReport,
   getBookingByPaxDetails,
   getBillingData,
-  updateBillPost
+  updateBillPost,
+  manuallyUpdateBookingStatus
 };

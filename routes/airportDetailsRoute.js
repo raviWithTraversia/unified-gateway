@@ -20,6 +20,8 @@ airportDetaild_route.post(
 // airportDetaild_route.delete(
    
 // )
+
+airportDetaild_route.patch('/airportDetails/updateAirportDetail/:id',airportDetailsController.editAirportDetails)
 airportDetaild_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

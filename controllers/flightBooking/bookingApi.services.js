@@ -1200,7 +1200,7 @@ const getBillingData = async (req, res) => {
   for (const [index, element] of billingData.entries()) {
     element.getCommercialArray.map(items => {
       if (element.paxType === items.PassengerType) {
-        element.itemAmount = items?.Tax + items?.BaseFare;
+        element.itemAmount = items?.BaseFare;
         element.airlineTax = items?.Tax;
         items.CommercialBreakup.map(item => {
           if (item.CommercialType == "Discount") {

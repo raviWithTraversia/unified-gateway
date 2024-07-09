@@ -134,10 +134,46 @@ const payuSuccess = async (req, res) =>
       }
   
     }
-
-
+    
+    const payuWalletResponceFailed = async (req, res) => 
+      {
+        try {
+          const result = await payuServices.payuWalletFail(req, res);
+          res.send(result);
+          // if (result.response == "Failed") {
+          //   apiSucessRes(
+          //     res,
+          //     result.response,
+          //     result.data,
+          //     ServerStatusCode.SUCESS_CODE
+          //   );
+          // } else if (result.response == "Data does not exist") {
+          //   apiErrorres(
+          //     res,
+          //     result.response,
+          //     ServerStatusCode.RESOURCE_NOT_FOUND,
+          //     true
+          //   );
+          // } else {
+          //   apiErrorres(
+          //     res,
+          //     errorResponse.SOME_UNOWN,
+          //     ServerStatusCode.INVALID_CRED,
+          //     true
+          //   );
+          // }
+        } catch (error) {
+          apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.INVALID_CRED,
+            true
+          );
+        }
+    
+      }
 
     
 module.exports = {
-  payu,payuSuccess,payuFail,payuWalletResponceSuccess
+  payu,payuSuccess,payuFail,payuWalletResponceSuccess,payuWalletResponceFailed
 };

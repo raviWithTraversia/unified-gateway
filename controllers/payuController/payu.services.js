@@ -717,6 +717,77 @@ const payuFail = async (req, res) => {
 
   }
 };
+const payuWalletFail = async (req, res) => {
+  try {
+    const { status, txnid, productinfo, udf1 } = req.body;
+    
+    const failedHtmlCode = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Payment Failed</title>
+          <style>
+            .failed-txt {
+              color: #bd362f;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background-color: #f2f2f2;
+            }
+            .failed-container {
+              max-width: 400px;
+              width: 100%;
+              padding: 20px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+              background-color: #fff;
+              text-align: center;
+            }
+            .failed-container p {
+              margin-top: 10px;
+            }
+            .failed-container a {
+              display: inline-block;
+              margin-top: 20px;
+              padding: 10px 20px;
+              background-color: #007bff;
+              color: #fff;
+              text-decoration: none;
+              border-radius: 5px;
+            }
+            .failed-container a:hover {
+              background-color: #0056b3;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="failed-container">
+            <h1 class="failed-txt">Payment Failed!</h1>
+            <p class="failed-txt">Your payment has failed.</p>
+            <p>Please try again later.</p>
+            <a href="https://kafilaui.traversia.net/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+          </div>
+        </body>
+        </html>
+      `;
+      return failedHtmlCode;
+
+    
+  } catch (error) {
+    // console.error('Error handling payuFail request:', error);
+
+    return "Data does not exist";
+
+  }
+};
 
 // const payuFail = async (req, res) => {
 //   try {
@@ -929,5 +1000,6 @@ module.exports = {
   payu,
   payuFail,
   payuSuccess,
-  payuWalletResponceSuccess
+  payuWalletResponceSuccess,
+  payuWalletFail
 };

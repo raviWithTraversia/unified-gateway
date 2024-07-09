@@ -21,6 +21,10 @@ payu_route.post(
     payuController.payuWalletResponceSuccess
 );
 
+payu_route.post(
+    '/paymentGateway/failed-payu-wallet-response',
+    payuController.payuWalletResponceFailed
+);
 
 payu_route.post(
     '/paymentGateway/failed',

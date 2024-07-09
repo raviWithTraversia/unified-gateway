@@ -77,6 +77,26 @@ const payuSuccess = async (req, res) =>
     }
     
   }
+
+  const payuWalletResponceSuccess = async (req, res) => 
+    {
+      try {
+        const result = await payuServices.payuWalletResponceSuccess(req, res);      
+        res.send(result);        
+      } catch (error) {
+        apiErrorres(
+          res,
+          errorResponse.SOME_UNOWN,
+          ServerStatusCode.INVALID_CRED,
+          true
+        );
+      }
+      
+    }
+  
+
+
+
   const payuFail = async (req, res) => 
     {
       try {
@@ -114,6 +134,10 @@ const payuSuccess = async (req, res) =>
       }
   
     }
+
+
+
+    
 module.exports = {
-  payu,payuSuccess,payuFail
+  payu,payuSuccess,payuFail,payuWalletResponceSuccess
 };

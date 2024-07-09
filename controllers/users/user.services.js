@@ -832,10 +832,16 @@ const getAllAgencyAndDistributer = async (req, res) => {
         $lookup:{
           from:'agentconfigurations',
           localField:'_id',
-          foreignField:"salesInchargeIds",
+          foreignField:"userId",
           as:"salesIncharge"
 
         },
+      },
+      { 
+        $unwind: {
+          path: '$salesIncharge',
+          preserveNullAndEmptyArrays: true
+        }
       },
       
       { 
@@ -852,7 +858,7 @@ const getAllAgencyAndDistributer = async (req, res) => {
           'company_ID.parent._id': 1,
           'company_ID.parent.companyName': 1,
           'company_ID.parent.type': 1,
-         salesIncharge:{$first:'$salesIncharge.salesInchargeIds'},
+         salesIncharge:'$salesIncharge.salesInchargeIds',
           userType: 1,
           login_Id: 1,
           email: 1,

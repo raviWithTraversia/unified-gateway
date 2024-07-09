@@ -200,33 +200,35 @@ async function handleflight(
   const responsesApi = await Promise.all(
     supplierCredentials.map(async (supplier) => {
       try {
-        switch (supplier.supplierCodeId.supplierCode) {
-          case "Kafila":
-            // check here airline promoCode if active periority first agent level then group level
-            return await KafilaFun(
-              Authentication,
-              supplier,
-              TypeOfTrip,
-              Segments,
-              PaxDetail,
-              TravelType,
-              Flexi,
-              Direct,
-              ClassOfService,
-              Airlines,
-              FareFamily,
-              RefundableOnly,
-              supplier.supplierCodeId.supplierCode,
-              PassengerPreferences,
-              ItineraryPriceCheckResponses,
-              paymentMethodType,
-              paymentGateway
-            );
+        if(ItineraryPriceCheckResponses[0].Provider === supplier.supplierCodeId.supplierCode){
+          switch (supplier.supplierCodeId.supplierCode) {
+            case "Kafila":
+              // check here airline promoCode if active periority first agent level then group level
+              return await KafilaFun(
+                Authentication,
+                supplier,
+                TypeOfTrip,
+                Segments,
+                PaxDetail,
+                TravelType,
+                Flexi,
+                Direct,
+                ClassOfService,
+                Airlines,
+                FareFamily,
+                RefundableOnly,
+                supplier.supplierCodeId.supplierCode,
+                PassengerPreferences,
+                ItineraryPriceCheckResponses,
+                paymentMethodType,
+                paymentGateway
+              );
 
-          default:
-            throw new Error(
-              `Unsupported supplier: ${supplier.supplierCodeId.supplierCode}`
-            );
+            default:
+              throw new Error(
+                `Unsupported supplier: ${supplier.supplierCodeId.supplierCode}`
+              );
+          }
         }
       } catch (error) {
         return { error: error.message, supplier: supplier };

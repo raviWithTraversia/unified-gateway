@@ -1162,6 +1162,7 @@ const getBillingData = async (req, res) => {
   }, {
     $project: {
       _id: "$Passengers._id",
+      paxType: "$Passengers.PaxType",
       accountPost: "$Passengers.accountPost",
       bookingId: "$bookingData.providerBookingId",
       ticketNo: "$Passengers.Optional.TicketNumber",
@@ -1185,24 +1186,41 @@ const getBillingData = async (req, res) => {
       travelDateOutbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Date', 0] },
       travelDateInbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
       issueDate: "$bookingData.bookingDateTime",
-      airlineTax: "$bookingData.itinerary.Taxes",
-      tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", purchaseCode: "0",
+      airlineTax: "0", tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", purchaseCode: "0",
       flightCode: "$bookingData.Supplier",
       airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
       bookingId1: {
         $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] }, "$bookingData.SalePurchase", `${MODEENV}~`,
           '$bookingData.itinerary.FareFamily']
       },
+      getCommercialArray: "$bookingData.itinerary.PriceBreakup"
     }
   }]);
 
-  billingData.forEach(async (element, index) => {
-    element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr
+  for (const [index, element] of billingData.entries()) {
+    element.getCommercialArray.map(items => {
+      if (element.paxType === items.PassengerType) {
+        element.itemAmount = items?.Tax + items?.BaseFare;
+        element.airlineTax = items?.Tax;
+        items.CommercialBreakup.map(item => {
+          if (item.CommercialType == "Discount") {
+            element.cashback = parseFloat(element.cashback) + parseFloat(item.Amount);
+          }
+          if (item.CommercialType == "TDS") {
+            element.tds = parseFloat(element.tds) + parseFloat(item.Amount);
+          }
+        });
+      }
+    });
+
+    element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr;
     element.id = index + 1;
     element.travelDateOutbound = await ISTTime(element.travelDateOutbound);
     element.travelDateInbound = await ISTTime(element.travelDateInbound);
     element.issueDate = await ISTTime(element.issueDate);
-  });
+    delete element.getCommercialArray;
+  }
+
   if (!billingData.length) {
     return {
       response: "Data Not Found",

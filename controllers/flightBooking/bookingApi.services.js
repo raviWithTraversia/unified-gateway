@@ -43,6 +43,7 @@ const getAllBooking = async (req, res) => {
     "toDate",
     "salesInchargeIds"
   ];
+  console.log(agencyId)
   const missingFields = fieldNames.filter(
     (fieldName) =>
       req.body[fieldName] === null || req.body[fieldName] === undefined
@@ -74,8 +75,8 @@ const getAllBooking = async (req, res) => {
   if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
 
     let filter = { userId: userId };
-    if (agencyId !== undefined && agencyId.trim() !== "") {
-      filter.AgencyId = agencyId;
+    if (agencyId !== undefined && agencyId !== '') {
+      filter.AgencyId =agencyId.forEach((element)=>{return element}).join('');
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -111,7 +112,7 @@ const getAllBooking = async (req, res) => {
         }
       }).populate('BookedBy');
 
-
+console.log('1st')
     if (!bookingDetails || bookingDetails.length === 0) {
       return {
         response: "Data Not Found",
@@ -161,8 +162,9 @@ const getAllBooking = async (req, res) => {
     }
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer") {
     let filter = { companyId: checkUserIdExist.company_ID._id };
-    if (agencyId !== undefined && agencyId.trim() !== "") {
-      filter.userId = { _id: agencyId };
+    if (agencyId !== undefined && agencyId !== "") {
+      ilter.userId={}
+      filter.userId={$in:agencyId}
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -196,6 +198,8 @@ const getAllBooking = async (req, res) => {
           path: 'company_ID'
         }
       }).populate('BookedBy');
+
+      console.log("2nd")
 
     if (!bookingDetails || bookingDetails.length === 0) {
       return {
@@ -246,8 +250,11 @@ const getAllBooking = async (req, res) => {
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" || checkUserIdExist?.company_ID?.type === "TMC") {
 
     let filter = {};
-    if (agencyId !== undefined && agencyId.trim() !== "") {
-      filter.userId = agencyId;
+    if (agencyId !== undefined && agencyId !== "") {
+      filter.userId={}
+      filter.userId={$in:agencyId}
+     
+      console.log(filter.userId)
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -281,7 +288,7 @@ const getAllBooking = async (req, res) => {
           path: 'company_ID'
         }
       }).populate('BookedBy');
-
+console.log("3rd")
     if (!bookingDetails || bookingDetails.length === 0) {
       return {
         response: "Data Not Found",
@@ -317,7 +324,6 @@ const getAllBooking = async (req, res) => {
         }
       }));
       let filteredBookingData = allBookingData; // Copy the original data
-
       if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
         filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
       }
@@ -336,8 +342,10 @@ const getAllBooking = async (req, res) => {
     if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Agency") {
 
       let filter = { userId: checkComapnyUser._id };
-      if (agencyId !== undefined && agencyId.trim() !== "") {
-        filter.AgencyId = agencyId;
+      if (agencyId !== undefined && agencyId !== "") {
+        ilter.userId={}
+      filter.userId={$in:agencyId}
+
       }
 
       if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -423,8 +431,9 @@ const getAllBooking = async (req, res) => {
       }
     } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Distributer") {
       let filter = { companyId: checkComapnyUser.company_ID._id };
-      if (agencyId !== undefined && agencyId.trim() !== "") {
-        filter.userId = { _id: agencyId };
+      if (agencyId !== undefined && agencyId !== "") {
+        ilter.userId={}
+      filter.userId={$in:agencyId}
       }
 
       if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -508,8 +517,9 @@ const getAllBooking = async (req, res) => {
     } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "TMC" || checkComapnyUser?.company_ID?.type === "TMC") {
 
       let filter = {};
-      if (agencyId !== undefined && agencyId.trim() !== "") {
-        filter.userId = agencyId;
+      if (agencyId !== undefined && agencyId !== "") {
+        ilter.userId={}
+      filter.userId={$in:agencyId}
       }
 
       if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -581,6 +591,7 @@ const getAllBooking = async (req, res) => {
         }));
         let filteredBookingData = allBookingData; // Copy the original data
 
+        console.log('sdhei')
         if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
           filteredBookingData = allBookingData.filter(bookingData => bookingData.salesInchargeIds === salesInchargeIds);
         }

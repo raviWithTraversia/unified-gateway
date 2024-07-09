@@ -1,44 +1,90 @@
-const config = require('../../../configs/config');
 const soap = require('soap');
-const fs = require('fs');
-const path = require('path');
+const generateSoapHeader = require('./generateSoapHeader');
 
-// Helper function to create SOAP client
-async function createAmadeusClient() {
-  const wsdlPath = path.resolve(__dirname, 'fwsap/stag', 'service.wsdl'); // Adjust as necessary
+const WSDL_URL = 'https://noded5.test.webservices.amadeus.com/1ASIWKAFK4H?wsdl';
 
-  let endpoint, clientId, clientSecret;
+async function search() {
+    const username = 'WSK4HKAF';
+    const password = '3FZ@ZZVeRiS+';
 
-  if (config.MODE === 'TEST') {
-    endpoint = config.WSAP_AMADEUS.TEST.WSAP_ENDPOINT;
-    clientId = config.WSAP_AMADEUS.TEST.WSAP_CLIENT_ID;
-    clientSecret = config.WSAP_AMADEUS.TEST.WSAP_CLIENT_SECRET;
-  } else if (config.MODE === 'LIVE') {
-    endpoint = config.WSAP_AMADEUS.LIVE.WSAP_ENDPOINT;
-    clientId = config.WSAP_AMADEUS.LIVE.WSAP_CLIENT_ID;
-    clientSecret = config.WSAP_AMADEUS.LIVE.WSAP_CLIENT_SECRET;
-  } else {
-    throw new Error('Invalid environment specified');
-  }
+    const soapHeader = generateSoapHeader(username, password);
+    
+    soap.createClient(WSDL_URL, (err, client) => {
+        if (err) throw err;
 
-  const options = {
-    wsdl_headers: {
-      Authorization: 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
-    },
-    endpoint: endpoint
-  };
+        client.addSoapHeader(soapHeader);
 
-  return new Promise((resolve, reject) => {
-    soap.createClient(wsdlPath, options, (err, client) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(client);
-      }
+        const requestArgs = {
+            // Your request payload here
+            Fare_MasterPricerTravelBoardSearch: {
+                numberOfUnit: {
+                    unitNumberDetail: [
+                        {
+                            numberOfUnits: 250,
+                            typeOfUnit: 'RC'
+                        },
+                        {
+                            numberOfUnits: 1,
+                            typeOfUnit: 'PX'
+                        }
+                    ]
+                },
+                paxReference: {
+                    ptc: 'ADT',
+                    traveller: [
+                        {
+                            ref: 1
+                        }
+                    ]
+                },
+                fareOptions: {
+                    pricingTickInfo: {
+                        pricingTicketing: {
+                            priceType: ['RP', 'RU', 'TAC', 'ET', 'XND']
+                        }
+                    }
+                },
+                travelFlightInfo: {
+                    cabinId: {
+                        cabin: 'M'
+                    },
+                    companyIdentity: {
+                        carrierQualifier: 'M',
+                        carrierId: ['AI', 'UK']
+                    }
+                },
+                itinerary: {
+                    requestedSegmentRef: {
+                        segRef: 1
+                    },
+                    departureLocalization: {
+                        departurePoint: {
+                            locationId: 'DEL'
+                        }
+                    },
+                    arrivalLocalization: {
+                        arrivalPointDetails: {
+                            locationId: 'LKO'
+                        }
+                    },
+                    timeDetails: {
+                        firstDateTimeDetail: {
+                            timeQualifier: 'TD',
+                            date: '300924',
+                            time: '0001'
+                        }
+                    }
+                }
+            }
+        };
+
+        client.Fare_MasterPricerTravelBoardSearch(requestArgs, (err, result) => {
+            if (err) throw err;
+            console.log('Response:', result);
+        });
     });
-  });
 }
 
 module.exports = {
-  createAmadeusClient
+    search
 };

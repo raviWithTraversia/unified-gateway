@@ -200,6 +200,7 @@ async function handleflight(
   const responsesApi = await Promise.all(
     supplierCredentials.map(async (supplier) => {
       try {
+        
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
             // check here airline promoCode if active periority first agent level then group level

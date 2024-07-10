@@ -332,8 +332,67 @@ const getAllledgerbyDate=async(req,res)=>{
       $gte: new Date(date + 'T00:00:00.000Z'), // Start of fromDate
       $lte: new Date(date + 'T23:59:59.999Z')    // End of toDate
     };
-    const findleadger=await ledger.find({transationDate: dateId}).populate([{path:'userId',select:"fname lastName email"},{path:"companyId" ,select:"companyName"},{path:"transactionBy",select:"fname lastName"}]).sort({createdAt:-1})
-    if(!findleadger){
+    const uniqueCompanyIds = await ledger.aggregate([
+      { 
+        $match: { 
+          transationDate: dateId 
+        } 
+      },
+      { 
+        $lookup: { 
+          from: 'users', // Replace 'users' with the actual collection name for 'userId'
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'userData'
+        }
+      },
+      { $unwind: '$userData' }, // Unwind userData array
+    
+      { 
+        $lookup: { 
+          from: 'companies', // Replace 'companies' with the actual collection name for 'companyId'
+          localField: 'companyId',
+          foreignField: '_id',
+          as: 'companyData'
+        }
+      },
+      { $unwind: '$companyData' }, // Unwind companyData array
+    
+      { 
+        $lookup: { 
+          from: 'users', // Replace 'users' with the actual collection name for 'transactionBy'
+          localField: 'transactionBy',
+          foreignField: '_id',
+          as: 'transactionByData'
+        }
+      },
+      { $unwind: '$transactionByData' }, // Unwind transactionByData array
+    
+      { 
+        $sort: { 
+          createdAt: -1 
+        } 
+      },
+      {
+        $group: {
+          _id: '$companyData._id',
+          runningAmount: { $first: '$runningAmount' }, // Assuming runningAmount is part of your documents
+          ledgerId: { $first: '$ledgerId' }, // Assuming ledgerId is part of your documents
+          transactionAmount: { $first: '$transactionAmount' }, // Assuming transactionAmount is part of your documents
+          transationDate: {$first:"$transationDate"},
+          
+          createdAt:{$first:"$createdAt"}, 
+
+          userId: { $first: '$userData.userId' },
+          companyId: { $first: { companyName: '$companyData.companyName', type: '$companyData.type' } },
+          transactionByData: { $first: { fname: '$transactionByData.fname', lname: '$transactionByData.fname' } }
+        
+      }},
+    
+     
+    ]);
+    
+    if(!uniqueCompanyIds){
 return{
   response:"ledger not found"
 }
@@ -342,7 +401,7 @@ return{
     else{
     return {
       response:"ledger find succefully",
-      data:findleadger
+      data:uniqueCompanyIds
     }
   }
 

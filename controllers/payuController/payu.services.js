@@ -509,20 +509,16 @@ const payuWalletResponceSuccess = async (req, res) => {
       if (userData) {   
         const getAgentConfigForUpdate = await agentConfig.findOne({
           userId: userData._id,
-        });        
-        
-        const maxCreditAmount = getAgentConfigForUpdate?.maxcreditLimit || 0;
-
+        });
+        const maxCreditAmount = getAgentConfigForUpdate?.maxcreditLimit ?? 0;
+        const newBalanceAmount = maxCreditAmount + Number(amount);
        
-        const newBalanceAmount = maxCreditAmount + amount;
-        
-       
+   await agentConfig.findOneAndUpdate(
+          { userId: userData._id },
+          { maxcreditLimit: newBalanceAmount },
+          {new:true}
 
-        const filter = { userId: userData._id };
-        const update = { maxcreditLimit: newBalanceAmount };
-
-        await agentConfig.updateOne(filter, update);
-
+        );
         await ledger.create({
           userId: userData._id,
           companyId: userData.company_ID,

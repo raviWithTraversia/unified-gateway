@@ -2,6 +2,7 @@ const Company = require("../../models/Company");
 const User = require("../../models/User");
 const ledger = require("../../models/Ledger");
 const { ObjectId } = require("mongodb");
+const { response } = require("../../routes/payuRoute");
 const getAllledger = async (req, res) => {
   const {
     userId,
@@ -319,6 +320,36 @@ const transactionReport = async (req, res) => {
   };
 }
 
+const getAllledgerbyDate=async(req,res)=>{
+  try{
+    const {date}=req.body;
+    if(!date){
+      return {
+        response:"please enter date"
+      }
+    }
+    const dateId = {
+      $gte: new Date(date + 'T00:00:00.000Z'), // Start of fromDate
+      $lte: new Date(date + 'T23:59:59.999Z')    // End of toDate
+    };
+    const findleadger=await ledger.find({transationDate: dateId}).populate([{path:'userId',select:"fname lastName email"},{path:"companyId" ,select:"companyName"},{path:"transactionBy",select:"fname lastName"}]).sort({createdAt:-1})
+    if(!findleadger){
+return{
+  response:"ledger not found"
+}
+
+    }
+    else{
+    return {
+      response:"ledger find succefully",
+      data:findleadger
+    }
+  }
+
+  }catch(error){
+throw error 
+  }
+}
 module.exports = {
-  getAllledger, transactionReport
+  getAllledger, transactionReport,getAllledgerbyDate
 };

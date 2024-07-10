@@ -15,6 +15,7 @@ ledger_route.post(
     '/transactionReport',
     ledgetController.transactionReport
 )
+ledger_route.post('/agentBalenceReport',ledgetController.getAllledgerbyDate)
 
 ledger_route.get('/test', auth, function (req, res) {
     res.status(200).json({ status: "success", msg: "this is test responce" });

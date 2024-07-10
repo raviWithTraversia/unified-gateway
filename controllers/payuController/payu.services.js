@@ -498,24 +498,31 @@ const payuWalletResponceSuccess = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1, amount } = req.body;     
     if (status === "success") {
+      
       const userData = await User.findOne({ company_ID: udf1 }).populate({
-        path: 'roleId',
-        match: { name: 'Agency' }
-      });
-  
-      if (userData) {
+          path: 'roleId',
+          match: { name: 'Agency' },
+        });
+
+        
+
+      if (userData) {   
         const getAgentConfigForUpdate = await agentConfig.findOne({
           userId: userData._id,
-        });
-  
-        const maxCreditAmount = getAgentConfigForUpdate?.maxcreditLimit ?? 0;
+        });        
+        
+        const maxCreditAmount = getAgentConfigForUpdate?.maxcreditLimit || 0;
+
+       
         const newBalanceAmount = maxCreditAmount + amount;
-  
-        await agentConfig.updateOne(
-          { userId: userData._id },
-          { maxcreditLimit: newBalanceAmount }
-        );
-  
+        
+       
+
+        const filter = { userId: userData._id };
+        const update = { maxcreditLimit: newBalanceAmount };
+
+        await agentConfig.updateOne(filter, update);
+
         await ledger.create({
           userId: userData._id,
           companyId: userData.company_ID,
@@ -527,20 +534,17 @@ const payuWalletResponceSuccess = async (req, res) => {
           runningAmount: newBalanceAmount,
           remarks: "Wallet Amount Deducted from Your Account.",
           transactionBy: userData._id,
-          
         });
 
         await transaction.create({
           userId: userData._id,
           companyId: userData.company_ID,
-          trnsNo: Math.floor(100000 + Math.random() * 900000),
+          trnsNo: txnid,
           trnsType: "DEBIT",
           paymentMode: "Payu",
           trnsStatus: "success",
           transactionBy: userData._id,
-          //bookingId: ItineraryPriceCheckResponses[0].BookingId,
-        });    
-     
+        });
 
         let successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
@@ -597,7 +601,7 @@ const payuWalletResponceSuccess = async (req, res) => {
         <h1 class="success-txt">Payment Successful!</h1>
         <p class="success-txt">Your payment has been successfully processed.</p>
         <p>Thank you for your purchase.</p>
-        <a href="https://kafilaui.traversia.net/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+        <a href="/">Go to Merchant...</a>
       </div>
     </body>
     </html>`;        
@@ -611,6 +615,8 @@ const payuWalletResponceSuccess = async (req, res) => {
     throw error;
   }
 };
+
+
 const payuFail = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1 } = req.body;
@@ -773,7 +779,7 @@ const payuWalletFail = async (req, res) => {
             <h1 class="failed-txt">Payment Failed!</h1>
             <p class="failed-txt">Your payment has failed.</p>
             <p>Please try again later.</p>
-            <a href="https://kafilaui.traversia.net/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+            <a href="/">Go to Merchant...</a>
           </div>
         </body>
         </html>

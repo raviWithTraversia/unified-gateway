@@ -507,15 +507,17 @@ const payuWalletResponceSuccess = async (req, res) => {
         const getAgentConfigForUpdate = await agentConfig.findOne({
           userId: userData._id,
         });
-  
         const maxCreditAmount = getAgentConfigForUpdate?.maxcreditLimit ?? 0;
-        const newBalanceAmount = maxCreditAmount + amount;
-  
-        await agentConfig.updateOne(
+        const newBalanceAmount = maxCreditAmount + Number(amount);
+        console.log(maxCreditAmount,amount)
+  console.log(userData._id)
+  console.log(newBalanceAmount)
+   await agentConfig.findOneAndUpdate(
           { userId: userData._id },
-          { maxcreditLimit: newBalanceAmount }
+          { maxcreditLimit: newBalanceAmount },
+          {new:true}
+
         );
-  
         await ledger.create({
           userId: userData._id,
           companyId: userData.company_ID,
@@ -597,7 +599,7 @@ const payuWalletResponceSuccess = async (req, res) => {
         <h1 class="success-txt">Payment Successful!</h1>
         <p class="success-txt">Your payment has been successfully processed.</p>
         <p>Thank you for your purchase.</p>
-        <a href="https://kafilaui.traversia.net/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+        <a href="/">Go to Merchant...</a>
       </div>
     </body>
     </html>`;        

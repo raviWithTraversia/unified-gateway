@@ -37,6 +37,11 @@ const sendPasswordResetEmail = async (recipientEmail, resetToken, mailConfig, us
       user: mailConfig.userName,
       pass: mailConfig.password,
     },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    logger: true, // Enable logger
+    debug: true,  // Enable debug
   });
 
   // Email content

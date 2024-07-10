@@ -175,6 +175,12 @@ const sendOtpOnEmail = async (recipientEmail, otp, smtpDetails) => {
       user: smtpDetails.userName,
       pass: smtpDetails.password, // Verify the password for leading/trailing spaces
     },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    logger: true, // Enable logger
+    debug: true,  // Enable debug
+
   });
 
   // Email content
@@ -236,6 +242,11 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText, mailSu
       user: smtpDetails.userName,
       pass: smtpDetails.password, // Verify the password for leading/trailing spaces
     },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    logger: true, // Enable logger
+    debug: true,  // Enable debug
   });
 
   // Email content
@@ -276,6 +287,11 @@ const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetai
       user: smtpDetails.userName,
       pass: smtpDetails.password, // Verify the password for leading/trailing spaces
     },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    logger: true, // Enable logger
+    debug: true,  // Enable debug
   });
 
   // Email content
@@ -330,6 +346,11 @@ const sendPasswordResetEmailLink = async (recipientEmail, resetToken, mailConfig
       user: mailConfig.userName,
       pass: mailConfig.password,
     },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    logger: true, // Enable logger
+    debug: true,  // Enable debug
   });
   const htmlContent = `
   <p>Click the following link to reset your password: <a href="${baseUrl}/auth/verifyToken?token=${resetToken}&userId=${user._id}">${baseUrl}/auth/verifyToken?token=${resetToken}&userId=${user._id}</a></p>
@@ -505,6 +526,11 @@ const sendNotificationByEmail = (mailConfig, DATA) => {
       user: mailConfig[0].userName,
       pass: mailConfig[0].password,
     },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    logger: true, // Enable logger
+    debug: true,  // Enable debug
   });
 
   const mailOptions = {

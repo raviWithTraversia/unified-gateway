@@ -8,10 +8,10 @@ const bookingDetailsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Company",
   },
-  AgencyId: {
+  AgencyId:[{
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-  },
+  }],
   BookedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

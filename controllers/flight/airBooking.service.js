@@ -523,10 +523,10 @@ const KafilaFun = async (
   //     adultPriceCalculate + childPriceCalculate + infantPriceCalculate;
   //   return returnCalculatedOfferedPrice;
   // };
-  const calculateOfferedPrice = async (fareFamiliyElement: any) => {
+  const calculateOfferedPrice = async (fareFamiliyElement) => {
     let returnCalculatedOfferedPrice = 0;
   
-    fareFamiliyElement.PriceBreakup?.forEach((priceBreakupElement: any) => {
+    fareFamiliyElement.PriceBreakup?.forEach((priceBreakupElement) => {
       let { PassengerType, NoOfPassenger, CommercialBreakup, BaseFare, Tax, TaxBreakup } =
         priceBreakupElement;
   
@@ -534,13 +534,13 @@ const KafilaFun = async (
         returnCalculatedOfferedPrice += Number(BaseFare) * NoOfPassenger;
         returnCalculatedOfferedPrice += Number(Tax) * NoOfPassenger;
   
-        TaxBreakup?.forEach((taxBreakup: any) => {
+        TaxBreakup?.forEach((taxBreakup) => {
           let { TaxType, Amount } = taxBreakup;
           if (TaxType)
             returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
         });
   
-        CommercialBreakup?.forEach((commercialBreakup: any) => {
+        CommercialBreakup?.forEach((commercialBreakup) => {
           let { CommercialType, Amount } = commercialBreakup;
           if (offerPriceMinusInAmount(CommercialType))
             returnCalculatedOfferedPrice -= Number(Amount) * NoOfPassenger;

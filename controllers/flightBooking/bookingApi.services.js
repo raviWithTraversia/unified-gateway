@@ -1283,13 +1283,13 @@ const manuallyUpdateBookingStatus = async (req, res) => {
         response: "Please provide required fields"
       }
     }
-    let getBooking = await bookingdetails.findById(bookingId);
+    let getBooking = await bookingdetails.findOne({bookingId:bookingId});
     if (!getBooking) {
       return {
         response: "No booking Found for this BookingId."
       }
     }
-    await bookingdetails.findByIdAndUpdate(bookingId, { bookingStatus: status });
+    await bookingdetails.findByIdAndUpdate(getBooking._id, { bookingStatus: status });
     return {
       response: "Booking Status Updated Successfully."
     }

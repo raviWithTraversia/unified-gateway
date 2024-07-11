@@ -76,7 +76,7 @@ const getAllBooking = async (req, res) => {
 
     let filter = { userId: userId };
     if (agencyId !== undefined && agencyId !== '') {
-      filter.AgencyId =agencyId.forEach((element)=>{return element}).join('');
+      filter.AgencyId =agencyId;
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {

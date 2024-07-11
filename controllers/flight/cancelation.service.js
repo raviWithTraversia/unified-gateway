@@ -636,6 +636,28 @@ const updateBookingStatus = async (req, res) => {
       }
     }))?.data;
 
+    //     const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.BookingId });
+    //     if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
+    //       await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
+    //         const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
+    //         if (apiPassenger) {
+    //           passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
+    //           // passenger.Status = "CONFIRMED";
+    //         }
+    //       }));
+
+    //       await getpassengersPrefrence.save();
+    //     }
+
+
+
+    // return {
+    //   response: "Status updated Successfully!",
+    //   data:response
+    // }
+    // console.log(response);
+
+
     bulkOps.push({
       updateOne: {
         filter: { _id: item._id },

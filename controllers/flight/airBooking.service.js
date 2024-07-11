@@ -476,53 +476,90 @@ const KafilaFun = async (
     return returnBoolean;
   }
 
+  // const calculateOfferedPrice = async (fareFamiliyElement) => {
+  //   let returnCalculatedOfferedPrice = 0,
+  //     adultPriceCalculate = 0,
+  //     childPriceCalculate = 0,
+  //     infantPriceCalculate = 0;
+
+  //   fareFamiliyElement.PriceBreakup?.forEach((priceBreakupElement) => {
+  //     let { PassengerType, NoOfPassenger, CommercialBreakup, BaseFare, Tax } =
+  //       priceBreakupElement;
+
+  //     if (PassengerType == "ADT") {
+  //       adultPriceCalculate = Number(BaseFare) * NoOfPassenger;
+  //       adultPriceCalculate += Number(Tax) * NoOfPassenger;
+  //       CommercialBreakup?.forEach((commercialBreakup) => {
+  //         let { CommercialType, Amount } = commercialBreakup;
+  //         if (offerPriceMinusInAmount(CommercialType))
+  //           adultPriceCalculate -= Number(Amount) * NoOfPassenger;
+  //         else if (offerPricePlusInAmount(CommercialType))
+  //           adultPriceCalculate += Number(Amount) * NoOfPassenger;
+  //       });
+  //     } else if (PassengerType == "CHD") {
+  //       childPriceCalculate = Number(BaseFare) * NoOfPassenger;
+  //       childPriceCalculate += Number(Tax) * NoOfPassenger;
+  //       CommercialBreakup?.forEach((commercialBreakup) => {
+  //         let { CommercialType, Amount } = commercialBreakup;
+  //         if (offerPriceMinusInAmount(CommercialType))
+  //           childPriceCalculate -= Number(Amount) * NoOfPassenger;
+  //         else if (offerPricePlusInAmount(CommercialType))
+  //           childPriceCalculate += Number(Amount) * NoOfPassenger;
+  //       });
+  //     } else if (PassengerType == "INF") {
+  //       infantPriceCalculate = Number(BaseFare) * NoOfPassenger;
+  //       infantPriceCalculate += Number(Tax) * NoOfPassenger;
+  //       CommercialBreakup?.forEach((commercialBreakup) => {
+  //         let { CommercialType, Amount } = commercialBreakup;
+  //         if (offerPriceMinusInAmount(CommercialType))
+  //           infantPriceCalculate -= Number(Amount) * NoOfPassenger;
+  //         else if (offerPricePlusInAmount(CommercialType))
+  //           infantPriceCalculate += Number(Amount) * NoOfPassenger;
+  //       });
+  //     }
+  //   });
+
+  //   returnCalculatedOfferedPrice =
+  //     adultPriceCalculate + childPriceCalculate + infantPriceCalculate;
+  //   return returnCalculatedOfferedPrice;
+  // };
+  
+  
   const calculateOfferedPrice = async (fareFamiliyElement) => {
-    let returnCalculatedOfferedPrice = 0,
-      adultPriceCalculate = 0,
-      childPriceCalculate = 0,
-      infantPriceCalculate = 0;
-
+    let returnCalculatedOfferedPrice = 0;
+  
     fareFamiliyElement.PriceBreakup?.forEach((priceBreakupElement) => {
-      let { PassengerType, NoOfPassenger, CommercialBreakup, BaseFare, Tax } =
+      let { PassengerType, NoOfPassenger, CommercialBreakup, BaseFare, Tax, TaxBreakup } =
         priceBreakupElement;
-
-      if (PassengerType == "ADT") {
-        adultPriceCalculate = Number(BaseFare) * NoOfPassenger;
-        adultPriceCalculate += Number(Tax) * NoOfPassenger;
-        CommercialBreakup?.forEach((commercialBreakup) => {
-          let { CommercialType, Amount } = commercialBreakup;
-          if (offerPriceMinusInAmount(CommercialType))
-            adultPriceCalculate -= Number(Amount) * NoOfPassenger;
-          else if (offerPricePlusInAmount(CommercialType))
-            adultPriceCalculate += Number(Amount) * NoOfPassenger;
+  
+      if (PassengerType) {
+        returnCalculatedOfferedPrice += Number(BaseFare) * NoOfPassenger;
+        returnCalculatedOfferedPrice += Number(Tax) * NoOfPassenger;
+  
+        TaxBreakup?.forEach((taxBreakup) => {
+          let { TaxType, Amount } = taxBreakup;
+          if (TaxType)
+            returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
         });
-      } else if (PassengerType == "CHD") {
-        childPriceCalculate = Number(BaseFare) * NoOfPassenger;
-        childPriceCalculate += Number(Tax) * NoOfPassenger;
+  
         CommercialBreakup?.forEach((commercialBreakup) => {
           let { CommercialType, Amount } = commercialBreakup;
           if (offerPriceMinusInAmount(CommercialType))
-            childPriceCalculate -= Number(Amount) * NoOfPassenger;
+            returnCalculatedOfferedPrice -= Number(Amount) * NoOfPassenger;
           else if (offerPricePlusInAmount(CommercialType))
-            childPriceCalculate += Number(Amount) * NoOfPassenger;
-        });
-      } else if (PassengerType == "INF") {
-        infantPriceCalculate = Number(BaseFare) * NoOfPassenger;
-        infantPriceCalculate += Number(Tax) * NoOfPassenger;
-        CommercialBreakup?.forEach((commercialBreakup) => {
-          let { CommercialType, Amount } = commercialBreakup;
-          if (offerPriceMinusInAmount(CommercialType))
-            infantPriceCalculate -= Number(Amount) * NoOfPassenger;
-          else if (offerPricePlusInAmount(CommercialType))
-            infantPriceCalculate += Number(Amount) * NoOfPassenger;
+            returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
         });
       }
     });
-
-    returnCalculatedOfferedPrice =
-      adultPriceCalculate + childPriceCalculate + infantPriceCalculate;
+  
+    // returnCalculatedOfferedPrice = Number(
+    //   commonService.roundOffNumberValues(returnCalculatedOfferedPrice)
+    // );
+    
     return returnCalculatedOfferedPrice;
-  };
+  }; 
+    
+
   async function calculateOfferedPriceForAll() {
     let calculationOfferPriceWithCommercial = 0; // Initialize to 0
     for (const itinerary of ItineraryPriceCheckResponses) {
@@ -539,7 +576,7 @@ const KafilaFun = async (
   // Check Balance Available or Not Available
   const totalSSRWithCalculationPrice =
     calculationOfferPriceWithCommercial + totalssrPrice;
-
+ 
   if (paymentMethodType === "Wallet") {
     try {
 

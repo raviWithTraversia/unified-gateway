@@ -1,16 +1,15 @@
 module.exports = {
-    apps: [
-      {
-        name: 'mongod',
-        script: 'mongod',
-        args: '--config "C:/Program Files/MongoDB/Server/7.0/bin/mongod.conf"',
-        exec_mode: 'fork',
-        autorestart: true,
-        watch: false,
-        max_memory_restart: '1G',
-      },
-    ],
-  };
+  apps: [
+    {
+      name: "mongod",
+      script: "C:\\Program Files\\MongoDB\\Server\\7.0\\bin\\mongod.exe",
+      exec_mode: "fork", // Use "fork" for single instance
+      watch: false,      // Disable watching for changes
+      autorestart: true, // Automatically restart if process crashes
+    }
+  ]
+};
+
   
 //   npm install pm2 -g
 //   pm2 start ecosystem.config.js

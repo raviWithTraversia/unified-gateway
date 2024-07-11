@@ -1,6 +1,12 @@
 module.exports.Config = {
   // Mode (LIVE or TEST)
   MODE: 'TEST',
+  TEST: {
+    baseURL: "https://kafilaui.traversia.net"
+  },
+  LIVE: {
+    baseURL: "https://agent.kafilaholidays.in"
+  },
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",
   MONGODB_URL: process.env.MONGODB_URL || "mongodb+srv://hsbhandari:fl1I9D8gtsbeHzdO@cluster0.xdzp3sk.mongodb.net/b2bportal",
@@ -42,21 +48,7 @@ module.exports.Config = {
       salt: "4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW",
       key: "gtKFFx",
     }
-  },
-  // Amadeus credentianls 
-  WSAP_AMADEUS: {
-    LIVE: {
-      WSAP_ENDPOINT: "https://test-wsap.example.com",
-      WSAP_CLIENT_ID:"your_test_client_id",
-      WSAP_CLIENT_SECRET:"your_test_client_secret",
-        
-    },
-    TEST: {
-      WSAP_ENDPOINT: "https://test-wsap.example.com",
-      WSAP_CLIENT_ID:"your_test_client_id",
-      WSAP_CLIENT_SECRET:"your_test_client_secret",
-    }
-    }, 
+  }, 
 
 
   EASEBUZZ_PG_URL: 'https://testpay.easebuzz.in/payment/initiateLink'

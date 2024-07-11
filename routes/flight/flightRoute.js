@@ -20,7 +20,7 @@ flight_route.post('/flight/fullCancelation', auth, flight.fullCancelation);
 flight_route.post('/flight/partialCancelation', auth, flight.partialCancelation);
 flight_route.post('/flight/fullCancelationCharge', auth, flight.fullCancelationCharge);
 flight_route.post('/flight/partialCancelationCharge', auth, flight.partialCancelationCharge);
-flight_route.post('/flight/updateBookingStatus', auth, flight.updateBookingStatus);
+flight_route.post('/flight/updateBookingStatus', flight.updateBookingStatus);
 flight_route.post('/flight/amendment', auth, flight.amendmentDetails);
 flight_route.post('/flight/allAmendment', auth, flight.getAllAmendment);
 flight_route.post('/flight/assignAmendmentUser', auth, flight.assignAmendmentUser);

@@ -481,7 +481,7 @@ const sendNotificationByEmail = (mailConfig, DATA) => {
       </tbody>
   </table>
   <br />
-  <br />Best Regards - Team Traversia Dev
+  <br />Best Regards - Team Kafila  
   <br />
               </td>
   <td>&nbsp;</td>

@@ -550,9 +550,9 @@ const KafilaFun = async (
       }
     });
   
-    returnCalculatedOfferedPrice = Number(
-      commonService.roundOffNumberValues(returnCalculatedOfferedPrice)
-    );
+    // returnCalculatedOfferedPrice = Number(
+    //   commonService.roundOffNumberValues(returnCalculatedOfferedPrice)
+    // );
   
     return returnCalculatedOfferedPrice;
   }; 

@@ -3,7 +3,7 @@ module.exports = {
       {
         name: 'mongod',
         script: 'mongod',
-        args: '--config "C:/Program Files/MongoDB/Server/7.0/bin/mongod.conf"',
+        args: '--config "C:/Program Files/MongoDB/Server/7.0/bin/mongod.cfg"',
         exec_mode: 'fork',
         autorestart: true,
         watch: false,

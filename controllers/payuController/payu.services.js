@@ -457,7 +457,7 @@ const payuSuccess = async (req, res) => {
         <h1 class="success-txt">Payment Successful!</h1>
         <p class="success-txt">Your payment has been successfully processed.</p>
         <p>Thank you for your purchase.</p>
-        <a href="https://kafilaui.traversia.net/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+        <a href="${Config[Config.MODE].baseURL}/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
       </div>
     </body>
     </html>`;
@@ -498,9 +498,6 @@ const payuWalletResponceSuccess = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1, amount } = req.body;     
     if (status === "success") {
-      // let modeCHeck = Config.MODE;
-      // console.log(Config[modeCHeck].baseURL);
-      return false;
       const userData = await User.findOne({ company_ID: udf1 }).populate({
           path: 'roleId',
           match: { name: 'Agency' },
@@ -599,7 +596,7 @@ const payuWalletResponceSuccess = async (req, res) => {
         <h1 class="success-txt">Payment Successful!</h1>
         <p class="success-txt">Your payment has been successfully processed.</p>
         <p>Thank you for your purchase.</p>
-        <a href="https://agent.kafilaholidays.in/">Go to Merchant...</a>
+        <a href="${Config[Config.MODE].baseURL}">Go to Merchant...</a>
       </div>
     </body>
     </html>`;        
@@ -703,7 +700,7 @@ const payuFail = async (req, res) => {
             <h1 class="failed-txt">Payment Failed!</h1>
             <p class="failed-txt">Your payment has failed.</p>
             <p>Please try again later.</p>
-            <a href="https://kafilaui.traversia.net/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+            <a href="${Config[Config.MODE].baseURL}/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
           </div>
         </body>
         </html>
@@ -777,7 +774,7 @@ const payuWalletFail = async (req, res) => {
             <h1 class="failed-txt">Payment Failed!</h1>
             <p class="failed-txt">Your payment has failed.</p>
             <p>Please try again later.</p>
-            <a href="https://agent.kafilaholidays.in/">Go to Merchant...</a>
+            <a href="${Config[Config.MODE].baseURL}">Go to Merchant...</a>
           </div>
         </body>
         </html>

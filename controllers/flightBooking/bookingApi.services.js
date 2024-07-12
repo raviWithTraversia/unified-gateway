@@ -1215,7 +1215,7 @@ const getBillingData = async (req, res) => {
         element.airlineTax = items?.Tax;
         items.CommercialBreakup.map(item => {
           if (item.CommercialType == "Discount") {
-            element.cashback = parseFloat((parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(2));
+            element.Discount = parseFloat((parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(2));
           }
           if (item.CommercialType == "TDS") {
             element.tds = parseFloat((parseFloat(element.tds) + parseFloat(item.Amount)).toFixed(2));

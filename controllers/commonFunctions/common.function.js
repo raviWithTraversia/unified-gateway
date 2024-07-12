@@ -560,6 +560,7 @@ const sendNotificationByEmail = (mailConfig, DATA) => {
 }
 
 const recieveDI = async (configData, findUser, product, amount, transactionBy) => {
+  try{
   configData.diSetupIds.diSetupIds = await configData.diSetupIds.diSetupIds.filter(diSetup =>
     diSetup.status === true &&
     // diSetup.companyId.toString() === findUser.company_ID.toString() &&
@@ -624,8 +625,10 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
     });
   }
   return bonusAmount;
+}catch(error){
+  return null
 }
-
+}
 module.exports = {
   createToken,
   securePassword,

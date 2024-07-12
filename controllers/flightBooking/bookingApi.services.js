@@ -3,6 +3,9 @@ const User = require("../../models/User");
 const bookingdetails = require("../../models/booking/BookingDetails");
 const config = require("../../models/AgentConfig");
 const passengerPreferenceSchema = require("../../models/booking/PassengerPreference");
+const Email=require('../commonFunctions/common.function')
+const SmtpConfig = require("../../models/Smtp");
+
 const { ObjectId } = require("mongodb");
 const moment = require('moment');
 const { Config } = require('../../configs/config');
@@ -1215,7 +1218,7 @@ const getBillingData = async (req, res) => {
         element.airlineTax = items?.Tax;
         items.CommercialBreakup.map(item => {
           if (item.CommercialType == "Discount") {
-            element.Discount = parseFloat((parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(2));
+            element.discount = parseFloat((parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(2));
           }
           if (item.CommercialType == "TDS") {
             element.tds = parseFloat((parseFloat(element.tds) + parseFloat(item.Amount)).toFixed(2));
@@ -1298,6 +1301,42 @@ const manuallyUpdateBookingStatus = async (req, res) => {
   }
 }
 
+const SendCardOnMail=async(req,res)=>{
+  try{
+    const {cartId,companyId}=req.body;
+    if(!cartId||!companyId){
+      return {
+        response:'cartId and companyId not found'
+      }
+    }
+
+    const bookingData=await bookingdetails.findOne({bookingId:cartId}).populate([{path:"BookedBy"},{path:"companyId"},{path:"userId"},[{path:'AgencyId'}]])
+    if(!bookingData){
+      return{
+        response:'bookingData Not Found'
+      }
+    }
+    const mailConfig = await SmtpConfig.find({ companyId: companyId }).populate("companyId" ,"companyName");
+        
+    if (mailConfig) {
+        // const data = await Email.sendCardDetailOnMail(mailConfig,bookingData);
+        
+        return {
+            response: 'SMTP Email sent successfully',
+            data:bookingData
+        };
+    } else {
+        return {
+            response: "Your Smtp data not found"
+        };
+    }
+
+
+  }catch(error){
+    throw error
+  }
+}
+
 module.exports = {
   getAllBooking,
   getBookingByBookingId,
@@ -1308,5 +1347,6 @@ module.exports = {
   getBookingByPaxDetails,
   getBillingData,
   updateBillPost,
-  manuallyUpdateBookingStatus
+  manuallyUpdateBookingStatus,
+  SendCardOnMail
 };

@@ -76,7 +76,7 @@ const easeBuzz = async (req, res) => {
 
 const easeBuzzResponce = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1, net_amount_debit } = req.body;
+    const { status, txnid, productinfo, udf1, net_amount_debit,card_type,payment_source, bankcode,bank_ref_num,bank_name,name_on_card } = req.body;
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
@@ -294,7 +294,7 @@ const easeBuzzResponce = async (req, res) => {
               // Transtion
               await transaction.updateOne(
                 { bookingId: item?.BookingId },
-                { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" }
+                { statusDetail: status, trnsNo:txnid,paymentMode:card_type,bankName:bank_name,holderName:name_on_card, }
               );
 
 

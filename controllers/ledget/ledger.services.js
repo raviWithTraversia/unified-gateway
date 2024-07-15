@@ -322,76 +322,243 @@ const transactionReport = async (req, res) => {
 
 const getAllledgerbyDate=async(req,res)=>{
   try{
-    const {date}=req.body;
+    const {date,companyId}=req.body;
     if(!date){
       return {
         response:"please enter date"
       }
     }
-    const dateId = {
-      $gte: new Date(date + 'T00:00:00.000Z'), // Start of fromDate
-      $lte: new Date(date + 'T23:59:59.999Z')    // End of toDate
-    };
-    const uniqueCompanyIds = await ledger.aggregate([
-      { 
-        $match: { 
-          transationDate: dateId 
-        } 
-      },
-      { 
-        $lookup: { 
-          from: 'users', // Replace 'users' with the actual collection name for 'userId'
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'userData'
-        }
-      },
-      { $unwind: '$userData' }, // Unwind userData array
-    
-      { 
-        $lookup: { 
-          from: 'companies', // Replace 'companies' with the actual collection name for 'companyId'
-          localField: 'companyId',
-          foreignField: '_id',
-          as: 'companyData'
-        }
-      },
-      { $unwind: '$companyData' }, // Unwind companyData array
-    
-      { 
-        $lookup: { 
-          from: 'users', // Replace 'users' with the actual collection name for 'transactionBy'
-          localField: 'transactionBy',
-          foreignField: '_id',
-          as: 'transactionByData'
-        }
-      },
-      { $unwind: '$transactionByData' }, // Unwind transactionByData array
-    
-      { 
-        $sort: { 
-          createdAt: -1 
-        } 
-      },
-      {
-        $group: {
-          _id: '$companyData._id',
-          runningAmount: { $first: '$runningAmount' }, // Assuming runningAmount is part of your documents
-          ledgerId: { $first: '$ledgerId' }, // Assuming ledgerId is part of your documents
-          transactionAmount: { $first: '$transactionAmount' }, // Assuming transactionAmount is part of your documents
-          transationDate: {$first:"$transationDate"},
-          
-          createdAt:{$first:"$createdAt"}, 
+    const inputDate = new Date(date);
 
-          userId: { $first: '$userData.userId' },
-          companyId: { $first: { companyName: '$companyData.companyName', type: '$companyData.type' } },
-          transactionByData: { $first: { fname: '$transactionByData.fname', lname: '$transactionByData.fname' } }
-        
-      }},
-    
-     
-    ]);
-    
+    // Create start and end range for the day
+    const startDate = new Date(inputDate.setUTCHours(0, 0, 0, 0));
+    const endDate = new Date(inputDate.setUTCHours(23, 59, 59, 999));
+
+    const dateId = {
+      $gte: startDate,
+      $lt: endDate
+    };
+
+const uniqueCompanyIds = await Company.aggregate([
+  {
+    $match: {
+      parent: new ObjectId(companyId)
+    }
+  },
+  {
+    $lookup: {
+      from: 'users',
+      localField: '_id',
+      foreignField: 'company_ID',
+      as: 'userData'
+    }
+  },
+  { 
+    $unwind: { 
+      path: '$userData', 
+      preserveNullAndEmptyArrays: true 
+    } 
+  },
+  {
+    $lookup: {
+      from: 'roles',
+      localField: 'userData.roleId',
+      foreignField: '_id',
+      as: 'roledata'
+    }
+  },
+  { 
+    $unwind: { 
+      path: '$roledata', 
+      preserveNullAndEmptyArrays: true 
+    } 
+  },
+  {
+    $match: {
+      'roledata.name': 'Agency'
+    }
+  },
+  {
+    $lookup: {
+      from: "ledgers",
+      localField: "_id",
+      foreignField: "companyId",
+      as: "ledgerData"
+    }
+  },
+  { 
+    $unwind: { 
+      path: '$ledgerData', 
+      preserveNullAndEmptyArrays: true 
+    } 
+  },
+  
+  {
+    $sort: {
+      "ledgerData.createdAt": -1
+    }
+  },
+  {
+    $group: {
+      _id: '$_id',
+      userId: { $first: '$userData.userId' },
+      companyId: { 
+        $first: { 
+          companyName: '$companyName', 
+          type: '$type' 
+        } 
+      },
+      matchedRunningAmount: {
+        $first: {
+          $cond: {
+            if: { $and: [
+              { $gte: ['$ledgerData.createdAt', startDate] },
+              { $lte: ['$ledgerData.createdAt', endDate] }
+            ]},
+            then: '$ledgerData.runningAmount',
+            else: null
+          }
+        }
+      },
+      latestRunningAmount: { $first: '$ledgerData.runningAmount' },
+      createdAt: { $first: "$ledgerData.createdAt" }
+    }
+  },
+  {
+    $addFields: {
+      runningAmount: {
+        $ifNull: ['$matchedRunningAmount', '$latestRunningAmount']
+      },
+      dateMatched: {
+        $cond: {
+          if: { $ne: ['$matchedRunningAmount', null] },
+          then: true,
+          else: false
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      _id: 1,
+      userId: 1,
+      companyId: 1,
+      runningAmount: {
+        $cond: {
+          if: { $eq: ['$runningAmount', null] },
+          then: 0,
+          else: '$runningAmount'
+        }
+      },
+      createdAt: 1,
+      dateMatched: 1
+    }
+  }
+]);
+
+  
+const FindbyDate = await Company.aggregate([
+  {
+    $match: {
+      parent: new ObjectId(companyId)
+    }
+  },
+  {
+    $lookup: {
+      from: 'users',
+      localField: '_id',
+      foreignField: 'company_ID',
+      as: 'userData'
+    }
+  },
+  { 
+    $unwind: { 
+      path: '$userData', 
+      preserveNullAndEmptyArrays: true 
+    } 
+  },
+  {
+    $lookup: {
+      from: 'roles',
+      localField: 'userData.roleId',
+      foreignField: '_id',
+      as: 'roledata'
+    }
+  },
+  { 
+    $unwind: { 
+      path: '$roledata', 
+      preserveNullAndEmptyArrays: true 
+    } 
+  },
+  {
+    $match: {
+      'roledata.name': 'Agency'
+    }
+  },
+  {
+    $lookup: {
+      from: "ledgers",
+      localField: "_id",
+      foreignField: "companyId",
+      as: "ledgerData"
+    }
+  },
+  { 
+    $unwind: { 
+      path: '$ledgerData', 
+      preserveNullAndEmptyArrays: true 
+    } 
+  },
+  {$sort:{
+    "ledgerData.createdAt":-1
+  }},
+  {
+    $match:{
+      "ledgerData.createdAt": dateId
+    }
+  },
+  {
+    $group: {
+      _id: '$_id',
+      userId: { $first: '$userData.userId' },
+      companyId: { 
+        $first: { 
+          companyName: '$companyName', 
+          type: '$type' 
+        } 
+      },
+      runningAmount: { $first: '$ledgerData.runningAmount' },
+      createdAt: { $first: "$ledgerData.createdAt" }
+    }
+  }
+]);
+
+
+let element = [];
+for (let i = 0; i < uniqueCompanyIds.length; i++) {
+  
+  let found = false;
+  for (let j = 0; j < FindbyDate.length; j++) {
+    if (uniqueCompanyIds[i].userId ==FindbyDate[j].userId) {
+      found = true;
+    }
+  }
+  if (!found) {
+    element.push(uniqueCompanyIds[i]);
+  }
+}
+
+
+
+
+
+const data=FindbyDate.concat(element)
+  
+  
+  
+  
+  
     if(!uniqueCompanyIds){
 return{
   response:"ledger not found"
@@ -401,7 +568,7 @@ return{
     else{
     return {
       response:"ledger find succefully",
-      data:uniqueCompanyIds
+      data:data
     }
   }
 

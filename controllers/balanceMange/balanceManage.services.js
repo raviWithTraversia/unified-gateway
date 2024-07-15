@@ -109,6 +109,9 @@ const manualDebitCredit = async (req, res) => {
         }
       }
       let DIdata = await recieveDI(configData, findUser, product, amount, loginUser._id);
+      if (!DIdata||DIdata==null) {
+        return { response: 'DIdata not found' };
+      }
       if (product === "Rail") {
         configData.maxRailCredit += (amount + DIdata);
         runningAmount = configData.maxRailCredit

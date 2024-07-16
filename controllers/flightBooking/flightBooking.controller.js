@@ -1,6 +1,7 @@
 const idCreation = require("./idCreation.services");
 const getAllBookingServices = require("./bookingApi.services");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
+
 const {
   ServerStatusCode,
   errorResponse,
@@ -368,6 +369,40 @@ const manuallyUpdateBookingStatus = async (req, res) => {
   }
 }
 
+const SendCardOnMail = async (req, res) => {
+  try {
+    
+    const result = await getAllBookingServices.SendCardOnMail(req,res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "bookingData Not Found" || result.response === "Your Smtp data not found" /*|| result.response === "Error in Updating Booking"*/) {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "SMTP Email sent successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.log(error)
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
 module.exports = {
   getIdCreation,
   getAllBooking,
@@ -379,5 +414,6 @@ module.exports = {
   getBookingByPaxDetails,
   getBillingData,
   updateBillPost,
-  manuallyUpdateBookingStatus
+  manuallyUpdateBookingStatus,
+  SendCardOnMail
 };

@@ -571,6 +571,7 @@ const updateBookingStatus = async (req, res) => {
   }, {
     $project: {
       providerBookingId: 1,
+      bookingId: 1,
       "itinerary.TraceId": 1,
       credentialsTypeData: {
         $filter: {
@@ -578,7 +579,7 @@ const updateBookingStatus = async (req, res) => {
           as: "item",
           cond: {
             $and: [
-              { $eq: ["$$item.credentialsType", "TEST"] },
+              { $eq: ["$$item.credentialsType", credentialsType] },
               { $eq: ["$$item.status", true] }
             ]
           }
@@ -588,10 +589,12 @@ const updateBookingStatus = async (req, res) => {
   }, { $unwind: "$credentialsTypeData" }, {
     $project: {
       providerBookingId: 1,
+      bookingId:1,
       traceId: "$itinerary.TraceId",
       supplierUserId: "$credentialsTypeData.supplierUserId",
       supplierPassword: "$credentialsTypeData.supplierPassword",
-      supplierWsapSesssion: "$credentialsTypeData.supplierWsapSesssion"
+      supplierWsapSesssion: "$credentialsTypeData.supplierWsapSesssion",
+      
     }
   }]);
 
@@ -636,7 +639,8 @@ const updateBookingStatus = async (req, res) => {
       }
     }))?.data;
 
-      const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.BookingId });
+      const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.bookingId });
+      
       if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
         await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
           const apiPassenger = response.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);

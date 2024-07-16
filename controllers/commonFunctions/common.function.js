@@ -9,6 +9,7 @@ const fs = require('fs');
 const smsConfigCred = require('../../models/ConfigCredential');
 const ledger = require("../../models/Ledger");
 const AgentDiRecieve = require("../../models/AgentDiRecieve");
+const Pdf=require('html-pdf')
 
 const createToken = async (id) => {
   try {
@@ -559,6 +560,111 @@ const sendNotificationByEmail = (mailConfig, DATA) => {
 
 }
 
+
+const sendCardDetailOnMail = async (mailConfig, htmlData, email,subject,cartId,status) => {
+  const axios = require('axios'); // You need axios to fetch the external CSS
+  const pdf = require('html-pdf');
+console.log(mailConfig)
+  try {
+    // Fetch the Bootstrap CSS
+    
+    // Create the HTML content with inline Bootstrap CSS
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+  <style>
+      .custom-vertical-line {
+          border-left: 2px solid #ddd;
+          height: 50px;
+          margin: 0 10px;
+        }
+        .custom-hr-line {
+          border-top: 2px solid #ddd;
+          width: 100%;
+          margin: 10px 0;
+        }
+        .font-size-15Pixel {
+          font-size: 15px;
+        }
+        .customized-grey-color {
+          color: grey;
+        }
+        
+        .label1 {
+          display: block;
+        }
+          
+          .airlineLogo {
+          height: 50px;
+        }
+      </style>
+           </head>
+<body>
+  <div class="container">
+  ${htmlData}
+  </div>
+</body>
+</html>`;
+
+    // Create the PDF from the HTML content
+    const emailPdfBuffer = await new Promise((resolve, reject) => {
+      pdf.create(html).toBuffer((err, buffer) => {
+        if (err) return reject(err);
+        resolve(buffer);
+      });
+    });
+
+    const transporter = nodemailer.createTransport({
+      host: mailConfig[0].host,
+      port: mailConfig[0].port,
+      secure: false,
+      auth: {
+        user: mailConfig[0].userName,
+        pass: mailConfig[0].password,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+      logger: true, // Enable logger
+      debug: true,  // Enable debug
+    });
+
+    const mailOptions = {
+      from: mailConfig[0].emailFrom,
+      to: email,
+      subject: `Booking Detail-${cartId} ${status}`,
+      cc: "", // Add CC recipient
+      bcc: "",
+      attachments: [
+        {
+          filename: `${cartId}.pdf`,
+          content: emailPdfBuffer,
+          contentType: 'application/pdf',
+        },
+      ],
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully');
+    return {
+      response: 'Email sent successfully',
+      data: true,
+    };
+  } catch (error) {
+    console.error('Error Sending Notification Email: ', error.message);
+    return {
+      response: 'Error Sending Notification Email',
+      data: error.message,
+    };
+  }
+};
+
+
+
+// Don't forget to import necessary modules
+
 const recieveDI = async (configData, findUser, product, amount, transactionBy) => {
   try{
   configData.diSetupIds.diSetupIds = await configData.diSetupIds.diSetupIds.filter(diSetup =>
@@ -650,5 +756,6 @@ module.exports = {
   sendPasswordResetEmailLink,
   generateRandomPassword,
   sendNotificationByEmail,
-  recieveDI
+  recieveDI,
+  sendCardDetailOnMail
 };

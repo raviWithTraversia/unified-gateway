@@ -1303,27 +1303,21 @@ const manuallyUpdateBookingStatus = async (req, res) => {
 
 const SendCardOnMail=async(req,res)=>{
   try{
-    const {cartId,companyId}=req.body;
-    if(!cartId||!companyId){
-      return {
-        response:'cartId and companyId not found'
+    const {companyId,htmlData,email,subject,cartId,status}=req.body;
+    if(!companyId||!htmlData||!email||!subject||!cartId||!status){
+       return {
+         response:'cartId subject companyId  email not found '
       }
-    }
-
-    const bookingData=await bookingdetails.findOne({bookingId:cartId}).populate([{path:"BookedBy"},{path:"companyId"},{path:"userId"},[{path:'AgencyId'}]])
-    if(!bookingData){
-      return{
-        response:'bookingData Not Found'
-      }
-    }
+     }
+    console.log(companyId,"sdji")
+    console.log(email)
     const mailConfig = await SmtpConfig.find({ companyId: companyId }).populate("companyId" ,"companyName");
         
     if (mailConfig) {
-        // const data = await Email.sendCardDetailOnMail(mailConfig,bookingData);
+    await Email.sendCardDetailOnMail(mailConfig,htmlData,email,subject,cartId,status);
         
         return {
             response: 'SMTP Email sent successfully',
-            data:bookingData
         };
     } else {
         return {

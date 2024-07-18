@@ -149,6 +149,7 @@ const invoiceGenerator = async (req, res) => {
                         await InvoicePrivceBreakup.create({
                             invoiceNumber: invoiceNumber,
                             passenger: passenger,
+                            priceType: prcBreakUp?.PassengerType,
                             basicPrice: prcBreakUp?.BaseFare,
                             tax: prcBreakUp?.Tax
                         });//InvoicePriceBreakup
@@ -163,25 +164,6 @@ const invoiceGenerator = async (req, res) => {
                     bookingId:bookingDetail?._id
                 },
             }, 
-            {
-                $lookup: {
-                    from: "companies",
-                    localField: "companyId",
-                    foreignField: "_id",
-                    as: "CompanyDetail",
-                },
-            },
-            {
-                $unwind: "$CompanyDetail",
-            },
-            {
-                $lookup: {
-                    from: 'companies', 
-                    localField: 'AgencyId', 
-                    foreignField: '_id', 
-                    as: 'Agencies'
-                }
-            },
             // {
             //     $lookup: {
             //         from: 'invoicepricebreakups', 
@@ -266,13 +248,54 @@ const invoiceGenerator = async (req, res) => {
                 },
             }
         ]);
+        let companyAgency = await InvoicingData.aggregate([
+            {
+                $match: {
+                    bookingId:bookingDetail?._id
+                },
+            }, 
+            {
+                $lookup: {
+                    from: "companies",
+                    localField: "companyId",
+                    foreignField: "_id",
+                    as: "CompanyDetail",
+                },
+            },
+            {
+                $unwind: "$CompanyDetail",
+            },
+            {
+                $lookup: {
+                    from: 'companies', 
+                    localField: 'AgencyId', 
+                    foreignField: '_id', 
+                    as: 'Agencies'
+                }
+            },
+            {
+                $project:{
+                    companyId:1,
+                    AgencyId:1,
+                    CompanyDetail:1,
+                    Agencies:1
+                }
+            }
+        ]);
+        let CompanyDetail = {};
+        let Agencies = {};
+        if(companyAgency.length>0){
+            CompanyDetail = companyAgency[0]?.CompanyDetail;
+            Agencies = companyAgency[0]?.Agencies;
+        }
+        
         // console.log(invoiceDetail);
         if(invoiceDetail.length>0){
             invoiceDetail = invoiceDetail;
         }
         return {
             response:"Invoice Generated Successfully!",
-            data: {invoiceDetail,invoicings,invoicepricebreakups}
+            data: {CompanyDetail,Agencies,invoiceDetail,invoicings,invoicepricebreakups}
         }
     }
    

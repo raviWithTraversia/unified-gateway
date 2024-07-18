@@ -78,9 +78,10 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, phoneNumber, password } = req.body;
+    let userId = isNaN(email) ? null :parseInt(email);
     let data = await User.find();
     let user = await User.findOne({
-      $or: [{ email: email }, { phoneNumber: phoneNumber }],
+      $or: [{ email: email }, { phoneNumber: phoneNumber },{ userId: userId }],
     }).populate("roleId");
     if (!user) {
       return {

@@ -2,6 +2,7 @@ const BookingDetail = require("../../models/BookingDetails");
 const InvoicingData = require("../../models/booking/InvoicingData");
 const Invoicing = require("../../models/booking/Invoicing");
 const InvoicePrivceBreakup = require("../../models/booking/InvoicePrivceBreakup");
+var ObjectId = require("mongoose").Types.ObjectId;
  
 const invoiceGenerator = async (req, res) => {
     const { bookingId } = req.body;
@@ -181,62 +182,97 @@ const invoiceGenerator = async (req, res) => {
                     as: 'Agencies'
                 }
             },
+            // {
+            //     $lookup: {
+            //         from: 'invoicepricebreakups', 
+            //         localField: 'invoiceNumber', 
+            //         foreignField: 'invoiceNumber', 
+            //         as: 'invoicepricebreakup',
+            //         pipeline: [
+            //             {
+            //               $project: {
+            //                 _id:1,
+            //                 invoiceNumber:1,
+            //                 priceCategory:1,
+            //                 priceType:1,
+            //                 basicPrice:1,
+            //                 tax:1,
+            //                 productId:1
+            //               },
+            //             },
+            //         ],
+            //     }
+            // },
+            // {
+            //     $lookup: {
+            //         from: 'invoicings', 
+            //         localField: 'bookingId', 
+            //         foreignField: 'cartId', 
+            //         as: 'invoicing',
+            //         pipeline: [
+            //             {
+            //               $project: {
+            //                 _id:1,
+            //                 cartId:1,
+            //                 productId:1,
+            //                 invoiceNumber:1,
+            //                 createdBy:1,
+            //                 modifiedBy:1,
+            //                 modifyAt:1,
+            //                 additionalInvoiceType:1,
+            //                 invoiceStatus:1
+            //               },
+            //             },
+            //         ],
+            //     }
+            // }
+        ];
+        let invoiceDetail = await InvoicingData.aggregate(pipeline); 
+        let invoicings = await Invoicing.aggregate([
             {
-                $lookup: {
-                    from: 'invoicepricebreakups', 
-                    localField: 'invoiceNumber', 
-                    foreignField: 'invoiceNumber', 
-                    as: 'invoicepricebreakup',
-                    pipeline: [
-                        {
-                          $project: {
-                            _id:1,
-                            invoiceNumber:1,
-                            priceCategory:1,
-                            priceType:1,
-                            basicPrice:1,
-                            tax:1,
-                            productId:1
-                          },
-                        },
-                    ],
+                $match:{
+                    cartId: new ObjectId(bookingDetail?._id)
                 }
             },
             {
-                $lookup: {
-                    from: 'invoicings', 
-                    localField: 'bookingId', 
-                    foreignField: 'cartId', 
-                    as: 'invoicing',
-                    pipeline: [
-                        {
-                          $project: {
-                            _id:1,
-                            cartId:1,
-                            productId:1,
-                            invoiceNumber:1,
-                            createdBy:1,
-                            modifiedBy:1,
-                            modifyAt:1,
-                            additionalInvoiceType:1,
-                            invoiceStatus:1
-                          },
-                        },
-                    ],
-                }
+                $project: {
+                    _id:1,
+                    cartId:1,
+                    productId:1,
+                    invoiceNumber:1,
+                    createdBy:1,
+                    modifiedBy:1,
+                    modifyAt:1,
+                    additionalInvoiceType:1,
+                    invoiceStatus:1
+                } 
             }
-        ];
-        let invoiceDetail = await InvoicingData.aggregate(pipeline); 
-        // let Invoicing = await Invoicing.aggregate([
-        // ]);
-        console.log(invoiceDetail);
+        ]);
+        let invoicepricebreakups = await InvoicePrivceBreakup.aggregate([
+            {
+                $match:{
+                    invoiceNumber:invoiceDetail[0]?.invoiceNumber
+                }
+            },
+            {
+                $project: {
+                    _id:1,
+                    invoiceNumber:1,
+                    priceCategory:1,
+                    priceType:1,
+                    basicPrice:1,
+                    tax:1,
+                    productId:1
+                },
+            }
+        ]);
+        // console.log(invoiceDetail);
         if(invoiceDetail.length>0){
             invoiceDetail = invoiceDetail;
         }
-
         return {
             response:"Invoice Generated Successfully!",
-            data: invoiceDetail
+            data: {invoiceDetail,invoicings,invoicepricebreakups}
         }
     }
    

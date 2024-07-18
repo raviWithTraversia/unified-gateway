@@ -228,13 +228,12 @@ const invoiceGenerator = async (req, res) => {
         ];
         let invoiceDetail = await InvoicingData.aggregate(pipeline); 
         // let Invoicing = await Invoicing.aggregate([
-
         // ]);
         console.log(invoiceDetail);
         if(invoiceDetail.length>0){
             invoiceDetail = invoiceDetail;
         }
-        
+
         return {
             response:"Invoice Generated Successfully!",
             data: invoiceDetail

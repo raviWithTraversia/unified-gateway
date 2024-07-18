@@ -57,8 +57,8 @@ const payu = async (req, res) => {
     const firstnameres = firstName;
     const emailres = email;
     const phoneres = phone;
-    const surl = "https://agent.kafilaholidays.in/api/paymentGateway/success";
-    const furl = "https://agent.kafilaholidays.in/api/paymentGateway/failed";
+    const surl = `${Config[Config.MODE].baseURLBackend}/api/paymentGateway/success`;
+    const furl = `${Config[Config.MODE].baseURLBackend}/api/paymentGateway/failed`;
     const salt = Config.MODE == "TEST" ? Config.PAYMENT_CREDENTIALS_PAYU.TEST.salt : Config.PAYMENT_CREDENTIALS_PAYU.LIVE.salt;
     const cartIdres = cartId;
      
@@ -147,7 +147,8 @@ const payu = async (req, res) => {
 
 const payuSuccess = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1 } = req.body;
+    
+    const { status, txnid, productinfo, udf1 } = req.body;    
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
@@ -496,7 +497,8 @@ const payuSuccess = async (req, res) => {
 
 const payuWalletResponceSuccess = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1, amount } = req.body;     
+    const { status, txnid, productinfo, udf1, amount } = req.body; 
+        
     if (status === "success") {
       const userData = await User.findOne({ company_ID: udf1 }).populate({
           path: 'roleId',

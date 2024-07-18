@@ -2,10 +2,12 @@ module.exports.Config = {
   // Mode (LIVE or TEST)
   MODE: 'TEST',
   TEST: {
-    baseURL: "https://kafilaui.traversia.net"
+    baseURL: "https://kafilaui.traversia.net", // frontend
+    baseURLBackend: "https://kafila.traversia.net"
   },
   LIVE: {
-    baseURL: "https://agent.kafilaholidays.in"
+    baseURL: "https://agent.kafilaholidays.in", // frontend
+    baseURLBackend: "https://agentapi.kafilaholidays.in"
   },
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",

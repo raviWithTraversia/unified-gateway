@@ -234,6 +234,7 @@ const invoiceGenerator = async (req, res) => {
         if(invoiceDetail.length>0){
             invoiceDetail = invoiceDetail;
         }
+        
         return {
             response:"Invoice Generated Successfully!",
             data: invoiceDetail

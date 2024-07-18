@@ -573,34 +573,152 @@ console.log(mailConfig)
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
-  <style>
-      .custom-vertical-line {
-          border-left: 2px solid #ddd;
-          height: 50px;
-          margin: 0 10px;
+   <style>
+        #export-cart-pdf .px-0 {
+            padding-left: 0;
+            padding-right: 0
         }
-        .custom-hr-line {
-          border-top: 2px solid #ddd;
-          width: 100%;
-          margin: 10px 0;
+
+        #export-cart-pdf .mat-mdc-card {
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2)
         }
-        .font-size-15Pixel {
-          font-size: 15px;
+
+        #export-cart-pdf .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1rem
         }
-        .customized-grey-color {
-          color: grey;
+
+        #export-cart-pdf .card-header {
+            margin-bottom: 0;
         }
-        
-        .label1 {
-          display: block;
+
+        #export-cart-pdf .customized-card-header {
+            background-color: #c0c0c085;
+            padding: 0px 0 1px px;
+            margin-bottom: 10px;
         }
-          
-          .airlineLogo {
-          height: 50px;
+
+        #export-cart-pdf .font-size-15Pixel {
+            font-size: 15px
         }
-      </style>
-           </head>
+
+        #export-cart-pdf .font-weight-bold {
+            font-weight: 700
+        }
+
+        #export-cart-pdf .mb-0 {
+            margin-bottom: 0
+        }
+
+        #export-cart-pdf .mb-1 {
+            margin-bottom: 0.25rem
+        }
+
+        #export-cart-pdf .mt-2 {
+            margin-top: 0.5rem
+        }
+
+        #export-cart-pdf .mt-3 {
+            margin-top: 1rem
+        }
+
+        #export-cart-pdf .d-flex {
+            display: flex !important
+        }
+
+        #export-cart-pdf .d-block {
+            display: block !important
+        }
+
+        #export-cart-pdf .text-right {
+            text-align: right !important
+        }
+
+        #export-cart-pdf .text-center {
+            text-align: center !important
+        }
+
+        #export-cart-pdf .pl-0 {
+            padding-left: 0 !important
+        }
+
+        #export-cart-pdf .pr-1 {
+            padding-right: 0.25rem !important
+        }
+
+        #export-cart-pdf .px-1 {
+            padding-left: 0.25rem !important;
+            padding-right: 0.25rem !important
+        }
+
+        #export-cart-pdf .table {
+            width: 100%;
+            margin-bottom: 1rem;
+            color: #212529;
+            border-collapse: collapse
+        }
+
+        #export-cart-pdf .table-bordered {
+            border: 1px solid #dee2e6
+        }
+
+        #export-cart-pdf .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, .05)
+        }
+
+        #export-cart-pdf .rounded {
+            border-radius: 0.25rem
+        }
+
+        #export-cart-pdf .shadow-lg {
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175) !important
+        }
+
+        #export-cart-pdf .custom-vertical-line {
+            border-left: 2px solid #dee2e6;
+            height: 100%;
+            margin: 0 0.5rem
+        }
+
+        #export-cart-pdf .custom-hr-line {
+            border-top: 2px solid #dee2e6;
+            width: 100%;
+            margin: 0.5rem 0
+        }
+
+        #export-cart-pdf .customized-grey-color {
+            color: #6c757d
+        }
+
+        .customized-card-header {
+            color:#0e0d0dde; /* Custom text color */
+            padding: 15px; /* Custom padding */
+        }
+
+        .customized-card-header h6 {
+            font-size: 1rem; /* Custom font size */
+            margin: 0; /* Remove default margin */
+        }
+
+        /* Additional custom styles */
+        .card-header {
+            border-radius: 0.25rem 0.25rem 0 0; /* Custom border radius */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Custom box shadow */
+        }
+
+        /* Style for h6 if necessary */
+        .card-header h6 {
+            font-family: 'Arial', sans-serif; /* Custom font family */
+            color:#0e0d0dde; /* Custom text color */
+        }
+            .airlineLogo{
+    height: 50px;
+}
+
+    </style>
+         </head>
 <body>
   <div class="container">
   ${htmlData}
@@ -637,6 +755,7 @@ console.log(mailConfig)
       subject: `Booking Detail-${cartId} ${status}`,
       cc: "", // Add CC recipient
       bcc: "",
+      html:html,
       attachments: [
         {
           filename: `${cartId}.pdf`,

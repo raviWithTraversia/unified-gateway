@@ -843,7 +843,15 @@ const getAllAgencyAndDistributer = async (req, res) => {
           preserveNullAndEmptyArrays: true
         }
       },
-      
+      { 
+        $lookup: {
+          from: 'users',
+          localField: 'salesIncharge.salesInchargeIds',
+          foreignField: '_id',
+          as: 'salesInchargeData'
+        }
+      },
+      { $unwind: { path: '$salesInchargeData', preserveNullAndEmptyArrays: true } },
       { 
         $project: {
           _id: 1,
@@ -859,6 +867,9 @@ const getAllAgencyAndDistributer = async (req, res) => {
           'company_ID.parent.companyName': 1,
           'company_ID.parent.type': 1,
          salesIncharge:'$salesIncharge.salesInchargeIds',
+"salesInchargeData.fname":1,
+"salesInchargeData.lastName":1,
+"salesInchargeData.title":1,
           userType: 1,
           login_Id: 1,
           email: 1,

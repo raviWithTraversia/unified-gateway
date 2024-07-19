@@ -7,5 +7,6 @@ const auth = require("../middleware/auth");
 const invoiceGeneratorControlatler = require('../controllers/invoiceGenerator/invoiceGenerator.controller');
 
 invoiceGenerator_route.post('/invoiceGenerator', auth, invoiceGeneratorControlatler.invoiceGenerator);
+invoiceGenerator_route.get('/transactionList',auth,invoiceGeneratorControlatler.transactionList);
 
 module.exports = invoiceGenerator_route;

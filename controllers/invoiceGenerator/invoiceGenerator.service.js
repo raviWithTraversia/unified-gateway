@@ -303,4 +303,76 @@ const invoiceGenerator = async (req, res) => {
     
 }
 
-module.exports = { invoiceGenerator }
+const transactionList = async (req, res) => {
+    const { fromDate, toDate, agencyId } = req.query;
+    if(!fromDate || !toDate){
+        return {
+            response: "fromDate toDate is required.",
+        } 
+    }else{ 
+        let query = {};
+        if(agencyId){
+            let agencyIdToMatch = new ObjectId(agencyId);
+            query.AgencyId = { $in: [agencyIdToMatch]};
+        }
+        query.createdAt = {
+            $gte: new Date(fromDate + 'T00:00:00.000Z'), 
+            $lte: new Date(toDate + 'T23:59:59.999Z')   
+        };
+        let pipeline = [
+            {
+                $match:query
+            },
+            {
+                $lookup: {
+                    from: 'transactiondetails', 
+                    localField: 'bookingId', 
+                    foreignField: 'bookingId', 
+                    as: 'transactiondetails',
+                    // pipeline: [
+                        // {
+                        //     $project: {
+                        //         _id:1,
+                        //         userId:1,
+                        //         companyId:1,
+                                
+                        //     },
+                        // },
+                    // ],
+                }
+            },
+            {
+                $match: {
+                  $expr: {
+                    $ne: [{ $size: "$transactiondetails" }, 0]
+                  }
+                }
+            },
+            {
+                $project: {
+                    _id:1,
+                    userId:1,
+                    companyId:1,
+                    AgencyId:1,
+                    createdBy:1,
+                    BookedBy:1,
+                    bookingId:1,
+                    provider:1,
+                    bookingType:1,
+                    bookingStatus:1,
+                    paymentMethodType:1,
+                    paymentGateway:1,
+                    transactiondetails:1
+                } 
+            }
+        ];
+
+        let transactions = await BookingDetail.aggregate(pipeline);
+        return {
+            response:"Success",
+            data: transactions
+        }
+    }
+}
+
+module.exports = { invoiceGenerator,transactionList }

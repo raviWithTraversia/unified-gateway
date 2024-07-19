@@ -297,12 +297,12 @@ const KafilaFun = async (
   if (Authentication.CredentialType === "LIVE") {
     // Live Url here
     credentialType = "P";
-    createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
-    flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FAncl`;
+    createTokenUrl = `${supplier.supplierLiveUrl}/api/Freport`;
+    flightSearchUrl = `${supplier.supplierLiveUrl}/api/FAncl`;
   } else {
     // Test Url here
-    createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
-    flightSearchUrl = `http://stage1.ksofttechnology.com/api/FAncl`;
+    createTokenUrl = `${supplier.supplierTestUrl}/api/Freport`;
+    flightSearchUrl = `${supplier.supplierTestUrl}/api/FAncl`;
   }
 
   let tripTypeValue;

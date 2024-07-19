@@ -95,7 +95,15 @@ const supplierSchema = new mongoose.Schema({
     supplierWsapSesssion:{
        type : String,
        default: null
-    }
+    },
+    supplierLiveUrl:{
+        type : String,
+        default: null
+     },
+     supplierTestUrl:{
+        type : String,
+        default: null
+     }
   }, {
     timestamps: true // Adds created_at and updated_at fields
   });

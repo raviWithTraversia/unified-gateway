@@ -226,12 +226,12 @@ const KafilaFun = async (
   if (Authentication.CredentialType === "LIVE") {
     // Live Url here
     credentialType = "P";
-    createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
-    flightCancelUrl = `http://fhapip.ksofttechnology.com/api/FCancel`;
+    createTokenUrl = `${supplier.supplierLiveUrl}/api/Freport`;
+    flightCancelUrl = `${supplier.supplierLiveUrl}/api/FCancel`;
   } else {
     // Test Url here
-    createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
-    flightCancelUrl = `http://stage1.ksofttechnology.com/api/FCancel`;
+    createTokenUrl = `${supplier.supplierTestUrl}/api/Freport`;
+    flightCancelUrl = `${supplier.supplierTestUrl}/api/FCancel`;
   }
 
   let tokenData = {
@@ -608,9 +608,9 @@ const updateBookingStatus = async (req, res) => {
   let credentialEnv = "D";
   if (credentialsType === "LIVE") {
     credentialEnv = "P";
-    createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`; // Live Url here
+    createTokenUrl = `${supplier.supplierLiveUrl}/api/Freport`; // Live Url here
   } else {
-    createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`; // Test Url here
+    createTokenUrl = `${supplier.supplierTestUrl}/api/Freport`; // Test Url here
   }
 
   const bulkOps = [];

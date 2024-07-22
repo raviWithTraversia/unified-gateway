@@ -103,13 +103,15 @@ const manualDebitCredit = async (req, res) => {
           model: 'diSetup'
         }
       });
+      console.log(configData,"shhajh");
       if (!configData) {
         return {
           response: 'User not found'
         }
       }
       let DIdata = await recieveDI(configData, findUser, product, amount, loginUser._id);
-      if (!DIdata||DIdata==null) {
+      console.log(DIdata,"DIdata");
+      if (DIdata==null) {
         return { response: 'DIdata not found' };
       }
       if (product === "Rail") {

@@ -792,8 +792,10 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
     new Date() >= new Date(diSetup.validFromDate) &&
     new Date() <= new Date(diSetup.validToDate)
   );
+  console.log(configData.diSetupIds.diSetupIds,"hjshsah");
   let slabOptions = configData?.diSetupIds?.diSetupIds;
-  let bonusAmount = 0; let isMultipleSlab = false;
+  let bonusAmount = 0; 
+  let isMultipleSlab = false;
   let slabBreakups = [];
   if (slabOptions[slabOptions.length - 1]?.minAmount < amount) {
     bonusAmount = (parseInt(slabOptions[slabOptions.length - 1]?.diPersentage) / 100) * amount;
@@ -810,9 +812,10 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
       if (slabOptions[i].minAmount > amount) {
         isMultipleSlab = true;
         let mainAmountBonus = ((parseInt(slabOptions[i - 1]?.diPersentage) || 0) / 100) * (parseInt(slabOptions[i - 1]?.minAmount || 0));
-        let restAmount = amount - slabOptions[i - 1]?.minAmount || 0
+        let restAmount = amount - slabOptions[i - 1]?.minAmount || 0;
         let restAmountBonus = ((parseInt(slabOptions[i]?.diPersentage) || 0) / 100) * restAmount;
         bonusAmount = mainAmountBonus + restAmountBonus;
+        console.log(bonusAmount,'bonusAmount1')
         if (bonusAmount > 0) {
           if (!slabOptions[i - 1]) {
             slabBreakups.push(slabOptions[i])

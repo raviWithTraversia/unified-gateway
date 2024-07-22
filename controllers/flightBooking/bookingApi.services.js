@@ -9,6 +9,7 @@ const SmtpConfig = require("../../models/Smtp");
 const { ObjectId } = require("mongodb");
 const moment = require('moment');
 const { Config } = require('../../configs/config');
+const bookingDetails = require("../../models/BookingDetails");
 
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
@@ -644,13 +645,7 @@ const getBookingByBookingId = async (req, res) => {
       response: "Booking id does not exist",
     };
   }
-
-  return {
-    response: "Fetch Data Successfully",
-    data: checkbookingdetails,
-  };
-
-  if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
+if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
     const bookingDetails = await bookingdetails.find({ userId: userId });
     //const passengerPreference = await passengerPreference.find({ bookingId: bookingDetails.bookingId });
 
@@ -1331,6 +1326,38 @@ const SendCardOnMail=async(req,res)=>{
   }
 }
 
+  const UpdateAdvanceMarkup = async (req, res) => {
+    const { data} = req.body;
+  
+    if (!Array.isArray(data)) {
+      return res.status(400).send({ message: 'Invalid data format' });
+    }
+    try {
+      // const updateData = {
+      //   'itinerary.advanceAgentMarkup': {
+      //     adult: { baseFare: 13, taxesFare: 12, feesFare: 11, gstFare: 5 },
+      //     child: { baseFare: 2, taxesFare: 2, feesFare: 3, gstFare: 4 },
+      //     infant: { baseFare: 2, taxesFare: 4, feesFare: 5, gstFare: 7 }
+      //   }
+      // };
+  const updateData=data.map((item)=>{
+    const {id,advanceAgentMarkup}=item;
+    if(!id||!advanceAgentMarkup){
+      return{
+        response:'id advanceAgentMarkup not found'
+      }
+    }
+    return bookingdetails.findByIdAndUpdate(new ObjectId(id),{$set:{"itinerary.advanceAgentMarkup":advanceAgentMarkup}},{new:true})
+  })
+    
+  const updatedDocuments = await Promise.all(updateData);
+const updateCount=updatedDocuments.filter(result=>result !== null).length
+      return({
+        response: `document(s) updated succefully`,
+    data:updateCount
+      });} catch (error) {
+throw error  }
+};
 module.exports = {
   getAllBooking,
   getBookingByBookingId,
@@ -1342,5 +1369,6 @@ module.exports = {
   getBillingData,
   updateBillPost,
   manuallyUpdateBookingStatus,
-  SendCardOnMail
-};
+  SendCardOnMail,
+  UpdateAdvanceMarkup
+}

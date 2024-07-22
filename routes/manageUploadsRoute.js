@@ -30,8 +30,7 @@ mangageUpload_route.post(
 );
 mangageUpload_route.get(
   "/manageUpload/getUploadImage",
-  auth,
-  manageUploadController.getUploadImage
+ manageUploadController.getUploadImage
 );
 mangageUpload_route.patch(
   "/manageUpload/updateUploadImage",

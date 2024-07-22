@@ -141,6 +141,10 @@ const agentConfigSchema = new mongoose.Schema({
   defaultPgMode: {
     type: String,
     default: null
+  },
+  is_quote_without_price:{
+    type: Boolean,
+    default:false
   }
 }, { timestamps: true, });
 

@@ -2,6 +2,7 @@ const BookingDetail = require("../../models/BookingDetails");
 const InvoicingData = require("../../models/booking/InvoicingData");
 const Invoicing = require("../../models/booking/Invoicing");
 const InvoicePrivceBreakup = require("../../models/booking/InvoicePrivceBreakup");
+const Ledger = require("../../models/Ledger");
 var ObjectId = require("mongoose").Types.ObjectId;
  
 const invoiceGenerator = async (req, res) => {
@@ -373,6 +374,54 @@ const transactionList = async (req, res) => {
             data: transactions
         }
     }
+} 
+
+
+const ledgerListWithFilter = async(req,res)=>{
+    const { fromDate, toDate, agencyId } = req.query;
+    if(!fromDate || !toDate){
+        return {
+            response: "fromDate toDate is required.",
+        } 
+    }else{ 
+        let query = {
+            remarks:/^DI against /
+        };
+        if(agencyId){
+            query.userId = new ObjectId(agencyId);
+        }
+        query.creationDate = {
+            $gte: new Date(fromDate + 'T00:00:00.000Z'), 
+            $lte: new Date(toDate + 'T23:59:59.999Z')   
+        };
+        let pipeline = [
+            {
+                $match:query
+            },
+            {
+                $project: {
+                    _id:1,
+                    userId:1,
+                    ledgerId:1,
+                    transactionAmount:1,
+                    product:1,
+                    currencyType:1,
+                    fop:1,
+                    transactionType:1,
+                    remarks:1,
+                    creationDate:1,
+                    cartId:1,
+                    runningAmount:1
+                } 
+            }
+        ];
+
+        let ledgers = await Ledger.aggregate(pipeline);
+        return {
+            response:"Success",
+            data: ledgers
+        }
+    }
 }
 
-module.exports = { invoiceGenerator,transactionList }
+module.exports = { invoiceGenerator,transactionList,ledgerListWithFilter }

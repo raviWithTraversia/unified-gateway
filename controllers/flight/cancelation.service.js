@@ -665,7 +665,12 @@ const updateBookingStatus = async (req, res) => {
     bulkOps.push({
       updateOne: {
         filter: { _id: item._id },
-        update: { $set: { bookingStatus: response?.BookingInfo?.CurrentStatus } }
+        update: { $set: { 
+          bookingStatus: response?.BookingInfo?.CurrentStatus,
+          APnr: response?.BookingInfo?.APnr,
+          GPnr:  response?.BookingInfo?.GPnr,
+          PNR: response?.BookingInfo?.APnr,
+         } }
       }
     });
   }

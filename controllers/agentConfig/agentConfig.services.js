@@ -129,8 +129,8 @@ const updateAgentConfiguration = async (req, res) => {
       const LogsData = {
         eventName: "ConfigAgency",
         doerId: req.user._id,
-        doerName: userData.fname,
-        companyId: updates.companyId,
+        doerName: userData?.fname,
+        companyId: updates?.companyId,
         oldValue: existingConfig,
         newValue: updates,
         documentId: id,
@@ -164,6 +164,7 @@ const getAgentConfig = async (req, res) => {
       .populate("diSetupIds")
       .populate("airlinePromocodeIds")
       .populate("paymentGatewayIds")
+      .populate("is_quote_without_price")
     //console.log(agentConfigData);
     if (agentConfigData) {
       return {

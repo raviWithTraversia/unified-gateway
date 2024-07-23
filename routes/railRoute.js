@@ -9,6 +9,8 @@ const railController = require('./../controllers/rail/rail.controller');
 rail_route.post('/rail/railSearch', auth, railController.railSearch);
 rail_route.post('/rail/railSearchBtwnDate', auth, railController.railSearchBtwnDate);
 rail_route.post('/rail/stationName', auth, railController.getTrainStation);
+rail_route.post('/rail/railRoute', auth, railController.getTrainRoute);
+
 // easeBuzz_route.post('/paymentGateway/easeBussResponce', auth, easeBuzzController.easeBuzzResponce);
 
 module.exports = rail_route;

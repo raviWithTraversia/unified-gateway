@@ -83,6 +83,7 @@ const ledgerListWithFilter = async(req,res)=>{
             );
         }
     } catch (error) {
+        console.log(error)
         apiErrorres(
             res,
             errorResponse.SOMETHING_WRONG,

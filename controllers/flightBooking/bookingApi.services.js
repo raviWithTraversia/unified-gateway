@@ -130,7 +130,8 @@ console.log('1st')
         "CANCELLED": 0,
         "INCOMPLETE": 0,
         "HOLD": 0,
-        "HOLDRELEASED": 0
+        "HOLDRELEASED": 0,
+        "FAILED PAYMENT":0
       };
 
       // Iterate over the bookingDetails array
@@ -218,7 +219,8 @@ console.log('1st')
         "CANCELLED": 0,
         "INCOMPLETE": 0,
         "HOLD": 0,
-        "HOLDRELEASED": 0
+"HOLDRELEASED": 0,
+        "FAILED PAYMENT":0
       };
 
       // Iterate over the bookingDetails array
@@ -305,7 +307,8 @@ console.log("3rd")
         "CANCELLED": 0,
         "INCOMPLETE": 0,
         "HOLD": 0,
-        "HOLDRELEASED": 0
+        "HOLDRELEASED": 0,
+        "FAILED PAYMENT":0
       };
 
       // Iterate over the bookingDetails array
@@ -399,7 +402,8 @@ console.log("3rd")
           "CANCELLED": 0,
           "INCOMPLETE": 0,
           "HOLD": 0,
-          "HOLDRELEASED": 0
+          "HOLDRELEASED": 0,
+        "FAILED PAYMENT":0
         };
 
         // Iterate over the bookingDetails array
@@ -485,7 +489,8 @@ console.log("3rd")
           "CANCELLED": 0,
           "INCOMPLETE": 0,
           "HOLD": 0,
-          "HOLDRELEASED": 0
+          "HOLDRELEASED": 0,
+        "FAILED PAYMENT":0
         };
 
         // Iterate over the bookingDetails array
@@ -571,7 +576,8 @@ console.log("3rd")
           "CANCELLED": 0,
           "INCOMPLETE": 0,
           "HOLD": 0,
-          "HOLDRELEASED": 0
+          "HOLDRELEASED": 0,
+        "FAILED PAYMENT":0
         };
 
         // Iterate over the bookingDetails array

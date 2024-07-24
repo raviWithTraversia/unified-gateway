@@ -100,4 +100,54 @@ const railSearchBtwnDate = async (req, res) => {
     }
 }
 
-module.exports = { getRailSearch, railSearchBtwnDate }
+const railRouteView = async (req, res) => {
+    try {
+        const { trainNo, journeyDate, startingStationCode, Authentication } = req.body;
+        if (!trainNo, !Authentication) {
+             return { response: "Provide required fields" } 
+        };
+        if (!["LIVE", "TEST"].includes(Authentication.CredentialType)) {
+            return {
+                IsSucess: false,
+                response: "Credential Type does not exist",
+            };
+        }
+        const checkUser = await User.findById(Authentication.UserId).populate('roleId');
+        const checkCompany = await Company.findById(Authentication.CompanyId);
+        if (!checkUser || !checkCompany) {
+            return { response: "Either User or Company must exist" }
+        }
+        if (checkUser?.roleId?.name !== "Agency") { return { response: "User role must be Agency" } }
+        if (checkCompany?.type !== "TMC") { return { response: "companyId must be TMC" } }
+        // let renewDate = journeyDate.split("-");
+        let url = `http://43.205.65.20:8000/eticketing/webservices/taenqservices/trnscheduleEnq/${trainNo}`; //?journeyDate=${journeyDate}&startingStationCode=${startingStationCode}`;
+        // console.log(url,"url");
+        const auth = 'Basic V05FUFRQTDAwMDAwOlRlc3Rpbmcx';
+        if (Authentication.CredentialType === "LIVE") {
+            url = `http://43.205.65.20:8000/eticketing/webservices/taenqservices/trnscheduleEnq/${trainNo}`;//?journeyDate=${journeyDate}&startingStationCode=${startingStationCode}`;
+        }
+
+        const response = (await axios.get(url, { headers: { 'Authorization': auth } }))?.data;
+
+        if (!response) {
+            return {
+                response: "Error in fetching data",
+            }
+        } else {
+            return {
+                response: "Fetch Data Successfully",
+                data: response,
+            }
+        }
+    } catch (error) {
+        console.log(error);
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        );
+    }
+}
+
+module.exports = { getRailSearch, railSearchBtwnDate, railRouteView }

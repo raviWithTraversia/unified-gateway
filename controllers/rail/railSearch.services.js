@@ -150,4 +150,73 @@ const railRouteView = async (req, res) => {
     }
 }
 
-module.exports = { getRailSearch, railSearchBtwnDate, railRouteView }
+const railFareEnquiry = async (req, res) => {
+    try {
+        const { trainNo, journeyDate, frmStn,toStn,jClass,jQuota,paymentEnqFlag, Authentication } = req.body;
+        if (!trainNo, !Authentication) {
+             return { response: "Provide required fields" } 
+        };
+        if (!["LIVE", "TEST"].includes(Authentication.CredentialType)) {
+            return {
+                IsSucess: false,
+                response: "Credential Type does not exist",
+            };
+        }
+        const checkUser = await User.findById(Authentication.UserId).populate('roleId');
+        const checkCompany = await Company.findById(Authentication.CompanyId);
+        if (!checkUser || !checkCompany) {
+            return { response: "Either User or Company must exist" }
+        }
+        if (checkUser?.roleId?.name !== "Agency") { return { response: "User role must be Agency" } }
+        if (checkCompany?.type !== "TMC") { return { response: "companyId must be TMC" } }
+        let renewDate = journeyDate.split("-");
+        let url = `http://43.205.65.20:8000/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
+        const auth = 'Basic V05FUFRQTDAwMDAwOlRlc3Rpbmcx';
+        if (Authentication.CredentialType === "LIVE") {
+            url = `http://43.205.65.20:8000/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
+        } 
+        
+        let queryParams = {
+            "masterId": "WNEPTPL00000", 
+            "enquiryType": "3",
+            "reservationChoice": "99",
+            "moreThanOneDay": "true",
+            "ignoreChoiceIfWl":"false",
+            "gnToCkOpted":"false",
+            "ticketType":"E",
+            "travelInsuranceOpted":"false",
+            "passengerList": [],
+            "mobileNumber": '',
+            "autoUpgradationSelected": 'true',
+            "boardingStation": '',
+            "reservationMode": '',//B2B_WEB_OTP
+            "clientTransactionId": '',
+            "gstDetailInputFlag": 'false',
+            "agentDeviceId": '',
+            "infantList": [],
+            "gstDetails": {}
+        };
+        const response = (await axios.post(url,queryParams ,{ headers: { 'Authorization': auth } }))?.data;
+        // console.log(response);
+        if (!response) {
+            return {
+                response: "Error in fetching data",
+            }
+        } else {
+            return {
+                response: "Fetch Data Successfully",
+                data: response,
+            }
+        }
+    } catch (error) {
+        console.log(error,"error");
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        );
+    }
+}
+
+module.exports = { getRailSearch, railSearchBtwnDate, railRouteView, railFareEnquiry }

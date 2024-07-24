@@ -1201,7 +1201,9 @@ const getBillingData = async (req, res) => {
       travelDateOutbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Date', 0] },
       travelDateInbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
       issueDate: "$bookingData.bookingDateTime",
-      airlineTax: "0", tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", purchaseCode: "0",
+      airlineTax: "0", tranFee: "0", sTax: "0", 
+      commission: "0",
+       tds: "0", cashback: "0", purchaseCode: "0",
       flightCode: "$bookingData.Supplier",
       airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
       bookingId1: {
@@ -1219,7 +1221,7 @@ const getBillingData = async (req, res) => {
         element.airlineTax = items?.Tax;
         items.CommercialBreakup.map(item => {
           if (item.CommercialType == "Discount") {
-            element.discount = parseFloat((parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(2));
+            element.commission = parseFloat((parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(2));
           }
           if (item.CommercialType == "TDS") {
             element.tds = parseFloat((parseFloat(element.tds) + parseFloat(item.Amount)).toFixed(2));

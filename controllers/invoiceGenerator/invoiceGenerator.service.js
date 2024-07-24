@@ -377,7 +377,7 @@ const transactionList = async (req, res) => {
 } 
 
 
-const ledgerListWithFilter = async(req,res)=>{ 
+const ledgerListWithFilter = async(req,res)=>{
     const { fromDate, toDate, agencyId } = req.query;
     if(!fromDate || !toDate){
         return {
@@ -388,9 +388,10 @@ const ledgerListWithFilter = async(req,res)=>{
             remarks:/^DI against /
         };
         if(agencyId){
-            let agencyIds = agencyId. split(',');
-            let userIdObjects = agencyIds.map(id => new ObjectId(id));
-            query.userId = {$in:userIdObjects};
+            // let agencyIds = agencyId. split(',');
+            // let userIdObjects = agencyIds.map(id => new ObjectId(id));
+            // query.userId = {$in:userIdObjects};
+            query.userId = new ObjectId(agencyId);
         }
         query.creationDate = {
             $gte: new Date(fromDate + 'T00:00:00.000Z'), 

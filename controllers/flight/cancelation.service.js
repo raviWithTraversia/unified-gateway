@@ -594,7 +594,7 @@ const updateBookingStatus = async (req, res) => {
       supplierUserId: "$credentialsTypeData.supplierUserId",
       supplierPassword: "$credentialsTypeData.supplierPassword",
       supplierWsapSesssion: "$credentialsTypeData.supplierWsapSesssion",
-      
+      credentialsTypeData:1
     }
   }]);
 
@@ -603,14 +603,23 @@ const updateBookingStatus = async (req, res) => {
       response: "No booking Found!"
     }
   }
-
+  let supplier = getBookingbyBookingId[0].credentialsTypeData;
+  let supplierLiveUrl =  "";
+  let supplierTestUrl = "";
+  if(supplier){
+    supplierLiveUrl = supplier.supplierLiveUrl;
+    supplierTestUrl = supplier.supplierTestUrl;
+  }else{
+    supplierLiveUrl = "http://fhapip.ksofttechnology.com";
+    supplierTestUrl = "http://stage1.ksofttechnology.com";
+  }
   let createTokenUrl;
   let credentialEnv = "D";
   if (credentialsType === "LIVE") {
     credentialEnv = "P";
-    createTokenUrl = `${supplier.supplierLiveUrl}/api/Freport`; // Live Url here
+    createTokenUrl = `${supplierLiveUrl}/api/Freport`; // Live Url here
   } else {
-    createTokenUrl = `${supplier.supplierTestUrl}/api/Freport`; // Test Url here
+    createTokenUrl = `${supplierTestUrl}/api/Freport`; // Test Url here
   }
 
   const bulkOps = [];

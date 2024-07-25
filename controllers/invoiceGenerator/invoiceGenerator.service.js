@@ -377,15 +377,15 @@ const transactionList = async (req, res) => {
 } 
 
 
-const ledgerListWithFilter = async(req,res)=>{
-    const { fromDate, toDate, agencyId } = req.query;
+const ledgerListWithFilter = async(req,res)=>{ 
+    const { fromDate, toDate, agencyId,companyId } = req.query;
     if(!fromDate || !toDate){
         return {
             response: "fromDate toDate is required.",
         } 
     }else{ 
         let query = {
-            remarks:/^DI against /
+            remarks: /^DI against /
         };
         if(agencyId){
             // let agencyIds = agencyId. split(',');
@@ -394,31 +394,52 @@ const ledgerListWithFilter = async(req,res)=>{
             query.userId = new ObjectId(agencyId);
         }
         query.creationDate = {
-            $gte: new Date(fromDate + 'T00:00:00.000Z'), 
-            $lte: new Date(toDate + 'T23:59:59.999Z')   
+            $gte: new Date(fromDate + 'T00:00:00.000Z'),
+            $lte: new Date(toDate + 'T23:59:59.999Z')
         };
+    
+        if (agencyId) {
+            query.$or = [
+                { userId: new ObjectId(agencyId) },
+                { 'companies.parent': new ObjectId(companyId) }
+            ];
+        }
+    
         let pipeline = [
             {
-                $match:query
+                $match: query
+            },
+            {
+                $lookup: {
+                    from: "companies",
+                    localField: 'companyId',
+                    foreignField: "_id",
+                    as: "companies"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$companies",
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $project: {
-                    _id:1,
-                    userId:1,
-                    ledgerId:1,
-                    transactionAmount:1,
-                    product:1,
-                    currencyType:1,
-                    fop:1,
-                    transactionType:1,
-                    remarks:1,
-                    creationDate:1,
-                    cartId:1,
-                    runningAmount:1
-                } 
+                    _id: 1,
+                    userId: 1,
+                    ledgerId: 1,
+                    transactionAmount: 1,
+                    product: 1,
+                    currencyType: 1,
+                    fop: 1,
+                    transactionType: 1,
+                    remarks: 1,
+                    creationDate: 1,
+                    cartId: 1,
+                    runningAmount: 1
+                }
             }
         ];
-
         let ledgers = await Ledger.aggregate(pipeline);
         return {
             response:"Success",

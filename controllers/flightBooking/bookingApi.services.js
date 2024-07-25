@@ -1134,7 +1134,13 @@ const getBookingBill = async (req, res) => {
       foreignField: "_id",
       as: "userdata",
     },
-  }, {
+  },{
+    $sort:{
+      createdAt:-1
+    }
+
+  },
+   {
     $project: {
       bookingId: "$bookingData.providerBookingId",
       paxName: 1,
@@ -1142,7 +1148,7 @@ const getBookingBill = async (req, res) => {
       agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
       agentId: { $arrayElemAt: ['$userdata.userId', 0] },
       pnr: "$bookingData.PNR",
-      itemAmount: "$bookingData.itinerary.BaseFare",
+      itemAmount: {$arrayElemAt:["$bookingData.itinerary.PriceBreakup.BaseFare",0]},
       sector: {
         $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Code', 0] },
           ' ',
@@ -1158,7 +1164,7 @@ const getBookingBill = async (req, res) => {
       travelDateOutbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Date', 0] },
       travelDateInbound: { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Date', 0] },
       issueDate: "$bookingData.bookingDateTime",
-      airlineTax: "$bookingData.itinerary.Taxes",
+      airlineTax: {$arrayElemAt:["$bookingData.itinerary.PriceBreakup.Tax",0]},
       tranFee: "0", sTax: "0", commission: "0", tds: "0", cashback: "0", accountPost: "$bookingData.accountPost", purchaseCode: "0",
       flightCode: "$bookingData.Supplier",
       airlineName: { $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineName', 0] },
@@ -1166,12 +1172,27 @@ const getBookingBill = async (req, res) => {
         $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] }, "$bookingData.SalePurchase", `${MODEENV}~`,
           '$bookingData.itinerary.FareFamily']
       },
+      getCommercialArray: "$bookingData.itinerary.PriceBreakup"
     }
   }]);
   bookingBill.forEach((element, index) => {
     element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr
     element.id = index + 1;
   });
+for(let [index,element] of bookingBill.entries()){
+  element?.getCommercialArray.map((item)=>{
+    item?.CommercialBreakup.map((items)=>{
+      if (items?.CommercialType == "Discount") {
+        element.commission = parseFloat((parseFloat(element.commission) + parseFloat(items.Amount)).toFixed(2));
+      }
+      if (items?.CommercialType == "TDS") {
+        element.tds = parseFloat((parseFloat(element.tds) + parseFloat(items.Amount)).toFixed(2));
+      }
+    })
+    
+  })
+}
+
   if (!bookingBill.length) {
     return {
       response: "Data Not Found",

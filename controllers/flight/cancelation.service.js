@@ -173,6 +173,7 @@ async function handleflight(
 
   const responsesApi = await Promise.all(
     supplierCredentials.map(async (supplier) => {
+      // console.log(supplier,"supplier11")
       try {
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
@@ -223,6 +224,7 @@ const KafilaFun = async (
   let flightCancelUrl;
 
   let credentialType = "D";
+  // console.log(supplier,"supplier22");
   if (Authentication.CredentialType === "LIVE") {
     // Live Url here
     credentialType = "P";
@@ -233,7 +235,7 @@ const KafilaFun = async (
     createTokenUrl = `${supplier.supplierTestUrl}/api/Freport`;
     flightCancelUrl = `${supplier.supplierTestUrl}/api/FCancel`;
   }
-
+  // console.log(flightCancelUrl,"flightCancelUrl1");
   let tokenData = {
     P_TYPE: "API",
     R_TYPE: "FLIGHT",
@@ -250,7 +252,7 @@ const KafilaFun = async (
       },
     });
 
-    // console.log(response.data, 'tokennnn');
+    console.log(response.data, 'tokennnn');
     if (response.data.Status === "success") {
       let getToken = response.data.Result;
       let requestDataForCHarges = {
@@ -271,7 +273,7 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0",
       };
-
+      // console.log(requestDataForCHarges,"requestDataForCHarges requestDataForCHarges")
       let fSearchApiResponse = await axios.post(
         flightCancelUrl,
         requestDataForCHarges,
@@ -281,7 +283,7 @@ const KafilaFun = async (
           },
         }
       );
-      //console.log(fSearchApiResponse.data, "1API Responce")
+      // console.log(fSearchApiResponse.data, "1API Responce")
       if (fSearchApiResponse.data.Status !== null) {
         return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage;
       }
@@ -307,7 +309,7 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0"
       };
-
+      // console.log(requestDataForCancel,"requestDataForCancel");
       let fCancelApiResponse = await axios.post(
         flightCancelUrl,
         requestDataForCancel,
@@ -317,44 +319,47 @@ const KafilaFun = async (
           },
         }
       );
-
+      // console.log(fCancelApiResponse?.data,"fCancelApiResponse data");
+      let R_DATAofCancelApiResponse = fCancelApiResponse?.data?.R_DATA;
+      let ResponseData;
+      if(R_DATAofCancelApiResponse === undefined){
+        ResponseData = fCancelApiResponse?.data;
+      }else{
+        ResponseData = fCancelApiResponse?.data?.R_DATA;
+      }
+      // console.log(ResponseData,"ResponseData data out");
+      // console.log(fCancelApiResponse?.data?.R_DATA, "fCancelApiResponse data R_DATA");
       if (
-        fCancelApiResponse?.data?.R_DATA?.Status != null &&
-        (fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() ===
-          "PENDING" ||
-          fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() ===
-          "FAILED")
+        (ResponseData?.Status != null || ResponseData?.Status != null) &&
+        ((ResponseData?.Status.toUpperCase() ===
+        "PENDING" || ResponseData?.Status.toUpperCase() ===
+          "PENDING") ||
+          (ResponseData?.Status.toUpperCase() ===
+          "FAILED" ||ResponseData?.Status.toUpperCase() ===
+          "FAILED"))
       ) {
+        // console.log(ResponseData,"fCancelApiResponse In");
         const cancelationBookingInstance = new CancelationBooking({
-          calcelationStatus:
-            fCancelApiResponse?.data?.R_DATA?.Error?.Status || null,
-          AirlineCode:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode || null,
+          calcelationStatus: ResponseData?.Status || null ,
+          AirlineCode: requestDataForCancel.R_DATA?.Charges?.FlightCode || null ,
           companyId: Authentication?.CompanyId || null,
           userId: Authentication?.UserId || null,
-          PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr || null,
-          fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare || null,
-          AirlineCancellationFee:
-            fCancelApiResponse?.data?.R_DATA?.Charges
-              ?.AirlineCancellationFee || null,
-          AirlineRefund:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund || null,
-          ServiceFee:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee || null,
-          RefundableAmt:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt || null,
-          description:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.Description || null,
+          PNR: requestDataForCancel.R_DATA?.Charges?.Pnr || null,
+          fare: requestDataForCancel.R_DATA?.Charges?.Fare || null ,
+          AirlineCancellationFee:requestDataForCancel.R_DATA?.Charges
+          ?.AirlineCancellationFee ? requestDataForCancel.R_DATA?.Charges
+          ?.AirlineCancellationFee : 0,
+          AirlineRefund: requestDataForCancel.R_DATA?.Charges?.AirlineRefund ? requestDataForCancel.R_DATA?.Charges?.AirlineRefund : 0,
+          ServiceFee: requestDataForCancel.R_DATA?.Charges?.ServiceFee || null,
+          RefundableAmt: requestDataForCancel.R_DATA?.Charges?.RefundableAmt || null,
+          description:requestDataForCancel.R_DATA?.Charges?.Description || null,
           modifyBy: Authentication?.UserId || null,
           modifyAt: new Date(),
         });
 
-        
-
-
         await cancelationBookingInstance.save();
 
-        if(fCancelApiResponse?.data?.R_DATA?.Status != null && fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() ===
+        if(ResponseData?.Status != null && ResponseData?.Status.toUpperCase() ===
         "PENDING"){
           await bookingDetails.findOneAndUpdate(
             { _id: BookingIdDetails._id },
@@ -364,15 +369,22 @@ const KafilaFun = async (
         }
         return fCancelApiResponse?.data;
       } else if (
-        fCancelApiResponse?.data?.R_DATA?.Status === null &&
-        fCancelApiResponse?.data?.R_DATA?.Charges?.IsCanceled === true
+        ResponseData?.Status === null &&
+        ResponseData?.Charges?.IsCanceled === true
       ) {
-
+        console.log(agencyUserId,"agencyUserId agencyUserId")
         const getAgentConfig = await agentConfig.findOne({
           userId: agencyUserId,
         });
-
-        const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
+        // console.log(getAgentConfig,"getAgentConfig12");
+        // console.log(getAgentConfig?.maxcreditLimit,"getAgentConfigmaxcreditLimit");
+        let maxCreditLimit = 0;
+        if(getAgentConfig?.maxcreditLimit){
+          maxCreditLimit = Math.floor(getAgentConfig?.maxcreditLimit) ?? 0;
+        }
+        // console.log(ResponseData,"fCancelApiResponse else if");
+        // console.log(maxCreditLimit,"maxCreditLimit");
+        // console.log(BookingIdDetails,"BookingIdDetails BookingIdDetails");
         let newBalance = 0;
         let pricecheck = 0;
         if (BookingIdDetails && BookingIdDetails?.fareRules && BookingIdDetails?.fareRules != null) {
@@ -395,8 +407,14 @@ const KafilaFun = async (
                   tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
                 }
               });
-              pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 ?
-                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : ((BookingIdDetails.bookingTotalAmount || 0) - (BookingIdDetails?.fareRules?.CBHA + BookingIdDetails?.fareRules?.SF + (tdsAmount || 0)));
+              pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 || BookingIdDetails?.fareRules == null ?
+              ResponseData?.Charges?.RefundableAmt : ((BookingIdDetails.bookingTotalAmount || 0) - (BookingIdDetails?.fareRules !=null ? BookingIdDetails?.fareRules?.CBHA : 0 + BookingIdDetails?.fareRules !=null ? BookingIdDetails?.fareRules?.SF : 0 + (tdsAmount || 0)));
+              // console.log(pricecheck,"pricecheck1");
+              if(!isNaN(pricecheck)){
+                pricecheck = pricecheck;
+              }else{
+                pricecheck = 0;
+              }
               newBalance = maxCreditLimit + pricecheck;
             } else {
               let tdsAmount = 0;
@@ -406,8 +424,16 @@ const KafilaFun = async (
                   tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
                 }
               });
-              pricecheck = BookingIdDetails?.fareRules?.CWBHA === 0 ?
-                fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : ((BookingIdDetails.bookingTotalAmount || 0) - (BookingIdDetails?.fareRules?.CWBHA + BookingIdDetails?.fareRules?.SF + (tdsAmount || 0)));
+              pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 || BookingIdDetails?.fareRules == null ?
+              ResponseData?.Charges?.RefundableAmt : ((BookingIdDetails.bookingTotalAmount || 0) - (BookingIdDetails?.fareRules !=null ? BookingIdDetails?.fareRules?.CBHA : 0 + BookingIdDetails?.fareRules !=null ? BookingIdDetails?.fareRules?.SF : 0 + (tdsAmount || 0)));
+              // pricecheck = BookingIdDetails?.fareRules?.CWBHA === 0 ?
+              // ResponseData?.Charges?.RefundableAmt : ((BookingIdDetails.bookingTotalAmount || 0) - (BookingIdDetails?.fareRules?.CWBHA + BookingIdDetails?.fareRules?.SF + (tdsAmount || 0)));
+              // console.log(pricecheck,"pricecheck2");
+              if(!isNaN(pricecheck)){
+                pricecheck = pricecheck;
+              }else{
+                pricecheck = 0;
+              }
               newBalance = maxCreditLimit + pricecheck;
             }
           }
@@ -419,12 +445,24 @@ const KafilaFun = async (
               tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
             }
           });
+          // console.log(tdsAmount,"tdsAmount1");
           newBalance =
             maxCreditLimit +
-            (fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt - tdsAmount || 0);
-          pricecheck = fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt - (tdsAmount || 0);
+            (ResponseData?.Charges?.RefundableAmt - tdsAmount || 0);
+          pricecheck = ResponseData?.Charges?.RefundableAmt - (tdsAmount || 0);
+          // console.log(pricecheck,"pricecheck3");
+          if(!isNaN(pricecheck)){
+            pricecheck = pricecheck;
+          }else{
+            pricecheck = 0;
+          }
         }
-
+        console.log(newBalance,"newBalance");
+        if (!isNaN(newBalance)) {
+          newBalance = newBalance;
+        }else{
+          newBalance = 0;
+        }
         await agentConfig.updateOne(
           { userId: agencyUserId },
           { maxcreditLimit: newBalance }
@@ -481,52 +519,47 @@ const KafilaFun = async (
 
 
         const cancelationBookingInstance = new CancelationBooking({
-          calcelationStatus:
-            fCancelApiResponse?.data?.R_DATA?.Error?.Status || null,
+          calcelationStatus:ResponseData?.Status == null && ResponseData?.Charges?.IsCanceled == true ? "CANCEL":  ResponseData?.Status,
           AirlineCode:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode || null,
+          ResponseData?.Charges?.FlightCode || null,
           companyId: Authentication?.CompanyId || null,
           userId: Authentication?.UserId || null,
-          PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr || null,
-          fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare || null,
+          PNR: ResponseData?.Charges?.Pnr || null,
+          fare: ResponseData?.Charges?.Fare || null,
           AirlineCancellationFee:
-            fCancelApiResponse?.data?.R_DATA?.Charges
+          ResponseData?.Charges
               ?.AirlineCancellationFee || null,
           AirlineRefund:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund || null,
+          ResponseData?.Charges?.AirlineRefund || null,
           ServiceFee:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee || null,
+          ResponseData?.Charges?.ServiceFee || null,
           RefundableAmt:
             pricecheck || null,
           description:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.Description || null,
+          ResponseData?.Charges?.Description || null,
           modifyBy: Authentication?.UserId || null,
           modifyAt: new Date(),
         });
         await cancelationBookingInstance.save();
-
+        // console.log("jksjskj jdjsjdsjkj ")
         return fCancelApiResponse?.data;
       } else {
         const cancelationBookingInstance = new CancelationBooking({
           calcelationStatus:
-            fCancelApiResponse?.data?.R_DATA?.Error?.Status || null,
+          ResponseData?.Error?.Status ? ResponseData?.Error?.Status : requestDataForCancel.R_DATA.Error.Status ?  requestDataForCancel.R_DATA.Error.Status : null ,
           AirlineCode:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode || null,
+          ResponseData?.Charges?.FlightCode ? ResponseData?.Charges?.FlightCode : requestDataForCancel.R_DATA?.Charges?.FlightCode ? requestDataForCancel.R_DATA?.Charges?.FlightCode : null ,
           companyId: Authentication?.CompanyId || null,
           userId: Authentication?.UserId || null,
-          PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr || null,
-          fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare || null,
-          AirlineCancellationFee:
-            fCancelApiResponse?.data?.R_DATA?.Charges
-              ?.AirlineCancellationFee || null,
-          AirlineRefund:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund || null,
-          ServiceFee:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee || null,
-          RefundableAmt:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt || null,
-          description:
-            fCancelApiResponse?.data?.R_DATA?.Charges?.Description || null,
+          PNR: ResponseData?.Charges?.Pnr ? ResponseData?.Charges?.Pnr : requestDataForCancel.R_DATA?.Charges?.Pnr ? requestDataForCancel.R_DATA?.Charges?.Pnr : null,
+          fare: ResponseData?.Charges?.Fare ? ResponseData?.Charges?.Fare : requestDataForCancel.R_DATA?.Charges?.Fare ,
+          AirlineCancellationFee:ResponseData?.Charges?.AirlineCancellationFee ? ResponseData?.Charges
+          ?.AirlineCancellationFee: requestDataForCancel.R_DATA?.Charges
+          ?.AirlineCancellationFee,
+          AirlineRefund: ResponseData?.Charges?.AirlineRefund ? ResponseData?.Charges?.AirlineRefund : requestDataForCancel.R_DATA?.Charges?.AirlineRefund,
+          ServiceFee: ResponseData?.Charges?.ServiceFee ? ResponseData?.Charges?.ServiceFee : requestDataForCancel.R_DATA?.Charges?.ServiceFee,
+          RefundableAmt:ResponseData?.Charges?.RefundableAmt ? ResponseData?.Charges?.RefundableAmt : requestDataForCancel.R_DATA?.Charges?.RefundableAmt,
+          description:ResponseData?.Charges?.Description ? ResponseData?.Charges?.Description : requestDataForCancel.R_DATA?.Charges?.Description,
           modifyBy: Authentication?.UserId || null,
           modifyAt: new Date(),
         });

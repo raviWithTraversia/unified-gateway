@@ -24,6 +24,7 @@ const fullCancelation = async (req, res) => {
     CancelType,
     Reason,
     Sector,
+    providerBookingId
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -34,6 +35,7 @@ const fullCancelation = async (req, res) => {
     "CancelType",
     "Reason",
     "Sector",
+    "providerBookingId"
   ];
   const missingFields = fieldNames.filter(
     (fieldName) =>
@@ -99,7 +101,8 @@ const fullCancelation = async (req, res) => {
       CancelType,
       Sector,
       Reason,
-      agencyUserId
+      agencyUserId,
+      providerBookingId
     );
   }
 
@@ -125,7 +128,8 @@ async function handleflight(
   CancelType,
   Sector,
   Reason,
-  agencyUserId
+  agencyUserId,
+  providerBookingId
 ) {
   // International
   // Check LIVE and TEST
@@ -188,7 +192,8 @@ async function handleflight(
               Sector,
               Reason,
               agencyUserId,
-              BookingIdDetails
+              BookingIdDetails,
+              providerBookingId
             );
           default:
             throw new Error(
@@ -218,7 +223,8 @@ const KafilaFun = async (
   Sector,
   Reason,
   agencyUserId,
-  BookingIdDetails
+  BookingIdDetails,
+  providerBookingId
 ) => {
   let createTokenUrl;
   let flightCancelUrl;
@@ -341,6 +347,8 @@ const KafilaFun = async (
         // console.log(ResponseData,"fCancelApiResponse In");
         const cancelationBookingInstance = new CancelationBooking({
           calcelationStatus: ResponseData?.Status || null ,
+          bookingId:BookingId,
+          providerBookingId:providerBookingId,
           AirlineCode: requestDataForCancel.R_DATA?.Charges?.FlightCode || null ,
           companyId: Authentication?.CompanyId || null,
           userId: Authentication?.UserId || null,
@@ -520,6 +528,8 @@ const KafilaFun = async (
 
         const cancelationBookingInstance = new CancelationBooking({
           calcelationStatus:ResponseData?.Status == null && ResponseData?.Charges?.IsCanceled == true ? "CANCEL":  ResponseData?.Status,
+          bookingId:BookingId,
+          providerBookingId:providerBookingId,
           AirlineCode:
           ResponseData?.Charges?.FlightCode || null,
           companyId: Authentication?.CompanyId || null,
@@ -547,6 +557,8 @@ const KafilaFun = async (
         const cancelationBookingInstance = new CancelationBooking({
           calcelationStatus:
           ResponseData?.Error?.Status ? ResponseData?.Error?.Status : requestDataForCancel.R_DATA.Error.Status ?  requestDataForCancel.R_DATA.Error.Status : null ,
+          bookingId:BookingId,
+          providerBookingId:providerBookingId,
           AirlineCode:
           ResponseData?.Charges?.FlightCode ? ResponseData?.Charges?.FlightCode : requestDataForCancel.R_DATA?.Charges?.FlightCode ? requestDataForCancel.R_DATA?.Charges?.FlightCode : null ,
           companyId: Authentication?.CompanyId || null,

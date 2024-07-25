@@ -13,18 +13,24 @@ const dashBoardCount = async (req, res) => {
     let { companyId } = req.query;
     let data = {};
     let req1 = { params: { companyId: companyId } };
-    let fifteenDaysAgo = new Date();
-    fifteenDaysAgo.setDate(new Date().getDate() - 1);
+    const today = new Date();
 
+
+const startDate = new Date(today.setUTCHours(0, 0, 0, 0));
+    const endDate = new Date(today.setUTCHours(23, 59, 59, 999));
+    const dateId = {
+      $gte: startDate,
+      $lt: endDate
+    };
     let [newRegistrationCount, creditReqCount, getBookingDetails, RegisteredAgentConfig, depositRequest] = await Promise.all([
       registrationServices.getAllRegistrationByCompany(req1, res),
       creditRequest.find({ companyId: companyId }),
-      bookingdetails.find({ createdAt: { $gte: new Date((fifteenDaysAgo.toISOString().split("T"))[0]) }, companyId }, { bookingStatus: 1 }),
+      bookingdetails.find({ createdAt: dateId, companyId }, { bookingStatus: 1 }),
       company.countDocuments({ parent: companyId }),
       depositDetail.countDocuments({ companyId, status: "pending" })
     ]);
 
-    let cancelPending = 0, pending = 0, hold = 0, failedAtPayment = 0, allFailed = 0, refund = 0, refundPending = 0, amendement = 0
+    let cancelPending = 0, pending = 0, hold = 0, failedAtPayment = 0, allFailed = 0, refund = 0, refundPending = 0, amendement = 0,confirmed=0
 
     getBookingDetails.map(item => {
       if (item.bookingStatus == "PENDING") pending++;
@@ -33,6 +39,8 @@ const dashBoardCount = async (req, res) => {
       if (item.bookingStatus == "FAILED") allFailed++;
       if (item.bookingStatus == "REFUND") refund++;
       if (item.bookingStatus == "CANCELLATION PENDING") cancelPending++;
+      if (item.bookingStatus == "CONFIRMED") confirmed++;
+
     });
 
     newRegistrationCount = newRegistrationCount?.data?.length || 0;
@@ -49,6 +57,8 @@ const dashBoardCount = async (req, res) => {
     data['depositRequest'] = depositRequest;
     data['amendement'] = amendement;
     data['cancelPending'] = cancelPending;
+    data['confirmed'] = confirmed;
+    
 
     if (newRegistrationCount) {
       return {

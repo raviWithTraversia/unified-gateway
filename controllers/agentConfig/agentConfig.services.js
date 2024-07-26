@@ -107,6 +107,7 @@ const updateAgentConfiguration = async (req, res) => {
 
     const existingConfig = await agentConfigsModels.findById(id);
     const userData = await userModel.findById(req.user._id)
+    updates.maxcreditLimit=existingConfig?.maxcreditLimit
     const updateData = await agentConfigsModels.findByIdAndUpdate(id, updates, { new: true })
 
     /// console.log("====>", existingConfig);

@@ -787,20 +787,23 @@ console.log(mailConfig)
 
 const recieveDI = async (configData, findUser, product, amount, transactionBy) => {
   try{
+    // console.log("jksds");
   configData.diSetupIds.diSetupIds = await configData.diSetupIds.diSetupIds.filter(diSetup =>
     diSetup.status === true &&
     // diSetup.companyId.toString() === findUser.company_ID.toString() &&
     new Date() >= new Date(diSetup.validFromDate) &&
     new Date() <= new Date(diSetup.validToDate)
   );
-  console.log(configData.diSetupIds.diSetupIds,"hjshsah");
+  // console.log(configData?.diSetupIds?.diSetupIds,"hjshsah");
   let slabOptions = configData?.diSetupIds?.diSetupIds;
   let bonusAmount = 0; 
   let isMultipleSlab = false;
   let slabBreakups = [];
+  // console.log(slabOptions,"slabOptions111");
   if (slabOptions[slabOptions.length - 1]?.minAmount < amount) {
     bonusAmount = (parseInt(slabOptions[slabOptions.length - 1]?.diPersentage) / 100) * amount;
     slabBreakups.push(slabOptions[slabOptions.length - 1]);
+    // console.log(bonusAmount,"bonusAmount1");
   } else {
     for (let i = 0; i < slabOptions.length; i++) {
       if (!isMultipleSlab) {
@@ -816,7 +819,8 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
         let restAmount = amount - slabOptions[i - 1]?.minAmount || 0;
         let restAmountBonus = ((parseInt(slabOptions[i]?.diPersentage) || 0) / 100) * restAmount;
         bonusAmount = mainAmountBonus + restAmountBonus;
-        console.log(bonusAmount,'bonusAmount1')
+      
+        // console.log(bonusAmount,mainAmountBonus,restAmountBonus,'bonusAmount2');
         if (bonusAmount > 0) {
           if (!slabOptions[i - 1]) {
             slabBreakups.push(slabOptions[i])
@@ -828,6 +832,7 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
       }
     }
   }
+  // console.log(bonusAmount,"bonusAmount11");
   const ADRdata = new AgentDiRecieve({
     userId: findUser._id,
     companyId: findUser.company_ID,
@@ -835,7 +840,7 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
     diAmount: bonusAmount,
     slabBreakups: slabBreakups
   });
-
+  // console.log(slabBreakups,"slabBreakups1")
   if (slabBreakups.length) {
     await ADRdata.save();
     const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation

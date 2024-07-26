@@ -108,7 +108,9 @@ const manualDebitCredit = async (req, res) => {
           response: 'User not found'
         }
       }
+      // console.log(configData,"configData",findUser,"findUser",product,"product");
       let DIdata = await recieveDI(configData, findUser, product, amount, loginUser._id);
+      // console.log(DIdata,"DIdata");
       if (product === "Rail") {
         configData.maxRailCredit += (amount + DIdata);
         runningAmount = configData.maxRailCredit
@@ -141,7 +143,57 @@ const manualDebitCredit = async (req, res) => {
         documentId: findUser._id,
         description: "Amount Credited"
       };
-      EventLogs(LogsData)
+      EventLogs(LogsData);
+      if(DIdata !=null || DIdata != 0){
+        let tdsAmount = parseInt(DIdata) * (5/100);
+        if(tdsAmount != 0){
+          const findUser = await User.findById(userId);
+          const configData = await agentConfig.findOne({ userId });
+          if (!configData) {
+            return {
+              response: 'User not found'
+            }
+          }
+          if (product === "Rail") {
+            if (configData?.maxcreditLimit < amount) {
+              return { response: "Insufficient Balance" }
+            }
+            configData.maxRailCredit -= tdsAmount;
+            runningAmount = configData.maxRailCredit
+          }
+          if (product === "Flight") {
+            if (configData?.maxcreditLimit < amount) {
+              return { response: "Insufficient Balance" }
+            }
+            configData.maxcreditLimit -= tdsAmount;
+            runningAmount = configData.maxcreditLimit
+          }
+          await configData.save();
+          const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+          await ledger.create({
+            userId: findUser._id,
+            companyId: findUser.company_ID,
+            ledgerId: ledgerId,
+            transactionAmount: tdsAmount,
+            currencyType: "INR",
+            fop: "Debit",
+            transactionType: "Debit",
+            runningAmount,
+            remarks: `TDS against ${tdsAmount} DI deposit.`,
+            transactionBy: loginUser._id,
+            product
+          });
+          const LogsData = {
+            eventName: "debitRequest",
+            doerId: loginUser._id,
+            doerName: loginUser.fname,
+            companyId: findUser.company_ID,
+            documentId: findUser._id,
+            description: "Amount Debited"
+          };
+          EventLogs(LogsData)
+        }
+      }
     }
     if (amountStatus == "debit") {
       const findUser = await User.findById(userId);

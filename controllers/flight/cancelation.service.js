@@ -158,7 +158,7 @@ async function handleflight(
   }
 
   const BookingIdDetails = await bookingDetails.findOne({
-    providerBookingId: BookingId,
+    providerBookingId: providerBookingId,
   });
 
   if (!BookingIdDetails) {
@@ -267,7 +267,7 @@ const KafilaFun = async (
         R_NAME: "CANCEL",
         R_DATA: {
           ACTION: "CANCEL_CHARGE",
-          BOOKING_ID: BookingId,
+          BOOKING_ID: providerBookingId,
           CANCEL_TYPE: "FULL_CANCELLATION",
           REASON: Reason,
           TRACE_ID: "",
@@ -300,7 +300,7 @@ const KafilaFun = async (
         R_NAME: "CANCEL",
         R_DATA: {
           ACTION: "CANCEL_COMMIT",
-          BOOKING_ID: BookingId,
+          BOOKING_ID: providerBookingId,
           CANCEL_TYPE: "FULL_CANCELLATION",
           REASON: Reason,
           TRACE_ID: fSearchApiResponse?.data?.Req?.R_DATA?.TRACE_ID,

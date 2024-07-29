@@ -853,6 +853,17 @@ const getAllAgencyAndDistributer = async (req, res) => {
         }
       },
       { $unwind: { path: '$salesInchargeData', preserveNullAndEmptyArrays: true } },
+      {
+        $lookup:{
+          from:"agentconfigurations",
+          localField:"_id",
+          foreignField:"userId",
+          as:"agentconfigurations"
+
+        }
+      },
+      {$unwind:{path:"$agentconfigurations" ,preserveNullAndEmptyArrays: true}},
+      
       { 
         $project: {
           _id: 1,
@@ -908,7 +919,8 @@ const getAllAgencyAndDistributer = async (req, res) => {
           resetToken: 1,
           ip_address: 1,
           userId: 1,
-          encryptUserId: 1
+          encryptUserId: 1,
+          maxcreditLimit:'$agentconfigurations.maxcreditLimit'
         }
       }
     ]).exec();

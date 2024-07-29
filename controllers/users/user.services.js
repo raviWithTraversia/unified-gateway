@@ -1071,13 +1071,13 @@ const updateCompayProfile = async (req, res) => {
 
 const agencyChangePassword = async (req, res) => {
   try {
-    const { id, newPassword } = req.body;
+    const { id, newPassword,email} = req.body;
     let getUserByCompanyId = await User.findOne({ _id: id });
     if (!getUserByCompanyId) {
       return { response: "User doesn't exist" }
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await User.findOneAndUpdate({ _id: id }, { $set: { password: hashedPassword } });
+    await User.findOneAndUpdate({ _id: id }, { $set: { password: hashedPassword,email:email } });
     return {
       response: 'Password Change Sucessfully'
     };

@@ -233,9 +233,9 @@ const payuSuccess = async (req, res) => {
           transactionAmount: totalItemAmount,
           currencyType: "INR",
           fop: "CREDIT",
-          transactionType: "DEBIT",
+          transactionType: "CREDIT",
           runningAmount: newBalanceCredit,
-          remarks: "Booking Amount Dedactive Into Your Account.",
+          remarks: "Pay Online using PayU Into Your Account.",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
@@ -477,9 +477,9 @@ const payuSuccess = async (req, res) => {
               transactionAmount: itemAmount,
               currencyType: "INR",
               fop: "DEBIT",
-              transactionType: "CREDIT",
+              transactionType: "DEBIT",
               runningAmount: runnnigBalance,
-              remarks: "Booking Amount Add Into Your Account.",
+              remarks: "Booking Amount Dededucted From Your Account.",
               transactionBy: getuserDetails._id,
               cartId: udf1,
             });
@@ -527,9 +527,9 @@ const payuWalletResponceSuccess = async (req, res) => {
           transactionAmount: amount,
           currencyType: "INR",
           fop: "CREDIT",
-          transactionType: "DEBIT",
+          transactionType: "CREDIT",
           runningAmount: newBalanceAmount,
-          remarks: "Wallet Amount Deducted from Your Account.",
+          remarks: "Wallet Amount Credited into Your Account.",
           transactionBy: userData._id,
         });
 

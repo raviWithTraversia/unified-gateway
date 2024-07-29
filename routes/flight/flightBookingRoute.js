@@ -9,6 +9,7 @@ const flight = require('../../controllers/flightBooking/flightBooking.controller
 
 flight_booking_route.post('/flightbooking/idcreation', flight.getIdCreation);
 flight_booking_route.post('/flightbooking/allBooking', flight.getAllBooking);
+flight_booking_route.get('/flightbooking/PendingBooking',flight.PendingBooking);
 flight_booking_route.post('/flightbooking/getBookingByBookingId', flight.getBookingByBookingId);
 flight_booking_route.post('/flightbooking/getBookingCalendarCount', flight.getBookingCalendarCount);
 flight_booking_route.post('/flightbooking/getDeparturesList', flight.getDeparturesList);

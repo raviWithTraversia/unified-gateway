@@ -950,9 +950,9 @@ const KafilaFun = async (
                   }
                 );
                 const logData = {
-                  traceId: Authentication.TraceId,
-                  companyId: Authentication.CompanyId,
-                  userId: Authentication.UserId,
+                  traceId: Authentication?.TraceId,
+                  companyId: Authentication?.CompanyId,
+                  userId: Authentication?.UserId,
                   source: "Kafila",
                   type: "API Log",
                   BookingId: item?.BookingId,
@@ -1125,6 +1125,19 @@ const KafilaFun = async (
                   return bookingResponce;
                 }
               } catch (error) {
+                const logDataCatch = {
+                  traceId: Authentication?.TraceId,
+                  companyId: Authentication?.CompanyId,
+                  userId: Authentication?.UserId,
+                  source: "Kafila",
+                  type: "API Log",
+                  BookingId: item?.BookingId,
+                  product: "Flight",
+                  logName: "Air Booking",
+                  request: "Air Booking Catch Request",
+                  responce:error ,
+                };
+                Logs(logDataCatch);
                 await BookingDetails.updateOne(
                   {
                     bookingId: item?.BookingId,

@@ -5,7 +5,7 @@ const config = require("../../models/AgentConfig");
 const passengerPreferenceSchema = require("../../models/booking/PassengerPreference");
 const Email=require('../commonFunctions/common.function')
 const SmtpConfig = require("../../models/Smtp");
-
+const CancelationBooking = require("../../models/booking/CancelationBooking");
 const { ObjectId } = require("mongodb");
 const moment = require('moment');
 const { Config } = require('../../configs/config');
@@ -614,6 +614,376 @@ console.log("3rd")
     }
 
 
+  }
+};
+
+const getPendingBooking = async (req, res) => {
+  const {
+    userId,
+    agencyId,
+    bookingId,
+    pnr,
+    status,
+    fromDate,
+    toDate
+  } = req.body;
+  const fieldNames = [
+    "userId",
+    "agencyId",
+    "bookingId",
+    "pnr",
+    "status",
+    "fromDate",
+    "toDate"
+  ];
+  console.log(agencyId)
+  const missingFields = fieldNames.filter(
+    (fieldName) =>
+      req.body[fieldName] === null || req.body[fieldName] === undefined
+  );
+
+  if (missingFields.length > 0) {
+    const missingFieldsString = missingFields.join(", ");
+
+    return {
+      response: null,
+      isSometingMissing: true,
+      data: `Missing or null fields: ${missingFieldsString}`,
+    };
+  }
+  if (!userId) {
+    return {
+      response: "User id does not exist",
+    };
+  }
+
+  // Check if company Id exists
+  const checkUserIdExist = await User.findById(userId).populate('roleId').populate("company_ID");
+  if (!checkUserIdExist) {
+    return {
+      response: "User id does not exist",
+    };
+  }
+
+  if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
+
+    let filter = { userId: new ObjectId(userId) };
+    if (agencyId !== undefined && agencyId !== '') {
+      filter.companyId = new ObjectId(agencyId);
+    }
+
+    if (bookingId !== undefined && bookingId.trim() !== "") {
+      filter.bookingId = bookingId;
+    }
+    if (pnr !== undefined && pnr.trim() !== "") {
+      filter.PNR = pnr;
+    }
+    if (status !== undefined && status.trim() !== "") {
+      filter.calcelationStatus = status;
+    }
+
+    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      filter.createdAt = {
+          $gte: new Date(fromDate + 'T00:00:00.000Z'), 
+          $lte: new Date(toDate + 'T23:59:59.999Z')   
+      };
+    } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      filter.createdAt = {
+        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      };
+    } else if (toDate !== undefined && toDate.trim() !== "") {
+      filter.createdAt = {
+        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      };
+    }
+    
+    let pipeline = [
+      {
+        $match:filter
+      },
+      { $sort: { createdAt: -1 } }
+    ];
+
+    const PendingBookingDetails = await CancelationBooking.aggregate(pipeline);
+    console.log('1st')
+    if (!PendingBookingDetails || PendingBookingDetails.length === 0) {
+      return {
+        response: "Data Not Found",
+      };
+    } else {
+      return {
+        response: "Fetch Data Successfully",
+        data: PendingBookingDetails
+      };
+    }
+  } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer") {
+    let filter = { companyId: checkUserIdExist.company_ID._id };
+    if (agencyId !== undefined && agencyId !== "") {
+      filter.userId={}
+      filter.userId={$in:agencyId}
+    }
+
+    if (bookingId !== undefined && bookingId.trim() !== "") {
+      filter.bookingId = bookingId;
+    }
+    if (pnr !== undefined && pnr.trim() !== "") {
+      filter.PNR = pnr;
+    }
+    if (status !== undefined && status.trim() !== "") {
+      filter.calcelationStatus = status;
+    }
+    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      filter.createdAt = {
+        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      };
+    } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      filter.createdAt = {
+        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      };
+    } else if (toDate !== undefined && toDate.trim() !== "") {
+      filter.createdAt = {
+        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      };
+    }
+
+    let pipeline = [
+      {
+        $match:filter
+      },
+      { $sort: { createdAt: -1 } }
+    ];
+
+    const PendingBookingDetails = await CancelationBooking.aggregate(pipeline);
+
+      console.log("2nd")
+
+    if (!PendingBookingDetails || PendingBookingDetails.length === 0) {
+      return {
+        response: "Data Not Found",
+      };
+    } else {
+      return {
+        response: "Fetch Data Successfully",
+        data: PendingBookingDetails
+      };
+    }
+  } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" || checkUserIdExist?.company_ID?.type === "TMC") {
+
+    let filter = {};
+    if (agencyId !== undefined && agencyId !== "") {
+      filter.userId={}
+      filter.userId={$in:agencyId}
+     
+      console.log(filter.userId)
+    }
+
+    if (bookingId !== undefined && bookingId.trim() !== "") {
+      filter.bookingId = bookingId;
+    }
+    if (pnr !== undefined && pnr.trim() !== "") {
+      filter.PNR = pnr;
+    }
+    if (status !== undefined && status.trim() !== "") {
+      filter.calcelationStatus = status;
+    }
+    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+      filter.createdAt = {
+        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+      };
+    } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      filter.createdAt = {
+        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+      };
+    } else if (toDate !== undefined && toDate.trim() !== "") {
+      filter.createdAt = {
+        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+      };
+    }
+
+    let pipeline = [
+      {
+        $match:filter
+      },
+      { $sort: { createdAt: -1 } }
+    ];
+
+    const PendingBookingDetails = await CancelationBooking.aggregate(pipeline);
+    console.log("3rd")
+    if (!PendingBookingDetails || PendingBookingDetails.length === 0) {
+      return {
+        response: "Data Not Found",
+      };
+    } else {
+      return {
+        response: "Fetch Data Successfully",
+        data: PendingBookingDetails
+      };
+    }
+  } else {
+    const userCompanyId = checkUserIdExist.company_ID;
+    const checkComapnyUser = await User.findOne({ company_ID: userCompanyId }).populate({
+      path: 'roleId',
+      match: { type: 'Default' }
+    });
+    if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Agency") {
+
+      let filter = { userId: checkComapnyUser._id };
+      if (agencyId !== undefined && agencyId !== "") {
+        filter.userId={}
+      filter.userId={$in:agencyId}
+
+      }
+
+      if (bookingId !== undefined && bookingId.trim() !== "") {
+        filter.bookingId = bookingId;
+      }
+      if (pnr !== undefined && pnr.trim() !== "") {
+        filter.PNR = pnr;
+      }
+      if (status !== undefined && status.trim() !== "") {
+        filter.calcelationStatus = status;
+      }
+
+      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+        filter.createdAt = {
+          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+        };
+      } else if (fromDate !== undefined && fromDate.trim() !== "") {
+        filter.createdAt = {
+          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+        };
+      } else if (toDate !== undefined && toDate.trim() !== "") {
+        filter.createdAt = {
+          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+        };
+      }
+
+      let pipeline = [
+        {
+          $match:filter
+        },
+        { $sort: { createdAt: -1 } }
+      ];
+  
+      const PendingBookingDetails = await CancelationBooking.aggregate(pipeline);
+
+
+      if (!PendingBookingDetails || PendingBookingDetails.length === 0) {
+        return {
+          response: "Data Not Found",
+        };
+      } else {
+        return {
+          response: "Fetch Data Successfully",
+          data: PendingBookingDetails
+        };
+      }
+    } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Distributer") {
+      let filter = { companyId: checkComapnyUser.company_ID._id };
+      if (agencyId !== undefined && agencyId !== "") {
+        filter.userId={}
+      filter.userId={$in:agencyId}
+      }
+
+      if (bookingId !== undefined && bookingId.trim() !== "") {
+        filter.bookingId = bookingId;
+      }
+      if (pnr !== undefined && pnr.trim() !== "") {
+        filter.PNR = pnr;
+      }
+      if (status !== undefined && status.trim() !== "") {
+        filter.calcelationStatus = status;
+      }
+      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+        filter.createdAt = {
+          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+        };
+      } else if (fromDate !== undefined && fromDate.trim() !== "") {
+        filter.createdAt = {
+          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+        };
+      } else if (toDate !== undefined && toDate.trim() !== "") {
+        filter.createdAt = {
+          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+        };
+      }
+
+      let pipeline = [
+        {
+          $match:filter
+        },
+        { $sort: { createdAt: -1 } }
+      ];
+  
+      const PendingBookingDetails = await CancelationBooking.aggregate(pipeline);
+
+      if (!PendingBookingDetails || PendingBookingDetails.length === 0) {
+        return {
+          response: "Data Not Found",
+        };
+      } else {
+        return {
+          response: "Fetch Data Successfully",
+          data: PendingBookingDetails
+        };
+      }
+    } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "TMC" || checkComapnyUser?.company_ID?.type === "TMC") {
+
+      let filter = {};
+      if (agencyId !== undefined && agencyId !== "") {
+        filter.userId={}
+      filter.userId={$in:agencyId}
+      }
+
+      if (bookingId !== undefined && bookingId.trim() !== "") {
+        filter.bookingId = bookingId;
+      }
+      if (pnr !== undefined && pnr.trim() !== "") {
+        filter.PNR = pnr;
+      }
+      if (status !== undefined && status.trim() !== "") {
+        filter.calcelationStatus = status;
+      }
+      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+        filter.createdAt = {
+          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+        };
+      } else if (fromDate !== undefined && fromDate.trim() !== "") {
+        filter.createdAt = {
+          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+        };
+      } else if (toDate !== undefined && toDate.trim() !== "") {
+        filter.createdAt = {
+          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
+        };
+      }
+
+      let pipeline = [
+        {
+          $match:filter
+        },
+        { $sort: { createdAt: -1 } }
+      ];
+  
+      const PendingBookingDetails = await CancelationBooking.aggregate(pipeline);
+
+
+      if (!PendingBookingDetails || PendingBookingDetails.length === 0) {
+        return {
+          response: "Data Not Found",
+        };
+      } else {
+        return {
+          response: "Fetch Data Successfully",
+          data: PendingBookingDetails
+        };
+      }
+    }
   }
 };
 
@@ -1399,5 +1769,6 @@ module.exports = {
   updateBillPost,
   manuallyUpdateBookingStatus,
   SendCardOnMail,
-  UpdateAdvanceMarkup
+  UpdateAdvanceMarkup,
+  getPendingBooking
 }

@@ -13,6 +13,14 @@ const cancelationSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    providerBookingId :{
+      type: String,
+      default: null,
+    },
+    bookingId : {
+      type: String,
+      default: null,
+    },
     AirlineCode: { type: String, default: null },
     PNR: {
       type: String,

@@ -148,7 +148,7 @@ const payu = async (req, res) => {
 const payuSuccess = async (req, res) => {
   try {
     
-    const { status, txnid, productinfo, udf1 } = req.body;    
+    const { status, txnid, productinfo, udf1,payment_source,bank_ref_num,PG_TYPE,cardCategory } = req.body;    
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
@@ -368,7 +368,14 @@ const payuSuccess = async (req, res) => {
               // Transtion
               await transaction.updateOne(
                 { bookingId: item?.BookingId },
-                { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" }
+                { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY", 
+                  trnsNo:txnid,
+                  // payment_source:payment_source,
+                  paymentMode:payment_source,
+                  trnsType:PG_TYPE,
+                  trnsBankRefNo:bank_ref_num,
+                  cardType:cardCategory
+                }
               );
 
 

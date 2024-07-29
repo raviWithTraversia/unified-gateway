@@ -24,7 +24,7 @@ const getRailSearch = async (req, res) => {
         let url = `http://43.205.65.20:8000/eticketing/webservices/taenqservices/tatwnstns/${fromStn}/${toStn}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
         const auth = 'Basic V05FUFRQTDAwMDAwOlRlc3Rpbmcx';
         if (Authentication.CredentialType === "LIVE") {
-            url = `http://43.205.65.20:8000/eticketing/webservices/taenqservices/tatwnstns/${fromStn}/${toStn}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
+            url = `https://43.205.65.20:8000/eticketing/webservices/taenqservices/tatwnstns/${fromStn}/${toStn}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
         }
 
         const response = (await axios.get(url, { headers: { 'Authorization': auth } }))?.data;
@@ -152,7 +152,7 @@ const railRouteView = async (req, res) => {
 
 const railFareEnquiry = async (req, res) => {
     try {
-        const { trainNo, journeyDate, frmStn,toStn,jClass,jQuota,paymentEnqFlag, Authentication } = req.body;
+        const { trainNo, journeyDate, frmStn,toStn,jClass,jQuota,paymentEnqFlag, Authentication,passengerList,mobileNumber ,travelInsuranceOpted,ignoreChoiceIfWl,reservationMode,agentDeviceId,autoUpgradationSelected,ticketType,boardingStation,clientTransactionId,gstDetailInputFlag,infantList,gstDetails} = req.body;
         if (!trainNo, !Authentication) {
              return { response: "Provide required fields" } 
         };
@@ -178,23 +178,24 @@ const railFareEnquiry = async (req, res) => {
         
         let queryParams = {
             "masterId": "WNEPTPL00000", 
+            "wsUserLogin": "WNEPTPL00001",
             "enquiryType": "3",
             "reservationChoice": "99",
             "moreThanOneDay": "true",
-            "ignoreChoiceIfWl":"false",
+            "ignoreChoiceIfWl":ignoreChoiceIfWl,
             "gnToCkOpted":"false",
-            "ticketType":"E",
-            "travelInsuranceOpted":"false",
-            "passengerList": [],
-            "mobileNumber": '',
-            "autoUpgradationSelected": 'true',
-            "boardingStation": '',
-            "reservationMode": '',//B2B_WEB_OTP
-            "clientTransactionId": '',
-            "gstDetailInputFlag": 'false',
-            "agentDeviceId": '',
-            "infantList": [],
-            "gstDetails": {}
+            "ticketType":ticketType,
+            "travelInsuranceOpted":travelInsuranceOpted,
+            "passengerList": passengerList,
+            "mobileNumber": mobileNumber,
+            "autoUpgradationSelected": autoUpgradationSelected,
+            "boardingStation": boardingStation,
+            "reservationMode": reservationMode,//B2B_WEB_OTP
+            "clientTransactionId": clientTransactionId,
+            "gstDetailInputFlag": gstDetailInputFlag,
+            "agentDeviceId": agentDeviceId,
+            "infantList": infantList,
+            "gstDetails": gstDetails
         };
         const response = (await axios.post(url,queryParams ,{ headers: { 'Authorization': auth } }))?.data;
         // console.log(response);

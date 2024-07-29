@@ -49,7 +49,7 @@ const addRegistration = async (req, res) => {
       "pincode",
       "country",
       "state",
-      "city",
+      // "city",
       "roleId",
     ];
     const missingFields = fieldNames.filter(

@@ -137,7 +137,7 @@ const manualDebitCredit = async (req, res) => {
         product
       });
 
-      if(pgCharges && pgCharges !=0){
+      if(pgCharges){
         await ledger.create({
           userId: findUser._id,
           companyId: findUser.company_ID,

@@ -4,6 +4,8 @@ const creditRequest = require("../../models/CreditRequest");
 const EventLogs = require('../logs/EventApiLogsCommon');
 const ledger = require("../../models/Ledger");
 const { recieveDI } = require("../commonFunctions/common.function");
+const axios = require("axios");
+const { response } = require("../../routes/balanceManageRoute");
 
 const getBalance = async (req, res) => {
   const { userId } = req.body;
@@ -249,6 +251,55 @@ const manualDebitCredit = async (req, res) => {
   }
 }
 
+const getBalanceTmc=async(req,res)=>{
+  try{
+    var Url=''
+    var payload={}
+if(req.headers.host=="localhost:3111"||req.headers.host=="kafila.traversia.net"){
+Url="http://stage1.ksofttechnology.com/api/Freport";
+payload={
+  "P_TYPE": "API",
+    "R_TYPE": "FLIGHT",
+    "R_NAME": "FlightAgencyBalance",
+    "AID": "675923",
+    "MODULE": "B2B",
+    "IP": "182.73.146.154",
+    "TOKEN": "fd58e3d2b1e517f4ee46063ae176eee1",
+    "ENV": "D",
+    "Version": "1.0.0.0.0.0"
+}
+}
+else if(req.headers.host=="agentapi.kafilaholidays.in"){
+Url="http://fhapip.ksofttechnology.com/api/Freport";
+payload= {"P_TYPE": "API",
+"R_TYPE": "FLIGHT",
+"R_NAME": "FlightAgencyBalance",
+"AID": "24281223",
+"MODULE": "B2B",
+"IP": "182.73.146.154",
+"TOKEN": "be6e3eb87611e080340d57473b038cae",
+"ENV": "P",
+"Version": "1.0.0.0.0.0"}
+}else{
+return ({
+  response:"url not found"
+})
+}
+
+const balanceData=await axios.post(Url,payload)
+if(!balanceData){
+  return({
+    response:'balance not found'
+  })
+}
+return({
+  response:"balance found sucessfully",
+  data:balanceData.data
+})
+  }catch(error){
+    throw error
+  }
+}
 module.exports = {
-  getBalance, manualDebitCredit
+  getBalance, manualDebitCredit,getBalanceTmc
 };

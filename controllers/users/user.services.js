@@ -853,6 +853,17 @@ const getAllAgencyAndDistributer = async (req, res) => {
         }
       },
       { $unwind: { path: '$salesInchargeData', preserveNullAndEmptyArrays: true } },
+      {
+        $lookup:{
+          from:"agentconfigurations",
+          localField:"_id",
+          foreignField:"userId",
+          as:"agentconfigurations"
+
+        }
+      },
+      {$unwind:{path:"$agentconfigurations" ,preserveNullAndEmptyArrays: true}},
+      
       { 
         $project: {
           _id: 1,
@@ -908,7 +919,8 @@ const getAllAgencyAndDistributer = async (req, res) => {
           resetToken: 1,
           ip_address: 1,
           userId: 1,
-          encryptUserId: 1
+          encryptUserId: 1,
+          maxcreditLimit:'$agentconfigurations.maxcreditLimit'
         }
       }
     ]).exec();
@@ -1059,13 +1071,13 @@ const updateCompayProfile = async (req, res) => {
 
 const agencyChangePassword = async (req, res) => {
   try {
-    const { id, newPassword } = req.body;
+    const { id, newPassword,email} = req.body;
     let getUserByCompanyId = await User.findOne({ _id: id });
     if (!getUserByCompanyId) {
       return { response: "User doesn't exist" }
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await User.findOneAndUpdate({ _id: id }, { $set: { password: hashedPassword } });
+    await User.findOneAndUpdate({ _id: id }, { $set: { password: hashedPassword,email:email } });
     return {
       response: 'Password Change Sucessfully'
     };

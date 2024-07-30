@@ -236,13 +236,31 @@ const payuSuccess = async (req, res) => {
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: totalItemAmount,
           currencyType: "INR",
-          fop: "CREDIT",
-          transactionType: "CREDIT",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
           runningAmount: newBalanceCredit,
-          remarks: "Pay Online using PayU Into Your Account.",
+          remarks: "Booking Amount Deducted from Your Account(PayU).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
+
+        await ledger.create({
+          userId: getuserDetails._id,
+          companyId: getuserDetails.company_ID._id,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionAmount: udf3,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount: newBalanceCredit-udf3,
+          remarks: "Booking Amount Deducted from Your Account(PayU).",
+          transactionBy: getuserDetails._id,
+          cartId: udf1,
+        });
+        await agentConfig.updateOne(
+          { userId: getuserDetails._id },
+          { maxcreditLimit: newBalanceCredit-udf3 }
+        );
 
         //const hitAPI = await Promise.all(
         const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
@@ -390,7 +408,8 @@ const payuSuccess = async (req, res) => {
                 paymentMode: "Payu",
                 trnsStatus: "success",
                 transactionBy: userData._id,
-                transactionAmount:normalAmount,
+                pgCharges:udf3,
+                transactionAmount:udf2,
                 statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY", 
                 trnsNo:txnid,
                 trnsBankRefNo:bank_ref_num,

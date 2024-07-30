@@ -160,7 +160,7 @@ const easeBuzzResponce = async (req, res) => {
           fop: "DEBIT",
           transactionType: "DEBIT",
           runningAmount: newBalanceCredit,
-          remarks: "Booking Amount Dedactive Into Your Account(Easebuzz).",
+          remarks: "Booking Amount Deducted from Your Account(Easebuzz).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
@@ -174,7 +174,7 @@ const easeBuzzResponce = async (req, res) => {
           fop: "DEBIT",
           transactionType: "DEBIT",
           runningAmount: newBalanceCredit-pgCharges,
-          remarks: "Booking Amount Dedactive Into Your Account(Easebuzz).",
+          remarks: "Booking Amount Deducted from Your Account(Easebuzz).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
@@ -328,7 +328,7 @@ const easeBuzzResponce = async (req, res) => {
                 trnsType: "DEBIT",
                 paymentMode: card_type,
                 trnsStatus: "success",
-                transactionBy: getuserDetails._id,
+                // transactionBy: getuserDetails._id,
                 pgCharges:pgCharges,
                 transactionAmount:totalItemAmount,
                 statusDetail: status, 

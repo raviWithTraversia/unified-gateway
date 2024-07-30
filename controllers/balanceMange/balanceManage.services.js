@@ -146,9 +146,9 @@ const manualDebitCredit = async (req, res) => {
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount: newBalanceAmount,
+          runningAmount,
           remarks: "Wallet debited for PG charges(EaseBuzz)",
-          transactionBy: userData._id,
+          transactionBy: loginUser._id,
         });
       }
 

@@ -147,10 +147,16 @@ const manualDebitCredit = async (req, res) => {
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount:runningAmount- parseInt(pgCharges),
+          runningAmount:runningAmount - parseInt(pgCharges),
           remarks: "Wallet debited for PG charges(EaseBuzz)",
           transactionBy: loginUser._id,
         });
+
+        await agentConfig.findOneAndUpdate(
+          { userId: userId },
+          { maxcreditLimit: runningAmount - parseInt(pgCharges) },
+          {new:true}
+        );
       }
 
       const LogsData = {

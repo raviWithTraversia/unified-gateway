@@ -127,7 +127,7 @@ const manualDebitCredit = async (req, res) => {
         userId: findUser._id,
         companyId: findUser.company_ID,
         ledgerId: ledgerId,
-        transactionAmount: amount,
+        transactionAmount: amount + parseInt(pgCharges),
         currencyType: "INR",
         fop: "Credit",
         transactionType: "Credit",

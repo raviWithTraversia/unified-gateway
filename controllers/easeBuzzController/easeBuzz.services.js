@@ -76,7 +76,7 @@ const easeBuzz = async (req, res) => {
 
 const easeBuzzResponce = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1, net_amount_debit,card_type,payment_source, bankcode,bank_ref_num,bank_name,name_on_card, error_Message } = req.body;
+    const { status, txnid, productinfo, udf1, net_amount_debit,card_type,payment_source, bankcode,bank_ref_num,bank_name,name_on_card, error_Message,pgCharges } = req.body;
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
@@ -150,23 +150,47 @@ const easeBuzzResponce = async (req, res) => {
           getconfigAmount + totalItemAmount;
 
         let itemAmount = 0;
-        await agentConfig.updateOne(
-          { userId: getuserDetails._id },
-          { maxcreditLimit: newBalanceCredit }
-        );
+        
         await ledger.create({
           userId: getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: totalItemAmount,
           currencyType: "INR",
-          fop: "CREDIT",
+          fop: "DEBIT",
           transactionType: "DEBIT",
           runningAmount: newBalanceCredit,
-          remarks: "Booking Amount Dedactive Into Your Account.",
+          remarks: "Booking Amount Dedactive Into Your Account(Easebuzz).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
+
+        await ledger.create({
+          userId: getuserDetails._id,
+          companyId: getuserDetails.company_ID._id,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionAmount: pgCharges,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount: newBalanceCredit-pgCharges,
+          remarks: "Booking Amount Dedactive Into Your Account(Easebuzz).",
+          transactionBy: getuserDetails._id,
+          cartId: udf1,
+        });
+
+        if(pgCharges){
+          await agentConfig.updateOne(
+            { userId: getuserDetails._id },
+            { maxcreditLimit: newBalanceCredit-pgCharges }
+          );
+        }else{
+          await agentConfig.updateOne(
+            { userId: getuserDetails._id },
+            { maxcreditLimit: newBalanceCredit }
+          );
+        }
+        
 
         //const hitAPI = await Promise.all(
         const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
@@ -292,10 +316,28 @@ const easeBuzzResponce = async (req, res) => {
 
 
               // Transtion
-              await transaction.updateOne(
-                { bookingId: item?.BookingId },
-                { statusDetail: status, trnsNo:txnid,paymentMode:card_type,bankName:bank_name,holderName:name_on_card, }
-              );
+              // await transaction.updateOne(
+              //   { bookingId: item?.BookingId },
+              //   { statusDetail: status, trnsNo:txnid,paymentMode:card_type,bankName:bank_name,holderName:name_on_card, }
+              // );
+              await transaction.create({
+                userId: Authentication.UserId,
+                bookingId:item?.BookingId,
+                companyId: udf1,
+                trnsNo: txnid,
+                trnsType: "DEBIT",
+                paymentMode: card_type,
+                trnsStatus: "success",
+                transactionBy: getuserDetails._id,
+                pgCharges:pgCharges,
+                transactionAmount:totalItemAmount,
+                statusDetail: status, 
+                trnsNo:txnid,
+                trnsBankRefNo:bank_ref_num,
+                // cardType:cardCategory,
+                bankName:bank_name,
+                holderName:name_on_card
+              });
 
 
             }

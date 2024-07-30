@@ -712,6 +712,7 @@ const KafilaFun = async (
           error,
         };
       }
+      console.log(PassengerPreferences,"hdshjdjh");
       const createBooking = async (newItem) => {
         try {
           let bookingDetailsCreate = await BookingDetails.create(newItem);
@@ -880,7 +881,7 @@ const KafilaFun = async (
       );
 
       // return newArray;
-      //console.log(newArray);
+      console.log(newArray,"newArray");
       if (Array.isArray(newArray) && newArray.length > 0) {
         const response = newArray[0];
 
@@ -895,7 +896,8 @@ const KafilaFun = async (
             PaxEmail: passengerPreferencesData?.PaxEmail,
             PaxMobile: passengerPreferencesData?.PaxMobile,
             Passengers: passengerPreferencesData?.Passengers?.map(
-              (passenger) => ({
+              (passenger) => (
+                {
                 PaxType: passenger?.PaxType,
                 passengarSerialNo: passenger?.passengarSerialNo,
                 Title: passenger?.Title,

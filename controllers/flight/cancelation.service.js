@@ -699,7 +699,7 @@ const updateBookingStatus = async (req, res) => {
         await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
           const apiPassenger = response.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
           if (apiPassenger) {
-            passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
+            passenger.Optional.TicketNumber = apiPassenger.Optional.ticketDetails;
             // passenger.Status = "CONFIRMED";
           }
         }));

@@ -90,11 +90,16 @@ const getBalance = async (req, res) => {
 
 const manualDebitCredit = async (req, res) => {
   try {
-    const { userId, amountStatus, amount,pgCharges, product, remarks } = req.body;
+    let { userId, amountStatus, amount,pgCharges, product, remarks } = req.body;
     if (!userId) {
       return { response: "User id does not exist" }
     }
-    amount = amount + parseInt(pgCharges);
+    if(pgCharges){
+      amount = amount + parseInt(pgCharges);
+    }else{
+      amount = amount;
+    }
+    
     const doerId = req.user._id;
     const loginUser = await User.findById(doerId);
     if (amountStatus == "credit") {

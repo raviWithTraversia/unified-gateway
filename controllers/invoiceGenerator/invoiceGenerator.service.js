@@ -1,4 +1,5 @@
 const BookingDetail = require("../../models/BookingDetails");
+const TransactionDetail = require("../../models/transaction")
 const InvoicingData = require("../../models/booking/InvoicingData");
 const Invoicing = require("../../models/booking/Invoicing");
 const InvoicePrivceBreakup = require("../../models/booking/InvoicePrivceBreakup");
@@ -314,7 +315,7 @@ const transactionList = async (req, res) => {
         let query = {};
         if(agencyId){
             let agencyIdToMatch = new ObjectId(agencyId);
-            query.AgencyId = { $in: [agencyIdToMatch]};
+            query.companyId = { $in: [agencyIdToMatch]};
         }
         query.createdAt = {
             $gte: new Date(fromDate + 'T00:00:00.000Z'), 
@@ -326,49 +327,53 @@ const transactionList = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: 'transactiondetails', 
+                    from: 'bookingdetails', 
                     localField: 'bookingId', 
                     foreignField: 'bookingId', 
-                    as: 'transactiondetails',
-                    // pipeline: [
-                        // {
-                        //     $project: {
-                        //         _id:1,
-                        //         userId:1,
-                        //         companyId:1,
-                                
-                        //     },
-                        // },
-                    // ],
+                    as: 'bookingdetails',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id:1,
+                                userId:1,
+                                companyId:1,
+                                AgencyId:1,
+                                BookedBy:1,
+                                bookingId:1,
+                                prodBookingId:1,
+                                provider:1,
+                                bookingStatus:1,
+                                paymentGateway:1,
+                                paymentMethodType:1,
+                                PNR:1,
+                                APnr:1,
+                                GPnr:1,
+                                SalePurchase:1,
+                                bookingTotalAmount:1,
+                                productType:1,
+                                Supplier:1
+                            },
+                        },
+                    ],
                 }
             },
+            // {
+            //     $unwind:"$bookingdetails",
+            //     preserveNullAndEmptyArrays: true
+            // },
+            // {
+            //     $project: {
+                   
+            //     } 
+            // }
             {
-                $match: {
-                  $expr: {
-                    $ne: [{ $size: "$transactiondetails" }, 0]
-                  }
+                $sort: {
+                    createdAt: -1,
                 }
-            },
-            {
-                $project: {
-                    _id:1,
-                    userId:1,
-                    companyId:1,
-                    AgencyId:1,
-                    createdBy:1,
-                    BookedBy:1,
-                    bookingId:1,
-                    provider:1,
-                    bookingType:1,
-                    bookingStatus:1,
-                    paymentMethodType:1,
-                    paymentGateway:1,
-                    transactiondetails:1
-                } 
             }
         ];
 
-        let transactions = await BookingDetail.aggregate(pipeline);
+        let transactions = await TransactionDetail.aggregate(pipeline);
         return {
             response:"Success",
             data: transactions

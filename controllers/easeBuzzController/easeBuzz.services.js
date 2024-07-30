@@ -76,7 +76,7 @@ const easeBuzz = async (req, res) => {
 
 const easeBuzzResponce = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1, net_amount_debit,card_type,payment_source, bankcode,bank_ref_num,bank_name,name_on_card } = req.body;
+    const { status, txnid, productinfo, udf1, net_amount_debit,card_type,payment_source, bankcode,bank_ref_num,bank_name,name_on_card, error_Message } = req.body;
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
@@ -367,8 +367,8 @@ const easeBuzzResponce = async (req, res) => {
         { bookingId: udf1 },
         {
           $set: {
-            bookingStatus: "FAILED",
-            bookingRemarks: "Payment Failed",
+            bookingStatus: "FAILED PAYMENT",
+            bookingRemarks: error_Message || "Payment Failed",
           },
         }
       );

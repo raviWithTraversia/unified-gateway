@@ -25,6 +25,8 @@ const payu = async (req, res) => {
       phone,
       productinfo,
       cartId,
+      pgCharges,
+      normalAmount
     } = req.body;
 
     if (
@@ -63,7 +65,7 @@ const payu = async (req, res) => {
     const cartIdres = cartId;
      
     // Concatenate the transaction details
-    const hashString = `${key}|${txnid}|${amountres}|${productinfores}|${firstnameres}|${emailres}|${cartIdres}||||||||||${salt}`;
+    const hashString = `${key}|${txnid}|${amountres}|${productinfores}|${firstnameres}|${emailres}|${cartIdres}|${normalAmount}|${pgCharges}||||||||${salt}`;
 
     // Calculate the SHA-512 hash
     const hash = crypto.createHash("sha512").update(hashString).digest("hex");    
@@ -80,6 +82,8 @@ const payu = async (req, res) => {
       furl: furl,
       hash: hash,
       udf1: cartIdres,
+      udf2:normalAmount,
+      udf3:pgCharges
     }; 
     
     
@@ -148,7 +152,7 @@ const payu = async (req, res) => {
 const payuSuccess = async (req, res) => {
   try {
     
-    const { status, txnid, productinfo, udf1,payment_source,bank_ref_num,PG_TYPE,cardCategory } = req.body;    
+    const { status, txnid, productinfo, udf1,udf2,udf3,amount,payment_source,bank_ref_num,PG_TYPE,cardCategory } = req.body;    
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
@@ -366,18 +370,32 @@ const payuSuccess = async (req, res) => {
 
 
               // Transtion
-              await transaction.updateOne(
-                { bookingId: item?.BookingId },
-                { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY", 
-                  trnsNo:txnid,
-                  // payment_source:payment_source,
-                  paymentMode:payment_source,
-                  trnsType:PG_TYPE,
-                  trnsBankRefNo:bank_ref_num,
-                  cardType:cardCategory
-                }
-              );
-
+              // await transaction.updateOne(
+              //   { bookingId: item?.BookingId },
+              //   { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY", 
+              //     trnsNo:txnid,
+              //     // payment_source:payment_source,
+              //     paymentMode:payment_source,
+              //     trnsType:PG_TYPE,
+              //     trnsBankRefNo:bank_ref_num,
+              //     cardType:cardCategory
+              //   }
+              // );
+              await transaction.create({
+                userId: Authentication.UserId,
+                bookingId:item?.BookingId,
+                companyId: udf1,
+                trnsNo: txnid,
+                trnsType: "DEBIT",
+                paymentMode: "Payu",
+                trnsStatus: "success",
+                transactionBy: userData._id,
+                transactionAmount:normalAmount,
+                statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY", 
+                trnsNo:txnid,
+                trnsBankRefNo:bank_ref_num,
+                cardType:cardCategory
+              });
 
             }
             //return fSearchApiResponse.data;
@@ -504,7 +522,7 @@ const payuSuccess = async (req, res) => {
 
 const payuWalletResponceSuccess = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1, amount } = req.body; 
+    const { status, txnid, productinfo, udf1,udf2,udf3, amount } = req.body; 
         
     if (status === "success") {
       const userData = await User.findOne({ company_ID: udf1 }).populate({
@@ -531,12 +549,25 @@ const payuWalletResponceSuccess = async (req, res) => {
           userId: userData._id,
           companyId: userData.company_ID,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionAmount: amount,
+          transactionAmount: udf2,
           currencyType: "INR",
           fop: "CREDIT",
           transactionType: "CREDIT",
           runningAmount: newBalanceAmount,
-          remarks: "Wallet Amount Credited into Your Account.",
+          remarks: "Wallet debited for PG charges(PayU)",
+          transactionBy: userData._id,
+        });
+
+        await ledger.create({
+          userId: userData._id,
+          companyId: userData.company_ID,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionAmount: udf3,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount: newBalanceAmount,
+          remarks: "Wallet debited for PG charges(PayU)",
           transactionBy: userData._id,
         });
 
@@ -548,6 +579,8 @@ const payuWalletResponceSuccess = async (req, res) => {
           paymentMode: "Payu",
           trnsStatus: "success",
           transactionBy: userData._id,
+          transactionAmount:udf2,
+          pgCharges:udf3
         });
 
         let successHtmlCode = `<!DOCTYPE html>
@@ -623,7 +656,7 @@ const payuWalletResponceSuccess = async (req, res) => {
 
 const payuFail = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1 } = req.body;
+    const { status, txnid, productinfo, udf1,error_Message } = req.body;
     const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
     if (!BookingTempData) {
@@ -651,8 +684,8 @@ const payuFail = async (req, res) => {
         { bookingId: udf1 },
         {
           $set: {
-            bookingStatus: "FAILED",
-            bookingRemarks: "Payment Failed",
+            bookingStatus: "FAILED PAYMENT",
+            bookingRemarks: error_Message || 'Payment Failed',
           },
         }
       );

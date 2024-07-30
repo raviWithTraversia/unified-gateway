@@ -152,11 +152,11 @@ const manualDebitCredit = async (req, res) => {
           transactionBy: loginUser._id,
         });
 
-        await agentConfig.findOneAndUpdate(
-          { userId: userId },
-          { maxcreditLimit: runningAmount - parseInt(pgCharges) },
-          {new:true}
-        );
+        // await agentConfig.findOneAndUpdate(
+        //   { userId: userId },
+        //   { maxcreditLimit: runningAmount - parseInt(pgCharges) },
+        //   {new:true}
+        // );
       }
 
       const LogsData = {

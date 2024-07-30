@@ -712,6 +712,8 @@ const KafilaFun = async (
           error,
         };
       }
+      console.log(PassengerPreferences.Passengers[0].Optional,"hdshjdjh");
+      console.log(PassengerPreferences.Passengers[0].Optional.ticketDetails,"hdshjdjhsdhjdh");
       const createBooking = async (newItem) => {
         try {
           let bookingDetailsCreate = await BookingDetails.create(newItem);
@@ -880,7 +882,7 @@ const KafilaFun = async (
       );
 
       // return newArray;
-      //console.log(newArray);
+      console.log(newArray,"newArray");
       if (Array.isArray(newArray) && newArray.length > 0) {
         const response = newArray[0];
 
@@ -895,7 +897,8 @@ const KafilaFun = async (
             PaxEmail: passengerPreferencesData?.PaxEmail,
             PaxMobile: passengerPreferencesData?.PaxMobile,
             Passengers: passengerPreferencesData?.Passengers?.map(
-              (passenger) => ({
+              (passenger) => (
+                {
                 PaxType: passenger?.PaxType,
                 passengarSerialNo: passenger?.passengarSerialNo,
                 Title: passenger?.Title,
@@ -904,7 +907,7 @@ const KafilaFun = async (
                 Gender: passenger?.Gender,
                 Dob: passenger?.Dob,
                 Optional: {
-                  TicketNumber: passenger?.Optional?.ticketDetails,
+                  ticketDetails: passenger?.Optional?.ticketDetails,
                   PassportNo: passenger?.Optional?.PassportNo,
                   PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
                   FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,
@@ -1059,7 +1062,7 @@ const KafilaFun = async (
                   await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
                     const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
                     if (apiPassenger) {
-                      passenger.Optional.TicketNumber = apiPassenger.Optional.ticketDetails;
+                      passenger.Optional.ticketDetails = apiPassenger.Optional.ticketDetails;
                       // passenger.Status = "CONFIRMED";
                     }
                   }));
@@ -1434,7 +1437,7 @@ const kafilaFunOnlinePayment = async (
             Gender: passenger?.Gender,
             Dob: passenger?.Dob,
             Optional: {
-              TicketNumber: passenger?.Optional?.ticketDetails,
+              ticketDetails: passenger?.Optional?.ticketDetails,
               PassportNo: passenger?.Optional.PassportNo,
               PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
               FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,

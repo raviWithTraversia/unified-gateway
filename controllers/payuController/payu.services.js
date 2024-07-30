@@ -549,12 +549,12 @@ const payuWalletResponceSuccess = async (req, res) => {
           userId: userData._id,
           companyId: userData.company_ID,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionAmount: udf2,
+          transactionAmount: amount,
           currencyType: "INR",
           fop: "CREDIT",
           transactionType: "CREDIT",
           runningAmount: newBalanceAmount,
-          remarks: "Wallet debited for PG charges(PayU)",
+          remarks: "Wallet Amount Credited into Your Account.",
           transactionBy: userData._id,
         });
 

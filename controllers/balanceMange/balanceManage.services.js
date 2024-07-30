@@ -90,7 +90,7 @@ const getBalance = async (req, res) => {
 
 const manualDebitCredit = async (req, res) => {
   try {
-    const { userId, amountStatus, amount, product, remarks } = req.body;
+    const { userId, amountStatus, amount,pgCharges, product, remarks } = req.body;
     if (!userId) {
       return { response: "User id does not exist" }
     }
@@ -135,7 +135,22 @@ const manualDebitCredit = async (req, res) => {
         remarks,
         transactionBy: loginUser._id,
         product
-      })
+      });
+
+      if(pgCharges && pgCharges !=0){
+        await ledger.create({
+          userId: findUser._id,
+          companyId: findUser.company_ID,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionAmount: pgCharges,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount: newBalanceAmount,
+          remarks: "Wallet debited for PG charges(EaseBuzz)",
+          transactionBy: userData._id,
+        });
+      }
 
       const LogsData = {
         eventName: "creditRequest",

@@ -443,7 +443,7 @@ const updateCompayProfile = async (req, res) => {
 const agencyChangePassword = async (req, res) => {
   try {
     const result = await userServices.agencyChangePassword(req, res);
-    if (result.response === "User doesn't exist") {
+    if (result.response === "User doesn't exist"||result.response==="User email already exist") {
       apiErrorres(
         res,
         result.response,

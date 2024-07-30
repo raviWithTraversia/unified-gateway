@@ -3,272 +3,107 @@ const User = require("../../models/User");
 const ledger = require("../../models/Ledger");
 const { ObjectId } = require("mongodb");
 const { response } = require("../../routes/payuRoute");
+const bookingDetails=require('../../models/booking/BookingDetails');
 const getAllledger = async (req, res) => {
-  const {
-    userId,
-    fromDate,
-    toDate,
-    transactionType
-  } = req.body;
-  const fieldNames = [
-    "userId",
-    "fromDate",
-    "toDate",
-    "transactionType"
-  ];
-  const missingFields = fieldNames.filter(
-    (fieldName) =>
-      req.body[fieldName] === null || req.body[fieldName] === undefined
-  );
+  const { userId, fromDate, toDate, transactionType } = req.body;
+
+  // Validate request body
+  const requiredFields = ["userId", "fromDate", "toDate"];
+  const missingFields = requiredFields.filter(field => !req.body[field]);
 
   if (missingFields.length > 0) {
-    const missingFieldsString = missingFields.join(", ");
-
     return {
       response: null,
       isSometingMissing: true,
-      data: `Missing or null fields: ${missingFieldsString}`,
-    };
-  }
-  if (!userId) {
-    return {
-      response: "User id does not exist",
+      data: `Missing or null fields: ${missingFields.join(", ")}`,
     };
   }
 
-  // Check if company Id exists
-  const checkUserIdExist = await User.findById(userId).populate('roleId');
+  // Check if user exists
+  const user = await User.findById(userId).populate('roleId');
+  if (!user) {
+    return { response: "User id does not exist" };
+  }
 
+  const role = user.roleId ? user.roleId.name : null;
+  let filter = {};
 
-  if (!checkUserIdExist) {
-    return {
-      response: "User id does not exist",
+  // Set common filter for transaction date
+  if (fromDate && toDate) {
+    filter.transationDate = {
+      $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
+      $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
+    };
+  } else if (fromDate) {
+    filter.transationDate = {
+      $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
+    };
+  } else if (toDate) {
+    filter.transationDate = {
+      $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
     };
   }
 
-  if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
-    let filter = { userId: userId };
-
-    if (transactionType !== undefined && transactionType.trim() !== "") {
-      filter.transactionType = transactionType;
-    }
-
-    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-      filter.transationDate = {
-        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.transationDate = {
-        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.transationDate = {
-        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-      };
-    }
-    const ledgerDetails = await ledger.find(filter).sort({ transationDate: -1 })
-      .populate("userId").populate('companyId');
-
-
-    if (!ledgerDetails || ledgerDetails.length === 0) {
-      return {
-        response: "Data Not Found",
-      };
-    } else {
-      return {
-        response: "Fetch Data Successfully",
-        data: ledgerDetails
-      };
-    }
-  } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer") {
-    let filter = { companyId: checkUserIdExist.company_ID };
-    if (transactionType !== undefined && transactionType.trim() !== "") {
-      filter.transactionType = transactionType;
-    }
-
-    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-      filter.transationDate = {
-        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.transationDate = {
-        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.transationDate = {
-        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-      };
-    }
-    const ledgerDetails = await ledger.find(filter).sort({ transationDate: -1 })
-      .populate("userId").populate('companyId');
-
-    if (!ledgerDetails || ledgerDetails.length === 0) {
-      return {
-        response: "Data Not Found",
-      };
-    } else {
-      return {
-        response: "Fetch Data Successfully",
-        data: ledgerDetails
-      };
-    }
-  } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC") {
-    let filter = {};
-
-    //   if (userId !== undefined && userId.trim() !== "") {
-    //     filter.userId = userId;
-    // }
-
-    if (transactionType !== undefined && transactionType.trim() !== "") {
-      filter.transactionType = transactionType;
-    }
-
-    if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-      filter.transationDate = {
-        $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-        $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.transationDate = {
-        $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.transationDate = {
-        $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-      };
-    }
-    const ledgerDetails = await ledger.find(filter).sort({ transationDate: -1 })
-      .populate("userId").populate('companyId');
-    if (!ledgerDetails || ledgerDetails.length === 0) {
-      return {
-        response: "Data Not Found",
-      };
-    } else {
-      return {
-        response: "Fetch Data Successfully",
-        data: ledgerDetails
-      };
-    }
+  // Set filter based on role
+  if (role === "Agency") {
+    filter.userId = userId;
+  } else if (role === "Distributer") {
+    filter.companyId = user.company_ID;
+  } else if (role === "TMC") {
+    // No additional filter for TMC role
   } else {
-    const userCompanyId = checkUserIdExist.company_ID;
-    const checkComapnyUser = await User.findOne({ company_ID: userCompanyId }).populate({
+    // Check if the user belongs to a company with an Agency or Distributer role
+    const companyUser = await User.findOne({ company_ID: user.company_ID }).populate({
       path: 'roleId',
       match: { type: 'Default' }
     });
-    if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Agency") {
-      let filter = { userId: checkComapnyUser._id };
 
-      if (transactionType !== undefined && transactionType.trim() !== "") {
-        filter.transactionType = transactionType;
-      }
-
-      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-        filter.transationDate = {
-          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.transationDate = {
-          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.transationDate = {
-          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-        };
-      }
-      const ledgerDetails = await ledger.find(filter).sort({ transationDate: -1 })
-        .populate("userId").populate('companyId');
-
-
-      if (!ledgerDetails || ledgerDetails.length === 0) {
-        return {
-          response: "Data Not Found",
-        };
-      } else {
-        return {
-          response: "Fetch Data Successfully",
-          data: ledgerDetails
-        };
-      }
-    } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Distributer") {
-      let filter = { companyId: checkComapnyUser.company_ID };
-      if (transactionType !== undefined && transactionType.trim() !== "") {
-        filter.transactionType = transactionType;
-      }
-
-      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-        filter.transationDate = {
-          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.transationDate = {
-          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.transationDate = {
-          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-        };
-      }
-      const ledgerDetails = await ledger.find(filter).sort({ transationDate: -1 })
-        .populate("userId").populate('companyId');
-
-      if (!ledgerDetails || ledgerDetails.length === 0) {
-        return {
-          response: "Data Not Found",
-        };
-      } else {
-        return {
-          response: "Fetch Data Successfully",
-          data: ledgerDetails
-        };
-      }
-    } else if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "TMC") {
-      let filter = {};
-
-      //   if (userId !== undefined && userId.trim() !== "") {
-      //     filter.userId = userId;
-      // }
-
-      if (transactionType !== undefined && transactionType.trim() !== "") {
-        filter.transactionType = transactionType;
-      }
-
-      if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-        filter.transationDate = {
-          $gte: new Date(fromDate + 'T00:00:00.000Z'), // Start of fromDate
-          $lte: new Date(toDate + 'T23:59:59.999Z')    // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.transationDate = {
-          $lte: new Date(fromDate + 'T23:59:59.999Z')  // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.transationDate = {
-          $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
-        };
-      }
-      const ledgerDetails = await ledger.find(filter).sort({ transationDate: -1 })
-        .populate("userId").populate('companyId');
-      if (!ledgerDetails || ledgerDetails.length === 0) {
-        return {
-          response: "Data Not Found",
-        };
-      } else {
-        return {
-          response: "Fetch Data Successfully",
-          data: ledgerDetails
-        };
-      }
+    if (!companyUser) {
+      return { response: "Company user not found" };
     }
 
+    const companyRole = companyUser.roleId ? companyUser.roleId.name : null;
+    if (companyRole === "Agency") {
+      filter.userId = companyUser._id;
+    } else if (companyRole === "Distributer") {
+      filter.companyId = companyUser.company_ID;
+    } else {
+      return { response: "Invalid company role" };
+    }
   }
 
+  // Add transaction type filter if provided
+  if (transactionType) {
+    filter.transactionType = transactionType.trim();
+  }
 
+  // Fetch ledger details
+  const ledgerDetails = await ledger.find(filter).sort({ transationDate: -1 }).populate("userId").populate('companyId');
+  if (!ledgerDetails || ledgerDetails.length === 0) {
+    return { response: "Data Not Found" };
+  }
 
+  // If the user role is Agency, fetch booking details for each ledger
+  if (role === "Agency") {
+    const bookingsData = await Promise.all(
+      ledgerDetails.map(async (element) => {
+        const bookingData = await bookingDetails.find({ bookingId: element?.cartId });
+        return { ...element._doc, bookingData };
+      })
+    );
+
+    return {
+      response: "Fetch Data Successfully",
+      data: bookingsData
+    };
+  }
+
+  return {
+    response: "Fetch Data Successfully",
+    data: ledgerDetails
+  };
 };
+
 
 const transactionReport = async (req, res) => {
   const { agencyId, fromDate, toDate } = req.body;

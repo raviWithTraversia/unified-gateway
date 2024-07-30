@@ -904,7 +904,7 @@ const KafilaFun = async (
                 Gender: passenger?.Gender,
                 Dob: passenger?.Dob,
                 Optional: {
-                  TicketNumber: passenger?.Optional?.ticketDetails,
+                  ticketDetails: passenger?.Optional?.ticketDetails,
                   PassportNo: passenger?.Optional?.PassportNo,
                   PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
                   FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,
@@ -1059,7 +1059,7 @@ const KafilaFun = async (
                   await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
                     const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
                     if (apiPassenger) {
-                      passenger.Optional.TicketNumber = apiPassenger.Optional.ticketDetails;
+                      passenger.Optional.ticketDetails = apiPassenger.Optional.ticketDetails;
                       // passenger.Status = "CONFIRMED";
                     }
                   }));
@@ -1434,7 +1434,7 @@ const kafilaFunOnlinePayment = async (
             Gender: passenger?.Gender,
             Dob: passenger?.Dob,
             Optional: {
-              TicketNumber: passenger?.Optional?.ticketDetails,
+              ticketDetails: passenger?.Optional?.ticketDetails,
               PassportNo: passenger?.Optional.PassportNo,
               PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
               FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,

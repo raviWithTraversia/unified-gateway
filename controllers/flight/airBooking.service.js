@@ -712,7 +712,8 @@ const KafilaFun = async (
           error,
         };
       }
-      console.log(PassengerPreferences,"hdshjdjh");
+      console.log(PassengerPreferences.Passengers[0].Optional,"hdshjdjh");
+      console.log(PassengerPreferences.Passengers[0].Optional.ticketDetails,"hdshjdjhsdhjdh");
       const createBooking = async (newItem) => {
         try {
           let bookingDetailsCreate = await BookingDetails.create(newItem);

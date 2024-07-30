@@ -1077,7 +1077,14 @@ const agencyChangePassword = async (req, res) => {
       return { response: "User doesn't exist" }
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await User.findOneAndUpdate({ _id: id }, { $set: { password: hashedPassword,email:email } });
+    const UserExist=await User.findOne({email:email})
+    if(UserExist){
+return({
+  response:"User email already exist"
+})
+    }
+    
+    await User.findOneAndUpdate({ _id: id }, { $set: { password: hashedPassword,email:email,login_Id:email} });
     return {
       response: 'Password Change Sucessfully'
     };

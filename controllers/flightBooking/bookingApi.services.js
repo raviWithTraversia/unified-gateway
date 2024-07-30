@@ -1136,7 +1136,7 @@ const getBookingBill = async (req, res) => {
     },
   },{
     $sort:{
-      createdAt:-1
+      'bookingData.createdAt':-1
     }
 
   },
@@ -1172,6 +1172,7 @@ const getBookingBill = async (req, res) => {
         $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] }, "$bookingData.SalePurchase", `${MODEENV}~`,
           '$bookingData.itinerary.FareFamily']
       },
+      createdAt:'$bookingData.createdAt',
       getCommercialArray: "$bookingData.itinerary.PriceBreakup"
     }
   }]);

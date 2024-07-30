@@ -566,10 +566,16 @@ const payuWalletResponceSuccess = async (req, res) => {
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount: newBalanceAmount,
+          runningAmount: newBalanceAmount-udf3,
           remarks: "Wallet debited for PG charges(PayU)",
           transactionBy: userData._id,
         });
+        await agentConfig.findOneAndUpdate(
+          { userId: userData._id },
+          { maxcreditLimit: newBalanceAmount-udf3 },
+          {new:true}
+
+        );
 
         await transaction.create({
           userId: userData._id,

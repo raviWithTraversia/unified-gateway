@@ -94,6 +94,7 @@ const manualDebitCredit = async (req, res) => {
     if (!userId) {
       return { response: "User id does not exist" }
     }
+    amount = amount + parseInt(pgCharges);
     const doerId = req.user._id;
     const loginUser = await User.findById(doerId);
     if (amountStatus == "credit") {
@@ -127,7 +128,7 @@ const manualDebitCredit = async (req, res) => {
         userId: findUser._id,
         companyId: findUser.company_ID,
         ledgerId: ledgerId,
-        transactionAmount: amount + parseInt(pgCharges),
+        transactionAmount: amount,
         currencyType: "INR",
         fop: "Credit",
         transactionType: "Credit",
@@ -146,7 +147,7 @@ const manualDebitCredit = async (req, res) => {
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount,
+          runningAmount:runningAmount- parseInt(pgCharges),
           remarks: "Wallet debited for PG charges(EaseBuzz)",
           transactionBy: loginUser._id,
         });

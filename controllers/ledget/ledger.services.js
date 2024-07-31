@@ -102,6 +102,7 @@ const getAllledger = async (req, res) => {
 
 
 const transactionReport = async (req, res) => {
+  console.log('jiejeij')
   const { agencyId, fromDate, toDate } = req.body;
   const getLedgerTransaction = await ledger.aggregate([{
     $match: {
@@ -134,7 +135,8 @@ const transactionReport = async (req, res) => {
       PromoAmount: "0",
       eTime: "$bookingData.invoicingDate",
       remark: "$transactionType",
-      narration: "AUTO"
+      narration: "AUTO",
+      cartId:"$cartId"
     }
   }]);
   getLedgerTransaction.forEach((element, index) => {

@@ -241,7 +241,7 @@ const approveAndRejectDeposit = async (req, res) => {
         fop: "Credit",
         transactionType: "Credit",
         runningAmount,
-        remarks: "Deposit Request Added Into Your Account.",
+        remarks: "Deposit request added into your account.",
         transactionBy: updateResponse.userId,
         product: updateResponse.product
       });
@@ -332,7 +332,7 @@ const depositAmountUsingExcel = async (req) => {
           fop: "Credit",
           transactionType: "Credit",
           runningAmount: updatedAgentConfig.maxcreditLimit,
-          remarks: "Deposit Request Added Into Your Account.",
+          remarks: "Deposit request added into your account.",
           transactionBy: updatedAgentConfig.userId,
           referenceID: updatedAgentConfig.remarks
         });

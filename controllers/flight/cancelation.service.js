@@ -486,9 +486,9 @@ const KafilaFun = async (
           transactionAmount: pricecheck,
           currencyType: "INR",
           fop: "DEBIT",
-          transactionType: "DEBIT",
+          transactionType: "CREDIT",
           runningAmount: newBalance,
-          remarks: "Calcelation Amount Added Into Your Account.",
+          remarks: "Cancelation amount added into your account.",
           transactionBy: Authentication?.UserId,
         });
 

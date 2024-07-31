@@ -18,6 +18,7 @@ const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
+const { createLeadger } = require("../commonFunctions/common.function");
 
 const startBooking = async (req, res) => {
   const {
@@ -624,10 +625,10 @@ const KafilaFun = async (
         ledgerId: ledgerId,
         transactionAmount: totalSSRWithCalculationPrice,
         currencyType: "INR",
-        fop: "CREDIT",
-        transactionType: "CREDIT",
+        fop: "DEBIT",
+        transactionType: "DEBIT",
         runningAmount: newBalance,
-        remarks: "Booking Amount Added Into Your Account.",
+        remarks: "Amount debited from Your Account for booking.",
         transactionBy: getuserDetails._id,
         cartId: ItineraryPriceCheckResponses[0].BookingId,
       });
@@ -1003,7 +1004,7 @@ const KafilaFun = async (
                     fop: "CREDIT",
                     transactionType: "DEBIT",
                     runningAmount: newBalanceCredit,
-                    remarks: "Booking Amount Dedactive Into Your Account.",
+                    remarks: "Booking Amount Debited Into Your Account.",
                     transactionBy: getuserDetails._id,
                     cartId: item?.BookingId,
                   });
@@ -1174,6 +1175,8 @@ const KafilaFun = async (
                   { userId: getuserDetails._id },
                   { maxcreditLimit: newBalanceCredit }
                 );
+
+                // await createLeadger(getuserDetails,item,currencyType="INR",fop="CREDIT",transactionType="DEBIT",runningAmount=newBalanceCredit,remarks="Booking Amount Dedactive Into Your Account.");
                 await ledger.create({
                   userId: getuserDetails._id,
                   companyId: getuserDetails.company_ID._id,
@@ -1191,6 +1194,7 @@ const KafilaFun = async (
                   transactionBy: getuserDetails._id,
                   cartId: item?.BookingId,
                 });
+
                 return error.message;
               }
             })

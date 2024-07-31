@@ -850,8 +850,8 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
       ledgerId: ledgerIds,
       transactionAmount: bonusAmount,
       currencyType: "INR",
-      fop: "Credit",
-      transactionType: "Credit",
+      fop: "CREDIT",
+      transactionType: "CREDIT",
       // runningAmount,
       remarks: `DI against ${amount} deposit.`,
       transactionBy,
@@ -863,6 +863,35 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
   return null
 }
 }
+
+const createLeadger = async(getuserDetails,item,currencyType,fop,transactionType,runningAmount,remarks)=>{
+  try{
+    await ledger.create({
+      userId: getuserDetails._id,
+      companyId: getuserDetails.company_ID._id,
+      ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+      transactionAmount:
+        item?.offeredPrice +
+        item?.totalMealPrice +
+        item?.totalBaggagePrice +
+        item?.totalSeatPrice,
+      currencyType: currencyType,
+      fop: fop,
+      transactionType: transactionType,
+      runningAmount: runningAmount,
+      remarks: remarks,
+      transactionBy: getuserDetails._id,
+      cartId: item?.BookingId,
+    });
+  }catch(error){
+    return {
+      IsSucess: false,
+      response: "Error creating leadger:",
+      error,
+    };
+  }
+}
+
 module.exports = {
   createToken,
   securePassword,
@@ -885,5 +914,6 @@ module.exports = {
   generateRandomPassword,
   sendNotificationByEmail,
   recieveDI,
-  sendCardDetailOnMail
+  sendCardDetailOnMail,
+  createLeadger
 };

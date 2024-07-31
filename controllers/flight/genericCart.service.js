@@ -618,9 +618,9 @@ const KafilaFun = async (
       transactionAmount: totalSSRWithCalculationPrice,
       currencyType: "INR",
       fop: "CREDIT",
-      transactionType: "CREDIT",
+      transactionType: "DEBIT",
       runningAmount: newBalance,
-      remarks: "Generic Cart Amount Added Into Your Account.",
+      remarks: "Generic Cart Amount deducted from your account.",
       transactionBy: getuserDetails._id,
       cartId: ItineraryPriceCheckResponses[0].BookingId,
     });

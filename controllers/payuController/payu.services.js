@@ -514,19 +514,19 @@ const payuSuccess = async (req, res) => {
               { userId: getuserDetails._id },
               { maxcreditLimit: runnnigBalance }
             );
-            await ledger.create({
-              userId: getuserDetails._id,
-              companyId: getuserDetails.company_ID._id,
-              ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-              transactionAmount: itemAmount,
-              currencyType: "INR",
-              fop: "DEBIT",
-              transactionType: "DEBIT",
-              runningAmount: runnnigBalance,
-              remarks: "Booking Amount Dededucted From Your Account.",
-              transactionBy: getuserDetails._id,
-              cartId: udf1,
-            });
+            // await ledger.create({
+            //   userId: getuserDetails._id,
+            //   companyId: getuserDetails.company_ID._id,
+            //   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            //   transactionAmount: itemAmount,
+            //   currencyType: "INR",
+            //   fop: "DEBIT",
+            //   transactionType: "DEBIT",
+            //   runningAmount: runnnigBalance,
+            //   remarks: "Booking Amount Dededucted From Your Account.",
+            //   transactionBy: getuserDetails._id,
+            //   cartId: udf1,
+            // });
           }
           return successHtmlCode;
         } else {

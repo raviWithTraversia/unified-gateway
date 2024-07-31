@@ -145,10 +145,10 @@ const easeBuzzResponce = async (req, res) => {
         }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0 });
         // Calculate totalItemAmount by summing up all prices
         totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice;
-        console.log(net_amount_debit, totalItemAmount,"jddsjk");
+        // console.log(net_amount_debit, totalItemAmount,"jddsjk");
         const newBalanceCredit =
           getconfigAmount + totalItemAmount;
-        console.log(newBalanceCredit,"newBalanceCreditnewBalanceCredit");
+        // console.log(newBalanceCredit,"newBalanceCreditnewBalanceCredit");
         let itemAmount = 0;
         
         await ledger.create({

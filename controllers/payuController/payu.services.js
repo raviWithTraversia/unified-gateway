@@ -407,7 +407,7 @@ const payuSuccess = async (req, res) => {
                 trnsType: "DEBIT",
                 paymentMode: "Payu",
                 trnsStatus: "success",
-                transactionBy: userData._id,
+                transactionBy: Authentication.UserId,
                 pgCharges:udf3,
                 transactionAmount:udf2,
                 statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY", 

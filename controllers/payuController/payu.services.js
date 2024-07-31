@@ -402,7 +402,7 @@ const payuSuccess = async (req, res) => {
               await transaction.create({
                 userId: Authentication.UserId,
                 bookingId:item?.BookingId,
-                companyId: udf1,
+                companyId: Authentication.CompanyId,
                 trnsNo: txnid,
                 trnsType: "DEBIT",
                 paymentMode: "Payu",

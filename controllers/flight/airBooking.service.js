@@ -904,7 +904,7 @@ const KafilaFun = async (
                 Gender: passenger?.Gender,
                 Dob: passenger?.Dob,
                 Optional: {
-                  TicketNumber: passenger?.Optional?.TicketNumber,
+                  ticketDetails: passenger?.Optional?.ticketDetails,
                   PassportNo: passenger?.Optional?.PassportNo,
                   PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
                   FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,
@@ -1059,7 +1059,12 @@ const KafilaFun = async (
                   await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
                     const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
                     if (apiPassenger) {
-                      passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
+                      const ticketUpdate = passenger.Optional.ticketDetails.find(p => p.src === fSearchApiResponse.data.Param.Sector[0].Src && p.des === fSearchApiResponse.data.Param.Sector[0].Des);
+                      console.log(ticketUpdate,"jkticketUpdate");
+                      if(ticketUpdate){
+                        ticketUpdate.ticketNumber = apiPassenger?.Optional?.TicketNumber;
+                      }
+                      
                       // passenger.Status = "CONFIRMED";
                     }
                   }));

@@ -44,7 +44,22 @@ const passengerPreferenceSchema = new mongoose.Schema({
       Code: { type: String, default: null }
     }],
     Optional: {
-      TicketNumber: { type: String, default: null },
+      ticketDetails: [
+        {
+          ticketNumber:{
+            type: String, 
+            default: null
+          },
+          src:{
+            type: String, 
+            default: null
+          },
+          des:{
+            type: String, 
+            default: null
+          }
+        }
+      ],
       PassportNo: { type: String, default: null },
       PassportExpiryDate: { type: String, default: null },
       FrequentFlyerNo: { type: String, default: null },

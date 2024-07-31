@@ -1076,8 +1076,9 @@ const agencyChangePassword = async (req, res) => {
     if (!getUserByCompanyId) {
       return { response: "User doesn't exist" }
     }
+    var message="Email"
     if(newPassword!==undefined){
-
+message="Password"
    var  hashedPassword = await bcrypt.hash(newPassword, 10);
   }
 
@@ -1091,7 +1092,7 @@ return({
     const payload={ password: hashedPassword,email:email,login_Id:email}
     await User.findOneAndUpdate({ _id: id }, { $set: payload });
     return {
-      response: 'Password Change Sucessfully'
+      response: `${message} Changed Sucessfully`
     };
   } catch (error) {
     console.log(error)

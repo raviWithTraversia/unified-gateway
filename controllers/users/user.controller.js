@@ -450,7 +450,7 @@ const agencyChangePassword = async (req, res) => {
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
-    } else if (result.response === "Password Change Sucessfully") {
+    } else if (result.response === "Password Changed Sucessfully"||result.response === "Email Changed Sucessfully") {
       apiSucessRes(
         res,
         CrudMessage.PASSWORD_RESET,

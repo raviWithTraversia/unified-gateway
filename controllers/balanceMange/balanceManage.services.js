@@ -90,7 +90,7 @@ const getBalance = async (req, res) => {
 
 const manualDebitCredit = async (req, res) => {
   try {
-    let { userId, amountStatus, amount,pgCharges, product, remarks } = req.body;
+    let { userId, amountStatus, amount,pgCharges, product, remarks,ApplyDI } = req.body;
     if (!userId) {
       return { response: "User id does not exist" }
     }
@@ -117,7 +117,12 @@ const manualDebitCredit = async (req, res) => {
         }
       }
       // console.log(configData,"configData",findUser,"findUser",product,"product");
-      let DIdata = await recieveDI(configData, findUser, product, amount, loginUser._id);
+      let DIdata; // = await recieveDI(configData, findUser, product, amount, loginUser._id);
+      if(ApplyDI == true){
+        DIdata = 0;
+      }else{
+        DIdata = await recieveDI(configData, findUser, product, amount, loginUser._id);
+      }
       // console.log(DIdata,"DIdata");
       if (product === "Rail") {
         configData.maxRailCredit += (amount + DIdata);

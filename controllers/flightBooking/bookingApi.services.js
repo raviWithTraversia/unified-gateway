@@ -1148,6 +1148,7 @@ const getBookingBill = async (req, res) => {
       agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
       agentId: { $arrayElemAt: ['$userdata.userId', 0] },
       pnr: "$bookingData.PNR",
+      cartId:"$bookingData.bookingId",
       itemAmount: {$arrayElemAt:["$bookingData.itinerary.PriceBreakup.BaseFare",0]},
       sector: {
         $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Code', 0] },
@@ -1254,6 +1255,7 @@ const getSalesReport = async (req, res) => {
       paxName: 1,
       paxType: 1,
       mealPrice: 1,
+      cartId:"$bookingId",
       seatPrice: 1,
       baggagePrice: 1,
       agentEmailId: { $arrayElemAt: ['$userData.email', 0] },

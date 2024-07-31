@@ -84,7 +84,6 @@ const getAllledger = async (req, res) => {
   }
 
   // If the user role is Agency, fetch booking details for each ledger
-  if (role === "Agency") {
     const bookingsData = await Promise.all(
       ledgerDetails.map(async (element) => {
         const bookingData = await bookingDetails.find({ bookingId: element?.cartId });
@@ -92,15 +91,12 @@ const getAllledger = async (req, res) => {
       })
     );
 
-    return {
-      response: "Fetch Data Successfully",
-      data: bookingsData
-    };
-  }
+   
+  
 
   return {
     response: "Fetch Data Successfully",
-    data: ledgerDetails
+    data: bookingsData
   };
 };
 

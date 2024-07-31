@@ -76,7 +76,7 @@ const easeBuzz = async (req, res) => {
 
 const easeBuzzResponce = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1, net_amount_debit,card_type,payment_source, bankcode,bank_ref_num,bank_name,name_on_card } = req.body;
+    const { status, txnid, productinfo, udf1, net_amount_debit,card_type,payment_source, bankcode,bank_ref_num,bank_name,name_on_card, error_Message,pgCharges } = req.body;
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
@@ -145,28 +145,52 @@ const easeBuzzResponce = async (req, res) => {
         }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0 });
         // Calculate totalItemAmount by summing up all prices
         totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice;
-
+        // console.log(net_amount_debit, totalItemAmount,"jddsjk");
         const newBalanceCredit =
           getconfigAmount + totalItemAmount;
-
+        // console.log(newBalanceCredit,"newBalanceCreditnewBalanceCredit");
         let itemAmount = 0;
-        await agentConfig.updateOne(
-          { userId: getuserDetails._id },
-          { maxcreditLimit: newBalanceCredit }
-        );
+        
         await ledger.create({
           userId: getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: totalItemAmount,
           currencyType: "INR",
-          fop: "CREDIT",
+          fop: "DEBIT",
           transactionType: "DEBIT",
           runningAmount: newBalanceCredit,
-          remarks: "Booking Amount Dedactive Into Your Account.",
+          remarks: "Booking Amount Deducted from Your Account(Easebuzz).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
+
+        await ledger.create({
+          userId: getuserDetails._id,
+          companyId: getuserDetails.company_ID._id,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionAmount: pgCharges,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount: newBalanceCredit-pgCharges,
+          remarks: "Booking Amount Deducted from Your Account(Easebuzz).",
+          transactionBy: getuserDetails._id,
+          cartId: udf1,
+        });
+
+        if(pgCharges){
+          await agentConfig.updateOne(
+            { userId: getuserDetails._id },
+            { maxcreditLimit: newBalanceCredit-pgCharges }
+          );
+        }else{
+          await agentConfig.updateOne(
+            { userId: getuserDetails._id },
+            { maxcreditLimit: newBalanceCredit }
+          );
+        }
+        
 
         //const hitAPI = await Promise.all(
         const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
@@ -292,10 +316,28 @@ const easeBuzzResponce = async (req, res) => {
 
 
               // Transtion
-              await transaction.updateOne(
-                { bookingId: item?.BookingId },
-                { statusDetail: status, trnsNo:txnid,paymentMode:card_type,bankName:bank_name,holderName:name_on_card, }
-              );
+              // await transaction.updateOne(
+              //   { bookingId: item?.BookingId },
+              //   { statusDetail: status, trnsNo:txnid,paymentMode:card_type,bankName:bank_name,holderName:name_on_card, }
+              // );
+              await transaction.create({
+                userId: Authentication.UserId,
+                bookingId:item?.BookingId,
+                companyId: Authentication.CompanyId,
+                trnsNo: txnid,
+                trnsType: "DEBIT",
+                paymentMode: card_type,
+                trnsStatus: "success",
+                // transactionBy: getuserDetails._id,
+                pgCharges:pgCharges,
+                transactionAmount:totalItemAmount,
+                statusDetail: status, 
+                trnsNo:txnid,
+                trnsBankRefNo:bank_ref_num,
+                // cardType:cardCategory,
+                bankName:bank_name,
+                holderName:name_on_card
+              });
 
 
             }
@@ -337,19 +379,19 @@ const easeBuzzResponce = async (req, res) => {
               { userId: getuserDetails._id },
               { maxcreditLimit: runnnigBalance }
             );
-            await ledger.create({
-              userId: getuserDetails._id,
-              companyId: getuserDetails.company_ID._id,
-              ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-              transactionAmount: itemAmount,
-              currencyType: "INR",
-              fop: "DEBIT",
-              transactionType: "CREDIT",
-              runningAmount: runnnigBalance,
-              remarks: "Booking Amount Add Into Your Account.",
-              transactionBy: getuserDetails._id,
-              cartId: udf1,
-            });
+            // await ledger.create({
+            //   userId: getuserDetails._id,
+            //   companyId: getuserDetails.company_ID._id,
+            //   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            //   transactionAmount: itemAmount,
+            //   currencyType: "INR",
+            //   fop: "DEBIT",
+            //   transactionType: "CREDIT",
+            //   runningAmount: runnnigBalance,
+            //   remarks: "Booking Amount Add Into Your Account.",
+            //   transactionBy: getuserDetails._id,
+            //   cartId: udf1,
+            // });
           }
           return {
             response: "Fetch Data Successfully",
@@ -367,8 +409,8 @@ const easeBuzzResponce = async (req, res) => {
         { bookingId: udf1 },
         {
           $set: {
-            bookingStatus: "FAILED",
-            bookingRemarks: "Payment Failed",
+            bookingStatus: "FAILED PAYMENT",
+            bookingRemarks: error_Message || "Payment Failed",
           },
         }
       );

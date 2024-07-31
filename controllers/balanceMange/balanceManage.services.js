@@ -90,10 +90,16 @@ const getBalance = async (req, res) => {
 
 const manualDebitCredit = async (req, res) => {
   try {
-    const { userId, amountStatus, amount, product, remarks } = req.body;
+    let { userId, amountStatus, amount,pgCharges, product, remarks } = req.body;
     if (!userId) {
       return { response: "User id does not exist" }
     }
+    if(pgCharges){
+      amount = amount + parseInt(pgCharges);
+    }else{
+      amount = amount;
+    }
+    
     const doerId = req.user._id;
     const loginUser = await User.findById(doerId);
     if (amountStatus == "credit") {
@@ -135,7 +141,27 @@ const manualDebitCredit = async (req, res) => {
         remarks,
         transactionBy: loginUser._id,
         product
-      })
+      });
+
+      if(pgCharges){
+        await ledger.create({
+          userId: findUser._id,
+          companyId: findUser.company_ID,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionAmount: pgCharges,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount:runningAmount - parseInt(pgCharges),
+          remarks: "Wallet debited for PG charges(EaseBuzz)",
+          transactionBy: loginUser._id,
+        });
+        await agentConfig.findOneAndUpdate(
+          { userId: userId },
+          { maxcreditLimit: runningAmount - parseInt(pgCharges) },
+          {new:true}
+        );
+      }
 
       const LogsData = {
         eventName: "creditRequest",

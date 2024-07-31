@@ -160,6 +160,14 @@ const transactionDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    pgCharges:{
+      type: String,
+      default: null,
+    },
+    transactionAmount:{
+      type: String,
+      default: null,
+    },
     trnsStatusMessage: {
       // APPROVED OR COMPLETED SUCCESSFULLY
       type: String,

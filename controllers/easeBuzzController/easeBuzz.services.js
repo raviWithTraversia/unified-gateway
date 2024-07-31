@@ -145,10 +145,10 @@ const easeBuzzResponce = async (req, res) => {
         }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0 });
         // Calculate totalItemAmount by summing up all prices
         totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice;
-
+        // console.log(net_amount_debit, totalItemAmount,"jddsjk");
         const newBalanceCredit =
           getconfigAmount + totalItemAmount;
-
+        // console.log(newBalanceCredit,"newBalanceCreditnewBalanceCredit");
         let itemAmount = 0;
         
         await ledger.create({
@@ -323,7 +323,7 @@ const easeBuzzResponce = async (req, res) => {
               await transaction.create({
                 userId: Authentication.UserId,
                 bookingId:item?.BookingId,
-                companyId: udf1,
+                companyId: Authentication.CompanyId,
                 trnsNo: txnid,
                 trnsType: "DEBIT",
                 paymentMode: card_type,
@@ -379,19 +379,19 @@ const easeBuzzResponce = async (req, res) => {
               { userId: getuserDetails._id },
               { maxcreditLimit: runnnigBalance }
             );
-            await ledger.create({
-              userId: getuserDetails._id,
-              companyId: getuserDetails.company_ID._id,
-              ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-              transactionAmount: itemAmount,
-              currencyType: "INR",
-              fop: "DEBIT",
-              transactionType: "CREDIT",
-              runningAmount: runnnigBalance,
-              remarks: "Booking Amount Add Into Your Account.",
-              transactionBy: getuserDetails._id,
-              cartId: udf1,
-            });
+            // await ledger.create({
+            //   userId: getuserDetails._id,
+            //   companyId: getuserDetails.company_ID._id,
+            //   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            //   transactionAmount: itemAmount,
+            //   currencyType: "INR",
+            //   fop: "DEBIT",
+            //   transactionType: "CREDIT",
+            //   runningAmount: runnnigBalance,
+            //   remarks: "Booking Amount Add Into Your Account.",
+            //   transactionBy: getuserDetails._id,
+            //   cartId: udf1,
+            // });
           }
           return {
             response: "Fetch Data Successfully",

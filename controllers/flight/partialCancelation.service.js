@@ -431,10 +431,10 @@ const KafilaFun = async (
             cartId:BookingIdDetails?.bookingId,
             transactionAmount: pricecheck,
             currencyType: "INR",
-            fop: "DEBIT",
-            transactionType: "DEBIT",
+            fop: "CREDIT",
+            transactionType: "CREDIT",
             runningAmount: newBalance,
-            remarks: "Calcelation Amount Added Into Your Account.",
+            remarks: "Calcelation amount added to your account.",
             transactionBy: Authentication?.UserId          
           });
           

@@ -486,9 +486,9 @@ const KafilaFun = async (
           transactionAmount: pricecheck,
           currencyType: "INR",
           fop: "DEBIT",
-          transactionType: "DEBIT",
+          transactionType: "CREDIT",
           runningAmount: newBalance,
-          remarks: "Calcelation Amount Added Into Your Account.",
+          remarks: "Cancelation amount added into your account.",
           transactionBy: Authentication?.UserId,
         });
 
@@ -686,7 +686,8 @@ const updateBookingStatus = async (req, res) => {
       ENV: credentialEnv,
       Version: "1.0.0.0.0.0"
     };
-
+    // console.log(createTokenUrl,"createTokenUrl");
+    // console.log(postData,"postDatapostData");
     const response = (await axios.post(createTokenUrl, postData, {
       headers: {
         'Content-Type': 'application/json'
@@ -694,12 +695,16 @@ const updateBookingStatus = async (req, res) => {
     }))?.data;
 
       const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.bookingId });
-      
+      // console.log(response,"responseresponseresponse");
       if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
         await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
           const apiPassenger = response.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
           if (apiPassenger) {
-            passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
+            const ticketUpdate = passenger.Optional.ticketDetails.find(p => p.src === fSearchApiResponse.data.Param.Sector[0].Src && p.des === fSearchApiResponse.data.Param.Sector[0].Des);
+                      if(ticketUpdate){
+                        ticketUpdate.ticketNumber = apiPassenger?.Optional?.TicketNumber;
+                      }
+            //passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
             // passenger.Status = "CONFIRMED";
           }
         }));

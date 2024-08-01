@@ -14,6 +14,7 @@ const BookingTemp = require("../../models/booking/BookingTemp");
 const axios = require("axios");
 const { Config } = require('../../configs/config');
 const { v4: uuidv4 } = require("uuid");
+const { createLeadger,getTdsAndDsicount } = require("../commonFunctions/common.function");
 
 const easeBuzz = async (req, res) => {
   try {
@@ -150,12 +151,14 @@ const easeBuzzResponce = async (req, res) => {
           getconfigAmount + totalItemAmount;
         // console.log(newBalanceCredit,"newBalanceCreditnewBalanceCredit");
         let itemAmount = 0;
-        
+        let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
         await ledger.create({
           userId: getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: totalItemAmount,
+          deal:gtTsAdDnt?.ldgrdiscount,
+          tds:gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",

@@ -850,8 +850,8 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
       ledgerId: ledgerIds,
       transactionAmount: bonusAmount,
       currencyType: "INR",
-      fop: "Credit",
-      transactionType: "Credit",
+      fop: "CREDIT",
+      transactionType: "CREDIT",
       // runningAmount,
       remarks: `DI against ${amount} deposit.`,
       transactionBy,
@@ -863,6 +863,63 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
   return null
 }
 }
+
+const createLeadger = async(getuserDetails,item,currencyType,fop,transactionType,runningAmount,remarks)=>{
+  try{
+    await ledger.create({
+      userId: getuserDetails._id,
+      companyId: getuserDetails.company_ID._id,
+      ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+      transactionAmount:
+        item?.offeredPrice +
+        item?.totalMealPrice +
+        item?.totalBaggagePrice +
+        item?.totalSeatPrice,
+      currencyType: currencyType,
+      fop: fop,
+      transactionType: transactionType,
+      runningAmount: runningAmount,
+      remarks: remarks,
+      transactionBy: getuserDetails._id,
+      cartId: item?.BookingId,
+    });
+  }catch(error){
+    return {
+      IsSucess: false,
+      response: "Error creating leadger:",
+      error,
+    };
+  }
+}
+
+const getTdsAndDsicount = async(ItineraryPriceCheckResponses)=>{
+  let ldgrtds = 0;
+  let ldgrdiscount = 0;
+  for(let ipb of ItineraryPriceCheckResponses){
+    let pricebrkup = ipb.PriceBreakup;
+    if(pricebrkup){
+      for(let pb of pricebrkup){
+        let totalPassenger = pb.NoOfPassenger;
+        let ComBreakup = pb.CommercialBreakup;
+        if(ComBreakup){
+          for(let cbp of ComBreakup){
+            if(cbp.CommercialType == "Discount"){
+              let tdp = cbp.Amount * totalPassenger;
+              ldgrdiscount += tdp;
+            }
+            if(cbp.CommercialType == "TDS"){
+              let ttdsp = cbp.Amount * totalPassenger;
+              ldgrtds += ttdsp;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return {ldgrtds,ldgrdiscount};
+}
+
 module.exports = {
   createToken,
   securePassword,
@@ -885,5 +942,7 @@ module.exports = {
   generateRandomPassword,
   sendNotificationByEmail,
   recieveDI,
-  sendCardDetailOnMail
+  sendCardDetailOnMail,
+  createLeadger,
+  getTdsAndDsicount
 };

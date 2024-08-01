@@ -1443,7 +1443,7 @@ const kafilaFunOnlinePayment = async (
             Gender: passenger?.Gender,
             Dob: passenger?.Dob,
             Optional: {
-              TicketNumber: passenger?.Optional?.TicketNumber,
+              ticketDetails: passenger?.Optional?.ticketDetails,
               PassportNo: passenger?.Optional.PassportNo,
               PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
               FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,

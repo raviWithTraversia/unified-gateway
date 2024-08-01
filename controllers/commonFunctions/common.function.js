@@ -892,6 +892,34 @@ const createLeadger = async(getuserDetails,item,currencyType,fop,transactionType
   }
 }
 
+const getTdsAndDsicount = async(ItineraryPriceCheckResponses)=>{
+  let ldgrtds = 0;
+  let ldgrdiscount = 0;
+  for(let ipb of ItineraryPriceCheckResponses){
+    let pricebrkup = ipb.PriceBreakup;
+    if(pricebrkup){
+      for(let pb of pricebrkup){
+        let totalPassenger = pb.NoOfPassenger;
+        let ComBreakup = pb.CommercialBreakup;
+        if(ComBreakup){
+          for(let cbp of ComBreakup){
+            if(cbp.CommercialType == "Discount"){
+              let tdp = cbp.Amount * totalPassenger;
+              ldgrdiscount += tdp;
+            }
+            if(cbp.CommercialType == "TDS"){
+              let ttdsp = cbp.Amount * totalPassenger;
+              ldgrtds += ttdsp;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return {ldgrtds,ldgrdiscount};
+}
+
 module.exports = {
   createToken,
   securePassword,
@@ -915,5 +943,6 @@ module.exports = {
   sendNotificationByEmail,
   recieveDI,
   sendCardDetailOnMail,
-  createLeadger
+  createLeadger,
+  getTdsAndDsicount
 };

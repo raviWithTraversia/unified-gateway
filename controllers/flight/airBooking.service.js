@@ -18,7 +18,7 @@ const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
-const { createLeadger } = require("../commonFunctions/common.function");
+const { createLeadger,getTdsAndDsicount } = require("../commonFunctions/common.function");
 
 const startBooking = async (req, res) => {
   const {
@@ -617,7 +617,8 @@ const KafilaFun = async (
 
       // Generate random ledger ID
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-
+      let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
+      
       // Create ledger entry
       await ledger.create({
         userId: getuserDetails._id,
@@ -626,13 +627,15 @@ const KafilaFun = async (
         transactionAmount: totalSSRWithCalculationPrice,
         currencyType: "INR",
         fop: "CREDIT",
+        deal:gtTsAdDnt?.ldgrdiscount,
+        tds:gtTsAdDnt?.ldgrtds,
         transactionType: "DEBIT",
         runningAmount: newBalance,
         remarks: "Booking amount deducted from your account.",
         transactionBy: getuserDetails._id,
         cartId: ItineraryPriceCheckResponses[0].BookingId,
       });
-
+      
       // Create transaction Entry
       await transaction.create({
         userId: getuserDetails._id,

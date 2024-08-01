@@ -13,6 +13,7 @@ const BookingTemp = require("../../models/booking/BookingTemp");
 const { Config } = require("../../configs/config");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
+const { createLeadger,getTdsAndDsicount } = require("../commonFunctions/common.function");
 
 const payu = async (req, res) => {
   try {
@@ -230,11 +231,16 @@ const payuSuccess = async (req, res) => {
           { userId: getuserDetails._id },
           { maxcreditLimit: newBalanceCredit }
         );
+
+        let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
+        console.log(gtTsAdDnt,"payu123");
         await ledger.create({
           userId: getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: totalItemAmount,
+          deal:gtTsAdDnt?.ldgrdiscount,
+          tds:gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",

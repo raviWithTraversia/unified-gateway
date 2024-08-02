@@ -552,13 +552,26 @@ const KafilaFun = async (
         });
       }
     });
+  console.log(returnCalculatedOfferedPrice,"before round off");
   
-    // returnCalculatedOfferedPrice = Number(
-    //   commonService.roundOffNumberValues(returnCalculatedOfferedPrice)
-    // );
+    returnCalculatedOfferedPrice = Number(
+      roundOffNumberValues(returnCalculatedOfferedPrice)
+    );
+
+    console.log(returnCalculatedOfferedPrice,"before round up");
+
     
     return returnCalculatedOfferedPrice;
   }; 
+
+  function roundOffNumberValues(numberValue){
+      if (isNaN(numberValue)) 
+        numberValue=0 
+      const integerPart = Math.floor(numberValue);
+      const fractionalPart = numberValue - integerPart;
+      const result = fractionalPart >= 0.5 ? Math.ceil(numberValue) : Math.floor(numberValue);
+      return result.toFixed(2);
+  }
     
 
   async function calculateOfferedPriceForAll() {

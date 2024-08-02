@@ -1177,12 +1177,14 @@ const getBookingBill = async (req, res) => {
       getCommercialArray: "$bookingData.itinerary.PriceBreakup"
     }
   }]);
-  bookingBill.forEach((element, index) => {
-    element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr
-    element.id = index + 1;
-  });
+  
 for(let [index,element] of bookingBill.entries()){
+  let netAmount = 0;
   element?.getCommercialArray.map((item)=>{
+    let tAmount = item.Tax + item.BaseFare;
+    // console.log(tAmount, item.Tax, item.BaseFare, "skldsj");
+    netAmount += tAmount;
+    element.netAmount = netAmount;
     item?.CommercialBreakup.map((items)=>{
       if (items?.CommercialType == "Discount") {
         element.commission = parseFloat((parseFloat(element.commission) + parseFloat(items.Amount)).toFixed(2));
@@ -1194,6 +1196,12 @@ for(let [index,element] of bookingBill.entries()){
     
   })
 }
+
+  bookingBill.forEach((element, index) => {
+    element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr
+    element.id = index + 1;
+    // element.netAmount = netAmount; 
+  });
 
   if (!bookingBill.length) {
     return {

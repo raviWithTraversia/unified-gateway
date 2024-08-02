@@ -4,6 +4,7 @@ const ledger = require("../../models/Ledger");
 const { ObjectId } = require("mongodb");
 const { response } = require("../../routes/payuRoute");
 const bookingDetails=require('../../models/booking/BookingDetails');
+const transactionModel = require("../../models/transaction");
 const getAllledger = async (req, res) => {
   const { userId, fromDate, toDate, transactionType } = req.body;
 
@@ -87,8 +88,10 @@ const getAllledger = async (req, res) => {
     const bookingsData = await Promise.all(
       ledgerDetails.map(async (element) => {
         const bookingData = await bookingDetails.find({ bookingId: element?.cartId });
-        return { ...element._doc, bookingData };
-      })
+        const transactionData = await transactionModel.find({ bookingId: element?.cartId });
+        return { ...element._doc, bookingData,transactionData };
+      }),
+     
     );
 
    

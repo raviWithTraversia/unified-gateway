@@ -920,6 +920,91 @@ const getTdsAndDsicount = async(ItineraryPriceCheckResponses)=>{
   return {ldgrtds,ldgrdiscount};
 }
 
+
+
+const calculateOfferedPrice = (iternayObj)=> {
+  let returnCalculatedOfferedPrice = 0;
+  offerPricePlusInAmount=(plusKeyName)=> {
+    let returnBoolean = false;
+    switch (plusKeyName) {
+    case "TDS":
+    returnBoolean = true;
+    break;
+    case "BookingFees":
+    returnBoolean = true;
+    break;
+    case "ServiceFees":
+    returnBoolean = true;
+    break;
+    case "GST":
+    returnBoolean = true;
+    break;
+    case "Markup":
+    returnBoolean = true;
+    break;
+    case "otherTax":
+    returnBoolean = true;
+    break;
+    case "FixedBookingFees":
+    returnBoolean = true;
+    break;
+    case "FixedServiceFees":
+    returnBoolean = true;
+    break;
+
+    default:
+    returnBoolean = false;
+    break;
+    }
+    return returnBoolean;
+  }
+  offerPriceMinusInAmount=(plusKeyName)=> {
+    let returnBoolean = false;
+    switch (plusKeyName) {
+    case "Discount":
+    returnBoolean = true;
+    break;
+    case "SegmentKickback":
+    returnBoolean = true;
+    break;
+    case "Incentive":
+    returnBoolean = true;
+    break;
+    case "PLB":
+    returnBoolean = true;
+    break;
+
+    default:
+    returnBoolean = false;
+    break;
+    }
+    return returnBoolean;
+  }
+
+  iternayObj.getCommercialArray?.forEach((priceBreakupElement) => {
+    let { PassengerType, NoOfPassenger, CommercialBreakup, BaseFare, Tax,TaxBreakup } =
+    priceBreakupElement;
+    if (PassengerType) {
+      returnCalculatedOfferedPrice += Number(BaseFare) * NoOfPassenger;
+      returnCalculatedOfferedPrice += Number(Tax) * NoOfPassenger;
+      TaxBreakup?.forEach((taxBreakup) => {
+        let { TaxType, Amount } = taxBreakup;
+        if (TaxType)
+          returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
+        });
+      CommercialBreakup?.forEach((commercialBreakup) => {
+        let { CommercialType, Amount } = commercialBreakup;
+        if (offerPriceMinusInAmount(CommercialType))
+          returnCalculatedOfferedPrice -= Number(Amount) * NoOfPassenger;
+        else if (offerPricePlusInAmount(CommercialType))
+          returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
+      });
+    }
+  });
+return returnCalculatedOfferedPrice;
+}
+
+
 module.exports = {
   createToken,
   securePassword,
@@ -944,5 +1029,6 @@ module.exports = {
   recieveDI,
   sendCardDetailOnMail,
   createLeadger,
-  getTdsAndDsicount
+  getTdsAndDsicount,
+  calculateOfferedPrice
 };

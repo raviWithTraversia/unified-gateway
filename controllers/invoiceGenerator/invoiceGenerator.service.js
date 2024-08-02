@@ -402,6 +402,17 @@ const ledgerListWithFilter = async(req,res)=>{
                 }
             },
             {
+               $lookup:
+               {from:"users",
+                localField:"userId",
+                foreignField:"_id",
+                as:"userData"
+               }
+            },
+            {
+                $unwind:{path:"$userData" ,preserveNullAndEmptyArrays: true}
+            },
+            {
                 $project: {
                     _id: 1,
                     userId: 1,
@@ -414,7 +425,8 @@ const ledgerListWithFilter = async(req,res)=>{
                     remarks: 1,
                     creationDate: 1,
                     cartId: 1,
-                    runningAmount: 1
+                    runningAmount: 1,
+                    userData:'$userData'
                 }
             }
         ];

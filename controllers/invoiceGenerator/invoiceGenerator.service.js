@@ -323,10 +323,17 @@ const transactionList = async (req, res) => {
                     ],
                 }
             },
-            // {
-            //     $unwind:"$bookingdetails",
-            //     preserveNullAndEmptyArrays: true
-            // },
+            {
+                $lookup:{
+                    from: 'users', 
+                    localField: 'userId', 
+                    foreignField: '_id', 
+                    as: 'userdetails',
+                }
+            },
+            {
+                $unwind:"$userdetails"
+            },
             // {
             //     $project: {
                    

@@ -3,6 +3,7 @@ const TransactionDetail = require("../../models/transaction")
 const InvoicingData = require("../../models/booking/InvoicingData");
 const Invoicing = require("../../models/booking/Invoicing");
 const InvoicePrivceBreakup = require("../../models/booking/InvoicePrivceBreakup");
+const PassengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const Ledger = require("../../models/Ledger");
 var ObjectId = require("mongoose").Types.ObjectId;
  
@@ -166,50 +167,6 @@ const invoiceGenerator = async (req, res) => {
                     bookingId:bookingDetail?._id
                 },
             }, 
-            // {
-            //     $lookup: {
-            //         from: 'invoicepricebreakups', 
-            //         localField: 'invoiceNumber', 
-            //         foreignField: 'invoiceNumber', 
-            //         as: 'invoicepricebreakup',
-            //         pipeline: [
-            //             {
-            //               $project: {
-            //                 _id:1,
-            //                 invoiceNumber:1,
-            //                 priceCategory:1,
-            //                 priceType:1,
-            //                 basicPrice:1,
-            //                 tax:1,
-            //                 productId:1
-            //               },
-            //             },
-            //         ],
-            //     }
-            // },
-            // {
-            //     $lookup: {
-            //         from: 'invoicings', 
-            //         localField: 'bookingId', 
-            //         foreignField: 'cartId', 
-            //         as: 'invoicing',
-            //         pipeline: [
-            //             {
-            //               $project: {
-            //                 _id:1,
-            //                 cartId:1,
-            //                 productId:1,
-            //                 invoiceNumber:1,
-            //                 createdBy:1,
-            //                 modifiedBy:1,
-            //                 modifyAt:1,
-            //                 additionalInvoiceType:1,
-            //                 invoiceStatus:1
-            //               },
-            //             },
-            //         ],
-            //     }
-            // }
         ];
         let invoiceDetail = await InvoicingData.aggregate(pipeline); 
         let invoicings = await Invoicing.aggregate([
@@ -284,11 +241,20 @@ const invoiceGenerator = async (req, res) => {
                 }
             }
         ]);
+        let PassengerPreference = await PassengerPreferenceModel.aggregate(
+        [ 
+            {
+                $match: {
+                    bookingId:bookingId
+                },
+            }, 
+        ]);
         let CompanyDetail = {};
         let Agencies = {};
         if(companyAgency.length>0){
             CompanyDetail = companyAgency[0]?.CompanyDetail;
             Agencies = companyAgency[0]?.Agencies;
+            PassengerPreference = PassengerPreference[0];
         }
         
         // console.log(invoiceDetail);
@@ -297,7 +263,7 @@ const invoiceGenerator = async (req, res) => {
         }
         return {
             response:"Invoice Generated Successfully!",
-            data: {CompanyDetail,Agencies,invoiceDetail,invoicings,invoicepricebreakups}
+            data: {CompanyDetail,Agencies,invoiceDetail,invoicings,invoicepricebreakups,PassengerPreference}
         }
     }
    

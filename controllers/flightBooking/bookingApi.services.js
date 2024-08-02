@@ -10,6 +10,7 @@ const { ObjectId } = require("mongodb");
 const moment = require('moment');
 const { Config } = require('../../configs/config');
 const bookingDetails = require("../../models/BookingDetails");
+const {calculateOfferedPrice} = require("../commonFunctions/common.function");
 
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
@@ -1180,11 +1181,15 @@ const getBookingBill = async (req, res) => {
   
 for(let [index,element] of bookingBill.entries()){
   let netAmount = 0;
+  netAmount = await calculateOfferedPrice(element);
   element?.getCommercialArray.map((item)=>{
-    let tAmount = item.Tax + item.BaseFare;
-    // console.log(tAmount, item.Tax, item.BaseFare, "skldsj");
-    netAmount += tAmount;
-    element.netAmount = netAmount;
+    // let ttaxBreakup = 0;
+    // item?.TaxBreakup.map((item)=>{
+    //   ttaxBreakup += item.Amount;
+    // })
+    
+    // let commercialTaxToAdd = 0;
+    // let commercialTaxToSub = 0;
     item?.CommercialBreakup.map((items)=>{
       if (items?.CommercialType == "Discount") {
         element.commission = parseFloat((parseFloat(element.commission) + parseFloat(items.Amount)).toFixed(2));
@@ -1192,7 +1197,20 @@ for(let [index,element] of bookingBill.entries()){
       if (items?.CommercialType == "TDS") {
         element.tds = parseFloat((parseFloat(element.tds) + parseFloat(items.Amount)).toFixed(2));
       }
-    })
+      // if(items?.CommercialType == "PLB" || items?.CommercialType == "Discount" || items?.CommercialType == "Incentive" || items?.CommercialType == "SegmentKickback"){
+      //   commercialTaxToSub += parseFloat(items.Amount).toFixed(2);
+      // }
+      // if(items?.CommercialType == "TDS" || items?.CommercialType == "Markup" || items?.CommercialType == "ServiceFees" || items?.CommercialType == "BookingFees" || items?.CommercialType == "otherTax" || items?.CommercialType == "GST" || items?.CommercialType == "FixedServiceFees" || items?.CommercialType =="FixedBookingFees"){
+      //   commercialTaxToAdd += parseFloat(items.Amount).toFixed(2);
+      // }
+    });
+
+    // console.log( typeof(item?.Tax ?? 0), typeof(item?.BaseFare ?? 0) ,typeof(ttaxBreakup ?? 0) , typeof(parseInt(commercialTaxToAdd)) , typeof(parseInt(commercialTaxToSub)), "abcxyz");
+    // let tAmount = (item?.Tax ?? 0) + (item?.BaseFare ?? 0) + (ttaxBreakup ?? 0) + parseInt(commercialTaxToAdd) - parseInt(commercialTaxToSub);
+    // // console.log(tAmount, item.Tax, item.BaseFare,ttaxBreakup,commercialTaxToAdd,commercialTaxToSub, "skldsj");
+    // netAmount += tAmount;
+    
+    element.netAmount = netAmount;
     
   })
 }

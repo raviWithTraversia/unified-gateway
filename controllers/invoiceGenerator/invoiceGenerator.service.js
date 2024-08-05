@@ -8,7 +8,13 @@ const Ledger = require("../../models/Ledger");
 var ObjectId = require("mongoose").Types.ObjectId;
  
 const invoiceGenerator = async (req, res) => {
-    const { bookingId } = req.body;
+    const { bookingId,providerBookingId } = req.body;
+    if(req.body.providerBookingId == null || req.body.providerBookingId == undefined || req.body.providerBookingId ==""){
+        return {
+            response: "providerBookingId BookingId is required.",
+        }
+    }
+
     let InvoicingDetail = await InvoicingData.find().sort({createdAt: -1}).limit(1);
     let invoiceRandomNumber = 100000;
     if(InvoicingDetail.length>0){
@@ -23,22 +29,16 @@ const invoiceGenerator = async (req, res) => {
     let pipeline = [
         {
             $match: {
-                bookingId
+                bookingId:bookingId,
+                providerBookingId:providerBookingId
             },
         },
         {
             $lookup: {
               from: "passengerpreferences",
-              localField: "_id",
-              foreignField: "bid",
+              localField: "bookingId",
+              foreignField: "bookingId",
               as: "passengerpreferences",
-            //   pipeline: [
-            //     {
-            //       $project: {
-                    
-            //       },
-            //     },
-            //   ],
             },
         },
         {
@@ -108,7 +108,7 @@ const invoiceGenerator = async (req, res) => {
         }
     ];
     let bookingDetail = await BookingDetail.aggregate(pipeline);
-    
+    // console.log(bookingDetail,"bookingDetail");
     if(!bookingId){
         return {
             response: "BookingId is required.",
@@ -168,7 +168,7 @@ const invoiceGenerator = async (req, res) => {
                 },
             }, 
         ];
-        let invoiceDetail = await InvoicingData.aggregate(pipeline); 
+        // let invoiceDetail = await InvoicingData.aggregate(pipeline); 
         let invoicings = await Invoicing.aggregate([
             {
                 $match:{
@@ -189,24 +189,24 @@ const invoiceGenerator = async (req, res) => {
                 } 
             }
         ]);
-        let invoicepricebreakups = await InvoicePrivceBreakup.aggregate([
-            {
-                $match:{
-                    invoiceNumber:invoiceDetail[0]?.invoiceNumber
-                }
-            },
-            {
-                $project: {
-                    _id:1,
-                    invoiceNumber:1,
-                    priceCategory:1,
-                    priceType:1,
-                    basicPrice:1,
-                    tax:1,
-                    productId:1
-                },
-            }
-        ]);
+        // let invoicepricebreakups = await InvoicePrivceBreakup.aggregate([
+        //     {
+        //         $match:{
+        //             invoiceNumber:invoiceDetail[0]?.invoiceNumber
+        //         }
+        //     },
+        //     {
+        //         $project: {
+        //             _id:1,
+        //             invoiceNumber:1,
+        //             priceCategory:1,
+        //             priceType:1,
+        //             basicPrice:1,
+        //             tax:1,
+        //             productId:1
+        //         },
+        //     }
+        // ]);
         let companyAgency = await InvoicingData.aggregate([
             {
                 $match: {
@@ -269,12 +269,12 @@ const invoiceGenerator = async (req, res) => {
         }
         
         // console.log(invoiceDetail);
-        if(invoiceDetail.length>0){
-            invoiceDetail = invoiceDetail;
-        }
+        // if(invoiceDetail.length>0){
+        //     invoiceDetail = invoiceDetail;
+        // }
         return {
             response:"Invoice Generated Successfully!",
-            data: {CompanyDetail,Agencies,invoiceDetail,invoicings,invoicepricebreakups,bDetail}
+            data: {CompanyDetail,Agencies,invoicings,bDetail}
         }
     }
    

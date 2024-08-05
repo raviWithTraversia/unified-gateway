@@ -5,7 +5,7 @@ const { ServerStatusCode, errorResponse, CrudMessage } = require('../../utils/co
 const invoiceGenerator = async (req, res) => {
     try {
         const result = await invoiceGeneratorService.invoiceGenerator(req, res);
-        if (result.response ==="BookingId is required.") {
+        if (result.response ==="BookingId is required." || result.response ==="providerBookingId BookingId is required.") {
             apiErrorres(res, result.response, ServerStatusCode.SERVER_ERROR, true);
         } else if (result.response === "Invoice Generated Successfully!") {
             apiSucessRes(

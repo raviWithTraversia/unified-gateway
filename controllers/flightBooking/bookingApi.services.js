@@ -1665,13 +1665,12 @@ const getBillingData = async (req, res) => {
         });
       }
     });
-    // console.log(element?.ticketNo?.ticketDetails);
+    // console.log(element?.ticketNo?.ticketDetails,"jkddskjjd");
     let ticketNumber = [element.pnr];
     if(element.ticketNo?.ticketDetails){
       ticketNumber = await getTicketNumberBySector(element.ticketNo?.ticketDetails, element.sector);
     }
-    element.ticketNo = ticketNumber.length !=0 && ticketNumber[0]!=null? ticketNumber[0] : element.pnr
-
+    element.ticketNo = ticketNumber.length !=0 && ticketNumber[0]!=null && ticketNumber[0]!=''? ticketNumber[0] : element.pnr;
     // element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr;
     element.id = index + 1;
     element.travelDateOutbound = await ISTTime(element.travelDateOutbound);

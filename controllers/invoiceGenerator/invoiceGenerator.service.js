@@ -29,7 +29,7 @@ const invoiceGenerator = async (req, res) => {
     let pipeline = [
         {
             $match: {
-                bookingId:bookingId,
+                // bookingId:bookingId,
                 providerBookingId:providerBookingId
             },
         },
@@ -244,15 +244,15 @@ const invoiceGenerator = async (req, res) => {
         let bDetail = await BookingDetail.aggregate([
             {
                 $match: {
-                    bookingId:bookingId
+                    providerBookingId:providerBookingId
                 },
             },
             {
                 $lookup: {
-                  from: "passengerpreferences",
-                  localField: "_id",
-                  foreignField: "bid",
-                  as: "passengerpreferences",
+                    from: "passengerpreferences",
+                    localField: "bookingId",
+                    foreignField: "bookingId",
+                    as: "passengerpreferences",
                 },
             },
             {

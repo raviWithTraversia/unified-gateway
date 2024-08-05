@@ -700,10 +700,16 @@ const updateBookingStatus = async (req, res) => {
         await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
           const apiPassenger = response.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
           if (apiPassenger) {
-            const ticketUpdate = passenger.Optional.ticketDetails.find(p => p.src === fSearchApiResponse.data.Param.Sector[0].Src && p.des === fSearchApiResponse.data.Param.Sector[0].Des);
-                      if(ticketUpdate){
-                        ticketUpdate.ticketNumber = apiPassenger?.Optional?.TicketNumber;
-                      }
+            console.log(passenger,"apiPassenger");
+            if(passenger?.Optional?.ticketDetails?.length > 0){
+              const ticketUpdate = passenger.Optional.ticketDetails.find(p => p.src === fSearchApiResponse.data.Param.Sector[0].Src && p.des === fSearchApiResponse.data.Param.Sector[0].Des);
+              console.log(ticketUpdate,"ticketUpdate");
+              if(ticketUpdate){
+                console.log(apiPassenger?.Optional?.TicketNumber,"jdsdsjkdj")
+                ticketUpdate.ticketNumber = apiPassenger?.Optional?.TicketNumber;
+              }
+            }
+            
             //passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
             // passenger.Status = "CONFIRMED";
           }

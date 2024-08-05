@@ -1221,10 +1221,13 @@ for(let [index,element] of bookingBill.entries()){
 }
 
   bookingBill.forEach(async(element, index) => {
-    console.log(element.ticketNo?.ticketDetails, element.sector,"tsdysdyu")
-    let ticketNumber = await getTicketNumberBySector(element.ticketNo?.ticketDetails, element.sector);
+    console.log(element.ticketNo?.ticketDetails, element.sector,"tsdysdyu");
+    let ticketNumber = [element.pnr];
+    if(element.ticketNo?.ticketDetails){
+      ticketNumber = await getTicketNumberBySector(element.ticketNo?.ticketDetails, element.sector);
+    }
     console.log(ticketNumber,"ticketNumber");
-    element.ticketNo = ticketNumber.length !=0 && ticketNumber[0]!=null? ticketNumber[0] : element.pnr
+    element.ticketNo = ticketNumber.length !=0 && ticketNumber[0]!=null && ticketNumber[0]!=''? ticketNumber[0] : element.pnr
     element.id = index + 1;
     // element.netAmount = netAmount; 
   });
@@ -1663,7 +1666,10 @@ const getBillingData = async (req, res) => {
       }
     });
     // console.log(element?.ticketNo?.ticketDetails);
-    let ticketNumber = await getTicketNumberBySector(element?.ticketNo?.ticketDetails, element.sector);
+    let ticketNumber = [element.pnr];
+    if(element.ticketNo?.ticketDetails){
+      ticketNumber = await getTicketNumberBySector(element.ticketNo?.ticketDetails, element.sector);
+    }
     element.ticketNo = ticketNumber.length !=0 && ticketNumber[0]!=null? ticketNumber[0] : element.pnr
 
     // element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr;

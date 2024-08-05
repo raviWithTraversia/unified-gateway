@@ -1004,6 +1004,15 @@ const calculateOfferedPrice = (iternayObj)=> {
 return returnCalculatedOfferedPrice;
 }
 
+const getTicketNumberBySector = async(ticketDetails, sector) => {
+  const [sectorSrc, sectorDes] = sector.split(' ');
+  console.log(sectorSrc, sectorDes,"sectorSrc sectorDes")
+  const matchingTickets = ticketDetails.filter(ticket => 
+      ticket.src === sectorSrc && ticket.des === sectorDes
+  );
+  return matchingTickets.map(ticket => ticket.ticketNumber);
+}
+
 
 module.exports = {
   createToken,
@@ -1030,5 +1039,6 @@ module.exports = {
   sendCardDetailOnMail,
   createLeadger,
   getTdsAndDsicount,
-  calculateOfferedPrice
+  calculateOfferedPrice,
+  getTicketNumberBySector
 };

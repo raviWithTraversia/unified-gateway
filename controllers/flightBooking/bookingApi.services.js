@@ -10,7 +10,7 @@ const { ObjectId } = require("mongodb");
 const moment = require('moment');
 const { Config } = require('../../configs/config');
 const bookingDetails = require("../../models/BookingDetails");
-const {calculateOfferedPrice} = require("../commonFunctions/common.function");
+const {calculateOfferedPrice,getTicketNumberBySector} = require("../commonFunctions/common.function");
 
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
@@ -1107,7 +1107,7 @@ const getBookingBill = async (req, res) => {
   }, { $unwind: "$Passengers" }, {
     $project: {
       bookingId: 1,
-      ticketNo: "$Passengers.Optional.TicketNumber",
+      ticketNo: "$Passengers.Optional",
       paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] }
     }
   }, {
@@ -1154,7 +1154,12 @@ const getBookingBill = async (req, res) => {
       sector: {
         $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Code', 0] },
           ' ',
-        { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Code', 0] }]
+        { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Code', {
+          $subtract: [
+            { $size: "$bookingData.itinerary.Sectors" },
+            1
+          ]
+        }] }]
       },
       flightNo: {
         $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] },
@@ -1215,8 +1220,11 @@ for(let [index,element] of bookingBill.entries()){
   })
 }
 
-  bookingBill.forEach((element, index) => {
-    element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr
+  bookingBill.forEach(async(element, index) => {
+    console.log(element.ticketNo?.ticketDetails, element.sector,"tsdysdyu")
+    let ticketNumber = await getTicketNumberBySector(element.ticketNo?.ticketDetails, element.sector);
+    console.log(ticketNumber,"ticketNumber");
+    element.ticketNo = ticketNumber.length !=0 && ticketNumber[0]!=null? ticketNumber[0] : element.pnr
     element.id = index + 1;
     // element.netAmount = netAmount; 
   });
@@ -1600,7 +1608,7 @@ const getBillingData = async (req, res) => {
       paxType: "$Passengers.PaxType",
       accountPost: "$Passengers.accountPost",
       bookingId: "$bookingData.providerBookingId",
-      ticketNo: "$Passengers.Optional.TicketNumber",
+      ticketNo: "$Passengers.Optional",
       paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
       agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
       agentId: { $arrayElemAt: ['$userdata.userId', 0] },
@@ -1609,7 +1617,12 @@ const getBillingData = async (req, res) => {
       sector: {
         $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.Departure.Code', 0] },
           ' ',
-        { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Code', 0] }]
+        { $arrayElemAt: ['$bookingData.itinerary.Sectors.Arrival.Code', {
+          $subtract: [
+            { $size: "$bookingData.itinerary.Sectors" },
+            1
+          ]
+        }] }]
       },
       flightNo: {
         $concat: [{ $arrayElemAt: ['$bookingData.itinerary.Sectors.AirlineCode', 0] },
@@ -1649,8 +1662,11 @@ const getBillingData = async (req, res) => {
         });
       }
     });
+    // console.log(element?.ticketNo?.ticketDetails);
+    let ticketNumber = await getTicketNumberBySector(element?.ticketNo?.ticketDetails, element.sector);
+    element.ticketNo = ticketNumber.length !=0 && ticketNumber[0]!=null? ticketNumber[0] : element.pnr
 
-    element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr;
+    // element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr;
     element.id = index + 1;
     element.travelDateOutbound = await ISTTime(element.travelDateOutbound);
     element.travelDateInbound = await ISTTime(element.travelDateInbound);

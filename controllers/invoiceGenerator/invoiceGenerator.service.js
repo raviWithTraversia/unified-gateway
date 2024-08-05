@@ -441,7 +441,36 @@ const ledgerListWithFilter = async(req,res)=>{
                 }
             }
         ];
-        let ledgers = await Ledger.aggregate(pipeline);
+        let ldgrs = await Ledger.aggregate(pipeline);
+        let ledgers = [];
+        if(ldgrs.length>0){ 
+            console.log("jkdsjds")
+            for(let ldgr of ldgrs){
+                let obj1 = {
+                    ledgerId:ldgr.ledgerId,
+                    transactionAmount:ldgr?.transactionAmount,
+                    product:ldgr?.product,
+                    currencyType:ldgr?.currencyType,
+                    transactionType:ldgr?.transactionType,
+                    remarks:ldgr?.remarks,
+                    userId:ldgr?.userData?.userId,
+                    ACC_ALIAS:"CD"
+                };
+                ledgers.push(obj1);
+                let obj2 ={
+                    ledgerId:ldgr.ledgerId,
+                    transactionAmount:ldgr?.transactionAmount,
+                    product:ldgr?.product,
+                    currencyType:ldgr?.currencyType,
+                    transactionType:"DEBIT",
+                    remarks:ldgr?.remarks,
+                    userId:ldgr?.userData?.userId,
+                    ACC_ALIAS:ldgr?.userData?.userId
+                };
+                ledgers.push(obj2);
+            }
+        }
+
         return {
             response:"Success",
             data: ledgers

@@ -125,6 +125,10 @@ const transactionDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    paymentGateway:{
+      type: String,
+      default: null,
+    },
     trnsStatus: {
       // Virtual_Success, success,
       type: String,

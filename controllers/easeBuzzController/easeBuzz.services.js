@@ -78,6 +78,7 @@ const easeBuzz = async (req, res) => {
 const easeBuzzResponce = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1, net_amount_debit,card_type,payment_source, bankcode,bank_ref_num,bank_name,name_on_card, error_Message,pgCharges } = req.body;
+    console.log(req.body,"jkssddjsj");
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
@@ -323,6 +324,7 @@ const easeBuzzResponce = async (req, res) => {
               //   { bookingId: item?.BookingId },
               //   { statusDetail: status, trnsNo:txnid,paymentMode:card_type,bankName:bank_name,holderName:name_on_card, }
               // );
+              console.log("jkssddjsj");
               await transaction.create({
                 userId: Authentication.UserId,
                 bookingId:item?.BookingId,
@@ -330,6 +332,7 @@ const easeBuzzResponce = async (req, res) => {
                 trnsNo: txnid,
                 trnsType: "DEBIT",
                 paymentMode: card_type,
+                paymentGateway:"EaseBuzz",
                 trnsStatus: "success",
                 // transactionBy: getuserDetails._id,
                 pgCharges:pgCharges,

@@ -62,6 +62,7 @@ const payu = async (req, res) => {
     const phoneres = phone;
     const surl = `${Config[Config.MODE].baseURLBackend}/api/paymentGateway/success`;
     const furl = `${Config[Config.MODE].baseURLBackend}/api/paymentGateway/failed`;
+     
     const salt = Config.MODE == "TEST" ? Config.PAYMENT_CREDENTIALS_PAYU.TEST.salt : Config.PAYMENT_CREDENTIALS_PAYU.LIVE.salt;
     const cartIdres = cartId;
      
@@ -547,8 +548,8 @@ const payuSuccess = async (req, res) => {
 
 const payuWalletResponceSuccess = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1,udf2,udf3, amount } = req.body; 
-        
+    const { status, txnid, productinfo, udf1,udf2,udf3, amount,PG_TYPE } = req.body; 
+        // console.log(req.body,"req")
     if (status === "success") {
       const userData = await User.findOne({ company_ID: udf1 }).populate({
           path: 'roleId',
@@ -607,7 +608,8 @@ const payuWalletResponceSuccess = async (req, res) => {
           companyId: userData.company_ID,
           trnsNo: txnid,
           trnsType: "DEBIT",
-          paymentMode: "Payu",
+          paymentMode: PG_TYPE,
+          paymentGateway:"PayU",
           trnsStatus: "success",
           transactionBy: userData._id,
           transactionAmount:udf2,

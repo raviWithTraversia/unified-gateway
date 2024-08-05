@@ -241,20 +241,31 @@ const invoiceGenerator = async (req, res) => {
                 }
             }
         ]);
-        let PassengerPreference = await PassengerPreferenceModel.aggregate(
-        [ 
+        let bDetail = await BookingDetail.aggregate([
             {
                 $match: {
                     bookingId:bookingId
                 },
-            }, 
+            },
+            {
+                $lookup: {
+                  from: "passengerpreferences",
+                  localField: "_id",
+                  foreignField: "bid",
+                  as: "passengerpreferences",
+                },
+            },
+            {
+                $unwind: "$passengerpreferences",
+            }
         ]);
+        // console.log(bDetail,"bDetail");
         let CompanyDetail = {};
         let Agencies = {};
         if(companyAgency.length>0){
             CompanyDetail = companyAgency[0]?.CompanyDetail;
             Agencies = companyAgency[0]?.Agencies;
-            PassengerPreference = PassengerPreference[0];
+            bDetail = bDetail[0];
         }
         
         // console.log(invoiceDetail);
@@ -263,7 +274,7 @@ const invoiceGenerator = async (req, res) => {
         }
         return {
             response:"Invoice Generated Successfully!",
-            data: {CompanyDetail,Agencies,invoiceDetail,invoicings,invoicepricebreakups,PassengerPreference}
+            data: {CompanyDetail,Agencies,invoiceDetail,invoicings,invoicepricebreakups,bDetail}
         }
     }
    

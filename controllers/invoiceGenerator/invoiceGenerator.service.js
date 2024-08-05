@@ -453,8 +453,10 @@ const ledgerListWithFilter = async(req,res)=>{
                     currencyType:ldgr?.currencyType,
                     transactionType:ldgr?.transactionType,
                     remarks:ldgr?.remarks,
-                    userId:ldgr?.userData?.userId,
-                    ACC_ALIAS:"CD"
+                    ACC_ALIAS:"CD",
+                    userData:{
+                        userId:ldgr?.userData?.userId,
+                    }
                 };
                 ledgers.push(obj1);
                 let obj2 ={
@@ -464,8 +466,10 @@ const ledgerListWithFilter = async(req,res)=>{
                     currencyType:ldgr?.currencyType,
                     transactionType:"DEBIT",
                     remarks:ldgr?.remarks,
-                    userId:ldgr?.userData?.userId,
-                    ACC_ALIAS:ldgr?.userData?.userId
+                    ACC_ALIAS:ldgr?.userData?.userId,
+                    userData:{
+                        userId:ldgr?.userData?.userId,
+                    }
                 };
                 ledgers.push(obj2);
             }

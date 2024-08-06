@@ -153,6 +153,7 @@ const easeBuzzResponce = async (req, res) => {
         // console.log(newBalanceCredit,"newBalanceCreditnewBalanceCredit");
         let itemAmount = 0;
         let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
+        console.log("jkss2");
         await ledger.create({
           userId: getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
@@ -182,7 +183,7 @@ const easeBuzzResponce = async (req, res) => {
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
-
+        console.log("jkss1");
         if(pgCharges){
           await agentConfig.updateOne(
             { userId: getuserDetails._id },
@@ -195,8 +196,8 @@ const easeBuzzResponce = async (req, res) => {
           );
         }
         
-
-        //const hitAPI = await Promise.all(
+        console.log("jkssddjsj123");
+        // const hitAPI = await Promise.all(
         const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
           let requestDataFSearch = {
             FareChkRes: {
@@ -375,9 +376,9 @@ const easeBuzzResponce = async (req, res) => {
             return error.message;
           }
         })
-        //);
+        // );
         const results = await Promise.all(updatePromises);
-
+        console.log("jkssddjsj456");
         if (results.length > 0) {
           if (itemAmount !== 0) {
             const runnnigBalance = newBalanceCredit - itemAmount;

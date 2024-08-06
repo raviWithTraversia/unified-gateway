@@ -62,6 +62,36 @@ const transactionList = async(req,res)=>{
     }
 }
 
+const pgTransaction = async(req,res)=>{
+    try {
+        const result = await invoiceGeneratorService.pgTransactionList(req, res);
+        if (result.response ==="fromDate toDate is required.") {
+            apiErrorres(res, result.response, ServerStatusCode.SERVER_ERROR, true);
+        } else if (result.response === "Success") {
+            apiSucessRes(
+                res,
+                result.response,
+                result.data,
+                ServerStatusCode.SUCESS_CODE
+            );
+        } else {
+            apiErrorres(
+                res,
+                errorResponse.SOME_UNOWN,
+                ServerStatusCode.UNPROCESSABLE,
+                true
+            );
+        }
+    } catch (error) {
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        );
+    }
+}
+
 const ledgerListWithFilter = async(req,res)=>{
     try {
         const result = await invoiceGeneratorService.ledgerListWithFilter(req, res);
@@ -93,4 +123,4 @@ const ledgerListWithFilter = async(req,res)=>{
     }
 }
  
-module.exports = { invoiceGenerator,transactionList,ledgerListWithFilter };
+module.exports = { invoiceGenerator,transactionList,ledgerListWithFilter,pgTransaction };

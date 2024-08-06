@@ -467,6 +467,193 @@ const transactionList = async (req, res) => {
     }
 } 
 
+const pgTransactionList = async (req, res) => {
+    const { fromDate, toDate, agencyId } = req.query;
+    if(!fromDate || !toDate){
+        return {
+            response: "fromDate toDate is required.",
+        } 
+    }else{ 
+        let query = {};
+        if(agencyId){
+            let agencyIdToMatch = new ObjectId(agencyId);
+            query.companyId = { $in: [agencyIdToMatch]};
+        }
+        query.createdAt = {
+            $gte: new Date(fromDate + 'T00:00:00.000Z'), 
+            $lte: new Date(toDate + 'T23:59:59.999Z')   
+        };
+        let pipeline = [
+            {
+                $match:query
+            },
+            {
+                $lookup: {
+                    from: 'bookingdetails', 
+                    localField: 'bookingId', 
+                    foreignField: 'bookingId', 
+                    as: 'bookingdetails',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id:1,
+                                userId:1,
+                                companyId:1,
+                                AgencyId:1,
+                                BookedBy:1,
+                                bookingId:1,
+                                prodBookingId:1,
+                                provider:1,
+                                bookingStatus:1,
+                                paymentGateway:1,
+                                paymentMethodType:1,
+                                PNR:1,
+                                APnr:1,
+                                GPnr:1,
+                                SalePurchase:1,
+                                bookingTotalAmount:1,
+                                productType:1,
+                                Supplier:1
+                            },
+                        },
+                    ],
+                }
+            },
+            {
+                $lookup:{
+                    from: 'users', 
+                    localField: 'userId', 
+                    foreignField: '_id', 
+                    as: 'userdetails',
+                }
+            },
+            {
+                $unwind:"$userdetails"
+            },
+            // {
+            //     $project: {
+                   
+            //     } 
+            // }
+            {
+                $sort: {
+                    createdAt: -1,
+                }
+            }
+        ];
+
+        let transtns = await TransactionDetail.aggregate(pipeline);
+        let transactions = [];
+        if(transtns.length>0){
+            for(let tr of transtns){
+                let obj2 ={
+                    _id: tr._id,
+                    userId: tr?.userId,
+                    companyId: tr?.companyId,
+                    bookingId: tr?.bookingId,
+                    trnsNo: tr?.trnsNo,
+                    cardNo: tr?.cardNo,
+                    holderName: tr?.holderName,
+                    cardExpDate: tr?.cardExpDate,
+                    cardValidFrom: tr?.cardValidFrom,
+                    cardIssueNo: tr?.cardIssueNo,
+                    securityCode: tr?.securityCode,
+                    cardType: tr?.cardType,
+                    deliveryName: tr?.deliveryName,
+                    deliveryCountry: tr?.deliveryCountry,
+                    deliveryState: tr?.deliveryState,
+                    deliveryCity: tr?.deliveryCity,
+                    deliveryZip: tr?.deliveryZip,
+                    deliveryAddress: tr?.deliveryAddress,
+                    deliveryTel: tr?.deliveryTel,
+                    billingName: tr?.billingName,
+                    billingCountry: tr?.billingCountry,
+                    billingState: tr?.billingState,
+                    billingCity: tr?.billingCity,
+                    billingZip: tr?.billingZip,
+                    billingAddress: tr?.billingAddress,
+                    cardBillingTel: tr?.cardBillingTel,
+                    billingEmail: tr?.billingEmail,
+                    chargesType: tr?.chargesType,
+                    bankName: tr?.bankName,
+                    trnsType: tr?.trnsType,
+                    paymentMode:tr?.paymentMode,
+                    paymentGateway: tr?.paymentGateway,
+                    trnsStatus: tr?.trnsStatus,
+                    statusDetail: tr?.statusDetail,
+                    trnsAddressResult: tr?.trnsAddressResult,
+                    trnsPostCodeResult: tr?.trnsPostCodeResult,
+                    pgCharges:tr?.pgCharges,
+                    transactionAmount: tr?.transactionAmount,
+                    trnsStatusMessage: tr?.trnsStatusMessage,
+                    creationDate: tr?.creationDate,
+                    createdAt: tr?.createdAt,
+                    updatedAt: tr?.updatedAt,
+                    trnsType:"CREDIT",
+                    ACC_ALIAS:"BC",
+                    bookingdetails:tr.bookingdetails,
+                    userdetails: tr.userdetails
+                };
+                transactions.push(obj2);
+
+                let obj1 = {
+                    _id: tr._id,
+                    userId: tr?.userId,
+                    companyId: tr?.companyId,
+                    bookingId: tr?.bookingId,
+                    trnsNo: tr?.trnsNo,
+                    cardNo: tr?.cardNo,
+                    holderName: tr?.holderName,
+                    cardExpDate: tr?.cardExpDate,
+                    cardValidFrom: tr?.cardValidFrom,
+                    cardIssueNo: tr?.cardIssueNo,
+                    securityCode: tr?.securityCode,
+                    cardType: tr?.cardType,
+                    deliveryName: tr?.deliveryName,
+                    deliveryCountry: tr?.deliveryCountry,
+                    deliveryState: tr?.deliveryState,
+                    deliveryCity: tr?.deliveryCity,
+                    deliveryZip: tr?.deliveryZip,
+                    deliveryAddress: tr?.deliveryAddress,
+                    deliveryTel: tr?.deliveryTel,
+                    billingName: tr?.billingName,
+                    billingCountry: tr?.billingCountry,
+                    billingState: tr?.billingState,
+                    billingCity: tr?.billingCity,
+                    billingZip: tr?.billingZip,
+                    billingAddress: tr?.billingAddress,
+                    cardBillingTel: tr?.cardBillingTel,
+                    billingEmail: tr?.billingEmail,
+                    chargesType: tr?.chargesType,
+                    bankName: tr?.bankName,
+                    trnsType: tr?.trnsType,
+                    paymentMode:tr?.paymentMode,
+                    paymentGateway: tr?.paymentGateway,
+                    trnsStatus: tr?.trnsStatus,
+                    statusDetail: tr?.statusDetail,
+                    trnsAddressResult: tr?.trnsAddressResult,
+                    trnsPostCodeResult: tr?.trnsPostCodeResult,
+                    pgCharges:tr?.pgCharges,
+                    transactionAmount: tr?.transactionAmount,
+                    trnsStatusMessage: tr?.trnsStatusMessage,
+                    creationDate: tr?.creationDate,
+                    createdAt: tr?.createdAt,
+                    updatedAt: tr?.updatedAt,
+                    ACC_ALIAS:tr?.userdetails?.userId,
+                    bookingdetails:tr?.bookingdetails,
+                    userdetails: tr?.userdetails
+                };
+                transactions.push(obj1);
+            }
+        }
+        return {
+            response:"Success",
+            data: transactions
+        }
+    }
+} 
+
+
 
 const ledgerListWithFilter = async(req,res)=>{ 
     const { fromDate, toDate, agencyId,companyId } = req.query;
@@ -584,4 +771,4 @@ const ledgerListWithFilter = async(req,res)=>{
     }
 }
 
-module.exports = { invoiceGenerator,transactionList,ledgerListWithFilter }
+module.exports = { invoiceGenerator,transactionList,ledgerListWithFilter ,pgTransactionList}

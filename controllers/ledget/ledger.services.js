@@ -113,7 +113,7 @@ const getAllledger = async (req, res) => {
         }
         
         netfare = await priceRoundOffNumberValues(netfare);
-        return { ...element._doc, bookingData,transactionData,passengerpre,netfare,sf,cb,gst,promo };
+        return { ...element._doc, bookingData,transactionData,netfare,sf,cb,gst,promo };
       }),
      
     );

@@ -6,6 +6,7 @@ const InvoicePrivceBreakup = require("../../models/booking/InvoicePrivceBreakup"
 const PassengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const Ledger = require("../../models/Ledger");
 var ObjectId = require("mongoose").Types.ObjectId;
+const { priceRoundOffNumberValues } = require("../commonFunctions/common.function");
  
 const invoiceGenerator = async (req, res) => {
     const { bookingId,providerBookingId } = req.body;
@@ -737,7 +738,7 @@ const ledgerListWithFilter = async(req,res)=>{
             for(let ldgr of ldgrs){
                 let obj1 = {
                     ledgerId:ldgr.ledgerId,
-                    transactionAmount:ldgr?.transactionAmount,
+                    transactionAmount:  await priceRoundOffNumberValues(ldgr?.transactionAmount),
                     product:ldgr?.product,
                     currencyType:ldgr?.currencyType,
                     transactionType:ldgr?.transactionType,
@@ -750,7 +751,7 @@ const ledgerListWithFilter = async(req,res)=>{
                 ledgers.push(obj1);
                 let obj2 ={
                     ledgerId:ldgr.ledgerId,
-                    transactionAmount:ldgr?.transactionAmount,
+                    transactionAmount: await priceRoundOffNumberValues(ldgr?.transactionAmount),
                     product:ldgr?.product,
                     currencyType:ldgr?.currencyType,
                     transactionType:"DEBIT",

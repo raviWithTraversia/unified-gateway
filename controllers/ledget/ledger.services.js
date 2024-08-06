@@ -5,6 +5,9 @@ const { ObjectId } = require("mongodb");
 const { response } = require("../../routes/payuRoute");
 const bookingDetails=require('../../models/booking/BookingDetails');
 const transactionModel = require("../../models/transaction");
+const PassengerPreferenceModel = require("../../models/booking/PassengerPreference");
+const { priceRoundOffNumberValues,calculateOfferedPricePaxWise } = require("../commonFunctions/common.function");
+
 const getAllledger = async (req, res) => {
   const { userId, fromDate, toDate, transactionType } = req.body;
 
@@ -87,14 +90,33 @@ const getAllledger = async (req, res) => {
   // If the user role is Agency, fetch booking details for each ledger
     const bookingsData = await Promise.all(
       ledgerDetails.map(async (element) => {
-        const bookingData = await bookingDetails.find({ bookingId: element?.cartId });
-        const transactionData = await transactionModel.find({ bookingId: element?.cartId });
-        return { ...element._doc, bookingData,transactionData };
+        let bookingData = [];
+        let passengerpre = [];
+        let transactionData = [];
+        let netfare = 0;
+        let sf = 0;
+        let cb = 0;
+        let gst = 0;
+        let promo = 0;
+        if(element?.cartId !=null){
+          bookingData = await bookingDetails.find({ bookingId: element?.cartId });
+          passengerpre = await PassengerPreferenceModel.find({ bookingId: element?.cartId });
+          transactionData = await transactionModel.find({ bookingId: element?.cartId });
+          if(passengerpre.length>0){
+            for(let pp of passengerpre[0].Passengers){
+              let getCommercialArray = bookingData[0].itinerary.PriceBreakup
+              let dpp = {...pp._doc,getCommercialArray};
+              // console.log(dpp,"itenaryitenary");
+              netfare += await calculateOfferedPricePaxWise(dpp);
+            }
+          }
+        }
+        
+        netfare = await priceRoundOffNumberValues(netfare);
+        return { ...element._doc, bookingData,transactionData,passengerpre,netfare,sf,cb,gst,promo };
       }),
      
     );
-
-   
   
 
   return {

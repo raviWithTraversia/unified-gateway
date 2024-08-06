@@ -273,6 +273,23 @@ const manualDebitCredit = async (req, res) => {
         documentId: findUser._id,
         description: "Amount Debited"
       };
+
+      // await transaction.create({
+      //   userId: loginUser._id,
+      //   companyId: findUser.company_ID,
+      //   trnsNo: txnid,
+      //   trnsType: "DEBIT",
+      //   paymentMode: card_type,
+      //   paymentGateway:"EaseBuzz",
+      //   trnsStatus: "success",
+      //   // transactionBy: getuserDetails._id,
+      //   pgCharges:pgCharges,
+      //   transactionAmount:totalItemAmount,
+      //   trnsBankRefNo:bank_ref_num,
+      //   // cardType:cardCategory,
+      //   bankName:bank_name,
+      //   holderName:name_on_card
+      // });
       EventLogs(LogsData)
     }
     return { response: "Amount Transfer Successfully" }

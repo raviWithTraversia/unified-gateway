@@ -10,7 +10,7 @@ const { ObjectId } = require("mongodb");
 const moment = require('moment');
 const { Config } = require('../../configs/config');
 const bookingDetails = require("../../models/BookingDetails");
-const {calculateOfferedPrice,getTicketNumberBySector} = require("../commonFunctions/common.function");
+const {calculateOfferedPricePaxWise,getTicketNumberBySector,priceRoundOffNumberValues} = require("../commonFunctions/common.function");
 
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
@@ -1108,7 +1108,8 @@ const getBookingBill = async (req, res) => {
     $project: {
       bookingId: 1,
       ticketNo: "$Passengers.Optional",
-      paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] }
+      paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
+      PaxType:"$Passengers.PaxType"
     }
   }, {
     $lookup: {
@@ -1141,11 +1142,12 @@ const getBookingBill = async (req, res) => {
     }
 
   },
-   {
+  {
     $project: {
       bookingId: "$bookingData.providerBookingId",
       paxName: 1,
       ticketNo: 1,
+      PaxType:1,
       agencyName: { $arrayElemAt: ['$companiesData.companyName', 0] },
       agentId: { $arrayElemAt: ['$userdata.userId', 0] },
       pnr: "$bookingData.PNR",
@@ -1186,8 +1188,8 @@ const getBookingBill = async (req, res) => {
   
 for(let [index,element] of bookingBill.entries()){
   let netAmount = 0;
-  netAmount = await calculateOfferedPrice(element);
-  element?.getCommercialArray.map((item)=>{
+  netAmount = await calculateOfferedPricePaxWise(element);
+  element?.getCommercialArray.map(async(item)=>{
     // let ttaxBreakup = 0;
     // item?.TaxBreakup.map((item)=>{
     //   ttaxBreakup += item.Amount;
@@ -1215,8 +1217,10 @@ for(let [index,element] of bookingBill.entries()){
     // // console.log(tAmount, item.Tax, item.BaseFare,ttaxBreakup,commercialTaxToAdd,commercialTaxToSub, "skldsj");
     // netAmount += tAmount;
     
-    element.netAmount = netAmount;
-    
+    element.netAmount = await priceRoundOffNumberValues(netAmount);
+    let ccomisn = await priceRoundOffNumberValues(element.commission);
+    element.commission = ccomisn;
+    element.tds = await priceRoundOffNumberValues(element.tds);
   })
 }
 

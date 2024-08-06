@@ -922,7 +922,7 @@ const getTdsAndDsicount = async(ItineraryPriceCheckResponses)=>{
 
 
 
-const calculateOfferedPrice = (iternayObj)=> {
+const calculateOfferedPricePaxWise = async(iternayObj)=> {
   let returnCalculatedOfferedPrice = 0;
   offerPricePlusInAmount=(plusKeyName)=> {
     let returnBoolean = false;
@@ -984,7 +984,7 @@ const calculateOfferedPrice = (iternayObj)=> {
   iternayObj.getCommercialArray?.forEach((priceBreakupElement) => {
     let { PassengerType, NoOfPassenger, CommercialBreakup, BaseFare, Tax,TaxBreakup } =
     priceBreakupElement;
-    if (PassengerType) {
+    if (PassengerType == iternayObj.PaxType) {
       returnCalculatedOfferedPrice += Number(BaseFare) * NoOfPassenger;
       returnCalculatedOfferedPrice += Number(Tax) * NoOfPassenger;
       TaxBreakup?.forEach((taxBreakup) => {
@@ -1013,6 +1013,15 @@ const getTicketNumberBySector = async(ticketDetails, sector) => {
   return matchingTickets.map(ticket => ticket.ticketNumber);
 }
 
+const priceRoundOffNumberValues = async(numberValue)=>{
+  if (isNaN(numberValue)) 
+    numberValue=0 
+  const integerPart = Math.floor(numberValue);
+  const fractionalPart = numberValue - integerPart;
+  const result = fractionalPart >= 0.5 ? Math.ceil(numberValue) : Math.floor(numberValue);
+  return result.toFixed(2);
+}
+
 
 module.exports = {
   createToken,
@@ -1039,6 +1048,7 @@ module.exports = {
   sendCardDetailOnMail,
   createLeadger,
   getTdsAndDsicount,
-  calculateOfferedPrice,
-  getTicketNumberBySector
+  calculateOfferedPricePaxWise,
+  getTicketNumberBySector,
+  priceRoundOffNumberValues
 };

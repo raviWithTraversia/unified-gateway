@@ -593,11 +593,21 @@ const KafilaFun = async (
  
   if (paymentMethodType === "Wallet") {
     try {
-
+      
       // Retrieve agent configuration
+      
+      const companieIds = await UserModel.findById(getuserDetails._id);
+
+      const getAllComapnies = await UserModel.find({company_ID:companieIds.company_ID}).populate("roleId");
+      let allIds = getAllComapnies
+      .filter(item => item.roleId.name === "Agency")
+      .map(item => item._id);
+
+      console.log(allIds,"allIds");
       const getAgentConfig = await agentConfig.findOne({
-        userId: getuserDetails._id,
+        userId: allIds[0]
       });
+      // console.log(getAllComapnies,"getuserDetails");
       const getcreditRequest = await creditRequest.find({
         agencyId: getuserDetails.company_ID,
         expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet

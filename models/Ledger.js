@@ -23,11 +23,11 @@ const ledgerSchema = new mongoose.Schema(
     },
     deal:{
       type: Number,
-      default: null,
+      default: 0,
     },
     tds:{
       type: Number,
-      default: null,
+      default: 0,
     },
     product: {
       type: String,

@@ -3,7 +3,7 @@ const agentConfig = require("../../models/AgentConfig");
 const creditRequest = require("../../models/CreditRequest");
 const EventLogs = require('../logs/EventApiLogsCommon');
 const ledger = require("../../models/Ledger");
-const { recieveDI } = require("../commonFunctions/common.function");
+const { recieveDI,priceRoundOffNumberValues } = require("../commonFunctions/common.function");
 const axios = require("axios");
 const { response } = require("../../routes/balanceManageRoute");
 
@@ -94,6 +94,7 @@ const manualDebitCredit = async (req, res) => {
     if (!userId) {
       return { response: "User id does not exist" }
     }
+    let amountforDI = amount;
     if(pgCharges){
       amount = amount + parseInt(pgCharges);
     }else{
@@ -121,16 +122,16 @@ const manualDebitCredit = async (req, res) => {
       if(ApplyDI == true){
         DIdata = 0;
       }else{
-        DIdata = await recieveDI(configData, findUser, product, amount, loginUser._id);
+        DIdata = await recieveDI(configData, findUser, product, amountforDI, loginUser._id);
       }
       // console.log(DIdata,"DIdata");
       if (product === "Rail") {
-        configData.maxRailCredit += (amount + DIdata);
-        runningAmount = configData.maxRailCredit
+        configData.maxRailCredit += amount;
+        runningAmount = await priceRoundOffNumberValues(configData.maxRailCredit)
       }
       if (product === "Flight") {
-        configData.maxcreditLimit += (amount + DIdata);
-        runningAmount = configData.maxcreditLimit
+        configData.maxcreditLimit += amount;
+        runningAmount = await priceRoundOffNumberValues(configData.maxcreditLimit)
       }
       await configData.save();
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
@@ -163,7 +164,7 @@ const manualDebitCredit = async (req, res) => {
         });
         await agentConfig.findOneAndUpdate(
           { userId: userId },
-          { maxcreditLimit: runningAmount - parseInt(pgCharges) },
+          { maxcreditLimit: await priceRoundOffNumberValues(runningAmount - parseInt(pgCharges) )},
           {new:true}
         );
       }

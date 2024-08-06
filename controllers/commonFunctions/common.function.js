@@ -844,6 +844,15 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
   if (slabBreakups.length) {
     await ADRdata.save();
     const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+    if (product === "Rail") {
+      configData.maxRailCredit += bonusAmount;
+      runningAmount = await priceRoundOffNumberValues(configData.maxRailCredit)
+    }
+    if (product === "Flight") {
+      configData.maxcreditLimit += bonusAmount;
+      runningAmount = await priceRoundOffNumberValues(configData.maxcreditLimit)
+    }
+    await configData.save();
     await ledger.create({
       userId: findUser._id,
       companyId: findUser.company_ID,
@@ -852,7 +861,7 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
       currencyType: "INR",
       fop: "CREDIT",
       transactionType: "CREDIT",
-      // runningAmount,
+      runningAmount,
       remarks: `DI against ${amount} deposit.`,
       transactionBy,
       product

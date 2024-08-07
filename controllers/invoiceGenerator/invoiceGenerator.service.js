@@ -405,7 +405,7 @@ const transactionList = async (req, res) => {
                     creationDate: tr?.creationDate,
                     createdAt: tr?.createdAt,
                     updatedAt: tr?.updatedAt,
-                    ACC_ALIAS:tr?.paymentGateway == "PayU" ? "PYU" : tr?.paymentGateway =="EZB" ? "":"" ,
+                    ACC_ALIAS: (tr?.paymentGateway).toLowerCase() == "payu" ? "PYU" : (tr?.paymentGateway).toLowerCase() =="easebuzz" ? "EBZ":"" ,
                     bookingdetails:tr?.bookingdetails,
                     userdetails: tr?.userdetails
                 };

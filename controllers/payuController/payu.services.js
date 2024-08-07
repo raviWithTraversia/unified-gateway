@@ -578,7 +578,7 @@ const payuWalletResponceSuccess = async (req, res) => {
       });
       console.log(configData,"configData");
       // const doerId = req.user._id;
-      const loginUser = configData.userId;
+      const loginUser = userData._id;
       console.log(loginUser,"loginUser");
       let DIdata = await recieveDI(configData, findUser, productinfo, udf2, loginUser);
       console.log(DIdata,"DIdata");

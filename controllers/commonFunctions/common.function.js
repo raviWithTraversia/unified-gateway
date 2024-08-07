@@ -787,7 +787,7 @@ console.log(mailConfig)
 
 const recieveDI = async (configData, findUser, product, amount, transactionBy) => {
   try{
-    // console.log("jksds");
+    console.log("jksds");
   configData.diSetupIds.diSetupIds = await configData.diSetupIds.diSetupIds.filter(diSetup =>
     diSetup.status === true &&
     // diSetup.companyId.toString() === findUser.company_ID.toString() &&

@@ -77,9 +77,9 @@ const getAllBooking = async (req, res) => {
     };
   }
 
-  if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") {
+  if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency" ||checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual") {
 
-    let filter = { userId: userId };
+    let filter = {  };
     if (agencyId !== undefined && agencyId !== '') {
       filter.AgencyId =agencyId;
     }
@@ -169,7 +169,7 @@ console.log('1st')
   } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Distributer") {
     let filter = { companyId: checkUserIdExist.company_ID._id };
     if (agencyId !== undefined && agencyId !== "") {
-      ilter.userId={}
+      filter.userId={}
       filter.userId={$in:agencyId}
     }
 
@@ -220,7 +220,7 @@ console.log('1st')
         "CANCELLED": 0,
         "INCOMPLETE": 0,
         "HOLD": 0,
-"HOLDRELEASED": 0,
+        "HOLDRELEASED": 0,
         "FAILED PAYMENT":0
       };
 

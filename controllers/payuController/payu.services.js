@@ -250,7 +250,7 @@ const payuSuccess = async (req, res) => {
           tds:gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
-          transactionType: "DEBIT",
+          transactionType: "CREDIT",
           runningAmount: newBalanceCredit,
           remarks: "Booking Amount Deducted from Your Account(PayU).",
           transactionBy: getuserDetails._id,
@@ -261,18 +261,18 @@ const payuSuccess = async (req, res) => {
           userId: allIds[0],//getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionAmount: udf3,
+          transactionAmount: totalItemAmount,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount: newBalanceCredit-udf3,
+          runningAmount: newBalanceCredit-totalItemAmount,
           remarks: "Booking Amount Deducted from Your Account(PayU).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
         await agentConfig.updateOne(
           { userId: allIds[0] },
-          { maxcreditLimit: newBalanceCredit-udf3 }
+          { maxcreditLimit: newBalanceCredit-totalItemAmount }
         );
 
         //const hitAPI = await Promise.all(

@@ -169,7 +169,7 @@ const easeBuzzResponce = async (req, res) => {
           tds:gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
-          transactionType: "DEBIT",
+          transactionType: "CREDIT",
           runningAmount: newBalanceCredit,
           remarks: "Booking Amount Deducted from Your Account(Easebuzz).",
           transactionBy: getuserDetails._id,
@@ -180,11 +180,11 @@ const easeBuzzResponce = async (req, res) => {
           userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionAmount: pgCharges,
+          transactionAmount: totalItemAmount,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount: newBalanceCredit-pgCharges,
+          runningAmount: newBalanceCredit-totalItemAmount,
           remarks: "Booking Amount Deducted from Your Account(Easebuzz).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
@@ -193,7 +193,7 @@ const easeBuzzResponce = async (req, res) => {
         if(pgCharges){
           await agentConfig.updateOne(
             { userId: allIds[0] },
-            { maxcreditLimit: newBalanceCredit-pgCharges }
+            { maxcreditLimit: newBalanceCredit-totalItemAmount }
           );
         }else{
           await agentConfig.updateOne(

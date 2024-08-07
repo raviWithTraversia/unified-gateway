@@ -1752,6 +1752,45 @@ const manuallyUpdateBookingStatus = async (req, res) => {
   }
 }
 
+const manuallyUpdateMultipleBookingStatus = async (req, res) => {
+  try {
+    const { bookingIds, status } = req.body;
+    if (!bookingIds || !status) {
+      return {
+        response: "Please provide required fields"
+      }
+    }
+    if(bookingIds.length < 0){
+      return {
+        response: "Please provide required fields"
+      }
+    }
+    for(let bId of bookingIds){
+      let getBooking = await bookingdetails.findOne({bookingId:bId});
+      if(!getBooking){
+        return {
+          response: "booking not found",
+          msges: `No booking Found for this ${bId} BookingId.`
+        }
+      }else{
+        await bookingdetails.findByIdAndUpdate(getBooking._id, { bookingStatus: status });
+      }
+    }
+    
+    // if (!getBooking) {
+    //   return {
+    //     response: "No booking Found for this BookingId."
+    //   }
+    // }
+    
+    return {
+      response: "Booking Status Updated Successfully."
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 const SendCardOnMail=async(req,res)=>{
   try{
     const {companyId,htmlData,email,subject,cartId,status}=req.body;
@@ -1827,5 +1866,6 @@ module.exports = {
   manuallyUpdateBookingStatus,
   SendCardOnMail,
   UpdateAdvanceMarkup,
-  getPendingBooking
+  getPendingBooking,
+  manuallyUpdateMultipleBookingStatus
 }

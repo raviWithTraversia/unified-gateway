@@ -262,6 +262,8 @@ const payuSuccess = async (req, res) => {
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: totalItemAmount,
+          deal:gtTsAdDnt?.ldgrdiscount,
+          tds:gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",

@@ -362,13 +362,13 @@ const transactionList = async (req, res) => {
         let transactions = [];
         if(transtns.length>0){
             for(let tr of transtns){
-                let paymentGateway = '';
+                let pGateway = '';
                 const gateway = tr?.paymentGateway?.toLowerCase();
 
                 if (gateway === 'payu') {
-                paymentGateway = 'PYU';
+                    pGateway = 'PYU';
                 } else if (gateway === 'easebuzz') {
-                paymentGateway = 'EBZ';
+                    pGateway = 'EBZ';
                 }
                 let obj1 = {
                     _id: tr._id,
@@ -413,7 +413,7 @@ const transactionList = async (req, res) => {
                     creationDate: tr?.creationDate,
                     createdAt: tr?.createdAt,
                     updatedAt: tr?.updatedAt,
-                    ACC_ALIAS: paymentGateway,
+                    ACC_ALIAS: pGateway,
                     bookingdetails:tr?.bookingdetails,
                     userdetails: tr?.userdetails
                 };

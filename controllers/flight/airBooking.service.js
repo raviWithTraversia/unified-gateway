@@ -634,7 +634,7 @@ const KafilaFun = async (
       // Deduct balance from user configuration and update in DB
       const newBalance = maxCreditLimit - totalSSRWithCalculationPrice;
       await agentConfig.updateOne(
-        { userId: getuserDetails._id },
+        { userId: allIds[0] },
         { maxcreditLimit: newBalance }
       );
 

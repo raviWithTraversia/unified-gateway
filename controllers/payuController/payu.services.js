@@ -13,7 +13,7 @@ const BookingTemp = require("../../models/booking/BookingTemp");
 const { Config } = require("../../configs/config");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
-const { createLeadger,getTdsAndDsicount } = require("../commonFunctions/common.function");
+const { createLeadger,getTdsAndDsicount,priceRoundOffNumberValues,recieveDI } = require("../commonFunctions/common.function");
 
 const payu = async (req, res) => {
   try {
@@ -197,9 +197,15 @@ const payuSuccess = async (req, res) => {
         }
 
         let getconfigAmount; // Declare getconfigAmount outside of the if block
+        const companieIds = await UserModel.findById(getuserDetails._id);
+
+        const getAllComapnies = await UserModel.find({company_ID:companieIds.company_ID}).populate("roleId");
+        let allIds = getAllComapnies
+          .filter(item => item.roleId.name === "Agency")
+          .map(item => item._id);
 
         const getAgentConfigForUpdateagain = await agentConfig.findOne({
-          userId: getuserDetails._id,
+          userId: allIds[0],
         });
 
         if (getAgentConfigForUpdateagain) {
@@ -229,14 +235,14 @@ const payuSuccess = async (req, res) => {
 
         let itemAmount = 0;
         await agentConfig.updateOne(
-          { userId: getuserDetails._id },
+          { userId: allIds[0] },
           { maxcreditLimit: newBalanceCredit }
         );
 
         let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
         console.log(gtTsAdDnt,"payu123");
         await ledger.create({
-          userId: getuserDetails._id,
+          userId: allIds[0],//getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: totalItemAmount,
@@ -252,7 +258,7 @@ const payuSuccess = async (req, res) => {
         });
 
         await ledger.create({
-          userId: getuserDetails._id,
+          userId: allIds[0],//getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: udf3,
@@ -265,7 +271,7 @@ const payuSuccess = async (req, res) => {
           cartId: udf1,
         });
         await agentConfig.updateOne(
-          { userId: getuserDetails._id },
+          { userId: allIds[0] },
           { maxcreditLimit: newBalanceCredit-udf3 }
         );
 
@@ -550,16 +556,30 @@ const payuSuccess = async (req, res) => {
 
 const payuWalletResponceSuccess = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1,udf2,udf3, amount,PG_TYPE } = req.body; 
-        // console.log(req.body,"req")
+    const { status, txnid, productinfo, udf1,udf2,udf3, amount,PG_TYPE} = req.body; 
+        console.log(req.body,"req")
+        console.log("jksdsds");
+        //productinfo = product udf3= pgcharges;
     if (status === "success") {
       const userData = await User.findOne({ company_ID: udf1 }).populate({
           path: 'roleId',
           match: { name: 'Agency' },
         });
 
-        
-
+      const findUser = await User.findById(userData._id);
+      const configData = await agentConfig.findOne({ userId:userData._id }).populate('diSetupIds').populate({
+        path: 'diSetupIds',
+        populate: {
+          path: 'diSetupIds', // If diSetupIds contains another reference
+          model: 'diSetup'
+        }
+      });
+      console.log(configData,"configData");
+      // const doerId = req.user._id;
+      const loginUser = configData.userId;
+      console.log(loginUser,"loginUser");
+      let DIdata = await recieveDI(configData, findUser, productinfo, udf2, loginUser);
+      console.log(DIdata,"DIdata");
       if (userData) {   
         const getAgentConfigForUpdate = await agentConfig.findOne({
           userId: userData._id,
@@ -567,7 +587,7 @@ const payuWalletResponceSuccess = async (req, res) => {
         const maxCreditAmount = getAgentConfigForUpdate?.maxcreditLimit ?? 0;
         const newBalanceAmount = maxCreditAmount + Number(amount);
        
-   await agentConfig.findOneAndUpdate(
+        await agentConfig.findOneAndUpdate(
           { userId: userData._id },
           { maxcreditLimit: newBalanceAmount },
           {new:true}
@@ -604,6 +624,53 @@ const payuWalletResponceSuccess = async (req, res) => {
           {new:true}
 
         );
+        console.log("hjdsdh")
+        if(DIdata !=null || DIdata != 0){
+          let tdsAmount = parseInt(DIdata) * (5/100);
+          if(tdsAmount != 0){
+            console.log("hjdsdh12");
+            const findUser = await User.findById(userData._id);
+            console.log(findUser,"findUser");
+            const configData = await agentConfig.findOne({ userId:userData._id });
+            console.log(configData,"configData");
+            if (!configData) {
+              return {
+                response: 'User not found'
+              }
+            }
+            if (productinfo === "Rail") {
+              if (configData?.maxcreditLimit < amount) {
+                return { response: "Insufficient Balance" }
+              }
+              configData.maxRailCredit -= tdsAmount;
+              runningAmount = configData.maxRailCredit
+            }
+            if (productinfo === "Flight") {
+              if (configData?.maxcreditLimit < amount) {
+                return { response: "Insufficient Balance" }
+              }
+              configData.maxcreditLimit -= tdsAmount;
+              runningAmount = configData.maxcreditLimit
+            }
+            console.log(runningAmount,"runningAmount")
+            await configData.save();
+            const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+            console.log(runningAmount,"runningAmount")
+            await ledger.create({
+              userId: findUser._id,
+              companyId: findUser.company_ID,
+              ledgerId: ledgerId,
+              transactionAmount: tdsAmount,
+              currencyType: "INR",
+              fop: "DEBIT",
+              transactionType: "DEBIT",
+              runningAmount,
+              remarks: `TDS against ${tdsAmount} DI deposit.`,
+              transactionBy: loginUser,
+              product
+            });
+          }
+        }
 
         await transaction.create({
           userId: userData._id,

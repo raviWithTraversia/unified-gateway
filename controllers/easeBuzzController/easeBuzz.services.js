@@ -121,9 +121,15 @@ const easeBuzzResponce = async (req, res) => {
         }
 
         let getconfigAmount; // Declare getconfigAmount outside of the if block
+        const companieIds = await UserModel.findById(getuserDetails._id);
+
+        const getAllComapnies = await UserModel.find({company_ID:companieIds.company_ID}).populate("roleId");
+        let allIds = getAllComapnies
+          .filter(item => item.roleId.name === "Agency")
+          .map(item => item._id);
 
         const getAgentConfigForUpdateagain = await agentConfig.findOne({
-          userId: getuserDetails._id,
+          userId: allIds[0],
         });
 
         if (getAgentConfigForUpdateagain) {
@@ -155,7 +161,7 @@ const easeBuzzResponce = async (req, res) => {
         let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
         console.log("jkss2");
         await ledger.create({
-          userId: getuserDetails._id,
+          userId: allIds[0],//getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: totalItemAmount,
@@ -171,7 +177,7 @@ const easeBuzzResponce = async (req, res) => {
         });
 
         await ledger.create({
-          userId: getuserDetails._id,
+          userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: pgCharges,
@@ -186,12 +192,12 @@ const easeBuzzResponce = async (req, res) => {
         console.log("jkss1");
         if(pgCharges){
           await agentConfig.updateOne(
-            { userId: getuserDetails._id },
+            { userId: allIds[0] },
             { maxcreditLimit: newBalanceCredit-pgCharges }
           );
         }else{
           await agentConfig.updateOne(
-            { userId: getuserDetails._id },
+            { userId: allIds[0] },
             { maxcreditLimit: newBalanceCredit }
           );
         }

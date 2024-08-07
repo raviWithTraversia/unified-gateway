@@ -362,6 +362,14 @@ const transactionList = async (req, res) => {
         let transactions = [];
         if(transtns.length>0){
             for(let tr of transtns){
+                let paymentGateway = '';
+                const gateway = tr?.paymentGateway?.toLowerCase();
+
+                if (gateway === 'payu') {
+                paymentGateway = 'PYU';
+                } else if (gateway === 'easebuzz') {
+                paymentGateway = 'EBZ';
+                }
                 let obj1 = {
                     _id: tr._id,
                     userId: tr?.userId,
@@ -405,7 +413,7 @@ const transactionList = async (req, res) => {
                     creationDate: tr?.creationDate,
                     createdAt: tr?.createdAt,
                     updatedAt: tr?.updatedAt,
-                    ACC_ALIAS: (tr?.paymentGateway).toLowerCase() == "payu" ? "PYU" : (tr?.paymentGateway).toLowerCase() =="easebuzz" ? "EBZ":"" ,
+                    ACC_ALIAS: paymentGateway,
                     bookingdetails:tr?.bookingdetails,
                     userdetails: tr?.userdetails
                 };

@@ -80,6 +80,7 @@ const getAllBooking = async (req, res) => {
   if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency" ||checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual") {
 
     let filter = {  };
+    console.log(typeof(agencyId),"hshds")
     if (agencyId !== undefined && agencyId !== '') {
       filter.AgencyId =agencyId;
     }
@@ -254,14 +255,16 @@ console.log('1st')
         data: { bookingList: filteredBookingData.sort((a, b) => new Date(b.bookingDetails.bookingDateTime) - new Date(a.bookingDetails.bookingDateTime)), statusCounts: statusCounts }
       };
     }
-  } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC" || checkUserIdExist?.company_ID?.type === "TMC") {
+    //|| checkUserIdExist?.company_ID?.type === "TMC"
+  } else if (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "TMC"  && checkUserIdExist?.roleId?.type == "Default" ||  checkUserIdExist?.roleId?.type == "Manual" && checkUserIdExist?.company_ID == new ObjectId("6555f84c991eaa63cb171a9f")) {
 
     let filter = {};
     if (agencyId !== undefined && agencyId !== "") {
-      filter.userId={}
-      filter.userId={$in:agencyId}
+      // filter.userId={}
+      // let allagencyId = agencyId.map(id => new ObjectId(id));
+      // filter.AgencyId={$in:allagencyId}
      
-      console.log(filter.userId)
+      // console.log(filter.AgencyId)
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {

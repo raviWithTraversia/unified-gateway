@@ -668,8 +668,8 @@ const payuWalletResponceSuccess = async (req, res) => {
               transactionType: "DEBIT",
               runningAmount,
               remarks: `TDS against ${tdsAmount} DI deposit.`,
-              transactionBy: loginUser,
-              product
+              transactionBy: userData._id,
+              productinfo
             });
           }
         }

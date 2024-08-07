@@ -644,7 +644,7 @@ const KafilaFun = async (
       
       // Create ledger entry
       await ledger.create({
-        userId: getuserDetails._id,
+        userId: allIds[0],
         companyId: getuserDetails.company_ID._id,
         ledgerId: ledgerId,
         transactionAmount: totalSSRWithCalculationPrice,

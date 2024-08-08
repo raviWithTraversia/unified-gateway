@@ -610,7 +610,12 @@ const KafilaFun = async (
       apiResponse.GstData.GstDetails.isAgentGst = GstData.GstDetails.isAgentGst;
       let apiResponseCommon = [];
      // apiResponseCommon.push(fSearchApiResponse.data);
-      
+      // if(apiResponse.IsFareUpdate == true){
+      //   return {
+      //     IsSucess: false,
+      //     response: "Sold out!",
+      //   };
+      // }
       for (let index = 0; index < apiResponse.SelectedFlight.length; index++) {
         let schedule = apiResponse.SelectedFlight[index];   
         //console.log(schedule, 'api responce');     

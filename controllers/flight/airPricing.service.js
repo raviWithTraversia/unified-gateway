@@ -51,7 +51,8 @@ const airPricing = async (req, res) => {
       "Pin": "110005",
       "State": "Delhi",
       "Type": "",
-      "Gstn": "07AAACD3853F1ZW"
+      "Gstn": "07AAACD3853F1ZW",
+      "isAgentGst":false
     }
   };
   const missingFields = fieldNames.filter(
@@ -605,6 +606,7 @@ const KafilaFun = async (
           
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;
+      apiResponse.GstData.GstDetails.isAgentGst = GstData.GstDetails.isAgentGst;
       let apiResponseCommon = [];
      // apiResponseCommon.push(fSearchApiResponse.data);
       

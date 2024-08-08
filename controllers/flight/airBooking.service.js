@@ -741,6 +741,7 @@ const KafilaFun = async (
       }
       const createBooking = async (newItem) => {
         try {
+          console.log(newItem,"newItem");
           let bookingDetailsCreate = await BookingDetails.create(newItem);
 
           return {
@@ -900,7 +901,7 @@ const KafilaFun = async (
                 TraceId: Authentication?.TraceId,
               },
             };
-
+            console.log(newItem,"newItem12");
             return await createBooking(newItem); // Call function to create booking
           }
         })
@@ -952,6 +953,10 @@ const KafilaFun = async (
 
           const hitAPI = await Promise.all(
             ItineraryPriceCheckResponses.map(async (item) => {
+              let gstD = item.GstData;
+              console.log(gstD,"gstD12");
+              delete gstD.GstDetails.isAgentGst;
+              console.log(gstD,"djkds12")
               let requestDataFSearch = {
                 FareChkRes: {
                   Error: item.Error,
@@ -989,6 +994,7 @@ const KafilaFun = async (
                   responce: fSearchApiResponse?.data,
                 };
                 Logs(logData);
+                console.log(fSearchApiResponse,"fSearchApiResponse1")
                 if (fSearchApiResponse.data.Status == "failed" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
                   await BookingDetails.updateOne({
                     bookingId: item?.BookingId,
@@ -1098,7 +1104,7 @@ const KafilaFun = async (
 
                   await getpassengersPrefrence.save();
                 }
-
+                console.log("kdsjjkdsjs12")
                 if (
                   fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
                 ) {
@@ -1170,6 +1176,7 @@ const KafilaFun = async (
                   responce:error ,
                 };
                 Logs(logDataCatch);
+                console.log("skdjdskjds1323")
                 await BookingDetails.updateOne(
                   {
                     bookingId: item?.BookingId,
@@ -1269,14 +1276,14 @@ const kafilaFunOnlinePayment = async (
   const createBooking = async (newItem) => {
     try {
       let bookingDetailsCreate = await BookingDetails.create(newItem);
-
+      console.log(bookingDetailsCreate,"bookingDetailsCreate1")
       return {
         msg: "Booking created successfully",
         bookingId: newItem.bookingId,
         bid: bookingDetailsCreate._id,
       };
     } catch (error) {
-      // console.error('Error creating booking:', error);
+      console.error('Error creating booking:', error);
       return {
         IsSucess: false,
         response: "Error creating booking:",

@@ -24,7 +24,8 @@ const airPricing = async (req, res) => {
     Airlines,
     FareFamily,
     RefundableOnly,
-    Itinerary
+    Itinerary,
+    GstDetails
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -40,10 +41,32 @@ const airPricing = async (req, res) => {
     "RefundableOnly",
     "Itinerary"
   ];
+  let GstData = {
+    "IsGst": false,
+    GstDetails:{
+      "Name": "Kafila Hospitality and Travels Pvt Ltd",
+      "Address": "10185-c, Arya samaj Road, Karolbagh",
+      "Email": "admin@kafilatravel.in",
+      "Mobile": "9899911993",
+      "Pin": "110005",
+      "State": "Delhi",
+      "Type": "",
+      "Gstn": "07AAACD3853F1ZW"
+    }
+  };
   const missingFields = fieldNames.filter(
     (fieldName) =>
       req.body[fieldName] === null || req.body[fieldName] === undefined
   );
+
+  if(GstDetails){
+    GstData = {
+      IsGst: true,
+      GstDetails: GstDetails
+    }
+  }else{
+    GstData = GstData;
+  }
 
   if (missingFields.length > 0) {
     const missingFieldsString = missingFields.join(", ");
@@ -91,7 +114,8 @@ const airPricing = async (req, res) => {
       Airlines,
       FareFamily,
       RefundableOnly,
-      Itinerary
+      Itinerary,
+      GstData
     );
   };
  // console.log("============>>>MMMMMMMMMM", result , "<<<============nnnnnnnnnnnnnnnnnnnn")
@@ -132,7 +156,8 @@ async function handleflight(
   Airlines,
   FareFamily,
   RefundableOnly,
-  Itinerary
+  Itinerary,
+  GstData
 ) {
   // International
   // Check LIVE and TEST
@@ -209,7 +234,8 @@ async function handleflight(
               RefundableOnly,
               supplier.supplierCodeId.supplierCode,
               Itinerary,
-              airportDetails
+              airportDetails,
+              GstData
             );
 
           default:
@@ -288,7 +314,8 @@ const KafilaFun = async (
   RefundableOnly,
   Provider,
   Itinerary,
-  airportDetails
+  airportDetails,
+  GstData
 ) => {
  
   let createTokenUrl;
@@ -531,19 +558,7 @@ const KafilaFun = async (
         },
       },   
       SelectedFlights: [Itinerary[0].apiItinerary],
-    GstData: {
-        IsGst: false,
-        GstDetails: {
-            Name: "Kafila Hospitality and Travels Pvt Ltd",
-            Address: "10185-c, Arya samaj Road, Karolbagh",
-            Email: "admin@kafilatravel.in",
-            Mobile: "9899911993",
-            Pin: "110005",
-            State: "Delhi",
-            Type: "",
-            Gstn: "07AAACD3853F1ZW"
-        }
-    }
+      GstData: GstData
     };
     // return {
     //   IsSucess: true,
@@ -665,53 +680,52 @@ const KafilaFun = async (
                   ],
                   AirPenalty: [],
                   CommercialBreakup: [],
-                AgentMarkupBreakup: {
-                  BookingFee: 0.0,
-                  Basic: 0.0,
-                  Tax: 0.0,                  
-              },
+                    AgentMarkupBreakup: {
+                      BookingFee: 0.0,
+                      Basic: 0.0,
+                      Tax: 0.0,                  
+                  },
                   Key: null,
                   OI:schedule.Fare.OI
                 }
               : {},
-            PaxDetail.Child > 0
-              ? {
-                  PassengerType: "CHD",
-                  NoOfPassenger: PaxDetail.Child,
-                  Tax: schedule.Fare.Chd.Taxes,
-                  BaseFare: schedule.Fare.Chd.Basic,
-                  // MarkUp: 0.0,
-                  // TaxMarkUp: 0.0,
-                  // Commission: 0.0,
-                  // Fees: 0.0,
-                  // BookingFees: 0.0,
-                  // CancellationFees: 0.0,
-                  // RescheduleFees: 0.0,
-                  // AdminFees: 0.0,
-                  // TDS: 0.0,
-                  // gst: 0.0,
-                  // ServiceFees: 0.0,
-                  // Discount: 0.0,
-                  // BaseCharges: 0.0,
-                  TaxBreakup: [
-                    {
-                      TaxType: "YQ",
-                      Amount: schedule.Fare.Chd.Yq,
-                    },
-                  ],
-                  AirPenalty: [],
-                  CommercialBreakup: [],
+            PaxDetail.Child > 0 ? 
+              {
+                PassengerType: "CHD",
+                NoOfPassenger: PaxDetail.Child,
+                Tax: schedule.Fare.Chd.Taxes,
+                BaseFare: schedule.Fare.Chd.Basic,
+                // MarkUp: 0.0,
+                // TaxMarkUp: 0.0,
+                // Commission: 0.0,
+                // Fees: 0.0,
+                // BookingFees: 0.0,
+                // CancellationFees: 0.0,
+                // RescheduleFees: 0.0,
+                // AdminFees: 0.0,
+                // TDS: 0.0,
+                // gst: 0.0,
+                // ServiceFees: 0.0,
+                // Discount: 0.0,
+                // BaseCharges: 0.0,
+                TaxBreakup: [
+                  {
+                    TaxType: "YQ",
+                    Amount: schedule.Fare.Chd.Yq,
+                  },
+                ],
+                AirPenalty: [],
+                CommercialBreakup: [],
                 AgentMarkupBreakup: {
                   BookingFee: 0.0,
                   Basic: 0.0,
                   Tax: 0.0,                  
-              },
-                  Key: null,
-                  OI:schedule.Fare.OI
-                }
-              : {},
-            PaxDetail.Infants > 0
-              ? {
+                },
+                Key: null,
+                OI:schedule.Fare.OI
+              } : {},
+              PaxDetail.Infants > 0 ? 
+                {
                   PassengerType: "INF",
                   NoOfPassenger: PaxDetail.Infants,
                   Tax: schedule.Fare.Inf.Taxes,
@@ -737,15 +751,14 @@ const KafilaFun = async (
                   ],
                   AirPenalty: [],
                   CommercialBreakup: [],
-                AgentMarkupBreakup: {
-                  BookingFee: 0.0,
-                  Basic: 0.0,
-                  Tax: 0.0,                  
-              },
+                  AgentMarkupBreakup: {
+                    BookingFee: 0.0,
+                    Basic: 0.0,
+                    Tax: 0.0,                  
+                  },
                   Key: null,
                   OI:schedule.Fare.OI
-                }
-              : {},
+                } : {},
           ],
           Sectors: schedule.Itinerary.map((sector,indexcount) => ({
             IsConnect: false,
@@ -809,32 +822,20 @@ const KafilaFun = async (
             },
             OI:sector.OI
           })),
-          FareDifference:apiResponse.FareBreakup,
-          Error:apiResponse.Error,
-          IsFareUpdate: apiResponse.IsFareUpdate,
-          IsAncl: apiResponse.IsAncl,
-          Param:apiResponse.Param,
-          GstData: {
-            IsGst: false,
-            GstDetails: {
-                Name: "Kafila Hospitality and Travels Pvt Ltd",
-                Address: "10185-c, Arya samaj Road, Karolbagh",
-                Email: "admin@kafilatravel.in",
-                Mobile: "9899911993",
-                Pin: "110005",
-                State: "Delhi",
-                Type: "",
-                Gstn: "07AAACD3853F1ZW"
-            }
-        },
-        SelectedFlight:apiResponse.SelectedFlight[0],
-          HostTokens: null,
-          Key: "",
-          SearchID: "",
-          TRCNumber: null,
-          TraceId: Authentication.TraceId,
-          OI:schedule.OI ?? null
-        });
+            FareDifference:apiResponse.FareBreakup,
+            Error:apiResponse.Error,
+            IsFareUpdate: apiResponse.IsFareUpdate,
+            IsAncl: apiResponse.IsAncl,
+            Param:apiResponse.Param,
+            GstData: apiResponse.GstData,
+            SelectedFlight:apiResponse.SelectedFlight[0],
+            HostTokens: null,
+            Key: "",
+            SearchID: "",
+            TRCNumber: null,
+            TraceId: Authentication.TraceId,
+            OI:schedule.OI ?? null
+          });
       }
      // apiResponseCommon.push("<<<<<<<=============>>>>>>>>>>>>>>>");
    //   apiResponseCommon.push(fSearchApiResponse.data);

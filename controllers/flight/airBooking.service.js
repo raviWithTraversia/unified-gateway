@@ -996,7 +996,8 @@ const KafilaFun = async (
                 Logs(logData);
                 console.log(fSearchApiResponse,"fSearchApiResponse1")
                 let fSearchApiResponseStatus = fSearchApiResponse.data.Status;
-                if (fSearchApiResponseStatus.toLowerCase() == "failed" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus.toUpperCase() == "FAILED") {
+                console.log(fSearchApiResponseStatus,"fSearchApiResponseStatus")
+                if (fSearchApiResponseStatus?.toLowerCase() == "failed" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() == "FAILED") {
                   await BookingDetails.updateOne({
                     bookingId: item?.BookingId,
                     "itinerary.IndexNumber": item.IndexNumber,
@@ -1107,7 +1108,7 @@ const KafilaFun = async (
                 }
                 console.log("kdsjjkdsjs12")
                 if (
-                  fSearchApiResponse.data.BookingInfo.CurrentStatus.toUpperCase() === "FAILED"
+                  fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() === "FAILED"
                 ) {
                   const getAgentConfigForUpdate = await agentConfig.findOne({
                     userId: getuserDetails._id,

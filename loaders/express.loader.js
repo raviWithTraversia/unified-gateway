@@ -8,6 +8,7 @@ class ExpressLoader {
         // Middleware that transforms the raw string of req.body into json
         app.use(express.json());
 
+        app.use(express.urlencoded({ limit: '100mb', extended: true }))
         // parses incoming requests with JSON payloads
         app.use(cors());
         app.options("*", cors());

@@ -78,6 +78,15 @@ agency_config_route.patch(
     auth,
     agencyConfigurationController.updateAgentConfiguration
 );
+
+//updtate sms balance //
+
+agency_config_route.patch(
+  '/agentConfiguration/updateAgentsmsBalance',
+  auth,
+  agencyConfigurationController.updateSmsBalance
+);
+
 agency_config_route.get(
     '/agentConfiguration/getAgentConfig',
     auth,

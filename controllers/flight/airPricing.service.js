@@ -41,17 +41,18 @@ const airPricing = async (req, res) => {
     "RefundableOnly",
     "Itinerary"
   ];
+  // let GstData = {};
   let GstData = {
     "IsGst": false,
     GstDetails:{
-      "Name": "Kafila Hospitality and Travels Pvt Ltd",
-      "Address": "10185-c, Arya samaj Road, Karolbagh",
-      "Email": "admin@kafilatravel.in",
-      "Mobile": "9899911993",
-      "Pin": "110005",
-      "State": "Delhi",
+      "Name": "",
+      "Address": "",
+      "Email": "",
+      "Mobile": "",
+      "Pin": "",
+      "State": "",
       "Type": "",
-      "Gstn": "07AAACD3853F1ZW",
+      "Gstn": "",
       "isAgentGst":false
     }
   };

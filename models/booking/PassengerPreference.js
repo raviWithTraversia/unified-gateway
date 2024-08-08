@@ -21,7 +21,9 @@ const passengerPreferenceSchema = new mongoose.Schema({
     gstName: { type: String, default: null },
     gstmobile: { type: String, default: null },
     gstEmail: { type: String, default: null },
-    gstAddress: { type: String, default: null }
+    gstAddress: { type: String, default: null },
+    GSTState : {type: String, default:""},
+    GSTPinCode : {type: String, default:""}
   },
   PaxEmail: { type: String, default: null },
   PaxMobile: { type: String, default: null },

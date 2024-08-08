@@ -178,6 +178,8 @@ const bookingDetailsSchema = new mongoose.Schema({
     GSTPhoneNumber: { type: String, default: null },
     GSTAddress: { type: String, default: null },
     GSTStateCode: { type: String, default: null },
+    GSTState : {type: String, default:""},
+    GSTPinCode : {type: String, default:""}
   },
   itinerary: {
     UID: { type: String, default: null },

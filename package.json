@@ -1,7 +1,7 @@
 {
   "name": "kafila",
   "version": "1.0.0",
-  "description": "",
+  "description": "B2B travel portal.",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js"
@@ -44,7 +44,7 @@
     "xmldom": "^0.6.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
+    "nodemon": "^3.1.4",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0"
   }

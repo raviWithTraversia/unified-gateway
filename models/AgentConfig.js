@@ -145,7 +145,11 @@ const agentConfigSchema = new mongoose.Schema({
   is_quote_without_price:{
     type: Boolean,
     default:false
-  }
+  },
+  smsBalance: {
+    type: Number,
+    default: 0
+  },
 }, { timestamps: true, });
 
 const AgentConfiguration = mongoose.model("AgentConfiguration", agentConfigSchema);

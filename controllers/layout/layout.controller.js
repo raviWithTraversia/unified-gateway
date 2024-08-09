@@ -126,9 +126,99 @@ const checkGstin = async (req,res) => {
   }
 }
 
+const checkAdhar = async (req,res) => {
+  try{
+    const result = await layoutService.checkAdhar(req,res);
+    console.log(result?.response)
+    if(result.response === "Data Fetch Sucessfully"){
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE  
+    )
+    }else if(result.response === "Some Error in 3rd party api"){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      )
+    }
+    else if(result.response === "GST mber is required"){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      )
+    }
+    else{
+      apiErrorres(
+        res,
+        errorResponse.NOT_AVALIABLE,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      )
+    }
+  }catch(error){
+    apiErrorres(
+      res,
+      error,
+      ServerStatusCode.SERVER_ERROR,
+      true 
+  )
+  }
+}
 
+const AdharVerify = async (req,res) => {
+  try{
+    const result = await layoutService.AdharVerify(req,res);
+    console.log(result?.response)
+    if(result.response === "Data Fetch Sucessfully"){
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE  
+    )
+    }else if(result.response === "Some Error in 3rd party api"||result.response === "id and otp is required"){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      )
+    }
+    else if(result.response === "GST mber is required"){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      )
+    }
+    else{
+      apiErrorres(
+        res,
+        errorResponse.NOT_AVALIABLE,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      )
+    }
+  }catch(error){
+    apiErrorres(
+      res,
+      error,
+      ServerStatusCode.SERVER_ERROR,
+      true 
+  )
+  }
+}
 module.exports = {
     dashBoardCount,
     checkPanCard,
-    checkGstin
+    checkGstin,
+    checkAdhar,
+    AdharVerify
 }

@@ -24,6 +24,8 @@ layout_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });
 
+layout_route.post('/adhar/verify',layoutController.checkAdhar)
+layout_route.post('/adhar/verify/kyc',layoutController.AdharVerify)
 
 
 // PanCard

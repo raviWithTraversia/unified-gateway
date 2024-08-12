@@ -13,7 +13,12 @@ const BookingTemp = require("../../models/booking/BookingTemp");
 const { Config } = require("../../configs/config");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
-const { createLeadger,getTdsAndDsicount,priceRoundOffNumberValues,recieveDI } = require("../commonFunctions/common.function");
+const {
+  createLeadger,
+  getTdsAndDsicount,
+  priceRoundOffNumberValues,
+  recieveDI,
+} = require("../commonFunctions/common.function");
 
 const payu = async (req, res) => {
   try {
@@ -27,7 +32,7 @@ const payu = async (req, res) => {
       productinfo,
       cartId,
       pgCharges,
-      normalAmount
+      normalAmount,
     } = req.body;
 
     if (
@@ -38,7 +43,7 @@ const payu = async (req, res) => {
         !amount ||
         !productinfo ||
         !phone,
-        !cartId)
+      !cartId)
     ) {
       return {
         response: "All field are required",
@@ -53,24 +58,34 @@ const payu = async (req, res) => {
     // const email = 'test@example.com';
     // const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
 
-    const key = Config.MODE == "TEST" ? Config.PAYMENT_CREDENTIALS_PAYU.TEST.key : Config.PAYMENT_CREDENTIALS_PAYU.LIVE.key;
+    const key =
+      Config.MODE == "TEST"
+        ? Config.PAYMENT_CREDENTIALS_PAYU.TEST.key
+        : Config.PAYMENT_CREDENTIALS_PAYU.LIVE.key;
     const txnid = uuidv4();
     const amountres = amount;
     const productinfores = productinfo;
     const firstnameres = firstName;
     const emailres = email;
     const phoneres = phone;
-    const surl = `${Config[Config.MODE].baseURLBackend}/api/paymentGateway/success`;
-    const furl = `${Config[Config.MODE].baseURLBackend}/api/paymentGateway/failed`;
-     
-    const salt = Config.MODE == "TEST" ? Config.PAYMENT_CREDENTIALS_PAYU.TEST.salt : Config.PAYMENT_CREDENTIALS_PAYU.LIVE.salt;
+    const surl = `${
+      Config[Config.MODE].baseURLBackend
+    }/api/paymentGateway/success`;
+    const furl = `${
+      Config[Config.MODE].baseURLBackend
+    }/api/paymentGateway/failed`;
+
+    const salt =
+      Config.MODE == "TEST"
+        ? Config.PAYMENT_CREDENTIALS_PAYU.TEST.salt
+        : Config.PAYMENT_CREDENTIALS_PAYU.LIVE.salt;
     const cartIdres = cartId;
-     
+
     // Concatenate the transaction details
     const hashString = `${key}|${txnid}|${amountres}|${productinfores}|${firstnameres}|${emailres}|${cartIdres}|${normalAmount}|${pgCharges}||||||||${salt}`;
 
     // Calculate the SHA-512 hash
-    const hash = crypto.createHash("sha512").update(hashString).digest("hex");    
+    const hash = crypto.createHash("sha512").update(hashString).digest("hex");
     payDetails = {
       key: key,
       txnid: txnid,
@@ -84,12 +99,10 @@ const payu = async (req, res) => {
       furl: furl,
       hash: hash,
       udf1: cartIdres,
-      udf2:normalAmount,
-      udf3:pgCharges
-    }; 
-    
-    
-    
+      udf2: normalAmount,
+      udf3: pgCharges,
+    };
+
     // Add the hash to payment details
     // check companyId exist or not
     // const checkExistCompany = await Company.findById(companyId);
@@ -153,8 +166,19 @@ const payu = async (req, res) => {
 
 const payuSuccess = async (req, res) => {
   try {
-    
-    const { status, txnid, productinfo, udf1,udf2,udf3,amount,payment_source,bank_ref_num,PG_TYPE,cardCategory } = req.body;    
+    const {
+      status,
+      txnid,
+      productinfo,
+      udf1,
+      udf2,
+      udf3,
+      amount,
+      payment_source,
+      bank_ref_num,
+      PG_TYPE,
+      cardCategory,
+    } = req.body;
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
@@ -199,10 +223,12 @@ const payuSuccess = async (req, res) => {
         let getconfigAmount; // Declare getconfigAmount outside of the if block
         const companieIds = await UserModel.findById(getuserDetails._id);
 
-        const getAllComapnies = await UserModel.find({company_ID:companieIds.company_ID}).populate("roleId");
+        const getAllComapnies = await UserModel.find({
+          company_ID: companieIds.company_ID,
+        }).populate("roleId");
         let allIds = getAllComapnies
-          .filter(item => item.roleId.name === "Agency")
-          .map(item => item._id);
+          .filter((item) => item.roleId.name === "Agency")
+          .map((item) => item._id);
 
         const getAgentConfigForUpdateagain = await agentConfig.findOne({
           userId: allIds[0],
@@ -215,23 +241,33 @@ const payuSuccess = async (req, res) => {
         }
         //return getconfigAmount;
 
-
         let totalItemAmount = 0; // Initialize totalItemAmount outside the reduce function
 
-        const totalsAmount = ItineraryPriceCheckResponses.reduce((acc, curr) => {
-          // Add current item prices to the accumulator
-          acc.offeredPrice += curr.offeredPrice;
-          acc.totalMealPrice += curr.totalMealPrice;
-          acc.totalBaggagePrice += curr.totalBaggagePrice;
-          acc.totalSeatPrice += curr.totalSeatPrice;
+        const totalsAmount = ItineraryPriceCheckResponses.reduce(
+          (acc, curr) => {
+            // Add current item prices to the accumulator
+            acc.offeredPrice += curr.offeredPrice;
+            acc.totalMealPrice += curr.totalMealPrice;
+            acc.totalBaggagePrice += curr.totalBaggagePrice;
+            acc.totalSeatPrice += curr.totalSeatPrice;
 
-          return acc; // Return accumulator
-        }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0 });
+            return acc; // Return accumulator
+          },
+          {
+            offeredPrice: 0,
+            totalMealPrice: 0,
+            totalBaggagePrice: 0,
+            totalSeatPrice: 0,
+          }
+        );
         // Calculate totalItemAmount by summing up all prices
-        totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice;
+        totalItemAmount =
+          totalsAmount.offeredPrice +
+          totalsAmount.totalMealPrice +
+          totalsAmount.totalBaggagePrice +
+          totalsAmount.totalSeatPrice;
 
-        const newBalanceCredit =
-          getconfigAmount + totalItemAmount;
+        const newBalanceCredit = getconfigAmount + totalItemAmount;
 
         let itemAmount = 0;
         await agentConfig.updateOne(
@@ -240,14 +276,14 @@ const payuSuccess = async (req, res) => {
         );
 
         let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
-        console.log(gtTsAdDnt,"payu123");
+        console.log(gtTsAdDnt, "payu123");
         await ledger.create({
-          userId: allIds[0],//getuserDetails._id,
+          userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: totalItemAmount,
-          deal:gtTsAdDnt?.ldgrdiscount,
-          tds:gtTsAdDnt?.ldgrtds,
+          deal: gtTsAdDnt?.ldgrdiscount,
+          tds: gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "CREDIT",
@@ -258,65 +294,111 @@ const payuSuccess = async (req, res) => {
         });
 
         await ledger.create({
-          userId: allIds[0],//getuserDetails._id,
+          userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: totalItemAmount,
-          deal:gtTsAdDnt?.ldgrdiscount,
-          tds:gtTsAdDnt?.ldgrtds,
+          deal: gtTsAdDnt?.ldgrdiscount,
+          tds: gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount: newBalanceCredit-totalItemAmount,
+          runningAmount: newBalanceCredit - totalItemAmount,
           remarks: "Booking Amount Deducted from Your Account(PayU).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
         await agentConfig.updateOne(
           { userId: allIds[0] },
-          { maxcreditLimit: newBalanceCredit-totalItemAmount }
+          { maxcreditLimit: newBalanceCredit - totalItemAmount }
         );
 
         //const hitAPI = await Promise.all(
-        const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
-          let requestDataFSearch = {
-            FareChkRes: {
-              Error: item.Error,
-              IsFareUpdate: item.IsFareUpdate,
-              IsAncl: item.IsAncl,
-              Param: item.Param,
-              SelectedFlight: [item.SelectedFlight],
-              FareBreakup: item.FareDifference,
-              GstData: item.GstData,
-              Ancl: null,
-            },
-            PaxInfo: PassengerPreferences,
-          };
-
-          try {
-            let fSearchApiResponse = await axios.post(
-              flightSearchUrl,
-              requestDataFSearch,
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-            const logData = {
-              traceId: Authentication.TraceId,
-              companyId: Authentication.CompanyId,
-              userId: Authentication.UserId,
-              source: "Kafila",
-              type: "API Log",
-              BookingId: udf1,
-              product: "Flight",
-              logName: "Flight Search",
-              request: requestDataFSearch,
-              responce: fSearchApiResponse?.data,
+        const updatePromises = ItineraryPriceCheckResponses.map(
+          async (item) => {
+            let requestDataFSearch = {
+              FareChkRes: {
+                Error: item.Error,
+                IsFareUpdate: item.IsFareUpdate,
+                IsAncl: item.IsAncl,
+                Param: item.Param,
+                SelectedFlight: [item.SelectedFlight],
+                FareBreakup: item.FareDifference,
+                GstData: item.GstData,
+                Ancl: null,
+              },
+              PaxInfo: PassengerPreferences,
             };
-            Logs(logData);
-            if (fSearchApiResponse.data.Status == "failed" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
+
+            try {
+              let fSearchApiResponse = await axios.post(
+                flightSearchUrl,
+                requestDataFSearch,
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                }
+              );
+              const logData = {
+                traceId: Authentication.TraceId,
+                companyId: Authentication.CompanyId,
+                userId: Authentication.UserId,
+                source: "Kafila",
+                type: "API Log",
+                BookingId: udf1,
+                product: "Flight",
+                logName: "Flight Search",
+                request: requestDataFSearch,
+                responce: fSearchApiResponse?.data,
+              };
+              Logs(logData);
+              if (
+                fSearchApiResponse.data.Status == "failed" ||
+                fSearchApiResponse?.data?.IsError == true ||
+                fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"
+              ) {
+                await BookingDetails.updateOne(
+                  {
+                    bookingId: udf1,
+                    "itinerary.IndexNumber": item.IndexNumber,
+                  },
+                  {
+                    $set: {
+                      bookingStatus: "FAILED",
+                      bookingRemarks:
+                        fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ==
+                        "FAILED"
+                          ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
+                          : fSearchApiResponse?.data?.ErrorMessage ||
+                            error.message,
+                    },
+                  }
+                );
+                return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
+              }
+
+              const bookingResponce = {
+                CartId: item.BookingId,
+                bookingResponce: {
+                  CurrentStatus:
+                    fSearchApiResponse.data.BookingInfo.CurrentStatus,
+                  BookingStatus:
+                    fSearchApiResponse.data.BookingInfo.BookingStatus,
+                  BookingRemark:
+                    fSearchApiResponse.data.BookingInfo.BookingRemark,
+                  BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
+                  providerBookingId:
+                    fSearchApiResponse.data.BookingInfo.BookingId,
+                  PNR: fSearchApiResponse.data.BookingInfo.APnr,
+                  Type: fSearchApiResponse.data.BookingInfo.GPnr,
+                  APnr: fSearchApiResponse.data.BookingInfo.APnr,
+                  GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+                },
+                itinerary: item,
+                PassengerPreferences: PassengerPreferences,
+                userDetails: getuserDetails,
+              };
               await BookingDetails.updateOne(
                 {
                   bookingId: udf1,
@@ -324,144 +406,116 @@ const payuSuccess = async (req, res) => {
                 },
                 {
                   $set: {
-                    bookingStatus: "FAILED",
-                    bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED" ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark : fSearchApiResponse?.data?.ErrorMessage || error.message,
+                    bookingStatus:
+                      fSearchApiResponse.data.BookingInfo.CurrentStatus,
+                    bookingRemarks:
+                      fSearchApiResponse.data.BookingInfo.BookingRemark,
+                    providerBookingId:
+                      fSearchApiResponse.data.BookingInfo.BookingId,
+                    PNR: fSearchApiResponse.data.BookingInfo.APnr,
+                    APnr: fSearchApiResponse.data.BookingInfo.APnr,
+                    GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+                    SalePurchase:
+                      fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails
+                        .Account,
                   },
                 }
               );
-              return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
-            }
 
-            const bookingResponce = {
-              CartId: item.BookingId,
-              bookingResponce: {
-                CurrentStatus:
-                  fSearchApiResponse.data.BookingInfo.CurrentStatus,
-                BookingStatus:
-                  fSearchApiResponse.data.BookingInfo.BookingStatus,
-                BookingRemark:
-                  fSearchApiResponse.data.BookingInfo.BookingRemark,
-                BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
-                providerBookingId:
-                  fSearchApiResponse.data.BookingInfo.BookingId,
-                PNR: fSearchApiResponse.data.BookingInfo.APnr,
-                Type: fSearchApiResponse.data.BookingInfo.GPnr,
-                APnr: fSearchApiResponse.data.BookingInfo.APnr,
-                GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
-              },
-              itinerary: item,
-              PassengerPreferences: PassengerPreferences,
-              userDetails: getuserDetails,
-            };
-            await BookingDetails.updateOne(
-              {
-                bookingId: udf1,
-                "itinerary.IndexNumber": item.IndexNumber,
-              },
-              {
-                $set: {
-                  bookingStatus:
-                    fSearchApiResponse.data.BookingInfo.CurrentStatus,
-                  bookingRemarks:
-                    fSearchApiResponse.data.BookingInfo.BookingRemark,
-                  providerBookingId:
-                    fSearchApiResponse.data.BookingInfo.BookingId,
-                  PNR: fSearchApiResponse.data.BookingInfo.APnr,
-                  APnr: fSearchApiResponse.data.BookingInfo.APnr,
-                  GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
-                  SalePurchase: fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails.Account,
-                },
+              const getpassengersPrefrence =
+                await passengerPreferenceModel.findOne({ bookingId: udf1 });
+
+              if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
+                await Promise.all(
+                  getpassengersPrefrence.Passengers.map(async (passenger) => {
+                    const apiPassenger =
+                      fSearchApiResponse.data.PaxInfo.Passengers.find(
+                        (p) =>
+                          p.FName === passenger.FName &&
+                          p.LName === passenger.LName
+                      );
+                    if (apiPassenger) {
+                      passenger.Optional.TicketNumber =
+                        apiPassenger.Optional.TicketNumber;
+                      //passenger.Status = "CONFIRMED";
+                    }
+                  })
+                );
+
+                await getpassengersPrefrence.save();
               }
-            );
 
-            const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: udf1 });
+              if (
+                fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
+              ) {
+                return `${fSearchApiResponse.data}-${fSearchApiResponse.data}`;
+              } else {
+                itemAmount +=
+                  item?.offeredPrice +
+                  item?.totalMealPrice +
+                  item?.totalBaggagePrice +
+                  item?.totalSeatPrice;
 
-            if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
-              await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
-                const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
-                if (apiPassenger) {
-                  passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
-                  //passenger.Status = "CONFIRMED";
+                // Transtion
+                // await transaction.updateOne(
+                //   { bookingId: item?.BookingId },
+                //   { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
+                //     trnsNo:txnid,
+                //     // payment_source:payment_source,
+                //     paymentMode:payment_source,
+                //     trnsType:PG_TYPE,
+                //     trnsBankRefNo:bank_ref_num,
+                //     cardType:cardCategory
+                //   }
+                // );
+                await transaction.create({
+                  userId: Authentication.UserId,
+                  bookingId: item?.BookingId,
+                  companyId: Authentication.CompanyId,
+                  trnsNo: txnid,
+                  trnsType: "DEBIT",
+                  // paymentMode: "Payu",
+                  paymentMode: PG_TYPE,
+                  paymentGateway: "PayU",
+                  trnsStatus: "success",
+                  transactionBy: Authentication.UserId,
+                  pgCharges: udf3,
+                  transactionAmount: udf2,
+                  statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
+                  trnsNo: txnid,
+                  trnsBankRefNo: bank_ref_num,
+                  cardType: cardCategory,
+                });
+              }
+              //return fSearchApiResponse.data;
+              const barcodeupdate = await updateBarcode2DByBookingId(
+                item?.BookingId,
+                PassengerPreferences,
+                item,
+                fSearchApiResponse.data.BookingInfo.APnr
+              );
+              if (barcodeupdate) {
+                return bookingResponce;
+              } else {
+                return bookingResponce;
+              }
+            } catch (error) {
+              await BookingDetails.updateOne(
+                {
+                  bookingId: item?.BookingId,
+                  "itinerary.IndexNumber": item.IndexNumber,
+                },
+                {
+                  $set: {
+                    bookingStatus: "FAILED",
+                    bookingRemarks: error.message,
+                  },
                 }
-              }));
-
-              await getpassengersPrefrence.save();
+              );
+              return error.message;
             }
-
-
-            if (
-              fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
-            ) {
-              return `${fSearchApiResponse.data}-${fSearchApiResponse.data}`;
-            } else {
-
-              itemAmount += item?.offeredPrice +
-                item?.totalMealPrice +
-                item?.totalBaggagePrice +
-                item?.totalSeatPrice;
-
-
-
-              // Transtion
-              // await transaction.updateOne(
-              //   { bookingId: item?.BookingId },
-              //   { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY", 
-              //     trnsNo:txnid,
-              //     // payment_source:payment_source,
-              //     paymentMode:payment_source,
-              //     trnsType:PG_TYPE,
-              //     trnsBankRefNo:bank_ref_num,
-              //     cardType:cardCategory
-              //   }
-              // );
-              await transaction.create({
-                userId: Authentication.UserId,
-                bookingId:item?.BookingId,
-                companyId: Authentication.CompanyId,
-                trnsNo: txnid,
-                trnsType: "DEBIT",
-                // paymentMode: "Payu",
-                paymentMode: PG_TYPE,
-                paymentGateway:"PayU",
-                trnsStatus: "success",
-                transactionBy: Authentication.UserId,
-                pgCharges:udf3,
-                transactionAmount:udf2,
-                statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY", 
-                trnsNo:txnid,
-                trnsBankRefNo:bank_ref_num,
-                cardType:cardCategory
-              });
-
-            }
-            //return fSearchApiResponse.data;
-            const barcodeupdate = await updateBarcode2DByBookingId(
-              item?.BookingId,
-              PassengerPreferences,
-              item,
-              fSearchApiResponse.data.BookingInfo.APnr
-            );
-            if (barcodeupdate) {
-              return bookingResponce;
-            } else {
-              return bookingResponce;
-            }
-          } catch (error) {
-            await BookingDetails.updateOne(
-              {
-                bookingId: item?.BookingId,
-                "itinerary.IndexNumber": item.IndexNumber,
-              },
-              {
-                $set: {
-                  bookingStatus: "FAILED",
-                  bookingRemarks: error.message,
-                },
-              }
-            );
-            return error.message;
           }
-        })
+        );
         //);
         const results = await Promise.all(updatePromises);
         let successHtmlCode = `<!DOCTYPE html>
@@ -519,7 +573,9 @@ const payuSuccess = async (req, res) => {
         <h1 class="success-txt">Payment Successful!</h1>
         <p class="success-txt">Your payment has been successfully processed.</p>
         <p>Thank you for your purchase.</p>
-        <a href="${Config[Config.MODE].baseURL}/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+        <a href="${
+          Config[Config.MODE].baseURL
+        }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
       </div>
     </body>
     </html>`;
@@ -558,42 +614,52 @@ const payuSuccess = async (req, res) => {
 
 const payuWalletResponceSuccess = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1,udf2,udf3, amount,PG_TYPE} = req.body; 
-        console.log(req.body,"req")
-        console.log("jksdsds");
-        //productinfo = product udf3= pgcharges;
+    const { status, txnid, productinfo, udf1, udf2, udf3, amount, PG_TYPE } =
+      req.body;
+    console.log(req.body, "req");
+    console.log("jksdsds");
+    //productinfo = product udf3= pgcharges;
     if (status === "success") {
       const userData = await User.findOne({ company_ID: udf1 }).populate({
-          path: 'roleId',
-          match: { name: 'Agency' },
-        });
+        path: "roleId",
+        match: { name: "Agency" },
+      });
 
       const findUser = await User.findById(userData._id);
-      const configData = await agentConfig.findOne({ userId:userData._id }).populate('diSetupIds').populate({
-        path: 'diSetupIds',
-        populate: {
-          path: 'diSetupIds', // If diSetupIds contains another reference
-          model: 'diSetup'
-        }
-      });
-      console.log(configData,"configData");
+      const configData = await agentConfig
+        .findOne({ userId: userData._id })
+        .populate("diSetupIds")
+        .populate({
+          path: "diSetupIds",
+          populate: {
+            path: "diSetupIds", // If diSetupIds contains another reference
+            model: "diSetup",
+          },
+        });
+      // console.log(configData, "configData");
       // const doerId = req.user._id;
       const loginUser = userData._id;
-      console.log(loginUser,"loginUser");
-      let DIdata = await recieveDI(configData, findUser, productinfo, udf2, loginUser);
-      console.log(DIdata,"DIdata");
-      if (userData) {   
+      // console.log(loginUser, "loginUser");
+      let DIdata = await recieveDI(
+        configData,
+        findUser,
+        productinfo,
+        udf2,
+        loginUser
+      );
+      // console.log(DIdata, "DIdata1");
+      // return false;
+      if (userData) {
         const getAgentConfigForUpdate = await agentConfig.findOne({
           userId: userData._id,
         });
         const maxCreditAmount = getAgentConfigForUpdate?.maxcreditLimit ?? 0;
         const newBalanceAmount = maxCreditAmount + Number(amount);
-       
+
         await agentConfig.findOneAndUpdate(
           { userId: userData._id },
           { maxcreditLimit: newBalanceAmount },
-          {new:true}
-
+          { new: true }
         );
         await ledger.create({
           userId: userData._id,
@@ -616,48 +682,50 @@ const payuWalletResponceSuccess = async (req, res) => {
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount: newBalanceAmount-udf3,
+          runningAmount: newBalanceAmount - udf3,
           remarks: "Wallet debited for PG charges(PayU)",
           transactionBy: userData._id,
         });
         await agentConfig.findOneAndUpdate(
           { userId: userData._id },
-          { maxcreditLimit: newBalanceAmount-udf3 },
-          {new:true}
-
+          { maxcreditLimit: newBalanceAmount - udf3 },
+          { new: true }
         );
-        console.log("hjdsdh")
-        if(DIdata !=null || DIdata != 0){
-          let tdsAmount = parseInt(DIdata) * (5/100);
-          if(tdsAmount != 0){
+        console.log("hjdsdh");
+        if (DIdata != null || DIdata != 0) {
+          let tdsAmount = parseInt(DIdata) * (5 / 100);
+          if (tdsAmount != 0) {
+            tdsAmount = await priceRoundOffNumberValues(tdsAmount);
             console.log("hjdsdh12");
             const findUser = await User.findById(userData._id);
-            console.log(findUser,"findUser");
-            const configData = await agentConfig.findOne({ userId:userData._id });
-            console.log(configData,"configData");
+            console.log(findUser, "findUser");
+            const configData = await agentConfig.findOne({
+              userId: userData._id,
+            });
+            console.log(configData, "configData");
             if (!configData) {
               return {
-                response: 'User not found'
-              }
+                response: "User not found",
+              };
             }
             if (productinfo === "Rail") {
               if (configData?.maxcreditLimit < amount) {
-                return { response: "Insufficient Balance" }
+                return { response: "Insufficient Balance" };
               }
               configData.maxRailCredit -= tdsAmount;
-              runningAmount = configData.maxRailCredit
+              runningAmount = configData.maxRailCredit;
             }
             if (productinfo === "Flight") {
               if (configData?.maxcreditLimit < amount) {
-                return { response: "Insufficient Balance" }
+                return { response: "Insufficient Balance" };
               }
               configData.maxcreditLimit -= tdsAmount;
-              runningAmount = configData.maxcreditLimit
+              runningAmount = configData.maxcreditLimit;
             }
-            console.log(runningAmount,"runningAmount")
+            console.log(runningAmount, "runningAmount");
             await configData.save();
             const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-            console.log(runningAmount,"runningAmount")
+            console.log(runningAmount, "runningAmount");
             await ledger.create({
               userId: findUser._id,
               companyId: findUser.company_ID,
@@ -669,7 +737,7 @@ const payuWalletResponceSuccess = async (req, res) => {
               runningAmount,
               remarks: `TDS against ${tdsAmount} DI deposit.`,
               transactionBy: userData._id,
-              productinfo
+              productinfo,
             });
           }
         }
@@ -680,11 +748,11 @@ const payuWalletResponceSuccess = async (req, res) => {
           trnsNo: txnid,
           trnsType: "DEBIT",
           paymentMode: PG_TYPE,
-          paymentGateway:"PayU",
+          paymentGateway: "PayU",
           trnsStatus: "success",
           transactionBy: userData._id,
-          transactionAmount:udf2,
-          pgCharges:udf3
+          transactionAmount: udf2,
+          pgCharges: udf3,
         });
 
         let successHtmlCode = `<!DOCTYPE html>
@@ -745,22 +813,20 @@ const payuWalletResponceSuccess = async (req, res) => {
         <a href="${Config[Config.MODE].baseURL}">Go to Merchant...</a>
       </div>
     </body>
-    </html>`;        
-          return successHtmlCode;
-       } else {
-          return "Data does not exist";
-        }
-      
+    </html>`;
+        return successHtmlCode;
+      } else {
+        return "Data does not exist";
+      }
     }
   } catch (error) {
     throw error;
   }
 };
 
-
 const payuFail = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1,error_Message } = req.body;
+    const { status, txnid, productinfo, udf1, error_Message } = req.body;
     const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
     if (!BookingTempData) {
@@ -768,13 +834,19 @@ const payuFail = async (req, res) => {
     }
 
     const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
-    const PassengerPreferences = JSON.parse(convertDataBookingTempRes.PassengerPreferences);
-    const ItineraryPriceCheckResponses = JSON.parse(convertDataBookingTempRes.ItineraryPriceCheckResponses);
+    const PassengerPreferences = JSON.parse(
+      convertDataBookingTempRes.PassengerPreferences
+    );
+    const ItineraryPriceCheckResponses = JSON.parse(
+      convertDataBookingTempRes.ItineraryPriceCheckResponses
+    );
     const Authentication = JSON.parse(convertDataBookingTempRes.Authentication);
 
     let getuserDetails;
     try {
-      getuserDetails = await UserModel.findOne({ _id: Authentication.UserId }).populate("company_ID");
+      getuserDetails = await UserModel.findOne({
+        _id: Authentication.UserId,
+      }).populate("company_ID");
       if (!getuserDetails) {
         return "User Not Found";
       }
@@ -789,7 +861,7 @@ const payuFail = async (req, res) => {
         {
           $set: {
             bookingStatus: "FAILED PAYMENT",
-            bookingRemarks: error_Message || 'Payment Failed',
+            bookingRemarks: error_Message || "Payment Failed",
           },
         }
       );
@@ -846,28 +918,28 @@ const payuFail = async (req, res) => {
             <h1 class="failed-txt">Payment Failed!</h1>
             <p class="failed-txt">Your payment has failed.</p>
             <p>Please try again later.</p>
-            <a href="${Config[Config.MODE].baseURL}/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+            <a href="${
+              Config[Config.MODE].baseURL
+            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
           </div>
         </body>
         </html>
       `;
       return failedHtmlCode;
-
     } catch (error) {
-      //console.error('Error updating booking details:', error);      
+      //console.error('Error updating booking details:', error);
       return "Data does not exist";
     }
   } catch (error) {
     // console.error('Error handling payuFail request:', error);
 
     return "Data does not exist";
-
   }
 };
 const payuWalletFail = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1 } = req.body;
-    
+
     const failedHtmlCode = `
         <!DOCTYPE html>
         <html lang="en">
@@ -925,14 +997,11 @@ const payuWalletFail = async (req, res) => {
         </body>
         </html>
       `;
-      return failedHtmlCode;
-
-    
+    return failedHtmlCode;
   } catch (error) {
     // console.error('Error handling payuFail request:', error);
 
     return "Data does not exist";
-
   }
 };
 
@@ -969,7 +1038,7 @@ const payuWalletFail = async (req, res) => {
 
 //       const paymentFailed = await BookingDetails.updateMany(
 //         {
-//           bookingId: item?.BookingId,          
+//           bookingId: item?.BookingId,
 //         },
 //         {
 //           $set: {
@@ -1009,7 +1078,6 @@ const payuWalletFail = async (req, res) => {
 //         background-color: #fff;
 //         text-align: center;
 //       }
-
 
 //       .failed-container p {
 //         margin-top: 10px;
@@ -1148,5 +1216,5 @@ module.exports = {
   payuFail,
   payuSuccess,
   payuWalletResponceSuccess,
-  payuWalletFail
+  payuWalletFail,
 };

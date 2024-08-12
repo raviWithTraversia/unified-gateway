@@ -839,7 +839,7 @@ const recieveDI = async (
   transactionBy
 ) => {
   try {
-    console.log("jksds");
+    console.log(configData.diSetupIds, "jksds");
     configData.diSetupIds.diSetupIds =
       await configData.diSetupIds.diSetupIds.filter(
         (diSetup) =>
@@ -853,13 +853,17 @@ const recieveDI = async (
     let bonusAmount = 0;
     let isMultipleSlab = false;
     let slabBreakups = [];
-    // console.log(slabOptions,"slabOptions111");
-    if (slabOptions[slabOptions.length - 1]?.minAmount < amount) {
+    const minAmount = Number(slabOptions[slabOptions.length - 1]?.minAmount);
+    const amountNumber = Number(amount);
+    // console.log(minAmount < amountNumber, "sjkjks");
+    // console.log(slabOptions, minAmount, amountNumber, "slabOptions111");
+    if (minAmount < amountNumber) {
       bonusAmount =
         (parseInt(slabOptions[slabOptions.length - 1]?.diPersentage) / 100) *
         amount;
+      bonusAmount = await priceRoundOffNumberValues(bonusAmount);
       slabBreakups.push(slabOptions[slabOptions.length - 1]);
-      // console.log(bonusAmount,"bonusAmount1");
+      console.log(bonusAmount, "bonusAmount1");
     } else {
       for (let i = 0; i < slabOptions.length; i++) {
         if (!isMultipleSlab) {
@@ -892,7 +896,7 @@ const recieveDI = async (
         }
       }
     }
-    // console.log(bonusAmount,"bonusAmount11");
+    // console.log(bonusAmount, "bonusAmount11");
     const ADRdata = new AgentDiRecieve({
       userId: findUser._id,
       companyId: findUser.company_ID,
@@ -900,7 +904,8 @@ const recieveDI = async (
       diAmount: bonusAmount,
       slabBreakups: slabBreakups,
     });
-    // console.log(slabBreakups,"slabBreakups1")
+    // console.log(slabBreakups, "slabBreakups1");
+    // return false;
     if (slabBreakups.length) {
       await ADRdata.save();
       const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation

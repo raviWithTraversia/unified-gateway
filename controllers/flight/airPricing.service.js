@@ -132,7 +132,7 @@ const airPricing = async (req, res) => {
     request: req.body,
     responce: result,
   };
-  // Logs(logData);
+  Logs(logData);
   if (!result.IsSucess) {
     return {
       response: result.response,
@@ -338,8 +338,8 @@ const KafilaFun = async (
     flightSearchUrl = `${supplier.supplierLiveUrl}/api/FFareCheck`;
   } else {
     // Test Url here
-    createTokenUrl = `${supplier.supplierLiveUrl}/api/Freport`;
-    flightSearchUrl = `${supplier.supplierLiveUrl}/api/FFareCheck`;
+    createTokenUrl = `${supplier.supplierTestUrl}/api/Freport`;
+    flightSearchUrl = `${supplier.supplierTestUrl}/api/FFareCheck`;
   }
 
   let tripTypeValue;
@@ -607,8 +607,7 @@ const KafilaFun = async (
           },
         }
       );
-      console.log(fSearchApiResponse, "fSearchApiResponse1");
-      console.log(fSearchApiResponse.data, "fSearchApiResponse2");
+
       //logger.info(fSearchApiResponse.data);
       const logData = {
         traceId: Authentication.TraceId,
@@ -621,7 +620,7 @@ const KafilaFun = async (
         request: requestDataFSearch,
         responce: fSearchApiResponse?.data,
       };
-      // Logs(logData, "logData");
+      Logs(logData);
 
       if (fSearchApiResponse.data.Status == "failed") {
         return {
@@ -632,7 +631,7 @@ const KafilaFun = async (
             fSearchApiResponse.data.WarningMessage,
         };
       }
-      // console.log("apiData", fSearchApiResponse.data);
+      //console.log('apiData',fSearchApiResponse.data);
 
       //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
       let apiResponse = fSearchApiResponse.data;
@@ -640,9 +639,8 @@ const KafilaFun = async (
         apiResponse.GstData.GstDetails.isAgentGst =
           GstData.GstDetails.isAgentGst;
       }
-      // console.log(apiResponse, "apiResponse");
       let apiResponseCommon = [];
-      // apiResponseCommon.push(fSearchApiResponse.data, "hsjs");
+      // apiResponseCommon.push(fSearchApiResponse.data);
       // if(apiResponse.IsFareUpdate == true){
       //   return {
       //     IsSucess: false,
@@ -651,7 +649,7 @@ const KafilaFun = async (
       // }
       for (let index = 0; index < apiResponse.SelectedFlight.length; index++) {
         let schedule = apiResponse.SelectedFlight[index];
-        console.log(schedule, "api responce");
+        //console.log(schedule, 'api responce');
         //let oldItinerary = Itinerary[index];
         // apiResponseCommon.push(schedule);
 
@@ -885,7 +883,7 @@ const KafilaFun = async (
       }
       // apiResponseCommon.push("<<<<<<<=============>>>>>>>>>>>>>>>");
       //   apiResponseCommon.push(fSearchApiResponse.data);
-      // console.log("==========>>>>", apiResponseCommon, "<<==================");
+      //console.log("==========>>>>",apiResponseCommon , "<<==================")
       return {
         IsSucess: true,
         response: apiResponseCommon,

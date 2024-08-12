@@ -692,11 +692,13 @@ const payuWalletResponceSuccess = async (req, res) => {
           { new: true }
         );
         console.log("hjdsdh");
-        if (DIdata != null || DIdata != 0) {
-          let tdsAmount = parseInt(DIdata) * (5 / 100);
+        if (DIdata !== null || DIdata !== 0) {
+          let tdsAmount = DIdata * (5 / 100);
+          // console.log(tdsAmount, "tdsAmount");
           if (tdsAmount != 0) {
             tdsAmount = await priceRoundOffNumberValues(tdsAmount);
-            console.log("hjdsdh12");
+            // console.log(tdsAmount, "tdsAmount2");
+            // console.log("hjdsdh12");
             const findUser = await User.findById(userData._id);
             console.log(findUser, "findUser");
             const configData = await agentConfig.findOne({

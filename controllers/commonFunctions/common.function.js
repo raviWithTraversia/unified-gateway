@@ -10,6 +10,7 @@ const smsConfigCred = require("../../models/ConfigCredential");
 const ledger = require("../../models/Ledger");
 const AgentDiRecieve = require("../../models/AgentDiRecieve");
 const Pdf = require("html-pdf");
+const agentConfig = require("../../models/AgentConfig");
 
 const createToken = async (id) => {
   try {
@@ -863,7 +864,7 @@ const recieveDI = async (
         amount;
       bonusAmount = await priceRoundOffNumberValues(bonusAmount);
       slabBreakups.push(slabOptions[slabOptions.length - 1]);
-      console.log(bonusAmount, "bonusAmount1");
+      // console.log(bonusAmount, "bonusAmount1");
     } else {
       for (let i = 0; i < slabOptions.length; i++) {
         if (!isMultipleSlab) {
@@ -884,7 +885,12 @@ const recieveDI = async (
             ((parseInt(slabOptions[i]?.diPersentage) || 0) / 100) * restAmount;
           bonusAmount = mainAmountBonus + restAmountBonus;
 
-          // console.log(bonusAmount,mainAmountBonus,restAmountBonus,'bonusAmount2');
+          console.log(
+            bonusAmount,
+            mainAmountBonus,
+            restAmountBonus,
+            "bonusAmount2"
+          );
           if (bonusAmount > 0) {
             if (!slabOptions[i - 1]) {
               slabBreakups.push(slabOptions[i]);
@@ -905,28 +911,43 @@ const recieveDI = async (
       slabBreakups: slabBreakups,
     });
     // console.log(slabBreakups, "slabBreakups1");
-    // return false;
+
     if (slabBreakups.length) {
       await ADRdata.save();
       const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
       if (product === "Rail") {
-        configData.maxRailCredit += bonusAmount;
+        configData.maxRailCredit += parseInt(bonusAmount);
         runningAmount = await priceRoundOffNumberValues(
           configData.maxRailCredit
         );
       }
       if (product === "Flight") {
-        configData.maxcreditLimit += bonusAmount;
+        configData.maxcreditLimit += parseInt(bonusAmount);
         runningAmount = await priceRoundOffNumberValues(
           configData.maxcreditLimit
         );
       }
       await configData.save();
+      // console.log({
+      //   userId: findUser._id,
+      //   companyId: findUser.company_ID,
+      //   ledgerId: ledgerIds,
+      //   transactionAmount: bonusAmount,
+      //   currencyType: "INR",
+      //   fop: "CREDIT",
+      //   transactionType: "CREDIT",
+      //   runningAmount,
+      //   remarks: `DI against ${amount} deposit.`,
+      //   transactionBy,
+      //   product,
+      // });
+      // return false;
+
       await ledger.create({
         userId: findUser._id,
         companyId: findUser.company_ID,
         ledgerId: ledgerIds,
-        transactionAmount: bonusAmount,
+        transactionAmount: parseInt(bonusAmount),
         currencyType: "INR",
         fop: "CREDIT",
         transactionType: "CREDIT",
@@ -936,6 +957,7 @@ const recieveDI = async (
         product,
       });
     }
+    // console.log(bonusAmount, "bonusAmount112");
     return bonusAmount;
   } catch (error) {
     return null;

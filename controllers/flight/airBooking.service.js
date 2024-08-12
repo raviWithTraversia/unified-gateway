@@ -18,7 +18,10 @@ const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
-const { createLeadger,getTdsAndDsicount } = require("../commonFunctions/common.function");
+const {
+  createLeadger,
+  getTdsAndDsicount,
+} = require("../commonFunctions/common.function");
 
 const startBooking = async (req, res) => {
   const {
@@ -201,7 +204,10 @@ async function handleflight(
   const responsesApi = await Promise.all(
     supplierCredentials.map(async (supplier) => {
       try {
-        if(ItineraryPriceCheckResponses[0].Provider === supplier.supplierCodeId.supplierCode){
+        if (
+          ItineraryPriceCheckResponses[0].Provider ===
+          supplier.supplierCodeId.supplierCode
+        ) {
           switch (supplier.supplierCodeId.supplierCode) {
             case "Kafila":
               // check here airline promoCode if active periority first agent level then group level
@@ -524,25 +530,30 @@ const KafilaFun = async (
   //     adultPriceCalculate + childPriceCalculate + infantPriceCalculate;
   //   return returnCalculatedOfferedPrice;
   // };
-  
-  
+
   const calculateOfferedPrice = async (fareFamiliyElement) => {
     let returnCalculatedOfferedPrice = 0;
-  
+
     fareFamiliyElement.PriceBreakup?.forEach((priceBreakupElement) => {
-      let { PassengerType, NoOfPassenger, CommercialBreakup, BaseFare, Tax, TaxBreakup } =
-        priceBreakupElement;
-  
+      let {
+        PassengerType,
+        NoOfPassenger,
+        CommercialBreakup,
+        BaseFare,
+        Tax,
+        TaxBreakup,
+      } = priceBreakupElement;
+
       if (PassengerType) {
         returnCalculatedOfferedPrice += Number(BaseFare) * NoOfPassenger;
         returnCalculatedOfferedPrice += Number(Tax) * NoOfPassenger;
-  
+
         TaxBreakup?.forEach((taxBreakup) => {
           let { TaxType, Amount } = taxBreakup;
           if (TaxType)
             returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
         });
-  
+
         CommercialBreakup?.forEach((commercialBreakup) => {
           let { CommercialType, Amount } = commercialBreakup;
           if (offerPriceMinusInAmount(CommercialType))
@@ -552,27 +563,25 @@ const KafilaFun = async (
         });
       }
     });
-  console.log(returnCalculatedOfferedPrice,"before round off");
-  
+    console.log(returnCalculatedOfferedPrice, "before round off");
+
     returnCalculatedOfferedPrice = Number(
       roundOffNumberValues(returnCalculatedOfferedPrice)
     );
 
-    console.log(returnCalculatedOfferedPrice,"before round up");
+    console.log(returnCalculatedOfferedPrice, "before round up");
 
-    
     return returnCalculatedOfferedPrice;
-  }; 
+  };
 
-  function roundOffNumberValues(numberValue){
-      if (isNaN(numberValue)) 
-        numberValue=0 
-      const integerPart = Math.floor(numberValue);
-      const fractionalPart = numberValue - integerPart;
-      const result = fractionalPart >= 0.5 ? Math.ceil(numberValue) : Math.floor(numberValue);
-      return result.toFixed(2);
+  function roundOffNumberValues(numberValue) {
+    if (isNaN(numberValue)) numberValue = 0;
+    const integerPart = Math.floor(numberValue);
+    const fractionalPart = numberValue - integerPart;
+    const result =
+      fractionalPart >= 0.5 ? Math.ceil(numberValue) : Math.floor(numberValue);
+    return result.toFixed(2);
   }
-    
 
   async function calculateOfferedPriceForAll() {
     let calculationOfferPriceWithCommercial = 0; // Initialize to 0
@@ -590,22 +599,23 @@ const KafilaFun = async (
   // Check Balance Available or Not Available
   const totalSSRWithCalculationPrice =
     calculationOfferPriceWithCommercial + totalssrPrice;
- 
+
   if (paymentMethodType === "Wallet") {
     try {
-      
       // Retrieve agent configuration
-      
+
       const companieIds = await UserModel.findById(getuserDetails._id);
 
-      const getAllComapnies = await UserModel.find({company_ID:companieIds.company_ID}).populate("roleId");
+      const getAllComapnies = await UserModel.find({
+        company_ID: companieIds.company_ID,
+      }).populate("roleId");
       let allIds = getAllComapnies
-      .filter(item => item.roleId.name === "Agency")
-      .map(item => item._id);
+        .filter((item) => item.roleId.name === "Agency")
+        .map((item) => item._id);
 
-      console.log(allIds,"allIds");
+      console.log(allIds, "allIds");
       const getAgentConfig = await agentConfig.findOne({
-        userId: allIds[0]
+        userId: allIds[0],
       });
       // console.log(getAllComapnies,"getuserDetails");
       const getcreditRequest = await creditRequest.find({
@@ -623,7 +633,8 @@ const KafilaFun = async (
         creditTotal = 0;
       }
       // Check if maxCreditLimit exists, otherwise set it to 0
-      const checkCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
+      const checkCreditLimit =
+        getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
       const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
 
       // Check if balance is sufficient
@@ -641,7 +652,7 @@ const KafilaFun = async (
       // Generate random ledger ID
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
       let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
-      
+
       // Create ledger entry
       await ledger.create({
         userId: allIds[0],
@@ -650,15 +661,15 @@ const KafilaFun = async (
         transactionAmount: totalSSRWithCalculationPrice,
         currencyType: "INR",
         fop: "CREDIT",
-        deal:gtTsAdDnt?.ldgrdiscount,
-        tds:gtTsAdDnt?.ldgrtds,
+        deal: gtTsAdDnt?.ldgrdiscount,
+        tds: gtTsAdDnt?.ldgrtds,
         transactionType: "DEBIT",
         runningAmount: newBalance,
         remarks: "Booking amount deducted from your account.",
         transactionBy: getuserDetails._id,
         cartId: ItineraryPriceCheckResponses[0].BookingId,
       });
-      
+
       // Create transaction Entry
       await transaction.create({
         userId: getuserDetails._id,
@@ -698,8 +709,6 @@ const KafilaFun = async (
       paymentGateway
     );
   }
-
-
 
   // Calculation End here
   // return totalSSRWithCalculationPrice;
@@ -741,7 +750,7 @@ const KafilaFun = async (
       }
       const createBooking = async (newItem) => {
         try {
-          console.log(newItem,"newItem");
+          console.log(newItem, "newItem");
           let bookingDetailsCreate = await BookingDetails.create(newItem);
 
           return {
@@ -854,7 +863,11 @@ const KafilaFun = async (
               bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
               Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
               travelType: TravelType,
-              fareRules: itineraryItem?.fareRules !== undefined && itineraryItem?.fareRules !== null ? itineraryItem?.fareRules : null,
+              fareRules:
+                itineraryItem?.fareRules !== undefined &&
+                itineraryItem?.fareRules !== null
+                  ? itineraryItem?.fareRules
+                  : null,
               bookingTotalAmount:
                 itineraryItem.offeredPrice +
                 itineraryItem.totalMealPrice +
@@ -901,7 +914,7 @@ const KafilaFun = async (
                 TraceId: Authentication?.TraceId,
               },
             };
-            console.log(newItem,"newItem12");
+            console.log(newItem, "newItem12");
             return await createBooking(newItem); // Call function to create booking
           }
         })
@@ -953,10 +966,12 @@ const KafilaFun = async (
 
           const hitAPI = await Promise.all(
             ItineraryPriceCheckResponses.map(async (item) => {
-              let gstD = item.GstData;
-              console.log(gstD,"gstD12");
-              delete gstD.GstDetails.isAgentGst;
-              console.log(gstD,"djkds12")
+              if (item.GstData) {
+                let gstD = item.GstData;
+                console.log(gstD, "gstD12");
+                delete gstD.GstDetails.isAgentGst;
+                console.log(gstD, "djkds12");
+              }
               let requestDataFSearch = {
                 FareChkRes: {
                   Error: item.Error,
@@ -994,18 +1009,36 @@ const KafilaFun = async (
                   responce: fSearchApiResponse?.data,
                 };
                 Logs(logData);
-                console.log(fSearchApiResponse,"fSearchApiResponse1")
+                console.log(fSearchApiResponse, "fSearchApiResponse1");
                 let fSearchApiResponseStatus = fSearchApiResponse.data.Status;
-                console.log(fSearchApiResponseStatus,"fSearchApiResponseStatus")
-                if (fSearchApiResponseStatus?.toLowerCase() == "failed" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() == "FAILED") {
-                  await BookingDetails.updateOne({
-                    bookingId: item?.BookingId,
-                    "itinerary.IndexNumber": item.IndexNumber,
-                  }, {
-                    $set: {
-                      bookingStatus: "FAILED", bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED" ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark : fSearchApiResponse?.data?.ErrorMessage || error.message,
+                console.log(
+                  fSearchApiResponseStatus,
+                  "fSearchApiResponseStatus"
+                );
+                if (
+                  fSearchApiResponseStatus?.toLowerCase() == "failed" ||
+                  fSearchApiResponse?.data?.IsError == true ||
+                  fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ==
+                    "FAILED"
+                ) {
+                  await BookingDetails.updateOne(
+                    {
+                      bookingId: item?.BookingId,
+                      "itinerary.IndexNumber": item.IndexNumber,
                     },
-                  });
+                    {
+                      $set: {
+                        bookingStatus: "FAILED",
+                        bookingRemarks:
+                          fSearchApiResponse?.data?.BookingInfo
+                            ?.CurrentStatus == "FAILED"
+                            ? fSearchApiResponse?.data?.BookingInfo
+                                ?.BookingRemark
+                            : fSearchApiResponse?.data?.ErrorMessage ||
+                              error.message,
+                      },
+                    }
+                  );
 
                   // Ledget Create After booking Failed
                   const getAgentConfigForUpdate = await agentConfig.findOne({
@@ -1045,7 +1078,6 @@ const KafilaFun = async (
 
                   return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
                 }
-                
 
                 const bookingResponce = {
                   CartId: item.BookingId,
@@ -1084,31 +1116,55 @@ const KafilaFun = async (
                       PNR: fSearchApiResponse.data.BookingInfo.APnr,
                       APnr: fSearchApiResponse.data.BookingInfo.APnr,
                       GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
-                      SalePurchase: fSearchApiResponse.data?.BookingInfo?.SalePurchase?.ATDetails?.Account,
+                      SalePurchase:
+                        fSearchApiResponse.data?.BookingInfo?.SalePurchase
+                          ?.ATDetails?.Account,
                     },
                   }
                 );
-                const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.BookingId });
+                const getpassengersPrefrence =
+                  await passengerPreferenceModel.findOne({
+                    bookingId: item?.BookingId,
+                  });
 
-                if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
-                  await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
-                    const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
-                    if (apiPassenger) {
-                      const ticketUpdate = passenger.Optional.ticketDetails.find(p => p.src === fSearchApiResponse.data.Param.Sector[0].Src && p.des === fSearchApiResponse.data.Param.Sector[0].Des);
-                      console.log(ticketUpdate,"jkticketUpdate");
-                      if(ticketUpdate){
-                        ticketUpdate.ticketNumber = apiPassenger?.Optional?.TicketNumber;
+                if (
+                  getpassengersPrefrence &&
+                  getpassengersPrefrence.Passengers
+                ) {
+                  await Promise.all(
+                    getpassengersPrefrence.Passengers.map(async (passenger) => {
+                      const apiPassenger =
+                        fSearchApiResponse.data.PaxInfo.Passengers.find(
+                          (p) =>
+                            p.FName === passenger.FName &&
+                            p.LName === passenger.LName
+                        );
+                      if (apiPassenger) {
+                        const ticketUpdate =
+                          passenger.Optional.ticketDetails.find(
+                            (p) =>
+                              p.src ===
+                                fSearchApiResponse.data.Param.Sector[0].Src &&
+                              p.des ===
+                                fSearchApiResponse.data.Param.Sector[0].Des
+                          );
+                        console.log(ticketUpdate, "jkticketUpdate");
+                        if (ticketUpdate) {
+                          ticketUpdate.ticketNumber =
+                            apiPassenger?.Optional?.TicketNumber;
+                        }
+
+                        // passenger.Status = "CONFIRMED";
                       }
-                      
-                      // passenger.Status = "CONFIRMED";
-                    }
-                  }));
+                    })
+                  );
 
                   await getpassengersPrefrence.save();
                 }
-                console.log("kdsjjkdsjs12")
+                console.log("kdsjjkdsjs12");
                 if (
-                  fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() === "FAILED"
+                  fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ===
+                  "FAILED"
                 ) {
                   const getAgentConfigForUpdate = await agentConfig.findOne({
                     userId: getuserDetails._id,
@@ -1175,10 +1231,10 @@ const KafilaFun = async (
                   product: "Flight",
                   logName: "Air Booking",
                   request: "Air Booking Catch Request",
-                  responce:error ,
+                  responce: error,
                 };
                 Logs(logDataCatch);
-                console.log("skdjdskjds1323")
+                console.log("skdjdskjds1323");
                 await BookingDetails.updateOne(
                   {
                     bookingId: item?.BookingId,
@@ -1274,18 +1330,17 @@ const kafilaFunOnlinePayment = async (
   paymentMethodType,
   paymentGateway
 ) => {
-
   const createBooking = async (newItem) => {
     try {
       let bookingDetailsCreate = await BookingDetails.create(newItem);
-      console.log(bookingDetailsCreate,"bookingDetailsCreate1")
+      console.log(bookingDetailsCreate, "bookingDetailsCreate1");
       return {
         msg: "Booking created successfully",
         bookingId: newItem.bookingId,
         bid: bookingDetailsCreate._id,
       };
     } catch (error) {
-      console.error('Error creating booking:', error);
+      console.error("Error creating booking:", error);
       return {
         IsSucess: false,
         response: "Error creating booking:",
@@ -1356,33 +1411,29 @@ const kafilaFunOnlinePayment = async (
         });
 
         // Construct PriceBreakup array
-        const priceBreakupArray = itineraryItem?.PriceBreakup?.map(
-          (price) => {
-            return {
-              PassengerType: price.PassengerType,
-              NoOfPassenger: price.NoOfPassenger,
-              Tax: price.Tax,
-              BaseFare: price.BaseFare,
-              TaxBreakup: price?.TaxBreakup?.map((tax) => ({
-                TaxType: tax.TaxType,
-                Amount: tax.Amount,
-              })),
-              CommercialBreakup: price?.CommercialBreakup?.map(
-                (commercial) => ({
-                  CommercialType: commercial.CommercialType,
-                  onCommercialApply: commercial.onCommercialApply,
-                  Amount: commercial.Amount,
-                  SupplierType: commercial.SupplierType,
-                })
-              ),
-              AgentMarkupBreakup: {
-                BookingFee: price?.AgentMarkupBreakup?.BookingFee,
-                Basic: price?.AgentMarkupBreakup?.Basic,
-                Tax: price?.AgentMarkupBreakup?.Tax,
-              },
-            };
-          }
-        );
+        const priceBreakupArray = itineraryItem?.PriceBreakup?.map((price) => {
+          return {
+            PassengerType: price.PassengerType,
+            NoOfPassenger: price.NoOfPassenger,
+            Tax: price.Tax,
+            BaseFare: price.BaseFare,
+            TaxBreakup: price?.TaxBreakup?.map((tax) => ({
+              TaxType: tax.TaxType,
+              Amount: tax.Amount,
+            })),
+            CommercialBreakup: price?.CommercialBreakup?.map((commercial) => ({
+              CommercialType: commercial.CommercialType,
+              onCommercialApply: commercial.onCommercialApply,
+              Amount: commercial.Amount,
+              SupplierType: commercial.SupplierType,
+            })),
+            AgentMarkupBreakup: {
+              BookingFee: price?.AgentMarkupBreakup?.BookingFee,
+              Basic: price?.AgentMarkupBreakup?.Basic,
+              Tax: price?.AgentMarkupBreakup?.Tax,
+            },
+          };
+        });
 
         // Construct item object with populated itineraryArray
         const newItem = {
@@ -1400,7 +1451,11 @@ const kafilaFunOnlinePayment = async (
           bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
           Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
           travelType: TravelType,
-          fareRules: itineraryItem?.fareRules !== undefined && itineraryItem?.fareRules !== null ? itineraryItem?.fareRules : null,
+          fareRules:
+            itineraryItem?.fareRules !== undefined &&
+            itineraryItem?.fareRules !== null
+              ? itineraryItem?.fareRules
+              : null,
           bookingTotalAmount:
             itineraryItem.offeredPrice +
             itineraryItem.totalMealPrice +
@@ -1436,8 +1491,7 @@ const kafilaFunOnlinePayment = async (
               },
               infant: {
                 baseFare: itineraryItem.advanceAgentMarkup.infant.baseFare,
-                taxesFare:
-                  itineraryItem.advanceAgentMarkup.infant.taxesFare,
+                taxesFare: itineraryItem.advanceAgentMarkup.infant.taxesFare,
                 feesFare: itineraryItem.advanceAgentMarkup.infant.feesFare,
                 gstFare: itineraryItem.advanceAgentMarkup.infant.gstFare,
               },
@@ -1468,42 +1522,42 @@ const kafilaFunOnlinePayment = async (
         GstData: passengerPreferencesData?.GstData,
         PaxEmail: passengerPreferencesData?.PaxEmail,
         PaxMobile: passengerPreferencesData?.PaxMobile,
-        Passengers: passengerPreferencesData?.Passengers?.map(
-          (passenger) => ({
-            PaxType: passenger?.PaxType,
-            passengarSerialNo: passenger?.passengarSerialNo,
-            Title: passenger?.Title,
-            FName: passenger?.FName,
-            LName: passenger?.LName,
-            Gender: passenger?.Gender,
-            Dob: passenger?.Dob,
-            Optional: {
-              ticketDetails: passenger?.Optional?.ticketDetails,
-              PassportNo: passenger?.Optional.PassportNo,
-              PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
-              FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,
-              Nationality: passenger?.Optional?.Nationality,
-              ResidentCountry: passenger?.Optional?.ResidentCountry,
-            },
-            Meal: passenger?.Meal,
-            Baggage: passenger?.Baggage,
-            Seat: passenger?.Seat,
-            totalBaggagePrice: passenger?.totalBaggagePrice,
-            totalMealPrice: passenger?.totalMealPrice,
-            totalSeatPrice: passenger?.totalSeatPrice,
-          })
-        ),
+        Passengers: passengerPreferencesData?.Passengers?.map((passenger) => ({
+          PaxType: passenger?.PaxType,
+          passengarSerialNo: passenger?.passengarSerialNo,
+          Title: passenger?.Title,
+          FName: passenger?.FName,
+          LName: passenger?.LName,
+          Gender: passenger?.Gender,
+          Dob: passenger?.Dob,
+          Optional: {
+            ticketDetails: passenger?.Optional?.ticketDetails,
+            PassportNo: passenger?.Optional.PassportNo,
+            PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
+            FrequentFlyerNo: passenger?.Optional?.FrequentFlyerNo,
+            Nationality: passenger?.Optional?.Nationality,
+            ResidentCountry: passenger?.Optional?.ResidentCountry,
+          },
+          Meal: passenger?.Meal,
+          Baggage: passenger?.Baggage,
+          Seat: passenger?.Seat,
+          totalBaggagePrice: passenger?.totalBaggagePrice,
+          totalMealPrice: passenger?.totalMealPrice,
+          totalSeatPrice: passenger?.totalSeatPrice,
+        })),
         modifyBy: Authentication?.UserId,
       });
       const cardStore = await passengerPreference.save();
       if (cardStore) {
         const passengerPreferencesString = JSON.stringify(PassengerPreferences);
-        const itineraryPriceCheckResponsesString = JSON.stringify(ItineraryPriceCheckResponses);
+        const itineraryPriceCheckResponsesString = JSON.stringify(
+          ItineraryPriceCheckResponses
+        );
         const authData = JSON.stringify(Authentication);
         const request = JSON.stringify({
           PassengerPreferences: passengerPreferencesString,
           ItineraryPriceCheckResponses: itineraryPriceCheckResponsesString,
-          Authentication: authData
+          Authentication: authData,
         });
 
         const bookingTemp = await BookingTemp.create({
@@ -1519,7 +1573,6 @@ const kafilaFunOnlinePayment = async (
         } else {
           return "Booking already exists";
         }
-
       } else {
         return "Booking already exists";
       }
@@ -1766,7 +1819,6 @@ const kafilaFunOnlinePayment = async (
       //     }
       //   })
       // );
-
     } else {
       return "Booking already exists";
     }

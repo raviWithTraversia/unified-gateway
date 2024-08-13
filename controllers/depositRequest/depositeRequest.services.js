@@ -4,7 +4,7 @@ const User = require("../../models/User");
 const config = require("../../models/AgentConfig");
 const ledger = require("../../models/Ledger");
 const EventLogs = require("../logs/EventApiLogsCommon");
-const { recieveDI } = require("../commonFunctions/common.function")
+const { recieveDI } = require("../commonFunctions/common.function");
 
 const adddepositDetails = async (req, res) => {
   try {
@@ -20,7 +20,7 @@ const adddepositDetails = async (req, res) => {
       status,
       createdDate,
       createdBy,
-      product
+      product,
     } = req.body;
 
     const fieldNames = [
@@ -35,11 +35,12 @@ const adddepositDetails = async (req, res) => {
       "status",
       "createdDate",
       "createdBy",
-      "product"
+      "product",
     ];
 
     const missingFields = fieldNames.filter(
-      fieldName => req.body[fieldName] === null || req.body[fieldName] === undefined
+      (fieldName) =>
+        req.body[fieldName] === null || req.body[fieldName] === undefined
     );
 
     if (missingFields.length > 0) {
@@ -47,7 +48,7 @@ const adddepositDetails = async (req, res) => {
       return {
         response: null,
         isSomethingMissing: true,
-        data: `Missing or null fields: ${missingFieldsString}`
+        data: `Missing or null fields: ${missingFieldsString}`,
       };
     }
 
@@ -64,7 +65,7 @@ const adddepositDetails = async (req, res) => {
       status,
       createdDate,
       createdBy,
-      product
+      product,
     });
 
     if (existingDepositRequest) {
@@ -102,7 +103,7 @@ const adddepositDetails = async (req, res) => {
       status,
       createdDate,
       createdBy,
-      product
+      product,
     });
     savedDepositRequest = await newDepositDetails.save();
     if (savedDepositRequest) {
@@ -123,68 +124,75 @@ const adddepositDetails = async (req, res) => {
 
 const getAlldepositList = async (req, res) => {
   try {
-    const result = await depositDetail.find().populate('companyId', 'companyName');
+    const result = await depositDetail
+      .find()
+      .populate("companyId", "companyName");
     if (result.length > 0) {
       return {
-        response: 'Fetch Data Successfully',
-        data: result
-      }
+        response: "Fetch Data Successfully",
+        data: result,
+      };
     } else {
       return {
-        response: 'Not Found',
-        data: null
-      }
+        response: "Not Found",
+        data: null,
+      };
     }
-
   } catch (error) {
     throw error;
   }
-}
+};
 
 const getDepositRequestByCompanyId = async (req, res) => {
   try {
     const CompanyId = req.params.companyId;
-    const result = await depositDetail.find({ companyId: CompanyId }).populate('companyId', 'companyName').populate('agencyId').populate('userId');
+    const result = await depositDetail
+      .find({ companyId: CompanyId })
+      .populate("companyId", "companyName")
+      .populate("agencyId")
+      .populate("userId");
     if (result.length > 0) {
       return {
-        response: 'Fetch Data Successfuly!!',
-        data: result
-      }
+        response: "Fetch Data Successfuly!!",
+        data: result,
+      };
     } else {
       return {
-        response: 'Deposit request not available',
-        data: null
-      }
+        response: "Deposit request not available",
+        data: null,
+      };
     }
-
   } catch (error) {
     throw error;
   }
-}
+};
 
 const getDepositRequestByAgentId = async (req, res) => {
   try {
     const CompanyId = req.params.companyId;
     // const getAllAgency = await Company.find({_id: CompanyId});
     console.log("inside deposit", CompanyId);
-    const result = await depositDetail.find({ agencyId: CompanyId }).populate('companyId', 'companyName').populate('agencyId').populate('userId');
+    const result = await depositDetail
+      .find({ agencyId: CompanyId })
+      .populate("companyId", "companyName")
+      .populate("agencyId")
+      .populate("userId");
     console.log("depositDetail: ", depositDetail);
     if (result.length > 0) {
       return {
-        response: 'Fetch Data Successfuly!!',
-        data: result
-      }
+        response: "Fetch Data Successfuly!!",
+        data: result,
+      };
     } else {
       return {
-        response: 'Deposit request not available',
-        data: null
-      }
+        response: "Deposit request not available",
+        data: null,
+      };
     }
-
   } catch (error) {
     throw error;
   }
-}
+};
 
 const approveAndRejectDeposit = async (req, res) => {
   try {
@@ -192,8 +200,8 @@ const approveAndRejectDeposit = async (req, res) => {
     const _id = req.params.creditRequestId;
     if (!remarks || !status) {
       return {
-        response: 'Remark and status are required'
-      }
+        response: "Remark and status are required",
+      };
     }
     // const doerId = req.user._id;
     const loginUser = await User.findById(req.user._id);
@@ -201,34 +209,48 @@ const approveAndRejectDeposit = async (req, res) => {
     let updateResponse;
     if (status == "approved") {
       // Approved
-      updateResponse = await depositDetail.findByIdAndUpdate(_id, {
-        remarks,
-        status
-      }, { new: true });
+      updateResponse = await depositDetail.findByIdAndUpdate(
+        _id,
+        {
+          remarks,
+          status,
+        },
+        { new: true }
+      );
       //console.log(updateResponse);
       const findUser = await User.findById(updateResponse.userId);
-      const configData = await config.findOne({ userId: updateResponse.userId }).populate('diSetupIds').populate({
-        path: 'diSetupIds',
-        populate: {
-          path: 'diSetupIds', // If diSetupIds contains another reference
-          model: 'diSetup'
-        }
-      });;
+      const configData = await config
+        .findOne({ userId: updateResponse.userId })
+        .populate("diSetupIds")
+        .populate({
+          path: "diSetupIds",
+          populate: {
+            path: "diSetupIds", // If diSetupIds contains another reference
+            model: "diSetup",
+          },
+        });
       //console.log(updateResponse);
       if (!configData) {
         return {
-          response: 'User not found'
-        }
+          response: "User not found",
+        };
       }
-      let DIdata = await recieveDI(configData, findUser, updateResponse?.product, updateResponse?.amount, loginUser._id)
+      let DIdata = await recieveDI(
+        configData,
+        findUser,
+        updateResponse?.product,
+        updateResponse?.amount,
+        loginUser._id,
+        ""
+      );
       let runningAmount = 0;
       if (updateResponse.product === "Rail") {
-        configData.maxRailCredit += (updateResponse.amount + DIdata);
-        runningAmount = configData.maxRailCredit
+        configData.maxRailCredit += updateResponse.amount + DIdata;
+        runningAmount = configData.maxRailCredit;
       }
       if (updateResponse.product === "Flight") {
-        configData.maxcreditLimit += (updateResponse.amount + DIdata);
-        runningAmount = configData.maxcreditLimit
+        configData.maxcreditLimit += updateResponse.amount + DIdata;
+        runningAmount = configData.maxcreditLimit;
       }
       await configData.save();
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
@@ -243,7 +265,7 @@ const approveAndRejectDeposit = async (req, res) => {
         runningAmount,
         remarks: "Deposit request added into your account.",
         transactionBy: updateResponse.userId,
-        product: updateResponse.product
+        product: updateResponse.product,
       });
 
       const LogsData = {
@@ -252,19 +274,23 @@ const approveAndRejectDeposit = async (req, res) => {
         doerName: loginUser.fname,
         companyId: updateResponse.companyId,
         documentId: updateResponse._id,
-        description: "Credit request approved"
+        description: "Credit request approved",
       };
-      EventLogs(LogsData)
+      EventLogs(LogsData);
       return {
-        response: 'Deposit request approved successfully'
-      }
+        response: "Deposit request approved successfully",
+      };
     } else {
       // Rejected
 
-      const updateCreditRequestRejected = await depositDetail.findByIdAndUpdate(_id, {
-        remarks,
-        status,
-      }, { new: true })
+      const updateCreditRequestRejected = await depositDetail.findByIdAndUpdate(
+        _id,
+        {
+          remarks,
+          status,
+        },
+        { new: true }
+      );
 
       const LogsData = {
         eventName: "creditRequest",
@@ -272,28 +298,27 @@ const approveAndRejectDeposit = async (req, res) => {
         doerName: loginUser.fname,
         companyId: updateCreditRequestRejected.companyId,
         documentId: updateCreditRequestRejected._id,
-        description: "Credit request rejected"
+        description: "Credit request rejected",
       };
 
-      EventLogs(LogsData)
+      EventLogs(LogsData);
       // await commonFunction.eventLogFunction(
       //     'creditRequest' ,
       //     doerId ,
       //     loginUser.fname ,
-      //     req.ip , 
-      //     loginUser.company_ID , 
+      //     req.ip ,
+      //     loginUser.company_ID ,
       //     'Credit request rejected'
       // );
       return {
-        response: 'Deposit request rejected successfully'
-      }
+        response: "Deposit request rejected successfully",
+      };
     }
-
   } catch (error) {
-    console.log(error)
-    throw error
+    console.log(error);
+    throw error;
   }
-}
+};
 
 const depositAmountUsingExcel = async (req) => {
   try {
@@ -301,27 +326,39 @@ const depositAmountUsingExcel = async (req) => {
     if (!jsonArray.length) {
       return { response: "No input from Excel" };
     }
-    const referenceIdArr = jsonArray.map(item => item.remarks);
-    const getDatabyRefId = await depositDetail.find({ remarks: { $in: referenceIdArr } })
-    const userReferenceIdArr = getDatabyRefId.map(item => item.remarks);
-    if (getDatabyRefId.length) { return { response: `Amount already added for ref Id: ${userReferenceIdArr}` } }
+    const referenceIdArr = jsonArray.map((item) => item.remarks);
+    const getDatabyRefId = await depositDetail.find({
+      remarks: { $in: referenceIdArr },
+    });
+    const userReferenceIdArr = getDatabyRefId.map((item) => item.remarks);
+    if (getDatabyRefId.length) {
+      return {
+        response: `Amount already added for ref Id: ${userReferenceIdArr}`,
+      };
+    }
     for (let i = 0; i < jsonArray.length; i++) {
-      let getUser = await User.findOne({ userId: jsonArray[i].userId }).populate('roleId');
+      let getUser = await User.findOne({
+        userId: jsonArray[i].userId,
+      }).populate("roleId");
       if (getUser) {
-        let updatedAgentConfig = await config.findOneAndUpdate({ userId: getUser._id }, { $inc: { maxcreditLimit: jsonArray[i].amount } }, { new: true })
+        let updatedAgentConfig = await config.findOneAndUpdate(
+          { userId: getUser._id },
+          { $inc: { maxcreditLimit: jsonArray[i].amount } },
+          { new: true }
+        );
         await depositDetail.create({
-          "companyId": updatedAgentConfig.companyId,
-          "agencyId": getUser._id,
-          "userId": getUser._id,
-          "depositDate": jsonArray[i]?.depositDate,
-          "modeOfPayment": jsonArray[i]?.modeOfPayment,
-          "purpose": jsonArray[i]?.purpose || "",
-          "amount": jsonArray[i]?.amount,
-          "status": "approved",
-          "remarks": jsonArray[i].remarks,
-          "createdDate": new Date(),
+          companyId: updatedAgentConfig.companyId,
+          agencyId: getUser._id,
+          userId: getUser._id,
+          depositDate: jsonArray[i]?.depositDate,
+          modeOfPayment: jsonArray[i]?.modeOfPayment,
+          purpose: jsonArray[i]?.purpose || "",
+          amount: jsonArray[i]?.amount,
+          status: "approved",
+          remarks: jsonArray[i].remarks,
+          createdDate: new Date(),
           createdBy,
-          "product": jsonArray[i].product,
+          product: jsonArray[i].product,
         });
         await ledger.create({
           userId: getUser._id,
@@ -334,16 +371,16 @@ const depositAmountUsingExcel = async (req) => {
           runningAmount: updatedAgentConfig.maxcreditLimit,
           remarks: "Deposit request added into your account.",
           transactionBy: updatedAgentConfig.userId,
-          referenceID: updatedAgentConfig.remarks
+          referenceID: updatedAgentConfig.remarks,
         });
       }
     }
     return { response: "Amount added successfully" };
   } catch (error) {
-    console.log(error)
-    throw error
+    console.log(error);
+    throw error;
   }
-}
+};
 
 module.exports = {
   adddepositDetails,
@@ -351,5 +388,5 @@ module.exports = {
   getDepositRequestByCompanyId,
   getDepositRequestByAgentId,
   approveAndRejectDeposit,
-  depositAmountUsingExcel
+  depositAmountUsingExcel,
 };

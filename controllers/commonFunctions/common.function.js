@@ -837,7 +837,8 @@ const recieveDI = async (
   findUser,
   product,
   amount,
-  transactionBy
+  transactionBy,
+  txnid
 ) => {
   try {
     console.log(configData.diSetupIds, "jksds");
@@ -947,6 +948,7 @@ const recieveDI = async (
         userId: findUser._id,
         companyId: findUser.company_ID,
         ledgerId: ledgerIds,
+        transactionId: txnid ?? null,
         transactionAmount: parseInt(bonusAmount),
         currencyType: "INR",
         fop: "CREDIT",

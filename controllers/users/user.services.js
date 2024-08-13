@@ -224,7 +224,8 @@ const userInsert = async (req, res) => {
       cityId,
       creditBalance,
       maxCreditLimit,
-      agencyGroupId
+      agencyGroupId,
+      adhar_Detail
     } = req.body;
 
     const existingUser = await User.findOne({ email });
@@ -274,7 +275,7 @@ const userInsert = async (req, res) => {
       gstAddress_1: gstAddress_1 || null,
       gstAddress_2: gstAddress_2 || null,
       isIATA: isIATA || false,
-      holdPnrAllowed: holdPnrAllowed || false
+      holdPnrAllowed: holdPnrAllowed || false,
     });
     let createdComapanyId = newCompany._id;
     savedCompany = await newCompany.save();
@@ -331,6 +332,7 @@ const userInsert = async (req, res) => {
       company_ID: savedCompany._id,
       modifiedBy: req?.user?.id || null,
       cityId,
+      adhar_Detail,
       resetToken: resetToken
     });
 

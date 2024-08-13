@@ -154,6 +154,10 @@ const userSchema = new mongoose.Schema({
         type: Number,
         unique: true,
     },
+    adhar_Detail:{
+        type:Object,
+        default:null
+     },
     encryptUserId: {
         type: Object,
         default: {}

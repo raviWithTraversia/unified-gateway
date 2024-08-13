@@ -112,6 +112,10 @@ const registrationSchema = new mongoose.Schema({
         ref: 'Company',
         default : null
     },
+    adharDetail:{
+        type:Object,
+        default:null
+    }
 },{
     timestamps : true  //Add created_at and updated_at coloumn
 });

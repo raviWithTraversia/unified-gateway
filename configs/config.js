@@ -1,3 +1,4 @@
+
 module.exports.Config = {
   // Mode (LIVE or TEST)
   MODE: 'TEST',
@@ -18,6 +19,8 @@ module.exports.Config = {
   BASE_URL: "http://localhost:3111/api/",
   PAN_URL: 'https://api.atlaskyc.com/v2/prod/verify/pan',
   GST_URL: 'https://api.atlaskyc.com/v2/prod/verify/gstin',
+  Adhar_URL:'https://api.atlaskyc.com/v2/prod/aadhaar/aadhaar_otp',
+  AdharVerify_URl:"https://api.atlaskyc.com/v2/prod/aadhaar/aadhaar_kyc",
   HADDER_3RD_PAERT: {
     'Accept': 'application/json',
     'Authorization': 'Basic ay0zZmY0ZDYzNy0yY2UzLTQ2Y2UtYTAzMS0wZDEyMDAwOTM1MzE6cy1kNzlmOTk5MC1iYTBjLTRmNTctOTA5MS03NWYyZTQ1ZTA1Njk='

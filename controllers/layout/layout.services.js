@@ -162,8 +162,90 @@ const checkGstin = async (req, res) => {
   }
 };
 
+const checkAdhar = async (req, res) => {
+  try {
+    const {adhaarNumber  } = req.body;
+
+    if (!adhaarNumber) {
+      return {
+        response: "aadhaar number is required"
+      };
+    }
+
+    const apiUrl = Config.Adhar_URL;
+    const headers = Config.GST_TOKEN;
+    //  console.log(apiUrl,"<<<==========", headers, "Code is here 114")
+    const responseData = await axios.post(
+      apiUrl,
+      null,
+      {
+        headers,
+        params: {
+          aadhaar_number: adhaarNumber
+        }
+      });
+    // console.log(apiUrl,"<<<==========", responseData.data.data, "Code is here 121")
+    if (responseData) {
+      return {
+        response: "Data Fetch Sucessfully",
+        data: responseData.data
+      };
+    } else {
+      return {
+        response: "Some Error"
+      }
+    }
+  }
+  catch (error) {
+    console.log(error);
+    throw error
+  }
+};
+
+const AdharVerify = async (req, res) => {
+  try {
+    const{id,otp}  = req.body;
+
+    if (!id||!otp) {
+      return {
+        response: "id and otp is required"
+      };
+    }
+
+    const apiUrl = Config.AdharVerify_URl;
+    const headers = Config.GST_TOKEN;
+    //  console.log(apiUrl,"<<<==========", headers, "Code is here 114")
+    const responseData = await axios.post(
+      apiUrl,
+      null,
+      {
+        headers,
+        params: {
+          id: id,
+          otp:otp
+        }
+      });
+    // console.log(apiUrl,"<<<==========", responseData.data.data, "Code is here 121")
+    if (responseData) {
+      return {
+        response: "Data Fetch Sucessfully",
+        data: responseData.data
+      };
+    } else {
+      return {
+        response: "Some Error"
+      }
+    }
+  }
+  catch (error) {
+    console.log(error);
+    throw error
+  }
+};
 module.exports = {
   dashBoardCount,
   checkPanCard,
-  checkGstin
+  checkGstin,
+  checkAdhar,
+  AdharVerify
 }

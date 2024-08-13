@@ -1,3 +1,4 @@
+const { union } = require("lodash");
 const mongoose = require("mongoose");
 const transactionDetailsSchema = new mongoose.Schema(
   {
@@ -168,6 +169,11 @@ const transactionDetailsSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    billingNumber:{
+      type:Number,
+      unique: true
+
+    },
     transactionAmount:{
       type: String,
       default: null,
@@ -194,6 +200,27 @@ const transactionDetailsSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+transactionDetailsSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    try {
+      const lastBilling = await this.constructor.findOne().sort("-billingNumber");
+      if (lastBilling && lastBilling.billingNumber) {
+        this.billingNumber = lastBilling.billingNumber + 1;
+      } else {
+        this.billingNumber = 1;
+      }
+    } catch (err) {
+      console.error("Error setting billing number:", err);
+      return next(err); // Pass error to next middleware
+    }
+  }
+  next();
+});
+
+transactionDetailsSchema.methods.getFormattedBillingNumber = function () {
+  return this.billingNumber.toString().padStart(3, "0");
+};
 
 const transactionDetails = mongoose.model(
   "transactionDetails",

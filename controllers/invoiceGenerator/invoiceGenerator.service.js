@@ -398,6 +398,7 @@ const transactionList = async (req, res) => {
                     billingAddress: tr?.billingAddress,
                     cardBillingTel: tr?.cardBillingTel,
                     billingEmail: tr?.billingEmail,
+                    billingNumber:tr?.billingNumber,
                     chargesType: tr?.chargesType,
                     bankName: tr?.bankName,
                     trnsType: tr?.trnsType,
@@ -441,7 +442,8 @@ const transactionList = async (req, res) => {
                     billingName: tr?.billingName,
                     billingCountry: tr?.billingCountry,
                     billingState: tr?.billingState,
-                    billingCity: tr?.billingCity,
+                    billingNumber:tr?.billingNumber,
+  billingCity: tr?.billingCity,
                     billingZip: tr?.billingZip,
                     billingAddress: tr?.billingAddress,
                     cardBillingTel: tr?.cardBillingTel,
@@ -576,6 +578,7 @@ const pgTransactionList = async (req, res) => {
                     deliveryAddress: tr?.deliveryAddress,
                     deliveryTel: tr?.deliveryTel,
                     billingName: tr?.billingName,
+                    billingNumber:tr?.billingNumber,
                     billingCountry: tr?.billingCountry,
                     billingState: tr?.billingState,
                     billingCity: tr?.billingCity,
@@ -630,6 +633,7 @@ const pgTransactionList = async (req, res) => {
                     billingState: tr?.billingState,
                     billingCity: tr?.billingCity,
                     billingZip: tr?.billingZip,
+                    billingNumber:tr?.billingNumber,
                     billingAddress: tr?.billingAddress,
                     cardBillingTel: tr?.cardBillingTel,
                     billingEmail: tr?.billingEmail,
@@ -674,6 +678,7 @@ const ledgerListWithFilter = async(req,res)=>{
         let query = {
             remarks: /^DI against /
         };
+    console.log(agencyId,"agencyId")
         if(agencyId){
             // let agencyIds = agencyId. split(',');
             // let userIdObjects = agencyIds.map(id => new ObjectId(id));
@@ -710,16 +715,33 @@ const ledgerListWithFilter = async(req,res)=>{
                     preserveNullAndEmptyArrays: true
                 }
             },
+            // {
+            //     $lookup: {
+            //         from: "transactionDetails",
+            //         localField: "cartId",
+            //         foreignField: "bookingId",
+            //         as: "transactionData"
+            //     }
+            // },
+            // {
+            //     $unwind: {
+            //         path: "$transactionData",
+            //         preserveNullAndEmptyArrays: true
+            //     }
+            // },
             {
-               $lookup:
-               {from:"users",
-                localField:"userId",
-                foreignField:"_id",
-                as:"userData"
-               }
+                $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "userData"
+                }
             },
             {
-                $unwind:{path:"$userData" ,preserveNullAndEmptyArrays: true}
+                $unwind: {
+                    path: "$userData",
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $project: {
@@ -734,8 +756,16 @@ const ledgerListWithFilter = async(req,res)=>{
                     remarks: 1,
                     creationDate: 1,
                     cartId: 1,
+                    billingNumber:1,
                     runningAmount: 1,
-                    userData:'$userData'
+                    userData: '$userData',
+                    billingNumber:1,
+                    createdAt:1,
+                    transactionId:1,
+
+                    // transactionData: '$transactionData',
+                    // // Optional: For debugging, include these in your projection
+                    // debug_transactionDataBookingId: "$transactionData.bookingId"
                 }
             }
         ];
@@ -751,6 +781,9 @@ const ledgerListWithFilter = async(req,res)=>{
                     currencyType:ldgr?.currencyType,
                     transactionType:ldgr?.transactionType,
                     remarks:ldgr?.remarks,
+                    billingNumber:ldgr?.billingNumber,
+                    createdAt:ldgr?.createdAt,
+                    transactionId:ldgr?.transactionId,
                     ACC_ALIAS:"CD",
                     userData:{
                         userId:ldgr?.userData?.userId,
@@ -764,7 +797,10 @@ const ledgerListWithFilter = async(req,res)=>{
                     currencyType:ldgr?.currencyType,
                     transactionType:"DEBIT",
                     remarks:ldgr?.remarks,
-                    ACC_ALIAS:ldgr?.userData?.userId,
+                    billingNumber:ldgr?.billingNumber,
+                    transactionId:ldgr?.transactionId,
+ createdAt:ldgr?.createdAt,
+ ACC_ALIAS:ldgr?.userData?.userId,
                     userData:{
                         userId:ldgr?.userData?.userId,
                     }

@@ -76,6 +76,10 @@ const ledgerSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    billingNumber:{
+      type:Number,
+      default:null
+    },
     creationDate: {
       type: Date,
       default: Date.now(),
@@ -93,6 +97,29 @@ const ledgerSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+ledgerSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    try {
+      const lastBilling = await this.constructor.findOne().sort("-billingNumber");
+      if (lastBilling && lastBilling.billingNumber) {
+        this.billingNumber = lastBilling.billingNumber + 1;
+      } else {
+        this.billingNumber = 1;
+      }
+    } catch (err) {
+      console.error("Error setting billing number:", err);
+      return next(err); // Pass error to next middleware
+    }
+  }
+  next();
+});
+
+ledgerSchema.methods.getFormattedBillingNumber = function () {
+  return this.billingNumber.toString().padStart(3, "0");
+};
+
+
 
 const ledger = mongoose.model("ledger", ledgerSchema);
 module.exports = ledger;

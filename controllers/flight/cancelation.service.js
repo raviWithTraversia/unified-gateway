@@ -230,7 +230,6 @@ const KafilaFun = async (
   let flightCancelUrl;
 
   let credentialType = "D";
-  // console.log(supplier,"supplier22");
   if (Authentication.CredentialType === "LIVE") {
     // Live Url here
     credentialType = "P";
@@ -241,7 +240,6 @@ const KafilaFun = async (
     createTokenUrl = `${supplier.supplierTestUrl}/api/Freport`;
     flightCancelUrl = `${supplier.supplierTestUrl}/api/FCancel`;
   }
-  // console.log(flightCancelUrl,"flightCancelUrl1");
   let tokenData = {
     P_TYPE: "API",
     R_TYPE: "FLIGHT",
@@ -279,7 +277,7 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0",
       };
-      // console.log(requestDataForCHarges,"requestDataForCHarges requestDataForCHarges")
+      console.log(requestDataForCHarges,"requestDataForCHarges requestDataForCHarges")
       let fSearchApiResponse = await axios.post(
         flightCancelUrl,
         requestDataForCHarges,
@@ -289,7 +287,7 @@ const KafilaFun = async (
           },
         }
       );
-      // console.log(fSearchApiResponse.data, "1API Responce")
+      console.log(fSearchApiResponse.data, "1API Responce")
       if (fSearchApiResponse.data.Status !== null) {
         return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage;
       }
@@ -686,16 +684,26 @@ const updateBookingStatus = async (req, res) => {
       ENV: credentialEnv,
       Version: "1.0.0.0.0.0"
     };
-    // console.log(createTokenUrl,"createTokenUrl");
-    // console.log(postData,"postDatapostData");
+
     const response = (await axios.post(createTokenUrl, postData, {
       headers: {
         'Content-Type': 'application/json'
       }
     }))?.data;
 
+    let fSearchApiResponse = await axios.post(
+      createTokenUrl,
+      postData,
+      
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+
       const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.bookingId });
-      // console.log(response,"responseresponseresponse");
       if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
         await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
           const apiPassenger = response.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
@@ -710,8 +718,8 @@ const updateBookingStatus = async (req, res) => {
               }
             }
             
-            //passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
-            // passenger.Status = "CONFIRMED";
+            passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
+            passenger.Status = "CONFIRMED";
           }
         }));
 

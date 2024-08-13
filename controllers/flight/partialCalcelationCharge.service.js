@@ -18,6 +18,7 @@ const partialCancelationCharge = async (req, res) => {
     PNR,
     TravelType,
     BookingId,
+    providerBookingId,
     CancelType,
     Reason,
     Sector    
@@ -26,8 +27,9 @@ const partialCancelationCharge = async (req, res) => {
     "Authentication",
     "Provider",
     "PNR",
-    "TravelType",
     "BookingId",
+    "TravelType",
+    "providerBookingId",
     "CancelType",
     "Reason",    
     "Sector"
@@ -99,6 +101,7 @@ const partialCancelationCharge = async (req, res) => {
       PNR,
       TravelType,
       BookingId,
+      providerBookingId,
       CancelType,      
       Sector,
       Reason,
@@ -125,6 +128,7 @@ async function handleflight(
   PNR,
   TravelType,
   BookingId,
+  providerBookingId,
   CancelType, 
   Reason, 
   Sector,
@@ -157,7 +161,7 @@ async function handleflight(
   }
 
   const BookingIdDetails = await bookingDetails.findOne({
-    providerBookingId: BookingId,
+    providerBookingId
   });
 
   if (!BookingIdDetails) {

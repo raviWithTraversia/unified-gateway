@@ -761,6 +761,7 @@ const ledgerListWithFilter = async(req,res)=>{
                     userData: '$userData',
                     billingNumber:1,
                     createdAt:1,
+                    transactionId:1,
 
                     // transactionData: '$transactionData',
                     // // Optional: For debugging, include these in your projection
@@ -782,6 +783,7 @@ const ledgerListWithFilter = async(req,res)=>{
                     remarks:ldgr?.remarks,
                     billingNumber:ldgr?.billingNumber,
                     createdAt:ldgr?.createdAt,
+                    transactionId:ldgr?.transactionId,
                     ACC_ALIAS:"CD",
                     userData:{
                         userId:ldgr?.userData?.userId,
@@ -796,7 +798,8 @@ const ledgerListWithFilter = async(req,res)=>{
                     transactionType:"DEBIT",
                     remarks:ldgr?.remarks,
                     billingNumber:ldgr?.billingNumber,
-                    createdAt:ldgr?.createdAt,
+                    transactionId:ldgr?.transactionId,
+ createdAt:ldgr?.createdAt,
  ACC_ALIAS:ldgr?.userData?.userId,
                     userData:{
                         userId:ldgr?.userData?.userId,

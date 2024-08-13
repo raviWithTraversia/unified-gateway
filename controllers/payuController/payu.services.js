@@ -645,7 +645,8 @@ const payuWalletResponceSuccess = async (req, res) => {
         findUser,
         productinfo,
         udf2,
-        loginUser
+        loginUser,
+        txnid
       );
       // console.log(DIdata, "DIdata1");
       // return false;
@@ -665,6 +666,7 @@ const payuWalletResponceSuccess = async (req, res) => {
           userId: userData._id,
           companyId: userData.company_ID,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionId: txnid,
           transactionAmount: amount,
           currencyType: "INR",
           fop: "CREDIT",
@@ -678,6 +680,7 @@ const payuWalletResponceSuccess = async (req, res) => {
           userId: userData._id,
           companyId: userData.company_ID,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionId: txnid,
           transactionAmount: udf3,
           currencyType: "INR",
           fop: "DEBIT",
@@ -732,6 +735,7 @@ const payuWalletResponceSuccess = async (req, res) => {
               userId: findUser._id,
               companyId: findUser.company_ID,
               ledgerId: ledgerId,
+              transactionId: txnid,
               transactionAmount: tdsAmount,
               currencyType: "INR",
               fop: "DEBIT",

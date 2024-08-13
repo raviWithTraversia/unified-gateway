@@ -147,8 +147,8 @@ const userInsert = async (req, res) => {
       "lastName",
       "phoneNumber",
       "userStatus",
-      "userPanName",
-      "userPanNumber",
+      // "userPanName",
+      // "userPanNumber",
       "nationality",
       "sales_In_Charge",
       "roleId",
@@ -225,7 +225,8 @@ const userInsert = async (req, res) => {
       creditBalance,
       maxCreditLimit,
       agencyGroupId,
-      adhar_Detail
+      adhar_Detail,
+      adhar_Number
     } = req.body;
 
     const existingUser = await User.findOne({ email });
@@ -333,6 +334,7 @@ const userInsert = async (req, res) => {
       modifiedBy: req?.user?.id || null,
       cityId,
       adhar_Detail,
+      adhar_Number,
       resetToken: resetToken
     });
 

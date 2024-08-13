@@ -34,14 +34,15 @@ const addRegistration = async (req, res) => {
       gstPinCode,
       gstCity,
       agencyGroupId,
-      adharDetail
+      adharDetail,
+      adharNumber
     } = req.body;
 
     const fieldNames = [
       "companyId",
       "companyName",
-      "panNumber",
-      "panName",
+      // "panNumber",
+      // "panName",
       "firstName",
       "lastName",
       "email",
@@ -152,7 +153,8 @@ const addRegistration = async (req, res) => {
       gstPinCode: gstPinCode || null,
       agencyGroupId,
       parent,
-      adharDetail
+      adharDetail,
+      adharNumber
     });
     let newRegistrationRes = await newRegistration.save();
     // console.log(newRegistrationRes);

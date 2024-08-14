@@ -89,6 +89,7 @@ const getAllBooking = async (req, res) => {
     let filter = {};
     console.log(typeof agencyId, "hshds");
     if (agencyId !== undefined && agencyId !== "") {
+      console.log(agencyId, "agencyId");
       filter.AgencyId = agencyId;
     }
 
@@ -326,8 +327,10 @@ const getAllBooking = async (req, res) => {
     let filter = {};
     if (agencyId !== undefined && agencyId !== "") {
       // filter.userId={}
+      filter.userId = agencyId;
       // let allagencyId = agencyId.map(id => new ObjectId(id));
       // filter.AgencyId={$in:allagencyId}
+
       // console.log(filter.AgencyId)
     }
 
@@ -359,7 +362,6 @@ const getAllBooking = async (req, res) => {
         $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
       };
     }
-
     const bookingDetails = await bookingdetails
       .find(filter)
       .populate({
@@ -1458,15 +1460,9 @@ const getBookingBill = async (req, res) => {
   for (let [index, element] of bookingBill.entries()) {
     let netAmount = 0;
     netAmount = await calculateOfferedPricePaxWise(element);
-    element?.getCommercialArray.map(async (item) => {
-      // let ttaxBreakup = 0;
-      // item?.TaxBreakup.map((item)=>{
-      //   ttaxBreakup += item.Amount;
-      // })
 
-      // let commercialTaxToAdd = 0;
-      // let commercialTaxToSub = 0;
-      item?.CommercialBreakup.map((items) => {
+    for (let item of element?.getCommercialArray) {
+      for (let items of item?.CommercialBreakup) {
         if (items?.CommercialType == "Discount") {
           element.commission = parseFloat(
             (parseFloat(element.commission) + parseFloat(items.Amount)).toFixed(
@@ -1479,24 +1475,15 @@ const getBookingBill = async (req, res) => {
             (parseFloat(element.tds) + parseFloat(items.Amount)).toFixed(2)
           );
         }
-        // if(items?.CommercialType == "PLB" || items?.CommercialType == "Discount" || items?.CommercialType == "Incentive" || items?.CommercialType == "SegmentKickback"){
-        //   commercialTaxToSub += parseFloat(items.Amount).toFixed(2);
-        // }
-        // if(items?.CommercialType == "TDS" || items?.CommercialType == "Markup" || items?.CommercialType == "ServiceFees" || items?.CommercialType == "BookingFees" || items?.CommercialType == "otherTax" || items?.CommercialType == "GST" || items?.CommercialType == "FixedServiceFees" || items?.CommercialType =="FixedBookingFees"){
-        //   commercialTaxToAdd += parseFloat(items.Amount).toFixed(2);
-        // }
-      });
+      }
 
-      // console.log( typeof(item?.Tax ?? 0), typeof(item?.BaseFare ?? 0) ,typeof(ttaxBreakup ?? 0) , typeof(parseInt(commercialTaxToAdd)) , typeof(parseInt(commercialTaxToSub)), "abcxyz");
-      // let tAmount = (item?.Tax ?? 0) + (item?.BaseFare ?? 0) + (ttaxBreakup ?? 0) + parseInt(commercialTaxToAdd) - parseInt(commercialTaxToSub);
-      // // console.log(tAmount, item.Tax, item.BaseFare,ttaxBreakup,commercialTaxToAdd,commercialTaxToSub, "skldsj");
-      // netAmount += tAmount;
-
+      // Rounding off the values
       element.netAmount = await priceRoundOffNumberValues(netAmount);
       let ccomisn = await priceRoundOffNumberValues(element.commission);
       element.commission = ccomisn;
       element.tds = await priceRoundOffNumberValues(element.tds);
-    });
+      console.log(element.tds, "sjie");
+    }
   }
 
   bookingBill.forEach(async (element, index) => {
@@ -2133,6 +2120,11 @@ const getBillingData = async (req, res) => {
       }
     });
     // console.log(element?.ticketNo?.ticketDetails,"jkddskjjd");
+
+    let ccomisn = await priceRoundOffNumberValues(element.commission);
+    element.commission = ccomisn;
+    element.tds = await priceRoundOffNumberValues(element.tds);
+    console.log(element.tds, "sjie");
     let ticketNumber = [element.pnr];
     if (element.ticketNo?.ticketDetails) {
       ticketNumber = await getTicketNumberBySector(

@@ -1206,6 +1206,7 @@ for(let [index,element] of bookingBill.entries()){
       }
       if (items?.CommercialType == "TDS") {
         element.tds = parseFloat((parseFloat(element.tds) + parseFloat(items.Amount)).toFixed(2));
+        
       }
       // if(items?.CommercialType == "PLB" || items?.CommercialType == "Discount" || items?.CommercialType == "Incentive" || items?.CommercialType == "SegmentKickback"){
       //   commercialTaxToSub += parseFloat(items.Amount).toFixed(2);
@@ -1224,6 +1225,7 @@ for(let [index,element] of bookingBill.entries()){
     let ccomisn = await priceRoundOffNumberValues(element.commission);
     element.commission = ccomisn;
     element.tds = await priceRoundOffNumberValues(element.tds);
+    console.log(element.tds,"sjie")
   })
 }
 

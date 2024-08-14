@@ -787,8 +787,8 @@ const ledgerListWithFilter = async(req,res)=>{
                     billingNumber:ldgr?.billingNumber,
                     createdAt:ldgr?.createdAt,
                     transactionId:ldgr?.transactionId,
-                    ACC_ALIAS:"CD",
-                    userData:{
+                    ACC_ALIAS:ldgr?.userData?.userId,
+                                        userData:{
                         userId:ldgr?.userData?.userId,
                     }
                 };
@@ -803,7 +803,8 @@ const ledgerListWithFilter = async(req,res)=>{
                     billingNumber:ldgr?.billingNumber,
                     transactionId:ldgr?.transactionId,
  createdAt:ldgr?.createdAt,
- ACC_ALIAS:ldgr?.userData?.userId,
+ ACC_ALIAS:"CD",
+
                     userData:{
                         userId:ldgr?.userData?.userId,
                     }

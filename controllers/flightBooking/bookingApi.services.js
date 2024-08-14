@@ -43,7 +43,6 @@ const getAllBooking = async (req, res) => {
     BookedBy,
   } = req.body;
   const fieldNames = [
-    "userId",
     "agencyId",
     "bookingId",
     "pnr",
@@ -67,11 +66,11 @@ const getAllBooking = async (req, res) => {
       data: `Missing or null fields: ${missingFieldsString}`,
     };
   }
-  if (!userId) {
-    return {
-      response: "User id does not exist",
-    };
-  }
+  // if (!userId) {
+  //   return {
+  //     response: "User id does not exist",
+  //   };
+  // }
 
   // Check if company Id exists
   const checkUserIdExist = await User.findById(userId)

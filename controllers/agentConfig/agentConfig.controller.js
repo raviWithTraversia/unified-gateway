@@ -143,10 +143,51 @@ const getUserProfile = async (req, res) => {
   };
 
 
+  // update Sms Balance //
+  const updateSmsBalance = async (req,res) => {
+    try{
+   // console.log(req.body);
+    const result = await agentConfigServices.updateSmsBalance(req,res);
+    console.log(result.response)
+   if(result.response == 'smsBalance updated successfully')
+{
+        apiSucessRes(
+           res,
+           result.response,
+           result.data,
+           ServerStatusCode.SUCESS_CODE
+        )
+       }
+    else if(result.response == 'Config not found'){
+     apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.PRECONDITION_FAILED,
+        true
+     )
+    }else{
+        apiErrorres(
+            res,
+            errorResponse.SOME_UNOWN,
+            ServerStatusCode.RESOURCE_NOT_FOUND,
+            true 
+        )
+    }
+    }catch(error){
+     apiErrorres(
+        res,
+        error,
+        ServerStatusCode.SERVER_ERROR,
+        true
+     )
+    }
+};
+
 module.exports = {
     addAgentConfiguration,
     updateAgentConfiguration,
     getAgentConfig,
     updateAgencyProfile,
-    getUserProfile
+    getUserProfile,
+    updateSmsBalance
 }

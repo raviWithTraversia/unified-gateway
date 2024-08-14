@@ -18,6 +18,7 @@ const partialCancelationCharge = async (req, res) => {
     PNR,
     TravelType,
     BookingId,
+    providerBookingId,
     CancelType,
     Reason,
     Sector    
@@ -99,6 +100,7 @@ const partialCancelationCharge = async (req, res) => {
       PNR,
       TravelType,
       BookingId,
+      providerBookingId,
       CancelType,      
       Sector,
       Reason,
@@ -125,6 +127,7 @@ async function handleflight(
   PNR,
   TravelType,
   BookingId,
+  providerBookingId,
   CancelType, 
   Reason, 
   Sector,
@@ -157,7 +160,7 @@ async function handleflight(
   }
 
   const BookingIdDetails = await bookingDetails.findOne({
-    providerBookingId: BookingId,
+    providerBookingId: providerBookingId,
   });
 
   if (!BookingIdDetails) {
@@ -218,7 +221,8 @@ const KafilaFun = async (
   PNR,
   TravelType,
   BookingId,
-  CancelType, 
+  CancelType,
+  providerBookingId, 
   Reason, 
   Sector,
   agencyUserId,
@@ -264,7 +268,7 @@ const KafilaFun = async (
         R_NAME: "CANCEL",
         R_DATA: {
             ACTION: "CANCEL_CHARGE",
-            BOOKING_ID: BookingId,
+            BOOKING_ID: providerBookingId,
             CANCEL_TYPE: "PARTIAL_CANCELLATION",
             REASON: Reason,
             SECTORS:Sector,
@@ -277,6 +281,7 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0"
     };    
+    console.log(requestDataForCHarges);
        
       let fSearchApiResponse = await axios.post(
         flightCancelUrl,

@@ -100,6 +100,7 @@ const addAgentConfiguration = async (req, res) => {
     throw error;
   }
 };
+
 const updateAgentConfiguration = async (req, res) => {
   try {
     const id = req.query.id;
@@ -110,21 +111,7 @@ const updateAgentConfiguration = async (req, res) => {
     updates.maxcreditLimit=existingConfig?.maxcreditLimit
     const updateData = await agentConfigsModels.findByIdAndUpdate(id, updates, { new: true })
 
-    /// console.log("====>", existingConfig);
-    // if (!existingConfig) {
-    //   return {
-    //     response: "Config not found",
-    //   };
-    // }
-    // for (let key in updates) {
-    //   if (existingConfig[key] !== updates[key]) {
-    //     existingConfig[key] = updates[key];
-    //   } else {
-    //     existingConfig[key] = existingConfig[key];
-    //   }
-    // }
-
-    // let configRes = await existingConfig.save();
+  
 
     if (updateData) {
       const LogsData = {
@@ -148,6 +135,74 @@ const updateAgentConfiguration = async (req, res) => {
     throw error;
   }
 };
+
+//Update Sms Balance//
+const updateSmsBalance = async (req, res) => {
+  try {
+    const id = req.query.id;
+    const { smsBalance } = req.body; 
+
+    if (smsBalance === undefined) {
+      return res.status(400).json({
+        error: "No smsBalance provided for update",
+      });
+    }
+
+    const existingConfig = await agentConfigsModels.findById(id);
+    if (!existingConfig) {
+      return ({
+        error: "Config not found",
+      });
+    }
+
+    const userData = await userModel.findById(req.user._id);
+
+   
+    const updateData = await agentConfigsModels.findByIdAndUpdate(
+      id,
+      { smsBalance }, 
+      { new: true }
+    );
+
+
+    if (updateData) {
+      
+      const LogsData = {
+        eventName: "ConfigAgency",
+        doerId: req.user._id,
+        doerName: userData?.fname,
+        companyId: existingConfig?.companyId, 
+        oldValue: existingConfig,
+        newValue: updateData,
+        documentId: id,
+        description: "Updated smsBalance",
+      };
+
+      
+      EventLogs(LogsData);
+
+      
+      return ({
+        response: "smsBalance updated successfully",
+      });
+    } else {
+      return({
+        error: "Config not found",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    if (!res.headersSent) { 
+      return ({
+        error: "An error occurred while updating smsBalance",
+      });
+    }
+  }
+};
+
+
+
+
 const getAgentConfig = async (req, res) => {
   try {
     let { id } = req.query;
@@ -182,6 +237,7 @@ const getAgentConfig = async (req, res) => {
     throw error;
   }
 };
+
 const updateAgencyProfile = async (req, res) => {
   try {
     let uploadDataId = req.query.id
@@ -264,10 +320,14 @@ const getUserProfile = async (req, res) => {
     throw error
   }
 };
+
+//Update smsBalance
 module.exports = {
   addAgentConfiguration,
   updateAgentConfiguration,
   getAgentConfig,
   updateAgencyProfile,
-  getUserProfile
+  getUserProfile,
+  updateSmsBalance
+
 };

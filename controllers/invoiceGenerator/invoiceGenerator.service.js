@@ -362,14 +362,16 @@ const transactionList = async (req, res) => {
         let transactions = [];
         if(transtns.length>0){
             for(let tr of transtns){
+                var Transaction=await priceRoundOffNumberValues(tr.transactionAmount)
                 let pGateway = '';
                 const gateway = tr?.paymentGateway?.toLowerCase();
 
                 if (gateway === 'payu') {
                     pGateway = 'PYU';
                 } else if (gateway === 'easebuzz') {
-                    pGateway = 'EBZ';
+                    pGateway = 'EZB';
                 }
+                console.log(pGateway)
                 let obj1 = {
                     _id: tr._id,
                     userId: tr?.userId,
@@ -398,6 +400,7 @@ const transactionList = async (req, res) => {
                     billingAddress: tr?.billingAddress,
                     cardBillingTel: tr?.cardBillingTel,
                     billingEmail: tr?.billingEmail,
+                    billingNumber:tr?.billingNumber,
                     chargesType: tr?.chargesType,
                     bankName: tr?.bankName,
                     trnsType: tr?.trnsType,
@@ -408,7 +411,7 @@ const transactionList = async (req, res) => {
                     trnsAddressResult: tr?.trnsAddressResult,
                     trnsPostCodeResult: tr?.trnsPostCodeResult,
                     pgCharges:tr?.pgCharges,
-                    transactionAmount: tr?.transactionAmount,
+                    transactionAmount: Transaction,
                     trnsStatusMessage: tr?.trnsStatusMessage,
                     creationDate: tr?.creationDate,
                     createdAt: tr?.createdAt,
@@ -441,7 +444,8 @@ const transactionList = async (req, res) => {
                     billingName: tr?.billingName,
                     billingCountry: tr?.billingCountry,
                     billingState: tr?.billingState,
-                    billingCity: tr?.billingCity,
+                    billingNumber:tr?.billingNumber,
+  billingCity: tr?.billingCity,
                     billingZip: tr?.billingZip,
                     billingAddress: tr?.billingAddress,
                     cardBillingTel: tr?.cardBillingTel,
@@ -456,7 +460,7 @@ const transactionList = async (req, res) => {
                     trnsAddressResult: tr?.trnsAddressResult,
                     trnsPostCodeResult: tr?.trnsPostCodeResult,
                     pgCharges:tr?.pgCharges,
-                    transactionAmount: tr?.transactionAmount,
+                    transactionAmount: Transaction,
                     trnsStatusMessage: tr?.trnsStatusMessage,
                     creationDate: tr?.creationDate,
                     createdAt: tr?.createdAt,
@@ -555,6 +559,7 @@ const pgTransactionList = async (req, res) => {
         let transactions = [];
         if(transtns.length>0){
             for(let tr of transtns){
+                var PgCharges=await priceRoundOffNumberValues(tr.pgCharges)
                 let obj2 ={
                     _id: tr._id,
                     userId: tr?.userId,
@@ -576,6 +581,7 @@ const pgTransactionList = async (req, res) => {
                     deliveryAddress: tr?.deliveryAddress,
                     deliveryTel: tr?.deliveryTel,
                     billingName: tr?.billingName,
+                    billingNumber:tr?.billingNumber,
                     billingCountry: tr?.billingCountry,
                     billingState: tr?.billingState,
                     billingCity: tr?.billingCity,
@@ -592,7 +598,7 @@ const pgTransactionList = async (req, res) => {
                     statusDetail: tr?.statusDetail,
                     trnsAddressResult: tr?.trnsAddressResult,
                     trnsPostCodeResult: tr?.trnsPostCodeResult,
-                    pgCharges:tr?.pgCharges,
+                    pgCharges:PgCharges,
                     transactionAmount: tr?.transactionAmount,
                     trnsStatusMessage: tr?.trnsStatusMessage,
                     creationDate: tr?.creationDate,
@@ -630,6 +636,7 @@ const pgTransactionList = async (req, res) => {
                     billingState: tr?.billingState,
                     billingCity: tr?.billingCity,
                     billingZip: tr?.billingZip,
+                    billingNumber:tr?.billingNumber,
                     billingAddress: tr?.billingAddress,
                     cardBillingTel: tr?.cardBillingTel,
                     billingEmail: tr?.billingEmail,
@@ -642,7 +649,7 @@ const pgTransactionList = async (req, res) => {
                     statusDetail: tr?.statusDetail,
                     trnsAddressResult: tr?.trnsAddressResult,
                     trnsPostCodeResult: tr?.trnsPostCodeResult,
-                    pgCharges:tr?.pgCharges,
+                    pgCharges:PgCharges,
                     transactionAmount: tr?.transactionAmount,
                     trnsStatusMessage: tr?.trnsStatusMessage,
                     creationDate: tr?.creationDate,
@@ -674,6 +681,7 @@ const ledgerListWithFilter = async(req,res)=>{
         let query = {
             remarks: /^DI against /
         };
+    console.log(agencyId,"agencyId")
         if(agencyId){
             // let agencyIds = agencyId. split(',');
             // let userIdObjects = agencyIds.map(id => new ObjectId(id));
@@ -710,16 +718,33 @@ const ledgerListWithFilter = async(req,res)=>{
                     preserveNullAndEmptyArrays: true
                 }
             },
+            // {
+            //     $lookup: {
+            //         from: "transactionDetails",
+            //         localField: "cartId",
+            //         foreignField: "bookingId",
+            //         as: "transactionData"
+            //     }
+            // },
+            // {
+            //     $unwind: {
+            //         path: "$transactionData",
+            //         preserveNullAndEmptyArrays: true
+            //     }
+            // },
             {
-               $lookup:
-               {from:"users",
-                localField:"userId",
-                foreignField:"_id",
-                as:"userData"
-               }
+                $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "userData"
+                }
             },
             {
-                $unwind:{path:"$userData" ,preserveNullAndEmptyArrays: true}
+                $unwind: {
+                    path: "$userData",
+                    preserveNullAndEmptyArrays: true
+                }
             },
             {
                 $project: {
@@ -734,8 +759,16 @@ const ledgerListWithFilter = async(req,res)=>{
                     remarks: 1,
                     creationDate: 1,
                     cartId: 1,
+                    billingNumber:1,
                     runningAmount: 1,
-                    userData:'$userData'
+                    userData: '$userData',
+                    billingNumber:1,
+                    createdAt:1,
+                    transactionId:1,
+
+                    // transactionData: '$transactionData',
+                    // // Optional: For debugging, include these in your projection
+                    // debug_transactionDataBookingId: "$transactionData.bookingId"
                 }
             }
         ];
@@ -751,8 +784,11 @@ const ledgerListWithFilter = async(req,res)=>{
                     currencyType:ldgr?.currencyType,
                     transactionType:ldgr?.transactionType,
                     remarks:ldgr?.remarks,
-                    ACC_ALIAS:"CD",
-                    userData:{
+                    billingNumber:ldgr?.billingNumber,
+                    createdAt:ldgr?.createdAt,
+                    transactionId:ldgr?.transactionId,
+                    ACC_ALIAS:ldgr?.userData?.userId,
+                                        userData:{
                         userId:ldgr?.userData?.userId,
                     }
                 };
@@ -764,7 +800,11 @@ const ledgerListWithFilter = async(req,res)=>{
                     currencyType:ldgr?.currencyType,
                     transactionType:"DEBIT",
                     remarks:ldgr?.remarks,
-                    ACC_ALIAS:ldgr?.userData?.userId,
+                    billingNumber:ldgr?.billingNumber,
+                    transactionId:ldgr?.transactionId,
+ createdAt:ldgr?.createdAt,
+ ACC_ALIAS:"CD",
+
                     userData:{
                         userId:ldgr?.userData?.userId,
                     }

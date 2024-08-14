@@ -82,7 +82,7 @@ const getAllBooking = async (req, res) => {
     console.log(typeof(agencyId),"hshds")
     if (agencyId !== undefined && agencyId !== '') {
       console.log(agencyId,"agencyId")
-      filter.userId =agencyId;
+      filter.AgencyId =agencyId;
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {

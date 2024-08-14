@@ -368,8 +368,9 @@ const transactionList = async (req, res) => {
                 if (gateway === 'payu') {
                     pGateway = 'PYU';
                 } else if (gateway === 'easebuzz') {
-                    pGateway = 'EBZ';
+                    pGateway = 'EZB';
                 }
+                console.log(pGateway)
                 let obj1 = {
                     _id: tr._id,
                     userId: tr?.userId,

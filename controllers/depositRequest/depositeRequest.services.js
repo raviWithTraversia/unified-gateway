@@ -223,8 +223,8 @@ const approveAndRejectDeposit = async (req, res) => {
       let DIdata = await recieveDI(configData, findUser, updateResponse?.product, updateResponse?.amount, loginUser._id)
       let runningAmount = 0;
       if (updateResponse.product === "Rail") {
-        configData.maxRailCredit += (updateResponse.amount + DIdata);
-        runningAmount = configData.maxRailCredit
+        configData.railCashBalance += (updateResponse.amount + DIdata);
+        runningAmount = configData.railCashBalance
       }
       if (updateResponse.product === "Flight") {
         configData.maxcreditLimit += (updateResponse.amount + DIdata);

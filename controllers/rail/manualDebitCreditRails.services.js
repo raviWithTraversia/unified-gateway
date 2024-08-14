@@ -1,0 +1,328 @@
+const User = require("../../models/User");
+const agentConfig = require("../../models/AgentConfig");
+const creditRequest = require("../../models/CreditRequest");
+const EventLogs = require('../logs/EventApiLogsCommon');
+const ledgerRail = require("../../models/Irctc/ledgerRail");
+const { priceRoundOffNumberValues } = require("../commonFunctions/common.function");
+const axios = require("axios");
+const { response } = require("../../routes/railRoute");
+
+
+const manualDebitCredit = async (req, res) => {
+    try {
+      let { userId, amountStatus, amount,pgCharges, product, remarks,ApplyDI } = req.body;
+      if (!userId) {
+        return { response: "User id does not exist" }
+      }
+      let amountforDI = amount;
+      if(pgCharges){
+        amount = amount + parseInt(pgCharges);
+      }else{
+        amount = amount;
+      }
+      
+      const doerId = req.user._id;
+      const loginUser = await User.findById(doerId);
+      if (amountStatus == "credit") {
+        const findUser = await User.findById(userId);
+        const configData = await agentConfig.findOne({ userId }).populate('diSetupIds').populate({
+          path: 'diSetupIds',
+          populate: {
+            path: 'diSetupIds', 
+            model: 'diSetup'
+          }
+        });
+        if (!configData) {
+          return {
+            response: 'User not found'
+          }
+        }
+         console.log(configData,"configData",findUser,"findUser",product,"product");
+        let DIdata; // = await recieveDI(configData, findUser, product, amount, loginUser._id);
+        if(ApplyDI == true){
+          DIdata = 0;
+        }else{
+          DIdata = await recieveDI(configData, findUser, product, amountforDI, loginUser._id);
+        }
+
+        if (product === "Rail") {
+          configData.railCashBalance += amount;
+          runningAmount = await priceRoundOffNumberValues(configData.railCashBalance)
+        }
+        if (product === "Flight") {
+          configData.maxcreditLimit += amount;
+          runningAmount = await priceRoundOffNumberValues(configData.maxcreditLimit)
+        }
+        await configData.save();
+        const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+        await ledgerRail.create({
+          userId: findUser._id,
+          companyId: findUser.company_ID,
+          ledgerId: ledgerId,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "CREDIT",
+          transactionType: "CREDIT",
+          runningAmount,
+          remarks,
+          transactionBy: loginUser._id,
+          product
+        });
+  
+        if(pgCharges){
+          await ledgerRail.create({
+            userId: findUser._id,
+            companyId: findUser.company_ID,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount: pgCharges,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "DEBIT",
+            runningAmount:runningAmount - parseInt(pgCharges),
+            remarks: "Wallet debited for PG charges(EaseBuzz)",
+            transactionBy: loginUser._id,
+          });
+          await agentConfig.findOneAndUpdate(
+            { userId: userId },
+            { maxcreditLimit: await priceRoundOffNumberValues(runningAmount - parseInt(pgCharges) )},
+            {new:true}
+          );
+        }
+  
+        const LogsData = {
+          eventName: "creditRequest",
+          doerId: loginUser._id,
+          doerName: loginUser.fname,
+          companyId: findUser.company_ID,
+          documentId: findUser._id,
+          description: "Amount Credited"
+        };
+        EventLogs(LogsData);
+        if(DIdata !=null || DIdata != 0){
+          let tdsAmount = parseInt(DIdata) * (5/100);
+          if(tdsAmount != 0){
+            const findUser = await User.findById(userId);
+            const configData = await agentConfig.findOne({ userId });
+            if (!configData) {
+              return {
+                response: 'User not found'
+              }
+            }
+            if (product === "Rail") {
+              if (configData?.maxcreditLimit < amount) {
+                return { response: "Insufficient Balance" }
+              }
+              configData.railCashBalance -= tdsAmount;
+              runningAmount = configData.railCashBalance
+            }
+            if (product === "Flight") {
+              if (configData?.maxcreditLimit < amount) {
+                return { response: "Insufficient Balance" }
+              }
+              configData.maxcreditLimit -= tdsAmount;
+              runningAmount = configData.maxcreditLimit
+            }
+            await configData.save();
+            const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+            await ledgerRail.create({
+              userId: findUser._id,
+              companyId: findUser.company_ID,
+              ledgerId: ledgerId,
+              transactionAmount: tdsAmount,
+              currencyType: "INR",
+              fop: "DEBIT",
+              transactionType: "DEBIT",
+              runningAmount,
+              remarks: `TDS against ${tdsAmount} DI deposit.`,
+              transactionBy: loginUser._id,
+              product
+            });
+            const LogsData = {
+              eventName: "debitRequest",
+              doerId: loginUser._id,
+              doerName: loginUser.fname,
+              companyId: findUser.company_ID,
+              documentId: findUser._id,
+              description: "Amount Debited"
+            };
+            EventLogs(LogsData)
+          }
+        }
+      }
+      if (amountStatus == "debit") {
+        const findUser = await User.findById(userId);
+        const configData = await agentConfig.findOne({ userId });
+        if (!configData) {
+          return {
+            response: 'User not found'
+          }
+        }
+        if (product === "Rail") {
+          if (configData?.maxcreditLimit < amount) {
+            return { response: "Insufficient Balance" }
+          }
+          configData.railCashBalance -= amount;
+          runningAmount = configData.railCashBalance
+        }
+        if (product === "Flight") {
+          if (configData?.maxcreditLimit < amount) {
+            return { response: "Insufficient Balance" }
+          }
+          configData.maxcreditLimit -= amount;
+          runningAmount = configData.maxcreditLimit
+        }
+        await configData.save();
+        const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); 
+        await ledgerRail.create({
+          userId: findUser._id,
+          companyId: findUser.company_ID,
+          ledgerId: ledgerId,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount,
+          remarks,
+          transactionBy: loginUser._id,
+          product
+        });
+        const LogsData = {
+          eventName: "debitRequest",
+          doerId: loginUser._id,
+          doerName: loginUser.fname,
+          companyId: findUser.company_ID,
+          documentId: findUser._id,
+          description: "Amount Debited"
+        };
+  
+       
+        EventLogs(LogsData)
+      }
+      return { response: "Amount Transfer Successfully" }
+    } catch (error) {
+      console.log("error inside service: ", error)
+      throw error
+    }
+  }
+
+
+  const recieveDI = async (configData, findUser, product, amount, transactionBy) => {
+    try{
+      console.log("jksds");
+    configData.diSetupIds.diSetupIds = await configData.diSetupIds.diSetupIds.filter(diSetup =>
+      diSetup.status === true &&
+      // diSetup.companyId.toString() === findUser.company_ID.toString() &&
+      new Date() >= new Date(diSetup.validFromDate) &&
+      new Date() <= new Date(diSetup.validToDate)
+    );
+    // console.log(configData?.diSetupIds?.diSetupIds,"hjshsah");
+    let slabOptions = configData?.diSetupIds?.diSetupIds;
+    let bonusAmount = 0; 
+    let isMultipleSlab = false;
+    let slabBreakups = [];
+    // console.log(slabOptions,"slabOptions111");
+    if (slabOptions[slabOptions.length - 1]?.minAmount < amount) {
+      bonusAmount = (parseInt(slabOptions[slabOptions.length - 1]?.diPersentage) / 100) * amount;
+      slabBreakups.push(slabOptions[slabOptions.length - 1]);
+      // console.log(bonusAmount,"bonusAmount1");
+    } else {
+      for (let i = 0; i < slabOptions.length; i++) {
+        if (!isMultipleSlab) {
+          if (slabOptions[i].minAmount == amount) {
+            bonusAmount = (parseInt(slabOptions[i].diPersentage) / 100) * amount;
+            slabBreakups.push(slabOptions[i]);
+            break;
+          }
+        }
+        if (slabOptions[i].minAmount > amount) {
+          isMultipleSlab = true;
+          let mainAmountBonus = ((parseInt(slabOptions[i - 1]?.diPersentage) || 0) / 100) * (parseInt(slabOptions[i - 1]?.minAmount || 0));
+          let restAmount = amount - slabOptions[i - 1]?.minAmount || 0;
+          let restAmountBonus = ((parseInt(slabOptions[i]?.diPersentage) || 0) / 100) * restAmount;
+          bonusAmount = mainAmountBonus + restAmountBonus;
+        
+          // console.log(bonusAmount,mainAmountBonus,restAmountBonus,'bonusAmount2');
+          if (bonusAmount > 0) {
+            if (!slabOptions[i - 1]) {
+              slabBreakups.push(slabOptions[i])
+            } else {
+              slabBreakups.push(slabOptions[i - 1], slabOptions[i])
+            }
+          }
+          break;
+        }
+      }
+    }
+    // console.log(bonusAmount,"bonusAmount11");
+    const ADRdata = new AgentDiRecieve({
+      userId: findUser._id,
+      companyId: findUser.company_ID,
+      amountDeposit: amount,
+      diAmount: bonusAmount,
+      slabBreakups: slabBreakups
+    });
+    // console.log(slabBreakups,"slabBreakups1")
+    if (slabBreakups.length) {
+      await ADRdata.save();
+      const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+      if (product === "Rail") {
+        configData.railCashBalance += bonusAmount;
+        runningAmount = await priceRoundOffNumberValues(configData.railCashBalance)
+      }
+      if (product === "Flight") {
+        configData.maxcreditLimit += bonusAmount;
+        runningAmount = await priceRoundOffNumberValues(configData.maxcreditLimit)
+      }
+      await configData.save();
+      await ledgerRail.create({
+        userId: findUser._id,
+        companyId: findUser.company_ID,
+        ledgerId: ledgerIds,
+        transactionAmount: bonusAmount,
+        currencyType: "INR",
+        fop: "CREDIT",
+        transactionType: "CREDIT",
+        runningAmount,
+        remarks: `DI against ${amount} deposit.`,
+        transactionBy,
+        product
+      });
+    }
+    return bonusAmount;
+  }catch(error){
+    return null
+  }
+  }
+  
+  const createLeadger = async(getuserDetails,item,currencyType,fop,transactionType,runningAmount,remarks)=>{
+    try{
+      await ledgerRail.create({
+        userId: getuserDetails._id,
+        companyId: getuserDetails.company_ID._id,
+        ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+        transactionAmount:
+          item?.offeredPrice +
+          item?.totalMealPrice +
+          item?.totalBaggagePrice +
+          item?.totalSeatPrice,
+        currencyType: currencyType,
+        fop: fop,
+        transactionType: transactionType,
+        runningAmount: runningAmount,
+        remarks: remarks,
+        transactionBy: getuserDetails._id,
+        cartId: item?.BookingId,
+      });
+    }catch(error){
+      return {
+        IsSucess: false,
+        response: "Error creating leadger:",
+        error,
+      };
+    }
+  }
+
+  module.exports = {
+    
+    manualDebitCredit
+  };

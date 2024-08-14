@@ -126,8 +126,8 @@ const manualDebitCredit = async (req, res) => {
       }
       // console.log(DIdata,"DIdata");
       if (product === "Rail") {
-        configData.maxRailCredit += amount;
-        runningAmount = await priceRoundOffNumberValues(configData.maxRailCredit)
+        configData.railCashBalance += amount;
+        runningAmount = await priceRoundOffNumberValues(configData.railCashBalance)
       }
       if (product === "Flight") {
         configData.maxcreditLimit += amount;
@@ -192,8 +192,8 @@ const manualDebitCredit = async (req, res) => {
             if (configData?.maxcreditLimit < amount) {
               return { response: "Insufficient Balance" }
             }
-            configData.maxRailCredit -= tdsAmount;
-            runningAmount = configData.maxRailCredit
+            configData.railCashBalance -= tdsAmount;
+            runningAmount = configData.railCashBalance
           }
           if (product === "Flight") {
             if (configData?.maxcreditLimit < amount) {
@@ -241,8 +241,8 @@ const manualDebitCredit = async (req, res) => {
         if (configData?.maxcreditLimit < amount) {
           return { response: "Insufficient Balance" }
         }
-        configData.maxRailCredit -= amount;
-        runningAmount = configData.maxRailCredit
+        configData.railCashBalance -= amount;
+        runningAmount = configData.railCashBalance
       }
       if (product === "Flight") {
         if (configData?.maxcreditLimit < amount) {

@@ -79,7 +79,9 @@ const agentConfigSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  maxRailCredit: {
+
+  
+  railCashBalance: {
     type: Number, default: 0
   },
   holdPNRAllowed: {

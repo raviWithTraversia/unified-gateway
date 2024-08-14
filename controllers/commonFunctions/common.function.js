@@ -845,8 +845,8 @@ const recieveDI = async (configData, findUser, product, amount, transactionBy) =
     await ADRdata.save();
     const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
     if (product === "Rail") {
-      configData.maxRailCredit += bonusAmount;
-      runningAmount = await priceRoundOffNumberValues(configData.maxRailCredit)
+      configData.railCashBalance += bonusAmount;
+      runningAmount = await priceRoundOffNumberValues(configData.railCashBalance)
     }
     if (product === "Flight") {
       configData.maxcreditLimit += bonusAmount;

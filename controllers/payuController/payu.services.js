@@ -644,8 +644,8 @@ const payuWalletResponceSuccess = async (req, res) => {
               if (configData?.maxcreditLimit < amount) {
                 return { response: "Insufficient Balance" }
               }
-              configData.maxRailCredit -= tdsAmount;
-              runningAmount = configData.maxRailCredit
+              configData.railCashBalance -= tdsAmount;
+              runningAmount = configData.railCashBalance
             }
             if (productinfo === "Flight") {
               if (configData?.maxcreditLimit < amount) {

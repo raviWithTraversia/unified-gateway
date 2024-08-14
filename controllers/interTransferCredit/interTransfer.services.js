@@ -41,10 +41,10 @@ const interTransferCredit = async (req, res) => {
                 });
                 break;
             case "Rail":
-                if (getAgentConfig.maxRailCredit < transferredAmount) {
+                if (getAgentConfig.railCashBalance < transferredAmount) {
                     return { response: "Not enough Credit to Transfer" }
                 }
-                updateResponse1 = await AgentConfig.findOneAndUpdate({ userId }, { $inc: { maxRailCredit: -transferredAmount } }, { new: true })
+                updateResponse1 = await AgentConfig.findOneAndUpdate({ userId }, { $inc: { railCashBalance: -transferredAmount } }, { new: true })
                 ledgerId1 = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
                 await Ledger.create({
                     userId: updateResponse1.userId,
@@ -85,7 +85,7 @@ const interTransferCredit = async (req, res) => {
                 break;
             case "Rail":
                 ledgerId2 = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-                updateResponse2 = await AgentConfig.findOneAndUpdate({ userId }, { $inc: { maxRailCredit: transferredAmount } }, { new: true })
+                updateResponse2 = await AgentConfig.findOneAndUpdate({ userId }, { $inc: { railCashBalance: transferredAmount } }, { new: true })
                 await Ledger.create({
                     userId: updateResponse2.userId,
                     companyId: updateResponse2.companyId,

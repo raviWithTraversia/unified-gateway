@@ -1675,6 +1675,11 @@ const getBillingData = async (req, res) => {
       }
     });
     // console.log(element?.ticketNo?.ticketDetails,"jkddskjjd");
+
+    let ccomisn = await priceRoundOffNumberValues(element.commission);
+    element.commission = ccomisn;
+    element.tds = await priceRoundOffNumberValues(element.tds);
+    console.log(element.tds,"sjie")
     let ticketNumber = [element.pnr];
     if(element.ticketNo?.ticketDetails){
       ticketNumber = await getTicketNumberBySector(element.ticketNo?.ticketDetails, element.sector);

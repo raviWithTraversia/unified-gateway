@@ -558,6 +558,7 @@ const pgTransactionList = async (req, res) => {
         let transactions = [];
         if(transtns.length>0){
             for(let tr of transtns){
+                var PgCharges=await priceRoundOffNumberValues(tr.pgCharges)
                 let obj2 ={
                     _id: tr._id,
                     userId: tr?.userId,
@@ -596,7 +597,7 @@ const pgTransactionList = async (req, res) => {
                     statusDetail: tr?.statusDetail,
                     trnsAddressResult: tr?.trnsAddressResult,
                     trnsPostCodeResult: tr?.trnsPostCodeResult,
-                    pgCharges:tr?.pgCharges,
+                    pgCharges:PgCharges,
                     transactionAmount: tr?.transactionAmount,
                     trnsStatusMessage: tr?.trnsStatusMessage,
                     creationDate: tr?.creationDate,
@@ -647,7 +648,7 @@ const pgTransactionList = async (req, res) => {
                     statusDetail: tr?.statusDetail,
                     trnsAddressResult: tr?.trnsAddressResult,
                     trnsPostCodeResult: tr?.trnsPostCodeResult,
-                    pgCharges:tr?.pgCharges,
+                    pgCharges:PgCharges,
                     transactionAmount: tr?.transactionAmount,
                     trnsStatusMessage: tr?.trnsStatusMessage,
                     creationDate: tr?.creationDate,

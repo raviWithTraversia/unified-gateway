@@ -362,6 +362,7 @@ const transactionList = async (req, res) => {
         let transactions = [];
         if(transtns.length>0){
             for(let tr of transtns){
+                var Transaction=await priceRoundOffNumberValues(tr.transactionAmount)
                 let pGateway = '';
                 const gateway = tr?.paymentGateway?.toLowerCase();
 
@@ -410,7 +411,7 @@ const transactionList = async (req, res) => {
                     trnsAddressResult: tr?.trnsAddressResult,
                     trnsPostCodeResult: tr?.trnsPostCodeResult,
                     pgCharges:tr?.pgCharges,
-                    transactionAmount: tr?.transactionAmount,
+                    transactionAmount: Transaction,
                     trnsStatusMessage: tr?.trnsStatusMessage,
                     creationDate: tr?.creationDate,
                     createdAt: tr?.createdAt,
@@ -459,7 +460,7 @@ const transactionList = async (req, res) => {
                     trnsAddressResult: tr?.trnsAddressResult,
                     trnsPostCodeResult: tr?.trnsPostCodeResult,
                     pgCharges:tr?.pgCharges,
-                    transactionAmount: tr?.transactionAmount,
+                    transactionAmount: Transaction,
                     trnsStatusMessage: tr?.trnsStatusMessage,
                     creationDate: tr?.creationDate,
                     createdAt: tr?.createdAt,
@@ -786,8 +787,8 @@ const ledgerListWithFilter = async(req,res)=>{
                     billingNumber:ldgr?.billingNumber,
                     createdAt:ldgr?.createdAt,
                     transactionId:ldgr?.transactionId,
-                    ACC_ALIAS:"CD",
-                    userData:{
+                    ACC_ALIAS:ldgr?.userData?.userId,
+                                        userData:{
                         userId:ldgr?.userData?.userId,
                     }
                 };
@@ -802,7 +803,8 @@ const ledgerListWithFilter = async(req,res)=>{
                     billingNumber:ldgr?.billingNumber,
                     transactionId:ldgr?.transactionId,
  createdAt:ldgr?.createdAt,
- ACC_ALIAS:ldgr?.userData?.userId,
+ ACC_ALIAS:"CD",
+
                     userData:{
                         userId:ldgr?.userData?.userId,
                     }

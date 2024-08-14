@@ -39,7 +39,6 @@ const getAllBooking = async (req, res) => {
     BookedBy
   } = req.body;
   const fieldNames = [
-    "userId",
     "agencyId",
     "bookingId",
     "pnr",
@@ -63,11 +62,11 @@ const getAllBooking = async (req, res) => {
       data: `Missing or null fields: ${missingFieldsString}`,
     };
   }
-  if (!userId) {
-    return {
-      response: "User id does not exist",
-    };
-  }
+  // if (!userId) {
+  //   return {
+  //     response: "User id does not exist",
+  //   };
+  // }
 
   // Check if company Id exists
   const checkUserIdExist = await User.findById(userId).populate('roleId').populate("company_ID");
@@ -82,7 +81,8 @@ const getAllBooking = async (req, res) => {
     let filter = {  };
     console.log(typeof(agencyId),"hshds")
     if (agencyId !== undefined && agencyId !== '') {
-      filter.AgencyId =agencyId;
+      console.log(agencyId,"agencyId")
+      filter.userId =agencyId;
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -261,6 +261,7 @@ console.log('1st')
     let filter = {};
     if (agencyId !== undefined && agencyId !== "") {
       // filter.userId={}
+      filter.userId=agencyId
       // let allagencyId = agencyId.map(id => new ObjectId(id));
       // filter.AgencyId={$in:allagencyId}
      
@@ -290,7 +291,6 @@ console.log('1st')
         $gte: new Date(toDate + 'T00:00:00.000Z')    // Start of toDate
       };
     }
-
     const bookingDetails = await bookingdetails.find(filter)
       .populate({
         path: 'userId',

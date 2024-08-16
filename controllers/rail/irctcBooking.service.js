@@ -1,4 +1,4 @@
-const BookingDetail = require("../../models/irctcBooking/irctcBookingDetail");
+const BookingDetail = require("../../models/Irctc/bookingDetailsRail");
 var ObjectId = require("mongoose").Types.ObjectId;
 const User = require("../../models/User");
 const Company = require("../../models/Company");

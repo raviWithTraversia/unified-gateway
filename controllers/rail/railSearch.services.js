@@ -238,27 +238,7 @@ const railFareEnquiry = async (req, res) => {
       url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
     }
 
-    let queryParams = {
-      masterId: "WKAFL00000",
-      wsUserLogin: "WKAFL00001",
-      enquiryType: "3",
-      reservationChoice: "99",
-      moreThanOneDay: "true",
-      ignoreChoiceIfWl: ignoreChoiceIfWl,
-      gnToCkOpted: "false",
-      ticketType: ticketType,
-      travelInsuranceOpted: travelInsuranceOpted,
-      passengerList: passengerList,
-      mobileNumber: mobileNumber,
-      autoUpgradationSelected: autoUpgradationSelected,
-      boardingStation: boardingStation,
-      reservationMode: reservationMode, //B2B_WEB_OTP
-      clientTransactionId: clientTransactionId,
-      gstDetailInputFlag: gstDetailInputFlag,
-      agentDeviceId: agentDeviceId,
-      infantList: infantList,
-      gstDetails: gstDetails,
-    };
+    let queryParams = req.body;
     const response = (
       await axios.post(url, queryParams, { headers: { Authorization: auth } })
     )?.data;

@@ -15,6 +15,13 @@ const bookingDetailsRailSchema = new mongoose.Schema(
             required: true,
 
     },
+    
+    agencyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    
 
     credentialType:{
         type: String,

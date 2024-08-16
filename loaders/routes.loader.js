@@ -76,6 +76,7 @@ const railRoute = require("../routes/railRoute");
 const interTransferCreditRoute = require("../routes/interTransferCreditRoute")
 const invoiceGeneratorRoute = require("../routes/invoiceGeneratorRoute")
 const ledgerRailRoute = require("../routes/ledgerRailRoute");
+const irctcBookingRoute = require("../routes/irctcBookingRoute");
 class RoutesLoader {
     static initRoutes(app) {
 
@@ -320,6 +321,13 @@ class RoutesLoader {
 
         //ledgerRailRoute
         app.use('/api', ledgerRailRoute);
+
+
+        //irctcBookingRoute
+        app.use('/api',irctcBookingRoute);
+
+
+
 
         // // Intergalactic Credit
         // app.use('/api', intergalacticCreditRoute);

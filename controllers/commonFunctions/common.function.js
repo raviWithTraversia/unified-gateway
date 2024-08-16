@@ -5,11 +5,12 @@ const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
 const EventLog = require("../../models/Logs/EventLogs");
 const PortalLog = require("../../models/Logs/PortalApiLogs");
-const fs = require('fs');
-const smsConfigCred = require('../../models/ConfigCredential');
+const fs = require("fs");
+const smsConfigCred = require("../../models/ConfigCredential");
 const ledger = require("../../models/Ledger");
 const AgentDiRecieve = require("../../models/AgentDiRecieve");
-const Pdf=require('html-pdf')
+const Pdf = require("html-pdf");
+const agentConfig = require("../../models/AgentConfig");
 
 const createToken = async (id) => {
   try {
@@ -28,7 +29,13 @@ const securePassword = async (password) => {
   }
 };
 // Function to send a password reset email
-const sendPasswordResetEmail = async (recipientEmail, resetToken, mailConfig, user, baseUrl) => {
+const sendPasswordResetEmail = async (
+  recipientEmail,
+  resetToken,
+  mailConfig,
+  user,
+  baseUrl
+) => {
   // Create a Nodemailer transporter using your email service provider's SMTP settings
   const transporter = nodemailer.createTransport({
     host: mailConfig.host,
@@ -42,7 +49,7 @@ const sendPasswordResetEmail = async (recipientEmail, resetToken, mailConfig, us
       rejectUnauthorized: false,
     },
     logger: true, // Enable logger
-    debug: true,  // Enable debug
+    debug: true, // Enable debug
   });
 
   // Email content
@@ -59,14 +66,14 @@ const sendPasswordResetEmail = async (recipientEmail, resetToken, mailConfig, us
     await transporter.sendMail(mailOptions);
     return {
       response: `Password reset email sent `,
-      data: true
-    }
+      data: true,
+    };
   } catch (error) {
     console.error("Error sending password reset email:", error);
     return {
       response: "Error sending password reset email:",
-      data: error
-    }
+      data: error,
+    };
   }
 };
 
@@ -97,7 +104,6 @@ const checkIsValidId = (Id) => {
     return "Invalid Mongo Object Id";
   }
 };
-
 
 const removeWWWAndProtocol = async (url) => {
   // Remove "www" from the beginning (if it exists)
@@ -133,7 +139,7 @@ const eventLogFunction = async (
       doerName,
       ipAddress,
       companyId,
-      description
+      description,
     });
     const storeLogs = await newEventLog.save();
     return "Event Log added successfully";
@@ -180,8 +186,7 @@ const sendOtpOnEmail = async (recipientEmail, otp, smtpDetails) => {
       rejectUnauthorized: false,
     },
     logger: true, // Enable logger
-    debug: true,  // Enable debug
-
+    debug: true, // Enable debug
   });
 
   // Email content
@@ -227,10 +232,19 @@ const sendOtpOnPhone = async (recipientPhone, otp) => {
   }
 };
 
-const commonEmailFunction = async (recipientEmail, smtpDetails, mailText, mailSubject) => {
+const commonEmailFunction = async (
+  recipientEmail,
+  smtpDetails,
+  mailText,
+  mailSubject
+) => {
   const { companyName, firstName, lastName, mobile, email, name } = mailText;
-  const htmlTemplate = fs.readFileSync('./view/Account_Registration.html', 'utf8');
-  const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName.companyName)
+  const htmlTemplate = fs.readFileSync(
+    "./view/Account_Registration.html",
+    "utf8"
+  );
+  const htmlContent = htmlTemplate
+    .replace(/\${companyName}/g, companyName.companyName)
     .replace(/\${firstName}/g, firstName)
     .replace(/\${lastName}/g, lastName)
     .replace(/\${mobile}/g, mobile)
@@ -247,7 +261,7 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText, mailSu
       rejectUnauthorized: false,
     },
     logger: true, // Enable logger
-    debug: true,  // Enable debug
+    debug: true, // Enable debug
   });
 
   // Email content
@@ -255,7 +269,7 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText, mailSu
     from: smtpDetails.emailFrom,
     to: recipientEmail,
     subject: `${mailSubject}`,
-    html: htmlContent
+    html: htmlContent,
   };
 
   // Send the email
@@ -271,11 +285,27 @@ const commonEmailFunction = async (recipientEmail, smtpDetails, mailText, mailSu
   }
 };
 
-const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetails, mailText, mailSubject) => {
+const commonEmailFunctionOnRegistrationUpdate = async (
+  recipientEmail,
+  smtpDetails,
+  mailText,
+  mailSubject
+) => {
   //console.log(mailText, "<<<<<<<<<<???????????????????????????????",recipientEmail);
-  let { companyName, firstName, lastName, email, mobile, statusName: [{ name }] } = mailText[0];
-  const htmlTemplate = fs.readFileSync('./view/Account_Registration.html', 'utf8');
-  const htmlContent = htmlTemplate.replace(/\${companyName}/g, companyName)
+  let {
+    companyName,
+    firstName,
+    lastName,
+    email,
+    mobile,
+    statusName: [{ name }],
+  } = mailText[0];
+  const htmlTemplate = fs.readFileSync(
+    "./view/Account_Registration.html",
+    "utf8"
+  );
+  const htmlContent = htmlTemplate
+    .replace(/\${companyName}/g, companyName)
     .replace(/\${firstName}/g, firstName)
     .replace(/\${lastName}/g, lastName)
     .replace(/\${mobile}/g, mobile)
@@ -292,7 +322,7 @@ const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetai
       rejectUnauthorized: false,
     },
     logger: true, // Enable logger
-    debug: true,  // Enable debug
+    debug: true, // Enable debug
   });
 
   // Email content
@@ -300,7 +330,7 @@ const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetai
     from: smtpDetails.emailFrom,
     to: recipientEmail,
     subject: `${mailSubject}`,
-    html: htmlContent
+    html: htmlContent,
   };
 
   // Send the email
@@ -319,25 +349,38 @@ const commonEmailFunctionOnRegistrationUpdate = async (recipientEmail, smtpDetai
 const sendSMS = async (mobileno, otp) => {
   try {
     let message = `Your OTP for authentication is:${otp} Kafila Hospitality & Travels Pvt. Ltd`;
-    let url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(mobileno)}&msg=${encodeURIComponent(message)}&sid=KAFILA&type=0&entityid=1701157909411808398&tempid=1707170089574543263&dtNow=${encodeURIComponent(new Date().toLocaleString())}`;
+    let url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(
+      mobileno
+    )}&msg=${encodeURIComponent(
+      message
+    )}&sid=KAFILA&type=0&entityid=1701157909411808398&tempid=1707170089574543263&dtNow=${encodeURIComponent(
+      new Date().toLocaleString()
+    )}`;
 
     const response = await fetch(url);
     const strSMSResponseString = await response.text();
 
     if (strSMSResponseString.startsWith("100")) {
       return {
-        response: `Sms sent to ${mobileno}`
+        response: `Sms sent to ${mobileno}`,
       };
     } else {
       return false;
     }
   } catch (error) {
-    console.error('Error sending SMS:', error);
+    console.error("Error sending SMS:", error);
     return false;
   }
 };
 
-const sendPasswordResetEmailLink = async (recipientEmail, resetToken, mailConfig, user, password, baseUrl) => {
+const sendPasswordResetEmailLink = async (
+  recipientEmail,
+  resetToken,
+  mailConfig,
+  user,
+  password,
+  baseUrl
+) => {
   // Create a Nodemailer transporter using your email service provider's SMTP settings
   const transporter = nodemailer.createTransport({
     host: mailConfig.host,
@@ -351,7 +394,7 @@ const sendPasswordResetEmailLink = async (recipientEmail, resetToken, mailConfig
       rejectUnauthorized: false,
     },
     logger: true, // Enable logger
-    debug: true,  // Enable debug
+    debug: true, // Enable debug
   });
   const htmlContent = `
   <p>Click the following link to reset your password: <a href="${baseUrl}/auth/verifyToken?token=${resetToken}&userId=${user._id}">${baseUrl}/auth/verifyToken?token=${resetToken}&userId=${user._id}</a></p>
@@ -369,18 +412,19 @@ const sendPasswordResetEmailLink = async (recipientEmail, resetToken, mailConfig
     await transporter.sendMail(mailOptions);
     return {
       response: `Password reset email sent `,
-      data: true
-    }
+      data: true,
+    };
   } catch (error) {
     console.error("Error sending password reset email:", error);
     return {
       response: "Error sending password reset email:",
-      data: error
-    }
+      data: error,
+    };
   }
 };
 const generateRandomPassword = (length) => {
-  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
+  const charset =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
   let password = "";
 
   for (let i = 0; i < length; i++) {
@@ -392,12 +436,12 @@ const generateRandomPassword = (length) => {
 };
 
 const sendNotificationByEmail = (mailConfig, DATA) => {
+  const data1 = DATA;
 
-  const data1 = DATA
-
-  const html = data1.options.map((data) =>
-
-    `<br/><br/>
+  const html = data1.options
+    .map(
+      (data) =>
+        `<br/><br/>
 
   <table style="border-top: 1px solid #c0c0c0; border-bottom: 1px solid #c0c0c0; background-color: #f0f0f0;" border="0" width="100%" cellpadding="4">
       <tbody>
@@ -517,7 +561,9 @@ const sendNotificationByEmail = (mailConfig, DATA) => {
   </table>
   
   
-  `).join('')
+  `
+    )
+    .join("");
 
   const transporter = nodemailer.createTransport({
     host: mailConfig[0].host,
@@ -531,7 +577,7 @@ const sendNotificationByEmail = (mailConfig, DATA) => {
       rejectUnauthorized: false,
     },
     logger: true, // Enable logger
-    debug: true,  // Enable debug
+    debug: true, // Enable debug
   });
 
   const mailOptions = {
@@ -540,34 +586,37 @@ const sendNotificationByEmail = (mailConfig, DATA) => {
     subject: data1.subject,
     cc: data1.cc, // Add CC recipient
     bcc: data1.bcc,
-    html: html
-
+    html: html,
   };
 
   try {
     transporter.sendMail(mailOptions);
     return {
       response: `Send Email succefully `,
-      data: true
-    }
-
+      data: true,
+    };
   } catch (error) {
     return {
       response: "Error Sending Notification Email:",
-      data: error
-    }
+      data: error,
+    };
   }
+};
 
-}
-
-
-const sendCardDetailOnMail = async (mailConfig, htmlData, email,subject,cartId,status) => {
-  const axios = require('axios'); // You need axios to fetch the external CSS
-  const pdf = require('html-pdf');
-console.log(mailConfig)
+const sendCardDetailOnMail = async (
+  mailConfig,
+  htmlData,
+  email,
+  subject,
+  cartId,
+  status
+) => {
+  const axios = require("axios"); // You need axios to fetch the external CSS
+  const pdf = require("html-pdf");
+  console.log(mailConfig);
   try {
     // Fetch the Bootstrap CSS
-    
+
     // Create the HTML content with inline Bootstrap CSS
     const html = `<!DOCTYPE html>
 <html>
@@ -747,7 +796,7 @@ console.log(mailConfig)
         rejectUnauthorized: false,
       },
       logger: true, // Enable logger
-      debug: true,  // Enable debug
+      debug: true, // Enable debug
     });
 
     const mailOptions = {
@@ -756,125 +805,177 @@ console.log(mailConfig)
       subject: `Booking Detail-${cartId} ${status}`,
       cc: "", // Add CC recipient
       bcc: "",
-      html:html,
+      html: html,
       attachments: [
         {
           filename: `${cartId}.pdf`,
           content: emailPdfBuffer,
-          contentType: 'application/pdf',
+          contentType: "application/pdf",
         },
       ],
     };
 
     await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully');
+    console.log("Email sent successfully");
     return {
-      response: 'Email sent successfully',
+      response: "Email sent successfully",
       data: true,
     };
   } catch (error) {
-    console.error('Error Sending Notification Email: ', error.message);
+    console.error("Error Sending Notification Email: ", error.message);
     return {
-      response: 'Error Sending Notification Email',
+      response: "Error Sending Notification Email",
       data: error.message,
     };
   }
 };
 
-
-
 // Don't forget to import necessary modules
 
-const recieveDI = async (configData, findUser, product, amount, transactionBy) => {
-  try{
-    console.log("jksds");
-  configData.diSetupIds.diSetupIds = await configData.diSetupIds.diSetupIds.filter(diSetup =>
-    diSetup.status === true &&
-    // diSetup.companyId.toString() === findUser.company_ID.toString() &&
-    new Date() >= new Date(diSetup.validFromDate) &&
-    new Date() <= new Date(diSetup.validToDate)
-  );
-  // console.log(configData?.diSetupIds?.diSetupIds,"hjshsah");
-  let slabOptions = configData?.diSetupIds?.diSetupIds;
-  let bonusAmount = 0; 
-  let isMultipleSlab = false;
-  let slabBreakups = [];
-  // console.log(slabOptions,"slabOptions111");
-  if (slabOptions[slabOptions.length - 1]?.minAmount < amount) {
-    bonusAmount = (parseInt(slabOptions[slabOptions.length - 1]?.diPersentage) / 100) * amount;
-    slabBreakups.push(slabOptions[slabOptions.length - 1]);
-    // console.log(bonusAmount,"bonusAmount1");
-  } else {
-    for (let i = 0; i < slabOptions.length; i++) {
-      if (!isMultipleSlab) {
-        if (slabOptions[i].minAmount == amount) {
-          bonusAmount = (parseInt(slabOptions[i].diPersentage) / 100) * amount;
-          slabBreakups.push(slabOptions[i]);
+const recieveDI = async (
+  configData,
+  findUser,
+  product,
+  amount,
+  transactionBy,
+  txnid
+) => {
+  try {
+    console.log(configData.diSetupIds, "jksds");
+    configData.diSetupIds.diSetupIds =
+      await configData.diSetupIds.diSetupIds.filter(
+        (diSetup) =>
+          diSetup.status === true &&
+          // diSetup.companyId.toString() === findUser.company_ID.toString() &&
+          new Date() >= new Date(diSetup.validFromDate) &&
+          new Date() <= new Date(diSetup.validToDate)
+      );
+    // console.log(configData?.diSetupIds?.diSetupIds,"hjshsah");
+    let slabOptions = configData?.diSetupIds?.diSetupIds;
+    let bonusAmount = 0;
+    let isMultipleSlab = false;
+    let slabBreakups = [];
+    const minAmount = Number(slabOptions[slabOptions.length - 1]?.minAmount);
+    const amountNumber = Number(amount);
+    // console.log(minAmount < amountNumber, "sjkjks");
+    // console.log(slabOptions, minAmount, amountNumber, "slabOptions111");
+    if (minAmount < amountNumber) {
+      bonusAmount =
+        (parseInt(slabOptions[slabOptions.length - 1]?.diPersentage) / 100) *
+        amount;
+      bonusAmount = await priceRoundOffNumberValues(bonusAmount);
+      slabBreakups.push(slabOptions[slabOptions.length - 1]);
+      // console.log(bonusAmount, "bonusAmount1");
+    } else {
+      for (let i = 0; i < slabOptions.length; i++) {
+        if (!isMultipleSlab) {
+          if (slabOptions[i].minAmount == amount) {
+            bonusAmount =
+              (parseInt(slabOptions[i].diPersentage) / 100) * amount;
+            slabBreakups.push(slabOptions[i]);
+            break;
+          }
+        }
+        if (slabOptions[i].minAmount > amount) {
+          isMultipleSlab = true;
+          let mainAmountBonus =
+            ((parseInt(slabOptions[i - 1]?.diPersentage) || 0) / 100) *
+            parseInt(slabOptions[i - 1]?.minAmount || 0);
+          let restAmount = amount - slabOptions[i - 1]?.minAmount || 0;
+          let restAmountBonus =
+            ((parseInt(slabOptions[i]?.diPersentage) || 0) / 100) * restAmount;
+          bonusAmount = mainAmountBonus + restAmountBonus;
+
+          console.log(
+            bonusAmount,
+            mainAmountBonus,
+            restAmountBonus,
+            "bonusAmount2"
+          );
+          if (bonusAmount > 0) {
+            if (!slabOptions[i - 1]) {
+              slabBreakups.push(slabOptions[i]);
+            } else {
+              slabBreakups.push(slabOptions[i - 1], slabOptions[i]);
+            }
+          }
           break;
         }
       }
-      if (slabOptions[i].minAmount > amount) {
-        isMultipleSlab = true;
-        let mainAmountBonus = ((parseInt(slabOptions[i - 1]?.diPersentage) || 0) / 100) * (parseInt(slabOptions[i - 1]?.minAmount || 0));
-        let restAmount = amount - slabOptions[i - 1]?.minAmount || 0;
-        let restAmountBonus = ((parseInt(slabOptions[i]?.diPersentage) || 0) / 100) * restAmount;
-        bonusAmount = mainAmountBonus + restAmountBonus;
-      
-        // console.log(bonusAmount,mainAmountBonus,restAmountBonus,'bonusAmount2');
-        if (bonusAmount > 0) {
-          if (!slabOptions[i - 1]) {
-            slabBreakups.push(slabOptions[i])
-          } else {
-            slabBreakups.push(slabOptions[i - 1], slabOptions[i])
-          }
-        }
-        break;
-      }
     }
-  }
-  // console.log(bonusAmount,"bonusAmount11");
-  const ADRdata = new AgentDiRecieve({
-    userId: findUser._id,
-    companyId: findUser.company_ID,
-    amountDeposit: amount,
-    diAmount: bonusAmount,
-    slabBreakups: slabBreakups
-  });
-  // console.log(slabBreakups,"slabBreakups1")
-  if (slabBreakups.length) {
-    await ADRdata.save();
-    const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-    if (product === "Rail") {
-      configData.railCashBalance += bonusAmount;
-      runningAmount = await priceRoundOffNumberValues(configData.railCashBalance)
-    }
-    if (product === "Flight") {
-      configData.maxcreditLimit += bonusAmount;
-      runningAmount = await priceRoundOffNumberValues(configData.maxcreditLimit)
-    }
-    await configData.save();
-    await ledger.create({
+    // console.log(bonusAmount, "bonusAmount11");
+    const ADRdata = new AgentDiRecieve({
       userId: findUser._id,
       companyId: findUser.company_ID,
-      ledgerId: ledgerIds,
-      transactionAmount: bonusAmount,
-      currencyType: "INR",
-      fop: "CREDIT",
-      transactionType: "CREDIT",
-      runningAmount,
-      remarks: `DI against ${amount} deposit.`,
-      transactionBy,
-      product
+      amountDeposit: amount,
+      diAmount: bonusAmount,
+      slabBreakups: slabBreakups,
     });
-  }
-  return bonusAmount;
-}catch(error){
-  return null
-}
-}
+    // console.log(slabBreakups, "slabBreakups1");
 
-const createLeadger = async(getuserDetails,item,currencyType,fop,transactionType,runningAmount,remarks)=>{
-  try{
+    if (slabBreakups.length) {
+      await ADRdata.save();
+      const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+      if (product === "Rail") {
+        configData.maxRailCredit += parseInt(bonusAmount);
+        runningAmount = await priceRoundOffNumberValues(
+          configData.maxRailCredit
+        );
+      }
+      if (product === "Flight") {
+        configData.maxcreditLimit += parseInt(bonusAmount);
+        runningAmount = await priceRoundOffNumberValues(
+          configData.maxcreditLimit
+        );
+      }
+      await configData.save();
+      // console.log({
+      //   userId: findUser._id,
+      //   companyId: findUser.company_ID,
+      //   ledgerId: ledgerIds,
+      //   transactionAmount: bonusAmount,
+      //   currencyType: "INR",
+      //   fop: "CREDIT",
+      //   transactionType: "CREDIT",
+      //   runningAmount,
+      //   remarks: `DI against ${amount} deposit.`,
+      //   transactionBy,
+      //   product,
+      // });
+      // return false;
+
+      await ledger.create({
+        userId: findUser._id,
+        companyId: findUser.company_ID,
+        ledgerId: ledgerIds,
+        transactionId: txnid ?? null,
+        transactionAmount: parseInt(bonusAmount),
+        currencyType: "INR",
+        fop: "CREDIT",
+        transactionType: "CREDIT",
+        runningAmount,
+        remarks: `DI against ${amount} deposit.`,
+        transactionBy,
+        product,
+      });
+    }
+    // console.log(bonusAmount, "bonusAmount112");
+    return bonusAmount;
+  } catch (error) {
+    return null;
+  }
+};
+
+const createLeadger = async (
+  getuserDetails,
+  item,
+  currencyType,
+  fop,
+  transactionType,
+  runningAmount,
+  remarks
+) => {
+  try {
     await ledger.create({
       userId: getuserDetails._id,
       companyId: getuserDetails.company_ID._id,
@@ -892,31 +993,31 @@ const createLeadger = async(getuserDetails,item,currencyType,fop,transactionType
       transactionBy: getuserDetails._id,
       cartId: item?.BookingId,
     });
-  }catch(error){
+  } catch (error) {
     return {
       IsSucess: false,
       response: "Error creating leadger:",
       error,
     };
   }
-}
+};
 
-const getTdsAndDsicount = async(ItineraryPriceCheckResponses)=>{
+const getTdsAndDsicount = async (ItineraryPriceCheckResponses) => {
   let ldgrtds = 0;
   let ldgrdiscount = 0;
-  for(let ipb of ItineraryPriceCheckResponses){
+  for (let ipb of ItineraryPriceCheckResponses) {
     let pricebrkup = ipb.PriceBreakup;
-    if(pricebrkup){
-      for(let pb of pricebrkup){
+    if (pricebrkup) {
+      for (let pb of pricebrkup) {
         let totalPassenger = pb.NoOfPassenger;
         let ComBreakup = pb.CommercialBreakup;
-        if(ComBreakup){
-          for(let cbp of ComBreakup){
-            if(cbp.CommercialType == "Discount"){
+        if (ComBreakup) {
+          for (let cbp of ComBreakup) {
+            if (cbp.CommercialType == "Discount") {
               let tdp = cbp.Amount * totalPassenger;
               ldgrdiscount += tdp;
             }
-            if(cbp.CommercialType == "TDS"){
+            if (cbp.CommercialType == "TDS") {
               let ttdsp = cbp.Amount * totalPassenger;
               ldgrtds += ttdsp;
             }
@@ -926,111 +1027,113 @@ const getTdsAndDsicount = async(ItineraryPriceCheckResponses)=>{
     }
   }
 
-  return {ldgrtds,ldgrdiscount};
-}
+  return { ldgrtds, ldgrdiscount };
+};
 
-
-
-const calculateOfferedPricePaxWise = async(iternayObj)=> {
+const calculateOfferedPricePaxWise = async (iternayObj) => {
   let returnCalculatedOfferedPrice = 0;
-  offerPricePlusInAmount=(plusKeyName)=> {
+  offerPricePlusInAmount = (plusKeyName) => {
     let returnBoolean = false;
     switch (plusKeyName) {
-    case "TDS":
-    returnBoolean = true;
-    break;
-    case "BookingFees":
-    returnBoolean = true;
-    break;
-    case "ServiceFees":
-    returnBoolean = true;
-    break;
-    case "GST":
-    returnBoolean = true;
-    break;
-    case "Markup":
-    returnBoolean = true;
-    break;
-    case "otherTax":
-    returnBoolean = true;
-    break;
-    case "FixedBookingFees":
-    returnBoolean = true;
-    break;
-    case "FixedServiceFees":
-    returnBoolean = true;
-    break;
+      case "TDS":
+        returnBoolean = true;
+        break;
+      case "BookingFees":
+        returnBoolean = true;
+        break;
+      case "ServiceFees":
+        returnBoolean = true;
+        break;
+      case "GST":
+        returnBoolean = true;
+        break;
+      case "Markup":
+        returnBoolean = true;
+        break;
+      case "otherTax":
+        returnBoolean = true;
+        break;
+      case "FixedBookingFees":
+        returnBoolean = true;
+        break;
+      case "FixedServiceFees":
+        returnBoolean = true;
+        break;
 
-    default:
-    returnBoolean = false;
-    break;
+      default:
+        returnBoolean = false;
+        break;
     }
     return returnBoolean;
-  }
-  offerPriceMinusInAmount=(plusKeyName)=> {
+  };
+  offerPriceMinusInAmount = (plusKeyName) => {
     let returnBoolean = false;
     switch (plusKeyName) {
-    case "Discount":
-    returnBoolean = true;
-    break;
-    case "SegmentKickback":
-    returnBoolean = true;
-    break;
-    case "Incentive":
-    returnBoolean = true;
-    break;
-    case "PLB":
-    returnBoolean = true;
-    break;
+      case "Discount":
+        returnBoolean = true;
+        break;
+      case "SegmentKickback":
+        returnBoolean = true;
+        break;
+      case "Incentive":
+        returnBoolean = true;
+        break;
+      case "PLB":
+        returnBoolean = true;
+        break;
 
-    default:
-    returnBoolean = false;
-    break;
+      default:
+        returnBoolean = false;
+        break;
     }
     return returnBoolean;
-  }
+  };
 
   iternayObj.getCommercialArray?.forEach((priceBreakupElement) => {
-    let { PassengerType, NoOfPassenger, CommercialBreakup, BaseFare, Tax,TaxBreakup } =
-    priceBreakupElement;
+    let {
+      PassengerType,
+      NoOfPassenger,
+      CommercialBreakup,
+      BaseFare,
+      Tax,
+      TaxBreakup,
+    } = priceBreakupElement;
     if (PassengerType == iternayObj.PaxType) {
-      returnCalculatedOfferedPrice += Number(BaseFare) * NoOfPassenger;
-      returnCalculatedOfferedPrice += Number(Tax) * NoOfPassenger;
+      returnCalculatedOfferedPrice += Number(BaseFare);
+      returnCalculatedOfferedPrice += Number(Tax); //* NoOfPassenger;
       TaxBreakup?.forEach((taxBreakup) => {
         let { TaxType, Amount } = taxBreakup;
-        if (TaxType)
-          returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
-        });
+        if (TaxType) returnCalculatedOfferedPrice += Number(Amount); // * NoOfPassenger;
+      });
       CommercialBreakup?.forEach((commercialBreakup) => {
         let { CommercialType, Amount } = commercialBreakup;
         if (offerPriceMinusInAmount(CommercialType))
-          returnCalculatedOfferedPrice -= Number(Amount) * NoOfPassenger;
+          returnCalculatedOfferedPrice -= Number(Amount); //* NoOfPassenger;
         else if (offerPricePlusInAmount(CommercialType))
-          returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
+          returnCalculatedOfferedPrice += Number(Amount); //* NoOfPassenger;
       });
     }
   });
-return returnCalculatedOfferedPrice;
-}
+  return returnCalculatedOfferedPrice;
+};
 
-const getTicketNumberBySector = async(ticketDetails, sector) => {
-  const [sectorSrc, sectorDes] = sector.split(' ');
-  console.log(sectorSrc, sectorDes,"sectorSrc sectorDes")
-  const matchingTickets = ticketDetails.filter(ticket => 
-      ticket.src === sectorSrc && ticket.des === sectorDes
+const getTicketNumberBySector = async (ticketDetails, sector) => {
+  const [sectorSrc, sectorDes] = sector.split(" ");
+  console.log(sectorSrc, sectorDes, "sectorSrc sectorDes");
+  const matchingTickets = ticketDetails.filter(
+    (ticket) => ticket.src === sectorSrc && ticket.des === sectorDes
   );
-  return matchingTickets.map(ticket => ticket.ticketNumber);
-}
+  return matchingTickets.map((ticket) => ticket.ticketNumber);
+};
 
-const priceRoundOffNumberValues = async(numberValue)=>{
-  if (isNaN(numberValue)) 
-    numberValue=0 
+const priceRoundOffNumberValues = async (numberValue) => {
+  if (isNaN(numberValue)) numberValue = 0;
   const integerPart = Math.floor(numberValue);
   const fractionalPart = numberValue - integerPart;
-  const result = fractionalPart >= 0.5 ? Math.ceil(numberValue) : Math.floor(numberValue);
+  const result =
+    fractionalPart >= 0.5 ? Math.ceil(numberValue) : Math.floor(numberValue);
   return result.toFixed(2);
-}
-
+};
 
 module.exports = {
   createToken,
@@ -1059,5 +1162,5 @@ module.exports = {
   getTdsAndDsicount,
   calculateOfferedPricePaxWise,
   getTicketNumberBySector,
-  priceRoundOffNumberValues
+  priceRoundOffNumberValues,
 };

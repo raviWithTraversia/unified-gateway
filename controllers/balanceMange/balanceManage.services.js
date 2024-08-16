@@ -1,11 +1,15 @@
 const User = require("../../models/User");
 const agentConfig = require("../../models/AgentConfig");
 const creditRequest = require("../../models/CreditRequest");
-const EventLogs = require('../logs/EventApiLogsCommon');
+const EventLogs = require("../logs/EventApiLogsCommon");
 const ledger = require("../../models/Ledger");
-const { recieveDI,priceRoundOffNumberValues } = require("../commonFunctions/common.function");
+const {
+  recieveDI,
+  priceRoundOffNumberValues,
+} = require("../commonFunctions/common.function");
 const axios = require("axios");
 const { response } = require("../../routes/balanceManageRoute");
+const transaction = require("../../models/transaction");
 
 const getBalance = async (req, res) => {
   const { userId } = req.body;
@@ -31,9 +35,15 @@ const getBalance = async (req, res) => {
   }
 
   // Check if company Id exists
-  const checkuserIdIdExistfind = await User.find({ company_ID: userId }).populate("roleId");
-  const userWithAgencyRole = checkuserIdIdExistfind.find(user => user.roleId.name === 'Agency');
-  const checkuserIdIdExistId = userWithAgencyRole ? userWithAgencyRole._id : null;
+  const checkuserIdIdExistfind = await User.find({
+    company_ID: userId,
+  }).populate("roleId");
+  const userWithAgencyRole = checkuserIdIdExistfind.find(
+    (user) => user.roleId.name === "Agency"
+  );
+  const checkuserIdIdExistId = userWithAgencyRole
+    ? userWithAgencyRole._id
+    : null;
   const checkuserIdIdExist = await User.findById(checkuserIdIdExistId);
 
   //console.log(checkuserIdIdExist);
@@ -57,7 +67,7 @@ const getBalance = async (req, res) => {
     agencyId: checkuserIdIdExist.company_ID,
     expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
     status: "approved",
-    product: "Flight"
+    product: "Flight",
   });
 
   if (getcreditRequest && getcreditRequest.length > 0) {
@@ -82,7 +92,7 @@ const getBalance = async (req, res) => {
       data: {
         cashBalance: getAgentConfig.maxcreditLimit,
         tempBalance: 0,
-        expireDate: '',
+        expireDate: "",
       },
     };
   }
@@ -90,48 +100,84 @@ const getBalance = async (req, res) => {
 
 const manualDebitCredit = async (req, res) => {
   try {
-    let { userId, amountStatus, amount,pgCharges, product, remarks,ApplyDI } = req.body;
+    let {
+      userId,
+      amountStatus,
+      amount,
+      pgCharges,
+      product,
+      remarks,
+      ApplyDI,
+      easeBuzzSuccessReponse,
+    } = req.body;
     if (!userId) {
-      return { response: "User id does not exist" }
+      return { response: "User id does not exist" };
     }
     let amountforDI = amount;
-    if(pgCharges){
+    if (pgCharges) {
       amount = amount + parseInt(pgCharges);
-    }else{
+    } else {
       amount = amount;
     }
-    
+    const findUser = await User.findById(userId);
+    if (easeBuzzSuccessReponse && easeBuzzSuccessReponse?.status == "success") {
+      await transaction.create({
+        userId: userId,
+        companyId: findUser.company_ID,
+        trnsNo: easeBuzzSuccessReponse?.txnid,
+        trnsType: "DEBIT",
+        paymentMode: easeBuzzSuccessReponse?.mode,
+        paymentGateway: "EaseBuzz",
+        trnsStatus: "success",
+        transactionBy: userId,
+        transactionAmount: easeBuzzSuccessReponse?.amount,
+        pgCharges: pgCharges ?? "",
+      });
+    }
     const doerId = req.user._id;
     const loginUser = await User.findById(doerId);
     if (amountStatus == "credit") {
-      const findUser = await User.findById(userId);
-      const configData = await agentConfig.findOne({ userId }).populate('diSetupIds').populate({
-        path: 'diSetupIds',
-        populate: {
-          path: 'diSetupIds', // If diSetupIds contains another reference
-          model: 'diSetup'
-        }
-      });
+      const configData = await agentConfig
+        .findOne({ userId })
+        .populate("diSetupIds")
+        .populate({
+          path: "diSetupIds",
+          populate: {
+            path: "diSetupIds", // If diSetupIds contains another reference
+            model: "diSetup",
+          },
+        });
       if (!configData) {
         return {
-          response: 'User not found'
-        }
+          response: "User not found",
+        };
       }
       // console.log(configData,"configData",findUser,"findUser",product,"product");
       let DIdata; // = await recieveDI(configData, findUser, product, amount, loginUser._id);
-      if(ApplyDI == true){
+      if (ApplyDI == true) {
         DIdata = 0;
-      }else{
-        DIdata = await recieveDI(configData, findUser, product, amountforDI, loginUser._id);
+      } else {
+        DIdata = await recieveDI(
+          configData,
+          findUser,
+          product,
+          amountforDI,
+          loginUser._id,
+          easeBuzzSuccessReponse?.txnid ?? ""
+        );
       }
       // console.log(DIdata,"DIdata");
       if (product === "Rail") {
-        configData.railCashBalance += amount;
-        runningAmount = await priceRoundOffNumberValues(configData.railCashBalance)
+        configData.maxRailCredit += amount;
+        runningAmount = await priceRoundOffNumberValues(
+          configData.maxRailCredit
+        );
       }
       if (product === "Flight") {
         configData.maxcreditLimit += amount;
-        runningAmount = await priceRoundOffNumberValues(configData.maxcreditLimit)
+        runningAmount = await priceRoundOffNumberValues(
+          configData.maxcreditLimit
+        );
       }
       await configData.save();
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
@@ -139,6 +185,7 @@ const manualDebitCredit = async (req, res) => {
         userId: findUser._id,
         companyId: findUser.company_ID,
         ledgerId: ledgerId,
+        transactionId: easeBuzzSuccessReponse?.txnid ?? null,
         transactionAmount: amount,
         currencyType: "INR",
         fop: "CREDIT",
@@ -146,26 +193,31 @@ const manualDebitCredit = async (req, res) => {
         runningAmount,
         remarks,
         transactionBy: loginUser._id,
-        product
+        product,
       });
 
-      if(pgCharges){
+      if (pgCharges) {
         await ledger.create({
           userId: findUser._id,
           companyId: findUser.company_ID,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionId: easeBuzzSuccessReponse?.txnid ?? null,
           transactionAmount: pgCharges,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount:runningAmount - parseInt(pgCharges),
+          runningAmount: runningAmount - parseInt(pgCharges),
           remarks: "Wallet debited for PG charges(EaseBuzz)",
           transactionBy: loginUser._id,
         });
         await agentConfig.findOneAndUpdate(
           { userId: userId },
-          { maxcreditLimit: await priceRoundOffNumberValues(runningAmount - parseInt(pgCharges) )},
-          {new:true}
+          {
+            maxcreditLimit: await priceRoundOffNumberValues(
+              runningAmount - parseInt(pgCharges)
+            ),
+          },
+          { new: true }
         );
       }
 
@@ -175,32 +227,32 @@ const manualDebitCredit = async (req, res) => {
         doerName: loginUser.fname,
         companyId: findUser.company_ID,
         documentId: findUser._id,
-        description: "Amount Credited"
+        description: "Amount Credited",
       };
       EventLogs(LogsData);
-      if(DIdata !=null || DIdata != 0){
-        let tdsAmount = parseInt(DIdata) * (5/100);
-        if(tdsAmount != 0){
+      if (DIdata != null || DIdata != 0) {
+        let tdsAmount = parseInt(DIdata) * (5 / 100);
+        if (tdsAmount != 0) {
           const findUser = await User.findById(userId);
           const configData = await agentConfig.findOne({ userId });
           if (!configData) {
             return {
-              response: 'User not found'
-            }
+              response: "User not found",
+            };
           }
           if (product === "Rail") {
             if (configData?.maxcreditLimit < amount) {
-              return { response: "Insufficient Balance" }
+              return { response: "Insufficient Balance" };
             }
-            configData.railCashBalance -= tdsAmount;
-            runningAmount = configData.railCashBalance
+            configData.maxRailCredit -= tdsAmount;
+            runningAmount = configData.maxRailCredit;
           }
           if (product === "Flight") {
             if (configData?.maxcreditLimit < amount) {
-              return { response: "Insufficient Balance" }
+              return { response: "Insufficient Balance" };
             }
             configData.maxcreditLimit -= tdsAmount;
-            runningAmount = configData.maxcreditLimit
+            runningAmount = configData.maxcreditLimit;
           }
           await configData.save();
           const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
@@ -208,6 +260,7 @@ const manualDebitCredit = async (req, res) => {
             userId: findUser._id,
             companyId: findUser.company_ID,
             ledgerId: ledgerId,
+            transactionId: easeBuzzSuccessReponse?.txnid ?? null,
             transactionAmount: tdsAmount,
             currencyType: "INR",
             fop: "DEBIT",
@@ -215,7 +268,7 @@ const manualDebitCredit = async (req, res) => {
             runningAmount,
             remarks: `TDS against ${tdsAmount} DI deposit.`,
             transactionBy: loginUser._id,
-            product
+            product,
           });
           const LogsData = {
             eventName: "debitRequest",
@@ -223,9 +276,9 @@ const manualDebitCredit = async (req, res) => {
             doerName: loginUser.fname,
             companyId: findUser.company_ID,
             documentId: findUser._id,
-            description: "Amount Debited"
+            description: "Amount Debited",
           };
-          EventLogs(LogsData)
+          EventLogs(LogsData);
         }
       }
     }
@@ -234,22 +287,22 @@ const manualDebitCredit = async (req, res) => {
       const configData = await agentConfig.findOne({ userId });
       if (!configData) {
         return {
-          response: 'User not found'
-        }
+          response: "User not found",
+        };
       }
       if (product === "Rail") {
         if (configData?.maxcreditLimit < amount) {
-          return { response: "Insufficient Balance" }
+          return { response: "Insufficient Balance" };
         }
-        configData.railCashBalance -= amount;
-        runningAmount = configData.railCashBalance
+        configData.maxRailCredit -= amount;
+        runningAmount = configData.maxRailCredit;
       }
       if (product === "Flight") {
         if (configData?.maxcreditLimit < amount) {
-          return { response: "Insufficient Balance" }
+          return { response: "Insufficient Balance" };
         }
         configData.maxcreditLimit -= amount;
-        runningAmount = configData.maxcreditLimit
+        runningAmount = configData.maxcreditLimit;
       }
       await configData.save();
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
@@ -257,6 +310,7 @@ const manualDebitCredit = async (req, res) => {
         userId: findUser._id,
         companyId: findUser.company_ID,
         ledgerId: ledgerId,
+        transactionId: easeBuzzSuccessReponse?.txnid ?? null,
         transactionAmount: amount,
         currencyType: "INR",
         fop: "DEBIT",
@@ -264,7 +318,7 @@ const manualDebitCredit = async (req, res) => {
         runningAmount,
         remarks,
         transactionBy: loginUser._id,
-        product
+        product,
       });
       const LogsData = {
         eventName: "debitRequest",
@@ -272,7 +326,7 @@ const manualDebitCredit = async (req, res) => {
         doerName: loginUser.fname,
         companyId: findUser.company_ID,
         documentId: findUser._id,
-        description: "Amount Debited"
+        description: "Amount Debited",
       };
 
       // await transaction.create({
@@ -291,64 +345,70 @@ const manualDebitCredit = async (req, res) => {
       //   bankName:bank_name,
       //   holderName:name_on_card
       // });
-      EventLogs(LogsData)
+      EventLogs(LogsData);
     }
-    return { response: "Amount Transfer Successfully" }
+    return { response: "Amount Transfer Successfully" };
   } catch (error) {
-    console.log("error inside service: ", error)
-    throw error
+    console.log("error inside service: ", error);
+    throw error;
   }
-}
+};
 
-const getBalanceTmc=async(req,res)=>{
-  try{
-    var Url=''
-    var payload={}
-if(req.headers.host=="localhost:3111"||req.headers.host=="kafila.traversia.net"){
-Url="http://stage1.ksofttechnology.com/api/Freport";
-payload={
-  "P_TYPE": "API",
-    "R_TYPE": "FLIGHT",
-    "R_NAME": "FlightAgencyBalance",
-    "AID": "675923",
-    "MODULE": "B2B",
-    "IP": "182.73.146.154",
-    "TOKEN": "fd58e3d2b1e517f4ee46063ae176eee1",
-    "ENV": "D",
-    "Version": "1.0.0.0.0.0"
-}
-}
-else if(req.headers.host=="agentapi.kafilaholidays.in"){
-Url="http://fhapip.ksofttechnology.com/api/Freport";
-payload= {"P_TYPE": "API",
-"R_TYPE": "FLIGHT",
-"R_NAME": "FlightAgencyBalance",
-"AID": "24281223",
-"MODULE": "B2B",
-"IP": "182.73.146.154",
-"TOKEN": "be6e3eb87611e080340d57473b038cae",
-"ENV": "P",
-"Version": "1.0.0.0.0.0"}
-}else{
-return ({
-  response:"url not found"
-})
-}
+const getBalanceTmc = async (req, res) => {
+  try {
+    var Url = "";
+    var payload = {};
+    if (
+      req.headers.host == "localhost:3111" ||
+      req.headers.host == "kafila.traversia.net"
+    ) {
+      Url = "http://stage1.ksofttechnology.com/api/Freport";
+      payload = {
+        P_TYPE: "API",
+        R_TYPE: "FLIGHT",
+        R_NAME: "FlightAgencyBalance",
+        AID: "675923",
+        MODULE: "B2B",
+        IP: "182.73.146.154",
+        TOKEN: "fd58e3d2b1e517f4ee46063ae176eee1",
+        ENV: "D",
+        Version: "1.0.0.0.0.0",
+      };
+    } else if (req.headers.host == "agentapi.kafilaholidays.in") {
+      Url = "http://fhapip.ksofttechnology.com/api/Freport";
+      payload = {
+        P_TYPE: "API",
+        R_TYPE: "FLIGHT",
+        R_NAME: "FlightAgencyBalance",
+        AID: "24281223",
+        MODULE: "B2B",
+        IP: "182.73.146.154",
+        TOKEN: "be6e3eb87611e080340d57473b038cae",
+        ENV: "P",
+        Version: "1.0.0.0.0.0",
+      };
+    } else {
+      return {
+        response: "url not found",
+      };
+    }
 
-const balanceData=await axios.post(Url,payload)
-if(!balanceData){
-  return({
-    response:'balance not found'
-  })
-}
-return({
-  response:"balance found sucessfully",
-  data:balanceData.data
-})
-  }catch(error){
-    throw error
+    const balanceData = await axios.post(Url, payload);
+    if (!balanceData) {
+      return {
+        response: "balance not found",
+      };
+    }
+    return {
+      response: "balance found sucessfully",
+      data: balanceData.data,
+    };
+  } catch (error) {
+    throw error;
   }
-}
+};
 module.exports = {
-  getBalance, manualDebitCredit,getBalanceTmc
+  getBalance,
+  manualDebitCredit,
+  getBalanceTmc,
 };

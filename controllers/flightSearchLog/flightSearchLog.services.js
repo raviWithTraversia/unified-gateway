@@ -56,7 +56,7 @@ const getFlightSerchReport = async (req, res) => {
       query.createdDate = { $gte: fromDateObj, $lte: toDateObj };
     }
 
-    const reports = await flightSerchLogModel.find(query);
+    const reports = await flightSerchLogModel.find(query).populate({path:'userId',select:"userId"}).sort({createdAt:-1});
      console.log(reports.length)
     if (!reports.length) {
       return { response: "Flight Search Data Not Available" };

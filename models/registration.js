@@ -12,11 +12,9 @@ const registrationSchema = new mongoose.Schema({
     },
     panNumber: {
         type: String,
-        required: true,
     },
     panName: {
         type: String,
-        required: true,
     },
     firstName: {
         type: String,
@@ -111,6 +109,15 @@ const registrationSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref: 'Company',
         default : null
+    },
+    adharDetail:{
+        type:Object,
+        default:null
+    },
+    adharNumber:{
+        type:String,
+        default:null
+
     },
 },{
     timestamps : true  //Add created_at and updated_at coloumn

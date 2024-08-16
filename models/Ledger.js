@@ -9,7 +9,8 @@ const ledgerSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
     },
-    ledgerId: { // random number generator LG100007
+    ledgerId: {
+      // random number generator LG100007
       type: String,
       default: null,
     },
@@ -17,30 +18,37 @@ const ledgerSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    transactionId: {
+      type: String,
+      default: null,
+    },
     transactionAmount: {
       type: Number,
       default: null,
     },
-    deal:{
+    deal: {
       type: Number,
       default: 0,
     },
-    tds:{
+    tds: {
       type: Number,
       default: 0,
     },
     product: {
       type: String,
     },
-    currencyType: {  // INR 
+    currencyType: {
+      // INR
       type: String,
       default: null,
     },
-    fop: {  // FixedCredit, Cash, DI, Credit
+    fop: {
+      // FixedCredit, Cash, DI, Credit
       type: String,
       default: null,
     },
-    transactionType: { // Debit, Credit
+    transactionType: {
+      // Debit, Credit
       type: String,
       default: null,
     },
@@ -68,6 +76,10 @@ const ledgerSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    billingNumber:{
+      type:Number,
+      default:null
+    },
     creationDate: {
       type: Date,
       default: Date.now(),
@@ -85,6 +97,29 @@ const ledgerSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+ledgerSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    try {
+      const lastBilling = await this.constructor.findOne().sort("-billingNumber");
+      if (lastBilling && lastBilling.billingNumber) {
+        this.billingNumber = lastBilling.billingNumber + 1;
+      } else {
+        this.billingNumber = 1;
+      }
+    } catch (err) {
+      console.error("Error setting billing number:", err);
+      return next(err); // Pass error to next middleware
+    }
+  }
+  next();
+});
+
+ledgerSchema.methods.getFormattedBillingNumber = function () {
+  return this.billingNumber.toString().padStart(3, "0");
+};
+
+
 
 const ledger = mongoose.model("ledger", ledgerSchema);
 module.exports = ledger;

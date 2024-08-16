@@ -402,6 +402,42 @@ const manuallyUpdateBookingStatus = async (req, res) => {
   }
 }
 
+const manuallyUpdateMultipleBookingStatus = async (req, res) => {
+  try {
+    const result = await getAllBookingServices.manuallyUpdateMultipleBookingStatus(req);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "No booking Found for this BookingId." || result.response === "Please provide required fields" /*|| result.response === "Error in Updating Booking"*/) {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if(result.response == "booking not found"){
+      apiErrorres(res, result.msges, ServerStatusCode.BAD_REQUEST, true);
+    }
+    else if (result.response === "Booking Status Updated Successfully.") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.log(error)
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
 const SendCardOnMail = async (req, res) => {
   try {
     
@@ -486,5 +522,6 @@ module.exports = {
   manuallyUpdateBookingStatus,
   SendCardOnMail,
   UpdateAdvanceMarkup,
-  PendingBooking
+  PendingBooking,
+  manuallyUpdateMultipleBookingStatus
 };

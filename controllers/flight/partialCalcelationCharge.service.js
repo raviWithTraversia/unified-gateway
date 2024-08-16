@@ -18,7 +18,6 @@ const partialCancelationCharge = async (req, res) => {
     PNR,
     TravelType,
     BookingId,
-    providerBookingId,
     CancelType,
     Reason,
     Sector    
@@ -100,7 +99,6 @@ const partialCancelationCharge = async (req, res) => {
       PNR,
       TravelType,
       BookingId,
-      providerBookingId,
       CancelType,      
       Sector,
       Reason,
@@ -127,7 +125,6 @@ async function handleflight(
   PNR,
   TravelType,
   BookingId,
-  providerBookingId,
   CancelType, 
   Reason, 
   Sector,
@@ -160,7 +157,7 @@ async function handleflight(
   }
 
   const BookingIdDetails = await bookingDetails.findOne({
-    providerBookingId: providerBookingId,
+    providerBookingId: BookingId,
   });
 
   if (!BookingIdDetails) {
@@ -221,8 +218,7 @@ const KafilaFun = async (
   PNR,
   TravelType,
   BookingId,
-  CancelType,
-  providerBookingId, 
+  CancelType, 
   Reason, 
   Sector,
   agencyUserId,
@@ -235,12 +231,12 @@ const KafilaFun = async (
   if (Authentication.CredentialType === "LIVE") {
     // Live Url here
     credentialType = "P";
-    createTokenUrl = `${supplier.supplierLiveUrl}/api/Freport`;
-    flightCancelUrl = `${supplier.supplierLiveUrl}/api/FCancel`;
+    createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
+    flightCancelUrl = `http://fhapip.ksofttechnology.com/api/FCancel`;
   } else {
     // Test Url here
-    createTokenUrl = `${supplier.supplierTestUrl}/api/Freport`;
-    flightCancelUrl = `${supplier.supplierTestUrl}/api/FCancel`;
+    createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
+    flightCancelUrl = `http://stage1.ksofttechnology.com/api/FCancel`;
   }   
  
   let tokenData = {
@@ -268,7 +264,7 @@ const KafilaFun = async (
         R_NAME: "CANCEL",
         R_DATA: {
             ACTION: "CANCEL_CHARGE",
-            BOOKING_ID: providerBookingId,
+            BOOKING_ID: BookingId,
             CANCEL_TYPE: "PARTIAL_CANCELLATION",
             REASON: Reason,
             SECTORS:Sector,
@@ -281,7 +277,6 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0"
     };    
-    console.log(requestDataForCHarges);
        
       let fSearchApiResponse = await axios.post(
         flightCancelUrl,

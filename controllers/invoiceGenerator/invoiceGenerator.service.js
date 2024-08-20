@@ -379,7 +379,7 @@ const transactionList = async (req, res) => {
                 const gateway = tr?.paymentGateway?.toLowerCase();
 
                 if (gateway === 'payu') {
-                    pGateway = 'PYU';
+                    pGateway = 'PAYU';
                 } else if (gateway === 'easebuzz') {
                     pGateway = 'EZB';
                 }

@@ -2,11 +2,12 @@ const BookingDetail = require("../../models/BookingDetails");
 const TransactionDetail = require("../../models/transaction")
 const InvoicingData = require("../../models/booking/InvoicingData");
 const Invoicing = require("../../models/booking/Invoicing");
+const Comapny=require('../../models/Company')
 const InvoicePrivceBreakup = require("../../models/booking/InvoicePrivceBreakup");
 const PassengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const Ledger = require("../../models/Ledger");
 var ObjectId = require("mongoose").Types.ObjectId;
-const { priceRoundOffNumberValues } = require("../commonFunctions/common.function");
+const { priceRoundOffNumberValues, commonEmailFunction } = require("../commonFunctions/common.function");
  
 const invoiceGenerator = async (req, res) => {
     const { bookingId,providerBookingId } = req.body;
@@ -78,6 +79,8 @@ const invoiceGenerator = async (req, res) => {
                 as: 'Agencies'
             }
         },
+
+      
         {
             $lookup: {
                 from: 'invoicingdatas', 
@@ -121,9 +124,18 @@ const invoiceGenerator = async (req, res) => {
         }
     }else{
         if(bookingDetail.length>0){
+            
             bookingDetail = bookingDetail[0];
+            console.log(bookingDetail?.CompanyDetail?.agentconfigurations?.companyId,'shadaab')
+            const companyData=await Comapny.findById(bookingDetail?.CompanyDetail?.agentconfigurations?.companyId)
+            if(!companyData.length>0&&!companyData.type=="TMC"){
+
+            return {
+                response:"Invoice not found"
+            }
+            
+            }
             invoiceNumber = bookingDetail?.CompanyDetail?.agentconfigurations?.InvoiceingPrefix + invoiceRandomNumber;
-    
             if(bookingDetail?.passengerpreferences?.Passengers?.length>0){  
                 let ttpasanegers = bookingDetail?.passengerpreferences?.Passengers;
                 for(const passenger of ttpasanegers){
@@ -367,7 +379,7 @@ const transactionList = async (req, res) => {
                 const gateway = tr?.paymentGateway?.toLowerCase();
 
                 if (gateway === 'payu') {
-                    pGateway = 'PYU';
+                    pGateway = 'PAYU';
                 } else if (gateway === 'easebuzz') {
                     pGateway = 'EZB';
                 }

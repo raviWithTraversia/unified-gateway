@@ -127,7 +127,6 @@ const getAllledger = async (req, res) => {
 
 
 const transactionReport = async (req, res) => {
-  console.log('jiejeij')
   const { agencyId, fromDate, toDate } = req.body;
   const getLedgerTransaction = await ledgerRail.aggregate([{
     $match: {

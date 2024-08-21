@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const PassengerSchema = new Schema({
+const PassengerSchema = new mongoose.Schema({
     passengarSerialNo: { type: Number, default: null },
     title: { type: String, default: null },
     fName: { type: String, default: null },
@@ -11,7 +11,7 @@ const PassengerSchema = new Schema({
     serviceCharges: { type: Number, default: 0 },
 }, { _id: false }); 
 
-const CreditNoteSchema = new Schema({
+const CreditNoteSchema = new mongoose.Schema({
     creditNoteNo: { type: String, required: true },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -25,7 +25,7 @@ const CreditNoteSchema = new Schema({
     bookingDate: { type: Date, required: true },
     dueDate: { type: Date, required: true },
     totalAmount: { type: Number, required: true },
-    bookingId: { type: Schema.Types.ObjectId, ref: 'Booking', required: true },
+    bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true },
     passengers: [PassengerSchema],
     totalCancellationCharges: { type: Number, default: 0 },
     totalRefundAmount: { type: Number, default: 0 },
@@ -40,4 +40,4 @@ const CreditNoteSchema = new Schema({
         default: Date.now(),
       }
 });
-module.exports = mongoose.model('creditNotesSchema' , creditNotesSchema);
+module.exports = mongoose.model('creditNotesSchema' , CreditNoteSchema);

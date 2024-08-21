@@ -15,13 +15,10 @@ const flightCache = new NodeCache();
 
 
 
-// services/flightCreditNoteService.js
-
-
 
 const calculateRefundAndCharges = (totalAmount, numPassengers, cancelledPassengers) => {
   const baseFarePerPassenger = totalAmount / numPassengers;
-  const cancellationChargePerPassenger = 500; // Example cancellation charge
+  const cancellationChargePerPassenger = 500; 
   const cancellationCharges = cancelledPassengers * cancellationChargePerPassenger;
   const remainingAmount = baseFarePerPassenger * (numPassengers - cancelledPassengers);
   const refundAmount = remainingAmount - cancellationCharges;
@@ -38,7 +35,7 @@ const flightCreditNotes = async (data) => {
     Provider,
     PNR,
     TravelType,
-    BookingId,
+    bookingId,
     CancelType,
     Reason,
     Sector
@@ -49,7 +46,7 @@ const flightCreditNotes = async (data) => {
     "Provider",
     "PNR",
     "TravelType",
-    "BookingId",
+    "bookingId",
     "CancelType",
     "Reason",
     "Sector"
@@ -86,20 +83,20 @@ const flightCreditNotes = async (data) => {
   }
 
   // Fetch booking and passengers
-  const booking = await Booking.findById(BookingId).populate('passengers').exec();
+  const booking = await bookingDetails.findById(bookingId).populate('passengers').exec();
   if (!booking) {
     return {
       response: "Booking not found",
     };
   }
 
-  const totalAmount = booking.totalAmount; // Assuming total amount is stored in the booking
-  const numPassengers = booking.passengers.length;
+  const totalAmount = bookingDetails.totalAmount; // Assuming total amount is stored in the booking
+  const numPassengers = bookingDetails.passengers.length;
 
   // Find the existing credit note or create a new one
   let creditNote = await CreditNote.findOne({ bookingId: BookingId }).exec();
   if (!creditNote) {
-    creditNote = new CreditNote({
+    creditNote = new creditNotesData({
       creditNoteNo: `CN${Date.now()}`,
       userId,
       companyId,
@@ -130,11 +127,11 @@ const flightCreditNotes = async (data) => {
   }
 
   // Save credit note
-  await creditNote.save();
+  await creditNotesData.save();
 
   return {
     response: "Fetch Data Successfully",
-    data: creditNote
+    data: creditNotesData
   };
 };
 

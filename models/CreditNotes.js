@@ -21,6 +21,7 @@ const CreditNoteSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
       },
+      PNR: { type: Number, required: true },
     bookingDate: { type: Date, required: true },
     dueDate: { type: Date, required: true },
     totalAmount: { type: Number, required: true },

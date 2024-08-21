@@ -27,5 +27,6 @@ flight_route.post('/flight/assignAmendmentUser', auth, flight.assignAmendmentUse
 flight_route.post('/flight/create-amendment-cart', auth, flight.amendmentCartCreate);
 flight_route.post('/flight/amadeusTest', flight.amadeusTest);
 flight_route.get('/flight/deleteAmendmentDetail', auth, flight.deleteAmendmentDetail);
-
+flight_route.post('/flight/amadeusTest', flight.amadeusTest);
+flight_route.post('/flight/flightCreditNotes', auth, flight.flightCreditNotes);
 module.exports = flight_route;

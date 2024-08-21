@@ -230,8 +230,14 @@ documentId:updateAgencyGroupData._id,
 };
 const getAgencyGroup = async (req, res) => {
   try {
-   
-    let agencyGroup = await agencyGroupModel.find().populate('privilagePlanId')
+    const {companyId}=req.query
+   if(!companyId){
+    return ({
+      response:"company Id not found"
+    })
+   }
+
+    let agencyGroup = await agencyGroupModel.find({companyId:companyId}).populate('privilagePlanId')
     .populate('commercialPlanId')
     .populate('plbGroupId')
     .populate('incentiveGroupId')

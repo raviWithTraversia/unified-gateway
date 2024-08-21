@@ -62,7 +62,7 @@ const getAgencyGroup = async (req, res) => {
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    } else if (result.response == "Agency Group Not Found") {
+    } else if (result.response == "Agency Group Not Found"||result.response=="company Id not found") {
       apiErrorres(
         res,
         result.response,

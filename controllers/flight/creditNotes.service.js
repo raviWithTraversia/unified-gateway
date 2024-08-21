@@ -16,18 +16,18 @@ const flightCache = new NodeCache();
 
 
 
-const calculateRefundAndCharges = (totalAmount, numPassengers, cancelledPassengers) => {
-  const baseFarePerPassenger = totalAmount / numPassengers;
-  const cancellationChargePerPassenger = 500; 
-  const cancellationCharges = cancelledPassengers * cancellationChargePerPassenger;
-  const remainingAmount = baseFarePerPassenger * (numPassengers - cancelledPassengers);
-  const refundAmount = remainingAmount - cancellationCharges;
+// const calculateRefundAndCharges = (totalAmount, numPassengers, cancelledPassengers) => {
+//   const baseFarePerPassenger = totalAmount / numPassengers;
+//   const cancellationChargePerPassenger = 500; 
+//   const cancellationCharges = cancelledPassengers * cancellationChargePerPassenger;
+//   const remainingAmount = baseFarePerPassenger * (numPassengers - cancelledPassengers);
+//   const refundAmount = remainingAmount - cancellationCharges;
 
-  return {
-    cancellationCharges,
-    refundAmount
-  };
-};
+//   return {
+//     cancellationCharges,
+//     refundAmount
+//   };
+// };
 
 const flightCreditNotes = async (data) => {
   const {
@@ -74,7 +74,6 @@ const flightCreditNotes = async (data) => {
     };
   }
 
-  // Check if company Id exists
   const checkCompanyIdExist = await Company.findById(companyId);
   if (!checkCompanyIdExist || checkCompanyIdExist.type !== "TMC") {
     return {
@@ -82,7 +81,6 @@ const flightCreditNotes = async (data) => {
     };
   }
 
-  // Fetch booking and passengers
   const booking = await bookingDetails.findById(bookingId).populate('passengers').exec();
   if (!booking) {
     return {
@@ -97,7 +95,7 @@ const flightCreditNotes = async (data) => {
   let creditNote = await CreditNote.findOne({ bookingId: BookingId }).exec();
   if (!creditNote) {
     creditNote = new creditNotesData({
-      creditNoteNo: `CN${Date.now()}`,
+      cNo,
       userId,
       companyId,
       PNR,
@@ -114,7 +112,7 @@ const flightCreditNotes = async (data) => {
   }
 
   // Update cancellation status for the passenger
-  const cancelledPassengers = booking.passengers.filter(p => p.cancellationStatus === 'Cancelled').length;
+  const cancelledPassengers = bookingDetails.passengers.filter(p => p.cancellationStatus === 'Cancelled').length;
   const { cancellationCharges, refundAmount } = calculateRefundAndCharges(totalAmount, numPassengers, cancelledPassengers);
 
   creditNote.totalCancellationCharges = cancellationCharges;

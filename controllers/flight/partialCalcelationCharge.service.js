@@ -86,7 +86,7 @@ const partialCancelationCharge = async (req, res) => {
 
 
 
-
+// 
   let result;
   if (TravelType !== "International" && TravelType !== "Domestic") {
     return {

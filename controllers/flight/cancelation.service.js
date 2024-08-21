@@ -453,16 +453,17 @@ const KafilaFun = async (
           });
           // console.log(tdsAmount,"tdsAmount1");
           newBalance =
-            maxCreditLimit +
-            (ResponseData?.Charges?.RefundableAmt - tdsAmount || 0);
+            maxCreditLimit +ResponseData?.Charges?.RefundableAmt;
+            // (ResponseData?.Charges?.RefundableAmt - tdsAmount || 0);
           pricecheck = ResponseData?.Charges?.RefundableAmt - (tdsAmount || 0);
-          // console.log(pricecheck,"pricecheck3");
+          console.log(pricecheck,"pricecheck3");
           if(!isNaN(pricecheck)){
             pricecheck = pricecheck;
           }else{
             pricecheck = 0;
           }
         }
+        console.log(ResponseData?.Charges?.RefundableAmt,"refundable amount")
         console.log(newBalance,"newBalance");
         if (!isNaN(newBalance)) {
           newBalance = newBalance;
@@ -471,7 +472,7 @@ const KafilaFun = async (
         }
         await agentConfig.updateOne(
           { userId: agencyUserId },
-          { maxcreditLimit: newBalance }
+          { maxcreditLimit: newBalance+ResponseData?.Charges?.RefundableAmt }
         );
         const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
 
@@ -481,11 +482,11 @@ const KafilaFun = async (
           companyId: Authentication?.CompanyId,
           ledgerId: ledgerId,
           cartId: BookingIdDetails?.bookingId,
-          transactionAmount: pricecheck,
+          transactionAmount: ResponseData?.Charges?.RefundableAmt,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "CREDIT",
-          runningAmount: newBalance,
+          runningAmount:newBalance+ResponseData?.Charges?.RefundableAmt,
           remarks: "Cancelation amount added into your account.",
           transactionBy: Authentication?.UserId,
         });

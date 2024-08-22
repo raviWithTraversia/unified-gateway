@@ -418,25 +418,25 @@ const KafilaFun = async (
                 
                 await agentConfig.updateOne(
                   { userId: agencyUserId },
-                  { maxcreditLimit: newBalance }
+                  // { maxcreditLimit: newBalance+fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt }
                 );
           //console.log(getAgentConfig);
           const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
   
           // Create ledger entry
-          await ledger.create({
-            userId: agencyUserId,
-            companyId: Authentication?.CompanyId,
-            ledgerId: ledgerId,
-            cartId:BookingIdDetails?.bookingId,
-            transactionAmount: pricecheck,
-            currencyType: "INR",
-            fop: "DEBIT",
-            transactionType: "DEBIT",
-            runningAmount: newBalance,
-            remarks: "Calcelation Amount Added Into Your Account.",
-            transactionBy: Authentication?.UserId          
-          });
+          // await ledger.create({
+          //   userId: agencyUserId,
+          //   companyId: Authentication?.CompanyId,
+          //   ledgerId: ledgerId,
+          //   cartId:BookingIdDetails?.bookingId,
+          //   transactionAmount: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt,
+          //   currencyType: "INR",
+          //   fop: "DEBIT",
+          //   transactionType: "DEBIT",
+          //   runningAmount: newBalance+fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt,
+          //   remarks: "Calcelation Amount Added Into Your Account.",
+          //   transactionBy: Authentication?.UserId          
+          // });
           
           const passengerPreference = await passengerPreferenceModel.findOne({
             bookingId: BookingIdDetails.bookingId,

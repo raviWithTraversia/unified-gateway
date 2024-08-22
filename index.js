@@ -24,7 +24,6 @@ runSeeders().then(() => {
     console.log('Seeders executed.');
 });
 
-
 const options = {
     definition: {
         openapi: "3.0.0",
@@ -66,7 +65,10 @@ const options = {
         "./routes/roleRoute.js",
         "./routes/salesRoute.js",
         "./routes/verifyOtpRoute.js",
-        "./routes/carrierRoute.js"
+        "./routes/carrierRoute.js",
+        "./routes/creditNotesRoute"
+        
+    
 
     ]
 };

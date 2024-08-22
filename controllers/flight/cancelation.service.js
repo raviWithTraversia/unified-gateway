@@ -472,32 +472,36 @@ const KafilaFun = async (
         }
         await agentConfig.updateOne(
           { userId: agencyUserId },
-          { maxcreditLimit: newBalance+ResponseData?.Charges?.RefundableAmt }
         );
         const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
 
         // Create ledger entry
-        await ledger.create({
-          userId: agencyUserId,
-          companyId: Authentication?.CompanyId,
-          ledgerId: ledgerId,
-          cartId: BookingIdDetails?.bookingId,
-          transactionAmount: ResponseData?.Charges?.RefundableAmt,
-          currencyType: "INR",
-          fop: "DEBIT",
-          transactionType: "CREDIT",
-          runningAmount:newBalance+ResponseData?.Charges?.RefundableAmt,
-          remarks: "Cancelation amount added into your account.",
-          transactionBy: Authentication?.UserId,
-        });
+        // await ledger.create({
+        //   userId: agencyUserId,
+        //   companyId: Authentication?.CompanyId,
+        //   ledgerId: ledgerId,
+        //   cartId: BookingIdDetails?.bookingId,
+        //   transactionAmount: ResponseData?.Charges?.RefundableAmt,
+        //   currencyType: "INR",
+        //   fop: "DEBIT",
+        //   transactionType: "CREDIT",
+        //   runningAmount:newBalance+ResponseData?.Charges?.RefundableAmt,
+        //   remarks: "Cancelation amount added into your account.",
+        //   transactionBy: Authentication?.UserId,
+        // });
 
         const passengerPreference = await passengerPreferenceModel.findOne({
           bookingId: BookingIdDetails.bookingId,
         });
 
         for (const passenger of passengerPreference?.Passengers) {
+          
           if (!passenger?.ticketStatus) {
             passenger.ticketStatus = [];
+          }
+
+          if(passenger){
+            passenger.Status="CANCELLED"
           }
           const existingTicketStatusIndex =
             passenger?.ticketStatus?.findIndex(

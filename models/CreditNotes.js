@@ -12,7 +12,7 @@ const PassengerSchema = new mongoose.Schema({
 }, { _id: false }); 
 
 const CreditNoteSchema = new mongoose.Schema({
-    creditNoteNo: { type: String, required: true },
+    creditNoteNo: { type: String, default:null },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -21,16 +21,16 @@ const CreditNoteSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
       },
-      PNR: { type: Number, required: true },
+      PNR: { type: String, required: true },
     bookingDate: { type: Date, required: true },
     dueDate: { type: Date, required: true },
     totalAmount: { type: Number, required: true },
-    bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true },
-    passengers: [PassengerSchema],
+    bookingId: { type: String,default:null },
+    passengers: {type:Array,default:null},
     totalCancellationCharges: { type: Number, default: 0 },
     totalRefundAmount: { type: Number, default: 0 },
     totalServiceCharges: { type: Number, default: 0 },
-    status: { type: String, enum: ['Issued', 'Cancelled', 'Refunded'], default: 'Issued' },
+    status: { type: String, enum: ['Issued', 'Cancelled', 'Refunded',"CANCEL"], default: 'Issued' },
     modifyBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

@@ -155,7 +155,6 @@ async function handleflight(
       response: "Supplier credentials does not exist",
     };
   }
-
   const BookingIdDetails = await bookingDetails.findOne({
     providerBookingId: BookingId,
   });
@@ -227,13 +226,15 @@ const KafilaFun = async (
   let createTokenUrl;
   let flightCancelUrl;
 
-  let credentialType = "D";
+  let credentialType = "";
   if (Authentication.CredentialType === "LIVE") {
     // Live Url here
     credentialType = "P";
     createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
     flightCancelUrl = `http://fhapip.ksofttechnology.com/api/FCancel`;
   } else {
+    credentialType = "D";
+
     // Test Url here
     createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
     flightCancelUrl = `http://stage1.ksofttechnology.com/api/FCancel`;
@@ -254,8 +255,7 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
-    
-   // console.log(response.data, 'tokennnn');    
+    console.log(response.data,)
     if (response.data.Status === "success") {
       let getToken = response.data.Result;
       let requestDataForCHarges = {
@@ -277,7 +277,6 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0"
     };    
-       
       let fSearchApiResponse = await axios.post(
         flightCancelUrl,
         requestDataForCHarges,
@@ -287,7 +286,7 @@ const KafilaFun = async (
           },
         }
       ); 
-        //console.log(fSearchApiResponse.data, "1API Responce")
+        console.log(fSearchApiResponse.data, "1API Responce")
       if (fSearchApiResponse.data.Status !==  null) {
         return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage
        

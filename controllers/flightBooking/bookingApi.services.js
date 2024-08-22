@@ -1329,7 +1329,7 @@ const getBookingBill = async (req, res) => {
     {
       $match: {
         createdAt: {
-          $gte: new Date(fromDate),
+          $gte: new Date(fromDate +"T00:00:00.000Z"),
           $lte: new Date(toDate + "T23:59:59.999Z"),
         },
       },
@@ -1523,7 +1523,7 @@ const getSalesReport = async (req, res) => {
     {
       $match: {
         createdAt: {
-          $gte: new Date(fromDate),
+          $gte: new Date(fromDate + "T00:00:00.000Z"),
           $lte: new Date(toDate + "T23:59:59.999Z"),
         },
       },

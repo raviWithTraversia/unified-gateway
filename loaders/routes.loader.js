@@ -17,6 +17,7 @@ const stateRoute = require('../routes/stateRoute');
 const cityRoute = require('../routes/cityRoute');
 const permissionRoute = require('../routes/permissionRoute');
 const roleRoute = require('../routes/roleRoute');
+const creditNotesRoute = require('../routes/creditNotesRoute');
 const salesRoute = require('../routes/salesRoute');
 const commercialAirPlanRoute = require('../routes/commercialAirPlanRoute');
 const fareFamilyRoute = require('../routes/fareFamilyMasterRoute');
@@ -326,7 +327,9 @@ class RoutesLoader {
         //irctcBookingRoute
         app.use('/api',irctcBookingRoute);
 
+        // role routes by shadaab
 
+         app.use('/api', creditNotesRoute);
 
 
         // // Intergalactic Credit

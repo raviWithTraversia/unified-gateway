@@ -140,9 +140,9 @@ const updateAgentConfiguration = async (req, res) => {
 const updateSmsBalance = async (req, res) => {
   try {
     const id = req.query.id;
-    const { smsBalance } = req.body; 
+    const { smsBalanceChange } = req.body; 
 
-    if (smsBalance === undefined) {
+    if (smsBalanceChange === undefined) {
       return res.status(400).json({
         error: "No smsBalance provided for update",
       });
@@ -155,18 +155,26 @@ const updateSmsBalance = async (req, res) => {
       });
     }
 
-    const userData = await userModel.findById(req.user._id);
+    const newSmsBalance = existingConfig.smsBalance + smsBalanceChange;
+
+    if (newSmsBalance < 0) {
+      return res.status(400).json({
+        error: "Insufficient smsBalance",
+      });
+    }
+
+   
 
    
     const updateData = await agentConfigsModels.findByIdAndUpdate(
       id,
-      { smsBalance }, 
+      { smsBalance: newSmsBalance }, 
       { new: true }
     );
 
 
     if (updateData) {
-      
+      const userData = await userModel.findById(req.user._id);
       const LogsData = {
         eventName: "ConfigAgency",
         doerId: req.user._id,
@@ -175,7 +183,7 @@ const updateSmsBalance = async (req, res) => {
         oldValue: existingConfig,
         newValue: updateData,
         documentId: id,
-        description: "Updated smsBalance",
+        description: `Updated smsBalance by ${smsBalanceChange > 0 ? 'adding' : 'subtracting'} ${Math.abs(smsBalanceChange)}`,
       };
 
       

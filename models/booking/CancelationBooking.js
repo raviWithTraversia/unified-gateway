@@ -50,6 +50,10 @@ const cancelationSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    isRefund:{
+type:Boolean,
+default:false
+    },
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

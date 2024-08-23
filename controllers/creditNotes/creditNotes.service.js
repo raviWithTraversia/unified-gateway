@@ -10,6 +10,7 @@ const axios = require("axios");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
+const { Error } = require("mongoose");
 const flightCache = new NodeCache();
 
 
@@ -189,7 +190,113 @@ catch(error){
 }
 };
 
+const cancelationBooking=async(req,res)=>{
+  try{
+    const {status,fromDate,toDate}=req.body;
+if(!fromDate||!toDate){
+  return({
+    response:"Invalid Dates filled"
+  })
+}
+var searchData=[]
+const dateQuery = {
+  createdAt: {
+    $gte: new Date(fromDate + 'T00:00:00.000Z'), 
+    $lte: new Date(toDate + 'T23:59:59.999Z')
+  }
+};
+const statusQuery = {
+  calcelationStatus: status
+};
+searchData.push(dateQuery)
+if(status){
+searchData.push(statusQuery)
+}
 
-module.exports = {flightCreditNotes}
+    
+   
+    
+    
+    // Perform the aggregation
+    const cancelationBooking = await CancelationBooking.aggregate([
+      {
+        $match: {
+          $and:searchData
+        }
+      },
+      {
+        $lookup:{
+          from:"bookingdetails",
+          localField:"bookingId",
+          foreignField:"providerBookingId",
+          as:"bookingdetailsData"
+        }
+      },
+      {$unwind:{path:"$bookingdetailsData",preserveNullAndEmptyArrays:true}},
+      {
+        $lookup:{
+          from:"users",
+          localField:"userId",
+          foreignField:"_id",
+          as:"userData"
+}
+
+      },
+{$unwind:{path:"$userData",preserveNullAndEmptyArrays:true}},
+
+{
+  $lookup:{
+    from:"companies",
+    localField:"userData.company_ID",
+    foreignField:"_id",
+    as:"companyData"
+  }
+},
+{$unwind:{path:"$companyData",preserveNullAndEmptyArrays:true}},
+{
+  $sort:{
+    createdAt:-1
+  }
+},
+{
+  $project:{
+    bookingId:"$bookingdetailsData.bookingId",
+    companyName:"$companyData.companyName",
+    userData:{title:"$userData.title",fname:"$userData.fname",lastname:"$userData.lastName"},
+    calcelationStatus:1,
+    providerBookingId:1,
+    fare:1,
+    AirlineCancellationFee:1,
+    AirlineRefund:1,
+    ServiceFee:1,
+    PNR:1,
+    createdAt:1,
+    isRefund:1
+
+
+  }
+}
+
+
+    ]);
+
+    if(!cancelationBooking){
+      return({
+        response:"Data Not found",
+        })
+    }  
+    
+    return({
+      response:"Fetch Data Successfully",
+      data:cancelationBooking,
+      })
+
+
+  }catch(error){
+    throw error
+  }
+}
+
+module.exports = {flightCreditNotes,cancelationBooking}
 
 

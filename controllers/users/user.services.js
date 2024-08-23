@@ -930,6 +930,7 @@ const getAllAgencyAndDistributer = async (req, res) => {
     ]).exec();
     
     //console.log("=======>>>", users);
+    console.log(users)
     let data = [];
     for (let i = 0; i < users.length; i++) {
       if (users[i].roleId.type == 'Manual') {

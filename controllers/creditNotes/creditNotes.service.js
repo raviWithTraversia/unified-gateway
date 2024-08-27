@@ -11,6 +11,7 @@ const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const { Error } = require("mongoose");
+const ledger = require("../../models/Ledger");
 const flightCache = new NodeCache();
 
 
@@ -296,7 +297,71 @@ searchData.push(statusQuery)
     throw error
   }
 }
+const findCancelationRefund = async (req, res) => {
+  try {
+    const { fromDate, toDate ,bookingIds} = req.body;
 
-module.exports = {flightCreditNotes,cancelationBooking}
+    // Prepare the API request body
+    console.log(bookingIds)
+    const apiRequestBody = {
+      "P_TYPE": "API",
+      "R_TYPE": "FLIGHT",
+      "R_NAME": "FlightCancelHistory",
+      "R_DATA": {
+        "ACTION": "",
+        "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
+        "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
+      },
+      "AID": "66211223",
+      "MODULE": "B2B",
+      "IP": "182.73.146.154",
+      "TOKEN": "fd58e3d2b1e517f4ee46063ae176eee1",
+      "ENV": "D",
+      "Version": "1.0.0.0.0.0"
+    };
+
+  
+    const refundHistoryResponse = await axios.post('http://stage1.ksofttechnology.com/api/Freport', apiRequestBody);
+
+    const refundHistory = refundHistoryResponse.data;
+   
+
+
+// const bookingIdsInHistory = bookingIds.map(item => item);
+
+// const filterData = refundHistory.filter(element => bookingIdsInHistory.includes(element.BookingId));
+
+// const matchIds=filterData.map(item=> item.BookingId)
+
+// console.log(matchIds,"jiejiei")
+
+const cancelationbookignsData=await CancelationBooking.find({bookingId:bookingIds})
+
+for(let element of refundHistory){
+  for(let element1 of cancelationbookignsData){
+    if(element.BookingId==element1.bookingId){
+      if(element1.isRefund==false){
+        
+      }
+
+
+    }
+
+  }
+}
+
+
+    return({
+      response: "Fetch Data Successfully",
+      data: cancelationbookignsData,
+    });
+
+  } catch (error) {
+    console.error("Error fetching cancellation refund history:", error);
+  }
+
+}
+
+module.exports = {flightCreditNotes,cancelationBooking,findCancelationRefund}
 
 

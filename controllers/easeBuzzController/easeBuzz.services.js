@@ -304,17 +304,33 @@ const easeBuzzResponce = async (req, res) => {
 
             const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: udf1 });
 
-            if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
-              await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
-                const apiPassenger = fSearchApiResponse.data.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
-                if (apiPassenger) {
-                  passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
-                  //passenger.Status = "CONFIRMED";                       
-                }
-              }));
+              await Promise.all(
+                getpassengersPrefrence.Passengers.map(async (passenger) => {
+                  const apiPassenger =
+                    fSearchApiResponse.data.PaxInfo.Passengers.find(
+                      (p) =>
+                        p.FName === passenger.FName &&
+                        p.LName === passenger.LName
+                    );
+                  if (apiPassenger) {
+                    const ticketUpdate =
+                      passenger.Optional.ticketDetails.find(
+                        (p) =>
+                          p.src ===
+                            fSearchApiResponse.data.Param.Sector[0].Src &&
+                          p.des ===
+                            fSearchApiResponse.data.Param.Sector[0].Des
+                      );
+                    if (ticketUpdate) {
+                      ticketUpdate.ticketNumber =
+                        apiPassenger?.Optional?.TicketNumber;
+                    }
 
+                    // passenger.Status = "CONFIRMED";
+                  }
+                })
+              );
               await getpassengersPrefrence.save();
-            }
 
             if (
               fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
@@ -333,7 +349,7 @@ const easeBuzzResponce = async (req, res) => {
               //   { bookingId: item?.BookingId },
               //   { statusDetail: status, trnsNo:txnid,paymentMode:card_type,bankName:bank_name,holderName:name_on_card, }
               // );
-              console.log("jkssddjsj");
+              //console.log("jkssddjsj");
               await transaction.create({
                 userId: Authentication.UserId,
                 bookingId:item?.BookingId,

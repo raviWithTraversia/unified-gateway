@@ -82,6 +82,28 @@ const getAllBooking = async (req, res) => {
     };
   }
 
+
+
+  // const userRole = checkUserIdExist.roleId;
+  // let filter = {};
+
+  // if (userRole && userRole.sales_In_Charge) {
+  //   // Fetch all companyIds for the sales in-charge
+  //   const inchargeRole = await Role.findOne({ _id: userRole._id });
+
+  //   if (!inchargeRole || !inchargeRole.companyIds) {
+  //     return res.status(404).json({
+  //       response: "Incharge role does not have associated company IDs",
+  //     });
+  //   }
+
+  //   const companyIds = inchargeRole.companyIds; 
+  //   filter.companyId = { $in: companyIds };
+  // } else {
+  //   // If not sales in-charge, only filter by the provided fields
+  //   filter = {};
+  // }
+
   if (
     (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") ||
     (checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual")

@@ -11,6 +11,8 @@ const axios = require("axios");
 const { response } = require("../../routes/balanceManageRoute");
 const transaction = require("../../models/transaction");
 
+
+
 const getBalance = async (req, res) => {
   const { userId } = req.body;
   const fieldNames = ["userId"];
@@ -46,7 +48,6 @@ const getBalance = async (req, res) => {
     : null;
   const checkuserIdIdExist = await User.findById(checkuserIdIdExistId);
 
-  //console.log(checkuserIdIdExist);
   if (!checkuserIdIdExist) {
     return {
       response: "User id does not exist",
@@ -96,7 +97,7 @@ const getBalance = async (req, res) => {
         tempBalance: 0,
         expireDate: "",
       },
-    };
+    }; 
   }
 };
 

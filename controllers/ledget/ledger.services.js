@@ -148,16 +148,32 @@ const getAllledger = async (req, res) => {
 };
 
 const transactionReport = async (req, res) => {
+ try{
+
   console.log("jiejeij");
   const { agencyId, fromDate, toDate } = req.body;
+
+ const searchData = [];
+
+const dateQuery = {
+  createdAt: {
+    $gte: new Date(fromDate + 'T00:00:00.000Z'), 
+    $lte: new Date(toDate + 'T23:59:59.999Z')
+  }
+};
+searchData.push(dateQuery);
+
+// if (agencyId) {
+//   const statusQuery = {
+//     "userId": new ObjectId(agencyId)
+//   };
+//   searchData.push(statusQuery);
+// }
   const getLedgerTransaction = await ledger.aggregate([
     {
-      $match: {
-        createdAt: {
-          $gte: new Date(fromDate + 'T00:00:00.000Z'), 
-          $lte: new Date(toDate + 'T23:59:59.999Z')
-        }
-      },
+      $match:{
+        $and:searchData
+      }
     },
     {
       $lookup: {
@@ -171,7 +187,7 @@ const transactionReport = async (req, res) => {
     {
       $match: {
         "bookingData.bookingStatus": "CONFIRMED",
-        "bookingData.AgencyId": agencyId
+        "bookingData.userId": agencyId
           ? new ObjectId(agencyId)
           : { $exists: true },
       },
@@ -199,6 +215,7 @@ const transactionReport = async (req, res) => {
       },
     },
   ]);
+  console.log(getLedgerTransaction)
   getLedgerTransaction.forEach((element, index) => {
     element.id = index + 1;
   });
@@ -211,8 +228,12 @@ const transactionReport = async (req, res) => {
     response: "Fetch Data Successfully",
     data: getLedgerTransaction,
   };
-};
+}catch(error){
+  console.log(error)
+  throw error
+}
 
+}
 const getAllledgerbyDate = async (req, res) => {
   try {
     const { date, companyId } = req.body;

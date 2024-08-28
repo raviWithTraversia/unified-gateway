@@ -1378,7 +1378,7 @@ const getBookingBill = async (req, res) => {
     {
       $match: {
         "bookingData.bookingStatus": "CONFIRMED",
-        "bookingData.AgencyId": agencyId
+        "bookingData.userId": agencyId
           ? new ObjectId(agencyId)
           : { $exists: true },
       },
@@ -1577,7 +1577,7 @@ const getSalesReport = async (req, res) => {
     {
       $match: {
         "bookingData.bookingStatus": "CONFIRMED",
-        "bookingData.AgencyId": agencyId
+        "bookingData.userId": agencyId
           ? new ObjectId(agencyId)
           : { $exists: true },
       },
@@ -1613,7 +1613,7 @@ const getSalesReport = async (req, res) => {
         agentState: "",
         agentCountry: { $arrayElemAt: ["$userData.nationality", 0] },
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
-        agentId: { $arrayElemAt: ["$companiesData.agentId", 0] },
+        agentId: { $arrayElemAt: ["$userData.userId", 0] },
         ticketNumber: "$bookingData.PNR",
         gdsPnr: "$bookingData.GPnr",
         pnr: "$bookingData.PNR",

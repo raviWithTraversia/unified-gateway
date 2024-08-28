@@ -51,7 +51,6 @@ const getAllBooking = async (req, res) => {
     "toDate",
     "salesInchargeIds",
   ];
-  console.log(agencyId);
   const missingFields = fieldNames.filter(
     (fieldName) =>
       req.body[fieldName] === null || req.body[fieldName] === undefined
@@ -76,11 +75,35 @@ const getAllBooking = async (req, res) => {
   const checkUserIdExist = await User.findById(userId)
     .populate("roleId")
     .populate("company_ID");
-  if (!checkUserIdExist) {
-    return {
-      response: "User id does not exist",
-    };
-  }
+
+  //   console.log(JSON.stringify(checkUserIdExist));
+  // if (!checkUserIdExist) {
+  //   return {
+  //     response: "User id does not exist",
+  //   };
+  // }
+
+
+
+  // const userRole = checkUserIdExist.roleID;
+  // console.log(JSON.stringify(userRole));
+  // let filter = {};
+
+  // if (userRole && userRole.salesInchargeIds) {
+  //   const inchargeRole = await Role.findOne({ _id: userRole._id });
+
+  //   if (!inchargeRole || !inchargeRole.companyIds) {
+  //     return res.status(404).json({
+  //       response: "Incharge role does not have associated company IDs",
+  //     });
+  //   }
+
+  //   const companyIds = inchargeRole.companyIds; 
+  //   filter.companyId = { $in: companyIds };
+  // } else {
+  //   // If not sales in-charge, only filter by the provided fields
+  //   filter = {};
+  // }
 
   if (
     (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") ||

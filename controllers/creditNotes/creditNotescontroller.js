@@ -78,11 +78,12 @@ const flightCreditNotes = async (req, res) => {
         req,
         res
       ); 
-      if (!result.response && result.isSometingMissing) {
+      console.log(result,"shai")
+      if (!result.response) {
         apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-      } else if (result.response === "Invalid Dates filled" || result.response === "Data Not found") {
+      } else if (result.response === "All Cancellations Already Refunded" || result.response === "Cancellation Data Not Found"||result.response ==="Data not Found"||result.response==="Kafila API Data Not Found"||result.response=="Your cancelation already refunded"||result.response=="Cancelation Data Not Found") {
         apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);   
-       } else if (result.response === "Fetch Data Successfully") {
+       } else if (result.response === "Cancelation Proceed refund") {
         apiSucessRes(
           res,
           result.response,

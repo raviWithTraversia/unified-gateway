@@ -444,7 +444,7 @@ const KafilaFun = async (
             for (const flight of Sector) {
               const { PAX,SRC,DES } = flight;  
               for (const passenger of passengerPreference.Passengers) { 
-                if (!passenger.ticketStatus) {           
+                if (!passenger.ticketStatus) {    
                     passenger.ticketStatus = [];
                 }
                 for (const paxEntry of PAX) {

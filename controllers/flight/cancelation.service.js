@@ -463,8 +463,8 @@ const KafilaFun = async (
             pricecheck = 0;
           }
         }
-        console.log(ResponseData?.Charges?.RefundableAmt,"refundable amount")
-        console.log(newBalance,"newBalance");
+        // console.log(ResponseData?.Charges?.RefundableAmt,"refundable amount")
+        // console.log(newBalance,"newBalance");
         if (!isNaN(newBalance)) {
           newBalance = newBalance;
         }else{

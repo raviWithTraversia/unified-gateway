@@ -11,6 +11,9 @@ const ledger = require("../../models/Ledger");
 const AgentDiRecieve = require("../../models/AgentDiRecieve");
 const Pdf = require("html-pdf");
 const agentConfig = require("../../models/AgentConfig");
+const CancelationBooking=require('../../models/booking/CancelationBooking')
+const PassengerPreference=require('../../models/booking/PassengerPreference');
+const BookingDetails=require('../../models/booking/BookingDetails')
 
 const createToken = async (id) => {
   try {
@@ -1135,6 +1138,92 @@ const priceRoundOffNumberValues = async (numberValue) => {
   return result.toFixed(2);
 };
 
+const RefundedCommonFunction = async (cancelationbookignsData, refundHistory) => {
+  try {
+    let responseMessage = "Cancelation Data Not Found";
+
+    for (let refund of refundHistory) {
+      for (let matchingBooking of cancelationbookignsData) {
+        if (refund.BookingId === matchingBooking.bookingId) {
+          if (!matchingBooking.isRefund && !refund.IsRefunded) {
+            const bookingDetails = await BookingDetails.findOne({ providerBookingId: matchingBooking.bookingId });
+
+            if (refund.CType === "PARTIAL") {
+              for (let cpassenger of refund.CSector[0]?.CPax) {
+                await PassengerPreference.updateOne(
+                  {
+                    bookingId: bookingDetails.bookingId,
+                    "Passengers.FName": cpassenger.FName,
+                    "Passengers.LName": cpassenger.lName
+                  },
+                  {
+                    $set: { "Passengers.$.Status": "CANCELLED" }
+                  }
+                );
+              }
+            } else {
+              await PassengerPreference.updateOne(
+                { bookingId: bookingDetails.bookingId },
+                {
+                  $set: { "Passengers.$[].Status": "CANCELLED" }
+                }
+              );
+            }
+
+            const agentConfigData = await agentConfig.findOne({ userId: matchingBooking.userId });
+
+            const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
+            await ledger.create({
+              userId: agentConfigData.userId,
+              companyId: agentConfigData.companyId,
+              ledgerId: ledgerId,
+              cartId: matchingBooking.bookingId,
+              transactionAmount: refund.RefundableAmount,
+              currencyType: "INR",
+              fop: "DEBIT",
+              transactionType: "DEBIT",
+              runningAmount: agentConfigData.maxcreditLimit + refund.RefundableAmount,
+              remarks: "Cancellation Amount Added Into Your Account.",
+              transactionBy: matchingBooking.userId,
+            });
+
+            await agentConfig.findByIdAndUpdate(agentConfigData._id, {
+              $set: {
+                maxcreditLimit: agentConfigData.maxcreditLimit + refund.RefundableAmount
+              }
+            });
+
+            await CancelationBooking.findOneAndUpdate(
+              { bookingId: refund.BookingId },
+              {
+                $set: {
+                  fare: refund.Fare,
+                  AirlineCancellationFee: refund.AirlineCancelFee,
+                  AirlineRefund: refund.RefundableAmount,
+                  ServiceFee: refund.CancelServiceCharge,
+                  RefundableAmt: refund.RefundableAmount,
+                  isRefund: true,
+                  calcelationStatus: "REFUNDED",
+                },
+              },
+              { new: true }
+            );
+
+            responseMessage = "Cancelation Proceed refund";
+          } else {
+            responseMessage = "Your cancelation already refunded";
+          }
+          break; // Exit the inner loop once a match is found
+        }
+      }
+    }
+
+    return { response: responseMessage };
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   createToken,
   securePassword,
@@ -1163,4 +1252,5 @@ module.exports = {
   calculateOfferedPricePaxWise,
   getTicketNumberBySector,
   priceRoundOffNumberValues,
+  RefundedCommonFunction
 };

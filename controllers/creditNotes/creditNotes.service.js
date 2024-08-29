@@ -13,6 +13,7 @@ const NodeCache = require("node-cache");
 const { Error } = require("mongoose");
 const ledger = require("../../models/Ledger");
 const flightCache = new NodeCache();
+const {RefundedCommonFunction}=require('../../controllers/commonFunctions/common.function')
 
 
 
@@ -63,30 +64,36 @@ const CancelBookingData = await bookingDetails.aggregate([
     }
   },
   {
+    $match:{"cancelationBookingData.isRefund":true}
+  },
+  {
     $lookup: {
       from: "passengerpreferences",
       localField: "_id",
       foreignField: "bid",
-      as: "passengerpreferences"
+      as: "passengerpreference"
     }
   },
   {
     $unwind: {
-      path: "$passengerpreferences",
+      path: "$passengerpreference",
       preserveNullAndEmptyArrays: true
-    }
-  },
-  {
-    $match: {
-      "passengerpreferences.Passengers.Status": "CANCELLED"
     }
   },
   {
     $group: {
       _id: "$_id",
-      passengerData: { $push: "$passengerpreferences.Passengers" },
-      paxEmail: { $first: "$passengerpreferences.PaxEmail" },
-      paxMobile: { $first: "$passengerpreferences.PaxMobile" },
+      passengerData: {
+        $push: {
+          $filter: {
+            input: "$passengerpreference.Passengers",
+            as: "passenger",
+            cond: { $eq: ["$$passenger.Status", "CANCELLED"] }
+          }
+        }
+      },
+      paxEmail: { $first: "$passengerpreference.PaxEmail" },
+      paxMobile: { $first: "$passengerpreference.PaxMobile" },
       cancelData: { $first: "$cancelationBookingData" },
       bookingTotalAmount: { $first: "$bookingTotalAmount" },
       PNR: { $first: "$PNR" },
@@ -99,13 +106,6 @@ const CancelBookingData = await bookingDetails.aggregate([
   },
   {
     $project: {
-      passengerData: {
-        $filter: {
-          input: "$passengerData",
-          as: "passenger",
-          cond: { $eq: ["$$passenger.Status", "CANCELLED"] }
-        }
-      },
       paxEmail: 1,
       paxMobile: 1,
       cancelData: 1,
@@ -115,10 +115,11 @@ const CancelBookingData = await bookingDetails.aggregate([
       bookingId: 1,
       userId: 1,
       companyId: 1,
-      createdAt: 1
+      createdAt: 1,
+      providerBookingId: 1,
+      passengesDetails:  { $arrayElemAt: ['$passengerData', 0] }
     }
-  },
-  
+  }
 ]);
 
 
@@ -131,7 +132,7 @@ const CancelBookingData = await bookingDetails.aggregate([
   }
 
 
-  // const passengerDatawiseCancel=CancelBookingData[0].passengerData.filter((element)=>{element.Status=="null"
+  // const passengerDatawiseCancel=CancelBookingData[0].passengerData.filter((refund)=>{element.Status=="null"
   //   return element
   // } )
   // console.log(passengerDatawiseCancel,'dj')
@@ -141,28 +142,28 @@ const CancelBookingData = await bookingDetails.aggregate([
 
   // Find the existing credit note or create a new one
   console.log(CancelBookingData,"shdaa")
-  // let creditNote = await creditNotes.findOne({ bookingId: providerBokingId }).exec();
-  // if (!creditNote) {
-  //   creditNote = new creditNotes({
-  //     cNo:1,
-  //     userId:CancelBookingData[0]?.userId,
-  //     companyId:CancelBookingData[0]?.companyId,
-  //     PNR:CancelBookingData[0]?.PNR,
-  //     bookingDate: CancelBookingData[0]?.createdAt,
-  //     dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 
-  //     totalAmount:CancelBookingData[0]?.bookingTotalAmount,
-  //     bookingId: providerBokingId,
-  //     passengers:CancelBookingData[0]?.passengerData,
-  //     totalCancellationCharges: CancelBookingData[0]?.cancelData?.AirlineCancellationFee,
-  //     totalRefundAmount: CancelBookingData[0]?.cancelData?.AirlineRefund,
-  //     totalServiceCharges: CancelBookingData[0]?.cancelData?.ServiceFee,
-  //     status: CancelBookingData[0]?.cancelData?.calcelationStatus
-  //   })
-  //   creditNote=  await creditNote.save().then((savecreditNote)=>{
-  //     savecreditNote.populate([{ path: "userId" }, { path: "companyId" }])
+  let creditNote = await creditNotes.findOne({ bookingId: providerBokingId }).exec();
+  if (!creditNote) {
+    creditNote = new creditNotes({
+      cNo:1,
+      userId:CancelBookingData[0]?.userId,
+      companyId:CancelBookingData[0]?.companyId,
+      PNR:CancelBookingData[0]?.PNR,
+      bookingDate: CancelBookingData[0]?.createdAt,
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 
+      totalAmount:CancelBookingData[0]?.bookingTotalAmount,
+      bookingId: providerBokingId,
+      passengers:CancelBookingData[0]?.passengesDetails,
+      totalCancellationCharges: CancelBookingData[0]?.cancelData?.AirlineCancellationFee,
+      totalRefundAmount: CancelBookingData[0]?.cancelData?.AirlineRefund,
+      totalServiceCharges: CancelBookingData[0]?.cancelData?.ServiceFee,
+      status: CancelBookingData[0]?.cancelData?.calcelationStatus
+    })
+    creditNote=  await creditNote.save().then((savecreditNote)=>{
+      savecreditNote.populate([{ path: "userId" }, { path: "companyId" }])
 
-  //   })
-  // }
+    })
+  }
   // Update cancellation status for the passenger
 //   const cancelledPassengers = bookingDetails.passengers.filter(p => p.cancellationStatus === 'Cancelled').length;
 //   const { cancellationCharges, refundAmount } = calculateRefundAndCharges(totalAmount, numPassengers, cancelledPassengers);
@@ -222,7 +223,9 @@ searchData.push(statusQuery)
     const cancelationBooking = await CancelationBooking.aggregate([
       {
         $match: {
-          $and:searchData
+          $and:[...searchData,
+            { calcelationStatus: { $ne: "REFUNDED" } }
+          ]
         }
       },
       {
@@ -259,6 +262,8 @@ searchData.push(statusQuery)
     createdAt:-1
   }
 },
+
+
 {
   $project:{
     bookingId:"$bookingdetailsData.bookingId",
@@ -300,31 +305,68 @@ searchData.push(statusQuery)
 const findCancelationRefund = async (req, res) => {
   try {
     const { fromDate, toDate ,bookingIds} = req.body;
+var apiRequestBody={}
+var Url=""
+    if (
+      req.headers.host == "localhost:3111" ||
+      req.headers.host == "kafila.traversia.net"
+    ) {
+      Url = "http://stage1.ksofttechnology.com/api/Freport";
+     apiRequestBody = {
+        "P_TYPE": "API",
+        "R_TYPE": "FLIGHT",
+        "R_NAME": "FlightCancelHistory",
+        "R_DATA": {
+          "ACTION": "",
+          "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
+          "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
+        },
+        "AID": "66211223",
+        "MODULE": "B2B",
+        "IP": "182.73.146.154",
+        "TOKEN": "fd58e3d2b1e517f4ee46063ae176eee1",
+        "ENV": "D",
+        "Version": "1.0.0.0.0.0"
+      };
+    } else if (req.headers.host == "agentapi.kafilaholidays.in") {
 
-    // Prepare the API request body
+      Url = "http://fhapip.ksofttechnology.com/api/Freport";
+
+      apiRequestBody = {
+        "P_TYPE": "API",
+        "R_TYPE": "FLIGHT",
+        "R_NAME": "FlightCancelHistory",
+        "R_DATA": {
+          "ACTION": "",
+          "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
+          "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
+        },
+        "AID": "24281223",
+        "MODULE": "B2B",
+        "IP": "182.73.146.154",
+        "TOKEN": "be6e3eb87611e080340d57473b038cae",
+        "ENV": "P",
+        "Version": "1.0.0.0.0.0"
+      };
+     
+    } else {
+      return {
+        response: "url not found",
+      };
+    }
+
     console.log(bookingIds)
-    const apiRequestBody = {
-      "P_TYPE": "API",
-      "R_TYPE": "FLIGHT",
-      "R_NAME": "FlightCancelHistory",
-      "R_DATA": {
-        "ACTION": "",
-        "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
-        "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
-      },
-      "AID": "66211223",
-      "MODULE": "B2B",
-      "IP": "182.73.146.154",
-      "TOKEN": "fd58e3d2b1e517f4ee46063ae176eee1",
-      "ENV": "D",
-      "Version": "1.0.0.0.0.0"
-    };
+  
 
   
-    const refundHistoryResponse = await axios.post('http://stage1.ksofttechnology.com/api/Freport', apiRequestBody);
+    const refundHistoryResponse = await axios.post(Url, apiRequestBody);
 
     const refundHistory = refundHistoryResponse.data;
-   
+    if(!refundHistory){
+      return ({
+        response:"Kafila API Data Not Found"
+      })
+    }
 
 
 // const bookingIdsInHistory = bookingIds.map(item => item);
@@ -336,25 +378,25 @@ const findCancelationRefund = async (req, res) => {
 // console.log(matchIds,"jiejiei")
 
 const cancelationbookignsData=await CancelationBooking.find({bookingId:bookingIds})
-
-for(let element of refundHistory){
-  for(let element1 of cancelationbookignsData){
-    if(element.BookingId==element1.bookingId){
-      if(element1.isRefund==false){
-        
-      }
-
-
-    }
-
-  }
+if(!cancelationbookignsData){
+  return ({
+    response:"Cancellation Data Not Found"
+  })
 }
-
-
+let refundProcessed = await RefundedCommonFunction(cancelationbookignsData,refundHistory)
+  console.log(refundProcessed.response,"djei")
+if(refundProcessed.response=="Your cancelation already refunded"||refundProcessed.response==="Cancelation Data Not Found"){
+   return({
+      response:refundProcessed.response
+    })
+  
+  }else if(refundProcessed.response=="Cancelation Proceed refund"){
     return({
-      response: "Fetch Data Successfully",
-      data: cancelationbookignsData,
-    });
+      response:refundProcessed.response,
+      
+    })
+  }
+
 
   } catch (error) {
     console.error("Error fetching cancellation refund history:", error);

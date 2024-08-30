@@ -1146,11 +1146,13 @@ const RefundedCommonFunction = async (cancelationbookignsData, refundHistory) =>
       for (let matchingBooking of cancelationbookignsData) {
         if (refund.BookingId === matchingBooking.bookingId) {
           if (!matchingBooking.isRefund && !refund.IsRefunded) {
-            const bookingDetails = await BookingDetails.findOne({ providerBookingId: matchingBooking.bookingId });
-
+            const bookingDetails = await BookingDetails.findOne({ providerBookingId: matchingBooking?.bookingId });
+            await BookingDetails.findByIdAndUpdate(bookingDetails._id,{$set:{
+isRefund:true,
+            }})
             if (refund.CType === "PARTIAL") {
               for (let cpassenger of refund.CSector[0]?.CPax) {
-                await PassengerPreference.updateOne(
+                await PassengerPreference.findOneAndDelete(
                   {
                     bookingId: bookingDetails.bookingId,
                     "Passengers.FName": cpassenger.FName,
@@ -1180,8 +1182,8 @@ const RefundedCommonFunction = async (cancelationbookignsData, refundHistory) =>
               cartId: matchingBooking.bookingId,
               transactionAmount: refund.RefundableAmount,
               currencyType: "INR",
-              fop: "DEBIT",
-              transactionType: "DEBIT",
+              fop: "CREDIT",
+              transactionType: "CREDIT",
               runningAmount: agentConfigData.maxcreditLimit + refund.RefundableAmount,
               remarks: "Cancellation Amount Added Into Your Account.",
               transactionBy: matchingBooking.userId,

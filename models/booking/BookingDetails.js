@@ -283,6 +283,11 @@ const bookingDetailsSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  isRefund:{
+    type:Boolean,
+    default:false,
+
+  },
 }, { timestamps: true, });
 
 const BookingDetails = mongoose.model("BookingDetails", bookingDetailsSchema);

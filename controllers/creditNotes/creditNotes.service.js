@@ -142,7 +142,7 @@ const CancelBookingData = await bookingDetails.aggregate([
 
   // Find the existing credit note or create a new one
   console.log(CancelBookingData,"shdaa")
-  let creditNote = await creditNotes.findOne({ bookingId: providerBokingId }).exec();
+  let creditNote = await creditNotes.findOne({ bookingId: providerBokingId }).populate([{path:"userId"},{path:"companyId"}])
   if (!creditNote) {
     creditNote = new creditNotes({
       cNo:1,
@@ -159,10 +159,9 @@ const CancelBookingData = await bookingDetails.aggregate([
       totalServiceCharges: CancelBookingData[0]?.cancelData?.ServiceFee,
       status: CancelBookingData[0]?.cancelData?.calcelationStatus
     })
-    creditNote=  await creditNote.save().then((savecreditNote)=>{
-      savecreditNote.populate([{ path: "userId" }, { path: "companyId" }])
+   await creditNote.save()
 
-    })
+  
   }
   // Update cancellation status for the passenger
 //   const cancelledPassengers = bookingDetails.passengers.filter(p => p.cancellationStatus === 'Cancelled').length;
@@ -182,7 +181,7 @@ const CancelBookingData = await bookingDetails.aggregate([
 
   return {
     response: "Fetch Data Successfully",
-    data:CancelBookingData
+    data:creditNote
     // data: creditNotesData
   };
 }

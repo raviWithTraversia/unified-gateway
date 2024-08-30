@@ -149,7 +149,14 @@ const getUserProfile = async (req, res) => {
    // console.log(req.body);
     const result = await agentConfigServices.updateSmsBalance(req,res);
     console.log(result.response)
-   if(result.response == 'smsBalance updated successfully')
+   if(!result.response||result.response==undefined){
+    apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true 
+    )
+   }else if(result.response==="smsBalance updated successfully")
 {
         apiSucessRes(
            res,
@@ -158,7 +165,7 @@ const getUserProfile = async (req, res) => {
            ServerStatusCode.SUCESS_CODE
         )
        }
-    else if(result.response == 'Config not found'){
+    else if(result.response == 'Config not found'||res.response==="An error occurred while updating smsBalance"){
      apiErrorres(
         res,
         result.response,

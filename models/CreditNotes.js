@@ -30,7 +30,7 @@ const CreditNoteSchema = new mongoose.Schema({
     totalCancellationCharges: { type: Number, default: 0 },
     totalRefundAmount: { type: Number, default: 0 },
     totalServiceCharges: { type: Number, default: 0 },
-    status: { type: String, enum: ['Issued', 'Cancelled', 'Refunded',"CANCEL"], default: 'Issued' },
+    status: { type: String, enum: ['Issued', 'Cancelled', 'Refunded',"CANCEL","REFUNDED"], default: 'Issued' },
     modifyBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

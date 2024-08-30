@@ -22,7 +22,6 @@ const easeBuzz = async (req, res) => {
       udf1, udf2, udf3, udf4, udf5, udf6, udf7, address1, address2, city, state, country,
       zipcode, show_payment_mode, request_flow, sub_merchant_id, payment_category,
       account_no, ifsc } = req.body;
-
     const data = new URLSearchParams();
     if (key) { data.append('key', key); }
     if (txnid) { data.append('txnid', txnid); }

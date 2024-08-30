@@ -139,29 +139,24 @@ const updateAgentConfiguration = async (req, res) => {
 //Update Sms Balance//
 const updateSmsBalance = async (req, res) => {
   try {
-    const id = req.query.id;
-    const { smsBalanceChange } = req.body; 
-
-    if (smsBalanceChange === undefined) {
-      return res.status(400).json({
-        error: "No smsBalance provided for update",
+    
+    const { id , smsBalanceChange } = req.body; 
+    if (!smsBalanceChange||!id) {
+      return ({
+        response: "No smsBalance and id provided for update",
       });
     }
 
     const existingConfig = await agentConfigsModels.findById(id);
     if (!existingConfig) {
       return ({
-        error: "Config not found",
+        response: "Config not found",
       });
     }
 
     const newSmsBalance = existingConfig.smsBalance + smsBalanceChange;
 
-    if (newSmsBalance < 0) {
-      return res.status(400).json({
-        error: "Insufficient smsBalance",
-      });
-    }
+
 
    
 
@@ -195,14 +190,13 @@ const updateSmsBalance = async (req, res) => {
       });
     } else {
       return({
-        error: "Config not found",
+        response: "Config not found",
       });
     }
   } catch (error) {
-    console.log(error);
     if (!res.headersSent) { 
       return ({
-        error: "An error occurred while updating smsBalance",
+        response: "An error occurred while updating smsBalance",
       });
     }
   }

@@ -121,6 +121,10 @@ const agentConfigSchema = new mongoose.Schema({
   InvoiceingPrefix: {
     type: String
   },
+  CreditNotesPrefix: {
+    type: String,
+    default:null
+  },
   assignAmendmentCancellation: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

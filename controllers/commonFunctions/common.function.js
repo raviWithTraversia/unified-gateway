@@ -375,6 +375,33 @@ const sendSMS = async (mobileno, otp) => {
     return false;
   }
 };
+const sendTicketSms = async (mobileno, otp) => {
+  try {
+    let message = `Your OTP for authentication is:${otp} Kafila Hospitality & Travels Pvt. Ltd`;
+    let url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(
+      mobileno
+    )}&msg=${encodeURIComponent(
+      message
+    )}&sid=KAFILA&type=0&entityid=1701157909411808398&tempid=1707170089574543263&dtNow=${encodeURIComponent(
+      new Date().toLocaleString()
+    )}`;
+
+    const response = await fetch(url);
+    const strSMSResponseString = await response.text();
+
+    if (strSMSResponseString.startsWith("100")) {
+      return {
+        response: `Sms sent to ${mobileno}`,
+      };
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error("Error sending SMS:", error);
+    return false;
+  }
+};
+
 
 const sendPasswordResetEmailLink = async (
   recipientEmail,
@@ -1145,7 +1172,7 @@ const RefundedCommonFunction = async (cancelationbookignsData, refundHistory) =>
     for (let refund of refundHistory) {
       for (let matchingBooking of cancelationbookignsData) {
         if (refund.BookingId === matchingBooking.bookingId) {
-          if (!matchingBooking.isRefund && !refund.IsRefunded) {
+          if (!matchingBooking.isRefund && refund.IsRefunded) {
             const bookingDetails = await BookingDetails.findOne({ providerBookingId: matchingBooking?.bookingId });
             await BookingDetails.findByIdAndUpdate(bookingDetails._id,{$set:{
 isRefund:true,
@@ -1254,5 +1281,5 @@ module.exports = {
   calculateOfferedPricePaxWise,
   getTicketNumberBySector,
   priceRoundOffNumberValues,
-  RefundedCommonFunction
+  RefundedCommonFunction, sendTicketSms
 };

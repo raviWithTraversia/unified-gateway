@@ -206,7 +206,7 @@ const CancelBookingData = await bookingDetails.aggregate([
   }
 ]);
 
-invoiceNumber =CancelBookingData[0]?.agentconfigurations?.InvoiceingPrefix  + invoiceRandomNumber;
+invoiceNumber =CancelBookingData[0]?.agentconfigurations?.CreditNotesPrefix  + invoiceRandomNumber;
 
 console.log(invoiceNumber)
 
@@ -318,12 +318,15 @@ const dateQuery = {
     $lte: new Date(toDate + 'T23:59:59.999Z')
   }
 };
+const neStatus={ calcelationStatus: { $ne: "REFUNDED" } }
 const statusQuery = {
   calcelationStatus: status
 };
 searchData.push(dateQuery)
 if(status){
 searchData.push(statusQuery)
+}else{
+  searchData.push(neStatus)
 }
 
     
@@ -334,9 +337,7 @@ searchData.push(statusQuery)
     const cancelationBooking = await CancelationBooking.aggregate([
       {
         $match: {
-          $and:[...searchData,
-            { calcelationStatus: { $ne: "REFUNDED" } }
-          ]
+          $and:searchData
         }
       },
       {

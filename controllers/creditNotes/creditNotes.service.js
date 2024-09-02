@@ -12,6 +12,7 @@ const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const { Error } = require("mongoose");
 const ledger = require("../../models/Ledger");
+const { Config } = require("../../configs/config");
 const flightCache = new NodeCache();
 const {RefundedCommonFunction}=require('../../controllers/commonFunctions/common.function');
 const InvoicingData = require("../../models/booking/InvoicingData");
@@ -44,8 +45,11 @@ const flightCreditNotes = async (req,res) => {
       response: "Company or User id field are required",
     };
   }
-console.log(providerBokingId)
 
+  let MODEENV = "D";
+  if (Config.MODE === "LIVE") {
+    MODEENV = "P";
+  }
 let creditNoteDetail = await creditNotes.find().sort({createdAt: -1}).limit(1);
   let invoiceRandomNumber = 100000;
   if(creditNoteDetail.length>0){
@@ -166,7 +170,10 @@ const CancelBookingData = await bookingDetails.aggregate([
       companyId: { $first: "$companyId" },
       createdAt: { $first: "$createdAt" },
       agentconfigurations: { $first: "$CompanyDetail.agentconfigurations" }, // Use the correct path
-      InvoicingData: { $first: "$invoicingdatas._id" }
+      InvoicingData: { $first: "$invoicingdatas._id" },
+      AirlineCode: { $first: { $ifNull: [{ $arrayElemAt: ["$itinerary.Sectors.AirlineCode", 0] }, ""] } },
+      SalePurchase: { $first: { $ifNull: ["$SalePurchase", ""] } },
+      farefamily: { $first: { $ifNull: ["$itinerary.FareFamily", ""] } }
     }
   },
   {
@@ -184,8 +191,18 @@ const CancelBookingData = await bookingDetails.aggregate([
       providerBookingId: 1,
       passengesDetails: { $arrayElemAt: ["$passengerData", 0] },
       agentconfigurations: 1,
-      InvoicingData: 1
-    }
+      InvoicingData: 1,
+      bookingId1: {
+        $concat: [
+          "$AirlineCode",
+          "$SalePurchase",
+        
+          `${MODEENV}~`,
+          "$farefamily"
+        ]
+      }
+    
+      }
   }
 ]);
 
@@ -193,7 +210,7 @@ invoiceNumber =CancelBookingData[0]?.agentconfigurations?.InvoiceingPrefix  + in
 
 console.log(invoiceNumber)
 
-  if(!CancelBookingData){
+  if(!CancelBookingData||CancelBookingData.length<=0){
     return ({
       response:"Data not found"
     })
@@ -210,31 +227,54 @@ console.log(CancelBookingData[0]?.InvoicingData)
 
   // Find the existing credit note or create a new one
   
-  let creditNote = await creditNotes.findOne({ bookingId: providerBokingId }).populate([{path:"userId",  populate: {
-    path: 'company_ID',
-    model: 'Company' // Specify the model if necessary
-  }},{path:"companyId"},{path:"invoiceId"}])
-  if (!creditNote) {
+  let creditNote = await creditNotes.findOne({ bookingId: providerBokingId }).populate([
+    {
+        path: "userId",
+        populate: {
+            path: 'company_ID',
+            model: 'Company'
+        }
+    },
+    { path: "companyId" },
+    { path: "invoiceId" }
+]);
+
+if (!creditNote) {
     creditNote = new creditNotes({
-      creditNoteNo:invoiceNumber,
-      userId:CancelBookingData[0]?.userId,
-      companyId:CancelBookingData[0]?.companyId,
-  invoiceId: CancelBookingData[0]?.InvoicingData,
-      PNR:CancelBookingData[0]?.PNR,
-      bookingDate: CancelBookingData[0]?.createdAt,
-      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 
-      totalAmount:CancelBookingData[0]?.bookingTotalAmount,
-      bookingId: providerBokingId,
-      passengers:CancelBookingData[0]?.passengesDetails,
-      totalCancellationCharges: CancelBookingData[0]?.cancelData?.AirlineCancellationFee,
-      totalRefundAmount: CancelBookingData[0]?.cancelData?.AirlineRefund,
-      totalServiceCharges: CancelBookingData[0]?.cancelData?.ServiceFee,
-      status: CancelBookingData[0]?.cancelData?.calcelationStatus
-    })
-   await creditNote.save()
+        creditNoteNo: invoiceNumber,
+        userId: CancelBookingData[0]?.userId,
+        companyId: CancelBookingData[0]?.companyId,
+        invoiceId: CancelBookingData[0]?.InvoicingData,
+        PNR: CancelBookingData[0]?.PNR,
+        bookingDate: CancelBookingData[0]?.createdAt,
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        totalAmount: CancelBookingData[0]?.bookingTotalAmount,
+        bookingId: providerBokingId,
+        passengers: CancelBookingData[0]?.passengesDetails,
+        totalCancellationCharges: CancelBookingData[0]?.cancelData?.AirlineCancellationFee,
+        totalRefundAmount: CancelBookingData[0]?.cancelData?.AirlineRefund,
+        totalServiceCharges: CancelBookingData[0]?.cancelData?.ServiceFee,
+        status: CancelBookingData[0]?.cancelData?.calcelationStatus,
+        bookingId1:CancelBookingData[0]?.bookingId1
+    });
+
+    await creditNote.save();
+
+    await creditNote.populate([
+        {
+            path: "userId",
+            populate: {
+                path: 'company_ID',
+                model: 'Company'
+            }
+        },
+        { path: "companyId" },
+        { path: "invoiceId" }
+    ])
+}
 
   
-  }
+  
   // Update cancellation status for the passenger
 //   const cancelledPassengers = bookingDetails.passengers.filter(p => p.cancellationStatus === 'Cancelled').length;
 //   const { cancellationCharges, refundAmount } = calculateRefundAndCharges(totalAmount, numPassengers, cancelledPassengers);

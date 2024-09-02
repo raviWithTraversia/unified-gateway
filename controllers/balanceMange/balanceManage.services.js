@@ -182,7 +182,16 @@ const manualDebitCredit = async (req, res) => {
           configData.maxcreditLimit
         );
       }
+      if (product.toUpperCase() === "SMS") {
+       const sms= pgCharges?amount-pgCharges:amount;
+        configData.smsBalance +=sms;
+        runningAmount = await priceRoundOffNumberValues(
+          configData.maxcreditLimit
+        );
+         }
       await configData.save();
+      if(!product.toUpperCase()==="SMS"){
+
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
       await ledger.create({
         userId: findUser._id,
@@ -198,7 +207,7 @@ const manualDebitCredit = async (req, res) => {
         transactionBy: loginUser._id,
         product,
       });
-
+    }
       if (pgCharges) {
         await ledger.create({
           userId: findUser._id,

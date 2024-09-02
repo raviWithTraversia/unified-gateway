@@ -13,7 +13,9 @@ const NodeCache = require("node-cache");
 const { Error } = require("mongoose");
 const ledger = require("../../models/Ledger");
 const flightCache = new NodeCache();
-const {RefundedCommonFunction}=require('../../controllers/commonFunctions/common.function')
+const {RefundedCommonFunction}=require('../../controllers/commonFunctions/common.function');
+const InvoicingData = require("../../models/booking/InvoicingData");
+const {ObjectId}=require("mongodb")
 
 
 
@@ -35,14 +37,26 @@ const {RefundedCommonFunction}=require('../../controllers/commonFunctions/common
 const flightCreditNotes = async (req,res) => {
   try{
 
-  const {providerBokingId,bookingId} = req.body;
+  const {providerBokingId,companyId} = req.body;
 
- if (!providerBokingId || !bookingId) {
+ if (!providerBokingId || !companyId) {
     return {
       response: "Company or User id field are required",
     };
   }
 console.log(providerBokingId)
+
+let creditNoteDetail = await creditNotes.find().sort({createdAt: -1}).limit(1);
+  let invoiceRandomNumber = 100000;
+  if(creditNoteDetail.length>0){
+      creditNoteDetail = creditNoteDetail[0];
+      let previousInvoiceNumber = creditNoteDetail?.creditNoteNo;
+      previousInvoiceNumber = previousInvoiceNumber.slice(-6);
+      invoiceRandomNumber = parseInt(previousInvoiceNumber) +1; 
+  }else{
+      invoiceRandomNumber = 100000; 
+  }
+  let invoiceNumber=""
 const CancelBookingData = await bookingDetails.aggregate([
   {
     $match: {
@@ -64,9 +78,6 @@ const CancelBookingData = await bookingDetails.aggregate([
     }
   },
   {
-    $match:{"cancelationBookingData.isRefund":true}
-  },
-  {
     $lookup: {
       from: "passengerpreferences",
       localField: "_id",
@@ -77,6 +88,58 @@ const CancelBookingData = await bookingDetails.aggregate([
   {
     $unwind: {
       path: "$passengerpreference",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  {
+    $lookup: {
+      from: "companies",
+      localField: "companyId",
+      foreignField: "_id",
+      as: "CompanyDetail",
+      pipeline: [
+        {
+          $lookup: {
+            from: "agentconfigurations",
+            let: { companyId: "$_id" }, 
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$companyId", "$$companyId"] 
+                  }
+                }
+              }
+            ],
+            as: "agentconfigurations"
+          }
+        },
+        {
+          $unwind: {
+            path: "$agentconfigurations",
+            preserveNullAndEmptyArrays: true
+          }
+        }
+      ]
+    }
+  },
+  {
+    $unwind: {
+      path: "$CompanyDetail",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  {
+    $lookup: {
+      from: "invoicingdatas",
+      localField: "_id",
+      foreignField: "bookingId",
+      as: "invoicingdatas"
+    }
+  },
+  {
+    $unwind: {
+      path: "$invoicingdatas",
       preserveNullAndEmptyArrays: true
     }
   },
@@ -101,7 +164,9 @@ const CancelBookingData = await bookingDetails.aggregate([
       bookingId: { $first: "$bookingId" },
       userId: { $first: "$userId" },
       companyId: { $first: "$companyId" },
-      createdAt: { $first: "$createdAt" }
+      createdAt: { $first: "$createdAt" },
+      agentconfigurations: { $first: "$CompanyDetail.agentconfigurations" }, // Use the correct path
+      InvoicingData: { $first: "$invoicingdatas._id" }
     }
   },
   {
@@ -117,20 +182,23 @@ const CancelBookingData = await bookingDetails.aggregate([
       companyId: 1,
       createdAt: 1,
       providerBookingId: 1,
-      passengesDetails:  { $arrayElemAt: ['$passengerData', 0] }
+      passengesDetails: { $arrayElemAt: ["$passengerData", 0] },
+      agentconfigurations: 1,
+      InvoicingData: 1
     }
   }
 ]);
 
+invoiceNumber =CancelBookingData[0]?.agentconfigurations?.InvoiceingPrefix  + invoiceRandomNumber;
 
-
+console.log(invoiceNumber)
 
   if(!CancelBookingData){
     return ({
       response:"Data not found"
     })
   }
-
+console.log(CancelBookingData[0]?.InvoicingData)
 
   // const passengerDatawiseCancel=CancelBookingData[0].passengerData.filter((refund)=>{element.Status=="null"
   //   return element
@@ -141,13 +209,17 @@ const CancelBookingData = await bookingDetails.aggregate([
 //   const numPassengers = bookingDetails.passengers.length;
 
   // Find the existing credit note or create a new one
-  console.log(CancelBookingData,"shdaa")
-  let creditNote = await creditNotes.findOne({ bookingId: providerBokingId }).populate([{path:"userId"},{path:"companyId"}])
+  
+  let creditNote = await creditNotes.findOne({ bookingId: providerBokingId }).populate([{path:"userId",  populate: {
+    path: 'company_ID',
+    model: 'Company' // Specify the model if necessary
+  }},{path:"companyId"},{path:"invoiceId"}])
   if (!creditNote) {
     creditNote = new creditNotes({
-      cNo:1,
+      creditNoteNo:invoiceNumber,
       userId:CancelBookingData[0]?.userId,
       companyId:CancelBookingData[0]?.companyId,
+  invoiceId: CancelBookingData[0]?.InvoicingData,
       PNR:CancelBookingData[0]?.PNR,
       bookingDate: CancelBookingData[0]?.createdAt,
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 

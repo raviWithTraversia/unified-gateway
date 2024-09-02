@@ -21,6 +21,10 @@ const CreditNoteSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
       },
+      invoiceId:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"InvoicingData"
+      },
       PNR: { type: String, required: true },
     bookingDate: { type: Date, required: true },
     dueDate: { type: Date, required: true },
@@ -30,7 +34,7 @@ const CreditNoteSchema = new mongoose.Schema({
     totalCancellationCharges: { type: Number, default: 0 },
     totalRefundAmount: { type: Number, default: 0 },
     totalServiceCharges: { type: Number, default: 0 },
-    status: { type: String, enum: ['Issued', 'Cancelled', 'Refunded',"CANCEL","REFUNDED"], default: 'Issued' },
+    status: { type: String, enum: ['Issued', 'Cancelled', 'Refunded',"CANCEL","REFUNDED","PENDING"], default: 'Issued' },
     modifyBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

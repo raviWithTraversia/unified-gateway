@@ -100,7 +100,7 @@ const sendPhoneOtp = async (req, res) => {
     let otp = Math.floor(100000 + Math.random() * 900000);
     let generateOtp = otp
     //host,port,user,pass
-   
+   console.log(typeName,'sj')
     const currentTime = new Date();
    let deletePreviousResult  = await varifyOtpModel.deleteMany({otpExpireTime: { $lt: currentTime } ,otpFor : type, typeName : typeName, status : true });
    let otpSent = await FUNC.sendSMS(typeName,otp);
@@ -128,8 +128,30 @@ const sendPhoneOtp = async (req, res) => {
   }
 };
 
+
+const SendTicket = async (req, res) => {
+  try {
+    const { type, typeName , companyId} = req.body;
+    
+   let otpSent = await FUNC.sendTicketSms(typeName,otp);
+   
+    if (otpSent) {
+      return {
+        response: "Otp sent sucessfully to your Mobile",
+      };
+    } else {
+      return {
+        response: "Try Again to sent otp ",
+      };
+    }
+  } catch (error){
+    console.log(error, "======================");
+    throw error;
+  }
+};
 module.exports = {
   sendEmailOtp,
   varifyOtpEmailOtp,
-  sendPhoneOtp
+  sendPhoneOtp,
+  SendTicket
 };

@@ -60,6 +60,12 @@ verifyOtp_route.post(
     '/otp/sentOtpPhone',
     verifyOtpController.sendPhoneOtp
 );
+
+verifyOtp_route.post(
+    '/iternery/send',
+    verifyOtpController.SendTicket
+);
+
 /**
  * @swagger
  * /api/otp/verify-otp:

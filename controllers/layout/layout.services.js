@@ -225,7 +225,7 @@ const AdharVerify = async (req, res) => {
           otp:otp
         }
       });
-    // console.log(apiUrl,"<<<==========", responseData.data.data, "Code is here 121")
+    console.log(apiUrl,"<<<==========", responseData.data.data, "Code is here 121")
     if (responseData) {
       return {
         response: "Data Fetch Sucessfully",

@@ -190,8 +190,8 @@ const manualDebitCredit = async (req, res) => {
         );
          }
       await configData.save();
-      if(!product.toUpperCase()==="SMS"){
-
+      if(!product.toUpperCase()==="SMS"||product === "Flight"){
+console.log('shdadajeieien')
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
       await ledger.create({
         userId: findUser._id,

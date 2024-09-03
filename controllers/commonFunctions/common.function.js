@@ -373,11 +373,11 @@ const sendSMS = async (mobileno, otp) => {
   } catch (error) {
     console.error("Error sending SMS:", error);
     return false;
-  }
+  } 
 };
-const sendTicketSms = async (mobileno, otp) => {
+const sendTicketSms = async (mobileno,Sector,FName,FNo,Dur,Ddate ) => {
   try {
-    let message = `Your OTP for authentication is:${otp} Kafila Hospitality & Travels Pvt. Ltd`;
+    let message = `Flight option : Sector : ${Sector}, Airline: ${FName,FNo}, Departure Date: ${Ddate}, Travel Time: ${Dur} `;
     let url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(
       mobileno
     )}&msg=${encodeURIComponent(

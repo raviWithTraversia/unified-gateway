@@ -293,8 +293,12 @@ const updateRegistration = async (req, res) => {
     if (updateRegistration) {
       let registrationIds = new ObjectId(registrationId);
       let comapnyId = updateRegistration.companyId;
+      console.log(updateRegistration.parent,"djei")
       let mailSubject = `Registration status change successfully`;
-      let mailConfig = await Smtp.findOne({ companyId: comapnyId });
+      var mailConfig = await Smtp.findOne({ companyId: comapnyId });
+      if(mailConfig==null||mailConfig==undefined){
+        mailConfig = await Smtp.findOne({ companyId: updateRegistration?.parent })
+      }
       let mailText = await registration.aggregate([
         {
           $match: {
@@ -322,7 +326,6 @@ const updateRegistration = async (req, res) => {
           },
         },
       ]);
-
       let mailSent = FUNC.commonEmailFunctionOnRegistrationUpdate(
         mailText[0].email,
         mailConfig,

@@ -30,10 +30,10 @@ const getSalesInCharge = async (req,res) => {
             ServerStatusCode.SUCESS_CODE
         )
       }
-    }catch{
+    }catch(error){
         apiErrorres(
             res,
-            result.error,
+            error.message,
             ServerStatusCode.BAD_REQUEST,
             true
         )

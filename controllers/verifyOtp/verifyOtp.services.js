@@ -131,9 +131,14 @@ const sendPhoneOtp = async (req, res) => {
 
 const SendTicket = async (req, res) => {
   try {
-    const { type, typeName , companyId} = req.body;
-    
-   let otpSent = await FUNC.sendTicketSms(typeName,otp);
+    const { Phone, options , companyId} = req.body;
+//     console.log(options[0]?.apiItinerary?.Sector)
+// console.log(options[0]?.apiItinerary?.FName)
+// console.log(options[0]?.apiItinerary?.FNo)
+// console.log(options[0]?.apiItinerary?.Sector)
+// console.log(options[0]?.apiItinerary?.Dur)
+// console.log(options[0]?.apiItinerary?.Stop)
+   let otpSent = await FUNC.sendTicketSms(Phone,options[0]?.apiItinerary?.Sector,options[0]?.apiItinerary?.FName,options[0]?.apiItinerary?.FNo,options[0]?.apiItinerary?.Dur,options[0]?.apiItinerary?.DDate);
    
     if (otpSent) {
       return {

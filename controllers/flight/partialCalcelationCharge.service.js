@@ -255,9 +255,11 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
-    console.log(response.data,)
+    console.log(response.data,'djie')
     if (response.data.Status === "success") {
+
       let getToken = response.data.Result;
+      // console.log('getToken',getToken)
       let requestDataForCHarges = {
         P_TYPE: "API",
         R_TYPE: "FLIGHT",
@@ -277,6 +279,7 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0"
     };    
+    console.log(requestDataForCHarges)
       let fSearchApiResponse = await axios.post(
         flightCancelUrl,
         requestDataForCHarges,

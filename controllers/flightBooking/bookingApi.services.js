@@ -9,7 +9,7 @@ const CancelationBooking = require("../../models/booking/CancelationBooking");
 const { ObjectId } = require("mongodb");
 const moment = require("moment");
 const { Config } = require("../../configs/config");
-const bookingDetails = require("../../models/BookingDetails");
+const InovoiceData=require('../../models/booking/InvoicingData')
 const {
   calculateOfferedPricePaxWise,
   getTicketNumberBySector,
@@ -110,10 +110,8 @@ const getAllBooking = async (req, res) => {
     (checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual")
   ) {
     let filter = {};
-    console.log(typeof agencyId, "hshds");
     if (agencyId !== undefined && agencyId !== "") {
-      console.log(agencyId, "agencyId");
-      filter.AgencyId = agencyId;
+      filter.userId = new ObjectId(userId);
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -145,16 +143,50 @@ const getAllBooking = async (req, res) => {
         $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
       };
     }
-
-    const bookingDetails = await bookingdetails
-      .find(filter)
-      .populate({
-        path: "userId",
-        populate: {
-          path: "company_ID",
+console.log(filter,'dji')
+    const bookingDetails = await bookingdetails.aggregate([
+      { $match: filter },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userId",
+          pipeline:[
+            {
+            $lookup:{
+              from:"companies",
+              localField:"company_ID",
+              foreignField:"_id",
+              as:"company_ID"
+            }
+          },
+          {$unwind:{path:"$company_ID",preserveNullAndEmptyArrays:true}}
+        ]
         },
-      })
-      .populate("BookedBy");
+      },
+      { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
+     
+      {
+        $lookup: {
+          from: "users",
+          localField: "BookedBy",
+          foreignField: "_id",
+          as: "BookedBy",
+        },
+      },
+      { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "invoicingdatas",
+          localField: "_id",
+          foreignField: "bookingId",
+          as: "invoicingdatas",
+        },
+      },
+      { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
+    ]);
+    
 
     console.log("1st");
     if (!bookingDetails || bookingDetails.length === 0) {
@@ -174,7 +206,13 @@ const getAllBooking = async (req, res) => {
       };
 
       // Iterate over the bookingDetails array
+      var bookingIds=[];
+
+      // Iterate over the bookingDetails array
       bookingDetails.forEach((booking) => {
+        
+       
+
         const status = booking.bookingStatus;
         // Increment the count corresponding to the status
         statusCounts[status]++;
@@ -182,6 +220,7 @@ const getAllBooking = async (req, res) => {
       const allBookingData = [];
 
       await Promise.all(
+       
         bookingDetails.map(async (booking) => {
           let filter2 = { bookingId: booking.bookingId };
           if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
@@ -228,7 +267,7 @@ const getAllBooking = async (req, res) => {
     checkUserIdExist.roleId &&
     checkUserIdExist.roleId.name === "Distributer"
   ) {
-    let filter = { companyId: checkUserIdExist.company_ID._id };
+    let filter = { companyId:new ObjectId(checkUserIdExist.company_ID._id) };
     if (agencyId !== undefined && agencyId !== "") {
       filter.userId = {};
       filter.userId = { $in: agencyId };
@@ -263,15 +302,48 @@ const getAllBooking = async (req, res) => {
       };
     }
 
-    const bookingDetails = await bookingdetails
-      .find(filter)
-      .populate({
-        path: "userId",
-        populate: {
-          path: "company_ID",
+    const bookingDetails = await bookingdetails.aggregate([
+      { $match: filter },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userId",
+          pipeline:[
+            {
+            $lookup:{
+              from:"companies",
+              localField:"company_ID",
+              foreignField:"_id",
+              as:"company_ID"
+            }
+          },
+          {$unwind:{path:"$company_ID",preserveNullAndEmptyArrays:true}}
+        ]
         },
-      })
-      .populate("BookedBy");
+      },
+      { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
+     
+      {
+        $lookup: {
+          from: "users",
+          localField: "BookedBy",
+          foreignField: "_id",
+          as: "BookedBy",
+        },
+      },
+      { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "invoicingdatas",
+          localField: "_id",
+          foreignField: "bookingId",
+          as: "invoicingdatas",
+        },
+      },
+      { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
+    ]);
 
     console.log("2nd");
 
@@ -292,14 +364,22 @@ const getAllBooking = async (req, res) => {
       };
 
       // Iterate over the bookingDetails array
+
+      // Iterate over the bookingDetails array
       bookingDetails.forEach((booking) => {
+        
+       
+
         const status = booking.bookingStatus;
         // Increment the count corresponding to the status
         statusCounts[status]++;
       });
       const allBookingData = [];
-
       await Promise.all(
+       
+      
+
+
         bookingDetails.map(async (booking) => {
           let filter2 = { bookingId: booking.bookingId };
           if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
@@ -319,7 +399,7 @@ const getAllBooking = async (req, res) => {
             });
           }
         })
-      );
+    );
       let filteredBookingData = allBookingData; // Copy the original data
 
       if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
@@ -350,7 +430,7 @@ const getAllBooking = async (req, res) => {
     let filter = {};
     if (agencyId !== undefined && agencyId !== "") {
       // filter.userId={}
-      filter.userId = agencyId;
+      filter.userId = new ObjectId(agencyId);
       // let allagencyId = agencyId.map(id => new ObjectId(id));
       // filter.AgencyId={$in:allagencyId}
 
@@ -385,15 +465,59 @@ const getAllBooking = async (req, res) => {
         $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
       };
     }
-    const bookingDetails = await bookingdetails
-      .find(filter)
-      .populate({
-        path: "userId",
-        populate: {
-          path: "company_ID",
+    
+    const bookingDetails = await bookingdetails.aggregate([
+      { $match: filter },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userId",
+          pipeline:[
+            {
+            $lookup:{
+              from:"companies",
+              localField:"company_ID",
+              foreignField:"_id",
+              as:"company_ID"
+            }
+          },
+          {$unwind:{path:"$company_ID",preserveNullAndEmptyArrays:true}}
+        ]
         },
-      })
-      .populate("BookedBy");
+      },
+      { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
+     
+      {
+        $lookup: {
+          from: "users",
+          localField: "BookedBy",
+          foreignField: "_id",
+          as: "BookedBy",
+        },
+      },
+      { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "invoicingdatas",
+          localField: "_id",
+          foreignField: "bookingId",
+          as: "invoicingdatas",
+        },
+      },
+      { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
+    ]);
+    
+    
+      // .find(filter)
+      // .populate({
+      //   path: "userId",
+      //   populate: {
+      //     path: "company_ID",
+      //   },
+      // })
+      // .populate("BookedBy");
     console.log("3rd");
     if (!bookingDetails || bookingDetails.length === 0) {
       return {
@@ -410,27 +534,33 @@ const getAllBooking = async (req, res) => {
         HOLDRELEASED: 0,
         "FAILED PAYMENT": 0,
       };
+      var bookingIds=[];
 
       // Iterate over the bookingDetails array
       bookingDetails.forEach((booking) => {
+        
+       
+
         const status = booking.bookingStatus;
         // Increment the count corresponding to the status
         statusCounts[status]++;
       });
       const allBookingData = [];
-
+    
       await Promise.all(
-        bookingDetails.map(async (booking) => {
+     
+      bookingDetails.map(async (booking) => {
           let filter2 = { bookingId: booking.bookingId };
+      
           if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
             filter2["Passengers.Optional.TicketNumber"] = ticketNumber;
           }
-          const passengerPreference = await passengerPreferenceSchema.find(
-            filter2
-          );
+      
+          const passengerPreference = await passengerPreferenceSchema.find(filter2);
           const configDetails = await config.findOne({
             userId: booking.userId,
           });
+      
           if (passengerPreference.length) {
             allBookingData.push({
               bookingDetails: booking,
@@ -438,8 +568,11 @@ const getAllBooking = async (req, res) => {
               salesInchargeIds: configDetails?.salesInchargeIds,
             });
           }
-        })
+        }),
       );
+      
+      // console.log(allBookingData[0].bookingDetails,"djfie")
+
       let filteredBookingData = allBookingData; // Copy the original data
       if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
         filteredBookingData = allBookingData.filter(

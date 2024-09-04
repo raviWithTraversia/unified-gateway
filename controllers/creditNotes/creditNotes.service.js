@@ -416,13 +416,16 @@ searchData.push(statusQuery)
 }
 const findCancelationRefund = async (req, res) => {
   try {
-    const { fromDate, toDate ,bookingIds} = req.body;
+    const { fromDate, toDate ,bookingIds,companyId} = req.body;
 var apiRequestBody={}
 var Url=""
+var supplier
     if (
       req.headers.host == "localhost:3111" ||
       req.headers.host == "kafila.traversia.net"
     ) {
+    
+      supplier=await Supplier.find({$and:[{credentialsType:"TEST"},{companyId:companyId}]})
       Url = "http://stage1.ksofttechnology.com/api/Freport";
      apiRequestBody = {
         "P_TYPE": "API",
@@ -433,15 +436,16 @@ var Url=""
           "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
           "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
         },
-        "AID": "66211223",
+        "AID": supplier[0].supplierWsapSesssion,
         "MODULE": "B2B",
         "IP": "182.73.146.154",
-        "TOKEN": "fd58e3d2b1e517f4ee46063ae176eee1",
+        "TOKEN": supplier[0].supplierOfficeId,
         "ENV": "D",
         "Version": "1.0.0.0.0.0"
       };
     } else if (req.headers.host == "agentapi.kafilaholidays.in") {
 
+      supplier=await Supplier.find({$and:[{credentialsType:"LIVE"},{companyId:companyId}]})
       Url = "http://fhapip.ksofttechnology.com/api/Freport";
 
       apiRequestBody = {
@@ -453,10 +457,10 @@ var Url=""
           "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
           "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
         },
-        "AID": "24281223",
+        "AID": supplier[0].supplierWsapSesssion,
         "MODULE": "B2B",
         "IP": "182.73.146.154",
-        "TOKEN": "be6e3eb87611e080340d57473b038cae",
+        "TOKEN": supplier[0].supplierOfficeId,
         "ENV": "P",
         "Version": "1.0.0.0.0.0"
       };
@@ -467,7 +471,7 @@ var Url=""
       };
     }
 
-    console.log(bookingIds)
+    console.log(supplier[0])
   
 
   
@@ -497,7 +501,7 @@ if(!cancelationbookignsData){
 }
 let refundProcessed = await RefundedCommonFunction(cancelationbookignsData,refundHistory)
   console.log(refundProcessed.response,"djei")
-if(refundProcessed.response=="Your cancelation already refunded"||refundProcessed.response==="Cancelation Data Not Found"){
+if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="Cancelation Data Not Found"){
    return({
       response:refundProcessed.response
     })

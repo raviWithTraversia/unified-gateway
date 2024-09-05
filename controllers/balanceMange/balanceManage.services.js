@@ -83,7 +83,8 @@ const getBalance = async (req, res) => {
       response: "Fetch Data Successfully",
       data: {
         cashBalance: getAgentConfig.maxcreditLimit,
-        smsBalance: getAgentConfig.smsBalanceLimit,
+        smsBalance: getAgentConfig.smsBalance,
+        RailBalance:getAgentConfig.railCashBalance,
         tempBalance: totalAmount ?? 0,
         expireDate: expireDate,
       },
@@ -94,6 +95,7 @@ const getBalance = async (req, res) => {
       data: {
         cashBalance: getAgentConfig.maxcreditLimit,
         smsBalance: getAgentConfig.smsBalance,
+        RailBalance:getAgentConfig.railCashBalance,
         tempBalance: 0,
         expireDate: "",
       },
@@ -171,9 +173,9 @@ const manualDebitCredit = async (req, res) => {
       }
       // console.log(DIdata,"DIdata");
       if (product === "Rail") {
-        configData.maxRailCredit += amount;
+        configData.railCashBalance += amount;
         runningAmount = await priceRoundOffNumberValues(
-          configData.maxRailCredit
+          configData.railCashBalance
         );
       }
       if (product === "Flight") {
@@ -190,7 +192,7 @@ const manualDebitCredit = async (req, res) => {
         );
          }
       await configData.save();
-      if(!product.toUpperCase()==="SMS"||product === "Flight"){
+      if(!product.toUpperCase()==="SMS"||product === "Flight"||product === "Rail"){
 console.log('shdadajeieien')
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
       await ledger.create({
@@ -253,11 +255,11 @@ console.log('shdadajeieien')
             };
           }
           if (product === "Rail") {
-            if (configData?.maxcreditLimit < amount) {
+            if (configData?.railCashBalance < amount) {
               return { response: "Insufficient Balance" };
             }
-            configData.maxRailCredit -= tdsAmount;
-            runningAmount = configData.maxRailCredit;
+            configData.railCashBalance -= tdsAmount;
+            runningAmount = configData.railCashBalance;
           }
           if (product === "Flight") {
             if (configData?.maxcreditLimit < amount) {
@@ -303,11 +305,11 @@ console.log('shdadajeieien')
         };
       }
       if (product === "Rail") {
-        if (configData?.maxcreditLimit < amount) {
+        if (configData?.railCashBalance < amount) {
           return { response: "Insufficient Balance" };
         }
         configData.maxRailCredit -= amount;
-        runningAmount = configData.maxRailCredit;
+        runningAmount = configData.railCashBalance;
       }
       if (product === "Flight") {
         if (configData?.maxcreditLimit < amount) {

@@ -417,6 +417,7 @@ searchData.push(statusQuery)
 const findCancelationRefund = async (req, res) => {
   try {
     const { fromDate, toDate ,bookingIds,companyId} = req.body;
+    console.log(companyId)
 var apiRequestBody={}
 var Url=""
 var supplier

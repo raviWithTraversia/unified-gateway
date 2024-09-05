@@ -144,48 +144,64 @@ const getAllBooking = async (req, res) => {
       };
     }
 console.log(filter,'dji')
-    const bookingDetails = await bookingdetails.aggregate([
-      { $match: filter },
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "userId",
-          pipeline:[
-            {
-            $lookup:{
-              from:"companies",
-              localField:"company_ID",
-              foreignField:"_id",
-              as:"company_ID"
-            }
+const bookingDetails = await bookingdetails.aggregate([
+  { $match: filter },
+
+  {
+    $lookup: {
+      from: "users",
+      localField: "userId",
+      foreignField: "_id",
+      as: "userId",
+      pipeline: [
+        {
+          $lookup: {
+            from: "companies",
+            localField: "company_ID",
+            foreignField: "_id",
+            as: "company_ID",
           },
-          {$unwind:{path:"$company_ID",preserveNullAndEmptyArrays:true}}
-        ]
         },
-      },
-      { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
-     
-      {
-        $lookup: {
-          from: "users",
-          localField: "BookedBy",
-          foreignField: "_id",
-          as: "BookedBy",
-        },
-      },
-      { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
-      {
-        $lookup: {
-          from: "invoicingdatas",
-          localField: "_id",
-          foreignField: "bookingId",
-          as: "invoicingdatas",
-        },
-      },
-      { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
-    ]);
+        { $unwind: { path: "$company_ID", preserveNullAndEmptyArrays: true } },
+      ],
+    },
+  },
+  { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
+
+  {
+    $lookup: {
+      from: "users",
+      localField: "BookedBy",
+      foreignField: "_id",
+      as: "BookedBy",
+    },
+  },
+  { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
+
+  {
+    $lookup: {
+      from: "invoicingdatas",
+      localField: "_id",
+      foreignField: "bookingId",
+      as: "invoicingdatas",
+    },
+  },
+  { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
+
+  {
+    $group: {
+      _id: "$_id",
+      bookingDetails: { $first: "$$ROOT" }, 
+      userId: { $first: "$userId" }, 
+      BookedBy: { $first: "$BookedBy" }, 
+      invoicingdatas: { $first: "$invoicingdatas" }, 
+    },
+  },
+
+  {
+    $replaceRoot: { newRoot: "$bookingDetails" },
+  },
+]);
     
 
     console.log("1st");
@@ -304,27 +320,28 @@ console.log(filter,'dji')
 
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter },
+    
       {
         $lookup: {
           from: "users",
           localField: "userId",
           foreignField: "_id",
           as: "userId",
-          pipeline:[
+          pipeline: [
             {
-            $lookup:{
-              from:"companies",
-              localField:"company_ID",
-              foreignField:"_id",
-              as:"company_ID"
-            }
-          },
-          {$unwind:{path:"$company_ID",preserveNullAndEmptyArrays:true}}
-        ]
+              $lookup: {
+                from: "companies",
+                localField: "company_ID",
+                foreignField: "_id",
+                as: "company_ID",
+              },
+            },
+            { $unwind: { path: "$company_ID", preserveNullAndEmptyArrays: true } },
+          ],
         },
       },
       { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
-     
+    
       {
         $lookup: {
           from: "users",
@@ -334,6 +351,7 @@ console.log(filter,'dji')
         },
       },
       { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
+    
       {
         $lookup: {
           from: "invoicingdatas",
@@ -343,6 +361,20 @@ console.log(filter,'dji')
         },
       },
       { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
+    
+      {
+        $group: {
+          _id: "$_id",
+          bookingDetails: { $first: "$$ROOT" }, 
+          userId: { $first: "$userId" }, 
+          BookedBy: { $first: "$BookedBy" }, 
+          invoicingdatas: { $first: "$invoicingdatas" }, 
+        },
+      },
+    
+      {
+        $replaceRoot: { newRoot: "$bookingDetails" },
+      },
     ]);
 
     console.log("2nd");
@@ -468,27 +500,28 @@ console.log(filter,'dji')
     
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter },
+    
       {
         $lookup: {
           from: "users",
           localField: "userId",
           foreignField: "_id",
           as: "userId",
-          pipeline:[
+          pipeline: [
             {
-            $lookup:{
-              from:"companies",
-              localField:"company_ID",
-              foreignField:"_id",
-              as:"company_ID"
-            }
-          },
-          {$unwind:{path:"$company_ID",preserveNullAndEmptyArrays:true}}
-        ]
+              $lookup: {
+                from: "companies",
+                localField: "company_ID",
+                foreignField: "_id",
+                as: "company_ID",
+              },
+            },
+            { $unwind: { path: "$company_ID", preserveNullAndEmptyArrays: true } },
+          ],
         },
       },
       { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
-     
+    
       {
         $lookup: {
           from: "users",
@@ -498,6 +531,7 @@ console.log(filter,'dji')
         },
       },
       { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
+    
       {
         $lookup: {
           from: "invoicingdatas",
@@ -507,6 +541,20 @@ console.log(filter,'dji')
         },
       },
       { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
+    
+      {
+        $group: {
+          _id: "$_id",
+          bookingDetails: { $first: "$$ROOT" }, 
+          userId: { $first: "$userId" }, 
+          BookedBy: { $first: "$BookedBy" }, 
+          invoicingdatas: { $first: "$invoicingdatas" }, 
+        },
+      },
+    
+      {
+        $replaceRoot: { newRoot: "$bookingDetails" },
+      },
     ]);
     
     

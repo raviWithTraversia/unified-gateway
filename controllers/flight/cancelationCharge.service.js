@@ -289,7 +289,7 @@ const KafilaFun = async (
       "Failed") {
        
         if(fSearchApiResponse?.data?.Status != null && fSearchApiResponse?.data?.Status===
-        "Failed"){
+        "PENDING"){
 
           const cancelationBookingInstance = new CancelationBooking({
             calcelationStatus: fSearchApiResponse.data.Status || null ,

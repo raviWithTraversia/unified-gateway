@@ -126,8 +126,8 @@ async function handleflight(
   TravelType,
   BookingId,
   CancelType, 
-  Reason, 
-  Sector,
+   Sector,
+  Reason,
   agencyUserId  
 ) {
   // International
@@ -255,7 +255,7 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
-    console.log(response.data,'djie')
+    // console.log(response.data,'djie')
     if (response.data.Status === "success") {
 
       let getToken = response.data.Result;
@@ -289,11 +289,42 @@ const KafilaFun = async (
           },
         }
       ); 
-        console.log(fSearchApiResponse.data, "1API Responce")
-      if (fSearchApiResponse.data.Status !==  null) {
-        return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage
-       
-      }
+        // console.log(fSearchApiResponse.data, "1API Responce")
+        if (fSearchApiResponse?.data?.Status !==null&&fSearchApiResponse?.data?.Status ===  "PENDING"||fSearchApiResponse?.data?.Status ===
+          "Failed") {
+           
+            if(fSearchApiResponse?.data?.Status != null && fSearchApiResponse?.data?.Status===
+            "Failed"){
+    
+              const cancelationBookingInstance = new CancelationBooking({
+                calcelationStatus: fSearchApiResponse.data.Status || null ,
+                bookingId:BookingId,
+                providerBookingId:BookingId,
+                AirlineCode: BookingIdDetails?.itinerary?.Sectors[0]?.AirlineCode || null ,
+                companyId: Authentication?.CompanyId || null,
+                userId: Authentication?.UserId || null,
+                PNR: BookingIdDetails?.PNR || null,
+                fare:BookingIdDetails?.itinerary?.TotalPrice || null ,
+                AirlineCancellationFee: 0,
+                AirlineRefund: 0,
+                ServiceFee: 0 || 0,
+                RefundableAmt: 0 || 0,
+                description:fSearchApiResponse.data.WarningMessage || null,
+                modifyBy: Authentication?.UserId || null,
+                modifyAt: new Date(),
+              });
+          
+      
+              await cancelationBookingInstance.save();  
+              await bookingDetails.findOneAndUpdate(
+                { _id: BookingIdDetails._id },
+                { $set: { bookingStatus: "CANCELLATION PENDING" } },
+                { new: true } // To return the updated document
+              );
+            }  
+            return  fSearchApiResponse?.data?.ErrorMessage +' ' + fSearchApiResponse?.data?.WarningMessage
+          }
+    
 
       const getAgentConfig = await agentConfig.findOne({
         userId: agencyUserId,

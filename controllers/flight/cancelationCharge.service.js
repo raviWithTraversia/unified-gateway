@@ -82,8 +82,7 @@ const fullCancelationCharge = async (req, res) => {
        agencyUserId = agencyUser._id;
      }
    }
-
-
+console.log(TravelType,"djfe")
   let result;
   if (TravelType !== "International" && TravelType !== "Domestic") {
     return {
@@ -101,6 +100,7 @@ const fullCancelationCharge = async (req, res) => {
       Reason,
       agencyUserId      
     );
+// console.log(Reason,'0')
   }
 
   if (!result.IsSucess) {
@@ -123,8 +123,8 @@ async function handleflight(
   TravelType,
   BookingId,
   CancelType, 
-  Reason, 
   Sector,
+   Reason, 
   agencyUserId  
 ) {
   // International
@@ -221,6 +221,7 @@ const KafilaFun = async (
   agencyUserId,
   BookingIdDetails 
 ) => {
+  console.log(Reason,"3rd")
   let createTokenUrl;
   let flightCancelUrl;
 
@@ -252,7 +253,6 @@ const KafilaFun = async (
       },
     });
     
-   // console.log(response.data, 'tokennnn');    
     if (response.data.Status === "success") {
       let getToken = response.data.Result;
       let requestDataForCHarges = {
@@ -273,6 +273,7 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0"
     };    
+    console.log(requestDataForCHarges,"jddi")
        
       let fSearchApiResponse = await axios.post(
         flightCancelUrl,
@@ -283,9 +284,40 @@ const KafilaFun = async (
           },
         }
       ); 
-        //console.log(fSearchApiResponse.data, "1API Responce")
-      if (fSearchApiResponse.data.Status !==  null) {
-        return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage;       
+        console.log(fSearchApiResponse.data, "1API Responce")
+      if (fSearchApiResponse?.data?.Status !==null&&fSearchApiResponse?.data?.Status ===  "PENDING"||fSearchApiResponse?.data?.Status ===
+      "Failed") {
+       
+        if(fSearchApiResponse?.data?.Status != null && fSearchApiResponse?.data?.Status===
+        "Failed"){
+
+          const cancelationBookingInstance = new CancelationBooking({
+            calcelationStatus: fSearchApiResponse.data.Status || null ,
+            bookingId:BookingId,
+            providerBookingId:BookingId,
+            AirlineCode: BookingIdDetails?.itinerary?.Sectors[0]?.AirlineCode || null ,
+            companyId: Authentication?.CompanyId || null,
+            userId: Authentication?.UserId || null,
+            PNR: BookingIdDetails?.PNR || null,
+            fare:BookingIdDetails?.itinerary?.TotalPrice || null ,
+            AirlineCancellationFee: 0,
+            AirlineRefund: 0,
+            ServiceFee: 0 || 0,
+            RefundableAmt: 0 || 0,
+            description:fSearchApiResponse.data.WarningMessage || null,
+            modifyBy: Authentication?.UserId || null,
+            modifyAt: new Date(),
+          });
+      
+  
+          await cancelationBookingInstance.save();  
+          await bookingDetails.findOneAndUpdate(
+            { _id: BookingIdDetails._id },
+            { $set: { bookingStatus: "CANCELLATION PENDING" } },
+            { new: true } // To return the updated document
+          );
+        }  
+        return  fSearchApiResponse?.data?.ErrorMessage +' ' + fSearchApiResponse?.data?.WarningMessage
       }
 
       const getAgentConfig = await agentConfig.findOne({

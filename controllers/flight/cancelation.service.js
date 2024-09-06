@@ -289,7 +289,7 @@ const KafilaFun = async (
       );
       console.log(fSearchApiResponse.data, "1API Responce")
       if (fSearchApiResponse.data.Status !== null) {
-        return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage;
+        console.log('sdhf')
       }
 
       let requestDataForCancel = {
@@ -325,9 +325,11 @@ const KafilaFun = async (
       );
       // console.log(fCancelApiResponse?.data,"fCancelApiResponse data");
       let R_DATAofCancelApiResponse = fCancelApiResponse?.data?.R_DATA;
+      console.log(fCancelApiResponse?.data,"ded")
       let ResponseData;
       if(R_DATAofCancelApiResponse === undefined){
         ResponseData = fCancelApiResponse?.data;
+        console.log(ResponseData,"ddd")
       }else{
         ResponseData = fCancelApiResponse?.data?.R_DATA;
       }
@@ -366,7 +368,8 @@ const KafilaFun = async (
         await cancelationBookingInstance.save();
 
         if(ResponseData?.Status != null && ResponseData?.Status.toUpperCase() ===
-        "PENDING"){
+        "PENDING"||ResponseData?.Status.toUpperCase() ===
+        "FAILED"){
           await bookingDetails.findOneAndUpdate(
             { _id: BookingIdDetails._id },
             { $set: { bookingStatus: "CANCELLATION PENDING" } },

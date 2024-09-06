@@ -369,6 +369,11 @@ searchData.push(statusQuery)
   }
 },
 {$unwind:{path:"$companyData",preserveNullAndEmptyArrays:true}},
+
+{
+  $match:{"bookingdetailsData.bookingStatus": { $ne: "CANCELLATION PENDING" }
+}
+},
 {
   $sort:{
     createdAt:-1

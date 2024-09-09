@@ -300,6 +300,22 @@ const KafilaFun = async (
           "Failed") {
            
             if(fSearchApiResponse?.data?.Status != null && fSearchApiResponse?.data?.Status==="PENDING"){
+
+              await passengerPreferenceModel.updateMany(
+                {
+                  bid: BookingIdDetails._id,
+                  "Passengers.Status": { $ne: "CANCELLATION PENDING" }  // Ensure it's not already "CANCELLATION PENDING"
+                },
+                {
+                  $set: { "Passengers.$[elem].Status": "CONFIRMED" }  // Update all matching array elements
+                },
+                {
+                  arrayFilters: [{ "elem.Status": { $ne: "CANCELLATION PENDING" } }],  // Define condition for array elements
+                  multi: true,  // Ensure that multiple elements are updated
+                  new: true     // Return the updated document
+                }
+              );
+              
     
               const cancelationBookingInstance = new CancelationBooking({
                 calcelationStatus: fSearchApiResponse.data.Status || null ,
@@ -340,6 +356,8 @@ const KafilaFun = async (
                          {new:true}
                        );
            }
+         
+
             return  fSearchApiResponse?.data?.ErrorMessage +' ' + fSearchApiResponse?.data?.WarningMessage
           }
     

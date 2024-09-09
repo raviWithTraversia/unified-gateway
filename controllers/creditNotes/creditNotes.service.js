@@ -526,6 +526,66 @@ if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="
 
 }
 
-module.exports = {flightCreditNotes,cancelationBooking,findCancelationRefund}
+const ManualRefund=async(req,res)=>{
+  try{
+    const {companyId,userId,refundList}=req.body;
+
+    if(!companyId||!userId||!refundList){
+      return({
+        response:"please fill all requied filed"
+      })
+    }
+  for(var RefudData of refundList){
+    const findRefund=await Users.aggregate([
+      {$match:{userId:RefudData.agentId}},
+      {
+        $lookup:{
+          from:"agentconfigurations",
+          localField:"_id",
+          foreignField:"userId",
+          as:"agentconfigurations"
+        }
+      },
+      {$unwind:{path:"$agentconfigurations",preserveNullAndEmptyArrays:true}},
+      {$group:{_id:"$_id",userData:{$first:"$$ROOT"},agentConfigData:{$first:"$agentconfigurations"}}}
+    ])
+    
+    if(findRefund.length){
+      const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
+      await ledger.create({
+        userId: findRefund[0]?._id,
+        companyId: companyId,
+        ledgerId: ledgerId,
+        cartId: null,
+        transactionAmount: RefudData.refundableamount,
+        currencyType: "INR",
+        fop: "CREDIT",
+        transactionType: "CREDIT",
+        runningAmount: findRefund[0]?.agentConfigData.maxcreditLimit + RefudData.refundableamount,
+        remarks: "Cancellation Amount Added Into Your Account.",
+        transactionBy: userId,
+      });
+
+      await agentConfig.findByIdAndUpdate(findRefund[0]?.agentConfigData?._id, {
+        $set: {
+          maxcreditLimit: findRefund[0]?.agentConfigData?.maxcreditLimit + RefudData.refundableamount
+        }
+      });
+
+    }
+
+
+  }
+     return({
+      response:"Refunded Successfully",
+     })
+
+
+  }catch(error){
+    throw error
+  }
+}
+
+module.exports = {flightCreditNotes,cancelationBooking,findCancelationRefund,ManualRefund}
 
 

@@ -7,6 +7,8 @@ const creditNotescontroller=require('../controllers/creditNotes/creditNotescontr
 credit_Notes.post("/credit-notes",creditNotescontroller.flightCreditNotes);
 credit_Notes.post("/find-cancelation",creditNotescontroller.cancelationBooking)
 credit_Notes.post("/find-cacelation-history-update",creditNotescontroller.findCancelationRefund)
+credit_Notes.post("/manual-refund",creditNotescontroller.ManualRefund)
+
 
 
 module.exports=credit_Notes

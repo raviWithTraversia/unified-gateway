@@ -5,6 +5,8 @@ const Supplier = require("../../models/Supplier");
 const agentConfig = require("../../models/AgentConfig");
 const bookingDetails = require("../../models/booking/BookingDetails");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
+const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
+
 const axios = require("axios");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const uuid = require("uuid");
@@ -158,6 +160,10 @@ async function handleflight(
   const BookingIdDetails = await bookingDetails.findOne({
     providerBookingId: BookingId,
   });
+
+  
+ 
+  
 
   if (!BookingIdDetails) {
     return {
@@ -321,6 +327,19 @@ const KafilaFun = async (
                 { new: true } // To return the updated document
               );
             }  
+            for(let passengers of Sector[0]?.PAX){
+              await passengerPreferenceModel.findOneAndUpdate(
+                         {
+                          bid: BookingIdDetails._id,
+                           "Passengers.FName": passengers.FNAME,
+                           "Passengers.LName": passengers.LNAME
+                         },
+                         {
+                           $set: { "Passengers.$.Status": "CANCELLATION PENDING" }
+                         },
+                         {new:true}
+                       );
+           }
             return  fSearchApiResponse?.data?.ErrorMessage +' ' + fSearchApiResponse?.data?.WarningMessage
           }
     

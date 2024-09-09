@@ -562,7 +562,7 @@ const ManualRefund=async(req,res)=>{
         fop: "CREDIT",
         transactionType: "CREDIT",
         runningAmount: findRefund[0]?.agentConfigData.maxcreditLimit + RefudData.refundableamount,
-        remarks: "Cancellation Amount Added Into Your Account.",
+        remarks: RefudData.remark?RefudData.remark:"Cancellation Amount Added Into Your Account.",
         transactionBy: userId,
       });
 

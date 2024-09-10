@@ -318,11 +318,12 @@ const dateQuery = {
     $lte: new Date(toDate + 'T23:59:59.999Z')
   }
 };
+searchData.push(dateQuery)
 const neStatus={ calcelationStatus: { $ne: "REFUNDED" } }
 const statusQuery = {
   calcelationStatus: status
 };
-searchData.push(dateQuery)
+
 if(status){
 searchData.push(statusQuery)
 }else{
@@ -331,7 +332,7 @@ searchData.push(statusQuery)
 
     
    
-    
+    console.log(searchData)
     
     // Perform the aggregation
     const cancelationBooking = await CancelationBooking.aggregate([
@@ -562,7 +563,7 @@ const ManualRefund=async(req,res)=>{
         fop: "CREDIT",
         transactionType: "CREDIT",
         runningAmount: findRefund[0]?.agentConfigData.maxcreditLimit + RefudData.refundableamount,
-        remarks: RefudData.remark?RefudData.remark:"Cancellation Amount Added Into Your Account.",
+        remarks: RefudData?.remark?RefudData?.remark:"Cancellation Amount Added Into Your Account.",
         transactionBy: userId,
       });
 

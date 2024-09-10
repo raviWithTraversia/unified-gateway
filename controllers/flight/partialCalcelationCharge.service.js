@@ -304,15 +304,15 @@ const KafilaFun = async (
               await passengerPreferenceModel.updateMany(
                 {
                   bid: BookingIdDetails._id,
-                  "Passengers.Status": { $ne: "CANCELLATION PENDING" }  // Ensure it's not already "CANCELLATION PENDING"
+                  "Passengers.Status": { $ne: "CANCELLATION PENDING" }  
                 },
                 {
-                  $set: { "Passengers.$[elem].Status": "CONFIRMED" }  // Update all matching array elements
+                  $set: { "Passengers.$[elem].Status": "CONFIRMED" }  
                 },
                 {
-                  arrayFilters: [{ "elem.Status": { $ne: "CANCELLATION PENDING" } }],  // Define condition for array elements
-                  multi: true,  // Ensure that multiple elements are updated
-                  new: true     // Return the updated document
+                  arrayFilters: [{ "elem.Status": { $ne: "CANCELLATION PENDING" } }],  
+                  multi: true,  
+                  new: true     
                 }
               );
               

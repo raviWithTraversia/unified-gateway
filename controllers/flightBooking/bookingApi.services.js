@@ -144,9 +144,10 @@ const getAllBooking = async (req, res) => {
       };
     }
 console.log(filter,'dji')
-const bookingDetails = await bookingdetails.aggregate([
+ const bookingDetails = await bookingdetails.aggregate([
   { $match: filter },
 
+  // Lookup for userId and its company
   {
     $lookup: {
       from: "users",
@@ -168,6 +169,7 @@ const bookingDetails = await bookingdetails.aggregate([
   },
   { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
 
+  // Lookup for BookedBy field
   {
     $lookup: {
       from: "users",
@@ -178,6 +180,7 @@ const bookingDetails = await bookingdetails.aggregate([
   },
   { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
 
+  // Lookup for invoicingdatas
   {
     $lookup: {
       from: "invoicingdatas",
@@ -189,12 +192,36 @@ const bookingDetails = await bookingdetails.aggregate([
   { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
 
   {
+    $addFields: {
+      companyIdForLookup: "$userId.company_ID._id"
+    }
+  },
+
+  {
+    $lookup: {
+      from: "agentconfigurations",
+      localField: "companyIdForLookup", 
+      foreignField: "companyId",
+      as: "agentconfigurationData"
+    },
+  },
+  { $unwind: { path: "$agentconfigurationData", preserveNullAndEmptyArrays: true } },
+
+  {
+    $addFields: {
+      salesId: "$agentconfigurationData.salesInchargeIds"
+    }
+  },
+
+
+  {
     $group: {
       _id: "$_id",
       bookingDetails: { $first: "$$ROOT" }, 
       userId: { $first: "$userId" }, 
       BookedBy: { $first: "$BookedBy" }, 
       invoicingdatas: { $first: "$invoicingdatas" }, 
+      agentData: { $first: "$agentconfigurationData.salesInchargeIds" }
     },
   },
 
@@ -202,6 +229,7 @@ const bookingDetails = await bookingdetails.aggregate([
     $replaceRoot: { newRoot: "$bookingDetails" },
   },
 ]);
+
     
 
     console.log("1st");
@@ -252,7 +280,6 @@ const bookingDetails = await bookingdetails.aggregate([
             allBookingData.push({
               bookingDetails: booking,
               passengerPreference: passengerPreference,
-              salesInchargeIds: configDetails?.salesInchargeIds,
             });
           }
         })
@@ -260,11 +287,7 @@ const bookingDetails = await bookingdetails.aggregate([
 
       let filteredBookingData = allBookingData; // Copy the original data
 
-      if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
-        filteredBookingData = allBookingData.filter(
-          (bookingData) => bookingData.salesInchargeIds === salesInchargeIds
-        );
-      }
+   
       return {
         response: "Fetch Data Successfully",
         data: {
@@ -321,6 +344,7 @@ const bookingDetails = await bookingdetails.aggregate([
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter },
     
+      // Lookup for userId and its company
       {
         $lookup: {
           from: "users",
@@ -342,6 +366,7 @@ const bookingDetails = await bookingdetails.aggregate([
       },
       { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
     
+      // Lookup for BookedBy field
       {
         $lookup: {
           from: "users",
@@ -352,6 +377,7 @@ const bookingDetails = await bookingdetails.aggregate([
       },
       { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
     
+      // Lookup for invoicingdatas
       {
         $lookup: {
           from: "invoicingdatas",
@@ -363,12 +389,36 @@ const bookingDetails = await bookingdetails.aggregate([
       { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
     
       {
+        $addFields: {
+          companyIdForLookup: "$userId.company_ID._id"
+        }
+      },
+    
+      {
+        $lookup: {
+          from: "agentconfigurations",
+          localField: "companyIdForLookup", 
+          foreignField: "companyId",
+          as: "agentconfigurationData"
+        },
+      },
+      { $unwind: { path: "$agentconfigurationData", preserveNullAndEmptyArrays: true } },
+
+      {
+        $addFields: {
+          salesId: "$agentconfigurationData.salesInchargeIds"
+        }
+      },
+    
+    
+      {
         $group: {
           _id: "$_id",
           bookingDetails: { $first: "$$ROOT" }, 
           userId: { $first: "$userId" }, 
           BookedBy: { $first: "$BookedBy" }, 
           invoicingdatas: { $first: "$invoicingdatas" }, 
+          agentData: { $first: "$agentconfigurationData.salesInchargeIds" }
         },
       },
     
@@ -376,6 +426,7 @@ const bookingDetails = await bookingdetails.aggregate([
         $replaceRoot: { newRoot: "$bookingDetails" },
       },
     ]);
+    
 
     console.log("2nd");
 
@@ -427,18 +478,13 @@ const bookingDetails = await bookingdetails.aggregate([
             allBookingData.push({
               bookingDetails: booking,
               passengerPreference: passengerPreference,
-              salesInchargeIds: configDetails?.salesInchargeIds,
             });
           }
         })
     );
       let filteredBookingData = allBookingData; // Copy the original data
 
-      if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
-        filteredBookingData = allBookingData.filter(
-          (bookingData) => bookingData.salesInchargeIds === salesInchargeIds
-        );
-      }
+     
       return {
         response: "Fetch Data Successfully",
         data: {
@@ -501,6 +547,7 @@ const bookingDetails = await bookingdetails.aggregate([
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter },
     
+      // Lookup for userId and its company
       {
         $lookup: {
           from: "users",
@@ -522,6 +569,7 @@ const bookingDetails = await bookingdetails.aggregate([
       },
       { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
     
+      // Lookup for BookedBy field
       {
         $lookup: {
           from: "users",
@@ -532,6 +580,7 @@ const bookingDetails = await bookingdetails.aggregate([
       },
       { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
     
+      // Lookup for invoicingdatas
       {
         $lookup: {
           from: "invoicingdatas",
@@ -543,12 +592,36 @@ const bookingDetails = await bookingdetails.aggregate([
       { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
     
       {
+        $addFields: {
+          companyIdForLookup: "$userId.company_ID._id"
+        }
+      },
+    
+      {
+        $lookup: {
+          from: "agentconfigurations",
+          localField: "companyIdForLookup", 
+          foreignField: "companyId",
+          as: "agentconfigurationData"
+        },
+      },
+      { $unwind: { path: "$agentconfigurationData", preserveNullAndEmptyArrays: true } },
+
+      {
+        $addFields: {
+          salesId: "$agentconfigurationData.salesInchargeIds"
+        }
+      },
+    
+    
+      {
         $group: {
           _id: "$_id",
           bookingDetails: { $first: "$$ROOT" }, 
           userId: { $first: "$userId" }, 
           BookedBy: { $first: "$BookedBy" }, 
           invoicingdatas: { $first: "$invoicingdatas" }, 
+          agentData: { $first: "$agentconfigurationData.salesInchargeIds" }
         },
       },
     
@@ -613,7 +686,6 @@ const bookingDetails = await bookingdetails.aggregate([
             allBookingData.push({
               bookingDetails: booking,
               passengerPreference: passengerPreference,
-              salesInchargeIds: configDetails?.salesInchargeIds,
             });
           }
         }),
@@ -622,11 +694,7 @@ const bookingDetails = await bookingdetails.aggregate([
       // console.log(allBookingData[0].bookingDetails,"djfie")
 
       let filteredBookingData = allBookingData; // Copy the original data
-      if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
-        filteredBookingData = allBookingData.filter(
-          (bookingData) => bookingData.salesInchargeIds === salesInchargeIds
-        );
-      }
+     
 
       return {
         response: "Fetch Data Successfully",

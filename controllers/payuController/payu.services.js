@@ -422,28 +422,36 @@ const payuSuccess = async (req, res) => {
                 }
               );
 
-              const getpassengersPrefrence =
-                await passengerPreferenceModel.findOne({ bookingId: udf1 });
+              const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: udf1 });
 
-              if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
-                await Promise.all(
-                  getpassengersPrefrence.Passengers.map(async (passenger) => {
-                    const apiPassenger =
-                      fSearchApiResponse.data.PaxInfo.Passengers.find(
+              await Promise.all(
+                getpassengersPrefrence.Passengers.map(async (passenger) => {
+                  const apiPassenger =
+                    fSearchApiResponse.data.PaxInfo.Passengers.find(
+                      (p) =>
+                        p.FName === passenger.FName &&
+                        p.LName === passenger.LName
+                    );
+                  if (apiPassenger) {
+                    const ticketUpdate =
+                      passenger.Optional.ticketDetails.find(
                         (p) =>
-                          p.FName === passenger.FName &&
-                          p.LName === passenger.LName
+                          p.src ===
+                            fSearchApiResponse.data.Param.Sector[0].Src &&
+                          p.des ===
+                            fSearchApiResponse.data.Param.Sector[0].Des
                       );
-                    if (apiPassenger) {
-                      passenger.Optional.TicketNumber =
-                        apiPassenger.Optional.TicketNumber;
-                      //passenger.Status = "CONFIRMED";
+                    if (ticketUpdate) {
+                      ticketUpdate.ticketNumber =
+                        apiPassenger?.Optional?.TicketNumber;
                     }
-                  })
-                );
 
-                await getpassengersPrefrence.save();
-              }
+                    // passenger.Status = "CONFIRMED";
+                  }
+                })
+              );
+              await getpassengersPrefrence.save();
+
 
               if (
                 fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"

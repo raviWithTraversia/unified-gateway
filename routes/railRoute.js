@@ -5,7 +5,7 @@ rail_route.use(bodyParser.json());
 rail_route.use(bodyParser.urlencoded({ extended: true }));
 const auth = require("../middleware/auth");
 const railController = require('./../controllers/rail/rail.controller');
-const balance = require('./../controllers/rail/manualDebitCreditRails.controller')
+const balance = require('../controllers/rail/railBalance/manualDebitCreditRails.controller')
 rail_route.post('/rail/railSearch', auth, railController.railSearch);
 rail_route.post('/rail/railSearchBtwnDate', auth, railController.railSearchBtwnDate);
 rail_route.post('/rail/stationName', auth, railController.getTrainStation);

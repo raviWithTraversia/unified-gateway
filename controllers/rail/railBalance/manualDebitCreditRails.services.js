@@ -1,11 +1,11 @@
-const User = require("../../models/User");
-const agentConfig = require("../../models/AgentConfig");
-const creditRequest = require("../../models/CreditRequest");
-const EventLogs = require('../logs/EventApiLogsCommon');
-const ledgerRail = require("../../models/Irctc/ledgerRail");
-const { priceRoundOffNumberValues } = require("../commonFunctions/common.function");
+const User = require("../../../models/User");
+const agentConfig = require("../../../models/AgentConfig");
+const creditRequest = require("../../../models/CreditRequest");
+const EventLogs = require('../../logs/EventApiLogsCommon');
+const ledgerRail = require("../../../models/Irctc/ledgerRail");
+const { priceRoundOffNumberValues } = require("../../commonFunctions/common.function");
 const axios = require("axios");
-const { response } = require("../../routes/railRoute");
+const { response } = require("../../../routes/railRoute");
 
 
 const manualDebitCredit = async (req, res) => {
@@ -39,20 +39,17 @@ const manualDebitCredit = async (req, res) => {
         }
          console.log(configData,"configData",findUser,"findUser",product,"product");
         let DIdata; // = await recieveDI(configData, findUser, product, amount, loginUser._id);
-        if(ApplyDI == true){
-          DIdata = 0;
-        }else{
-          DIdata = await recieveDI(configData, findUser, product, amountforDI, loginUser._id);
-        }
+        // if(ApplyDI == true){
+        //   DIdata = 0;
+        // }else{
+        //   DIdata = await recieveDI(configData, findUser, product, amountforDI, loginUser._id);
+        // }
 
         if (product === "Rail") {
           configData.railCashBalance += amount;
           runningAmount = await priceRoundOffNumberValues(configData.railCashBalance)
         }
-        if (product === "Flight") {
-          configData.maxcreditLimit += amount;
-          runningAmount = await priceRoundOffNumberValues(configData.maxcreditLimit)
-        }
+       
         await configData.save();
         const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
         await ledgerRail.create({
@@ -112,31 +109,32 @@ const manualDebitCredit = async (req, res) => {
               if (configData?.maxcreditLimit < amount) {
                 return { response: "Insufficient Balance" }
               }
-              configData.railCashBalance -= tdsAmount;
-              runningAmount = configData.railCashBalance
+            //   configData.railCashBalance -= tdsAmount;
+            //   runningAmount = configData.railCashBalance
+            // }
             }
-            if (product === "Flight") {
-              if (configData?.maxcreditLimit < amount) {
-                return { response: "Insufficient Balance" }
-              }
-              configData.maxcreditLimit -= tdsAmount;
-              runningAmount = configData.maxcreditLimit
-            }
+            // if (product === "Flight") {
+            //   if (configData?.maxcreditLimit < amount) {
+            //     return { response: "Insufficient Balance" }
+            //   }
+            //   configData.maxcreditLimit -= tdsAmount;
+            //   runningAmount = configData.maxcreditLimit
+            // }
             await configData.save();
-            const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-            await ledgerRail.create({
-              userId: findUser._id,
-              companyId: findUser.company_ID,
-              ledgerId: ledgerId,
-              transactionAmount: tdsAmount,
-              currencyType: "INR",
-              fop: "DEBIT",
-              transactionType: "DEBIT",
-              runningAmount,
-              remarks: `TDS against ${tdsAmount} DI deposit.`,
-              transactionBy: loginUser._id,
-              product
-            });
+            // const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+            // await ledgerRail.create({
+            //   userId: findUser._id,
+            //   companyId: findUser.company_ID,
+            //   ledgerId: ledgerId,
+            //   transactionAmount: tdsAmount,
+            //   currencyType: "INR",
+            //   fop: "DEBIT",
+            //   transactionType: "DEBIT",
+            //   runningAmount,
+            //   remarks: `TDS against ${tdsAmount} DI deposit.`,
+            //   transactionBy: loginUser._id,
+            //   product
+            // });
             const LogsData = {
               eventName: "debitRequest",
               doerId: loginUser._id,
@@ -164,13 +162,7 @@ const manualDebitCredit = async (req, res) => {
           configData.railCashBalance -= amount;
           runningAmount = configData.railCashBalance
         }
-        if (product === "Flight") {
-          if (configData?.maxcreditLimit < amount) {
-            return { response: "Insufficient Balance" }
-          }
-          configData.maxcreditLimit -= amount;
-          runningAmount = configData.maxcreditLimit
-        }
+        
         await configData.save();
         const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); 
         await ledgerRail.create({

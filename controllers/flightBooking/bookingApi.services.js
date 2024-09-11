@@ -621,7 +621,6 @@ console.log(filter,'dji')
           userId: { $first: "$userId" }, 
           BookedBy: { $first: "$BookedBy" }, 
           invoicingdatas: { $first: "$invoicingdatas" }, 
-          agentData: { $first: "$agentconfigurationData.salesInchargeIds" }
         },
       },
     

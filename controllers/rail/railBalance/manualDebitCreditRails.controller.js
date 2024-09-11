@@ -1,10 +1,10 @@
 const balanceService = require("./manualDebitCreditRails.services");
-const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
+const { apiSucessRes, apiErrorres } = require("../../../utils/commonResponce");
 const {
   ServerStatusCode,
   errorResponse,
   CrudMessage,
-} = require("../../utils/constants");
+} = require("../../../utils/constants");
 
 
 

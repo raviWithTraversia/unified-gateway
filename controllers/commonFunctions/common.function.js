@@ -1044,11 +1044,11 @@ const getTdsAndDsicount = async (ItineraryPriceCheckResponses) => {
         if (ComBreakup) {
           for (let cbp of ComBreakup) {
             if (cbp.CommercialType == "Discount") {
-              let tdp = cbp.Amount * totalPassenger;
+              let tdp =Math.round(cbp.Amount) * totalPassenger;
               ldgrdiscount += tdp;
             }
             if (cbp.CommercialType == "TDS") {
-              let ttdsp = cbp.Amount * totalPassenger;
+              let ttdsp = Math.round(cbp.Amount) * totalPassenger;
               ldgrtds += ttdsp;
             }
           }

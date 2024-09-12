@@ -735,6 +735,34 @@ const KafilaFun = async (
           bookingId: ItineraryPriceCheckResponses[0].BookingId,
         });
         if (existingBooking) {
+          const getAgentConfigForUpdate = await agentConfig.findOne({
+            userId: getuserDetails._id,
+          });
+          // Check if maxCreditLimit exists, otherwise set it to 0
+          const maxCreditLimitPrice =
+            getAgentConfigForUpdate?.maxcreditLimit ?? 0;
+          const newBalanceCredit =
+            maxCreditLimitPrice +
+            totalSSRWithCalculationPrice
+          await agentConfig.updateOne(
+            { userId: getuserDetails._id },
+            { maxcreditLimit: newBalanceCredit }
+          );
+          await ledger.create({
+            userId: getuserDetails._id,
+            companyId: getuserDetails.company_ID._id,
+            ledgerId:
+              "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount:
+            totalSSRWithCalculationPrice,
+            currencyType: "INR",
+            fop: "CREDIT",
+            transactionType: "CREDIT",
+            runningAmount: newBalanceCredit,
+            remarks: "Booking amount added back to your account.",
+            transactionBy: getuserDetails._id,
+            cartId: ItineraryPriceCheckResponses[0].BookingId,
+          });
           return {
             msg: "Booking already exists",
             bookingId: ItineraryPriceCheckResponses[0].BookingId,
@@ -742,6 +770,7 @@ const KafilaFun = async (
         }
       } catch (error) {
         // console.error('Error creating booking:', error);
+        console.log(error,"djei")
         return {
           IsSucess: false,
           response: "Error creating booking:",

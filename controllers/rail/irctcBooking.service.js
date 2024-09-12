@@ -40,7 +40,7 @@ const irctcPaymentSubmit = async (req, res) => {
     }
 
     let queryParams = {
-      wsUserLogin: "WKAFL00004",
+      wsUserLogin: "WKAFL00001",
       clientTransactionId: clientTransactionId,
       paymentMode: paymentMode,
       paramMap: paramMap,

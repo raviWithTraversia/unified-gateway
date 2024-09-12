@@ -650,7 +650,7 @@ const KafilaFun = async (
       );
 
       // Generate random ledger ID
-      const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+      var ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
       let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
 
       // Create ledger entry

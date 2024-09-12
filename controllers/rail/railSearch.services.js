@@ -241,7 +241,7 @@ const railFareEnquiry = async (req, res) => {
      let queryParams = {
            
             "masterId": "WKAFL00000",
-            "wsUserLogin": "WKAFL00004",
+            "wsUserLogin": "WKAFL00001",
             "enquiryType": "3",
             "reservationChoice": "99",
             "moreThanOneDay": "true",

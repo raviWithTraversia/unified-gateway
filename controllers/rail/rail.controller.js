@@ -199,4 +199,18 @@ const getFareEnquiry = async(req,res)=>{
     }
 }
 
-module.exports = { railSearch, railSearchBtwnDate,getTrainStation,getTrainRoute ,getFareEnquiry};
+const DecodeToken = async(req,res)=>{
+    try {
+        const result = await railSearchServices.DecodeToken(req, res);
+       res.send(result)
+    } catch (error) {
+        console.error(error);
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        );
+    }
+}
+module.exports = { railSearch, railSearchBtwnDate,getTrainStation,getTrainRoute ,getFareEnquiry,DecodeToken};

@@ -16,6 +16,7 @@ const manualDebitCredit = async (req, res) => {
       }
       let amountforDI = amount;
       if(pgCharges){
+        console.log(amount,"djiri")
         amount = amount + parseInt(pgCharges);
       }else{
         amount = amount;
@@ -37,7 +38,6 @@ const manualDebitCredit = async (req, res) => {
             response: 'User not found'
           }
         }
-         console.log(configData,"configData",findUser,"findUser",product,"product");
         let DIdata; // = await recieveDI(configData, findUser, product, amount, loginUser._id);
         // if(ApplyDI == true){
         //   DIdata = 0;
@@ -96,6 +96,8 @@ const manualDebitCredit = async (req, res) => {
         };
         EventLogs(LogsData);
         if(DIdata !=null || DIdata != 0){
+
+
           let tdsAmount = parseInt(DIdata) * (5/100);
           if(tdsAmount != 0){
             const findUser = await User.findById(userId);

@@ -527,65 +527,158 @@ if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="
 
 }
 
-const ManualRefund=async(req,res)=>{
-  try{
-    const {companyId,userId,refundList}=req.body;
+const ManualRefund = async (req, res) => {
+  try {
+    const { companyId, userId, refundList } = req.body;
 
-    if(!companyId||!userId||!refundList){
-      return({
-        response:"please fill all requied filed"
-      })
-    }
-  for(var RefudData of refundList){
-    const findRefund=await Users.aggregate([
-      {$match:{userId:RefudData.agentId}},
-      {
-        $lookup:{
-          from:"agentconfigurations",
-          localField:"_id",
-          foreignField:"userId",
-          as:"agentconfigurations"
-        }
-      },
-      {$unwind:{path:"$agentconfigurations",preserveNullAndEmptyArrays:true}},
-      {$group:{_id:"$_id",userData:{$first:"$$ROOT"},agentConfigData:{$first:"$agentconfigurations"}}}
-    ])
-    
-    if(findRefund.length){
-      const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
-      await ledger.create({
-        userId: findRefund[0]?._id,
-        companyId: companyId,
-        ledgerId: ledgerId,
-        cartId: null,
-        transactionAmount: RefudData.refundableamount,
-        currencyType: "INR",
-        fop: "CREDIT",
-        transactionType: "CREDIT",
-        runningAmount: findRefund[0]?.agentConfigData.maxcreditLimit + RefudData.refundableamount,
-        remarks: RefudData?.remark?RefudData?.remark:"Cancellation Amount Added Into Your Account.",
-        transactionBy: userId,
-      });
-
-      await agentConfig.findByIdAndUpdate(findRefund[0]?.agentConfigData?._id, {
-        $set: {
-          maxcreditLimit: findRefund[0]?.agentConfigData?.maxcreditLimit + RefudData.refundableamount
-        }
-      });
-
+    if (!companyId || !userId || !refundList) {
+      return { response: "Please fill all required fields" };
     }
 
+    for (let refundData of refundList) {
+      const findRefund = await Users.aggregate([
+        { $match: { userId: refundData.agentId } },
+        {
+          $lookup: {
+            from: "agentconfigurations",
+            localField: "_id",
+            foreignField: "userId",
+            as: "agentConfigurations",
+          },
+        },
+        { $unwind: { path: "$agentConfigurations", preserveNullAndEmptyArrays: true } },
+        {
+          $group: {
+            _id: "$_id",
+            userData: { $first: "$$ROOT" },
+            agentConfigData: { $first: "$agentConfigurations" },
+          },
+        },
+      ]);
 
+      if (findRefund.length) {
+        const getUserId = findRefund.find(
+          element => element.userData.userId === refundData.agentId
+        );
+
+        if (getUserId) {
+          // Update the cancelation booking status
+          const cancelationData = await CancelationBooking.updateMany(
+            {
+              $and: [
+                { providerBookingId: refundData.providerbookingId },
+                { calcelationStatus: { $ne: "REFUNDED" } },
+              ],
+            },
+            {
+              $set: {
+                AirlineCancellationFee: refundData.AirlineCancellationFee,
+                AirlineRefundData: refundData.AirlineRefundData,
+                ServiceFee: refundData.ServiceFee,
+                RefundableAmt: refundData.RefundableAmt,
+                isRefund: true,
+                calcelationStatus: "REFUNDED",
+              },
+            },
+            { new: true }
+          );
+
+          // Update booking status in bookingDetails
+          await bookingDetails.updateMany(
+            { providerBookingId: refundData.providerbookingId },
+            { $set: { bookingStatus: "CANCELLED" ,isRefund:true} },
+            { new: true }
+          );
+
+          if (cancelationData.acknowledged && cancelationData.matchedCount > 0) {
+            const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
+            
+            // Create ledger entry
+            await ledger.create({
+              userId: getUserId.userData._id,
+              companyId: companyId,
+              ledgerId: ledgerId,
+              cartId: null,
+              transactionAmount: refundData.RefundableAmt,
+              currencyType: "INR",
+              fop: "CREDIT",
+              transactionType: "CREDIT",
+              runningAmount: findRefund[0].agentConfigData.maxcreditLimit + refundData.RefundableAmt,
+              remarks: refundData.remark || "Cancellation Amount Added Into Your Account.",
+              transactionBy: userId,
+            });
+
+            // Update agent configuration credit limit
+            await agentConfig.findByIdAndUpdate(findRefund[0].agentConfigData._id, {
+              $inc: { maxcreditLimit: refundData.RefundableAmt },
+            });
+          } else {
+            // Check if cancellation exists for the providerBookingId before creating a new one
+            const existingCancelation = await CancelationBooking.findOne({
+              providerBookingId: refundData.providerbookingId,
+              calcelationStatus: "REFUNDED"
+            });
+
+            if (!existingCancelation) {
+              const BookingIdDetails = await bookingDetails.findOne({
+                providerBookingId: refundData.providerbookingId,
+              });
+
+              // Create new cancelation record
+              const cancelationBookingInstance = new CancelationBooking({
+                bookingId: refundData.providerbookingId,
+                providerBookingId: refundData.providerbookingId,
+                AirlineCode: BookingIdDetails?.itinerary?.Sectors[0]?.AirlineCode || null,
+                companyId: companyId || null,
+                userId: getUserId.userData._id || null,
+                PNR: BookingIdDetails?.PNR || null,
+                fare: BookingIdDetails?.itinerary?.TotalPrice || null,
+                AirlineCancellationFee: refundData.AirlineCancellationFee,
+                AirlineRefundData: refundData.AirlineRefundData,
+                ServiceFee: refundData.ServiceFee,
+                RefundableAmt: refundData.RefundableAmt,
+                isRefund: true,
+                calcelationStatus: "REFUNDED",
+                description: refundData.remark || null,
+                modifyBy: getUserId.userData._id || null,
+                modifyAt: new Date(),
+              });
+
+              await cancelationBookingInstance.save();
+              const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
+
+              // Create ledger entry
+              await ledger.create({
+                userId: getUserId.userData._id,
+                companyId: companyId,
+                ledgerId: ledgerId,
+                cartId: null,
+                transactionAmount: refundData.RefundableAmt,
+                currencyType: "INR",
+                fop: "CREDIT",
+                transactionType: "CREDIT",
+                runningAmount: findRefund[0].agentConfigData.maxcreditLimit + refundData.RefundableAmt,
+                remarks: refundData.remark || "Cancellation Amount Added Into Your Account.",
+                transactionBy: userId,
+              });
+
+              // Update agent configuration credit limit
+              await agentConfig.findByIdAndUpdate(findRefund[0].agentConfigData._id, {
+                $inc: { maxcreditLimit: refundData.RefundableAmt },
+              });
+            }
+          }
+        }
+      }
+    }
+
+    return { response: "Refunded Successfully" };
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
-     return({
-      response:"Refunded Successfully",
-     })
+};
 
-
-  }catch(error){
-    throw error
-  }
-}
 
 module.exports = {flightCreditNotes,cancelationBooking,findCancelationRefund,ManualRefund}
 

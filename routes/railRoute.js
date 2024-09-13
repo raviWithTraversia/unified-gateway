@@ -12,6 +12,7 @@ rail_route.post('/rail/stationName', auth, railController.getTrainStation);
 rail_route.post('/rail/railRoute', auth, railController.getTrainRoute);
 rail_route.post('/rail/fareEnquiry', auth, railController.getFareEnquiry);
 rail_route.post('/rail/manualDebitCredit', auth, balance.manualDebitCredit);
+rail_route.post("/rail/bookingSave",railController.DecodeToken )
 
 // easeBuzz_route.post('/paymentGateway/easeBussResponce', auth, easeBuzzController.easeBuzzResponce);
 

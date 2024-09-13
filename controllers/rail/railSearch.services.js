@@ -2,6 +2,7 @@ const User = require("../../models/User");
 const Company = require("../../models/Company");
 const axios = require("axios");
 const { Config } = require("../../configs/config");
+const jwt=require('jsonwebtoken');
 
 const getRailSearch = async (req, res) => {
   try {
@@ -285,9 +286,114 @@ const railFareEnquiry = async (req, res) => {
   }
 };
 
+const DecodeToken = async (req, res) => {
+  try {
+    const { data } = req.body;
+
+    if (!data) {
+      return {
+        response: "Token not found"
+      };
+    }
+
+    // Decode the Base64 token
+    const responseData = Buffer.from(data, 'base64').toString('utf-8');
+    
+    // Log the decoded data to check its structure
+    // console.log("Decoded Data: ", responseData);
+
+    // Try parsing the decoded string as JSON
+    let jsonData;
+    try {
+      jsonData = JSON.parse(responseData);
+      let successHtmlCode = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Ticket Book Success</title>
+        <style>
+        .success-txt{
+          color: #51a351;
+        }
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background-color: #f2f2f2;
+        }
+        
+        .success-container {
+          max-width: 400px;
+          width: 100%;
+          padding: 20px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          background-color: #fff;
+          text-align: center;
+        }
+        .success-container p {
+          margin-top: 10px;
+        }
+        
+        .success-container a {
+          display: inline-block;
+          margin-top: 20px;
+          padding: 10px 20px;
+          background-color: #007bff;
+          color: #fff;
+          text-decoration: none;
+          border-radius: 5px;
+        }
+        
+        .success-container a:hover {
+          background-color: #0056b3;
+        }
+      </style>
+  
+      </head>
+      <body>
+        <div class="success-container">
+          <h1 class="success-txt">Ticket Booked Successful!</h1>
+          <p class="success-txt">Your Ticket has been Booked successfully...</p>
+          <p>Thank you for your purchase.</p>
+            <p>PNR No.: ${jsonData.pnrNumber}</p>
+          <a href="${
+            Config[Config.MODE].baseURL
+          }/home/manageBooking/cart-details-review?PNR=${jsonData.pnrNumber}">Go to Merchant...</a>
+        </div>
+      </body>}
+      </html>`;
+      return successHtmlCode
+    } catch (jsonError) {
+      console.log(jsonError.message)
+      return {
+        response: "Invalid JSON format",
+        error: jsonError.message
+      };
+    }
+
+    // If JSON parsing succeeds, return the data
+    
+
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({
+      message: "Something went wrong on the server",
+      error: error.message
+    });
+  }
+};
+
+
 module.exports = {
   getRailSearch,
   railSearchBtwnDate,
   railRouteView,
   railFareEnquiry,
+  DecodeToken
 };

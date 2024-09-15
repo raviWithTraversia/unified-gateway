@@ -64,6 +64,8 @@ const easeBuzz = async (req, res) => {
         'Cookie': 'Path=/'
       }
     });
+    console.log(productinfo)
+    console.log(response.data)
     return {
       response: "Fetch Data Successfully",
       data: response.data,

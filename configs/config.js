@@ -40,6 +40,10 @@ module.exports.Config = {
     TEST: {
       salt: "4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW",
       key: "gtKFFx",
+    },
+    Live: {
+      salt: "DlSTL0cw",
+      key: "HYDinl3tea",
     }
   },
 

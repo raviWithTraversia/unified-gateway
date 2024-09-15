@@ -120,6 +120,7 @@ const manualDebitCredit = async (req, res) => {
     }
     let amountforDI = amount;
     if (pgCharges) {
+      console.log(amount,"amount")
       amount = amount + parseInt(pgCharges);
     } else {
       amount = amount;

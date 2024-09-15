@@ -6,11 +6,12 @@ const ledgerRail = require("../../../models/Irctc/ledgerRail");
 const { priceRoundOffNumberValues } = require("../../commonFunctions/common.function");
 const axios = require("axios");
 const { response } = require("../../../routes/railRoute");
+const transaction = require("../../../models/transaction");
 
 
 const manualDebitCredit = async (req, res) => {
     try {
-      let { userId, amountStatus, amount,pgCharges, product, remarks,ApplyDI } = req.body;
+      let { userId, amountStatus, amount,pgCharges, product, remarks,ApplyDI,easeBuzzSuccessReponse } = req.body;
       if (!userId) {
         return { response: "User id does not exist" }
       }
@@ -26,6 +27,21 @@ const manualDebitCredit = async (req, res) => {
       const loginUser = await User.findById(doerId);
       if (amountStatus == "credit") {
         const findUser = await User.findById(userId);
+
+        if (easeBuzzSuccessReponse && easeBuzzSuccessReponse?.status == "success") {
+          await transaction.create({
+            userId: userId,
+            companyId: findUser.company_ID,
+            trnsNo: easeBuzzSuccessReponse?.txnid,
+            trnsType: "DEBIT",
+            paymentMode: easeBuzzSuccessReponse?.mode,
+            paymentGateway: "EaseBuzz",
+            trnsStatus: "success",
+            transactionBy: userId,
+            transactionAmount: easeBuzzSuccessReponse?.amount,
+            pgCharges: pgCharges ?? "",
+          });
+        }
         const configData = await agentConfig.findOne({ userId }).populate('diSetupIds').populate({
           path: 'diSetupIds',
           populate: {
@@ -81,7 +97,7 @@ const manualDebitCredit = async (req, res) => {
           });
           await agentConfig.findOneAndUpdate(
             { userId: userId },
-            { maxcreditLimit: await priceRoundOffNumberValues(runningAmount - parseInt(pgCharges) )},
+            { railCashBalance: await priceRoundOffNumberValues(runningAmount - parseInt(pgCharges) )},
             {new:true}
           );
         }

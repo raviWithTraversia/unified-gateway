@@ -40,6 +40,42 @@ const payu = async (req, res) => {
         );
       }
 };
+
+const payu2 = async (req, res) => {
+  try {
+      const result = await payuServices.payu2(req, res);
+      if (result.response == "payU sha token generate successfully") {
+        apiSucessRes(
+          res,
+          result.response,
+          result.data,
+          ServerStatusCode.SUCESS_CODE
+        );
+      } else if (result.response == "Data does not exist") {
+        apiErrorres(
+          res,
+          result.response,
+          ServerStatusCode.RESOURCE_NOT_FOUND,
+          true
+        );
+      } else {
+        apiErrorres(
+          res,
+          errorResponse.SOME_UNOWN,
+          ServerStatusCode.INVALID_CRED,
+          true
+        );
+      }
+    } catch (error) {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.INVALID_CRED,
+        true
+      );
+    }
+};
+
 const payuSuccess = async (req, res) => 
   {
     try {
@@ -95,6 +131,21 @@ const payuSuccess = async (req, res) =>
     }
   
 
+const payuWalletRailResponceSuccess = async (req, res) => 
+  {
+    try {
+      const result = await payuServices.payuWalletRailResponceSuccess(req, res);      
+      res.send(result);        
+    } catch (error) {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.INVALID_CRED,
+        true
+      );
+    }
+    
+  }
 
 
   const payuFail = async (req, res) => 
@@ -175,5 +226,5 @@ const payuSuccess = async (req, res) =>
 
     
 module.exports = {
-  payu,payuSuccess,payuFail,payuWalletResponceSuccess,payuWalletResponceFailed
+  payu,payuSuccess,payuFail,payuWalletResponceSuccess,payuWalletResponceFailed,payuWalletRailResponceSuccess,payu2
 };

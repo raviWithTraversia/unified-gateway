@@ -6,6 +6,7 @@ const UserModel = require("../../models/User");
 const BookingDetails = require("../../models/booking/BookingDetails");
 const transaction = require("../../models/transaction");
 const ledger = require("../../models/Ledger");
+const Railledger=require('../../models/Irctc/ledgerRail')
 const agentConfig = require("../../models/AgentConfig");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
@@ -163,6 +164,150 @@ const payu = async (req, res) => {
     throw error;
   }
 };
+const payu2 = async (req, res) => {
+  try {
+    const {
+      companyId,
+      userId,
+      firstName,
+      email,
+      amount,
+      phone,
+      productinfo,
+      cartId,
+      pgCharges,
+      normalAmount,
+    } = req.body;
+
+    if (
+      (!companyId ||
+        !userId ||
+        !firstName ||
+        !email ||
+        !amount ||
+        !productinfo ||
+        !phone,
+      !cartId)
+    ) {
+      return {
+        response: "All field are required",
+      };
+    }
+
+    // const key = 'gtKFFx';
+    // const txnid = '4c14e4f2-91c6-4e4e-b942-de29e5210f5f';
+    // const amount = 500;
+    // const productinfo = 'iPhone';
+    // const firstname = 'Test';
+    // const email = 'test@example.com';
+    // const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
+
+    const key =
+      Config.MODE == "TEST"
+        ? Config.PAYMENT_CREDENTIALS_PAYU.Live.key
+        : Config.PAYMENT_CREDENTIALS_PAYU.Live.key;
+    const txnid = uuidv4();
+    const amountres = amount;
+    const productinfores = productinfo;
+    const firstnameres = firstName;
+    const emailres = email;
+    const phoneres = phone;
+    const surl = `${
+      Config[Config.MODE].baseURLBackend
+    }/api/paymentGateway/success`;
+    const furl = `${
+      Config[Config.MODE].baseURLBackend
+    }/api/paymentGateway/failed`;
+
+    const salt =
+      Config.MODE == "TEST"
+        ? Config.PAYMENT_CREDENTIALS_PAYU.Live.salt
+        : Config.PAYMENT_CREDENTIALS_PAYU.Live.salt;
+    const cartIdres = cartId;
+
+    // Concatenate the transaction details
+    const hashString = `${key}|${txnid}|${amountres}|${productinfores}|${firstnameres}|${emailres}|${cartIdres}|${normalAmount}|${pgCharges}||||||||${salt}`;
+
+    // Calculate the SHA-512 hash
+    const hash = crypto.createHash("sha512").update(hashString).digest("hex");
+    payDetails = {
+      key: key,
+      txnid: txnid,
+      amount: amountres,
+      productinfo: productinfores,
+      firstname: firstnameres,
+      email: emailres,
+      salt: salt,
+      phone: phoneres,
+      surl: surl,
+      furl: furl,
+      hash: hash,
+      udf1: cartIdres,
+      udf2: normalAmount,
+      udf3: pgCharges,
+    };
+
+    // Add the hash to payment details
+    // check companyId exist or not
+    // const checkExistCompany = await Company.findById(companyId);
+    // if(!checkExistCompany) {
+    //     return {
+    //         response : 'companyId does not exist'
+    //     }
+    // }
+    //const transtionId = uuidv4();
+    // const payDetails = {
+    //     txnId: transtionId,
+    //     plan_name: "Test",
+    //     firstName: firstName,
+    //     lastName: lastName,
+    //     email: email,
+    //     mobile: mobile,
+    //     amount: amount,
+    //     productinfo: productinfo,
+    //     service_provide: 'test',
+    //     call_back_url: `https://kafila.traversia.net`,
+    //     payu_merchant_key: 'gtKFFx',
+    //     payu_merchant_salt_version_1 : '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW',
+    //     // payu_merchant_salt_version_2 : process.env.PAYU_MERCHANT_SALT_VERSION_2,
+    //     payu_url: 'https://test.payu.in/_payment',
+    //     payu_fail_url: `https://kafila.traversia.net/success/url`,
+    //     payu_cancel_url: `https://kafila.traversia.net/success/url`,
+    //     payu_url: 'https://test.payu.in/_payment',
+    // };
+    //console.log(payDetails)
+    // Construct the string to be hashed
+    //const hashString = `${payDetails.payu_merchant_key}|${payDetails.txnId}|${payDetails.amount}|${payDetails.productinfo}|${payDetails.firstName}|${payDetails.email}|||||||||||$payDetails.payu_merchant_salt_version_1}`;
+    // Add your PayU secret key
+    //const secretKey = 'gtKFFx';
+
+    // Create the SHA512 hash using the secret key
+    // const hash = crypto.createHash('sha512');
+    // hash.update(hashString);
+    // const payu_sha_token = hash.digest('hex');
+
+    //console.log(payu_sha_token);
+
+    if (payDetails) {
+      return {
+        response: "payU sha token generate successfully",
+        data: payDetails,
+      };
+    } else {
+      return {
+        response: "Data does not exist",
+        data: null,
+      };
+    }
+  } catch (error) {
+    // return {
+    //   response: "Data does not exist",
+    //   data: error,
+    // };
+    throw error;
+  }
+};
+
 
 const payuSuccess = async (req, res) => {
   try {
@@ -838,6 +983,223 @@ const payuWalletResponceSuccess = async (req, res) => {
   }
 };
 
+const payuWalletRailResponceSuccess = async (req, res) => {
+  try {
+    const { status, txnid, productinfo, udf1, udf2, udf3, amount, PG_TYPE } =
+      req.body;
+    console.log("shadaab ali");
+    //productinfo = product udf3= pgcharges;
+    if (status === "success") {
+      const userData = await User.findOne({ company_ID: udf1 }).populate({
+        path: "roleId",
+        match: { name: "Agency" },
+      });
+
+      const findUser = await User.findById(userData._id);
+      const configData = await agentConfig
+        .findOne({ userId: userData._id })
+        .populate("diSetupIds")
+        .populate({
+          path: "diSetupIds",
+          populate: {
+            path: "diSetupIds", // If diSetupIds contains another reference
+            model: "diSetup",
+          },
+        });
+      // console.log(configData, "configData");
+      // const doerId = req.user._id;
+      const loginUser = userData._id;
+      // console.log(loginUser, "loginUser");
+      let DIdata = await recieveDI(
+        configData,
+        findUser,
+        productinfo,
+        udf2,
+        loginUser,
+        txnid
+      );
+      // console.log(DIdata, "DIdata1");
+      // return false;
+      if (userData) {
+        const getAgentConfigForUpdate = await agentConfig.findOne({
+          userId: userData._id,
+        });
+        const maxCreditAmount = getAgentConfigForUpdate?.railCashBalance ?? 0;
+        const newBalanceAmount = maxCreditAmount + Number(amount);
+
+        await agentConfig.findOneAndUpdate(
+          { userId: userData._id },
+          { railCashBalance: newBalanceAmount },
+          { new: true }
+        );
+        await Railledger.create({
+          userId: userData._id,
+          companyId: userData.company_ID,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionId: txnid,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "CREDIT",
+          transactionType: "CREDIT",
+          runningAmount: newBalanceAmount,
+          remarks: "Wallet Amount Credited into Your Account.",
+          transactionBy: userData._id,
+        });
+
+        await Railledger.create({
+          userId: userData._id,
+          companyId: userData.company_ID,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionId: txnid,
+          transactionAmount: udf3,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount: newBalanceAmount - udf3,
+          remarks: "Wallet debited for PG charges(PayU)",
+          transactionBy: userData._id,
+        });
+        await agentConfig.findOneAndUpdate(
+          { userId: userData._id },
+          { railCashBalance: newBalanceAmount - udf3 },
+          { new: true }
+        );
+        console.log("hjdsdh");
+        if (DIdata !== null || DIdata !== 0) {
+          let tdsAmount = DIdata * (5 / 100);
+          // console.log(tdsAmount, "tdsAmount");
+          if (tdsAmount != 0) {
+            tdsAmount = await priceRoundOffNumberValues(tdsAmount);
+            // console.log(tdsAmount, "tdsAmount2");
+            // console.log("hjdsdh12");
+            const findUser = await User.findById(userData._id);
+            console.log(findUser, "findUser");
+            const configData = await agentConfig.findOne({
+              userId: userData._id,
+            });
+            console.log(configData, "configData");
+            if (!configData) {
+              return {
+                response: "User not found",
+              };
+            }
+            if (productinfo === "Rail") {
+              if (configData?.railCashBalance < amount) {
+                return { response: "Insufficient Balance" };
+              }
+              configData.railCashBalance -= tdsAmount;
+              runningAmount = configData.maxRailCredit;
+            }
+            // if (productinfo === "Flight") {
+            //   if (configData?.maxcreditLimit < amount) {
+            //     return { response: "Insufficient Balance" };
+            //   }
+            //   configData.maxcreditLimit -= tdsAmount;
+            //   runningAmount = configData.maxcreditLimit;
+            // }
+            // console.log(runningAmount, "runningAmount");
+            await configData.save();
+            const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+            console.log(runningAmount, "runningAmount");
+            await Railledger.create({
+              userId: findUser._id,
+              companyId: findUser.company_ID,
+              ledgerId: ledgerId,
+              transactionId: txnid,
+              transactionAmount: tdsAmount,
+              currencyType: "INR",
+              fop: "DEBIT",
+              transactionType: "DEBIT",
+              runningAmount,
+              remarks: `TDS against ${tdsAmount} DI deposit.`,
+              transactionBy: userData._id,
+              productinfo,
+            });
+          }
+        }
+
+        await transaction.create({
+          userId: userData._id,
+          companyId: userData.company_ID,
+          trnsNo: txnid,
+          trnsType: "DEBIT",
+          paymentMode: PG_TYPE,
+          paymentGateway: "PayU",
+          trnsStatus: "success",
+          transactionBy: userData._id,
+          transactionAmount: udf2,
+          pgCharges: udf3,
+        });
+
+        let successHtmlCode = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Payment Success</title>
+      <style>
+      .success-txt{
+        color: #51a351;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f2f2f2;
+      }
+      
+      .success-container {
+        max-width: 400px;
+        width: 100%;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+        text-align: center;
+      }
+      .success-container p {
+        margin-top: 10px;
+      }
+      
+      .success-container a {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      
+      .success-container a:hover {
+        background-color: #0056b3;
+      }
+    </style>
+
+    </head>
+    <body>
+      <div class="success-container">
+        <h1 class="success-txt">Payment Successful!</h1>
+        <p class="success-txt">Your payment has been successfully processed.</p>
+        <p>Thank you for your purchase.</p>
+        <a href="${Config[Config.MODE].baseURL}">Go to Merchant...</a>
+      </div>
+    </body>
+    </html>`;
+        return successHtmlCode;
+      } else {
+        return "Data does not exist";
+      }
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 const payuFail = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1, error_Message } = req.body;
@@ -1229,6 +1591,8 @@ module.exports = {
   payu,
   payuFail,
   payuSuccess,
+  payuWalletRailResponceSuccess,
   payuWalletResponceSuccess,
   payuWalletFail,
+  payu2
 };

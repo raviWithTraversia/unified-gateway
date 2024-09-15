@@ -22,6 +22,10 @@ payu_route.post(
 );
 
 payu_route.post(
+    '/paymentGateway/success-payu-wallet-rail-response',
+    payuController.payuWalletRailResponceSuccess
+);
+payu_route.post(
     '/paymentGateway/failed-payu-wallet-response',
     payuController.payuWalletResponceFailed
 );
@@ -31,7 +35,11 @@ payu_route.post(
     payuController.payuFail
 );
 
-
+payu_route.post(
+    '/paymentGateway/payu2',
+    auth,
+    payuController.payu2
+);
 payu_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

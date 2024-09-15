@@ -7,7 +7,7 @@ const auth = require("../middleware/auth");
 const ledgerRailController = require('../controllers/ledgerRails/ledgerRail.controller');
 
 ledger_route.post(
-    '/getledger',
+    '/getRailLedger',
     ledgerRailController.getAllledger
 )
 

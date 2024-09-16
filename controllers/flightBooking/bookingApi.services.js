@@ -109,43 +109,56 @@ const getAllBooking = async (req, res) => {
     (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") ||
     (checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual")
   ) {
-    let filter = {};
-    if (agencyId !== undefined && agencyId !== ""||userId!== undefined && userId !== "") {
-      filter.userId = new ObjectId(userId);
-    }
+    const filter = {};
 
-    if (bookingId !== undefined && bookingId.trim() !== "") {
-      filter.bookingId = bookingId;
-    }
-    if (pnr !== undefined && pnr.trim() !== "") {
-      filter.PNR = pnr;
-    }
-    if (status !== undefined && status.trim() !== "") {
-      filter.bookingStatus = status;
-    }
+// Filter by AgencyId
 
-    if (
-      fromDate !== undefined &&
-      fromDate.trim() !== "" &&
-      toDate !== undefined &&
-      toDate.trim() !== ""
-    ) {
-      filter.bookingDateTime = {
-        $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-        $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-      };
-    }
-console.log(filter,'dji')
- const bookingDetails = await bookingdetails.aggregate([
-  { $match: filter },
+if(agencyId=="6555f84c991eaa63cb171a9f"&&checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual"){
+  filter.companyId= new ObjectId(agencyId)
+}
+
+else if (agencyId !== undefined && agencyId !== "") {
+  filter.AgencyId = new ObjectId(agencyId);
+}
+else{
+  console.log("jdi")
+  checkUserIdExist.roleId.type == "Manual"?filter.companyId=checkUserIdExist.company_ID._id: filter.userId=new ObjectId(userId)
+}
+
+// Filter by bookingId
+if (bookingId !== undefined && bookingId.trim() !== "") {
+  filter.bookingId = bookingId;
+}
+
+// Filter by PNR
+if (pnr !== undefined && pnr.trim() !== "") {
+  filter.PNR = pnr;
+}
+
+// Filter by bookingStatus
+if (status !== undefined && status.trim() !== "") {
+  filter.bookingStatus = status;
+}
+
+// Filter by date range
+if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
+  filter.bookingDateTime = {
+    $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+    $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+  };
+} else if (fromDate !== undefined && fromDate.trim() !== "") {
+  filter.bookingDateTime = {
+    $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+  };
+} else if (toDate !== undefined && toDate.trim() !== "") {
+  filter.bookingDateTime = {
+    $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+  };
+}
+
+// Use the filter in the aggregation pipeline
+const bookingDetails = await bookingdetails.aggregate([
+  { $match: filter }, // Apply the filter here
 
   // Lookup for userId and its company
   {
@@ -213,7 +226,6 @@ console.log(filter,'dji')
     }
   },
 
-
   {
     $group: {
       _id: "$_id",
@@ -230,7 +242,8 @@ console.log(filter,'dji')
   },
 ]);
 
-    
+// Further processing...
+
 
     console.log("1st");
     if (!bookingDetails || bookingDetails.length === 0) {
@@ -508,7 +521,7 @@ console.log(filter,'dji')
     let filter = {};
     if (agencyId !== undefined && agencyId !== "") {
       // filter.userId={}
-      filter.userId = new ObjectId(agencyId);
+      filter.companyId = new ObjectId(agencyId);
       // let allagencyId = agencyId.map(id => new ObjectId(id));
       // filter.AgencyId={$in:allagencyId}
 
@@ -543,7 +556,7 @@ console.log(filter,'dji')
         $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
       };
     }
-    console.log(pnr,"j;die")
+    console.log(filter,"j;die")
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter },
     

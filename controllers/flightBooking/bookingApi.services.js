@@ -110,7 +110,7 @@ const getAllBooking = async (req, res) => {
     (checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual")
   ) {
     let filter = {};
-    if (agencyId !== undefined && agencyId !== "") {
+    if (agencyId !== undefined && agencyId !== ""||userId!== undefined && userId !== "") {
       filter.userId = new ObjectId(userId);
     }
 
@@ -543,7 +543,7 @@ console.log(filter,'dji')
         $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
       };
     }
-    
+    console.log(pnr,"j;die")
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter },
     
@@ -2058,15 +2058,24 @@ const getSalesReport = async (req, res) => {
 
 const getBookingByPaxDetails = async (req, res) => {
   const { paxName, userId, ticketNumber } = req.body;
+const CheckRole=await User.findById(userId).populate("roleId")
+var SearchFilterUserId
+if(CheckRole?.roleId?.name!="TMC"){
+  SearchFilterUserId={"userId":new ObjectId(userId)}
+}
+else{
+  SearchFilterUserId={"companyId":new ObjectId(CheckRole.company_ID)}
+}
+console.log(SearchFilterUserId,"djie")
   if (ticketNumber) {
     const getPaxByTicket = await passengerPreferenceSchema.aggregate([
       {
-        $match: {
-          userId: new ObjectId(userId),
-          "Passengers.Optional.TicketNumber": ticketNumber,
+        $match: { 
+          "Passengers.Optional.TicketNumber": ticketNumber
         },
       },
       { $unwind: "$Passengers" },
+      {$match:SearchFilterUserId},
       {
         $lookup: {
           from: "bookingdetails",
@@ -2084,13 +2093,15 @@ const getBookingByPaxDetails = async (req, res) => {
         },
       },
     ]);
+console.log(getPaxByTicket,"dji")
     getPaxByTicket.map((items) => {
       items?.passengerPreference.map((item) => {
         delete item.bookingDetails;
       });
     });
     if (!getPaxByTicket.length) {
-      const getPaxByPnr = await bookingdetails.findOne({ PNR: ticketNumber });
+      const getPaxByPnr = await bookingdetails.findOne({ PNR: ticketNumber,userId:userId});
+      console.log(getPaxByPnr,'djij')
       if (!getPaxByPnr) {
         return {
           response: "Data Not Found",
@@ -2157,7 +2168,10 @@ const getBookingByPaxDetails = async (req, res) => {
   }
   const getPassenger = await passengerPreferenceSchema.aggregate([
     {
-      $match: regexFilter,
+      $match: regexFilter,  // Match based on first name and last name
+    },
+    {
+      $match: SearchFilterUserId  // Now match the userId to filter by it
     },
     {
       $lookup: {
@@ -2206,6 +2220,7 @@ const getBookingByPaxDetails = async (req, res) => {
       },
     },
   ]);
+  
 
   getPassenger.forEach((items) => {
     if (

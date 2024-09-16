@@ -202,10 +202,8 @@ const payu2 = async (req, res) => {
     // const email = 'test@example.com';
     // const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
 
-    const key =
-      Config.MODE == "TEST"
-        ? Config.PAYMENT_CREDENTIALS_PAYU.Live.key
-        : Config.PAYMENT_CREDENTIALS_PAYU.Live.key;
+    const key ="HYDinl3tea"
+     
     const txnid = uuidv4();
     const amountres = amount;
     const productinfores = productinfo;
@@ -219,10 +217,7 @@ const payu2 = async (req, res) => {
       Config[Config.MODE].baseURLBackend
     }/api/paymentGateway/failed`;
 
-    const salt =
-      Config.MODE == "TEST"
-        ? Config.PAYMENT_CREDENTIALS_PAYU.Live.salt
-        : Config.PAYMENT_CREDENTIALS_PAYU.Live.salt;
+    const salt ="DlSTL0cw"
     const cartIdres = cartId;
 
     // Concatenate the transaction details

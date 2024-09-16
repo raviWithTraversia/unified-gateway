@@ -112,7 +112,12 @@ const getAllBooking = async (req, res) => {
     const filter = {};
 
 // Filter by AgencyId
-if (agencyId !== undefined && agencyId !== "") {
+
+if(agencyId=="6555f84c991eaa63cb171a9f"&&checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual"){
+  filter.companyId= new ObjectId(agencyId)
+}
+
+else if (agencyId !== undefined && agencyId !== "") {
   filter.AgencyId = new ObjectId(agencyId);
 }
 else{

@@ -202,8 +202,8 @@ const payu2 = async (req, res) => {
     // const email = 'test@example.com';
     // const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
 
-    const key ="HYDinl3tea"
-     
+    const key ="DlSTL0cw"
+    
     const txnid = uuidv4();
     const amountres = amount;
     const productinfores = productinfo;
@@ -217,7 +217,7 @@ const payu2 = async (req, res) => {
       Config[Config.MODE].baseURLBackend
     }/api/paymentGateway/failed`;
 
-    const salt ="DlSTL0cw"
+    const salt ="HYDinl3tea"
     const cartIdres = cartId;
 
     // Concatenate the transaction details

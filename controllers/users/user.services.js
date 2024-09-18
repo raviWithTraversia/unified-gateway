@@ -924,13 +924,14 @@ const getAllAgencyAndDistributer = async (req, res) => {
           ip_address: 1,
           userId: 1,
           encryptUserId: 1,
-          maxcreditLimit:'$agentconfigurations.maxcreditLimit'
+          maxcreditLimit:'$agentconfigurations.maxcreditLimit',
+          agentConfigID:"$agentconfigurations._id"
         }
       }
     ]).exec();
     
     //console.log("=======>>>", users);
-    console.log(users)
+   
     let data = [];
     for (let i = 0; i < users.length; i++) {
       if (users[i].roleId.type == 'Manual') {

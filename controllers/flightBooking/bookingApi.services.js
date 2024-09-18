@@ -155,7 +155,7 @@ if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && 
     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
   };
 }
-
+console.log(filter)
 // Use the filter in the aggregation pipeline
 const bookingDetails = await bookingdetails.aggregate([
   { $match: filter }, // Apply the filter here
@@ -519,13 +519,16 @@ const bookingDetails = await bookingdetails.aggregate([
       checkUserIdExist?.company_ID == new ObjectId("6555f84c991eaa63cb171a9f"))
   ) {
     let filter = {};
-    if (agencyId !== undefined && agencyId !== "") {
+    if (agencyId !== undefined && agencyId !== ""&&agencyId != new ObjectId("6555f84c991eaa63cb171a9f")) {
       // filter.userId={}
-      filter.companyId = new ObjectId(agencyId);
+      checkUserIdExist?.roleId?.type == "Manual"?filter.companyId = new ObjectId(agencyId):filter.userId=new ObjectId(agencyId);
       // let allagencyId = agencyId.map(id => new ObjectId(id));
       // filter.AgencyId={$in:allagencyId}
 
       // console.log(filter.AgencyId)
+    }
+    else if(agencyId !== undefined &&agencyId !== "" ){
+      filter.companyId = new ObjectId(agencyId)
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -2071,13 +2074,15 @@ const getSalesReport = async (req, res) => {
 
 const getBookingByPaxDetails = async (req, res) => {
   const { paxName, userId, ticketNumber } = req.body;
-const CheckRole=await User.findById(userId).populate("roleId")
+const CheckRole=await User.findById(userId).populate([{path:"roleId"},{path:"company_ID", select:"type"}])
 var SearchFilterUserId
-if(CheckRole?.roleId?.name!="TMC"){
+if(CheckRole?.roleId?.name!="TMC"&&CheckRole?.roleId?.name=="Agency"){
   SearchFilterUserId={"userId":new ObjectId(userId)}
 }
+
 else{
-  SearchFilterUserId={"companyId":new ObjectId(CheckRole.company_ID)}
+
+ CheckRole?.company_ID?.type=="Agency"?SearchFilterUserId={"userId":new ObjectId(CheckRole.company_ID)}: SearchFilterUserId={"companyId":new ObjectId(CheckRole.company_ID)}
 }
 console.log(SearchFilterUserId,"djie")
   if (ticketNumber) {
@@ -2113,8 +2118,9 @@ console.log(getPaxByTicket,"dji")
       });
     });
     if (!getPaxByTicket.length) {
-      const getPaxByPnr = await bookingdetails.findOne({ PNR: ticketNumber,userId:userId});
-      console.log(getPaxByPnr,'djij')
+      SearchFilterUserId.PNR=ticketNumber;
+      console.log(SearchFilterUserId)
+      const getPaxByPnr = await bookingdetails.findOne(SearchFilterUserId);
       if (!getPaxByPnr) {
         return {
           response: "Data Not Found",
@@ -2233,8 +2239,7 @@ console.log(getPaxByTicket,"dji")
       },
     },
   ]);
-  
-
+  console.log(getPassenger,"jiei")
   getPassenger.forEach((items) => {
     if (
       items?.passengerPreference &&

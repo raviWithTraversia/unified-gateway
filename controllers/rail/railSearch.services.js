@@ -3,6 +3,7 @@ const Company = require("../../models/Company");
 const axios = require("axios");
 const { Config } = require("../../configs/config");
 const jwt=require('jsonwebtoken');
+const RailBookingSchema=require('../../models/Irctc/bookingDetailsRail')
 
 const getRailSearch = async (req, res) => {
   try {
@@ -306,6 +307,8 @@ const DecodeToken = async (req, res) => {
     let jsonData;
     try {
       jsonData = JSON.parse(responseData);
+      console.log(jsonData)
+      const RailbookingDetails= await RailBookingSchema.create(jsonData)
       let successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>

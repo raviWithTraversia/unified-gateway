@@ -236,13 +236,7 @@ const userInsert = async (req, res) => {
         data: null
       };
     }
-    const existingCompany = await Company.findOne({ companyName: companyName });
-    if (existingCompany) {
-      return {
-        response: "Company with this companyName already exists",
-        data: null,
-      };
-    };
+    
     let findRole = await Role.findOne({ _id: roleId })
     if (!type) {
       type = findRole?.name || null

@@ -340,7 +340,7 @@ const getAllAgencyAndDistributer = async (req, res) => {
     }
 
   } catch (error) {
-    apiErrorres(res, error, ServerStatusCode.UNAUTHORIZED, true);
+    apiErrorres(res, error.message, ServerStatusCode.UNAUTHORIZED, true);
 
   }
 }

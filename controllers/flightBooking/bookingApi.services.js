@@ -1642,7 +1642,7 @@ const getBookingBill = async (req, res) => {
     {
       $match: {
         "bookingData.bookingStatus": "CONFIRMED",
-        "bookingData.AgencyId": agencyId
+        "bookingData.userId": agencyId
           ? new ObjectId(agencyId)
           : { $exists: true },
       },
@@ -1806,6 +1806,7 @@ const getBookingBill = async (req, res) => {
 
 const getSalesReport = async (req, res) => {
   const { agencyId, fromDate, toDate } = req.body;
+  console.log(agencyId)
   const salesReport = await passengerPreferenceSchema.aggregate([
     {
       $match: {
@@ -1841,7 +1842,7 @@ const getSalesReport = async (req, res) => {
     {
       $match: {
         "bookingData.bookingStatus": "CONFIRMED",
-        "bookingData.AgencyId": agencyId
+        "bookingData.userId": agencyId
           ? new ObjectId(agencyId)
           : { $exists: true },
       },

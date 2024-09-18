@@ -1270,7 +1270,7 @@ const RefundedCommonFunction = async (
   }
 };
 
-const RailBookingCommonMethod=async(userId,amount,companyId,bookingId)=>{
+const RailBookingCommonMethod=async(userId,amount,companyId,bookingId,paymentMethodType)=>{
 try{
   if (paymentMethodType === "Wallet") {
     try {

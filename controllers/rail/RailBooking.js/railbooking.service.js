@@ -5,7 +5,7 @@ const StartBookingRail=async(req,res)=>{
         const {userId,companyId,cartId ,amount,paymentmethod}=req.body;
         if(!userId||!companyId||!cartId||!cartId||!amount ||!paymentmethod){
             return({
-                response:"userID and companyId cartId paymentmethod"
+                response:"userID and companyId cartId paymentmethod amount"
             })
              }
 const railBoookingDetails=await railBooking.findOne({cartId:cartId})
@@ -20,7 +20,9 @@ if(railBoookingDetails>0){
             response:"Your Balance is not sufficient"
         })
     }
-
+return({
+    response:"your amount transfer Succefully"
+})
 
     }catch(error){
         throw error

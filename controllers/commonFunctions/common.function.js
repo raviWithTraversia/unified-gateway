@@ -11,9 +11,9 @@ const ledger = require("../../models/Ledger");
 const AgentDiRecieve = require("../../models/AgentDiRecieve");
 const Pdf = require("html-pdf");
 const agentConfig = require("../../models/AgentConfig");
-const CancelationBooking=require('../../models/booking/CancelationBooking')
-const PassengerPreference=require('../../models/booking/PassengerPreference');
-const BookingDetails=require('../../models/booking/BookingDetails')
+const CancelationBooking = require("../../models/booking/CancelationBooking");
+const PassengerPreference = require("../../models/booking/PassengerPreference");
+const BookingDetails = require("../../models/booking/BookingDetails");
 
 const createToken = async (id) => {
   try {
@@ -373,11 +373,13 @@ const sendSMS = async (mobileno, otp) => {
   } catch (error) {
     console.error("Error sending SMS:", error);
     return false;
-  } 
+  }
 };
-const sendTicketSms = async (mobileno,Sector,FName,FNo,Dur,Ddate ) => {
+const sendTicketSms = async (mobileno, Sector, FName, FNo, Dur, Ddate) => {
   try {
-    let message = `Flight option : Sector : ${Sector}, Airline: ${FName,FNo}, Departure Date: ${Ddate}, Travel Time: ${Dur} `;
+    let message = `Flight option : Sector : ${Sector}, Airline: ${
+      (FName, FNo)
+    }, Departure Date: ${Ddate}, Travel Time: ${Dur} `;
     let url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(
       mobileno
     )}&msg=${encodeURIComponent(
@@ -401,7 +403,6 @@ const sendTicketSms = async (mobileno,Sector,FName,FNo,Dur,Ddate ) => {
     return false;
   }
 };
-
 
 const sendPasswordResetEmailLink = async (
   recipientEmail,
@@ -1044,19 +1045,19 @@ const getTdsAndDsicount = async (ItineraryPriceCheckResponses) => {
         if (ComBreakup) {
           for (let cbp of ComBreakup) {
             if (cbp.CommercialType == "Discount") {
-              let tdp =Math.round(cbp.Amount) * totalPassenger;
+              let tdp = Math.round(cbp.Amount) * totalPassenger;
               ldgrdiscount += tdp;
             }
-            if (cbp.CommercialType == "TDS") {
-              let ttdsp = Math.round(cbp.Amount) * totalPassenger;
-              ldgrtds += ttdsp;
-            }
+            // if (cbp.CommercialType == "TDS") {
+            //   let ttdsp = Math.round(cbp.Amount) * totalPassenger;
+            //   ldgrtds += ttdsp;
+            // }
           }
         }
       }
     }
   }
-
+  ldgrtds = Math.round(ldgrdiscount * 0.05);
   return { ldgrtds, ldgrdiscount };
 };
 
@@ -1165,7 +1166,10 @@ const priceRoundOffNumberValues = async (numberValue) => {
   return result.toFixed(2);
 };
 
-const RefundedCommonFunction = async (cancelationbookignsData, refundHistory) => {
+const RefundedCommonFunction = async (
+  cancelationbookignsData,
+  refundHistory
+) => {
   try {
     let responseMessage = "Cancelation Data Not Found";
 
@@ -1173,20 +1177,24 @@ const RefundedCommonFunction = async (cancelationbookignsData, refundHistory) =>
       for (let matchingBooking of cancelationbookignsData) {
         if (refund.BookingId === matchingBooking.bookingId) {
           if (!matchingBooking.isRefund && refund.IsRefunded) {
-            const bookingDetails = await BookingDetails.findOne({ providerBookingId: matchingBooking?.bookingId });
-            await BookingDetails.findByIdAndUpdate(bookingDetails._id,{$set:{
-isRefund:true,
-            }})
+            const bookingDetails = await BookingDetails.findOne({
+              providerBookingId: matchingBooking?.bookingId,
+            });
+            await BookingDetails.findByIdAndUpdate(bookingDetails._id, {
+              $set: {
+                isRefund: true,
+              },
+            });
             if (refund.CType === "PARTIAL") {
               for (let cpassenger of refund.CSector[0]?.CPax) {
                 await PassengerPreference.findOneAndDelete(
                   {
                     bookingId: bookingDetails.bookingId,
                     "Passengers.FName": cpassenger.FName,
-                    "Passengers.LName": cpassenger.lName
+                    "Passengers.LName": cpassenger.lName,
                   },
                   {
-                    $set: { "Passengers.$.Status": "CANCELLED" }
+                    $set: { "Passengers.$.Status": "CANCELLED" },
                   }
                 );
               }
@@ -1194,12 +1202,14 @@ isRefund:true,
               await PassengerPreference.updateOne(
                 { bookingId: bookingDetails.bookingId },
                 {
-                  $set: { "Passengers.$[].Status": "CANCELLED" }
+                  $set: { "Passengers.$[].Status": "CANCELLED" },
                 }
               );
             }
 
-            const agentConfigData = await agentConfig.findOne({ userId: matchingBooking.userId });
+            const agentConfigData = await agentConfig.findOne({
+              userId: matchingBooking.userId,
+            });
 
             const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
             await ledger.create({
@@ -1211,15 +1221,17 @@ isRefund:true,
               currencyType: "INR",
               fop: "CREDIT",
               transactionType: "CREDIT",
-              runningAmount: agentConfigData.maxcreditLimit + refund.RefundableAmount,
+              runningAmount:
+                agentConfigData.maxcreditLimit + refund.RefundableAmount,
               remarks: "Cancellation Amount Added Into Your Account.",
               transactionBy: matchingBooking.userId,
             });
 
             await agentConfig.findByIdAndUpdate(agentConfigData._id, {
               $set: {
-                maxcreditLimit: agentConfigData.maxcreditLimit + refund.RefundableAmount
-              }
+                maxcreditLimit:
+                  agentConfigData.maxcreditLimit + refund.RefundableAmount,
+              },
             });
 
             await CancelationBooking.findOneAndUpdate(
@@ -1281,5 +1293,6 @@ module.exports = {
   calculateOfferedPricePaxWise,
   getTicketNumberBySector,
   priceRoundOffNumberValues,
-  RefundedCommonFunction, sendTicketSms
+  RefundedCommonFunction,
+  sendTicketSms,
 };

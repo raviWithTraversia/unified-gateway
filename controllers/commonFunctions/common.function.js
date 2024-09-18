@@ -14,6 +14,11 @@ const agentConfig = require("../../models/AgentConfig");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
 const PassengerPreference = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
+const Railledger=require('../../models/Irctc/ledgerRail')
+const RailBookingSchema=require('../../models/Irctc/bookingDetailsRail');
+const { UserBindingInstance } = require("twilio/lib/rest/chat/v2/service/user/userBinding");
+const { UserDefinedMessageInstance } = require("twilio/lib/rest/api/v2010/account/call/userDefinedMessage");
+const transaction=require('../../models/transaction')
 
 const createToken = async (id) => {
   try {
@@ -1265,6 +1270,72 @@ const RefundedCommonFunction = async (
   }
 };
 
+const RailBookingCommonMethod=async(userId,amount,companyId,bookingId)=>{
+try{
+  if (paymentMethodType === "Wallet") {
+    try {
+      // Retrieve agent configuration
+const getAgentConfig =await agentConfig.findOne({userId:userId})
+     
+      
+      const checkCreditLimit =
+        getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
+      const maxCreditLimit = getAgentConfig?.railCashBalance ?? 0;
+
+      // Check if balance is sufficient
+      if (checkCreditLimit < amount) {
+         return({response:"Your Balance is not sufficient"});
+      }
+
+      // Deduct balance from user configuration and update in DB
+      const newBalance = maxCreditLimit - amount;
+      await agentConfig.updateOne(
+        { userId:userId },
+        { railCashBalance: newBalance }
+      );
+
+      // Generate random ledger ID
+      var ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+
+      // Create ledger entry
+      await ledger.create({
+        userId:userId,
+        companyId: companyId,
+        ledgerId: ledgerId,
+        transactionAmount:699,
+        currencyType: "INR",
+        fop: "CREDIT",
+      transactionType: "DEBIT",
+        runningAmount: newBalance,
+        remarks: "Booking amount deducted from your account.",
+        transactionBy: userId,
+        cartId: ItineraryPriceCheckResponses[0].BookingId,
+      });
+
+      // Create transaction Entry
+      await transaction.create({
+        userId: userId,
+        companyId: companyId,
+        trnsNo: Math.floor(100000 + Math.random() * 900000),
+        trnsType: "DEBIT",
+        paymentMode: "CL",
+        trnsStatus: "success",
+        transactionBy: userId,
+        bookingId:bookingId,
+      });
+
+      //return addToLedger;
+    } catch (error) {
+      // Handle errors
+      console.error("Error:", error.message);
+      return "An error occurred. Please try again later.";
+    }
+  }
+
+}catch(error){
+throw error
+}
+}
 module.exports = {
   createToken,
   securePassword,
@@ -1295,4 +1366,5 @@ module.exports = {
   priceRoundOffNumberValues,
   RefundedCommonFunction,
   sendTicketSms,
+  RailBookingCommonMethod
 };

@@ -307,8 +307,9 @@ const DecodeToken = async (req, res) => {
     let jsonData;
     try {
       jsonData = JSON.parse(responseData);
-      console.log(jsonData)
-      const RailbookingDetails= await RailBookingSchema.create(jsonData)
+      jsonData.bookingStatus="CONFIRMED"
+      const updaterailBooking=await RailBookingSchema.findOneAndUpdate({clientTransactionId:jsonData.clientTransactionId},{$set:jsonData},{new:true})
+      console.log(updaterailBooking.cartId)
       let successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -364,10 +365,10 @@ const DecodeToken = async (req, res) => {
           <h1 class="success-txt">Ticket Booked Successful!</h1>
           <p class="success-txt">Your Ticket has been Booked successfully...</p>
           <p>Thank you for your purchase.</p>
-            <p>PNR No.: ${jsonData.pnrNumber}</p>
+            <p>PNR No.: ${updaterailBooking.pnrNumber}</p>
           <a href="${
             Config[Config.MODE].baseURL
-          }/home/manageBooking/cart-details-review?PNR=${jsonData.pnrNumber}">Go to Merchant...</a>
+          }/home/manageBooking/cart-details-review?PNR=${updaterailBooking.cartId}">Go to Merchant...</a>
         </div>
       </body>}
       </html>`;
@@ -391,6 +392,8 @@ const DecodeToken = async (req, res) => {
     });
   }
 };
+
+
 
 
 module.exports = {

@@ -1275,13 +1275,14 @@ try{
   if (paymentMethodType === "Wallet") {
     try {
       // Retrieve agent configuration
+      console.log('sdhfsdi')
 const getAgentConfig =await agentConfig.findOne({userId:userId})
      
-      
       const checkCreditLimit =
-        getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
+        getAgentConfig?.railCashBalance ?? 0 + amount;
       const maxCreditLimit = getAgentConfig?.railCashBalance ?? 0;
 
+      console.log(getAgentConfig.railCashBalance)
       // Check if balance is sufficient
       if (checkCreditLimit < amount) {
          return({response:"Your Balance is not sufficient"});
@@ -1298,18 +1299,18 @@ const getAgentConfig =await agentConfig.findOne({userId:userId})
       var ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
 
       // Create ledger entry
-      await ledger.create({
+      await Railledger.create({
         userId:userId,
         companyId: companyId,
         ledgerId: ledgerId,
-        transactionAmount:699,
+        transactionAmount:amount,
         currencyType: "INR",
         fop: "CREDIT",
       transactionType: "DEBIT",
         runningAmount: newBalance,
         remarks: "Booking amount deducted from your account.",
         transactionBy: userId,
-        cartId: ItineraryPriceCheckResponses[0].BookingId,
+        cartId: bookingId,
       });
 
       // Create transaction Entry
@@ -1324,9 +1325,13 @@ const getAgentConfig =await agentConfig.findOne({userId:userId})
         bookingId:bookingId,
       });
 
+      return ({
+        response:"amount transfer succefully"
+      })
       //return addToLedger;
     } catch (error) {
       // Handle errors
+      console.log('shfeieiei')
       console.error("Error:", error.message);
       return "An error occurred. Please try again later.";
     }

@@ -48,24 +48,27 @@ const MealTransactionSchema = new mongoose.Schema({
   bookingSource: {type:Number,default:null},
 });
 const ReservationSchema = new mongoose.Schema({
-  reservationId: { type:String, required: true },
-  
-//     companyId: {
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: "company",
-//   },
+  reservationId: { type:String, default:null},
+  companyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "company",
+  },
  
-//     userId:{
-//         type: mongoose.Schema.Types.ObjectId,
-//         ref: "user",
-//         required: true,
+    userId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+        required: true,
 
-// },
+},
 
-// agencyId: {
-//   type: mongoose.Schema.Types.ObjectId,
-//   ref: "User",
-// },
+AgencyId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "company",
+},
+cartId:{type:String,default:null},
+ 
+bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAILED","CANCELED","INCOMPLETE"]},
+
 
   lapNumber: {type:Number,default:null},
   numberOfpassenger: {type:Number,default:null},
@@ -138,8 +141,8 @@ const ReservationSchema = new mongoose.Schema({
   trainName: {type:String,default:null},
   distance: {type:Number,default:null},
   boardingStn: {type:String,default:null},
-  boardingDate: {type:String,default:new Date()}, // Consider converting to a Date object if needed
-  journeyDate: {type:String,default:new Date()},  // Consider converting to a Date object if needed
+  boardingDate: {type:String,default:null}, // Consider converting to a Date object if needed
+  journeyDate: {type:String,default:null},  // Consider converting to a Date object if needed
   trainOwner: {type:Number,default:null},
   reservationCharge: {type:Number,default:null},
   superfastCharge: {type:Number,default:null},

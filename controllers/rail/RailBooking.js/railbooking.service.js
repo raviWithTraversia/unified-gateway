@@ -40,6 +40,7 @@ if(RailBooking.response="amount transfer succefully"){
         companyId:companyId,
         userId:userId,
         AgencyId:agencyId,
+        paymentMethod:paymentmethod
     })
 }
 return({

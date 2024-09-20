@@ -380,9 +380,10 @@ let formattedDate = `${year}-${month}-${day}T${timePart}`;
             <p>PNR No.: ${updaterailBooking.pnrNumber}</p>
           <a href="${
             Config[Config.MODE].baseURL
-          }/home/manageBooking/cart-details-review?PNR=${updaterailBooking.cartId}">Go to Merchant...</a>
+          }/home/manageRailBooking/railCartDetails?bookingId=${updaterailBooking.clientTransactionId}">Go to Merchant...</a>
         </div>
-      </body>}
+      </body>
+ 
       </html>`;
       return successHtmlCode
     } catch (jsonError) {

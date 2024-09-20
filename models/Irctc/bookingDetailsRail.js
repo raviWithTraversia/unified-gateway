@@ -122,6 +122,7 @@ bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAI
   eligibleForMetro: {type:Boolean,default:false},
   multiLapFlag: {type:Boolean,default:false},
   mlUserId: {type:Number,default:null},
+  paymentMethod:{type:String,default:null},
   mlReservationStatus: {type:Number,default:null},
   mlTransactionStatus: {type:Number,default:null},
   mlJourneyType: {type:Number,default:null},

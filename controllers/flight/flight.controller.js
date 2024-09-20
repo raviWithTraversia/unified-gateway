@@ -17,10 +17,12 @@ const {
   CrudMessage,
 } = require("../../utils/constants");
 const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
+const { getAdditionalFlights } = require("../../helpers/additional-search");
 
 const getSearch = async (req, res) => {
   try {
     const result = await flightSearch.getSearch(req, res);
+    const IS_TEST_ENV = req.body.Authentication?.CredentialType === "TEST";
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
@@ -33,6 +35,13 @@ const getSearch = async (req, res) => {
     ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
+      if (IS_TEST_ENV) {
+        const { itineraries, error: additionalFlightsError } =
+          await getAdditionalFlights(req.body);
+        if (!additionalFlightsError)
+          result.data = [...result.data, ...itineraries];
+        else console.log({ additionalFlightsError });
+      }
       apiSucessRes(
         res,
         result.response,
@@ -401,7 +410,7 @@ const updateBookingStatus = async (req, res) => {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response ===
-      "_BookingId or companyId or credentialsType does not exist" ||
+        "_BookingId or companyId or credentialsType does not exist" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Supplier credentials does not exist" ||
       result.response === "Error in updating Status!" ||
@@ -524,7 +533,10 @@ const getAllAmendment = async (req, res) => {
     const result = await amendment.getAllAmendment(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "User id does not exist" || result.response === "Data Not Found") {
+    } else if (
+      result.response === "User id does not exist" ||
+      result.response === "Data Not Found"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
@@ -557,9 +569,16 @@ const assignAmendmentUser = async (req, res) => {
     const result = await amendment.assignAmendmentUser(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Provide either assignedUser or newCartId" || result.response === "User id does not exist") {
+    } else if (
+      result.response === "Provide either assignedUser or newCartId" ||
+      result.response === "User id does not exist"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
-    } else if (result.response === "User assigned Successfully" || result.response === "assignedUser and newCartId assigned successfully" || result.response === "newCartId assigned Successfully") {
+    } else if (
+      result.response === "User assigned Successfully" ||
+      result.response === "assignedUser and newCartId assigned successfully" ||
+      result.response === "newCartId assigned Successfully"
+    ) {
       apiSucessRes(
         res,
         result.response,
@@ -590,7 +609,10 @@ const deleteAmendmentDetail = async (req, res) => {
     const result = await amendment.deleteAmendmentDetail(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Error in deleting Amendment" || result.response === "Provide required fields") {
+    } else if (
+      result.response === "Error in deleting Amendment" ||
+      result.response === "Provide required fields"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Amendment deleted Successfully") {
       apiSucessRes(
@@ -616,14 +638,17 @@ const deleteAmendmentDetail = async (req, res) => {
       true
     );
   }
-}
+};
 
 const amadeusTest = async (req, res) => {
   try {
     const result = await amadeus.search(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "User id does not exist" || result.response === "Error in updating assignedUser") {
+    } else if (
+      result.response === "User id does not exist" ||
+      result.response === "Error in updating assignedUser"
+    ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "User assigned Successfully") {
       apiSucessRes(
@@ -632,13 +657,13 @@ const amadeusTest = async (req, res) => {
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    }else if (result.response === "Fetch Data Successfully") {
+    } else if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
         res,
         result.response,
         result.data,
         ServerStatusCode.SUCESS_CODE
-      );      
+      );
     } else {
       apiErrorres(
         res,
@@ -657,13 +682,6 @@ const amadeusTest = async (req, res) => {
     );
   }
 };
-
-
-
-
-
-
-
 
 module.exports = {
   getSearch,

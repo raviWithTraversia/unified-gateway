@@ -473,7 +473,7 @@ const forgotPassword = async (req, res) => {
       let cId = '6555f84c991eaa63cb171a9f'
       baseUrl = await webMaster.find({ companyId: cId });
     };
-    baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'http://localhost:3111/api';
+    baseUrl = Config.MODE=="TEST"? Config.TEST.baseURL : Config.LIVE.baseURL;
     const forgetPassWordMail = await commonFunction.sendPasswordResetEmail(
       email,
       resetToken,

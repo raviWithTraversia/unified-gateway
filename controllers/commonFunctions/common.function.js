@@ -1041,6 +1041,7 @@ const createLeadger = async (
 const getTdsAndDsicount = async (ItineraryPriceCheckResponses) => {
   let ldgrtds = 0;
   let ldgrdiscount = 0;
+  console.log(ItineraryPriceCheckResponses,"interieri")
   for (let ipb of ItineraryPriceCheckResponses) {
     let pricebrkup = ipb.PriceBreakup;
     if (pricebrkup) {

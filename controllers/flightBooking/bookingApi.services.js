@@ -14,6 +14,7 @@ const {
   calculateOfferedPricePaxWise,
   getTicketNumberBySector,
   priceRoundOffNumberValues,
+  getTdsAndDsicount
 } = require("../commonFunctions/common.function");
 
 const ISOTime = async (time) => {
@@ -1774,7 +1775,6 @@ const getBookingBill = async (req, res) => {
   }
 
   bookingBill.forEach(async (element, index) => {
-    console.log(element.ticketNo?.ticketDetails, element.sector, "tsdysdyu");
     let ticketNumber = [element.pnr];
     if (element.ticketNo?.ticketDetails) {
       ticketNumber = await getTicketNumberBySector(
@@ -1782,7 +1782,6 @@ const getBookingBill = async (req, res) => {
         element.sector
       );
     }
-    console.log(ticketNumber, "ticketNumber");
     element.ticketNo =
       ticketNumber.length != 0 &&
       ticketNumber[0] != null &&
@@ -2280,17 +2279,19 @@ const getBillingData = async (req, res) => {
       response: "Please provide required fields",
     };
   }
+
   let MODEENV = "D";
   let authKey = "667bd5d44dccc9b2d2b80690";
   if (Config.MODE === "LIVE") {
     MODEENV = "P";
     authKey = "667bd64d2ca70f085a8328ca";
   }
-  if (authKey != key) {
+  if (authKey !== key) {
     return {
       response: "Access Denied! Provide a valid Key!",
     };
   }
+
   const billingData = await passengerPreferenceSchema.aggregate([
     {
       $match: {
@@ -2346,19 +2347,12 @@ const getBillingData = async (req, res) => {
         itemAmount: "$bookingData.itinerary.BaseFare",
         sector: {
           $concat: [
-            {
-              $arrayElemAt: [
-                "$bookingData.itinerary.Sectors.Departure.Code",
-                0,
-              ],
-            },
+            { $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Code", 0] },
             " ",
             {
               $arrayElemAt: [
                 "$bookingData.itinerary.Sectors.Arrival.Code",
-                {
-                  $subtract: [{ $size: "$bookingData.itinerary.Sectors" }, 1],
-                },
+                { $subtract: [{ $size: "$bookingData.itinerary.Sectors" }, 1] },
               ],
             },
           ],
@@ -2372,12 +2366,8 @@ const getBillingData = async (req, res) => {
         },
         class: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Class", 0] },
         ccUserName: "AUTO",
-        travelDateOutbound: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0],
-        },
-        travelDateInbound: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0],
-        },
+        travelDateOutbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0] },
+        travelDateInbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0] },
         issueDate: "$bookingData.bookingDateTime",
         airlineTax: "0",
         tranFee: "0",
@@ -2387,9 +2377,7 @@ const getBillingData = async (req, res) => {
         cashback: "0",
         purchaseCode: "0",
         flightCode: "$bookingData.Supplier",
-        airlineName: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
-        },
+        airlineName: { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0] },
         bookingId1: {
           $concat: [
             { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
@@ -2399,9 +2387,13 @@ const getBillingData = async (req, res) => {
           ],
         },
         getCommercialArray: "$bookingData.itinerary.PriceBreakup",
+        itinerary: "$bookingData.itinerary",
       },
     },
   ]);
+
+  // To track already processed bookingIds
+  let processedBookingIds = new Set();
 
   for (const [index, element] of billingData.entries()) {
     element.getCommercialArray.map((items) => {
@@ -2411,9 +2403,7 @@ const getBillingData = async (req, res) => {
         items.CommercialBreakup.map((item) => {
           if (item.CommercialType == "Discount") {
             element.commission = parseFloat(
-              (parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(
-                2
-              )
+              (parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(2)
             );
           }
           if (item.CommercialType == "TDS") {
@@ -2424,12 +2414,23 @@ const getBillingData = async (req, res) => {
         });
       }
     });
-    // console.log(element?.ticketNo?.ticketDetails,"jkddskjjd");
 
-    let ccomisn = await priceRoundOffNumberValues(element.commission);
-    element.commission = ccomisn;
-    element.tds = await priceRoundOffNumberValues(element.tds);
-    console.log(element.tds, "sjie");
+    let getTdsamount = await getTdsAndDsicount([element.itinerary]);
+
+    // Check if bookingId has already been processed
+    if (processedBookingIds.has(element.bookingId)) {
+      // Set commission and tds to 0 for subsequent documents with the same bookingId
+      element.commission = 0;
+      element.tds = 0;
+      delete element.itinerary
+    } else {
+      // For the first occurrence, use the actual values
+      element.commission = getTdsamount.ldgrdiscount;
+      element.tds = getTdsamount.ldgrtds;
+      processedBookingIds.add(element.bookingId); // Mark bookingId as processed
+      delete element.itinerary
+    }
+
     let ticketNumber = [element.pnr];
     if (element.ticketNo?.ticketDetails) {
       ticketNumber = await getTicketNumberBySector(
@@ -2443,7 +2444,7 @@ const getBillingData = async (req, res) => {
       ticketNumber[0] != ""
         ? ticketNumber[0]
         : element.pnr;
-    // element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr;
+
     element.id = index + 1;
     element.travelDateOutbound = await ISTTime(element.travelDateOutbound);
     element.travelDateInbound = await ISTTime(element.travelDateInbound);
@@ -2456,11 +2457,13 @@ const getBillingData = async (req, res) => {
       response: "Data Not Found",
     };
   }
+
   return {
     response: "Fetch Data Successfully",
     data: billingData,
   };
 };
+
 
 const updateBillPost = async (req, res) => {
   const { accountPostArr } = req.body;

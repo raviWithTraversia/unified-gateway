@@ -2,23 +2,22 @@ const axios = require("axios");
 const uuid = require("uuid");
 const moment = require("moment");
 const { Config } = require("../configs/config");
-// const fs = require("fs");
-// const path = require("path");
+const fs = require("fs");
+const path = require("path");
 
-const getAdditionalFlights = async (request) => {
+async function getAdditionalFlights(request) {
   try {
+    const uniqueKey = uuid.v4();
     const requestBody = {
       typeOfTrip: request.TypeOfTrip,
       credentialType: request.Authentication.CredentialType,
-      travelType: request.TravelType.toLowerCase().includes("dom")
-        ? "DOM"
-        : "INT",
+      travelType: convertTravelType(request.TravelType),
       systemEntity: "TCIL", // !TBD
       systemName: "Astra2.0", // !TBD
       corpCode: "", // !TBD
       requestorCode: "", // !TBD
       empCode: "", // !TBD
-      uniqueKey: uuid.v4(),
+      uniqueKey: uniqueKey,
       sectors: request.Segments.map((segment) => ({
         origin: segment.Origin,
         destination: segment.Destination,
@@ -44,25 +43,34 @@ const getAdditionalFlights = async (request) => {
       requestBody
     );
     console.log({ response });
-    // fs.writeFileSync(
-    //   path.resolve(__dirname, "response.json"),
-    //   JSON.stringify(response, null, 2)
-    // );
+    fs.writeFileSync(
+      path.resolve(__dirname, "response.json"),
+      JSON.stringify(response, null, 2)
+    );
     //  ? assumption: only one way flights are considered
     const itineraries = response.data.journey[0].itinerary.map(
       (itinerary, idx) =>
-        convertItinerary(itinerary, idx, response.data.traceId, response.data)
+        convertItinerary(
+          itinerary,
+          idx,
+          response.data.traceId,
+          response.data,
+          uniqueKey
+        )
     );
-    // fs.writeFileSync(
-    //   path.resolve(__dirname, "converted-response.json"),
-    //   JSON.stringify(itineraries, null, 2)
-    // );
+    fs.writeFileSync(
+      path.resolve(__dirname, "converted-response.json"),
+      JSON.stringify(itineraries, null, 2)
+    );
     return { itineraries };
   } catch (error) {
     return { error: error.message };
   }
-};
+}
 
+function convertTravelType(travelType) {
+  return travelType.toLowerCase().includes("dom") ? "DOM" : "INT";
+}
 // getAdditionalFlights({
 //   Authentication: {
 //     CompanyId: "6555f84c991eaa63cb171a9f",
@@ -113,8 +121,15 @@ const defaultFareRule = {
   SF: null,
 };
 
-function convertItinerary(itinerary, idx, traceId, response) {
+function convertItinerary(itinerary, idx, traceId, response, uniqueKey) {
   return {
+    UniqueKey: uniqueKey,
+    FreeSeat: itinerary.freeSeat,
+    FreeMeal: itinerary.freeMeal,
+    SessionKey: itinerary.sessionKey,
+    CarbonEmission: itinerary.carbonEmission,
+    InPolicy: itinerary.inPolicy,
+    IsRecommended: itinerary.isRecommended,
     UID: itinerary.uid,
     BaseFare: itinerary.baseFare,
     Taxes: Number(itinerary.taxes) || 0,
@@ -130,13 +145,13 @@ function convertItinerary(itinerary, idx, traceId, response) {
     PromotionalFare: !!itinerary.promotionalCode,
     FareFamilyDN: null,
     PromotionalCode: itinerary.promotionalCode,
-    PromoCodeType: "",
+    PromoCodeType: itinerary.promoCodeType,
     RefundableFare: itinerary.refundableFare,
     IndexNumber: itinerary.indexNumber,
     Provider: itinerary.provider,
     ValCarrier: itinerary.valCarrier,
     LastTicketingDate: "",
-    TravelTime: sumTravelTime(itinerary.airSegments),
+    TravelTime: sumDuration(itinerary.airSegments),
     PriceBreakup: [
       passengerPriceBreakup("ADT", itinerary.priceBreakup),
       //   passengerPriceBreakup("YTH", itinerary.priceBreakup),
@@ -160,7 +175,7 @@ function convertItinerary(itinerary, idx, traceId, response) {
       ADate: `${formatDate(itinerary.airSegments.at(-1).arrival.date)}T${
         itinerary.airSegments.at(-1).arrival.time
       }:00`,
-      Dur: sumTravelTime(itinerary.airSegments),
+      Dur: sumDuration(itinerary.airSegments),
       Stop: itinerary.airSegments.length - 1,
       Seats: itinerary.airSegments[0].noSeats,
       Sector: `${response?.journey?.[0]?.origin},${response?.journey?.[0]?.destination}`,
@@ -182,7 +197,7 @@ function convertItinerary(itinerary, idx, traceId, response) {
         ATrmnl: segment.arrival.terminal,
         DArpt: segment.departure.name,
         AArpt: segment.arrival.name,
-        Dur: sumTravelTime([segment]),
+        Dur: sumDuration([segment]),
         layover: "",
         Seat: segment.noSeats,
         FClass: segment.classofService,
@@ -227,21 +242,19 @@ function convertItinerary(itinerary, idx, traceId, response) {
     },
     HostTokens: null,
     Key: itinerary.key,
-    SearchID: "",
+    SearchID: response?.journey?.[0]?.journeyKey,
     TRCNumber: null,
     TraceId: traceId,
     OI: null,
   };
 }
 
-function sumTravelTime(airSegments = []) {
-  const totalTravelTime = airSegments.reduce(
+function sumDuration(airSegments = [], type = "travelTime") {
+  const duration = airSegments.reduce(
     (acc, segment) => {
-      const [hours, minutes] = segment.travelTime
-        .split(":")
-        .map((n) => Number(n));
-      acc.hours += hours;
-      acc.minutes += minutes;
+      const [hours, minutes] = segment[type].split(":").map((n) => Number(n));
+      acc.hours += hours || 0;
+      acc.minutes += minutes || 0;
 
       while (acc.m >= 60) {
         acc.hours += 1;
@@ -255,7 +268,10 @@ function sumTravelTime(airSegments = []) {
     },
     { days: 0, hours: 0, minutes: 0 }
   );
-  return `${totalTravelTime.days}d:${totalTravelTime.hours}h:${totalTravelTime.minutes}m`;
+  if (duration.days === 0 && duration.hours === 0 && duration.minutes === 0)
+    return "";
+
+  return `${duration.days}d:${duration.hours}h:${duration.minutes}m`;
 }
 
 function passengerPriceBreakup(type, priceBreakup) {
@@ -306,8 +322,8 @@ function convertSegment(segment) {
     NoSeats: segment.noSeats,
     FltNum: segment.fltNum,
     EquipType: segment.equipType,
-    FlyingTime: sumTravelTime([segment]),
-    TravelTime: sumTravelTime([segment]),
+    FlyingTime: sumDuration([segment], "flyingTime"),
+    TravelTime: sumDuration([segment]),
     TechStopOver: null, // missing
     layover: "", // missing
     Status: "", // missing
@@ -330,27 +346,28 @@ function convertSegment(segment) {
     FareBasisCode: segment.fareBasisCode,
     HostTokenRef: "",
     APISRequirementsRef: "",
-    Departure: getFlightDetails(segment, "departure"),
-    Arrival: getFlightDetails(segment, "arrival"),
+    Departure: getFlightDetails(segment.departure),
+    Arrival: getFlightDetails(segment.arrival),
     OI: [],
+    ProductClass: segment.productClass,
   };
 }
 
-function getFlightDetails(segment, type) {
-  if (!segment[type]) return {};
-  const date = formatDate(segment[type].date);
+function getFlightDetails(flight) {
+  if (!flight) return {};
+  const date = formatDate(flight.date);
   return {
-    Terminal: segment[type].terminal,
+    Terminal: flight.terminal,
     Date: date,
-    Time: segment[type].time,
+    Time: flight.time,
     Day: moment(date).format("dddd"),
-    DateTimeStamp: `${date}T${segment[type].time}:00`,
-    Code: segment[type].code,
-    Name: segment[type].name,
-    CityCode: segment[type].cityCode,
-    CityName: segment[type].cityName,
-    CountryCode: segment[type].countryCode,
-    CountryName: segment[type].countryName,
+    DateTimeStamp: `${date}T${flight.time}:00`,
+    Code: flight.code,
+    Name: flight.name,
+    CityCode: flight.cityCode,
+    CityName: flight.cityName,
+    CountryCode: flight.countryCode,
+    CountryName: flight.countryName,
   };
 }
 
@@ -360,4 +377,5 @@ function formatDate(dateString) {
 
 module.exports = {
   getAdditionalFlights,
+  convertTravelType,
 };

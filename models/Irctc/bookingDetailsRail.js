@@ -80,7 +80,7 @@ bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAI
   reasonIndex: {type:Number,default:null},
   informationMessage: [{type:String,default:null}],
   destArrvDate: {type:String,default:null}, // Consider converting to a Date object if needed
-  bookingDate: {type:String,default:null},  // Consider converting to a Date object if needed
+  bookingDate: {type:Date,default:null},  // Consider converting to a Date object if needed
   numberOfChilds: {type:Number,default:null},
   numberOfAdults: {type:Number,default:null},
   trainNumber: {type:String,default:null},

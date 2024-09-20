@@ -709,7 +709,7 @@ const bookingDetails = await bookingdetails.aggregate([
       
       // console.log(allBookingData[0].bookingDetails,"djfie")
 
-      let filteredBookingData = allBookingData; // Copy the original data
+      let filteredBookingData = Data; // Copy the original data
      
 
       return {

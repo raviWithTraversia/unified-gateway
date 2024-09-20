@@ -307,9 +307,21 @@ const DecodeToken = async (req, res) => {
     let jsonData;
     try {
       jsonData = JSON.parse(responseData);
-      jsonData.bookingStatus="CONFIRMED"
+      let bookingDateStr =jsonData.bookingDate;
+
+bookingDateStr = bookingDateStr.replace(".0", "").replace(" IST", "");
+
+let [datePart, timePart] = bookingDateStr.split(" ");
+
+let [day, month, year] = datePart.split("-");
+let formattedDate = `${year}-${month}-${day}T${timePart}`;
+
+
+      jsonData.bookingStatus="CONFIRMED";
+
+      jsonData.bookingDate=new Date(formattedDate)
+      console.log(jsonData.clientTransactionId)
       const updaterailBooking=await RailBookingSchema.findOneAndUpdate({clientTransactionId:jsonData.clientTransactionId},{$set:jsonData},{new:true})
-      console.log(updaterailBooking.cartId)
       let successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>

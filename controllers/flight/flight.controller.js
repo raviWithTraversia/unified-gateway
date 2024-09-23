@@ -17,7 +17,7 @@ const {
   CrudMessage,
 } = require("../../utils/constants");
 const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
-const { getAdditionalFlights } = require("../../helpers/additional-search");
+const { getAdditionalFlights } = require("../../services/additional-search");
 
 const getSearch = async (req, res) => {
   try {

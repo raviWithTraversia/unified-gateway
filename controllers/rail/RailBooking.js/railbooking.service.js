@@ -2,7 +2,7 @@ const railBookings=require('../../../models/Irctc/bookingDetailsRail')
 const {RailBookingCommonMethod}=require('../../../controllers/commonFunctions/common.function')
 const User=require('../../../models/User')
 const config = require("../../../models/AgentConfig");
-
+const {ObjectId}=require('mongodb')
 const StartBookingRail=async(req,res)=>{
     try{
         const {userId,companyId,cartId ,amount,paymentmethod,agencyId,clientTransactionId}=req.body;
@@ -243,38 +243,10 @@ return({
             };
       
       
-            railBooking.forEach((booking) => {
-              
-             
+            
       
-              const status = booking.bookingStatus;
-              statusCounts[status]++;
-            });
-            const allBookingData = [];
-      
-            await Promise.all(
-             
-              railBooking.map(async (booking) => {
-                let filter2 = { bookingId: booking.bookingId };
-                if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
-                  filter2["Passengers.Optional.TicketNumber"] = ticketNumber;
-                }
-                const passengerPreference = await passengerPreferenceSchema.find(
-                  filter2
-                );
-                const configDetails = await config.findOne({
-                  userId: booking.userId,
-                });
-                if (passengerPreference.length) {
-                  allBookingData.push({
-                    railBooking: booking,
-                    passengerPreference: passengerPreference,
-                  });
-                }
-              })
-            );
-      
-            let filteredBookingData = allBookingData; 
+        
+            let filteredBookingData = railBooking; 
       
          
             return {

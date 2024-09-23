@@ -2344,7 +2344,6 @@ const getBillingData = async (req, res) => {
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
         agentId: { $arrayElemAt: ["$userdata.userId", 0] },
         pnr: "$bookingData.PNR",
-        itemAmount: "$bookingData.itinerary.BaseFare",
         sector: {
           $concat: [
             { $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Code", 0] },
@@ -2388,17 +2387,28 @@ const getBillingData = async (req, res) => {
         },
         getCommercialArray: "$bookingData.itinerary.PriceBreakup",
         itinerary: "$bookingData.itinerary",
+
+        baseFare: { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0] },
+
+        itemAmount: {
+          $add: [
+            { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0] },
+            "$Passengers.totalBaggagePrice",
+            "$Passengers.totalMealPrice",
+            "$Passengers.totalSeatPrice",
+          ],
+        },
       },
     },
   ]);
 
-  // To track already processed bookingIds
+  // Remaining processing logic after fetching data
   let processedBookingIds = new Set();
 
   for (const [index, element] of billingData.entries()) {
     element.getCommercialArray.map((items) => {
       if (element.paxType === items.PassengerType) {
-        element.itemAmount = items?.BaseFare;
+        element.baseFare = items?.BaseFare;
         element.airlineTax = items?.Tax;
         items.CommercialBreakup.map((item) => {
           if (item.CommercialType == "Discount") {
@@ -2417,18 +2427,15 @@ const getBillingData = async (req, res) => {
 
     let getTdsamount = await getTdsAndDsicount([element.itinerary]);
 
-    // Check if bookingId has already been processed
     if (processedBookingIds.has(element.bookingId)) {
-      // Set commission and tds to 0 for subsequent documents with the same bookingId
       element.commission = 0;
       element.tds = 0;
-      delete element.itinerary
+      delete element.itinerary;
     } else {
-      // For the first occurrence, use the actual values
       element.commission = getTdsamount.ldgrdiscount;
       element.tds = getTdsamount.ldgrtds;
-      processedBookingIds.add(element.bookingId); // Mark bookingId as processed
-      delete element.itinerary
+      processedBookingIds.add(element.bookingId);
+      delete element.itinerary;
     }
 
     let ticketNumber = [element.pnr];
@@ -2439,9 +2446,7 @@ const getBillingData = async (req, res) => {
       );
     }
     element.ticketNo =
-      ticketNumber.length != 0 &&
-      ticketNumber[0] != null &&
-      ticketNumber[0] != ""
+      ticketNumber.length != 0 && ticketNumber[0] != null && ticketNumber[0] != ""
         ? ticketNumber[0]
         : element.pnr;
 
@@ -2450,6 +2455,7 @@ const getBillingData = async (req, res) => {
     element.travelDateInbound = await ISTTime(element.travelDateInbound);
     element.issueDate = await ISTTime(element.issueDate);
     delete element.getCommercialArray;
+    delete element.baseFare
   }
 
   if (!billingData.length) {
@@ -2463,6 +2469,7 @@ const getBillingData = async (req, res) => {
     data: billingData,
   };
 };
+
 
 
 const updateBillPost = async (req, res) => {

@@ -124,7 +124,8 @@ const manualDebitCredit = async (req, res) => {
               }
             }
             if (product === "Rail") {
-              if (configData?.maxcreditLimit < amount) {
+              if (configData?.railCashBalance < amount) {
+                console.log('djfie')
                 return { response: "Insufficient Balance" }
               }
             //   configData.railCashBalance -= tdsAmount;
@@ -174,7 +175,7 @@ const manualDebitCredit = async (req, res) => {
           }
         }
         if (product === "Rail") {
-          if (configData?.maxcreditLimit < amount) {
+          if (configData?.railCashBalance < amount) {
             return { response: "Insufficient Balance" }
           }
           configData.railCashBalance -= amount;

@@ -20,6 +20,7 @@ const {
   priceRoundOffNumberValues,
   recieveDI,
 } = require("../commonFunctions/common.function");
+const AgentConfiguration = require("../../models/AgentConfig");
 
 const payu = async (req, res) => {
   try {
@@ -321,6 +322,7 @@ const payuSuccess = async (req, res) => {
     } = req.body;
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
+      console.log("uppeerside")
 
       if (BookingTempData) {
         const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
@@ -345,6 +347,7 @@ const payuSuccess = async (req, res) => {
           flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FPNR`;
         } else {
           // Test Url here
+          console.log('test url')
           createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
           flightSearchUrl = `http://stage1.ksofttechnology.com/api/FPNR`;
         }
@@ -498,6 +501,7 @@ const payuSuccess = async (req, res) => {
                 fSearchApiResponse?.data?.IsError == true ||
                 fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"
               ) {
+                console.log('JDifeieiei')
                 await BookingDetails.updateOne(
                   {
                     bookingId: udf1,
@@ -514,6 +518,25 @@ const payuSuccess = async (req, res) => {
                             error.message,
                     },
                   }
+                );
+
+                await ledger.create({
+                  userId: allIds[0], //getuserDetails._id,
+                  companyId: getuserDetails.company_ID._id,
+                  ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+                  transactionAmount: totalItemAmount,
+                  currencyType: "INR",
+                  fop: "DEBIT",
+                  transactionType: "DEBIT",
+                  runningAmount: newBalanceCredit + totalItemAmount,
+                  remarks: `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`,
+                  transactionBy: getuserDetails._id,
+                  cartId: udf1,
+                });
+
+                await agentConfig.updateOne(
+                  { userId: allIds[0] },
+                  { $inc: { maxcreditLimit: totalItemAmount } }
                 );
                 return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
               }

@@ -243,7 +243,15 @@ return({
             };
       
       
-            
+            railBooking.forEach((booking) => {
+        
+       
+
+                const status = booking.bookingStatus;
+                // Increment the count corresponding to the status
+                statusCounts[status]++;
+              });
+               
       
         
             let filteredBookingData = railBooking; 
@@ -407,6 +415,15 @@ return({
               "FAILED PAYMENT": 0,
             };
       
+            railBooking.forEach((booking) => {
+        
+       
+
+                const status = booking.bookingStatus;
+                // Increment the count corresponding to the status
+                statusCounts[status]++;
+              });
+           
             // Iterate over the railBooking array
       
             // Iterate over the railBooking array
@@ -586,11 +603,19 @@ return({
               HOLDRELEASED: 0,
               "FAILED PAYMENT": 0,
             };
-            var bookingIds=[];
       
             // Iterate over the railBooking array
+
+            railBooking.forEach((booking) => {
+        
+       
+
+                const status = booking.bookingStatus;
+                // Increment the count corresponding to the status
+                statusCounts[status]++;
+              });
            
-            const allBookingData = [];
+           
           
       
             let filteredBookingData = railBooking; // Copy the original data

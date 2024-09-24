@@ -1629,6 +1629,10 @@ const getBookingBill = async (req, res) => {
         ticketNo: "$Passengers.Optional",
         paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
         PaxType: "$Passengers.PaxType",
+        totalBaggagePrice:"$Passengers.totalBaggagePrice",
+        totalMealPrice:"$Passengers.totalMealPrice",
+        totalSeatPrice:"$Passengers.totalSeatPrice"
+
       },
     },
     {
@@ -1675,14 +1679,17 @@ const getBookingBill = async (req, res) => {
         paxName: 1,
         ticketNo: 1,
         PaxType: 1,
+        totalBaggagePrice:1,
+        totalMealPrice:1,
+        totalSeatPrice:1,
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
         agentId: { $arrayElemAt: ["$userdata.userId", 0] },
         pnr: "$bookingData.PNR",
         cartId: "$bookingData.bookingId",
-        itemAmount: {
-          $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0],
-        },
-        sector: {
+        paxTotal:"$Passengers.totalBaggagePrice",
+        itinerary: "$bookingData.itinerary",
+        itemAmount: { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0] },
+             sector: {
           $concat: [
             {
               $arrayElemAt: [
@@ -1745,6 +1752,7 @@ const getBookingBill = async (req, res) => {
     },
   ]);
 
+  let processedBookingIds = new Set();
   for (let [index, element] of bookingBill.entries()) {
     let netAmount = 0;
     netAmount = await calculateOfferedPricePaxWise(element);
@@ -1763,15 +1771,26 @@ const getBookingBill = async (req, res) => {
             (parseFloat(element.tds) + parseFloat(items.Amount)).toFixed(2)
           );
         }
+        
       }
-
+      console.log(element?.itinerary,"dji")
+      
       // Rounding off the values
-      element.netAmount = await priceRoundOffNumberValues(netAmount);
-      let ccomisn = await priceRoundOffNumberValues(element.commission);
-      element.commission = ccomisn;
-      element.tds = await priceRoundOffNumberValues(element.tds);
-      console.log(element.tds, "sjie");
+      
     }
+    let getTdsamount = await getTdsAndDsicount([element.itinerary]);
+
+    if (processedBookingIds.has(element.bookingId)) {
+      element.commission = 0;
+      element.tds = 0;
+      delete element.itinerary;
+    } else {
+      element.commission = getTdsamount.ldgrdiscount;
+      element.tds = getTdsamount.ldgrtds;
+      processedBookingIds.add(element.bookingId);
+      delete element.itinerary;
+    }
+
   }
 
   bookingBill.forEach(async (element, index) => {

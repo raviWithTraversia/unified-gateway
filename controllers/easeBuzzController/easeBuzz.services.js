@@ -240,7 +240,7 @@ const easeBuzzResponce = async (req, res) => {
               type: "API Log",
               BookingId: udf1,
               product: "Flight",
-              logName: "Flight Search",
+              logName: "Air Booking",
               request: requestDataFSearch,
               responce: fSearchApiResponse?.data,
             };

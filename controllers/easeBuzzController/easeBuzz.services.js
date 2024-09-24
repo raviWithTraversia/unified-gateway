@@ -244,7 +244,20 @@ const easeBuzzResponce = async (req, res) => {
               request: requestDataFSearch,
               responce: fSearchApiResponse?.data,
             };
+            const logData1 = {
+              traceId: Authentication.TraceId,
+              companyId: Authentication.CompanyId,
+              userId: Authentication.UserId,
+              source: "Kafila",
+              type: "Portal log",
+              BookingId: udf1,
+              product: "Flight",
+              logName: "Air Booking",
+              request: requestDataFSearch,
+              responce: fSearchApiResponse?.data,
+            };
             Logs(logData);
+            Logs(logData1);
             if (fSearchApiResponse.data.Status == "failed" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
               await BookingDetails.updateOne(
                 {

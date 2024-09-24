@@ -1,5 +1,5 @@
 const PortalLog = require('../../models/Logs/PortalApiLogs');
-
+const {ObjectId}=require('mongodb')
 const addPortalLog = async (req, res) => {
     try {
         const { traceId, companyId, source, product, request, responce } = req.body
@@ -59,32 +59,58 @@ const getPortalLog = async (req, res) => {
 }
 
 const getBookingLogs = async (req, res) => {
-    const { companyId, traceId, BookingId, type } = req.body;
-    let fifteenDaysAgo = new Date();
-    fifteenDaysAgo.setDate(new Date().getDate() - 5); //get 15 days before date for deleting the previous data
-    const getFifteenDaysBeforeData = await PortalLog.find({ createdAt: { $lt: new Date(fifteenDaysAgo) } });
-    if (getFifteenDaysBeforeData.length) {
-        await PortalLog.deleteMany({ createdAt: { $lt: new Date(fifteenDaysAgo) } });
-    }
-    if (!companyId) {
-        return {
-            response: "CompanyId does not exist",
-        };
-    }
-    let filter = { companyId, traceId, type };
-    if (BookingId) {
+    try {
+      const { companyId, traceId, BookingId, type } = req.body;
+      
+      let fifteenDaysAgo = new Date();
+      fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15); // Get the date 5 days ago
+  
+      // Directly delete records older than 5 days
+      await PortalLog.deleteMany({ createdAt: { $lt: fifteenDaysAgo } });
+  
+      if (!companyId) {
+        return ({
+          response: "CompanyId does not exist",
+        });
+      }
+  
+      let filter = {}
+      if (BookingId) {
         filter.BookingId = BookingId;
-    }
-    const getPortalBookingLogs = await PortalLog.find(filter);
-    if (!getPortalBookingLogs.length) {
-        return {
-            response: "Data Not Found",
-        };
-    }
-    return {
+      }
+  
+      if(companyId){
+        filter.companyId=new ObjectId(companyId)
+      }
+      if(traceId){
+        filter.traceId= new ObjectId(traceId)
+      }
+      if(type){
+        filter.type=type
+      }
+      
+    //   console.log(filter, "Filter");
+  
+      const getPortalBookingLogs = await PortalLog.find(filter);
+      if (!getPortalBookingLogs.length) {
+        return ({
+          response: "Data Not Found",
+        });
+      }
+  
+      return ({
         response: "Fetch Data Successfully",
         data: getPortalBookingLogs,
-    };
-}
+      });
+      
+    } catch (error) {
+      console.error("Error in getBookingLogs:", error);
+      return ({
+        response: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  };
+  
 
 module.exports = { addPortalLog, getPortalLog, getBookingLogs }

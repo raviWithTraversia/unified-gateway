@@ -527,9 +527,9 @@ const payuSuccess = async (req, res) => {
                   transactionAmount: totalItemAmount,
                   currencyType: "INR",
                   fop: "DEBIT",
-                  transactionType: "DEBIT",
-                  runningAmount: newBalanceCredit + totalItemAmount,
-                  remarks: `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`,
+                  transactionType: "CREDIT",
+                  runningAmount: newBalanceCredit,
+                  remarks: `Refund Amount for Booking`,
                   transactionBy: getuserDetails._id,
                   cartId: udf1,
                 });

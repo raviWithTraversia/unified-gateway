@@ -256,8 +256,21 @@ const easeBuzzResponce = async (req, res) => {
               request: requestDataFSearch,
               responce: fSearchApiResponse?.data,
             };
+            const logData2 = {
+              traceId: Authentication.TraceId,
+              companyId: Authentication.CompanyId,
+              userId: Authentication.UserId,
+              source: "Kafila",
+              type: "Portal log",
+              BookingId: udf1,
+              product: "Flight",
+              logName: "EazeBuzz Response",
+              request: "Request captured from portal",
+              responce: req.body,
+            };
             Logs(logData);
             Logs(logData1);
+            Logs(logData2);
             if (fSearchApiResponse.data.Status == "failed" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
               await BookingDetails.updateOne(
                 {

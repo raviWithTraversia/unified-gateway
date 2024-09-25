@@ -1192,8 +1192,9 @@ const RefundedCommonFunction = async (
               },
             });
             if (refund.CType === "PARTIAL") {
+              console.log('shdaaab')
               for (let cpassenger of refund.CSector[0]?.CPax) {
-                await PassengerPreference.findOneAndDelete(
+                await PassengerPreference.findOneAndUpdate(
                   {
                     bookingId: bookingDetails.bookingId,
                     "Passengers.FName": cpassenger.FName,
@@ -1234,7 +1235,7 @@ const RefundedCommonFunction = async (
             });
 
             await agentConfig.findByIdAndUpdate(agentConfigData._id, 
-              { $inc: { maxcreditLimit: totalItemAmount } }
+              { $inc: { maxcreditLimit: refund.RefundableAmount } }
             );
 
             await CancelationBooking.findOneAndUpdate(
@@ -1254,14 +1255,14 @@ const RefundedCommonFunction = async (
             );
 
             responseMessage = "Cancelation Proceed refund";
-      } else if(refund?.IsCancelled) {
+      } else if(refund?.IsCancelled&&matchingBooking.calcelationStatus!=="CANCEL") {
             console.log(matchingBooking?.bookingId)
             const bookingDetails = await BookingDetails.findOne({
               providerBookingId: matchingBooking?.bookingId,
             });
             if (refund.CType === "PARTIAL") {
               for (let cpassenger of refund.CSector[0]?.CPax) {
-                await PassengerPreference.findOneAndDelete(
+                await PassengerPreference.findOneAndUpdate(
                   {
                     bookingId: bookingDetails.bookingId,
                     "Passengers.FName": cpassenger.FName,
@@ -1306,7 +1307,7 @@ const RefundedCommonFunction = async (
             
             responseMessage = "Update Status Succefully";
           }
-          break; // Exit the inner loop once a match is found
+          // break; // Exit the inner loop once a match is found
         }
       }
     }

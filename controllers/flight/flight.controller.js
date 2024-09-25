@@ -404,8 +404,9 @@ const updateBookingStatus = async (req, res) => {
       "_BookingId or companyId or credentialsType does not exist" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Supplier credentials does not exist" ||
-      result.response === "Error in updating Status!" ||
-      result.response === "No booking Found!"
+      result.response === "Cancellation Data Not Found" ||
+      result.response === "Kafila API Data Not Found"||result.response === "Cancelation Data Not Found"||
+      result.response ==="TMC companyID Not Found"
     ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Status updated Successfully!") {

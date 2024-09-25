@@ -1257,8 +1257,32 @@ const RefundedCommonFunction = async (
             );
 
             responseMessage = "Cancelation Proceed refund";
-          } else {
-            responseMessage = "Not Match BookingID";
+      } else if(refund?.IsCancelled) {
+            console.log(matchingBooking?.bookingId)
+
+            await BookingDetails.findOneAndUpdate(
+              { providerBookingId: matchingBooking?.bookingId },
+              { $set: { bookingStatus: "CANCELLED" } },
+              { new: true }
+            );
+
+            await CancelationBooking.findOneAndUpdate(
+              { bookingId: refund.BookingId },
+              {
+                $set: {
+                  fare: refund.Fare,
+                  AirlineCancellationFee: refund.AirlineCancelFee,
+                  AirlineRefund: refund.RefundableAmount,
+                  ServiceFee: refund.CancelServiceCharge,
+                  RefundableAmt: refund.RefundableAmount,
+                  isRefund: false,
+                  calcelationStatus: "CANCEL",
+                },
+              },
+              { new: true }
+            );
+            
+            responseMessage = "Update Status Succefully";
           }
           break; // Exit the inner loop once a match is found
         }

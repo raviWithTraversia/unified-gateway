@@ -200,6 +200,16 @@ return({
           },
         },
         { $unwind: { path: "$agentconfigurationData", preserveNullAndEmptyArrays: true } },
+    {
+        $lookup:{
+            from:"companies",
+            localField:"companyId",
+            foreignField:"_id",
+            as:"companyId"
+        }
+
+    },
+    { $unwind: { path: "$companyId", preserveNullAndEmptyArrays: true } },
       
         {
           $addFields: {
@@ -214,6 +224,7 @@ return({
             userId: { $first: "$userId" }, 
             BookedBy: { $first: "$BookedBy" }, 
             invoicingdatas: { $first: "$invoicingdatas" }, 
+            companyId:{$first:"$companyId"},
             agentData: { $first: "$agentconfigurationData.salesInchargeIds" }
           },
         },
@@ -311,9 +322,8 @@ return({
           }
       
           const railBooking = await railBookings.aggregate([
-            { $match: filter },
+            { $match: filter }, 
           
-            // Lookup for userId and its company
             {
               $lookup: {
                 from: "users",
@@ -372,13 +382,22 @@ return({
               },
             },
             { $unwind: { path: "$agentconfigurationData", preserveNullAndEmptyArrays: true } },
-      
+        {
+            $lookup:{
+                from:"companies",
+                localField:"companyId",
+                foreignField:"_id",
+                as:"companyId"
+            }
+    
+        },
+        { $unwind: { path: "$companyId", preserveNullAndEmptyArrays: true } },
+          
             {
               $addFields: {
                 salesId: "$agentconfigurationData.salesInchargeIds"
               }
             },
-          
           
             {
               $group: {
@@ -387,6 +406,7 @@ return({
                 userId: { $first: "$userId" }, 
                 BookedBy: { $first: "$BookedBy" }, 
                 invoicingdatas: { $first: "$invoicingdatas" }, 
+                companyId:{$first:"$companyId"},
                 agentData: { $first: "$agentconfigurationData.salesInchargeIds" }
               },
             },
@@ -395,7 +415,7 @@ return({
               $replaceRoot: { newRoot: "$railBooking" },
             },
           ]);
-          
+         
       
           console.log("2nd");
       
@@ -494,9 +514,8 @@ return({
           }
           console.log(filter,"j;die")
           const railBooking = await railBookings.aggregate([
-            { $match: filter },
+            { $match: filter }, 
           
-            // Lookup for userId and its company
             {
               $lookup: {
                 from: "users",
@@ -555,13 +574,22 @@ return({
               },
             },
             { $unwind: { path: "$agentconfigurationData", preserveNullAndEmptyArrays: true } },
-      
+        {
+            $lookup:{
+                from:"companies",
+                localField:"companyId",
+                foreignField:"_id",
+                as:"companyId"
+            }
+    
+        },
+        { $unwind: { path: "$companyId", preserveNullAndEmptyArrays: true } },
+          
             {
               $addFields: {
                 salesId: "$agentconfigurationData.salesInchargeIds"
               }
             },
-          
           
             {
               $group: {
@@ -570,6 +598,8 @@ return({
                 userId: { $first: "$userId" }, 
                 BookedBy: { $first: "$BookedBy" }, 
                 invoicingdatas: { $first: "$invoicingdatas" }, 
+                companyId:{$first:"$companyId"},
+                agentData: { $first: "$agentconfigurationData.salesInchargeIds" }
               },
             },
           
@@ -577,7 +607,7 @@ return({
               $replaceRoot: { newRoot: "$railBooking" },
             },
           ]);
-          
+           
           
             // .find(filter)
             // .populate({

@@ -1233,12 +1233,9 @@ const RefundedCommonFunction = async (
               transactionBy: matchingBooking.userId,
             });
 
-            await agentConfig.findByIdAndUpdate(agentConfigData._id, {
-              $set: {
-                maxcreditLimit:
-                  agentConfigData.maxcreditLimit + refund.RefundableAmount,
-              },
-            });
+            await agentConfig.findByIdAndUpdate(agentConfigData._id, 
+              { $inc: { maxcreditLimit: totalItemAmount } }
+            );
 
             await CancelationBooking.findOneAndUpdate(
               { bookingId: refund.BookingId },
@@ -1259,6 +1256,31 @@ const RefundedCommonFunction = async (
             responseMessage = "Cancelation Proceed refund";
       } else if(refund?.IsCancelled) {
             console.log(matchingBooking?.bookingId)
+            const bookingDetails = await BookingDetails.findOne({
+              providerBookingId: matchingBooking?.bookingId,
+            });
+            if (refund.CType === "PARTIAL") {
+              for (let cpassenger of refund.CSector[0]?.CPax) {
+                await PassengerPreference.findOneAndDelete(
+                  {
+                    bookingId: bookingDetails.bookingId,
+                    "Passengers.FName": cpassenger.FName,
+                    "Passengers.LName": cpassenger.lName,
+                  },
+                  {
+                    $set: { "Passengers.$.Status": "CANCELLED" },
+                  }
+                );
+              }
+            } else {
+              await PassengerPreference.updateOne(
+                { bookingId: bookingDetails.bookingId },
+                {
+                  $set: { "Passengers.$[].Status": "CANCELLED" },
+                }
+              );
+            }
+
 
             await BookingDetails.findOneAndUpdate(
               { providerBookingId: matchingBooking?.bookingId },

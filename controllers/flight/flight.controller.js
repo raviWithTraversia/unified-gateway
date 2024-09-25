@@ -24,8 +24,10 @@ const {
 
 const getSearch = async (req, res) => {
   try {
+    console.log("searching...");
     const result = await flightSearch.getSearch(req, res);
     const IS_TEST_ENV = req.body.Authentication?.CredentialType === "TEST";
+    console.log({ IS_TEST_ENV });
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
@@ -38,7 +40,9 @@ const getSearch = async (req, res) => {
     ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Fetch Data Successfully") {
+      console.log("success kafila...");
       if (IS_TEST_ENV) {
+        console.log("searching common API...");
         const { itineraries, error: additionalFlightsError } =
           await getAdditionalFlights(req.body);
         if (!additionalFlightsError)
@@ -52,6 +56,26 @@ const getSearch = async (req, res) => {
         ServerStatusCode.SUCESS_CODE
       );
       await flightSerchLogServices.addFlightSerchReport(req);
+    } else if (IS_TEST_ENV) {
+      console.log("searching common API...");
+      const { itineraries, error: additionalFlightsError } =
+        await getAdditionalFlights(req.body);
+      console.log({ itineraries });
+      if (additionalFlightsError) {
+        console.log({ additionalFlightsError });
+        apiErrorres(
+          res,
+          errorResponse.SOME_UNOWN,
+          ServerStatusCode.UNPROCESSABLE,
+          true
+        );
+      } else
+        apiSucessRes(
+          res,
+          "Fetch Data Successfully",
+          itineraries,
+          ServerStatusCode.SUCESS_CODE
+        );
     } else {
       apiErrorres(
         res,

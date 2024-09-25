@@ -26,7 +26,7 @@ function createSearchRequestBodyForCommonAPI(request) {
       infants: request.PaxDetail.Infants ?? 0,
       youths: request.PaxDetail.Youths ?? 0,
     },
-    maxStops: request.Direct ? 0 : 3,
+    maxStops: request.Direct == 0 ? 0 : 3,
     maxResult: 250,
     returnSpecialFare: false,
     refundableOnly: request.RefundableOnly,

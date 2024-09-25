@@ -8,6 +8,7 @@ async function getAdditionalFlightAirPricing(request) {
   console.log({ request });
   try {
     const requestBody = createAirPricingRequestBodyForCommonAPI(request);
+    console.dir({ requestBody }, { depth: null });
     const { data: response } = await axios.post(
       "http://tcilapi.traversia.net:31101/api/pricing/airpricing",
       requestBody

@@ -491,11 +491,37 @@ const payuSuccess = async (req, res) => {
                 type: "API Log",
                 BookingId: udf1,
                 product: "Flight",
-                logName: "Flight Search",
+                logName: "air Booking",
                 request: requestDataFSearch,
                 responce: fSearchApiResponse?.data,
               };
+              const logData1 = {
+                traceId: Authentication.TraceId,
+                companyId: Authentication.CompanyId,
+                userId: Authentication.UserId,
+                source: "Kafila",
+                type: "Portal log",
+                BookingId: udf1,
+                product: "Flight",
+                logName: "Air Booking",
+                request: requestDataFSearch,
+                responce: fSearchApiResponse?.data,
+              };
+              const logData2 = {
+                traceId: Authentication.TraceId,
+                companyId: Authentication.CompanyId,
+                userId: Authentication.UserId,
+                source: "Kafila",
+                type: "Portal log",
+                BookingId: udf1,
+                product: "Flight",
+                logName: "EazeBuzz Response",
+                request: "Request captured from portal",
+                responce: req.body,
+              };
               Logs(logData);
+              Logs(logData1);
+              Logs(logData2);
               if (
                 fSearchApiResponse.data.Status == "failed" ||
                 fSearchApiResponse?.data?.IsError == true ||

@@ -5,28 +5,25 @@ const {
 } = require("../helpers/additional-air-pricing.helper");
 
 async function getAdditionalFlightAirPricing(request) {
+  console.log({ request });
   try {
     const requestBody = createAirPricingRequestBodyForCommonAPI(request);
     const { data: response } = await axios.post(
       "http://tcilapi.traversia.net:31101/api/pricing/airpricing",
       requestBody
     );
-    console.log({ response });
+    console.dir({ response }, { depth: null });
     return {
-      result: convertAirPricingItineraryForCommonAPI({
-        response: response.data,
-        requestBody,
-        originalRequest: request,
-      }),
+      IsSucess: true,
+      apiReq: {},
+      response: [
+        convertAirPricingItineraryForCommonAPI({
+          response: response.data,
+          requestBody,
+          originalRequest: request,
+        }),
+      ],
     };
-    // return {
-    //   // IsSucess: true,
-    //   // ResponseStatusCode: 200,
-    //   // Message: "Fetch Data Successfully",
-    //   Result: [
-
-    //   ],
-    // };
   } catch (error) {
     console.log({ error });
     return { error: error.message };

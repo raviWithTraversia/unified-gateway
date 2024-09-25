@@ -9,6 +9,9 @@ const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
+const {
+  getAdditionalFlightAirPricing,
+} = require("../../services/addditional-flight-air-pricing");
 const flightCache = new NodeCache();
 
 const airPricing = async (req, res) => {
@@ -188,9 +191,9 @@ async function handleflight(
   }
 
   // GET PromoCode
-  //  const getPromoCode = await PromoCode.find({ companyId: CompanyId, supplierCode: supplierCredentials });
+  // const getPromoCode = await PromoCode.find({ companyId: CompanyId, supplierCode: supplierCredentials });
   // console.log("aaaaaaaaaaaaaaaaaaaaaaa" + fareTypeVal);
-  // return false
+  // return false;
   let airportDetails;
   try {
     airportDetails = await AirportsDetails.find({
@@ -219,6 +222,7 @@ async function handleflight(
     supplierCredentials.map(async (supplier) => {
       try {
         switch (supplier.supplierCodeId.supplierCode) {
+          // switch (Itinerary[0].Provider) {
           case "Kafila":
             // check here airline promoCode if active periority first agent level then group level
             return (res = await KafilaFun(
@@ -241,6 +245,21 @@ async function handleflight(
             ));
 
           default:
+            // return (res = await getAdditionalFlightAirPricing({
+            //   Authentication,
+            //   TypeOfTrip,
+            //   Segments,
+            //   PaxDetail,
+            //   TravelType,
+            //   Flexi,
+            //   Direct,
+            //   ClassOfService,
+            //   Airlines,
+            //   FareFamily,
+            //   RefundableOnly,
+            //   Itinerary,
+            //   GstData,
+            // }));
             throw new Error(
               `Unsupported supplier: ${supplier.supplierCodeId.supplierCode}`
             );
@@ -250,6 +269,7 @@ async function handleflight(
       }
     })
   );
+  console.dir({ res }, { depth: null });
 
   // return {
   //   IsSucess: true,

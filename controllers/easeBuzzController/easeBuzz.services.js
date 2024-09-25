@@ -397,7 +397,7 @@ const easeBuzzResponce = async (req, res) => {
               await transaction.create({
                 userId: Authentication.UserId,
                 bookingId:item?.BookingId,
-                companyId: Authentication.CompanyId,
+                companyId:getAgentConfigForUpdateagain.companyId,
                 trnsNo: txnid,
                 trnsType: "DEBIT",
                 paymentMode: card_type,

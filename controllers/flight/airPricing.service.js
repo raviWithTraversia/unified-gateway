@@ -221,8 +221,7 @@ async function handleflight(
   const responsesApi = await Promise.all(
     supplierCredentials.map(async (supplier) => {
       try {
-        // switch (supplier.supplierCodeId.supplierCode) {
-        switch (Itinerary[0].Provider) {
+        switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
             // check here airline promoCode if active periority first agent level then group level
             return (res = await KafilaFun(
@@ -245,24 +244,9 @@ async function handleflight(
             ));
 
           default:
-            return (res = await getAdditionalFlightAirPricing({
-              Authentication,
-              TypeOfTrip,
-              Segments,
-              PaxDetail,
-              TravelType,
-              Flexi,
-              Direct,
-              ClassOfService,
-              Airlines,
-              FareFamily,
-              RefundableOnly,
-              Itinerary,
-              GstData,
-            }));
-          // throw new Error(
-          //   `Unsupported supplier: ${supplier.supplierCodeId.supplierCode}`
-          // );
+            throw new Error(
+              `Unsupported supplier: ${supplier.supplierCodeId.supplierCode}`
+            );
         }
       } catch (error) {
         return { error: error.message, supplier: supplier };
@@ -421,7 +405,7 @@ const KafilaFun = async (
   // let fareFamilyVal =
   // fareFamilyMasterGet && fareFamilyMasterGet.length > 0 ? fareFamilyMasterGet.join(",") : "";
   let fareFamilyVal =
-    FareFamily && FareFamily.length > 0 ? FareFamily.join(",") : "";
+    FareFamily && FareFamily?.length > 0 ? FareFamily.join(",") : "";
 
   const segmentsArray = Segments.map((segment) => ({
     Src: segment.Origin,
@@ -490,7 +474,7 @@ const KafilaFun = async (
           : null;
 
         const Chd =
-          Object.keys(item.PriceBreakup[1]).length !== 0
+          Object.keys(item.PriceBreakup?.[1])?.length !== 0
             ? {
                 Basic: item.PriceBreakup[1]?.BaseFare || 0,
                 Yq:
@@ -508,7 +492,7 @@ const KafilaFun = async (
             : null;
 
         const Inf =
-          Object.keys(item.PriceBreakup[2]).length !== 0
+          Object.keys(item.PriceBreakup?.[2])?.length !== 0
             ? {
                 Basic: item.PriceBreakup[2]?.BaseFare || 0,
                 Yq:
@@ -588,7 +572,7 @@ const KafilaFun = async (
           Chd: PaxDetail.Child,
           Inf: PaxDetail.Infants,
           Sector: segmentsArray,
-          PF: Airlines.length > 0 ? Airlines.join(",") : "",
+          PF: Airlines?.length > 0 ? Airlines.join(",") : "",
           PC: classOfServiceVal,
           Routing: "ALL",
           Ver: "1.0.0.0",
@@ -667,7 +651,7 @@ const KafilaFun = async (
       //     response: "Sold out!",
       //   };
       // }
-      for (let index = 0; index < apiResponse.SelectedFlight.length; index++) {
+      for (let index = 0; index < apiResponse.SelectedFlight?.length; index++) {
         let schedule = apiResponse.SelectedFlight[index];
         //console.log(schedule, 'api responce');
         //let oldItinerary = Itinerary[index];

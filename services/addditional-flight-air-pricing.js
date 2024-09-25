@@ -14,9 +14,7 @@ async function getAdditionalFlightAirPricing(request) {
     );
     console.dir({ response }, { depth: null });
     return {
-      IsSucess: true,
-      apiReq: {},
-      response: [
+      result: [
         convertAirPricingItineraryForCommonAPI({
           response: response.data,
           requestBody,
@@ -26,7 +24,7 @@ async function getAdditionalFlightAirPricing(request) {
     };
   } catch (error) {
     console.log({ error });
-    return { error: error.message };
+    return { error: "something went wrong while searching flights" };
   }
 }
 

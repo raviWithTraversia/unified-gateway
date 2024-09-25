@@ -18,6 +18,9 @@ const {
 } = require("../../utils/constants");
 const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
 const { getAdditionalFlights } = require("../../services/additional-search");
+const {
+  getAdditionalFlightAirPricing,
+} = require("../../services/addditional-flight-air-pricing");
 
 const getSearch = async (req, res) => {
   try {
@@ -70,6 +73,25 @@ const getSearch = async (req, res) => {
 
 const airPricing = async (req, res) => {
   try {
+    if (
+      req.Authentication?.CredentialType === "TEST" &&
+      req.Itinerary?.[0]?.Provider !== "Kafila"
+    ) {
+      const { result, error } = await getAdditionalFlightAirPricing(req.body);
+      if (error)
+        return res.status(500).json({
+          IsSucess: false,
+          ResponseStatusCode: 500,
+          Message: error,
+          Result: [],
+        });
+      return res.status(200).json({
+        IsSucess: true,
+        ResponseStatusCode: 200,
+        Message: "Fetch Data Successfully",
+        Result: result,
+      });
+    }
     const result = await airPricingCheck.airPricing(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);

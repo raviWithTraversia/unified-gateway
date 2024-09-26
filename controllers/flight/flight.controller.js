@@ -22,6 +22,7 @@ const {
   getAdditionalFlightAirPricing,
 } = require("../../services/addditional-flight-air-pricing");
 const { validateSearchRequest } = require("../../validation/search.validation");
+const { getFlightRDB } = require("./rbd.service");
 
 const getSearch = async (req, res) => {
   try {
@@ -153,6 +154,21 @@ const airPricing = async (req, res) => {
 
 const getRBD = async (req, res) => {
   try {
+    const { result, error } = await getFlightRDB(req.body);
+    if (error)
+      return apiErrorres(
+        res,
+        errorResponse.SOMETHING_WRONG,
+        ServerStatusCode.SERVER_ERROR,
+        true
+      );
+
+    return apiSucessRes(
+      res,
+      "Fetch RBD Result",
+      result,
+      ServerStatusCode.SUCESS_CODE
+    );
   } catch (error) {
     console.log({ err });
     return apiErrorres(

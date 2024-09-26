@@ -235,15 +235,15 @@ function convertFlightDetailsForKafila(flight) {
 
 function convertSegmentForKafila(segment) {
   return {
-    IsConnect: segment.isConnect,
-    AirlineCode: segment.airlineCode,
-    AirlineName: segment.airlineName,
-    Class: segment.classofService,
-    CabinClass: segment.cabinClass,
-    BookingCounts: "", // missing
-    NoSeats: segment.noSeats,
-    FltNum: segment.fltNum,
-    EquipType: segment.equipType,
+    IsConnect: segment.isConnect ?? false,
+    AirlineCode: segment.airlineCode ?? "",
+    AirlineName: segment.airlineName ?? "",
+    Class: segment.classofService ?? "",
+    CabinClass: segment.cabinClass ?? "",
+    BookingCounts: segment.bookingCounts ?? "", // missing
+    NoSeats: segment.noSeats ?? "",
+    FltNum: segment.fltNum ?? "",
+    EquipType: segment.equipType ?? "",
     FlyingTime: sumDurationForKafila([segment], "flyingTime"),
     TravelTime: sumDurationForKafila([segment]),
     TechStopOver: null, // missing
@@ -251,8 +251,8 @@ function convertSegmentForKafila(segment) {
     Status: "", // missing
     OperatingCarrier: segment.operatingCarrier?.code ?? null,
     MarketingCarrier: null,
-    BaggageInfo: segment.baggageInfo,
-    HandBaggage: segment.handBaggage,
+    BaggageInfo: segment.baggageInfo ?? "",
+    HandBaggage: segment.handBaggage ?? "",
     TransitTime: null,
     MealCode: null,
     key: "",
@@ -261,17 +261,17 @@ function convertSegmentForKafila(segment) {
     ChangeOfPlane: "",
     ParticipantLevel: "",
     OptionalServicesIndicator: false,
-    AvailabilitySource: segment.availabilitySource,
-    Group: segment.group,
+    AvailabilitySource: segment.availabilitySource ?? "",
+    Group: segment.group ?? "",
     LinkAvailability: false,
     PolledAvailabilityOption: "",
-    FareBasisCode: segment.fareBasisCode,
+    FareBasisCode: segment.fareBasisCode ?? "",
     HostTokenRef: "",
     APISRequirementsRef: "",
     Departure: convertFlightDetailsForKafila(segment.departure),
     Arrival: convertFlightDetailsForKafila(segment.arrival),
     OI: [],
-    ProductClass: segment.productClass,
+    ProductClass: segment.productClass ?? "",
   };
 }
 

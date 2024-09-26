@@ -1,15 +1,13 @@
+const {
+  createAirPricingRequestBodyForCommonAPI,
+} = require("./additional-air-pricing.helper");
+const { convertSegmentForKafila } = require("./additional-search.helper");
+
 module.exports.createRBDRequestBody = (request) => {
-  const requestBody = {
-    typeOfTrip: request.TypeOfTrip,
-    credentialType: request.Authentication?.CredentialType,
-    travelType: request.TravelType,
-    systemEntity: "TCIL",
-    systemName: "Astra2.0",
-    corpCode: "",
-    requestorCode: "",
-    empCode: "",
-    uniqueKey: request.Itinerary?.[0]?.UniqueKey,
-    traceId: request.Itinerary?.[0]?.TraceId,
+  return createAirPricingRequestBodyForCommonAPI(request);
+};
+module.exports.createRBDResponse = (response) => {
+  return {
+    Sectors: response.journey[0].airSegments.map(convertSegmentForKafila),
   };
-  return requestBody;
 };

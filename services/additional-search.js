@@ -11,11 +11,11 @@ async function getAdditionalFlights(request) {
   try {
     const { requestBody, uniqueKey } =
       createSearchRequestBodyForCommonAPI(request);
-    const { data: response } = await axios.post(
-      Config[Config.MODE].additionalFlightsBaseURL + "/flight/search",
-      requestBody
-    );
-    console.log({ response });
+    const url =
+      Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
+      "/flight/search";
+    console.log({ url });
+    const { data: response } = await axios.post(url, requestBody);
     // fs.writeFileSync(
     //   path.resolve(__dirname, "response.json"),
     //   JSON.stringify(response, null, 2)
@@ -30,8 +30,6 @@ async function getAdditionalFlights(request) {
           uniqueKey,
         })
     );
-    console.dir({ itineraries }, { depth: null });
-
     // fs.writeFileSync(
     //   path.resolve(__dirname, "converted-response.json"),
     //   JSON.stringify(itineraries, null, 2)

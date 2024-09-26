@@ -3,6 +3,7 @@ const {
   createAirPricingRequestBodyForCommonAPI,
   convertAirPricingItineraryForCommonAPI,
 } = require("../helpers/additional-air-pricing.helper");
+const { Config } = require("../configs/config");
 
 async function getAdditionalFlightAirPricing(request) {
   console.log({ request });
@@ -10,10 +11,10 @@ async function getAdditionalFlightAirPricing(request) {
     const requestBody = createAirPricingRequestBodyForCommonAPI(request);
     console.dir({ requestBody }, { depth: null });
     const { data: response } = await axios.post(
-      "http://tcilapi.traversia.net:31101/api/pricing/airpricing",
+      Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
+        "/pricing/airpricing",
       requestBody
     );
-    console.dir({ response }, { depth: null });
     return {
       result: [
         convertAirPricingItineraryForCommonAPI({

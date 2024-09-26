@@ -1,19 +1,23 @@
 const { default: axios } = require("axios");
 const { Config } = require("../../configs/config");
-
 const {
-  createAirPricingRequestBodyForCommonAPI,
-} = require("../../helpers/additional-air-pricing.helper");
+  createRBDRequestBody,
+  createRBDResponse,
+} = require("../../helpers/rbd.helper");
 
-module.exports.getRDB = async (request) => {
+module.exports.getFlightRDB = async (request) => {
   try {
-    const requestBody = createAirPricingRequestBodyForCommonAPI(request);
+    const requestBody = createRBDRequestBody(request);
     const { data: response } = await axios.post(
-      Config[Config.MODE].additionalFlightsBaseURL + "/getrbd",
+      Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
+        "/rbd/getrbd",
       requestBody
     );
-    return response;
+    if (!response.journey[0]) throw new Error("No Data Available");
+    console.dir({ response }, { depth: null });
+    return { result: createRBDResponse(response) };
   } catch (err) {
     console.log({ err });
+    return { error: err.message };
   }
 };

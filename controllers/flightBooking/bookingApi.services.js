@@ -1615,11 +1615,12 @@ const getBookingBill = async (req, res) => {
   if (Config.MODE === "LIVE") {
     MODEENV = "P";
   }
+
   const bookingBill = await passengerPreferenceSchema.aggregate([
     {
       $match: {
         createdAt: {
-          $gte: new Date(fromDate +"T00:00:00.000Z"),
+          $gte: new Date(fromDate + "T00:00:00.000Z"),
           $lte: new Date(toDate + "T23:59:59.999Z"),
         },
       },
@@ -1631,10 +1632,9 @@ const getBookingBill = async (req, res) => {
         ticketNo: "$Passengers.Optional",
         paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
         PaxType: "$Passengers.PaxType",
-        totalBaggagePrice:"$Passengers.totalBaggagePrice",
-        totalMealPrice:"$Passengers.totalMealPrice",
-        totalSeatPrice:"$Passengers.totalSeatPrice"
-
+        totalBaggagePrice: "$Passengers.totalBaggagePrice",
+        totalMealPrice: "$Passengers.totalMealPrice",
+        totalSeatPrice: "$Passengers.totalSeatPrice",
       },
     },
     {
@@ -1649,9 +1649,7 @@ const getBookingBill = async (req, res) => {
     {
       $match: {
         "bookingData.bookingStatus": "CONFIRMED",
-        "bookingData.userId": agencyId
-          ? new ObjectId(agencyId)
-          : { $exists: true },
+        "bookingData.userId": agencyId ? new ObjectId(agencyId) : { $exists: true },
       },
     },
     {
@@ -1681,31 +1679,26 @@ const getBookingBill = async (req, res) => {
         paxName: 1,
         ticketNo: 1,
         PaxType: 1,
-        totalBaggagePrice:1,
-        totalMealPrice:1,
-        totalSeatPrice:1,
+        totalBaggagePrice: 1,
+        totalMealPrice: 1,
+        totalSeatPrice: 1,
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
         agentId: { $arrayElemAt: ["$userdata.userId", 0] },
         pnr: "$bookingData.PNR",
         cartId: "$bookingData.bookingId",
-        paxTotal:"$Passengers.totalBaggagePrice",
+        paxTotal: "$Passengers.totalBaggagePrice",
         itinerary: "$bookingData.itinerary",
         itemAmount: { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0] },
-             sector: {
+        sector: {
           $concat: [
             {
-              $arrayElemAt: [
-                "$bookingData.itinerary.Sectors.Departure.Code",
-                0,
-              ],
+              $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Code", 0],
             },
             " ",
             {
               $arrayElemAt: [
                 "$bookingData.itinerary.Sectors.Arrival.Code",
-                {
-                  $subtract: [{ $size: "$bookingData.itinerary.Sectors" }, 1],
-                },
+                { $subtract: [{ $size: "$bookingData.itinerary.Sectors" }, 1] },
               ],
             },
           ],
@@ -1719,16 +1712,10 @@ const getBookingBill = async (req, res) => {
         },
         class: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Class", 0] },
         ccUserName: "AUTO",
-        travelDateOutbound: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0],
-        },
-        travelDateInbound: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0],
-        },
+        travelDateOutbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0] },
+        travelDateInbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0] },
         issueDate: "$bookingData.bookingDateTime",
-        airlineTax: {
-          $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.Tax", 0],
-        },
+        airlineTax: { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.Tax", 0] },
         tranFee: "0",
         sTax: "0",
         commission: "0",
@@ -1737,9 +1724,7 @@ const getBookingBill = async (req, res) => {
         accountPost: "$bookingData.accountPost",
         purchaseCode: "0",
         flightCode: "$bookingData.Supplier",
-        airlineName: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
-        },
+        airlineName: { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0] },
         bookingId1: {
           $concat: [
             { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
@@ -1759,13 +1744,27 @@ const getBookingBill = async (req, res) => {
     let netAmount = 0;
     netAmount = await calculateOfferedPricePaxWise(element);
 
+      switch (element.PaxType) {
+        case "ADT": // Adult
+          element.itemAmount = element.itinerary.PriceBreakup[0]?.BaseFare || 0;
+          break;
+        case "CHD": // Child
+          element.itemAmount = element.itinerary.PriceBreakup[1]?.BaseFare || 0;
+          break;
+        case "INF": // Infant
+          element.itemAmount = element.itinerary.PriceBreakup[2]?.BaseFare || 0;
+          break;
+        default:
+          element.itemAmount = 0; // Default if no match
+      }
+
     for (let item of element?.getCommercialArray) {
+      
+
       for (let items of item?.CommercialBreakup) {
         if (items?.CommercialType == "Discount") {
           element.commission = parseFloat(
-            (parseFloat(element.commission) + parseFloat(items.Amount)).toFixed(
-              2
-            )
+            (parseFloat(element.commission) + parseFloat(items.Amount)).toFixed(2)
           );
         }
         if (items?.CommercialType == "TDS") {
@@ -1773,13 +1772,9 @@ const getBookingBill = async (req, res) => {
             (parseFloat(element.tds) + parseFloat(items.Amount)).toFixed(2)
           );
         }
-        
       }
-      console.log(element?.itinerary,"dji")
-      
-      // Rounding off the values
-      
     }
+
     let getTdsamount = await getTdsAndDsicount([element.itinerary]);
 
     if (processedBookingIds.has(element.bookingId)) {
@@ -1792,8 +1787,8 @@ const getBookingBill = async (req, res) => {
       processedBookingIds.add(element.bookingId);
       delete element.itinerary;
     }
-
   }
+  
 
   bookingBill.forEach(async (element, index) => {
     let ticketNumber = [element.pnr];
@@ -1810,7 +1805,6 @@ const getBookingBill = async (req, res) => {
         ? ticketNumber[0]
         : element.pnr;
     element.id = index + 1;
-    // element.netAmount = netAmount;
   });
 
   if (!bookingBill.length) {

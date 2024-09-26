@@ -113,12 +113,15 @@ const getAllBooking = async (req, res) => {
     const filter = {};
 
 // Filter by AgencyId
+console.log('djei')
 
 if(agencyId=="6555f84c991eaa63cb171a9f"&&checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual"){
   filter.companyId= new ObjectId(agencyId)
+  consle.log('djfei')
 }
 
 else if (agencyId !== undefined && agencyId !== "") {
+  console.log('djie')
   filter.AgencyId = new ObjectId(agencyId);
 }
 else{
@@ -522,7 +525,7 @@ const bookingDetails = await bookingdetails.aggregate([
     let filter = {};
     if (agencyId !== undefined && agencyId !== ""&&agencyId != new ObjectId("6555f84c991eaa63cb171a9f")) {
       // filter.userId={}
-      checkUserIdExist?.roleId?.type == "Manual"?filter.companyId = new ObjectId(agencyId):filter.userId=new ObjectId(agencyId);
+      checkUserIdExist?.roleId?.type == "Manual"?filter.companyId = new ObjectId(agencyId):filter.AgencyId=new ObjectId(agencyId);
       // let allagencyId = agencyId.map(id => new ObjectId(id));
       // filter.AgencyId={$in:allagencyId}
 

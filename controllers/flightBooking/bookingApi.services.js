@@ -126,7 +126,7 @@ else if (agencyId !== undefined && agencyId !== "") {
 }
 else{
   console.log("jdi")
-  checkUserIdExist.roleId.type == "Manual"?filter.companyId=checkUserIdExist.company_ID._id: filter.userId=new ObjectId(userId)
+  checkUserIdExist.roleId.type == "Manual"&&checkUserIdExist.company_ID?.type=="TMC"?filter.companyId=checkUserIdExist.company_ID._id: filter.AgencyId=new ObjectId(checkUserIdExist?.company_ID?._id)
 }
 
 // Filter by bookingId

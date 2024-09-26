@@ -117,7 +117,6 @@ console.log('djei')
 
 if(agencyId=="6555f84c991eaa63cb171a9f"&&checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual"){
   filter.companyId= new ObjectId(agencyId)
-  consle.log('djfei')
 }
 
 else if (agencyId !== undefined && agencyId !== "") {

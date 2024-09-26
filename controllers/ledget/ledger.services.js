@@ -295,8 +295,8 @@ const getAllledgerbyDate = async (req, res) => {
       {
         $lookup: {
           from: "ledgers",
-          localField: "_id",
-          foreignField: "companyId",
+          localField: "userData._id",
+          foreignField: "userId",
           as: "ledgerData",
         },
       },
@@ -414,8 +414,8 @@ const getAllledgerbyDate = async (req, res) => {
       {
         $lookup: {
           from: "ledgers",
-          localField: "_id",
-          foreignField: "companyId",
+          localField: "userData._id",
+          foreignField: "userId",
           as: "ledgerData",
         },
       },

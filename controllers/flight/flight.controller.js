@@ -21,70 +21,51 @@ const { getAdditionalFlights } = require("../../services/additional-search");
 const {
   getAdditionalFlightAirPricing,
 } = require("../../services/addditional-flight-air-pricing");
+const { validateSearchRequest } = require("../../validation/search.validation");
 
 const getSearch = async (req, res) => {
   try {
+    const validationResult = await validateSearchRequest(req);
+    if (!validationResult.response && validationResult.isSometingMissing)
+      return apiErrorres(
+        res,
+        validationResult.data,
+        ServerStatusCode.SERVER_ERROR,
+        true
+      );
+    if (
+      validationResult.response === "Trace Id Required" ||
+      validationResult.response === "Credential Type does not exist" ||
+      validationResult.response === "Supplier credentials does not exist" ||
+      validationResult.response === "Company or User id field are required" ||
+      validationResult.response === "TMC Compnay id does not exist" ||
+      validationResult.response === "Travel Type Not Valid"
+    )
+      return apiErrorres(
+        res,
+        validationResult.response,
+        ServerStatusCode.BAD_REQUEST,
+        true
+      );
+
     const isTestEnv = req.body.Authentication?.CredentialType === "TEST";
     const isInternationalRoundTrip =
       req.body.TravelType === "International" &&
       req.body.TypeOfTrip === "ROUNDTRIP";
 
-    if (isInternationalRoundTrip && isTestEnv) {
-      const { itineraries, error: additionalFlightsError } =
-        await getAdditionalFlights(req.body);
-
-      if (additionalFlightsError)
-        return apiErrorres(
-          res,
-          errorResponse.SOME_UNOWN,
-          ServerStatusCode.UNPROCESSABLE,
-          true
-        );
-
-      return apiSucessRes(
-        res,
-        "Fetch Data Successfully",
-        itineraries,
-        ServerStatusCode.SUCESS_CODE
-      );
-    }
-    const result = await flightSearch.getSearch(req, res);
-    if (!result.response && result.isSometingMissing) {
-      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (
-      result.response === "Trace Id Required" ||
-      result.response === "Credential Type does not exist" ||
-      result.response === "Supplier credentials does not exist" ||
-      result.response === "Company or User id field are required" ||
-      result.response === "TMC Compnay id does not exist" ||
-      result.response === "Travel Type Not Valid"
-    ) {
-      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
-    } else if (result.response === "Fetch Data Successfully") {
-      if (isTestEnv) {
-        const { itineraries } = await getAdditionalFlights(req.body);
-        if (!itineraries?.length)
-          result.data = [...result.data, ...itineraries];
-      }
+    const flightRequests = [];
+    if (!isInternationalRoundTrip)
+      flightRequests.push(flightSearch.getSearch(req, res));
+    if (isTestEnv) flightRequests.push(getAdditionalFlights(req.body));
+    console.log({ flightRequests });
+    const results = await Promise.allSettled(flightRequests);
+    let itineraries = [];
+    results.forEach((result) => {
+      if (result.status === "fulfilled" && result.value?.data?.length)
+        itineraries = [...itineraries, ...result.value.data];
+    });
+    if (itineraries.length) {
       apiSucessRes(
-        res,
-        result.response,
-        result.data,
-        ServerStatusCode.SUCESS_CODE
-      );
-      await flightSerchLogServices.addFlightSerchReport(req);
-    } else if (isTestEnv) {
-      const { itineraries, error: additionalFlightsError } =
-        await getAdditionalFlights(req.body);
-      if (additionalFlightsError)
-        return apiErrorres(
-          res,
-          errorResponse.SOME_UNOWN,
-          ServerStatusCode.UNPROCESSABLE,
-          true
-        );
-
-      return apiSucessRes(
         res,
         "Fetch Data Successfully",
         itineraries,
@@ -98,6 +79,7 @@ const getSearch = async (req, res) => {
         true
       );
     }
+    await flightSerchLogServices.addFlightSerchReport(req);
   } catch (error) {
     console.error(error);
     apiErrorres(
@@ -161,6 +143,19 @@ const airPricing = async (req, res) => {
   } catch (error) {
     console.error(error);
     apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+
+const getRBD = async (req, res) => {
+  try {
+  } catch (error) {
+    console.log({ err });
+    return apiErrorres(
       res,
       errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
@@ -746,6 +741,7 @@ const amadeusTest = async (req, res) => {
 module.exports = {
   getSearch,
   airPricing,
+  getRBD,
   startBooking,
   specialServiceReq,
   genericcart,

@@ -36,7 +36,7 @@ async function getAdditionalFlights(request) {
     //   path.resolve(__dirname, "converted-response.json"),
     //   JSON.stringify(itineraries, null, 2)
     // );
-    return { itineraries };
+    return { data: itineraries };
   } catch (error) {
     return { error: error.message };
   }

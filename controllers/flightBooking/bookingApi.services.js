@@ -1747,12 +1747,17 @@ const getBookingBill = async (req, res) => {
       switch (element.PaxType) {
         case "ADT": // Adult
           element.itemAmount = element.itinerary.PriceBreakup[0]?.BaseFare || 0;
+          element.airlineTax=element.itinerary.PriceBreakup[0]?.Tax || 0;
           break;
         case "CHD": // Child
           element.itemAmount = element.itinerary.PriceBreakup[1]?.BaseFare || 0;
+          element.airlineTax=element.itinerary.PriceBreakup[1]?.Tax || 0;
+
           break;
         case "INF": // Infant
           element.itemAmount = element.itinerary.PriceBreakup[2]?.BaseFare || 0;
+          element.airlineTax=element.itinerary.PriceBreakup[2]?.Tax || 0;
+
           break;
         default:
           element.itemAmount = 0; // Default if no match

@@ -114,7 +114,6 @@ const flightCreditNotes = async (req, res) => {
         req,
         res
       ); 
-      console.log(result,"shai")
       if (!result.response) {
         apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
       } else if (result.response === "All Cancellations Already Refunded" || result.response === "Cancellation Data Not Found"||result.response ==="Data not Found"||result.response==="Kafila API Data Not Found"||result.response=="Not Match BookingID"||result.response=="Cancelation Data Not Found") {
@@ -138,7 +137,7 @@ const flightCreditNotes = async (req, res) => {
       console.error(error);
       apiErrorres(
         res,
-        errorResponse.SOMETHING_WRONG,
+     error.message,
         ServerStatusCode.SERVER_ERROR,
         true
       );

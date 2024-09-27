@@ -478,8 +478,6 @@ var supplier
       };
     }
 
-    console.log(supplier[0])
-  
 
   
     const refundHistoryResponse = await axios.post(Url, apiRequestBody);

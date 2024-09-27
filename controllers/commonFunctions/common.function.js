@@ -1255,7 +1255,7 @@ const RefundedCommonFunction = async (
             );
 
             responseMessage = "Cancelation Proceed refund";
-      } else if(refund?.IsCancelled&&matchingBooking.calcelationStatus!=="CANCEL") {
+      } else if(refund?.IsCancelled&&matchingBooking.calcelationStatus!=="CANCEL"&&matchingBooking.calcelationStatus!=="REFUNDED") {
             console.log(matchingBooking?.bookingId)
             const bookingDetails = await BookingDetails.findOne({
               providerBookingId: matchingBooking?.bookingId,

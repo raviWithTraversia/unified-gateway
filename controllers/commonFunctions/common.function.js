@@ -1263,6 +1263,12 @@ const RefundedCommonFunction = async (
             });
             if (refund.CType === "PARTIAL") {
               for (let cpassenger of refund.CSector[0]?.CPax) {
+                await BookingDetails.findOneAndUpdate(
+                  { providerBookingId: matchingBooking?.bookingId },
+                  { $set: { bookingStatus: "PARIALLY CANCELLED" } },
+                  { new: true }
+                );
+    
                 await PassengerPreference.findOneAndUpdate(
                   {
                     bookingId: bookingDetails.bookingId,
@@ -1275,6 +1281,12 @@ const RefundedCommonFunction = async (
                 );
               }
             } else {
+              await BookingDetails.findOneAndUpdate(
+                { providerBookingId: matchingBooking?.bookingId },
+                { $set: { bookingStatus: "CANCELLED" } },
+                { new: true }
+              );
+  
               await PassengerPreference.updateOne(
                 { bookingId: bookingDetails.bookingId },
                 {
@@ -1284,12 +1296,7 @@ const RefundedCommonFunction = async (
             }
 
 
-            await BookingDetails.findOneAndUpdate(
-              { providerBookingId: matchingBooking?.bookingId },
-              { $set: { bookingStatus: "CANCELLED" } },
-              { new: true }
-            );
-
+            
             await CancelationBooking.findOneAndUpdate(
               { bookingId: refund.BookingId },
               {

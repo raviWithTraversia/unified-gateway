@@ -79,6 +79,7 @@ const invoiceGeneratorRoute = require("../routes/invoiceGeneratorRoute");
 const ledgerRailRoute = require("../routes/ledgerRailRoute");
 const irctcBookingRoute = require("../routes/irctcBookingRoute");
 const railReportRoute = require("../routes/rail-reports.route");
+const railCommercial=require('../routes/railCommercial.Routes')
 class RoutesLoader {
   static initRoutes(app) {
     app.use("/api", userRoute);
@@ -327,6 +328,8 @@ class RoutesLoader {
     // role routes by shadaab
 
     app.use("/api", creditNotesRoute);
+
+    app.use('/api',railCommercial)
 
     // // Intergalactic Credit
     // app.use('/api', intergalacticCreditRoute);

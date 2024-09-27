@@ -8,13 +8,14 @@ const { Config } = require("../configs/config");
 async function getAdditionalFlightAirPricing(request) {
   console.log({ request });
   try {
-    const requestBody = createAirPricingRequestBodyForCommonAPI(request);
-    console.dir({ requestBody }, { depth: null });
-    const { data: response } = await axios.post(
+    const { requestBody, error: requestError } =
+      createAirPricingRequestBodyForCommonAPI(request);
+    if (requestError) throw new Error(requestError);
+    const airPricingURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
-        "/pricing/airpricing",
-      requestBody
-    );
+      "/pricing/airpricing";
+    const { data: response } = await axios.post(airPricingURL, requestBody);
+    console.dir({ response }, { depth: null });
     return {
       result: [
         convertAirPricingItineraryForCommonAPI({

@@ -5,7 +5,7 @@ function createSearchRequestBodyForCommonAPI(request) {
   const requestBody = {
     typeOfTrip: request.TypeOfTrip,
     credentialType: request.Authentication.CredentialType,
-    travelType: convertTravelTypeForKafila(request.TravelType),
+    travelType: convertTravelTypeForCommonAPI(request.TravelType),
     systemEntity: "TCIL", // !TBD
     systemName: "Astra2.0", // !TBD
     corpCode: "", // !TBD
@@ -34,7 +34,7 @@ function createSearchRequestBodyForCommonAPI(request) {
   };
   return { uniqueKey, requestBody };
 }
-function convertTravelTypeForKafila(travelType) {
+function convertTravelTypeForCommonAPI(travelType) {
   return travelType.toLowerCase().includes("dom") ? "DOM" : "INT";
 }
 
@@ -334,5 +334,5 @@ module.exports = {
   sumDurationForKafila,
   convertItineraryForKafila,
   convertFlightDetailsForKafila,
-  convertTravelTypeForKafila,
+  convertTravelTypeForCommonAPI,
 };

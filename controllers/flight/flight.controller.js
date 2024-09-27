@@ -95,9 +95,10 @@ const getSearch = async (req, res) => {
 const airPricing = async (req, res) => {
   try {
     if (
-      req.Authentication?.CredentialType === "TEST" &&
-      req.Itinerary?.[0]?.Provider !== "Kafila"
+      req.body.Authentication?.CredentialType === "TEST" &&
+      req.body.Itinerary?.[0]?.Provider !== "Kafila"
     ) {
+      console.log("running common api");
       const { result, error } = await getAdditionalFlightAirPricing(req.body);
       if (error)
         return res.status(500).json({

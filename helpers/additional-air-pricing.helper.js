@@ -1,86 +1,95 @@
 const moment = require("moment");
 const {
-  convertTravelTypeForKafila,
+  convertTravelTypeForCommonAPI,
   convertItineraryForKafila,
 } = require("./additional-search.helper");
 
 function createAirPricingRequestBodyForCommonAPI(request) {
-  const reqItinerary = request.Itinerary[0];
-  const reqSegment = request.Segments[0];
+  try {
+    const reqItinerary = request.Itinerary?.[0];
+    const reqSegment = request.Segments?.[0];
 
-  console.dir({ reqItinerary }, { depth: null });
-  console.dir({ reqSegment }, { depth: null });
+    if (!reqItinerary || !reqSegment)
+      throw new Error(
+        "Invalid request data 'Itinerary[]' or 'Segment[]' missing"
+      );
 
-  const requestBody = {
-    typeOfTrip: request.TypeOfTrip,
-    credentialType: request.Authentication.CredentialType,
-    travelType: convertTravelTypeForKafila(request.TravelType),
-    systemEntity: "TCIL",
-    systemName: "Astra2.0",
-    corpCode: "",
-    requestorCode: "",
-    empCode: "",
-    uniqueKey: reqItinerary.UniqueKey,
-    traceId: reqItinerary.TraceId,
-    journey: [
-      {
-        journeyKey: reqItinerary.SearchID,
-        origin: reqSegment.Origin,
-        destination: reqSegment.Destination,
-        itinerary: [
-          {
-            uid: reqItinerary.UID,
-            indexNumber: reqItinerary.IndexNumber,
-            provider: reqItinerary.Provider,
-            promoCodeType: reqItinerary.PromoCodeType,
-            airSegments: reqItinerary.Sectors.map((sector) => ({
-              travelTime: convertDurationForCommonAPI(sector.TravelTime),
-              airlineCode: sector.AirlineCode,
-              airlineName: sector.AirlineName,
-              flyingTime: convertDurationForCommonAPI(sector.FlyingTime),
-              departure: convertFlightDetailsForCommonAPI(sector.Departure),
-              arrival: convertFlightDetailsForCommonAPI(sector.Arrival),
-              operatingCarrier: sector.OperatingCarrier
-                ? { code: sector.OperatingCarrier }
-                : null,
-              fltNum: sector.FltNum,
-              equipType: sector.EquipType,
-              group: sector.Group,
-              baggageInfo: sector.BaggageInfo,
-              handBaggage: sector.HandBaggage,
-              offerDetails: null,
-              classofService: sector.Class,
-              cabinClass: sector.CabinClass,
-              productClass: sector.ProductClass,
-              noSeats: sector.Seats,
-              fareBasisCode: sector.FareBasisCode,
-              availabilitySource: sector.AvailabilitySource,
-              isConnect: sector.IsConnect,
-            })),
-            priceBreakup: convertPriceBreakupForCommonAPI(
-              reqItinerary.PriceBreakup
-            ),
-            freeSeat: reqItinerary.FreeSeat,
-            freeMeal: reqItinerary.FreeMeal,
-            carbonEmission: reqItinerary.CarbonEmission,
-            baseFare: reqItinerary.BaseFare,
-            taxes: reqItinerary.Taxes,
-            totalPrice: reqItinerary.TotalPrice,
-            valCarrier: reqItinerary.ValCarrier,
-            refundableFare: reqItinerary.RefundableFare,
-            sessionKey: reqItinerary.SessionKey,
-            fareType: reqItinerary.FareType,
-            promotionalCode: reqItinerary.PromotionalCode,
-            fareFamily: reqItinerary.FareFamily,
-            key: reqItinerary.Key,
-            inPolicy: reqItinerary.InPolicy,
-            isRecommended: reqItinerary.IsRecommended,
-          },
-        ],
-      },
-    ],
-  };
-  return requestBody;
+    console.dir({ reqItinerary }, { depth: null });
+    console.dir({ reqSegment }, { depth: null });
+
+    const requestBody = {
+      typeOfTrip: request.TypeOfTrip,
+      credentialType: request.Authentication.CredentialType,
+      travelType: convertTravelTypeForCommonAPI(request.TravelType),
+      systemEntity: "TCIL",
+      systemName: "Astra2.0",
+      corpCode: "",
+      requestorCode: "",
+      empCode: "",
+      uniqueKey: reqItinerary.UniqueKey,
+      traceId: reqItinerary.TraceId,
+      journey: [
+        {
+          journeyKey: reqItinerary.SearchID,
+          origin: reqSegment.Origin,
+          destination: reqSegment.Destination,
+          itinerary: [
+            {
+              uid: reqItinerary.UID,
+              indexNumber: reqItinerary.IndexNumber,
+              provider: reqItinerary.Provider,
+              promoCodeType: reqItinerary.PromoCodeType,
+              airSegments: reqItinerary.Sectors.map((sector) => ({
+                travelTime: convertDurationForCommonAPI(sector.TravelTime),
+                airlineCode: sector.AirlineCode,
+                airlineName: sector.AirlineName,
+                flyingTime: convertDurationForCommonAPI(sector.FlyingTime),
+                departure: convertFlightDetailsForCommonAPI(sector.Departure),
+                arrival: convertFlightDetailsForCommonAPI(sector.Arrival),
+                operatingCarrier: sector.OperatingCarrier
+                  ? { code: sector.OperatingCarrier }
+                  : null,
+                fltNum: sector.FltNum,
+                equipType: sector.EquipType,
+                group: sector.Group,
+                baggageInfo: sector.BaggageInfo,
+                handBaggage: sector.HandBaggage,
+                offerDetails: null,
+                classofService: sector.Class,
+                cabinClass: sector.CabinClass,
+                productClass: sector.ProductClass,
+                noSeats: sector.Seats,
+                fareBasisCode: sector.FareBasisCode,
+                availabilitySource: sector.AvailabilitySource,
+                isConnect: sector.IsConnect,
+              })),
+              priceBreakup: convertPriceBreakupForCommonAPI(
+                reqItinerary.PriceBreakup
+              ),
+              freeSeat: reqItinerary.FreeSeat,
+              freeMeal: reqItinerary.FreeMeal,
+              carbonEmission: reqItinerary.CarbonEmission,
+              baseFare: reqItinerary.BaseFare,
+              taxes: reqItinerary.Taxes,
+              totalPrice: reqItinerary.TotalPrice,
+              valCarrier: reqItinerary.ValCarrier,
+              refundableFare: reqItinerary.RefundableFare,
+              sessionKey: reqItinerary.SessionKey,
+              fareType: reqItinerary.FareType,
+              promotionalCode: reqItinerary.PromotionalCode,
+              fareFamily: reqItinerary.FareFamily,
+              key: reqItinerary.Key,
+              inPolicy: reqItinerary.InPolicy,
+              isRecommended: reqItinerary.IsRecommended,
+            },
+          ],
+        },
+      ],
+    };
+    return { requestBody };
+  } catch (error) {
+    return { error: error.message };
+  }
 }
 
 function convertAirPricingItineraryForCommonAPI({

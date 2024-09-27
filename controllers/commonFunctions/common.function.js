@@ -1255,7 +1255,8 @@ const RefundedCommonFunction = async (
             );
 
             responseMessage = "Cancelation Proceed refund";
-      } else if(refund?.IsCancelled&&matchingBooking.calcelationStatus!=="CANCEL"&&matchingBooking.calcelationStatus!=="REFUNDED") {
+      } else if(refund?.IsCancelled&&!refund.IsRefunded){
+        console.log("djie")
             console.log(matchingBooking?.bookingId)
             const bookingDetails = await BookingDetails.findOne({
               providerBookingId: matchingBooking?.bookingId,
@@ -1311,7 +1312,7 @@ const RefundedCommonFunction = async (
         }
       }
     }
-
+console.log('dji')
     return { response: responseMessage };
   } catch (error) {
     throw error;

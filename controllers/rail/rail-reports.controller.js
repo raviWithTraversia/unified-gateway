@@ -20,7 +20,7 @@ module.exports.fetchRailReports = async (req, res) => {
 
     const query = {};
     if (isTMC) {
-      if (agencyId) query.AgencyId = ObjectId(agencyId);
+      if (agencyId) query.AgencyId = new ObjectId(agencyId);
     } else query.AgencyId = user.company_ID;
 
     if (fromDate || toDate) {

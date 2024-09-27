@@ -503,7 +503,7 @@ const fetchLedgerRailReport = async (req) => {
       }
     }
     console.log({ query });
-    const result = await ledgerRail.find(query);
+    const result = await ledgerRail.find(query).sort("-createdAt");
     return { result };
   } catch (error) {
     console.log({ error });

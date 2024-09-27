@@ -170,7 +170,7 @@ const getRBD = async (req, res) => {
       ServerStatusCode.SUCESS_CODE
     );
   } catch (error) {
-    console.log({ err });
+    console.log({ error });
     return apiErrorres(
       res,
       errorResponse.SOMETHING_WRONG,

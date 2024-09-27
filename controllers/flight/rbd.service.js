@@ -7,17 +7,19 @@ const {
 
 module.exports.getFlightRDB = async (request) => {
   try {
+    console.dir({ request }, { depth: null });
     const requestBody = createRBDRequestBody(request);
-    const { data: response } = await axios.post(
+    console.dir({ requestBody }, { depth: null });
+    const rbdURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
-        "/rbd/getrbd",
-      requestBody
-    );
-    if (!response.journey[0]) throw new Error("No Data Available");
+      "/rbd/getrbd";
+    console.log({ rbdURL });
+    const { data: response } = await axios.post(rbdURL, requestBody);
     console.dir({ response }, { depth: null });
-    return { result: createRBDResponse(response) };
+    if (!response.data?.journey?.[0]) throw new Error("No Data Available");
+    return { result: createRBDResponse(response.data?.journey?.[0]) };
   } catch (err) {
-    console.log({ err });
+    console.dir({ err }, { depth: null });
     return { error: err.message };
   }
 };

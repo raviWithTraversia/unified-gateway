@@ -6,8 +6,8 @@ const { convertSegmentForKafila } = require("./additional-search.helper");
 module.exports.createRBDRequestBody = (request) => {
   return createAirPricingRequestBodyForCommonAPI(request);
 };
-module.exports.createRBDResponse = (response) => {
+module.exports.createRBDResponse = (journey) => {
   return {
-    Sectors: response.journey[0].airSegments.map(convertSegmentForKafila),
+    Sectors: journey.airSegments.map(convertSegmentForKafila),
   };
 };

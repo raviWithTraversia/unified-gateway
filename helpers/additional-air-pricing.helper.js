@@ -8,6 +8,9 @@ function createAirPricingRequestBodyForCommonAPI(request) {
   const reqItinerary = request.Itinerary[0];
   const reqSegment = request.Segments[0];
 
+  console.dir({ reqItinerary }, { depth: null });
+  console.dir({ reqSegment }, { depth: null });
+
   const requestBody = {
     typeOfTrip: request.TypeOfTrip,
     credentialType: request.Authentication.CredentialType,

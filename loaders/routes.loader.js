@@ -1,341 +1,336 @@
 /* Routes */
 const userRoute = require("../routes/userRoute");
 const logRoute = require("../routes/logRoute");
-const productRoute = require('../routes/productRoute');
-const registrationRoute = require('../routes/registrationRoute');
-const statusRoute = require('../routes/statusRoute');
-const privilageRoute = require('../routes/privilageRoute');
-const creditRoute = require('../routes/creditRoute');
-const productPlanRoute = require('../routes/productPlanRoute');
-const emailConfigRoute = require('../routes/emailConfigRoute');
+const productRoute = require("../routes/productRoute");
+const registrationRoute = require("../routes/registrationRoute");
+const statusRoute = require("../routes/statusRoute");
+const privilageRoute = require("../routes/privilageRoute");
+const creditRoute = require("../routes/creditRoute");
+const productPlanRoute = require("../routes/productPlanRoute");
+const emailConfigRoute = require("../routes/emailConfigRoute");
 const emailConfigDecriptionRoute = require("../routes/emailConfigDiscriptionRoute");
-const smtpRoute = require('../routes/smtpRoute');
-const CountryRoute = require('../routes/countryRoute');
-const CabinClassMasterRoute = require('../routes/cabinClassMasterRoute');
-const websiteManagerRoute = require('../routes/websiteManagerRoute');
-const stateRoute = require('../routes/stateRoute');
-const cityRoute = require('../routes/cityRoute');
-const permissionRoute = require('../routes/permissionRoute');
-const roleRoute = require('../routes/roleRoute');
-const creditNotesRoute = require('../routes/creditNotesRoute');
-const salesRoute = require('../routes/salesRoute');
-const commercialAirPlanRoute = require('../routes/commercialAirPlanRoute');
-const fareFamilyRoute = require('../routes/fareFamilyMasterRoute');
-const verifyOtpRoute = require('../routes/verifyOtpRoute');
-const flightRoute = require('../routes/flight/flightRoute');
-const balanceManageRoute = require('../routes/balanceManageRoute');
-const flightBookingRoute = require('../routes/flight/flightBookingRoute');
-const carrierRoute = require('../routes/carrierRoute');
-const airCommercialRoute = require('../routes/airCommercialRoute');
-const roleHasPermissionRoute = require('../routes/roleHasPermissioRoute');
-const bankDetailsRoute = require('../routes/bankDetailsRoute');
-const plbMaster = require('../routes/plbMasterRoute');
-const layoutRoute = require('../routes/layoutRoute')
-const plbGroupMaster = require('../routes/plbGroupMasterRoute');
-const incentiveMasterRoute = require('../routes/incentiveMasterRoute');
-const incentiveGroupMasterRoute = require('../routes/incentiveGroupMasterRoute');
-const configManageRoute = require('../routes/configManage/configManageRoute');
-const pgChargesRoute = require('../routes/pgChargesRoute');
-const supplierCode = require('../routes/supplierCodeRoute');
-const supplier = require('../routes/supplierRoute');
-const airlinePromo = require('../routes/airlinePromoCodeRoute');
-const configCredential = require('../routes/configCredentialRoute');
-const diSetup = require('../routes/diSetupRoute');
-const autoTicketingRoute = require('../routes/autoTicketingRoute');
-const manageUploadRoute = require('../routes/manageUploadsRoute');
-const fareRuleRoute = require('../routes/fareRulesRoute');
-const fareRuleGroupRoute = require('../routes/fareRuleGroupRoute');
-const airLineCodeRoute = require('../routes/airLineCodeRoute');
-const emulateRoute = require('../routes/emulateRoute');
-const paymentGatewayChargeRoute = require('../routes/paymentGatewayChargeRoute');
-const agencyConfigRoute = require('../routes/agencyConfigurationRoute');
-const markupRoute = require('../routes/manageMarkupRoute');
-const cardDetailRoute = require('../routes/cardDetailsRoute');
-const paymentGatewayGroupRoute = require('../routes/paymentGatewayChargeGroupRoute');
-const airlinePromoCodeGroupRoute = require('../routes/airlinePromoCodeGroupRoute');
-const diSetupGroupRoute = require('../routes/diSetupGroupRoute');
-const agencyGroupRoute = require('../routes/agencyGroupRoute');
-const airportDetailsRoute = require('../routes/airportDetailsRoute');
-const couponCodeRoute = require('../routes/coupanCodeRoute');
-const userPaymentRoute = require('../routes/userPaymentRoute');
-const countryMapRoute = require('../routes/countryMapRoute');
-const ssrCommercialRoute = require('../routes/ssrCommercialRoute');
-const ssrCommercialGroupRoute = require('../routes/ssrCommercialGroupRoute');
-const makePassportDetailMandatoryRoute = require('../routes/makePassportDetailRoute');
-const manageAirlineCredentailRoute = require('../routes/manageAirlineCredRoute');
-const flightSerchLogRoute = require('../routes/flightSearchLogRoute');
-const seriesDepartureRoute = require('../routes/seriesDepartureRoute');
-const countryDialRoute = require('../routes/countryDialCodeRoute');
-const seriesDepartureGroup = require('../routes/seriesDepartureGroupRoute');
-const groupTicketRequestRoute = require('../routes/groupTicketRequestRoute');
-const gstDetailRoute = require('../routes/gstDetailRoute');
-const ledgerRoute = require('../routes/ledgerRoute');
-const payuRoute = require('../routes/payuRoute');
+const smtpRoute = require("../routes/smtpRoute");
+const CountryRoute = require("../routes/countryRoute");
+const CabinClassMasterRoute = require("../routes/cabinClassMasterRoute");
+const websiteManagerRoute = require("../routes/websiteManagerRoute");
+const stateRoute = require("../routes/stateRoute");
+const cityRoute = require("../routes/cityRoute");
+const permissionRoute = require("../routes/permissionRoute");
+const roleRoute = require("../routes/roleRoute");
+const creditNotesRoute = require("../routes/creditNotesRoute");
+const salesRoute = require("../routes/salesRoute");
+const commercialAirPlanRoute = require("../routes/commercialAirPlanRoute");
+const fareFamilyRoute = require("../routes/fareFamilyMasterRoute");
+const verifyOtpRoute = require("../routes/verifyOtpRoute");
+const flightRoute = require("../routes/flight/flightRoute");
+const balanceManageRoute = require("../routes/balanceManageRoute");
+const flightBookingRoute = require("../routes/flight/flightBookingRoute");
+const carrierRoute = require("../routes/carrierRoute");
+const airCommercialRoute = require("../routes/airCommercialRoute");
+const roleHasPermissionRoute = require("../routes/roleHasPermissioRoute");
+const bankDetailsRoute = require("../routes/bankDetailsRoute");
+const plbMaster = require("../routes/plbMasterRoute");
+const layoutRoute = require("../routes/layoutRoute");
+const plbGroupMaster = require("../routes/plbGroupMasterRoute");
+const incentiveMasterRoute = require("../routes/incentiveMasterRoute");
+const incentiveGroupMasterRoute = require("../routes/incentiveGroupMasterRoute");
+const configManageRoute = require("../routes/configManage/configManageRoute");
+const pgChargesRoute = require("../routes/pgChargesRoute");
+const supplierCode = require("../routes/supplierCodeRoute");
+const supplier = require("../routes/supplierRoute");
+const airlinePromo = require("../routes/airlinePromoCodeRoute");
+const configCredential = require("../routes/configCredentialRoute");
+const diSetup = require("../routes/diSetupRoute");
+const autoTicketingRoute = require("../routes/autoTicketingRoute");
+const manageUploadRoute = require("../routes/manageUploadsRoute");
+const fareRuleRoute = require("../routes/fareRulesRoute");
+const fareRuleGroupRoute = require("../routes/fareRuleGroupRoute");
+const airLineCodeRoute = require("../routes/airLineCodeRoute");
+const emulateRoute = require("../routes/emulateRoute");
+const paymentGatewayChargeRoute = require("../routes/paymentGatewayChargeRoute");
+const agencyConfigRoute = require("../routes/agencyConfigurationRoute");
+const markupRoute = require("../routes/manageMarkupRoute");
+const cardDetailRoute = require("../routes/cardDetailsRoute");
+const paymentGatewayGroupRoute = require("../routes/paymentGatewayChargeGroupRoute");
+const airlinePromoCodeGroupRoute = require("../routes/airlinePromoCodeGroupRoute");
+const diSetupGroupRoute = require("../routes/diSetupGroupRoute");
+const agencyGroupRoute = require("../routes/agencyGroupRoute");
+const airportDetailsRoute = require("../routes/airportDetailsRoute");
+const couponCodeRoute = require("../routes/coupanCodeRoute");
+const userPaymentRoute = require("../routes/userPaymentRoute");
+const countryMapRoute = require("../routes/countryMapRoute");
+const ssrCommercialRoute = require("../routes/ssrCommercialRoute");
+const ssrCommercialGroupRoute = require("../routes/ssrCommercialGroupRoute");
+const makePassportDetailMandatoryRoute = require("../routes/makePassportDetailRoute");
+const manageAirlineCredentailRoute = require("../routes/manageAirlineCredRoute");
+const flightSerchLogRoute = require("../routes/flightSearchLogRoute");
+const seriesDepartureRoute = require("../routes/seriesDepartureRoute");
+const countryDialRoute = require("../routes/countryDialCodeRoute");
+const seriesDepartureGroup = require("../routes/seriesDepartureGroupRoute");
+const groupTicketRequestRoute = require("../routes/groupTicketRequestRoute");
+const gstDetailRoute = require("../routes/gstDetailRoute");
+const ledgerRoute = require("../routes/ledgerRoute");
+const payuRoute = require("../routes/payuRoute");
 const easeBuzzRoute = require("../routes/easeBuzzRoute");
-const depositRequestRoute = require('../routes/depositRequestRoute');
+const depositRequestRoute = require("../routes/depositRequestRoute");
 const railRoute = require("../routes/railRoute");
-const interTransferCreditRoute = require("../routes/interTransferCreditRoute")
-const invoiceGeneratorRoute = require("../routes/invoiceGeneratorRoute")
+const interTransferCreditRoute = require("../routes/interTransferCreditRoute");
+const invoiceGeneratorRoute = require("../routes/invoiceGeneratorRoute");
 const ledgerRailRoute = require("../routes/ledgerRailRoute");
 const irctcBookingRoute = require("../routes/irctcBookingRoute");
+const railReportRoute = require("../routes/rail-reports.route");
 class RoutesLoader {
-    static initRoutes(app) {
+  static initRoutes(app) {
+    app.use("/api", userRoute);
 
-        
-        app.use('/api', userRoute);
+    //  logs route By AlamShah
+    app.use("/api", logRoute);
 
-        //  logs route By AlamShah 
-        app.use('/api', logRoute);
+    // Product route by AlamShah
+    app.use("/api", productRoute);
 
-        // Product route by AlamShah
-        app.use('/api', productRoute);
+    // Registration route by Shashi
+    app.use("/api", registrationRoute);
 
-        // Registration route by Shashi
-        app.use('/api', registrationRoute);
+    // Ststus route by Shashi
+    app.use("/api", statusRoute);
 
-        // Ststus route by Shashi
-        app.use('/api', statusRoute);
+    // Privilage Route created by AlamShah
+    app.use("/api", privilageRoute);
 
+    // Credit route created by AlamShah
+    app.use("/api", creditRoute);
 
-        // Privilage Route created by AlamShah
-        app.use('/api', privilageRoute);
+    // Product Plan Route
+    app.use("/api", productPlanRoute);
 
-        // Credit route created by AlamShah
-        app.use('/api', creditRoute);
+    // emailConfig Route by shahsi
+    app.use("/api", emailConfigRoute);
 
-        // Product Plan Route
-        app.use('/api', productPlanRoute);
+    // emailConfigDescription Route by shashi
+    app.use("/api", emailConfigDecriptionRoute);
 
-        // emailConfig Route by shahsi
-        app.use('/api', emailConfigRoute);
+    // smtp Route by shashi
+    app.use("/api", smtpRoute);
 
-        // emailConfigDescription Route by shashi
-        app.use('/api', emailConfigDecriptionRoute);
+    // Country route by alamShah
+    app.use("/api", CountryRoute);
 
-        // smtp Route by shashi
-        app.use('/api', smtpRoute);
+    // CabinClassMaster route by alam
+    app.use("/api", CabinClassMasterRoute);
 
-        // Country route by alamShah
-        app.use('/api', CountryRoute);
+    // website Manager Route by alam Shah
+    app.use("/api", websiteManagerRoute);
 
-        // CabinClassMaster route by alam
-        app.use('/api', CabinClassMasterRoute);
+    // State route by alam shah
+    app.use("/api", stateRoute);
 
-        // website Manager Route by alam Shah
-        app.use('/api', websiteManagerRoute);
+    // City route by alam shah
+    app.use("/api", cityRoute);
 
-        // State route by alam shah
-        app.use('/api', stateRoute);
+    // Permission Route by ALam Shah
+    app.use("/api", permissionRoute);
 
-        // City route by alam shah
-        app.use('/api', cityRoute);
+    // role routes by shashi
 
-        // Permission Route by ALam Shah
-        app.use('/api', permissionRoute);
+    app.use("/api", roleRoute);
 
-        // role routes by shashi
+    // saleInchage route by shashi
 
-        app.use('/api', roleRoute);
+    app.use("/api", salesRoute);
 
-        // saleInchage route by shashi
+    // varify otp by shashi
 
-        app.use('/api', salesRoute)
+    app.use("/api", verifyOtpRoute);
 
-        // varify otp by shashi
+    // Flight Route Start Here
+    app.use("/api", flightRoute);
 
-        app.use('/api', verifyOtpRoute)
+    // Balance Manage Route
+    app.use("/api", balanceManageRoute);
 
-        // Flight Route Start Here
-        app.use("/api", flightRoute);
+    // Flight Booking Route
+    app.use("/api", flightBookingRoute);
 
-        // Balance Manage Route
-        app.use("/api", balanceManageRoute);
+    app.use("/api", verifyOtpRoute);
 
-        // Flight Booking Route
-        app.use("/api", flightBookingRoute);
+    // Carrier route by alam shah
+    app.use("/api", carrierRoute);
 
-        app.use('/api', verifyOtpRoute);
+    // Air Commercial route by alam shah
+    app.use("/api", airCommercialRoute);
 
-        // Carrier route by alam shah
-        app.use('/api', carrierRoute);
+    // Fare family route
+    app.use("/api", fareFamilyRoute);
 
-        // Air Commercial route by alam shah
-        app.use('/api', airCommercialRoute);
+    // RoleHasPermission route created by alam
+    app.use("/api", roleHasPermissionRoute);
 
-        // Fare family route
-        app.use('/api', fareFamilyRoute);
+    // bankDetails Route by shashi
+    app.use("/api", bankDetailsRoute);
 
-        // RoleHasPermission route created by alam
-        app.use('/api', roleHasPermissionRoute);
+    // PLB Master route
+    app.use("/api", plbMaster);
 
-        // bankDetails Route by shashi
-        app.use('/api', bankDetailsRoute)
+    // layot Route by  shashi
 
-        // PLB Master route
-        app.use('/api', plbMaster);
+    app.use("/api", layoutRoute);
 
-        // layot Route by  shashi
+    // PLB Group Master
+    app.use("/api", plbGroupMaster);
 
-        app.use('/api', layoutRoute);
+    // Incentive Master route
+    app.use("/api", incentiveMasterRoute);
 
-        // PLB Group Master
-        app.use('/api', plbGroupMaster);
+    // Commercial Route
+    app.use("/api", commercialAirPlanRoute);
 
-        // Incentive Master route
-        app.use('/api', incentiveMasterRoute);
+    // incentive Master Group route
+    app.use("/api", incentiveGroupMasterRoute);
 
-        // Commercial Route
-        app.use('/api', commercialAirPlanRoute);
+    // Air Wise GST route Config Manage
+    app.use("/api", configManageRoute);
 
-        // incentive Master Group route
-        app.use('/api', incentiveGroupMasterRoute);
+    // pgcharges route
+    app.use("/api", pgChargesRoute);
 
-        // Air Wise GST route Config Manage
-        app.use('/api', configManageRoute);
+    // supplierCode route
+    app.use("/api", supplierCode);
 
-        // pgcharges route 
-        app.use('/api', pgChargesRoute);
+    // supplier route
+    app.use("/api", supplier);
 
-        // supplierCode route
-        app.use('/api', supplierCode);
+    // airline Peomocode route
+    app.use("/api", airlinePromo);
 
-        // supplier route
-        app.use('/api', supplier);
+    // configCredential apis route
+    app.use("/api", configCredential);
 
-        // airline Peomocode route
-        app.use('/api', airlinePromo)
+    // diSetup api route
+    app.use("/api", diSetup);
 
-        // configCredential apis route
-        app.use('/api', configCredential)
+    // autoTicketing routes
+    app.use("/api", autoTicketingRoute);
 
-        // diSetup api route
-        app.use('/api', diSetup);
+    // manageUploadRoute route
+    app.use("/api", manageUploadRoute);
 
-        // autoTicketing routes
-        app.use('/api', autoTicketingRoute);
+    // fareRule route
+    app.use("/api", fareRuleRoute);
 
-        // manageUploadRoute route
-        app.use('/api', manageUploadRoute);
+    app.use("/api", fareRuleGroupRoute);
 
-        // fareRule route
-        app.use('/api', fareRuleRoute);
+    // airLine code
+    app.use("/api", airLineCodeRoute);
 
-        app.use('/api', fareRuleGroupRoute);
+    //agent Configuration Route
+    app.use("/api", agencyConfigRoute);
 
-        // airLine code
-        app.use('/api', airLineCodeRoute);
+    // emulate
+    app.use("/api", emulateRoute);
+    //paymentgateWay ChargeRoute
+    app.use("/api", paymentGatewayChargeRoute);
 
-        //agent Configuration Route
-        app.use('/api', agencyConfigRoute);
+    // markupRoute
+    app.use("/api", markupRoute);
 
-        // emulate
-        app.use('/api', emulateRoute);
-        //paymentgateWay ChargeRoute
-        app.use('/api', paymentGatewayChargeRoute);
+    //cardDetailRoute
+    app.use("/api", cardDetailRoute);
 
-        // markupRoute 
-        app.use('/api', markupRoute);
+    // paymentGatewayGroupRoute
+    app.use("/api", paymentGatewayGroupRoute);
 
-        //cardDetailRoute
-        app.use('/api', cardDetailRoute);
+    // airlinePromoCodeGroupRoute
+    app.use("/api", airlinePromoCodeGroupRoute);
 
-        // paymentGatewayGroupRoute
-        app.use('/api', paymentGatewayGroupRoute);
+    //diSetupGroupRoute
 
-        // airlinePromoCodeGroupRoute
-        app.use('/api', airlinePromoCodeGroupRoute);
+    app.use("/api", diSetupGroupRoute);
 
-        //diSetupGroupRoute
+    //agencyGroupRoute
+    app.use("/api", agencyGroupRoute);
 
-        app.use('/api', diSetupGroupRoute);
+    //airportDetailsRoute
+    app.use("/api", airportDetailsRoute);
 
-        //agencyGroupRoute
-        app.use('/api', agencyGroupRoute);
+    //couponCodeRoute
+    app.use("/api", couponCodeRoute);
 
-        //airportDetailsRoute
-        app.use('/api', airportDetailsRoute);
+    //userPaymentRoute
+    app.use("/api", userPaymentRoute);
 
-        //couponCodeRoute
-        app.use('/api', couponCodeRoute);
+    //countryMapRoute
 
-        //userPaymentRoute
-        app.use('/api', userPaymentRoute);
+    app.use("/api", countryMapRoute);
 
-        //countryMapRoute
+    //ssrCommercial_route
+    app.use("/api", ssrCommercialRoute);
 
-        app.use('/api', countryMapRoute);
+    //ssrCommercialGroupRoute
+    app.use("/api", ssrCommercialGroupRoute);
 
-        //ssrCommercial_route
-        app.use('/api', ssrCommercialRoute);
+    //mskePassportDetailMandatoryRoute
+    app.use("/api", makePassportDetailMandatoryRoute);
 
-        //ssrCommercialGroupRoute
-        app.use('/api', ssrCommercialGroupRoute);
+    //manageAirlineCredentailRoute
+    app.use("/api", manageAirlineCredentailRoute);
 
+    //flightSerchLogRoute
+    app.use("/api", flightSerchLogRoute);
 
-        //mskePassportDetailMandatoryRoute
-        app.use('/api', makePassportDetailMandatoryRoute);
+    //seriesDepartureRoute
+    app.use("/api", seriesDepartureRoute);
 
-        //manageAirlineCredentailRoute
-        app.use('/api', manageAirlineCredentailRoute);
+    //countryDialRoute
+    app.use("/api", countryDialRoute);
 
-        //flightSerchLogRoute
-        app.use('/api', flightSerchLogRoute);
+    //seriesDepartureGroup
+    app.use("/api", seriesDepartureGroup);
 
-        //seriesDepartureRoute
-        app.use('/api', seriesDepartureRoute);
+    //groupTicketRequestRoute
 
-        //countryDialRoute
-        app.use('/api', countryDialRoute);
+    app.use("/api", groupTicketRequestRoute);
 
-        //seriesDepartureGroup
-        app.use('/api', seriesDepartureGroup);
+    //gstDetailRoute
 
-        //groupTicketRequestRoute
+    app.use("/api", gstDetailRoute);
 
-        app.use('/api', groupTicketRequestRoute);
+    // ledger Route
+    app.use("/api", ledgerRoute);
 
-        //gstDetailRoute
+    // PayU Route
+    app.use("/api", payuRoute);
 
-        app.use('/api', gstDetailRoute)
+    // EaseBuzz Route
+    app.use("/api", easeBuzzRoute);
 
-        // ledger Route
-        app.use('/api', ledgerRoute);
+    // deposite Request
+    app.use("/api", depositRequestRoute);
 
-        // PayU Route
-        app.use('/api', payuRoute);
+    //railRoute
+    app.use("/api", railRoute);
+    //rail report route
+    app.use("/api", railReportRoute);
 
-        // EaseBuzz Route
-        app.use('/api', easeBuzzRoute);
+    //interTransferCreditRoute
+    app.use("/api", interTransferCreditRoute);
 
-        // deposite Request
-        app.use('/api', depositRequestRoute);
+    //invoiceGeneratorRoute
+    app.use("/api", invoiceGeneratorRoute);
 
+    //ledgerRailRoute
+    app.use("/api", ledgerRailRoute);
 
-        //railRoute
-        app.use('/api', railRoute);
+    //irctcBookingRoute
+    app.use("/api", irctcBookingRoute);
 
-        //interTransferCreditRoute
-        app.use('/api', interTransferCreditRoute)
+    // role routes by shadaab
 
-        //invoiceGeneratorRoute
-        app.use('/api', invoiceGeneratorRoute)
+    app.use("/api", creditNotesRoute);
 
-        //ledgerRailRoute
-        app.use('/api', ledgerRailRoute);
-
-
-        //irctcBookingRoute
-        app.use('/api',irctcBookingRoute);
-
-        // role routes by shadaab
-
-         app.use('/api', creditNotesRoute);
-
-
-        // // Intergalactic Credit
-        // app.use('/api', intergalacticCreditRoute);
-
-    }
+    // // Intergalactic Credit
+    // app.use('/api', intergalacticCreditRoute);
+  }
 }
 
 module.exports = { RoutesLoader };

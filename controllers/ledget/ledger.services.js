@@ -315,7 +315,7 @@ const getAllledgerbyDate = async (req, res) => {
       },
       {
         $project: {
-          userId: "$userData._id",
+          userId: "$userData.userId",
           companyId: {
             companyName: "$companyName",
             type: "$type",

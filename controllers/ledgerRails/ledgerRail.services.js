@@ -501,6 +501,15 @@ const fetchLedgerRailReport = async (req) => {
           .toDate();
         query.createdAt["$lte"] = endDate;
       }
+      if (fromDate === toDate) delete query.createdAt["$lte"];
+    }
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return {
+          error:
+            "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+        };
+      }
     }
     console.log({ query });
     const result = await ledgerRail.find(query).sort("-createdAt");

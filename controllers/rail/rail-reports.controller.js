@@ -57,6 +57,16 @@ module.exports.fetchRailReports = async (req, res) => {
         query.createdAt["$lte"] = endDate;
       }
     }
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return apiErrorres(
+          res,
+          "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+          400,
+          true
+        );
+      }
+    }
     console.log({ query });
 
     const railAggregation = await bookingDetailsRail.aggregate([

@@ -23,6 +23,7 @@ const {
 } = require("../../services/addditional-flight-air-pricing");
 const { validateSearchRequest } = require("../../validation/search.validation");
 const { getFlightRDB } = require("./rbd.service");
+const { getFairRulesService } = require("./fair-rules.service");
 
 const getSearch = async (req, res) => {
   try {
@@ -755,10 +756,34 @@ const amadeusTest = async (req, res) => {
   }
 };
 
+async function getFairRules(req, res) {
+  try {
+    const { result, error } = await getFairRulesService(req.body);
+    if (error)
+      return apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
+
+    apiSucessRes(
+      res,
+      "Fetch Data Successfully",
+      result,
+      ServerStatusCode.SUCESS_CODE
+    );
+  } catch (error) {
+    console.log({ error });
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
 module.exports = {
   getSearch,
   airPricing,
   getRBD,
+  getFairRules,
   startBooking,
   specialServiceReq,
   genericcart,

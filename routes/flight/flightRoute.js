@@ -13,6 +13,7 @@ const flight = require("../../controllers/flight/flight.controller");
 flight_route.post("/flight/search", auth, flight.getSearch);
 flight_route.post("/Pricing/AirPricing", auth, flight.airPricing);
 flight_route.post("/flight/RBD", auth, flight.getRBD);
+flight_route.post("/flight/fair-rules", auth, flight.getFairRules);
 flight_route.post("/Flight/startBooking", auth, flight.startBooking);
 flight_route.post("/flight/ssr", auth, flight.specialServiceReq);
 flight_route.post("/flight/generic-cart", auth, flight.genericcart);

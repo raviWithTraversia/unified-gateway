@@ -82,7 +82,7 @@ const flightCreditNotes = async (req, res) => {
         apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
       } else if (result.response === "please fill all requied filed" || result.response === "Data Not found") {
         apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);   
-       } else if (result.response === "Refunded Successfully") {
+       } else if (result.response === "Refunded Successfully"||result.response ==="Update Status Succefully") {
         apiSucessRes(
           res,
           result.response,

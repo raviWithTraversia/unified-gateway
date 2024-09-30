@@ -10,8 +10,8 @@ const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const {
-  getAdditionalFlightAirPricing,
-} = require("../../services/addditional-flight-air-pricing");
+  getCommonAirPricing,
+} = require("../../services/common-air-pricing");
 const flightCache = new NodeCache();
 
 const airPricing = async (req, res) => {

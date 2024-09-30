@@ -2,10 +2,10 @@ const { default: axios } = require("axios");
 const {
   createAirPricingRequestBodyForCommonAPI,
   convertAirPricingItineraryForCommonAPI,
-} = require("../helpers/additional-air-pricing.helper");
+} = require("../helpers/common-air-pricing.helper");
 const { Config } = require("../configs/config");
 
-async function getAdditionalFlightAirPricing(request) {
+async function getCommonAirPricing(request) {
   console.log({ request });
   try {
     const { requestBody, error: requestError } =
@@ -31,4 +31,4 @@ async function getAdditionalFlightAirPricing(request) {
   }
 }
 
-module.exports = { getAdditionalFlightAirPricing };
+module.exports = { getCommonAirPricing };

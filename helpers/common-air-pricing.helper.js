@@ -2,7 +2,7 @@ const moment = require("moment");
 const {
   convertTravelTypeForCommonAPI,
   convertItineraryForKafila,
-} = require("./additional-search.helper");
+} = require("./common-search.helper");
 
 function createAirPricingRequestBodyForCommonAPI(request) {
   try {

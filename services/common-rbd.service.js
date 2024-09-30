@@ -1,11 +1,11 @@
 const { default: axios } = require("axios");
-const { Config } = require("../../configs/config");
+const { Config } = require("../configs/config");
 const {
   createRBDRequestBody,
   createRBDResponse,
-} = require("../../helpers/rbd.helper");
+} = require("../helpers/common-rbd.helper");
 
-module.exports.getFlightRDB = async (request) => {
+module.exports.getCommonRBD = async (request) => {
   try {
     console.dir({ request }, { depth: null });
     const { requestBody, error: requestError } = createRBDRequestBody(request);

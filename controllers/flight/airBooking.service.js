@@ -21,7 +21,7 @@ const flightCache = new NodeCache();
 const {
   createLeadger,
   getTdsAndDsicount,
-} = require("../commonFunctions/common.function");
+} = require("../../controllers/commonFunctions/common.function");
 
 const startBooking = async (req, res) => {
   const {
@@ -556,21 +556,19 @@ const KafilaFun = async (
 
         CommercialBreakup?.forEach((commercialBreakup) => {
           let { CommercialType, Amount } = commercialBreakup;
-          if (
-            offerPricePlusInAmount(CommercialType) &&
-            CommercialType != "TDS"
-          )
+          if (offerPricePlusInAmount(CommercialType) && CommercialType != "TDS")
             returnCalculatedOfferedPrice += Math.round(Amount) * NoOfPassenger;
-           if (offerPriceMinusInAmount(CommercialType))
+          if (offerPriceMinusInAmount(CommercialType))
             returnCalculatedOfferedPrice -= Math.round(Amount) * NoOfPassenger;
           if (
             CommercialType == "Discount" ||
             CommercialType == "SegmentKickback"
           ) {
             // console.log(PassengerType, "PassengerType");
-            const discountOrSegmentValue=Math.round(Amount)
+            const discountOrSegmentValue = Math.round(Amount);
             // console.log(CommercialType + "=" + discountOrSegmentValue, "before adding");
-            returnCalculatedOfferedPrice += (discountOrSegmentValue * 0.05) * NoOfPassenger
+            returnCalculatedOfferedPrice +=
+              discountOrSegmentValue * 0.05 * NoOfPassenger;
             // console.log(returnCalculatedOfferedPrice, "tdsAmount");
           }
         });
@@ -608,7 +606,7 @@ const KafilaFun = async (
 
   const calculationOfferPriceWithCommercial =
     await calculateOfferedPriceForAll();
-''
+  ("");
   // Check Balance Available or Not Available
   const totalSSRWithCalculationPrice =
     calculationOfferPriceWithCommercial + totalssrPrice;
@@ -755,8 +753,7 @@ const KafilaFun = async (
           const maxCreditLimitPrice =
             getAgentConfigForUpdate?.maxcreditLimit ?? 0;
           const newBalanceCredit =
-            maxCreditLimitPrice +
-            totalSSRWithCalculationPrice
+            maxCreditLimitPrice + totalSSRWithCalculationPrice;
           await agentConfig.updateOne(
             { userId: getuserDetails._id },
             { maxcreditLimit: newBalanceCredit }
@@ -764,10 +761,8 @@ const KafilaFun = async (
           await ledger.create({
             userId: getuserDetails._id,
             companyId: getuserDetails.company_ID._id,
-            ledgerId:
-              "LG" + Math.floor(100000 + Math.random() * 900000),
-            transactionAmount:
-            totalSSRWithCalculationPrice,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount: totalSSRWithCalculationPrice,
             currencyType: "INR",
             fop: "CREDIT",
             transactionType: "CREDIT",
@@ -783,7 +778,7 @@ const KafilaFun = async (
         }
       } catch (error) {
         // console.error('Error creating booking:', error);
-        console.log(error,"djei")
+        console.log(error, "djei");
         return {
           IsSucess: false,
           response: "Error creating booking:",

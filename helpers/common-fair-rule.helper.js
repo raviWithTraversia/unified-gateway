@@ -1,7 +1,7 @@
 const {
   createAirPricingRequestBodyForCommonAPI,
-} = require("./additional-air-pricing.helper");
-const { convertSegmentForKafila } = require("./additional-search.helper");
+} = require("./common-air-pricing.helper");
+const { convertSegmentForKafila } = require("./common-search.helper");
 
 module.exports.createFairRulesRequest = (request) => {
   return createAirPricingRequestBodyForCommonAPI(request);

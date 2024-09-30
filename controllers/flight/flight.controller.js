@@ -1,15 +1,15 @@
 const flightSearch = require("./flight.service");
 const airPricingCheck = require("./airPricing.service");
 const airBooking = require("./airBooking.service");
-const ssrServices = require("../flight/ssr.service");
-const cancelationServices = require("../flight/cancelation.service");
-const partialServices = require("../flight/partialCancelation.service");
-const cancelationChargeServices = require("../flight/cancelationCharge.service");
-const partialChargeServices = require("../flight/partialCalcelationCharge.service");
-const genericCart = require("../flight/genericCart.service");
-const amendment = require("../flight/amendment.service");
-const amendmentCart = require("../flight/amendmentCart.service");
-const amadeus = require("../flight/amadeus/searchFlights.service");
+const ssrServices = require("./ssr.service");
+const cancelationServices = require("./cancelation.service");
+const partialServices = require("./partialCancelation.service");
+const cancelationChargeServices = require("./cancelationCharge.service");
+const partialChargeServices = require("./partialCalcelationCharge.service");
+const genericCart = require("./genericCart.service");
+const amendment = require("./amendment.service");
+const amendmentCart = require("./amendmentCart.service");
+const amadeus = require("./amadeus/searchFlights.service");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
@@ -17,13 +17,16 @@ const {
   CrudMessage,
 } = require("../../utils/constants");
 const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
-const { getAdditionalFlights } = require("../../services/additional-search");
-const {
-  getAdditionalFlightAirPricing,
-} = require("../../services/addditional-flight-air-pricing");
+const { getCommonAirPricing } = require("../../services/common-air-pricing");
 const { validateSearchRequest } = require("../../validation/search.validation");
-const { getFlightRDB } = require("./rbd.service");
-const { getFairRulesService } = require("./fair-rules.service");
+const { getCommonRBD } = require("../../services/common-rbd.service");
+const {
+  getCommonFairRules,
+} = require("../../services/common-fair-rules.service");
+const {
+  validateAirBooking,
+} = require("../../validation/air-booking.validation");
+const { commonFlightSearch } = require("../../services/common-search");
 
 const getSearch = async (req, res) => {
   try {
@@ -58,7 +61,7 @@ const getSearch = async (req, res) => {
     const flightRequests = [];
     if (!isInternationalRoundTrip)
       flightRequests.push(flightSearch.getSearch(req, res));
-    if (isTestEnv) flightRequests.push(getAdditionalFlights(req.body));
+    if (isTestEnv) flightRequests.push(commonFlightSearch(req.body));
     console.log({ flightRequests });
     const results = await Promise.allSettled(flightRequests);
     let itineraries = [];
@@ -100,7 +103,7 @@ const airPricing = async (req, res) => {
       req.body.Itinerary?.[0]?.Provider !== "Kafila"
     ) {
       console.log("running common api");
-      const { result, error } = await getAdditionalFlightAirPricing(req.body);
+      const { result, error } = await getCommonAirPricing(req.body);
       if (error)
         return res.status(500).json({
           IsSucess: false,
@@ -156,7 +159,7 @@ const airPricing = async (req, res) => {
 
 const getRBD = async (req, res) => {
   try {
-    const { result, error } = await getFlightRDB(req.body);
+    const { result, error } = await getCommonRBD(req.body);
     if (error)
       return apiErrorres(
         res,
@@ -184,19 +187,36 @@ const getRBD = async (req, res) => {
 
 const startBooking = async (req, res) => {
   try {
+    const validationResult = await validateAirBooking(req);
+    const isValidReq = validationResult.success;
+    if (!isValidReq) {
+      if (!validationResult.response && validationResult.isSometingMissing) {
+        return apiErrorres(
+          res,
+          validationResult.data,
+          ServerStatusCode.SERVER_ERROR,
+          true
+        );
+      } else if (
+        validationResult.response === "Trace Id Required" ||
+        validationResult.response === "Credential Type does not exist" ||
+        validationResult.response === "Supplier credentials does not exist" ||
+        validationResult.response === "Company or User id field are required" ||
+        validationResult.response === "TMC Compnay id does not exist" ||
+        validationResult.response === "Travel Type Not Valid"
+      ) {
+        return apiErrorres(
+          res,
+          validationResult.response,
+          ServerStatusCode.BAD_REQUEST,
+          true
+        );
+      }
+    }
+    if (req.body.ItineraryPriceCheckResponses?.[0]?.Provider !== "Kafila") {
+    }
     const result = await airBooking.startBooking(req, res);
-    if (!result.response && result.isSometingMissing) {
-      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (
-      result.response === "Trace Id Required" ||
-      result.response === "Credential Type does not exist" ||
-      result.response === "Supplier credentials does not exist" ||
-      result.response === "Company or User id field are required" ||
-      result.response === "TMC Compnay id does not exist" ||
-      result.response === "Travel Type Not Valid"
-    ) {
-      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
-    } else if (result.response === "Fetch Data Successfully") {
+    if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
         res,
         result.response,
@@ -603,17 +623,21 @@ const amendmentCartCreate = async (req, res) => {
 
 const updatePendingBookingStatus = async (req, res) => {
   try {
-    const result = await cancelationServices.updatePendingBookingStatus(req, res);
+    const result = await cancelationServices.updatePendingBookingStatus(
+      req,
+      res
+    );
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response ===
-      "_BookingId or companyId or credentialsType does not exist" ||
+        "_BookingId or companyId or credentialsType does not exist" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Supplier credentials does not exist" ||
       result.response === "Cancellation Data Not Found" ||
-      result.response === "Kafila API Data Not Found"||result.response === "Cancelation Data Not Found"||
-      result.response ==="TMC companyID Not Found"
+      result.response === "Kafila API Data Not Found" ||
+      result.response === "Cancelation Data Not Found" ||
+      result.response === "TMC companyID Not Found"
     ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Status updated Successfully!") {
@@ -799,7 +823,7 @@ const amadeusTest = async (req, res) => {
 
 async function getFairRules(req, res) {
   try {
-    const { result, error } = await getFairRulesService(req.body);
+    const { result, error } = await getCommonFairRules(req.body);
     if (error)
       return apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
 
@@ -839,5 +863,5 @@ module.exports = {
   assignAmendmentUser,
   deleteAmendmentDetail,
   amadeusTest,
-  updatePendingBookingStatus
+  updatePendingBookingStatus,
 };

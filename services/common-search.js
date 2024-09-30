@@ -5,9 +5,9 @@ const path = require("path");
 const {
   convertItineraryForKafila,
   createSearchRequestBodyForCommonAPI,
-} = require("../helpers/additional-search.helper");
+} = require("../helpers/common-search.helper");
 
-async function getAdditionalFlights(request) {
+async function commonFlightSearch(request) {
   try {
     const { requestBody, uniqueKey } =
       createSearchRequestBodyForCommonAPI(request);
@@ -40,5 +40,5 @@ async function getAdditionalFlights(request) {
   }
 }
 module.exports = {
-  getAdditionalFlights,
+  commonFlightSearch,
 };

@@ -1,8 +1,10 @@
 const { default: axios } = require("axios");
-const { createFairRulesRequest } = require("../../helpers/fair-rule.helper");
-const { Config } = require("../../configs/config");
+const {
+  createFairRulesRequest,
+} = require("../helpers/common-fair-rule.helper");
+const { Config } = require("../configs/config");
 
-module.exports.getFairRulesService = async function (request) {
+module.exports.getCommonFairRules = async function (request) {
   try {
     const { requestBody, error } = createFairRulesRequest(request);
     if (error) throw new Error(error);

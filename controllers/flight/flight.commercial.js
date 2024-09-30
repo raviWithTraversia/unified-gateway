@@ -5353,6 +5353,7 @@ const checkPLBFilter = async (
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess
                     ? configDetails.data.tds || 2
+                    :2;
                   const calculateBase = await calculateAfterCommertialPricePLB(
                     singleFlightDetails.PriceBreakup,
                     "base",

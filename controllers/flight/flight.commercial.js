@@ -3018,8 +3018,8 @@ const checkIncentiveFilter = async (
           if (checkPLBValue) {
             if (commList.incentiveMasterId.deductTDS) {
               const tdsCheckFromConfig = configDetails.IsSuccess
-                ? configDetails.data.tds || 5
-                : 5;
+                ? configDetails.data.tds || 2
+                : 2;
               const tdsdeduct =
                 (parseFloat(tdsCheckFromConfig) / 100) *
                 commList.incentiveMasterId.PLBValue;
@@ -3110,8 +3110,8 @@ const checkIncentiveFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const calculateBase =
                     await calculateAfterCommertialPriceIncentive(
                       singleFlightDetails.PriceBreakup,
@@ -3194,8 +3194,8 @@ const checkIncentiveFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const calculateBase =
                     await calculateAfterCommertialPriceIncentive(
                       singleFlightDetails.PriceBreakup,
@@ -3276,8 +3276,8 @@ const checkIncentiveFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const calculateBase =
                     await calculateAfterCommertialPriceIncentive(
                       singleFlightDetails.PriceBreakup,
@@ -3374,8 +3374,8 @@ const checkIncentiveFilter = async (
                     yqval = yqTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yqval * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -3437,8 +3437,8 @@ const checkIncentiveFilter = async (
                     yqval = yqTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yqval * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -3499,8 +3499,8 @@ const checkIncentiveFilter = async (
                     yqval = yqTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yqval * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -3566,8 +3566,8 @@ const checkIncentiveFilter = async (
                     yrval = yrTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yrval * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -3629,8 +3629,8 @@ const checkIncentiveFilter = async (
                     yrval = yrTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yrval * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -3693,8 +3693,8 @@ const checkIncentiveFilter = async (
                     yrval = yrTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yrTax * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -3763,7 +3763,7 @@ const checkIncentiveFilter = async (
                   );
                   const tdsCheckFromConfig = configDetails.IsSuccess
                     ? configDetails.data.tds || 5
-                    : 5;
+                    : 2;
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -3855,8 +3855,8 @@ const checkIncentiveFilter = async (
                     }
                   );
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -3948,8 +3948,8 @@ const checkIncentiveFilter = async (
                     }
                   );
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -5352,8 +5352,7 @@ const checkPLBFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
                   const calculateBase = await calculateAfterCommertialPricePLB(
                     singleFlightDetails.PriceBreakup,
                     "base",
@@ -5429,8 +5428,8 @@ const checkPLBFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const calculateBase = await calculateAfterCommertialPricePLB(
                     singleFlightDetails.PriceBreakup,
                     "base",
@@ -5506,8 +5505,8 @@ const checkPLBFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const calculateBase = await calculateAfterCommertialPricePLB(
                     singleFlightDetails.PriceBreakup,
                     "base",
@@ -5597,8 +5596,8 @@ const checkPLBFilter = async (
                     yqval = yqTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yqval * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -5655,8 +5654,8 @@ const checkPLBFilter = async (
                     yqval = yqTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yqval * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -5712,8 +5711,8 @@ const checkPLBFilter = async (
                     yqval = yqTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yqval * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -5774,8 +5773,8 @@ const checkPLBFilter = async (
                     yrval = yrTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yrval * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -5832,8 +5831,8 @@ const checkPLBFilter = async (
                     yrval = yrTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yrval * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -5891,8 +5890,8 @@ const checkPLBFilter = async (
                     yrval = yrTax.Amount;
                   }
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal =
                     yrTax * persentageValue -
                     parseFloat(tdsCheckFromConfig) / 100;
@@ -5957,8 +5956,8 @@ const checkPLBFilter = async (
                   );
 
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -6045,8 +6044,8 @@ const checkPLBFilter = async (
                     }
                   );
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -6133,8 +6132,8 @@ const checkPLBFilter = async (
                     }
                   );
                   const tdsCheckFromConfig = configDetails.IsSuccess
-                    ? configDetails.data.tds || 5
-                    : 5;
+                    ? configDetails.data.tds || 2
+                    : 2;
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (

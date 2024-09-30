@@ -41,7 +41,7 @@ module.exports.fetchRailReports = async (req, res) => {
           .toDate();
         query.createdAt["$gte"] = startDate;
       }
-      if (toDate) {
+      if (toDate && fromDate !== toDate) {
         if (!moment(toDate, "YYYY-MM-DD", true).isValid())
           return apiErrorres(
             res,

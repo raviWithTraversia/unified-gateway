@@ -491,7 +491,7 @@ const fetchLedgerRailReport = async (req) => {
           .toDate();
         query.createdAt["$gte"] = startDate;
       }
-      if (toDate) {
+      if (toDate && fromDate !== toDate) {
         if (!moment(toDate, "YYYY-MM-DD", true).isValid())
           return { error: "invalid toDate format, must be YYYY-MM-DD" };
         let endDate = moment(toDate)
@@ -500,6 +500,14 @@ const fetchLedgerRailReport = async (req) => {
           .second(59)
           .toDate();
         query.createdAt["$lte"] = endDate;
+      }
+    }
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return {
+          error:
+            "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+        };
       }
     }
     console.log({ query });

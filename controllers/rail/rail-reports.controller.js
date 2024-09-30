@@ -41,7 +41,7 @@ module.exports.fetchRailReports = async (req, res) => {
           .toDate();
         query.createdAt["$gte"] = startDate;
       }
-      if (toDate) {
+      if (toDate && fromDate !== toDate) {
         if (!moment(toDate, "YYYY-MM-DD", true).isValid())
           return apiErrorres(
             res,
@@ -55,6 +55,16 @@ module.exports.fetchRailReports = async (req, res) => {
           .second(59)
           .toDate();
         query.createdAt["$lte"] = endDate;
+      }
+    }
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return apiErrorres(
+          res,
+          "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+          400,
+          true
+        );
       }
     }
     console.log({ query });

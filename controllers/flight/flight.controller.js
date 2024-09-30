@@ -27,6 +27,7 @@ const {
   validateAirBooking,
 } = require("../../validation/air-booking.validation");
 const { commonFlightSearch } = require("../../services/common-search");
+const { commonFlightBook } = require("../../services/common-flight-book");
 
 const getSearch = async (req, res) => {
   try {
@@ -188,6 +189,7 @@ const getRBD = async (req, res) => {
 const startBooking = async (req, res) => {
   try {
     const validationResult = await validateAirBooking(req);
+    console.log({ validationResult });
     const isValidReq = validationResult.success;
     if (!isValidReq) {
       if (!validationResult.response && validationResult.isSometingMissing) {
@@ -197,7 +199,8 @@ const startBooking = async (req, res) => {
           ServerStatusCode.SERVER_ERROR,
           true
         );
-      } else if (
+      }
+      if (
         validationResult.response === "Trace Id Required" ||
         validationResult.response === "Credential Type does not exist" ||
         validationResult.response === "Supplier credentials does not exist" ||
@@ -212,8 +215,24 @@ const startBooking = async (req, res) => {
           true
         );
       }
+      if (validationResult.response) {
+        return apiErrorres(
+          res,
+          validationResult.response,
+          ServerStatusCode.BAD_REQUEST,
+          true
+        );
+      }
     }
     if (req.body.ItineraryPriceCheckResponses?.[0]?.Provider !== "Kafila") {
+      const { result, error } = await commonFlightBook(req.body);
+      if (error) return apiErrorres(res, error, 500, true);
+      return apiSucessRes(
+        res,
+        "Fetch Data Successfully",
+        result,
+        ServerStatusCode.SUCESS_CODE
+      );
     }
     const result = await airBooking.startBooking(req, res);
     if (result.response === "Fetch Data Successfully") {

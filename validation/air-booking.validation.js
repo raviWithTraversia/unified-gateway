@@ -2,6 +2,18 @@ const Company = require("../models/Company");
 
 module.exports.validateAirBooking = async function (req) {
   try {
+    if (!req.body.SearchRequest) {
+      return {
+        success: false,
+        response: "missing SearchRequest",
+      };
+    }
+    if (!req.body.SearchRequest?.Authentication) {
+      return {
+        success: false,
+        response: "missing Authentication",
+      };
+    }
     const {
       SearchRequest: { Authentication, TravelType },
     } = req.body;
@@ -22,6 +34,7 @@ module.exports.validateAirBooking = async function (req) {
       "paymentMethodType",
       "paymentGateway",
     ];
+
     const missingFields = fieldNames.filter(
       (fieldName) => req.body.SearchRequest[fieldName] == null
     );

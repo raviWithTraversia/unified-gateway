@@ -570,7 +570,7 @@ const KafilaFun = async (
             // console.log(PassengerType, "PassengerType");
             const discountOrSegmentValue=Math.round(Amount)
             // console.log(CommercialType + "=" + discountOrSegmentValue, "before adding");
-            returnCalculatedOfferedPrice += (discountOrSegmentValue * 0.05) * NoOfPassenger
+            returnCalculatedOfferedPrice += (discountOrSegmentValue * 0.02) * NoOfPassenger
             // console.log(returnCalculatedOfferedPrice, "tdsAmount");
           }
         });

@@ -114,7 +114,7 @@ const manualDebitCredit = async (req, res) => {
         if(DIdata !=null || DIdata != 0){
 
 
-          let tdsAmount = parseInt(DIdata) * (5/100);
+          let tdsAmount = parseInt(DIdata) * (2/100);
           if(tdsAmount != 0){
             const findUser = await User.findById(userId);
             const configData = await agentConfig.findOne({ userId });

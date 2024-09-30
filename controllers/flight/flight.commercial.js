@@ -9319,8 +9319,8 @@ const commertialMatrixValue = async (
           //  tax.TDS += getAgentConfig.tds
           // }
           const tdsCheckFromConfig = configDetails.IsSuccess
-            ? configDetails.data.tds || 5
-            : 5;
+            ? configDetails.data.tds || 2
+            : 2;
           const existingBookingFeesIndex = tax.CommercialBreakup.findIndex(
             (item) =>
               item.SupplierType === supplierTypeFor &&
@@ -10383,8 +10383,8 @@ const commertialMatrixValue = async (
           if (existingBookingFeesIndex !== -1) {
             if (type === "ADT") {
               const tdsCheckFromConfig = configDetails.IsSuccess
-                ? configDetails.data.tds || 5
-                : 5;
+                ? configDetails.data.tds || 2
+                : 2;
               const existingTDSIndex = tax.CommercialBreakup.findIndex(
                 (item) =>
                   item.SupplierType === supplierTypeFor &&
@@ -10407,8 +10407,8 @@ const commertialMatrixValue = async (
               }
             } else if (type === "CHD") {
               const tdsCheckFromConfig = configDetails.IsSuccess
-                ? configDetails.data.tds || 5
-                : 5;
+                ? configDetails.data.tds || 2
+                : 2;
               const existingTDSIndex = tax.CommercialBreakup.findIndex(
                 (item) =>
                   item.SupplierType === supplierTypeFor &&
@@ -10432,8 +10432,8 @@ const commertialMatrixValue = async (
               }
             } else if (type === "INF") {
               const tdsCheckFromConfig = configDetails.IsSuccess
-                ? configDetails.data.tds || 5
-                : 5;
+                ? configDetails.data.tds || 2
+                : 2;
               const existingTDSIndex = tax.CommercialBreakup.findIndex(
                 (item) =>
                   item.SupplierType === supplierTypeFor &&

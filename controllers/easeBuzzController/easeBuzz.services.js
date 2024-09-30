@@ -171,7 +171,7 @@ const easeBuzzResponce = async (req, res) => {
           fop: "DEBIT",
           transactionType: "CREDIT",
           runningAmount: newBalanceCredit,
-          remarks: "Booking Amount Deducted from Your Account(Easebuzz).",
+          remarks: "Bookings Amount Deducted from Your Account(Easebuzz).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
@@ -450,10 +450,10 @@ const easeBuzzResponce = async (req, res) => {
         if (results.length > 0) {
           if (itemAmount !== 0) {
             const runnnigBalance = newBalanceCredit - itemAmount;
-            await agentConfig.updateOne(
-              { userId: getuserDetails._id },
-              { maxcreditLimit: runnnigBalance }
-            );
+            // await agentConfig.updateOne(
+            //   { userId: getuserDetails._id },
+            //   { maxcreditLimit: runnnigBalance }
+            // );
             // await ledger.create({
             //   userId: getuserDetails._id,
             //   companyId: getuserDetails.company_ID._id,
@@ -463,7 +463,7 @@ const easeBuzzResponce = async (req, res) => {
             //   fop: "DEBIT",
             //   transactionType: "CREDIT",
             //   runningAmount: runnnigBalance,
-            //   remarks: "Booking Amount Add Into Your Account.",
+            //   remarks: "Booking Amount Add Into 2nd Your Account.",
             //   transactionBy: getuserDetails._id,
             //   cartId: udf1,
             // });

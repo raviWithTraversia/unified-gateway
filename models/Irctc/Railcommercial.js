@@ -39,3 +39,6 @@ description:String
 timestamps: true,
 }
 )
+
+const railCommercial = mongoose.model("railCommercial", RailcommercialSchema);
+module.exports = railCommercial;

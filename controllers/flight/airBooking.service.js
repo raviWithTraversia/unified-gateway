@@ -556,10 +556,23 @@ const KafilaFun = async (
 
         CommercialBreakup?.forEach((commercialBreakup) => {
           let { CommercialType, Amount } = commercialBreakup;
-          if (offerPriceMinusInAmount(CommercialType))
-            returnCalculatedOfferedPrice -= Number(Amount) * NoOfPassenger;
-          else if (offerPricePlusInAmount(CommercialType))
-            returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
+          if (
+            offerPricePlusInAmount(CommercialType) &&
+            CommercialType != "TDS"
+          )
+            returnCalculatedOfferedPrice += Math.round(Amount) * NoOfPassenger;
+           if (offerPriceMinusInAmount(CommercialType))
+            returnCalculatedOfferedPrice -= Math.round(Amount) * NoOfPassenger;
+          if (
+            CommercialType == "Discount" ||
+            CommercialType == "SegmentKickback"
+          ) {
+            // console.log(PassengerType, "PassengerType");
+            const discountOrSegmentValue=Math.round(Amount)
+            // console.log(CommercialType + "=" + discountOrSegmentValue, "before adding");
+            returnCalculatedOfferedPrice += (discountOrSegmentValue * 0.05) * NoOfPassenger
+            // console.log(returnCalculatedOfferedPrice, "tdsAmount");
+          }
         });
       }
     });
@@ -595,7 +608,7 @@ const KafilaFun = async (
 
   const calculationOfferPriceWithCommercial =
     await calculateOfferedPriceForAll();
-
+''
   // Check Balance Available or Not Available
   const totalSSRWithCalculationPrice =
     calculationOfferPriceWithCommercial + totalssrPrice;

@@ -112,6 +112,7 @@ const manualDebitCredit = async (req, res) => {
       pgCharges,
       product,
       remarks,
+      bookingId,
       ApplyDI,
       easeBuzzSuccessReponse,
     } = req.body;
@@ -210,6 +211,7 @@ console.log('shdadajeieien')
         runningAmount,
         remarks,
         transactionBy: loginUser._id,
+        cartId:bookingId||" ",
         product,
       });
     }
@@ -226,6 +228,7 @@ console.log('shdadajeieien')
           runningAmount: runningAmount - parseInt(pgCharges),
           remarks: "Wallet debited for PG charges(EaseBuzz)",
           transactionBy: loginUser._id,
+          cartId:bookingId||" "
         });
         await agentConfig.findOneAndUpdate(
           { userId: userId },
@@ -285,6 +288,7 @@ console.log('shdadajeieien')
             runningAmount,
             remarks: `TDS against ${tdsAmount} DI deposit.`,
             transactionBy: loginUser._id,
+            cartId:bookingId||" ",
             product,
           });
           const LogsData = {
@@ -335,6 +339,7 @@ console.log('shdadajeieien')
         runningAmount,
         remarks,
         transactionBy: loginUser._id,
+        cartId:bookingId||" ",
         product,
       });
       const LogsData = {

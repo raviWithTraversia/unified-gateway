@@ -14,6 +14,7 @@ const {
   calculateOfferedPricePaxWise,
   getTicketNumberBySector,
   priceRoundOffNumberValues,
+  getTdsAndDsicount
 } = require("../commonFunctions/common.function");
 
 const ISOTime = async (time) => {
@@ -112,17 +113,19 @@ const getAllBooking = async (req, res) => {
     const filter = {};
 
 // Filter by AgencyId
+console.log('djei')
 
 if(agencyId=="6555f84c991eaa63cb171a9f"&&checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual"){
   filter.companyId= new ObjectId(agencyId)
 }
 
 else if (agencyId !== undefined && agencyId !== "") {
+  console.log('djie')
   filter.AgencyId = new ObjectId(agencyId);
 }
 else{
   console.log("jdi")
-  checkUserIdExist.roleId.type == "Manual"?filter.companyId=checkUserIdExist.company_ID._id: filter.userId=new ObjectId(userId)
+  checkUserIdExist.roleId.type == "Manual"&&checkUserIdExist.company_ID?.type=="TMC"?filter.companyId=checkUserIdExist.company_ID._id: filter.AgencyId=new ObjectId(checkUserIdExist?.company_ID?._id)
 }
 
 // Filter by bookingId
@@ -155,7 +158,7 @@ if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && 
     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
   };
 }
-
+console.log(filter)
 // Use the filter in the aggregation pipeline
 const bookingDetails = await bookingdetails.aggregate([
   { $match: filter }, // Apply the filter here
@@ -519,13 +522,16 @@ const bookingDetails = await bookingdetails.aggregate([
       checkUserIdExist?.company_ID == new ObjectId("6555f84c991eaa63cb171a9f"))
   ) {
     let filter = {};
-    if (agencyId !== undefined && agencyId !== "") {
+    if (agencyId !== undefined && agencyId !== ""&&agencyId != new ObjectId("6555f84c991eaa63cb171a9f")) {
       // filter.userId={}
-      filter.companyId = new ObjectId(agencyId);
+      checkUserIdExist?.roleId?.type == "Manual"?filter.companyId = new ObjectId(agencyId):filter.AgencyId=new ObjectId(agencyId);
       // let allagencyId = agencyId.map(id => new ObjectId(id));
       // filter.AgencyId={$in:allagencyId}
 
       // console.log(filter.AgencyId)
+    }
+    else if(agencyId !== undefined &&agencyId !== "" ){
+      filter.companyId = new ObjectId(agencyId)
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -1609,11 +1615,12 @@ const getBookingBill = async (req, res) => {
   if (Config.MODE === "LIVE") {
     MODEENV = "P";
   }
+
   const bookingBill = await passengerPreferenceSchema.aggregate([
     {
       $match: {
         createdAt: {
-          $gte: new Date(fromDate +"T00:00:00.000Z"),
+          $gte: new Date(fromDate + "T00:00:00.000Z"),
           $lte: new Date(toDate + "T23:59:59.999Z"),
         },
       },
@@ -1625,6 +1632,9 @@ const getBookingBill = async (req, res) => {
         ticketNo: "$Passengers.Optional",
         paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
         PaxType: "$Passengers.PaxType",
+        totalBaggagePrice: "$Passengers.totalBaggagePrice",
+        totalMealPrice: "$Passengers.totalMealPrice",
+        totalSeatPrice: "$Passengers.totalSeatPrice",
       },
     },
     {
@@ -1639,9 +1649,7 @@ const getBookingBill = async (req, res) => {
     {
       $match: {
         "bookingData.bookingStatus": "CONFIRMED",
-        "bookingData.AgencyId": agencyId
-          ? new ObjectId(agencyId)
-          : { $exists: true },
+        "bookingData.userId": agencyId ? new ObjectId(agencyId) : { $exists: true },
       },
     },
     {
@@ -1671,28 +1679,26 @@ const getBookingBill = async (req, res) => {
         paxName: 1,
         ticketNo: 1,
         PaxType: 1,
+        totalBaggagePrice: 1,
+        totalMealPrice: 1,
+        totalSeatPrice: 1,
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
         agentId: { $arrayElemAt: ["$userdata.userId", 0] },
         pnr: "$bookingData.PNR",
         cartId: "$bookingData.bookingId",
-        itemAmount: {
-          $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0],
-        },
+        paxTotal: "$Passengers.totalBaggagePrice",
+        itinerary: "$bookingData.itinerary",
+        itemAmount: { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0] },
         sector: {
           $concat: [
             {
-              $arrayElemAt: [
-                "$bookingData.itinerary.Sectors.Departure.Code",
-                0,
-              ],
+              $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Code", 0],
             },
             " ",
             {
               $arrayElemAt: [
                 "$bookingData.itinerary.Sectors.Arrival.Code",
-                {
-                  $subtract: [{ $size: "$bookingData.itinerary.Sectors" }, 1],
-                },
+                { $subtract: [{ $size: "$bookingData.itinerary.Sectors" }, 1] },
               ],
             },
           ],
@@ -1706,16 +1712,10 @@ const getBookingBill = async (req, res) => {
         },
         class: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Class", 0] },
         ccUserName: "AUTO",
-        travelDateOutbound: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0],
-        },
-        travelDateInbound: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0],
-        },
+        travelDateOutbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0] },
+        travelDateInbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0] },
         issueDate: "$bookingData.bookingDateTime",
-        airlineTax: {
-          $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.Tax", 0],
-        },
+        airlineTax: { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.Tax", 0] },
         tranFee: "0",
         sTax: "0",
         commission: "0",
@@ -1724,9 +1724,7 @@ const getBookingBill = async (req, res) => {
         accountPost: "$bookingData.accountPost",
         purchaseCode: "0",
         flightCode: "$bookingData.Supplier",
-        airlineName: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
-        },
+        airlineName: { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0] },
         bookingId1: {
           $concat: [
             { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
@@ -1741,17 +1739,37 @@ const getBookingBill = async (req, res) => {
     },
   ]);
 
+  let processedBookingIds = new Set();
   for (let [index, element] of bookingBill.entries()) {
     let netAmount = 0;
     netAmount = await calculateOfferedPricePaxWise(element);
 
+      switch (element.PaxType) {
+        case "ADT": // Adult
+          element.itemAmount = element.itinerary.PriceBreakup[0]?.BaseFare || 0;
+          element.airlineTax=element.itinerary.PriceBreakup[0]?.Tax || 0;
+          break;
+        case "CHD": // Child
+          element.itemAmount = element.itinerary.PriceBreakup[1]?.BaseFare || 0;
+          element.airlineTax=element.itinerary.PriceBreakup[1]?.Tax || 0;
+
+          break;
+        case "INF": // Infant
+          element.itemAmount = element.itinerary.PriceBreakup[2]?.BaseFare || 0;
+          element.airlineTax=element.itinerary.PriceBreakup[2]?.Tax || 0;
+
+          break;
+        default:
+          element.itemAmount = 0; // Default if no match
+      }
+
     for (let item of element?.getCommercialArray) {
+      
+
       for (let items of item?.CommercialBreakup) {
         if (items?.CommercialType == "Discount") {
           element.commission = parseFloat(
-            (parseFloat(element.commission) + parseFloat(items.Amount)).toFixed(
-              2
-            )
+            (parseFloat(element.commission) + parseFloat(items.Amount)).toFixed(2)
           );
         }
         if (items?.CommercialType == "TDS") {
@@ -1760,18 +1778,24 @@ const getBookingBill = async (req, res) => {
           );
         }
       }
+    }
 
-      // Rounding off the values
-      element.netAmount = await priceRoundOffNumberValues(netAmount);
-      let ccomisn = await priceRoundOffNumberValues(element.commission);
-      element.commission = ccomisn;
-      element.tds = await priceRoundOffNumberValues(element.tds);
-      console.log(element.tds, "sjie");
+    let getTdsamount = await getTdsAndDsicount([element.itinerary]);
+
+    if (processedBookingIds.has(element.bookingId)) {
+      element.commission = 0;
+      element.tds = 0;
+      delete element.itinerary;
+    } else {
+      element.commission = getTdsamount.ldgrdiscount;
+      element.tds = getTdsamount.ldgrtds;
+      processedBookingIds.add(element.bookingId);
+      delete element.itinerary;
     }
   }
+  
 
   bookingBill.forEach(async (element, index) => {
-    console.log(element.ticketNo?.ticketDetails, element.sector, "tsdysdyu");
     let ticketNumber = [element.pnr];
     if (element.ticketNo?.ticketDetails) {
       ticketNumber = await getTicketNumberBySector(
@@ -1779,7 +1803,6 @@ const getBookingBill = async (req, res) => {
         element.sector
       );
     }
-    console.log(ticketNumber, "ticketNumber");
     element.ticketNo =
       ticketNumber.length != 0 &&
       ticketNumber[0] != null &&
@@ -1787,7 +1810,6 @@ const getBookingBill = async (req, res) => {
         ? ticketNumber[0]
         : element.pnr;
     element.id = index + 1;
-    // element.netAmount = netAmount;
   });
 
   if (!bookingBill.length) {
@@ -1803,6 +1825,7 @@ const getBookingBill = async (req, res) => {
 
 const getSalesReport = async (req, res) => {
   const { agencyId, fromDate, toDate } = req.body;
+  console.log(agencyId)
   const salesReport = await passengerPreferenceSchema.aggregate([
     {
       $match: {
@@ -1838,7 +1861,7 @@ const getSalesReport = async (req, res) => {
     {
       $match: {
         "bookingData.bookingStatus": "CONFIRMED",
-        "bookingData.AgencyId": agencyId
+        "bookingData.userId": agencyId
           ? new ObjectId(agencyId)
           : { $exists: true },
       },
@@ -2071,13 +2094,15 @@ const getSalesReport = async (req, res) => {
 
 const getBookingByPaxDetails = async (req, res) => {
   const { paxName, userId, ticketNumber } = req.body;
-const CheckRole=await User.findById(userId).populate("roleId")
+const CheckRole=await User.findById(userId).populate([{path:"roleId"},{path:"company_ID", select:"type"}])
 var SearchFilterUserId
-if(CheckRole?.roleId?.name!="TMC"){
+if(CheckRole?.roleId?.name!="TMC"&&CheckRole?.roleId?.name=="Agency"){
   SearchFilterUserId={"userId":new ObjectId(userId)}
 }
+
 else{
-  SearchFilterUserId={"companyId":new ObjectId(CheckRole.company_ID)}
+
+ CheckRole?.company_ID?.type=="Agency"?SearchFilterUserId={"userId":new ObjectId(CheckRole.company_ID)}: SearchFilterUserId={"companyId":new ObjectId(CheckRole.company_ID)}
 }
 console.log(SearchFilterUserId,"djie")
   if (ticketNumber) {
@@ -2113,8 +2138,9 @@ console.log(getPaxByTicket,"dji")
       });
     });
     if (!getPaxByTicket.length) {
-      const getPaxByPnr = await bookingdetails.findOne({ PNR: ticketNumber,userId:userId});
-      console.log(getPaxByPnr,'djij')
+      SearchFilterUserId.PNR=ticketNumber;
+      console.log(SearchFilterUserId)
+      const getPaxByPnr = await bookingdetails.findOne(SearchFilterUserId);
       if (!getPaxByPnr) {
         return {
           response: "Data Not Found",
@@ -2233,8 +2259,7 @@ console.log(getPaxByTicket,"dji")
       },
     },
   ]);
-  
-
+  console.log(getPassenger,"jiei")
   getPassenger.forEach((items) => {
     if (
       items?.passengerPreference &&
@@ -2274,17 +2299,19 @@ const getBillingData = async (req, res) => {
       response: "Please provide required fields",
     };
   }
+
   let MODEENV = "D";
   let authKey = "667bd5d44dccc9b2d2b80690";
   if (Config.MODE === "LIVE") {
     MODEENV = "P";
     authKey = "667bd64d2ca70f085a8328ca";
   }
-  if (authKey != key) {
+  if (authKey !== key) {
     return {
       response: "Access Denied! Provide a valid Key!",
     };
   }
+
   const billingData = await passengerPreferenceSchema.aggregate([
     {
       $match: {
@@ -2337,22 +2364,14 @@ const getBillingData = async (req, res) => {
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
         agentId: { $arrayElemAt: ["$userdata.userId", 0] },
         pnr: "$bookingData.PNR",
-        itemAmount: "$bookingData.itinerary.BaseFare",
         sector: {
           $concat: [
-            {
-              $arrayElemAt: [
-                "$bookingData.itinerary.Sectors.Departure.Code",
-                0,
-              ],
-            },
+            { $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Code", 0] },
             " ",
             {
               $arrayElemAt: [
                 "$bookingData.itinerary.Sectors.Arrival.Code",
-                {
-                  $subtract: [{ $size: "$bookingData.itinerary.Sectors" }, 1],
-                },
+                { $subtract: [{ $size: "$bookingData.itinerary.Sectors" }, 1] },
               ],
             },
           ],
@@ -2366,12 +2385,8 @@ const getBillingData = async (req, res) => {
         },
         class: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Class", 0] },
         ccUserName: "AUTO",
-        travelDateOutbound: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0],
-        },
-        travelDateInbound: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0],
-        },
+        travelDateOutbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0] },
+        travelDateInbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0] },
         issueDate: "$bookingData.bookingDateTime",
         airlineTax: "0",
         tranFee: "0",
@@ -2381,9 +2396,7 @@ const getBillingData = async (req, res) => {
         cashback: "0",
         purchaseCode: "0",
         flightCode: "$bookingData.Supplier",
-        airlineName: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
-        },
+        airlineName: { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0] },
         bookingId1: {
           $concat: [
             { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
@@ -2393,21 +2406,34 @@ const getBillingData = async (req, res) => {
           ],
         },
         getCommercialArray: "$bookingData.itinerary.PriceBreakup",
+        itinerary: "$bookingData.itinerary",
+
+        baseFare: { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0] },
+
+        itemAmount: {
+          $add: [
+            { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0] },
+            "$Passengers.totalBaggagePrice",
+            "$Passengers.totalMealPrice",
+            "$Passengers.totalSeatPrice",
+          ],
+        },
       },
     },
   ]);
 
+  // Remaining processing logic after fetching data
+  let processedBookingIds = new Set();
+
   for (const [index, element] of billingData.entries()) {
     element.getCommercialArray.map((items) => {
       if (element.paxType === items.PassengerType) {
-        element.itemAmount = items?.BaseFare;
+        element.baseFare = items?.BaseFare;
         element.airlineTax = items?.Tax;
         items.CommercialBreakup.map((item) => {
           if (item.CommercialType == "Discount") {
             element.commission = parseFloat(
-              (parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(
-                2
-              )
+              (parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(2)
             );
           }
           if (item.CommercialType == "TDS") {
@@ -2418,12 +2444,20 @@ const getBillingData = async (req, res) => {
         });
       }
     });
-    // console.log(element?.ticketNo?.ticketDetails,"jkddskjjd");
 
-    let ccomisn = await priceRoundOffNumberValues(element.commission);
-    element.commission = ccomisn;
-    element.tds = await priceRoundOffNumberValues(element.tds);
-    console.log(element.tds, "sjie");
+    let getTdsamount = await getTdsAndDsicount([element.itinerary]);
+
+    if (processedBookingIds.has(element.bookingId)) {
+      element.commission = 0;
+      element.tds = 0;
+      delete element.itinerary;
+    } else {
+      element.commission = getTdsamount.ldgrdiscount;
+      element.tds = getTdsamount.ldgrtds;
+      processedBookingIds.add(element.bookingId);
+      delete element.itinerary;
+    }
+
     let ticketNumber = [element.pnr];
     if (element.ticketNo?.ticketDetails) {
       ticketNumber = await getTicketNumberBySector(
@@ -2432,17 +2466,16 @@ const getBillingData = async (req, res) => {
       );
     }
     element.ticketNo =
-      ticketNumber.length != 0 &&
-      ticketNumber[0] != null &&
-      ticketNumber[0] != ""
+      ticketNumber.length != 0 && ticketNumber[0] != null && ticketNumber[0] != ""
         ? ticketNumber[0]
         : element.pnr;
-    // element.ticketNo = element.ticketNo ? element.ticketNo : element.pnr;
+
     element.id = index + 1;
     element.travelDateOutbound = await ISTTime(element.travelDateOutbound);
     element.travelDateInbound = await ISTTime(element.travelDateInbound);
     element.issueDate = await ISTTime(element.issueDate);
     delete element.getCommercialArray;
+    delete element.baseFare
   }
 
   if (!billingData.length) {
@@ -2450,11 +2483,14 @@ const getBillingData = async (req, res) => {
       response: "Data Not Found",
     };
   }
+
   return {
     response: "Fetch Data Successfully",
     data: billingData,
   };
 };
+
+
 
 const updateBillPost = async (req, res) => {
   const { accountPostArr } = req.body;

@@ -3,6 +3,7 @@ const Company = require("../../models/Company");
 const axios = require("axios");
 const { Config } = require("../../configs/config");
 const jwt=require('jsonwebtoken');
+const RailBookingSchema=require('../../models/Irctc/bookingDetailsRail')
 
 const getRailSearch = async (req, res) => {
   try {
@@ -306,6 +307,21 @@ const DecodeToken = async (req, res) => {
     let jsonData;
     try {
       jsonData = JSON.parse(responseData);
+      let bookingDateStr =jsonData.bookingDate;
+
+bookingDateStr = bookingDateStr.replace(".0", "").replace(" IST", "");
+
+let [datePart, timePart] = bookingDateStr.split(" ");
+
+let [day, month, year] = datePart.split("-");
+let formattedDate = `${year}-${month}-${day}T${timePart}`;
+
+
+      jsonData.bookingStatus="CONFIRMED";
+
+      jsonData.bookingDate=new Date(formattedDate)
+      console.log(jsonData.clientTransactionId)
+      const updaterailBooking=await RailBookingSchema.findOneAndUpdate({clientTransactionId:jsonData.clientTransactionId},{$set:jsonData},{new:true})
       let successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -361,12 +377,13 @@ const DecodeToken = async (req, res) => {
           <h1 class="success-txt">Ticket Booked Successful!</h1>
           <p class="success-txt">Your Ticket has been Booked successfully...</p>
           <p>Thank you for your purchase.</p>
-            <p>PNR No.: ${jsonData.pnrNumber}</p>
+            <p>PNR No.: ${updaterailBooking.pnrNumber}</p>
           <a href="${
             Config[Config.MODE].baseURL
-          }/home/manageBooking/cart-details-review?PNR=${jsonData.pnrNumber}">Go to Merchant...</a>
+          }/home/manageRailBooking/railCartDetails?bookingId=${updaterailBooking.clientTransactionId}">Go to Merchant...</a>
         </div>
-      </body>}
+      </body>
+ 
       </html>`;
       return successHtmlCode
     } catch (jsonError) {
@@ -388,6 +405,8 @@ const DecodeToken = async (req, res) => {
     });
   }
 };
+
+
 
 
 module.exports = {

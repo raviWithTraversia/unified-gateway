@@ -14,7 +14,7 @@ const { Error } = require("mongoose");
 const ledger = require("../../models/Ledger");
 const { Config } = require("../../configs/config");
 const flightCache = new NodeCache();
-const {RefundedCommonFunction}=require('../../controllers/commonFunctions/common.function');
+const {RefundedCommonFunction,getTdsAndDsicount}=require('../../controllers/commonFunctions/common.function');
 const InvoicingData = require("../../models/booking/InvoicingData");
 const {ObjectId}=require("mongodb")
 
@@ -173,7 +173,8 @@ const CancelBookingData = await bookingDetails.aggregate([
       InvoicingData: { $first: "$invoicingdatas._id" },
       AirlineCode: { $first: { $ifNull: [{ $arrayElemAt: ["$itinerary.Sectors.AirlineCode", 0] }, ""] } },
       SalePurchase: { $first: { $ifNull: ["$SalePurchase", ""] } },
-      farefamily: { $first: { $ifNull: ["$itinerary.FareFamily", ""] } }
+      farefamily: { $first: { $ifNull: ["$itinerary.FareFamily", ""] } },
+      itinerary:{$first:"$itinerary"}
     }
   },
   {
@@ -200,12 +201,16 @@ const CancelBookingData = await bookingDetails.aggregate([
           `${MODEENV}~`,
           "$farefamily"
         ]
-      }
+      },
+      itinerary:1
     
       }
   }
 ]);
 
+// console.log(CancelBookingData[0]?.itinerary,"jdi")
+// const DealAmountAndTds=await 
+const getTdsAndDsicounts=await getTdsAndDsicount([CancelBookingData[0]?.itinerary])
 invoiceNumber =CancelBookingData[0]?.agentconfigurations?.CreditNotesPrefix  + invoiceRandomNumber;
 
 console.log(invoiceNumber)
@@ -255,7 +260,8 @@ if (!creditNote) {
         totalRefundAmount: CancelBookingData[0]?.cancelData?.AirlineRefund,
         totalServiceCharges: CancelBookingData[0]?.cancelData?.ServiceFee,
         status: CancelBookingData[0]?.cancelData?.calcelationStatus,
-        bookingId1:CancelBookingData[0]?.bookingId1
+        bookingId1:CancelBookingData[0]?.bookingId1,
+        commision:getTdsAndDsicounts?.ldgrdiscount
     });
 
     await creditNote.save();
@@ -478,8 +484,6 @@ var supplier
       };
     }
 
-    console.log(supplier[0])
-  
 
   
     const refundHistoryResponse = await axios.post(Url, apiRequestBody);
@@ -517,6 +521,11 @@ if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="
     return({
       response:refundProcessed.response,
       
+    })
+  }
+  else{
+    return ({
+      response:"Data not Found"
     })
   }
 

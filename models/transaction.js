@@ -16,7 +16,8 @@ const transactionDetailsSchema = new mongoose.Schema(
     },
     trnsNo: {
       type: String,
-      default: null,
+      unique:true
+
     },
     cardNo: {
       // INR

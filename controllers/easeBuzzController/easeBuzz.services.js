@@ -82,7 +82,6 @@ const easeBuzzResponce = async (req, res) => {
     console.log(req.body,"jkssddjsj");
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
-
       if (BookingTempData) {
         const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
         const PassengerPreferences = JSON.parse(
@@ -176,7 +175,6 @@ const easeBuzzResponce = async (req, res) => {
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
-
         await ledger.create({
           userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
@@ -240,11 +238,37 @@ const easeBuzzResponce = async (req, res) => {
               type: "API Log",
               BookingId: udf1,
               product: "Flight",
-              logName: "Flight Search",
+              logName: "Air Booking",
               request: requestDataFSearch,
               responce: fSearchApiResponse?.data,
             };
+            const logData1 = {
+              traceId: Authentication.TraceId,
+              companyId: Authentication.CompanyId,
+              userId: Authentication.UserId,
+              source: "Kafila",
+              type: "Portal log",
+              BookingId: udf1,
+              product: "Flight",
+              logName: "Air Booking",
+              request: requestDataFSearch,
+              responce: fSearchApiResponse?.data,
+            };
+            const logData2 = {
+              traceId: Authentication.TraceId,
+              companyId: Authentication.CompanyId,
+              userId: Authentication.UserId,
+              source: "Kafila",
+              type: "Portal log",
+              BookingId: udf1,
+              product: "Flight",
+              logName: "EazeBuzz Response",
+              request: "Request captured from portal",
+              responce: req.body,
+            };
             Logs(logData);
+            Logs(logData1);
+            Logs(logData2);
             if (fSearchApiResponse.data.Status == "failed" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
               await BookingDetails.updateOne(
                 {
@@ -257,6 +281,24 @@ const easeBuzzResponce = async (req, res) => {
                     bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED" ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark : fSearchApiResponse?.data?.ErrorMessage || error.message,
                   },
                 }
+              );
+              await ledger.create({
+                userId: allIds[0], //getuserDetails._id,
+                companyId: getuserDetails.company_ID._id,
+                ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+                transactionAmount: totalItemAmount,
+                currencyType: "INR",
+                fop: "DEBIT",
+                transactionType: "CREDIT",
+                runningAmount: newBalanceCredit,
+                remarks: `Refund Amount for Booking`,
+                transactionBy: getuserDetails._id,
+                cartId: udf1,
+              });
+
+              await agentConfig.updateOne(
+                { userId: allIds[0] },
+                { $inc: { maxcreditLimit: totalItemAmount } }
               );
               return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
             }
@@ -282,6 +324,7 @@ const easeBuzzResponce = async (req, res) => {
               PassengerPreferences: PassengerPreferences,
               userDetails: getuserDetails,
             };
+            console.log(fSearchApiResponse.data,'shadaab ali')
             await BookingDetails.updateOne(
               {
                 bookingId: udf1,
@@ -354,7 +397,7 @@ const easeBuzzResponce = async (req, res) => {
               await transaction.create({
                 userId: Authentication.UserId,
                 bookingId:item?.BookingId,
-                companyId: Authentication.CompanyId,
+                companyId:getAgentConfigForUpdateagain.companyId,
                 trnsNo: txnid,
                 trnsType: "DEBIT",
                 paymentMode: card_type,
@@ -436,7 +479,8 @@ const easeBuzzResponce = async (req, res) => {
           };
         }
       }
-    } else {
+    } 
+    else {
       await BookingDetails.updateMany(
         { bookingId: udf1 },
         {

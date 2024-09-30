@@ -236,13 +236,7 @@ const userInsert = async (req, res) => {
         data: null
       };
     }
-    const existingCompany = await Company.findOne({ companyName: companyName });
-    if (existingCompany) {
-      return {
-        response: "Company with this companyName already exists",
-        data: null,
-      };
-    };
+    
     let findRole = await Role.findOne({ _id: roleId })
     if (!type) {
       type = findRole?.name || null
@@ -479,7 +473,7 @@ const forgotPassword = async (req, res) => {
       let cId = '6555f84c991eaa63cb171a9f'
       baseUrl = await webMaster.find({ companyId: cId });
     };
-    baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'http://localhost:3111/api';
+    baseUrl = Config.MODE=="TEST"? Config.TEST.baseURL : Config.LIVE.baseURL;
     const forgetPassWordMail = await commonFunction.sendPasswordResetEmail(
       email,
       resetToken,
@@ -868,69 +862,80 @@ const getAllAgencyAndDistributer = async (req, res) => {
       },
       {$unwind:{path:"$agentconfigurations" ,preserveNullAndEmptyArrays: true}},
       
-      { 
-        $project: {
-          _id: 1,
-          'company_ID._id': 1,
-          'company_ID.companyName': 1,
-          'company_ID.type': 1,
-          'company_ID.companyStatus': 1,
-          'company_ID.cashBalance': 1,
-          'company_ID.creditBalance': 1,
-          'company_ID.maxCreditLimit': 1,
-          'company_ID.updatedAt': 1,
-          'company_ID.parent._id': 1,
-          'company_ID.parent.companyName': 1,
-          'company_ID.parent.type': 1,
-         salesIncharge:'$salesIncharge.salesInchargeIds',
-"salesInchargeData.fname":1,
-"salesInchargeData.lastName":1,
-"salesInchargeData.title":1,
-          userType: 1,
-          login_Id: 1,
-          email: 1,
-          deactivation_Date: 1,
-          logoURI: 1,
-          roleId: 1,
-          title: 1,
-          fname: 1,
-          lastName: 1,
-          password: 1,
-          securityStamp: 1,
-          phoneNumber: 1,
-          twoFactorEnabled: 1,
-          lockoutEnabled: 1,
-          accessfailedCount: 1,
-          emailConfirmed: 1,
-          phoneNumberConfirmed: 1,
-          userStatus: 1,
-          userPanName: 1,
-          userPanNumber: 1,
-          sex: 1,
-          dob: 1,
-          nationality: 1,
-          deviceToken: 1,
-          deviceID: 1,
-          user_planType: 1,
-          sales_In_Charge: 1,
-          personalPanCardUpload: 1,
-          created_Date: 1,
-          lastModifiedDate: 1,
-          last_LoginDate: 1,
-          activation_Date: 1,
-          createdAt: 1,
-          updatedAt: 1,
-          resetToken: 1,
-          ip_address: 1,
-          userId: 1,
-          encryptUserId: 1,
-          maxcreditLimit:'$agentconfigurations.maxcreditLimit'
+      {
+        $group: {
+          _id: "$_id",
+          company_ID: {
+            $first: {
+              _id: "$company_ID._id",
+              companyName: "$company_ID.companyName",
+              type: "$company_ID.type",
+              companyStatus: "$company_ID.companyStatus",
+              cashBalance: "$company_ID.cashBalance",
+              creditBalance: "$company_ID.creditBalance",
+              maxCreditLimit: "$company_ID.maxCreditLimit",
+              updatedAt: "$company_ID.updatedAt",
+              parent: {
+                _id: "$company_ID.parent._id",
+                companyName: "$company_ID.parent.companyName",
+                type: "$company_ID.parent.type"
+              }
+          
+          }},
+          salesIncharge: { $first: "$salesIncharge.salesInchargeIds" },
+          salesInchargeData:{$first:{ fname:  "$salesInchargeData.fname" ,
+          lastName:  "$salesInchargeData.lastName",
+          title: "$salesInchargeData.title" }},
+
+         userType: { $first: "$userType" },
+          login_Id: { $first: "$login_Id" },
+          email: { $first: "$email" },
+          deactivation_Date: { $first: "$deactivation_Date" },
+          logoURI: { $first: "$logoURI" },
+          roleId: { $first: "$roleId" },
+          title: { $first: "$title" },
+          fname: { $first: "$fname" },
+          lastName: { $first: "$lastName" },
+          password: { $first: "$password" },
+          securityStamp: { $first: "$securityStamp" },
+          phoneNumber: { $first: "$phoneNumber" },
+          twoFactorEnabled: { $first: "$twoFactorEnabled" },
+          lockoutEnabled: { $first: "$lockoutEnabled" },
+          accessfailedCount: { $first: "$accessfailedCount" },
+          emailConfirmed: { $first: "$emailConfirmed" },
+          phoneNumberConfirmed: { $first: "$phoneNumberConfirmed" },
+          userStatus: { $first: "$userStatus" },
+          userPanName: { $first: "$userPanName" },
+          userPanNumber: { $first: "$userPanNumber" },
+          sex: { $first: "$sex" },
+          dob: { $first: "$dob" },
+          nationality: { $first: "$nationality" },
+          deviceToken: { $first: "$deviceToken" },
+          deviceID: { $first: "$deviceID" },
+          user_planType: { $first: "$user_planType" },
+          sales_In_Charge: { $first: "$sales_In_Charge" },
+          personalPanCardUpload: { $first: "$personalPanCardUpload" },
+          created_Date: { $first: "$created_Date" },
+          lastModifiedDate: { $first: "$lastModifiedDate" },
+          last_LoginDate: { $first: "$last_LoginDate" },
+          activation_Date: { $first: "$activation_Date" },
+          createdAt: { $first: "$createdAt" },
+          updatedAt: { $first: "$updatedAt" },
+          resetToken: { $first: "$resetToken" },
+          ip_address: { $first: "$ip_address" },
+          userId: { $first: "$userId" },
+          encryptUserId: { $first: "$encryptUserId" },
+          maxcreditLimit: { $first: "$agentconfigurations.maxcreditLimit" },
+          agentConfigID: { $first: "$agentconfigurations._id" }
         }
-      }
-    ]).exec();
+      },
+      {$sort:{userId:1}},
+      
+      
+    ])
     
     //console.log("=======>>>", users);
-    console.log(users)
+   
     let data = [];
     for (let i = 0; i < users.length; i++) {
       if (users[i].roleId.type == 'Manual') {

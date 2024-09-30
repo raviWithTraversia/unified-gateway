@@ -601,6 +601,47 @@ const amendmentCartCreate = async (req, res) => {
   }
 };
 
+const updatePendingBookingStatus = async (req, res) => {
+  try {
+    const result = await cancelationServices.updatePendingBookingStatus(req, res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (
+      result.response ===
+      "_BookingId or companyId or credentialsType does not exist" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Cancellation Data Not Found" ||
+      result.response === "Kafila API Data Not Found"||result.response === "Cancelation Data Not Found"||
+      result.response ==="TMC companyID Not Found"
+    ) {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "Status updated Successfully!") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+
 const getAllAmendment = async (req, res) => {
   try {
     const result = await amendment.getAllAmendment(req, res);
@@ -798,4 +839,5 @@ module.exports = {
   assignAmendmentUser,
   deleteAmendmentDetail,
   amadeusTest,
+  updatePendingBookingStatus
 };

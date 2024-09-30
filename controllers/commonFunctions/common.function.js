@@ -14,6 +14,11 @@ const agentConfig = require("../../models/AgentConfig");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
 const PassengerPreference = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
+const Railledger=require('../../models/Irctc/ledgerRail')
+const RailBookingSchema=require('../../models/Irctc/bookingDetailsRail');
+const { UserBindingInstance } = require("twilio/lib/rest/chat/v2/service/user/userBinding");
+const { UserDefinedMessageInstance } = require("twilio/lib/rest/api/v2010/account/call/userDefinedMessage");
+const transaction=require('../../models/transaction')
 
 const createToken = async (id) => {
   try {
@@ -1036,6 +1041,7 @@ const createLeadger = async (
 const getTdsAndDsicount = async (ItineraryPriceCheckResponses) => {
   let ldgrtds = 0;
   let ldgrdiscount = 0;
+  console.log(ItineraryPriceCheckResponses,"interieri")
   for (let ipb of ItineraryPriceCheckResponses) {
     let pricebrkup = ipb.PriceBreakup;
     if (pricebrkup) {
@@ -1186,8 +1192,9 @@ const RefundedCommonFunction = async (
               },
             });
             if (refund.CType === "PARTIAL") {
+              console.log('shdaaab')
               for (let cpassenger of refund.CSector[0]?.CPax) {
-                await PassengerPreference.findOneAndDelete(
+                await PassengerPreference.findOneAndUpdate(
                   {
                     bookingId: bookingDetails.bookingId,
                     "Passengers.FName": cpassenger.FName,
@@ -1227,12 +1234,9 @@ const RefundedCommonFunction = async (
               transactionBy: matchingBooking.userId,
             });
 
-            await agentConfig.findByIdAndUpdate(agentConfigData._id, {
-              $set: {
-                maxcreditLimit:
-                  agentConfigData.maxcreditLimit + refund.RefundableAmount,
-              },
-            });
+            await agentConfig.findByIdAndUpdate(agentConfigData._id, 
+              { $inc: { maxcreditLimit: refund.RefundableAmount } }
+            );
 
             await CancelationBooking.findOneAndUpdate(
               { bookingId: refund.BookingId },
@@ -1251,20 +1255,148 @@ const RefundedCommonFunction = async (
             );
 
             responseMessage = "Cancelation Proceed refund";
-          } else {
-            responseMessage = "Not Match BookingID";
+      } else if(refund?.IsCancelled&&!refund.IsRefunded){
+        console.log("djie")
+            console.log(matchingBooking?.bookingId)
+            const bookingDetails = await BookingDetails.findOne({
+              providerBookingId: matchingBooking?.bookingId,
+            });
+            if (refund.CType === "PARTIAL") {
+              for (let cpassenger of refund.CSector[0]?.CPax) {
+                await BookingDetails.findOneAndUpdate(
+                  { providerBookingId: matchingBooking?.bookingId },
+                  { $set: { bookingStatus: "PARIALLY CANCELLED" } },
+                  { new: true }
+                );
+    
+                await PassengerPreference.findOneAndUpdate(
+                  {
+                    bookingId: bookingDetails.bookingId,
+                    "Passengers.FName": cpassenger.FName,
+                    "Passengers.LName": cpassenger.lName,
+                  },
+                  {
+                    $set: { "Passengers.$.Status": "CANCELLED" },
+                  }
+                );
+              }
+            } else {
+              await BookingDetails.findOneAndUpdate(
+                { providerBookingId: matchingBooking?.bookingId },
+                { $set: { bookingStatus: "CANCELLED" } },
+                { new: true }
+              );
+  
+              await PassengerPreference.updateOne(
+                { bookingId: bookingDetails.bookingId },
+                {
+                  $set: { "Passengers.$[].Status": "CANCELLED" },
+                }
+              );
+            }
+
+
+            
+            await CancelationBooking.findOneAndUpdate(
+              { bookingId: refund.BookingId },
+              {
+                $set: {
+                  fare: refund.Fare,
+                  AirlineCancellationFee: refund.AirlineCancelFee,
+                  AirlineRefund: refund.RefundableAmount,
+                  ServiceFee: refund.CancelServiceCharge,
+                  RefundableAmt: refund.RefundableAmount,
+                  isRefund: false,
+                  calcelationStatus: "CANCEL",
+                },
+              },
+              { new: true }
+            );
+            
+            responseMessage = "Update Status Succefully";
           }
-          break; // Exit the inner loop once a match is found
+          // break; // Exit the inner loop once a match is found
         }
       }
     }
-
+console.log('dji')
     return { response: responseMessage };
   } catch (error) {
     throw error;
   }
 };
 
+const RailBookingCommonMethod=async(userId,amount,companyId,bookingId,paymentMethodType)=>{
+try{
+  if (paymentMethodType === "Wallet") {
+    try {
+      // Retrieve agent configuration
+      console.log('sdhfsdi')
+const getAgentConfig =await agentConfig.findOne({userId:userId})
+     
+      const checkCreditLimit =
+        getAgentConfig?.railCashBalance ?? 0 + amount;
+      const maxCreditLimit = getAgentConfig?.railCashBalance ?? 0;
+
+      console.log(getAgentConfig.railCashBalance)
+      // Check if balance is sufficient
+      if (checkCreditLimit < amount) {
+         return({response:"Your Balance is not sufficient"});
+      }
+
+      // Deduct balance from user configuration and update in DB
+      const newBalance = maxCreditLimit - amount;
+      await agentConfig.updateOne(
+        { userId:userId },
+        { railCashBalance: newBalance }
+      );
+
+      // Generate random ledger ID
+      var ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+
+      // Create ledger entry
+      await Railledger.create({
+        userId:userId,
+        companyId: companyId,
+        ledgerId: ledgerId,
+        transactionAmount:amount,
+        currencyType: "INR",
+        fop: "CREDIT",
+      transactionType: "DEBIT",
+        runningAmount: newBalance,
+        remarks: "Booking amount deducted from your account.",
+        transactionBy: userId,
+        cartId: bookingId,
+      });
+
+      // Create transaction Entry
+      await transaction.create({
+        userId: userId,
+        companyId: companyId,
+        trnsNo: Math.floor(100000 + Math.random() * 900000),
+        trnsType: "DEBIT",
+        paymentMode: "CL",
+        trnsStatus: "success",
+        transactionBy: userId,
+        bookingId:bookingId,
+      });
+
+      return ({
+        response:"amount transfer succefully"
+      })
+      //return addToLedger;
+    } catch (error) {
+      // Handle errors
+      console.log('shfeieiei')
+      console.error("Error:", error.message);
+      return "An error occurred. Please try again later.";
+    }
+  }
+
+}catch(error){
+throw error
+}
+}
 module.exports = {
   createToken,
   securePassword,
@@ -1295,4 +1427,5 @@ module.exports = {
   priceRoundOffNumberValues,
   RefundedCommonFunction,
   sendTicketSms,
+  RailBookingCommonMethod
 };

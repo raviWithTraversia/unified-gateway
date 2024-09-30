@@ -263,7 +263,7 @@ const approveAndRejectDeposit = async (req, res) => {
         fop: "Credit",
         transactionType: "Credit",
         runningAmount,
-        remarks: "Deposit request added into your account.",
+        remarks: remarks,
         transactionBy: updateResponse.userId,
         product: updateResponse.product,
       });

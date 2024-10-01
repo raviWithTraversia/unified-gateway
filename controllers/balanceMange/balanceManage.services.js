@@ -41,7 +41,7 @@ const getBalance = async (req, res) => {
     company_ID: userId,
   }).populate("roleId");
   const userWithAgencyRole = checkuserIdIdExistfind.find(
-    (user) => user.roleId.name === "Agency"
+    (user) => user.roleId.name === "Agency"||user.roleId.name === "Distributer"
   );
   const checkuserIdIdExistId = userWithAgencyRole
     ? userWithAgencyRole._id

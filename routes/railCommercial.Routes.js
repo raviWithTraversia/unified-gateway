@@ -6,6 +6,7 @@ router.post("/rail/rail-commercial-create", RailCommercialController.createComme
 router.get("/rail/rail-commercial-findAll/:companyId",RailCommercialController.FindTmcCommercial)
 router.get("/rail/rail-commercial-findOne/:id",RailCommercialController.FindOneCommercial)
 router.patch("/rail/rail-commercial-update/:id",RailCommercialController.updateOneCommercial)
+router.delete("/rail/rail-commercial-delete/:id",RailCommercialController.deleteOneCommercial)
 
 
 

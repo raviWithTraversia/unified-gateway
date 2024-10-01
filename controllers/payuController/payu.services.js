@@ -321,8 +321,18 @@ const payuSuccess = async (req, res) => {
       cardCategory,
     } = req.body;
     if (status === "success") {
+
+      const CheckAllereadyBooking=await BookingDetails.find({BookingId:udf1,bookingStatus:{$ne:"INCOMPLETE"}})
+      if(CheckAllereadyBooking.length){
+        return ({
+          response:"this Booking allready exist"
+        })
+      }
+
+
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
-      console.log("uppeerside")
+      
+
 
       if (BookingTempData) {
         const convertDataBookingTempRes = JSON.parse(BookingTempData.request);

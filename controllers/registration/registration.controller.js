@@ -6,6 +6,7 @@ const { response } = require('../../routes/registrationRoute');
 const addRegistration = async (req,res) => {
    try{ 
     const result = await registrationServices.addRegistration(req,res);
+    console.log(result)
     if(!result.response && result.isSometingMissing){
         apiErrorres(
             res,
@@ -15,7 +16,7 @@ const addRegistration = async (req,res) => {
         )
     }
 
-    else if(result.response === 'Email already exists' ){
+    else if(result.response === 'Email already exists'||result.response ==="Invalid Mongo Object Id Id is not valid" ){
         apiErrorres(
             res,
             result.response,

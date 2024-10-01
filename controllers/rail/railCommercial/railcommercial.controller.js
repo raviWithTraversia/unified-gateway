@@ -142,4 +142,39 @@ const updateOneCommercial = async (req, res) => {
     );
   }
 };
-module.exports={createCommercialPlan,FindTmcCommercial,FindOneCommercial,updateOneCommercial}
+
+const deleteOneCommercial = async (req, res) => {
+  try {
+    const result = await commercialServices.deleteOneCommercial(req, res);
+    if (result.response === "please provide Id"||result.response === "please provide userId"||result.response === "please provide Tmc Id"||result.response=="Data not found") {
+      apiErrorres(res, result.response, ServerStatusCode.SERVER_ERROR, true);
+    }
+    else if(!result.response){
+      apiErrorres(res, errorResponse.SOMETHING_WRONG, ServerStatusCode.SERVER_ERROR, true);
+    }
+    else if (result.response === "Delete Commercial Succefully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.log(error)
+    apiErrorres(
+      res,
+   errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+module.exports={createCommercialPlan,FindTmcCommercial,FindOneCommercial,updateOneCommercial,deleteOneCommercial}

@@ -143,5 +143,49 @@ const updateOneCommercial=async(req,res)=>{
 }
 
 
+const deleteOneCommercial=async(req,res)=>{
+    try{
+        const {id}=req.params
+        const userId=req.body.userId
 
-module.exports={createCommercialPlan,FindTmcCommercial,updateOneCommercial,FindOneCommercial}
+    if(!id){
+        return({
+            response:"please provide Id"
+        })
+    }
+    // if(!userId){
+    //     return({
+    //         response:"please provide userId"
+    //     })
+    // }
+
+
+    // const userData=await User.findById(userId).populate("company_ID")
+    // if(userData.company_ID.type!=="TMC"){
+    //     return({
+    //         response:"please provide Tmc Id"
+    //     })
+
+    // }
+
+    
+    
+
+    const commercialData=await railCommercial.findByIdAndDelete(id)
+
+    if(!commercialData){
+        return ({
+            response:'Data not found'
+        })
+    }
+
+    return ({
+        response:"Delete Commercial Succefully",
+    })
+ } catch(error){
+        throw error
+    }
+    
+}
+
+module.exports={createCommercialPlan,FindTmcCommercial,updateOneCommercial,FindOneCommercial,deleteOneCommercial}

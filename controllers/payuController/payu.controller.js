@@ -79,8 +79,20 @@ const payu2 = async (req, res) => {
 const payuSuccess = async (req, res) => 
   {
     try {
-      const result = await payuServices.payuSuccess(req, res);      
+      const result = await payuServices.payuSuccess(req, res); 
+      if(result.response=="this Booking allready exist"){
+        apiErrorres(
+              res,
+              result.response,
+              ServerStatusCode.RESOURCE_NOT_FOUND,
+              true
+            )
+
+      }else{
+
       res.send(result);
+    }     
+
       // if (result.response == "Success") {
       //   apiSucessRes(
       //     res,

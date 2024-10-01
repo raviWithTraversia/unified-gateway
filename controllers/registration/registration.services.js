@@ -34,6 +34,7 @@ const addRegistration = async (req, res) => {
       gstPinCode,
       gstCity,
       agencyGroupId,
+      parent,
       adharDetail,
       adharNumber
     } = req.body;
@@ -121,11 +122,11 @@ const addRegistration = async (req, res) => {
       let id = Config.MAIL_CONFIG_ID;
       mailConfig = await Smtp.findById(id);
     }
-    let checkCompanyType = await companyModels.findById(companyId);
-    let parent;
-    if (checkCompanyType.type === "Distributer") {
-      parent = checkCompanyType?.parent
-    }
+    // let checkCompanyType = await companyModels.findById(companyId);
+    // // let parent;
+    // if (checkCompanyType.type === "Distributer") {
+    //   parent = checkCompanyType?.parent
+    // }
     const newRegistration = new registration({
       companyId,
       companyName,

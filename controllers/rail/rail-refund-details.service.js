@@ -2,7 +2,7 @@ const { default: axios } = require("axios");
 
 module.exports.fetchRailRefundDetails = async function (request) {
   try {
-    const { reservationId, cancellationId } = request;
+    const { reservationId, cancellationId, Authentication } = request;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     let url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/refunddetails/${reservationId}?agentCanId=${cancellationId}`;
     if (Authentication?.CredentialType === "LIVE")

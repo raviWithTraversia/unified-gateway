@@ -191,17 +191,18 @@ const easeBuzzResponce = async (req, res) => {
           cartId: udf1,
         });
         console.log("jkss1");
-        if(pgCharges){
-          await agentConfig.updateOne(
-            { userId: allIds[0] },
-            { maxcreditLimit: newBalanceCredit-totalItemAmount }
-          );
-        }else{
-          await agentConfig.updateOne(
-            { userId: allIds[0] },
-            { maxcreditLimit: newBalanceCredit }
-          );
-        }
+        // if(pgCharges){
+        //   // await agentConfig.updateOne(
+        //   //   { userId: allIds[0] },
+        //   //   { maxcreditLimit: newBalanceCredit-totalItemAmount }
+        //   // );
+        // }else{
+        //   // await agentConfig.updateOne(
+        //   //   { userId: allIds[0] },
+        //   //   { maxcreditLimit: newBalanceCredit }
+        //   // );
+        //   console.log(newBalanceCredit,"jdii")
+        // }
         
         console.log("jkssddjsj123");
         // const hitAPI = await Promise.all(

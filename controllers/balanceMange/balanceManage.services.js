@@ -663,6 +663,33 @@ runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.rai
   }
 };
 
+const BalanceTransferRailtoFlight=async(req,res)=>{
+try{
+  const doerId = req.user._id;
+  const getAgentConfig=await agentConfig.findById(doerId)
+
+  if(!getAgentConfig){
+    return({
+      response:"agentData not found"
+    })
+  }
+
+  return {
+    response: "balance Found Succefully",
+    data: {
+      cashBalance: getAgentConfig.maxcreditLimit||0,
+      smsBalance: getAgentConfig.smsBalance||0,
+      RailBalance:getAgentConfig.railCashBalance||0,
+      tempBalance: 0,
+      expireDate: "",
+    },
+  };
+
+  }catch(error){
+    throw error
+  }
+}
+
 
 const getBalanceTmc = async (req, res) => {
   try {
@@ -721,5 +748,6 @@ module.exports = {
   getBalance,
   manualDebitCredit,
   getBalanceTmc,
-  DistributermanualDebitCredit
+  DistributermanualDebitCredit,
+  BalanceTransferRailtoFlight
 };

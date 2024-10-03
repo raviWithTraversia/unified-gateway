@@ -12,6 +12,8 @@ const {
 } = require("./rail-booking-cancel.service");
 const User = require("../../models/User");
 const Company = require("../../models/Company");
+const RailCancellation = require("../../models/Irctc/rail-cancellation");
+const { fetchRailRefundDetails } = require("./rail-refund-details.service");
 // const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
 
 const railSearch = async (req, res) => {
@@ -249,23 +251,9 @@ async function cancelBooking(req, res) {
         ResponseStatusCode: 400,
         Error: true,
       });
+
     req.body.user = checkUser;
     req.body.company = checkCompany;
-    if (checkUser?.roleId?.name !== "Agency")
-      return res.status(400).json({
-        IsSucess: false,
-        Message: "User role must be Agency",
-        ResponseStatusCode: 400,
-        Error: true,
-      });
-
-    if (checkCompany?.type !== "TMC")
-      return res.status(400).json({
-        IsSucess: false,
-        Message: "companyId must be TMC",
-        ResponseStatusCode: 400,
-        Error: true,
-      });
 
     const { isValid, error } = validatePsgnToken(passengerToken);
     if (!isValid)
@@ -287,6 +275,58 @@ async function cancelBooking(req, res) {
     );
   }
 }
+
+async function fetchRefundDetails(req, res) {
+  try {
+    const { reservationId, cancellationId, Authentication } = req.body;
+    if (!reservationId || !cancellationId)
+      return apiErrorres(
+        res,
+        "Missing Required Parameters, reservationId, cancellationId",
+        400,
+        true
+      );
+    if (!["LIVE", "TEST"].includes(Authentication?.CredentialType))
+      return res.status(400).json({
+        IsSucess: false,
+        Message: "Credential Type does not exist",
+        ResponseStatusCode: 400,
+        Error: true,
+      });
+
+    const checkUser = await User.findById(Authentication?.UserId).populate(
+      "roleId"
+    );
+    const checkCompany = await Company.findById(Authentication?.CompanyId);
+    if (!checkUser || !checkCompany)
+      return res.status(400).json({
+        IsSucess: false,
+        Message: "Either User or Company must exist",
+        ResponseStatusCode: 400,
+        Error: true,
+      });
+    const cancellationDetails = await RailCancellation.findOne({
+      reservationId,
+    });
+    if (!cancellationDetails)
+      return apiErrorres(
+        res,
+        `cancellation request not found with given reservation id ${reservationId}`,
+        404,
+        true
+      );
+    const { result, status } = await fetchRailRefundDetails(req.body);
+    return res.status(status).json(result);
+  } catch (error) {
+    console.log({ error });
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
 module.exports = {
   railSearch,
   railSearchBtwnDate,
@@ -295,4 +335,5 @@ module.exports = {
   getFareEnquiry,
   DecodeToken,
   cancelBooking,
+  fetchRefundDetails,
 };

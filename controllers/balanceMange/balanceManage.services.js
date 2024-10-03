@@ -444,18 +444,22 @@ const DistributermanualDebitCredit = async (req, res) => {
         }
     
         // Perform balance update
-        let runningAmount;
+        let runningAmountAgent;
+        let runningAmountDistributer
         switch (product.toUpperCase()) {
           case "RAIL":
             DistributerConfig.railCashBalance -= amount;
             configData.railCashBalance += amount;
-            runningAmount = await priceRoundOffNumberValues(configData.railCashBalance);
+            runningAmountAgent = await priceRoundOffNumberValues(configData.railCashBalance);
+            runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.railCashBalance)
+
             break;
     
           case "FLIGHT":
             DistributerConfig.maxcreditLimit -= amount;
             configData.maxcreditLimit += amount;
-            runningAmount = await priceRoundOffNumberValues(configData.maxcreditLimit);
+            runningAmountAgent = await priceRoundOffNumberValues(configData.maxcreditLimit);
+            runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.maxcreditLimit)
             break;
     
           case "SMS":
@@ -482,7 +486,7 @@ const DistributermanualDebitCredit = async (req, res) => {
             currencyType: "INR",
             fop: "CREDIT",
             transactionType: "CREDIT",
-            runningAmount,
+            runningAmountDistributer,
             remarks,
             transactionBy: loginUser._id,
             cartId: bookingId || " ",
@@ -497,7 +501,7 @@ const DistributermanualDebitCredit = async (req, res) => {
             currencyType: "INR",
             fop: "DEBIT",
             transactionType: "DEBIT",
-            runningAmount,
+            runningAmountAgent,
             remarks,
             transactionBy: loginUser._id,
             cartId: bookingId || " ",
@@ -560,26 +564,31 @@ const DistributermanualDebitCredit = async (req, res) => {
       }
   
       // Perform balance update
-      let runningAmount;
+      let runningAmountAgent;
+      let runningAmountDistributer
+
+
       switch (product.toUpperCase()) {
         case "RAIL":
           configData.railCashBalance -= amount;
           DistributerConfig.railCashBalance += amount;
-
-          runningAmount = await priceRoundOffNumberValues(DistributerConfig.railCashBalance);
+          runningAmountAgent = await priceRoundOffNumberValues(configData.railCashBalance);
+runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.railCashBalance);
           break;
   
         case "FLIGHT":
           configData.maxcreditLimit -= amount;
           DistributerConfig.maxcreditLimit += amount;
-          runningAmount = await priceRoundOffNumberValues(DistributerConfig.maxcreditLimit);
+          runningAmountAgent = await priceRoundOffNumberValues(configData.maxcreditLimit);
+          runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.maxcreditLimit);
           break;
   
         case "SMS":
           const sms = pgCharges ? amount - pgCharges : amount;
           configData.smsBalance -= sms;
           DistributerConfig.smsBalance += sms;
-          runningAmount = await priceRoundOffNumberValues(DistributerConfig.smsBalance);
+          runningAmountAgent = await priceRoundOffNumberValues(configData.smsBalance);
+          runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.smsBalance);
           break;
       }
   
@@ -595,9 +604,9 @@ const DistributermanualDebitCredit = async (req, res) => {
         transactionId:  null,
         transactionAmount: amount,
         currencyType: "INR",
-        fop: "DEBIT",
-        transactionType: "DEBIT",
-        runningAmount,
+        fop: "CREDIT",
+        transactionType: "CREDIT",
+        runningAmountDistributer,
         remarks,
         transactionBy: loginUser._id,
         cartId:bookingId||" ",
@@ -610,9 +619,9 @@ const DistributermanualDebitCredit = async (req, res) => {
         transactionId: null,
         transactionAmount: amount,
         currencyType: "INR",
-        fop: "CREDIT",
-        transactionType: "CREDIT",
-        runningAmount,
+        fop: "DEBIT",
+        transactionType: "DEBIT",
+        runningAmountAgent,
         remarks,
         transactionBy: loginUser._id,
         cartId: bookingId || " ",

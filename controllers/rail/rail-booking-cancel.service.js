@@ -5,20 +5,44 @@ const RailCancellation = require("../../models/Irctc/rail-cancellation");
 
 module.exports.cancelRailBooking = async function (request) {
   try {
-    const { reservationId, txnId, passengerToken, Authentication } = request;
+    const {
+      reservationId,
+      txnId,
+      passengerToken,
+      Authentication,
+      user,
+      company,
+    } = request;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     let url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
     if (Authentication?.CredentialType === "LIVE")
       url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
 
+    const requestExists = await RailCancellation.exists({ reservationId });
+    if (requestExists)
+      return {
+        IsSucess: false,
+        message: "request already exists",
+      };
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
     });
     console.log({ response });
     const railCancellation = await RailCancellation.create({
       ...response,
-      isSuccess: response.success,
-      travelInsuranceRefundAmount: response.travelinsuranceRefundAmount,
+      userId: user._id,
+      companyId: company._id,
+      reservationId,
+      passengerToken,
+      txnId,
+      isSuccess: !!response.success,
+      travelInsuranceRefundAmount: Number(response.travelinsuranceRefundAmount),
+      amountCollected: Number(response.amountCollected),
+      cashDeducted: Number(response.cashDeducted),
+      cancelledDate: Date(response.cancelledDate),
+      gstFlag: !!response.gstFlag,
+      timeStamp: Date(response.timeStamp),
+      noOfPsgn: Number(response.noOfPsgn),
     });
     return {
       IsSucess: true,

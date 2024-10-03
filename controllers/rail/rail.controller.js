@@ -249,7 +249,8 @@ async function cancelBooking(req, res) {
         ResponseStatusCode: 400,
         Error: true,
       });
-
+    req.body.user = checkUser;
+    req.body.company = checkCompany;
     if (checkUser?.roleId?.name !== "Agency")
       return res.status(400).json({
         IsSucess: false,

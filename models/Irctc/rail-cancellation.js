@@ -2,6 +2,17 @@ const { Schema, model } = require("mongoose");
 
 const railCancellationSchema = new Schema(
   {
+    companyId: {
+      type: Schema.Types.ObjectId,
+      ref: "Company",
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    reservationId: { type: String, required: true, unique: true },
+    txnId: { type: String, required: true },
+    passengerToken: { type: String, required: true },
     isSuccess: Boolean,
     refundAmount: Number,
     pnrNo: String,
@@ -22,14 +33,14 @@ const railCancellationSchema = new Schema(
       enum: ["pending", "cancelled", "issued", "refund"],
       default: "pending",
     },
-    // dmrcFlag: String,
-    // metroBookingAmnt: String,
-    // cancellationChargeMetro: String,
-    // refundAmntMetro: String,
-    // dmrcCancellationId: String,
-    // totalCanCountMetro: String,
-    // dmrcCanPsgnFare: String,
-    // dmrcErrorCode: String,
+    dmrcFlag: String,
+    metroBookingAmnt: String,
+    cancellationChargeMetro: String,
+    refundAmntMetro: String,
+    dmrcCancellationId: String,
+    totalCanCountMetro: String,
+    dmrcCanPsgnFare: String,
+    dmrcErrorCode: String,
     noOfPsgn: Number,
   },
   { timestamps: true }

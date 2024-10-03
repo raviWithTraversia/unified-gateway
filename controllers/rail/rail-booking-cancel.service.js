@@ -1,6 +1,7 @@
 const { default: axios } = require("axios");
 const Company = require("../../models/Company");
 const User = require("../../models/User");
+const RailCancellation = require("../../models/Irctc/rail-cancellation");
 
 module.exports.cancelRailBooking = async function (request) {
   try {
@@ -14,7 +15,16 @@ module.exports.cancelRailBooking = async function (request) {
       headers: { Authorization: auth },
     });
     console.log({ response });
-    return { IsSucess: true, message: "cancellation requested", response };
+    const railCancellation = await RailCancellation.create({
+      ...response,
+      isSuccess: response.success,
+      travelInsuranceRefundAmount: response.travelinsuranceRefundAmount,
+    });
+    return {
+      IsSucess: true,
+      message: "cancellation requested",
+      cancellationDetails: railCancellation,
+    };
   } catch (error) {
     console.log({ error });
     return {

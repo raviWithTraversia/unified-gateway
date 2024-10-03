@@ -474,6 +474,8 @@ const DistributermanualDebitCredit = async (req, res) => {
         await DistributerConfig.save();
         await configData.save();
     
+        console.log(runningAmountAgent,"runningAmountAgent")
+        console.log(runningAmountDistributer,"runningAmountDistributer")
         // Create ledger entry if the product is not SMS or is Flight
         if (product.toUpperCase() !== "SMS" || product === "Flight") {
           const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
@@ -484,9 +486,9 @@ const DistributermanualDebitCredit = async (req, res) => {
             transactionId: null,
             transactionAmount: amount,
             currencyType: "INR",
-            fop: "CREDIT",
-            transactionType: "CREDIT",
-            runningAmountDistributer,
+            fop: "DEBIT",
+            transactionType: "DEBIT",
+            runningAmount:runningAmountDistributer,
             remarks,
             transactionBy: loginUser._id,
             cartId: bookingId || " ",
@@ -499,9 +501,9 @@ const DistributermanualDebitCredit = async (req, res) => {
             transactionId: null,
             transactionAmount: amount,
             currencyType: "INR",
-            fop: "DEBIT",
-            transactionType: "DEBIT",
-            runningAmountAgent,
+            fop: "CREDIT",
+            transactionType: "CREDIT",
+            runningAmount: runningAmountAgent,
             remarks,
             transactionBy: loginUser._id,
             cartId: bookingId || " ",
@@ -606,7 +608,7 @@ runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.rai
         currencyType: "INR",
         fop: "CREDIT",
         transactionType: "CREDIT",
-        runningAmountDistributer,
+        runningAmount:runningAmountDistributer,
         remarks,
         transactionBy: loginUser._id,
         cartId:bookingId||" ",
@@ -621,7 +623,7 @@ runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.rai
         currencyType: "INR",
         fop: "DEBIT",
         transactionType: "DEBIT",
-        runningAmountAgent,
+        runningAmount:runningAmountAgent,
         remarks,
         transactionBy: loginUser._id,
         cartId: bookingId || " ",

@@ -486,10 +486,10 @@ const payuSuccess = async (req, res) => {
         const newBalanceCredit = getconfigAmount + totalItemAmount;
 
         let itemAmount = 0;
-        await agentConfig.updateOne(
-          { userId: allIds[0] },
-          { maxcreditLimit: newBalanceCredit }
-        );
+        // await agentConfig.updateOne(
+        //   { userId: allIds[0] },
+        //   { maxcreditLimit: newBalanceCredit }
+        // );
 
         let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
         console.log(gtTsAdDnt, "payu123");
@@ -524,10 +524,10 @@ const payuSuccess = async (req, res) => {
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
-        await agentConfig.updateOne(
-          { userId: allIds[0] },
-          { maxcreditLimit: newBalanceCredit - totalItemAmount }
-        );
+        // await agentConfig.updateOne(
+        //   { userId: allIds[0] },
+        //   { maxcreditLimit: newBalanceCredit - totalItemAmount }
+        // );
 
         //const hitAPI = await Promise.all(
         const updatePromises = ItineraryPriceCheckResponses.map(
@@ -853,11 +853,11 @@ const payuSuccess = async (req, res) => {
         if (results.length > 0) {
           if (itemAmount !== 0) {
             const runnnigBalance = newBalanceCredit - itemAmount;
-            await agentConfig.updateOne(
-              { userId: getuserDetails._id },
-              { maxcreditLimit: runnnigBalance }
-            );
-            // await ledger.create({
+            // await agentConfig.updateOne(
+            //   { userId: getuserDetails._id },
+            //   { maxcreditLimit: runnnigBalance }
+            // );
+            // // await ledger.create({
             //   userId: getuserDetails._id,
             //   companyId: getuserDetails.company_ID._id,
             //   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),

@@ -13,8 +13,10 @@ module.exports.cancelRailBooking = async function (request) {
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
     });
+    console.log({ response });
     return { IsSucess: true, message: "cancellation requested", response };
   } catch (error) {
+    console.log({ error });
     return {
       IsSucess: false,
       message: "something went wrong",
@@ -24,9 +26,13 @@ module.exports.cancelRailBooking = async function (request) {
 };
 
 module.exports.validatePsgnToken = (token) => {
+  console.log({ token });
   if (token?.length !== 6)
     return { error: "invalid length, token must be 6 character long" };
-  const validTokens = token?.filter?.((item) => ["Y", "N"].includes(item));
+  const validTokens = token
+    ?.split("")
+    ?.filter?.((item) => ["Y", "N"].includes(item));
+  console.log({ validTokens });
   if (validTokens?.length !== 6)
     return {
       error: "invalid passenger token, only Y and N characters allowed",

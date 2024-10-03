@@ -10,6 +10,8 @@ const {
   cancelRailBooking,
   validatePsgnToken,
 } = require("./rail-booking-cancel.service");
+const User = require("../../models/User");
+const Company = require("../../models/Company");
 // const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
 
 const railSearch = async (req, res) => {
@@ -221,59 +223,59 @@ async function cancelBooking(req, res) {
   try {
     const { reservationId, txnId, passengerToken, Authentication } = req.body;
     if (!reservationId || !txnId || !passengerToken || !Authentication)
-      return {
+      return res.status(400).json({
         IsSucess: false,
         Message: "Provide required fields",
         ResponseStatusCode: 400,
         Error: true,
-      };
+      });
 
     if (!["LIVE", "TEST"].includes(Authentication?.CredentialType))
-      return {
+      return res.status(400).json({
         IsSucess: false,
         Message: "Credential Type does not exist",
         ResponseStatusCode: 400,
         Error: true,
-      };
+      });
 
     const checkUser = await User.findById(Authentication?.UserId).populate(
       "roleId"
     );
     const checkCompany = await Company.findById(Authentication?.CompanyId);
     if (!checkUser || !checkCompany)
-      return {
+      return res.status(400).json({
         IsSucess: false,
         Message: "Either User or Company must exist",
         ResponseStatusCode: 400,
         Error: true,
-      };
+      });
 
     if (checkUser?.roleId?.name !== "Agency")
-      return {
+      return res.status(400).json({
         IsSucess: false,
         Message: "User role must be Agency",
         ResponseStatusCode: 400,
         Error: true,
-      };
+      });
 
     if (checkCompany?.type !== "TMC")
-      return {
+      return res.status(400).json({
         IsSucess: false,
         Message: "companyId must be TMC",
         ResponseStatusCode: 400,
         Error: true,
-      };
+      });
 
     const { isValid, error } = validatePsgnToken(passengerToken);
     if (!isValid)
-      return {
+      return res.status(400).json({
         IsSucess: false,
         Message: error,
         ResponseStatusCode: 400,
         Error: true,
-      };
+      });
     const response = await cancelRailBooking(req.body);
-    return response;
+    return res.status(200).json(response);
   } catch (error) {
     console.log({ error });
     apiErrorres(

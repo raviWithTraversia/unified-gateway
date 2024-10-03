@@ -756,12 +756,23 @@ const getUser = async (req, res) => {
 const getAllAgencyAndDistributer = async (req, res) => {
   try {
     let parentId = req.query.id;
-    let agency = await Company.find({
-      $or: [
-        { parent: parentId },
-        { _id: parentId }
-      ]
-    })
+    let agency
+
+    const findTmcUser=await Company.findById(parentId)
+    if(findTmcUser.type !="TMC"){
+      agency = await Company.find({
+        $or: [
+          { parent: parentId },
+          { _id: parentId }
+        ]
+      })
+  
+    }
+    else{
+      agency = await Company.find()
+   }
+
+   
     if (agency.length == 0) {
       return {
         response: 'No Agency with this TMC'

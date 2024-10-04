@@ -302,7 +302,7 @@ async function fetchRefundDetails(req, res) {
     if (!checkUser || !checkCompany)
       return res.status(400).json({
         IsSucess: false,
-        Message: "Either User or Company must exist",
+        Message: "Either User Or Company Must Exist",
         ResponseStatusCode: 400,
         Error: true,
       });
@@ -312,7 +312,7 @@ async function fetchRefundDetails(req, res) {
     if (!cancellationDetails)
       return apiErrorres(
         res,
-        `cancellation request not found with given reservation id ${reservationId}`,
+        `Cancellation Request Not Found With Given Reservation Id ${reservationId}`,
         404,
         true
       );
@@ -335,7 +335,7 @@ async function updateCancellationDetails(req, res) {
     if (!cancellationId || !data)
       return apiErrorres(
         res,
-        "Missing required parameter cancellationId or data",
+        "Missing Required Parameter Cancellation Id Or Data",
         400,
         true
       );
@@ -347,14 +347,14 @@ async function updateCancellationDetails(req, res) {
     if (!cancellationDetails)
       return res.status(200).json({
         IsSucess: false,
-        Message: "Cancellation details not found",
+        Message: "Cancellation Details Not Found",
         ResponseStatusCode: 404,
         Error: true,
       });
 
     return res.status(200).json({
       IsSucess: true,
-      Message: "Cancellation details updated successfully",
+      Message: "Cancellation Details Updated Successfully",
       ResponseStatusCode: 200,
       Data: cancellationDetails,
       Error: false,

@@ -13,6 +13,7 @@ module.exports.cancelRailBooking = async function (request) {
       user,
       company,
       remark,
+      staff,
     } = request;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     let url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
@@ -45,6 +46,7 @@ module.exports.cancelRailBooking = async function (request) {
       timeStamp: Date(response.timeStamp),
       noOfPsgn: Number(response.noOfPsgn),
       remark: remark ?? "",
+      staff: staff ?? "",
     });
     return {
       IsSucess: true,

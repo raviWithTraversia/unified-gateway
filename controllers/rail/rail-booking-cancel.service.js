@@ -20,12 +20,16 @@ module.exports.cancelRailBooking = async function (request) {
     if (Authentication?.CredentialType === "LIVE")
       url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
 
-    // const requestExists = await RailCancellation.exists({ reservationId });
-    // if (requestExists)
-    //   return {
-    //     IsSucess: false,
-    //     message: "request already exists",
-    //   };
+    const requestExists = await RailCancellation.exists({
+      reservationId,
+      passengerToken,
+    });
+    if (requestExists)
+      return {
+        IsSucess: false,
+        message:
+          "Request Already Exists With Same Reservation Id And Passenger Token",
+      };
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
     });

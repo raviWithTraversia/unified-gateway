@@ -707,7 +707,7 @@ const configData=await agentConfig.findOne({userId:doerId});
     };
 
     let insufficientBalanceResponse = null;
-    switch (productto.toUpperCase()) {
+    switch (productfrom.toUpperCase()) {
       case "RAIL":
         insufficientBalanceResponse = checkBalance(configData.railCashBalance, "Rail");
         break;
@@ -730,7 +730,7 @@ const configData=await agentConfig.findOne({userId:doerId});
     let runningAmountDebit;
     let runningAmountCredit;
     const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
-    switch (productfrom.toUpperCase()) {
+    switch (productto.toUpperCase()) {
       case "RAIL":
         configData.maxcreditLimit -= amount;
         configData.railCashBalance += amount;

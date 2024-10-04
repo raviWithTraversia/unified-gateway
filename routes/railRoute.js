@@ -29,6 +29,7 @@ rail_route.put(
   "/rail/cancel-booking",
   railController.updateCancellationDetails
 );
+rail_route.post("/rail/cancellations", railController.fetchCancellations);
 
 // easeBuzz_route.post('/paymentGateway/easeBussResponce', auth, easeBuzzController.easeBuzzResponce);
 

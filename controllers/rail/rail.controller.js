@@ -368,6 +368,27 @@ async function updateCancellationDetails(req, res) {
     );
   }
 }
+
+async function fetchCancellations(req, res) {
+  try {
+    const { companyId } = req.body;
+    const cancellations = await RailCancellation.find({
+      ...(companyId && { companyId }),
+    });
+    return res.status(200).json({
+      IsSucess: true,
+      message: "cancellations fetched successfully",
+      cancellations,
+    });
+  } catch (error) {
+    console.log({ error });
+    return res.status(400).json({
+      IsSucess: false,
+      message: "something went wrong",
+      error: error.message,
+    });
+  }
+}
 module.exports = {
   railSearch,
   railSearchBtwnDate,
@@ -378,4 +399,5 @@ module.exports = {
   cancelBooking,
   fetchRefundDetails,
   updateCancellationDetails,
+  fetchCancellations,
 };

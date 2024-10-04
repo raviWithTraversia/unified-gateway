@@ -327,6 +327,47 @@ async function fetchRefundDetails(req, res) {
     );
   }
 }
+
+async function updateCancellationDetails(req, res) {
+  try {
+    const { cancellationId, data } = req.body;
+    if (!cancellationId || !data)
+      return apiErrorres(
+        res,
+        "Missing required parameter cancellationId or data",
+        400,
+        true
+      );
+    const cancellationDetails = await RailCancellation.findByIdAndUpdate(
+      cancellationId,
+      data,
+      { new: true }
+    );
+    if (!cancellationDetails)
+      return res.status(200).json({
+        IsSucess: false,
+        Message: "Cancellation details not found",
+        ResponseStatusCode: 404,
+        Error: true,
+      });
+
+    return res.status(200).json({
+      IsSucess: true,
+      Message: "Cancellation details updated successfully",
+      ResponseStatusCode: 200,
+      Data: cancellationDetails,
+      Error: false,
+    });
+  } catch (error) {
+    console.log({ error });
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
 module.exports = {
   railSearch,
   railSearchBtwnDate,
@@ -336,4 +377,5 @@ module.exports = {
   DecodeToken,
   cancelBooking,
   fetchRefundDetails,
+  updateCancellationDetails,
 };

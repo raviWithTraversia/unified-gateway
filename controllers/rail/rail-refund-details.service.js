@@ -12,7 +12,11 @@ module.exports.fetchRailRefundDetails = async function (request) {
     });
     return {
       status: 200,
-      result: { IsSucess: true, Message: "Refund Details Fetched", response },
+      result: {
+        IsSucess: true,
+        Message: "Refund Details Fetched",
+        Data: response,
+      },
     };
   } catch (error) {
     console.log({ error });

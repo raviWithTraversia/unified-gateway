@@ -1,5 +1,6 @@
 const railSearchServices = require("./railSearch.services");
 const railBookingServices = require("./railBooking.services");
+const { ObjectId } = require("mongodb");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
@@ -373,8 +374,8 @@ async function fetchCancellations(req, res) {
   try {
     const { companyId } = req.body;
     const cancellations = await RailCancellation.find({
-      ...(companyId && { companyId }),
-    });
+      ...(companyId && { companyId: new ObjectId(companyId) }),
+    }).populate("userId");
     return res.status(200).json({
       IsSucess: true,
       message: "cancellations fetched successfully",
@@ -389,6 +390,7 @@ async function fetchCancellations(req, res) {
     });
   }
 }
+
 module.exports = {
   railSearch,
   railSearchBtwnDate,

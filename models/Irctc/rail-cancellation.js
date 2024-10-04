@@ -10,6 +10,11 @@ const railCancellationSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    remark: String,
+    isRefunded: {
+      type: Boolean,
+      default: false,
+    },
     reservationId: { type: String, required: true, unique: true },
     txnId: { type: String, required: true },
     passengerToken: { type: String, required: true },
@@ -32,10 +37,6 @@ const railCancellationSchema = new Schema(
       type: String,
       enum: ["pending", "cancelled", "issued", "refund"],
       default: "pending",
-    },
-    isRefunded: {
-      type: Boolean,
-      default: false,
     },
     dmrcFlag: String,
     metroBookingAmnt: String,

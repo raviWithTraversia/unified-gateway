@@ -20,12 +20,12 @@ module.exports.cancelRailBooking = async function (request) {
     if (Authentication?.CredentialType === "LIVE")
       url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
 
-    const requestExists = await RailCancellation.exists({ reservationId });
-    if (requestExists)
-      return {
-        IsSucess: false,
-        message: "request already exists",
-      };
+    // const requestExists = await RailCancellation.exists({ reservationId });
+    // if (requestExists)
+    //   return {
+    //     IsSucess: false,
+    //     message: "request already exists",
+    //   };
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
     });
@@ -50,14 +50,14 @@ module.exports.cancelRailBooking = async function (request) {
     });
     return {
       IsSucess: true,
-      message: "cancellation requested",
+      message: "Cancellation Requested",
       cancellationDetails: railCancellation,
     };
   } catch (error) {
     console.log({ error });
     return {
       IsSucess: false,
-      message: "something went wrong",
+      message: "Something Went Wrong",
       error: error.message,
     };
   }

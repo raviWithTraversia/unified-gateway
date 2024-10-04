@@ -372,9 +372,10 @@ async function updateCancellationDetails(req, res) {
 
 async function fetchCancellations(req, res) {
   try {
-    const { companyId } = req.body;
+    const { companyId, isRefunded } = req.body;
     const cancellations = await RailCancellation.find({
       ...(companyId && { companyId: new ObjectId(companyId) }),
+      ...(isRefunded != null && { isRefunded }),
     }).populate("userId");
     return res.status(200).json({
       IsSucess: true,

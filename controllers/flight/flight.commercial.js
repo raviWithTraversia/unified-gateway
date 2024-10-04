@@ -788,7 +788,7 @@ const getApplyAllCommercial = async (
               commList.carrier === null &&
               commList.source === singleFlightDetails.Provider &&
               commList.commercialCategory === "Ticket" &&
-              commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
+              // commList.fareFamily.includes(singleFlightDetails.FareFamily) &&
               !["FD", "FF"].includes(singleFlightDetails.FareFamily)
             ) {
               checkInnerFilterfun = await checkInnerFilter(

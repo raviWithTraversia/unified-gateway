@@ -664,30 +664,30 @@ runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.rai
   }
 };
 
-const BalanceTransferRailtoFlight=async(req,res)=>{
-try{
-  const doerId = req.user._id;
-  const getAgentConfig=await agentConfig.findOne({userId:doerId})
+// const BalanceTransferRailtoFlight=async(req,res)=>{
+// try{
+//   const doerId = req.user._id;
+//   const getAgentConfig=await agentConfig.findOne({userId:doerId})
 
-  if(!getAgentConfig){
-    return({
-      response:"agentData not found"
-    })
-  }
+//   if(!getAgentConfig){
+//     return({
+//       response:"agentData not found"
+//     })
+//   }
 
-  return {
-    response: "balance Found Succefully",
-    data: getAgentConfig
-  };
+//   return {
+//     response: "balance Found Succefully",
+//     data: getAgentConfig
+//   };
 
-  }catch(error){
-    throw error
-  }
-}
+//   }catch(error){
+//     throw error
+//   }
+// }
 
 const selfTransfer=async(req,res)=>{
   try{
-    const {amount,product,remarks,bookingId}=req.body;
+    const {amount,productto,remarks,bookingId,productfrom}=req.body;
     const doerId = req.user._id;
     const loginUser = await User.findById(doerId);
 const configData=await agentConfig.findOne({userId:doerId});
@@ -707,7 +707,7 @@ const configData=await agentConfig.findOne({userId:doerId});
     };
 
     let insufficientBalanceResponse = null;
-    switch (product.toUpperCase()) {
+    switch (productto.toUpperCase()) {
       case "RAIL":
         insufficientBalanceResponse = checkBalance(configData.railCashBalance, "Rail");
         break;
@@ -730,10 +730,10 @@ const configData=await agentConfig.findOne({userId:doerId});
     let runningAmountDebit;
     let runningAmountCredit;
     const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
-    switch (product.toUpperCase()) {
+    switch (productfrom.toUpperCase()) {
       case "RAIL":
-        configData.railCashBalance -= amount;
-        configData.maxcreditLimit += amount;
+        configData.maxcreditLimit -= amount;
+        configData.railCashBalance += amount;
         runningAmountDebit = await priceRoundOffNumberValues(configData.railCashBalance);
         runningAmountCredit = await priceRoundOffNumberValues(configData.maxcreditLimit);
         await ledger.create({
@@ -743,13 +743,13 @@ const configData=await agentConfig.findOne({userId:doerId});
           transactionId:  null,
           transactionAmount: amount,
           currencyType: "INR",
-          fop: "CREDIT",
-          transactionType: "CREDIT",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
           runningAmount:runningAmountCredit,
           remarks:"self Tranfer",
           transactionBy: loginUser._id,
           cartId:bookingId||" ",
-          product,
+          product:"Flight",
         });
         await Railledger.create({
           userId: loginUser._id,
@@ -758,21 +758,21 @@ const configData=await agentConfig.findOne({userId:doerId});
           transactionId: null,
           transactionAmount: amount,
           currencyType: "INR",
-          fop: "DEBIT",
-          transactionType: "DEBIT",
+          fop: "CREDIT",
+          transactionType: "CREDIT",
           runningAmount:runningAmountDebit,
           remarks:"self Tranfer",
           transactionBy: loginUser._id,
           cartId: bookingId || " ",
-          product,
+          product:"RAIL",
         });
       
 
         break;
 
       case "FLIGHT":
-        configData.maxcreditLimit -= amount;
-        configData.railCashBalance += amount;
+        configData.maxcreditLimit += amount;
+        configData.railCashBalance -= amount;
         runningAmountDebit = await priceRoundOffNumberValues(configData.maxcreditLimit);
         runningAmountCredit = await priceRoundOffNumberValues(configData.railCashBalance);
         await Railledger.create({
@@ -782,13 +782,13 @@ const configData=await agentConfig.findOne({userId:doerId});
           transactionId:  null,
           transactionAmount: amount,
           currencyType: "INR",
-          fop: "CREDIT",
-          transactionType: "CREDIT",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
           runningAmount:runningAmountCredit,
           remarks:"self Tranfer",
           transactionBy: loginUser._id,
           cartId:bookingId||" ",
-          product,
+          product:"Rail",
         });
         await ledger.create({
           userId: loginUser._id,
@@ -797,13 +797,13 @@ const configData=await agentConfig.findOne({userId:doerId});
           transactionId: null,
           transactionAmount: amount,
           currencyType: "INR",
-          fop: "DEBIT",
-          transactionType: "DEBIT",
+          fop: "CREDIT",
+          transactionType: "CREDIT",
           runningAmount:runningAmountDebit,
           remarks:"self Tranfer",
           transactionBy: loginUser._id,
           cartId: bookingId || " ",
-          product,
+          product:"Flight",
         });
       
         break;
@@ -889,6 +889,5 @@ module.exports = {
   manualDebitCredit,
   getBalanceTmc,
   DistributermanualDebitCredit,
-  BalanceTransferRailtoFlight,
   selfTransfer
 };

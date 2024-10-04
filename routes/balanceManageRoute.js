@@ -9,7 +9,7 @@ const auth = require("../middleware/auth");
 flight_booking_route.post('/getBalance', balance.getbalance);
 flight_booking_route.post('/manualDebitCredit', auth, balance.manualDebitCredit);
 flight_booking_route.post('/Distributer-manualDebitCredit', auth, balance.DistributermanualDebitCredit);
-flight_booking_route.get('/get-Transfer-balance', auth, balance.BalanceTransferRailtoFlight);
+// flight_booking_route.get('/get-Transfer-balance', auth, balance.BalanceTransferRailtoFlight);
 flight_booking_route.patch('/update-Transfer-balance', auth, balance.selfTransfer);
 
 

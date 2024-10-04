@@ -322,12 +322,28 @@ const bookingDetails = await bookingdetails.aggregate([
     checkUserIdExist.roleId &&
     checkUserIdExist.roleId.name === "Distributer"
   ) {
-    let filter = { companyId:new ObjectId(checkUserIdExist.company_ID._id) };
-    if (agencyId !== undefined && agencyId !== "") {
-      filter.userId = {};
-      filter.userId = { $in: agencyId };
-    }
+    let filter = {};
 
+    if (agencyId !== undefined && agencyId !== "") {
+      // filter.userId={}
+  if (checkUserIdExist?.roleId?.type === "Default") {
+  // Fetch all companies that have the current user's company ID as the parent
+  const companiesData = await Company.find({ parent: checkUserIdExist.company_ID._id });
+
+  // Extract and map company IDs into an array of ObjectIds
+  const companyIds = companiesData.map((element) => new ObjectId(element._id));
+
+  // Assign the array of ObjectIds to filter.AgencyId
+  filter.AgencyId ={$in: companyIds};
+} else {
+  // Assign the specific agencyId as a single ObjectId
+  filter.AgencyId = new ObjectId(agencyId);
+}    // let allagencyId = agencyId.map(id => new ObjectId(id));
+      // filter.AgencyId={$in:allagencyId}
+
+      // console.log(filter.AgencyId)
+    }
+   
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;
     }
@@ -356,7 +372,7 @@ const bookingDetails = await bookingdetails.aggregate([
         $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
       };
     }
-
+    console.log(filter)
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter },
     

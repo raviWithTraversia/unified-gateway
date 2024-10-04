@@ -33,6 +33,10 @@ const railCancellationSchema = new Schema(
       enum: ["pending", "cancelled", "issued", "refund"],
       default: "pending",
     },
+    isRefunded: {
+      type: Boolean,
+      default: false,
+    },
     dmrcFlag: String,
     metroBookingAmnt: String,
     cancellationChargeMetro: String,

@@ -349,6 +349,8 @@ const manualDebitCredit = async (req, res) => {
 
        let agency
 
+      const userId=new mongoose.Types.ObjectId(req.user._id)
+
     const findTmcUser=await Company.findById(parentId)
     if(findTmcUser.type !="TMC"){
       agency = await Company.find({
@@ -434,10 +436,21 @@ const manualDebitCredit = async (req, res) => {
     
       // Only unwind if you absolutely need to
       { $unwind: { path: "$agentconfigurations", preserveNullAndEmptyArrays: true } },
+
+      {
+        $match: {
+          $or: [
+            { "company_ID.type": "TMC" },
+            { "agentconfigurations.salesInchargeIds": userId }
+          ]
+        }
+      },
+    
     
       // Optionally unwind if you only need the latest Transaction or Deposit
       { $unwind: { path: "$TransactionDate", preserveNullAndEmptyArrays: true } },
       { $unwind: { path: "$Deposite", preserveNullAndEmptyArrays: true } },
+
       {
         $sort: {
           'TransactionDate': -1,

@@ -349,20 +349,43 @@ const manualDebitCredit = async (req, res) => {
 
        let agency
 
-      const userId=new mongoose.Types.ObjectId(req.user._id)
+      var userId=new mongoose.Types.ObjectId(req.user._id)
+
+      const userData=await User.findById(userId).populate("roleId")
 
     const findTmcUser=await Company.findById(parentId)
-    if(findTmcUser.type !="TMC"){
+    var matchingData={}
+    if(findTmcUser.type =="TMC"&&userData.roleId.type=="Default"){
+      console.log('shdadab')
+      agency = await Company.find()
+      matchingData = { $sort: { "userId": -1 } };
+    }
+
+    else if(findTmcUser.type =="TMC"&&userData.roleId.type=="Manual"){
+      console.log('shdaiaiei')
+      agency = await Company.find();
+      matchingData= {
+        $match: {
+          
+              $and: [
+                { "agentconfigurations.salesInchargeIds": userId }  // Apply salesInchargeIds condition
+              ]
+            }
+
+    }
+  }
+    else{
+
+      console.log('shdadi')
       agency = await Company.find({
         $or: [
           { parent: parentId },
           { _id: parentId }
         ]
       })
-  
-    }
-    else{
-      agency = await Company.find()
+      matchingData = { $sort: { "userId": -1 } }
+
+
    }
 
    
@@ -437,15 +460,8 @@ const manualDebitCredit = async (req, res) => {
       // Only unwind if you absolutely need to
       { $unwind: { path: "$agentconfigurations", preserveNullAndEmptyArrays: true } },
 
-      {
-        $match: {
-          $or: [
-            { "company_ID.type": "TMC" },
-            { "agentconfigurations.salesInchargeIds": userId }
-          ]
-        }
-      },
-    
+     
+      matchingData,
     
       // Optionally unwind if you only need the latest Transaction or Deposit
       { $unwind: { path: "$TransactionDate", preserveNullAndEmptyArrays: true } },

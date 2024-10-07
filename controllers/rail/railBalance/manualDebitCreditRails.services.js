@@ -1,12 +1,15 @@
 const User = require("../../../models/User");
 const agentConfig = require("../../../models/AgentConfig");
+const Company=require('../../../models/Company')
 const creditRequest = require("../../../models/CreditRequest");
 const EventLogs = require('../../logs/EventApiLogsCommon');
 const ledgerRail = require("../../../models/Irctc/ledgerRail");
 const { priceRoundOffNumberValues } = require("../../commonFunctions/common.function");
 const axios = require("axios");
+const mongoose=require('mongoose')
 const { response } = require("../../../routes/railRoute");
 const transaction = require("../../../models/transaction");
+const Deposite=require('../../../models/DepositRequest')
 
 
 const manualDebitCredit = async (req, res) => {
@@ -333,7 +336,176 @@ const manualDebitCredit = async (req, res) => {
     }
   }
 
+
+  const agentPerformanceReport=async(req,res)=>{
+    try{
+      const {parentId}=req.params
+      if(!parentId){
+        return({
+          response:"id not found"
+        })
+      }
+
+
+       let agency
+
+    const findTmcUser=await Company.findById(parentId)
+    if(findTmcUser.type !="TMC"){
+      agency = await Company.find({
+        $or: [
+          { parent: parentId },
+          { _id: parentId }
+        ]
+      })
+  
+    }
+    else{
+      agency = await Company.find()
+   }
+
+   
+    if (agency.length == 0) {
+      return {
+        response: 'No Agency with this TMC'
+      }
+    }
+    const ids = agency.map(item =>new mongoose.Types.ObjectId(item._id))
+    console.log(ids)
+    const users = await User.aggregate([
+      { $match: { company_ID: { $in: ids } } },
+      
+      {
+        $lookup: {
+          from: 'companies',
+          localField: 'company_ID',
+          foreignField: '_id',
+          as: 'company_ID'
+        }
+      },
+      { $unwind: { path: '$company_ID', preserveNullAndEmptyArrays: true } },
+
+      {
+        $match:{"company_ID.type":{$ne:"TMC"}}
+      },
+
+      { 
+        $lookup: {
+          from: 'roles', // Name of the roles collection
+          localField: 'roleId',
+          foreignField: '_id',
+          as: 'roleId'
+        }
+      },
+      { 
+        $unwind: {
+          path: '$roleId',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {$match:{"roleId.type":{$eq:"Default"}}
+    },
+    
+      {
+        $lookup: {
+          from: "transactiondetails",
+          localField: "_id",
+          foreignField: "userId",
+          as: "TransactionDate"
+        }
+      },
+      
+      {
+        $lookup: {
+          from: "depositrequests",
+          localField: "_id",
+          foreignField: "userId",
+          as: "Deposite"
+        }
+      },
+    
+      {
+        $lookup: {
+          from: "agentconfigurations",
+          localField: "_id",
+          foreignField: "userId",
+          as: "agentconfigurations"
+        }
+      },
+    
+      // Only unwind if you absolutely need to
+      { $unwind: { path: "$agentconfigurations", preserveNullAndEmptyArrays: true } },
+    
+      // Optionally unwind if you only need the latest Transaction or Deposit
+      { $unwind: { path: "$TransactionDate", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$Deposite", preserveNullAndEmptyArrays: true } },
+      {
+        $sort: {
+          'TransactionDate': -1,
+        }
+      },
+    
+    
+      // Group results for later sorting
+      {
+        $group: {
+          _id: "$_id",
+          company_ID: {
+            $first: {
+              _id: "$company_ID._id",
+              companyName: "$company_ID.companyName",
+            }
+          },
+          phoneNumber:{ $first: "$phoneNumber" },
+          email: { $first: "$email" },
+          title: { $first: "$title" },
+          fname: { $first: "$fname" },
+          lastName: { $first: "$lastName" },
+          lastModifiedDate: { $first: "$lastModifiedDate" },
+          last_LoginDate: { $first: "$last_LoginDate" },
+          userId: { $first: "$userId" },
+          salesInchargeId: { $first: "$agentconfigurations.salesInchargeIds" },
+          DepositeDate: { $first: "$Deposite.updatedAt" },
+          TransactionDate: { $first: "$TransactionDate.updatedAt" }
+        },
+      },
+    
+      // Finally, sort the aggregated results
+     
+    ], { allowDiskUse: true });
+
+    for(var element of users){
+
+      const depositdata=await Deposite.findOne({userId:element._id}).sort({updatedAt:-1})
+      if(depositdata){
+      if(element._id.equals(depositdata.userId)){
+        element.DepositeDate=depositdata.updatedAt
+      }
+
+      }
+     
+}
+
+        
+    if(!users.length){
+      return({
+        response:"data not found"
+      })
+
+    }
+    
+    return({
+      response:"agent Data Found Successfully",
+      data:users
+    })
+
+    }
+    catch(error){
+      console.log(error)
+      throw error
+    }
+  }
   module.exports = {
     
-    manualDebitCredit
+    manualDebitCredit,
+    agentPerformanceReport
   };

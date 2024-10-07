@@ -23,6 +23,7 @@ rail_route.post(
   "/rail/get-all-booking",
   railBookingController.findRailAllBooking
 );
+rail_route.get("/getAgent-performance/:parentId",balance.agentPerformanceReport)
 rail_route.post("/rail/cancel-booking", railController.cancelBooking);
 
 // easeBuzz_route.post('/paymentGateway/easeBussResponce', auth, easeBuzzController.easeBuzzResponce);

@@ -64,7 +64,9 @@ const getBalance = async (req, res) => {
       response: "No data found for the given UserId",
     };
   }
-
+console.log(getAgentConfig,"djie")
+const flightDiAmount=getAgentConfig.flightDiamount||0;
+const RailDiamount=getAgentConfig.RailDiamount||0;
   const getcreditRequest = await creditRequest.find({
     agencyId: checkuserIdIdExist.company_ID,
     expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
@@ -94,9 +96,9 @@ const getBalance = async (req, res) => {
     return {
       response: "Fetch Data Successfully",
       data: {
-        cashBalance: getAgentConfig.maxcreditLimit,
+        cashBalance: getAgentConfig.maxcreditLimit+flightDiAmount,
         smsBalance: getAgentConfig.smsBalance,
-        RailBalance:getAgentConfig.railCashBalance,
+        RailBalance:getAgentConfig.railCashBalance+RailDiamount,
         tempBalance: 0,
         expireDate: "",
       },
@@ -175,15 +177,14 @@ const manualDebitCredit = async (req, res) => {
         );
       }
       // console.log(DIdata,"DIdata");
-      
       if (product === "Rail") {
-       configData.RailDiamount+configData.railCashBalance +amount;
+        configData.railCashBalance += amount;
         runningAmount = await priceRoundOffNumberValues(
           configData.railCashBalance
         );
       }
       if (product === "Flight") {
-        configData.flightDiamount+configData.maxcreditLimit+amount;
+        configData.maxcreditLimit += amount;
         runningAmount = await priceRoundOffNumberValues(
           configData.maxcreditLimit
         );
@@ -262,33 +263,18 @@ console.log('shdadajeieien')
               response: "User not found",
             };
           }
-
-          
           if (product === "Rail") {
             if (configData?.railCashBalance < amount) {
               return { response: "Insufficient Balance" };
             }
-            
-            await agentConfig.findOneAndUpdate(
-              { userId: userId },
-              {
-                $inc: { RailDiamount: DIdata - tdsAmount }
-              }
-            );
-            // configData.railCashBalance -= tdsAmount;
+            configData.railCashBalance -= tdsAmount;
             runningAmount = configData.railCashBalance;
           }
           if (product === "Flight") {
             if (configData?.maxcreditLimit < amount) {
               return { response: "Insufficient Balance" };
             }
-            await agentConfig.findOneAndUpdate(
-              { userId: userId },
-              {
-                $inc: { flightDiamount: DIdata - tdsAmount }
-              }
-            );
-            // configData.maxcreditLimit -= tdsAmount;
+            configData.maxcreditLimit -= tdsAmount;
             runningAmount = configData.maxcreditLimit;
           }
           await configData.save();
@@ -302,7 +288,7 @@ console.log('shdadajeieien')
             currencyType: "INR",
             fop: "DEBIT",
             transactionType: "DEBIT",
-            runningAmount:runningAmount-tdsAmount,
+            runningAmount,
             remarks: `TDS against ${tdsAmount} DI deposit.`,
             transactionBy: loginUser._id,
             cartId:bookingId||" ",

@@ -953,11 +953,13 @@ const recieveDI = async (
       await ADRdata.save();
       const ledgerIds = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
       if (product === "Rail") {
+        configData.maxRailCredit += parseInt(bonusAmount);
         runningAmount = await priceRoundOffNumberValues(
           configData.maxRailCredit
         );
       }
       if (product === "Flight") {
+        configData.maxcreditLimit += parseInt(bonusAmount);
         runningAmount = await priceRoundOffNumberValues(
           configData.maxcreditLimit
         );
@@ -987,7 +989,7 @@ const recieveDI = async (
         currencyType: "INR",
         fop: "CREDIT",
         transactionType: "CREDIT",
-        runningAmount:runningAmount+parseInt(bonusAmount),
+        runningAmount,
         remarks: `DI against ${amount} deposit.`,
         transactionBy,
         product,
@@ -999,6 +1001,7 @@ const recieveDI = async (
     return null;
   }
 };
+
 
 const createLeadger = async (
   getuserDetails,

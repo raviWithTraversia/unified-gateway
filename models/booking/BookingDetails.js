@@ -115,7 +115,7 @@ const bookingDetailsSchema = new mongoose.Schema({
   },
   creationDate: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   travelType: {
     type: String,
@@ -137,7 +137,7 @@ const bookingDetailsSchema = new mongoose.Schema({
   },
   invoicingDate: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   PromoCode: {
     type: String,
@@ -281,7 +281,7 @@ const bookingDetailsSchema = new mongoose.Schema({
   },
   modifyAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   isRefund:{
     type:Boolean,

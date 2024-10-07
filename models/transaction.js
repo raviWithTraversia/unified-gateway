@@ -186,7 +186,7 @@ const transactionDetailsSchema = new mongoose.Schema(
     },
     creationDate: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -194,7 +194,7 @@ const transactionDetailsSchema = new mongoose.Schema(
     },
     modifyAt: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
   },
   {

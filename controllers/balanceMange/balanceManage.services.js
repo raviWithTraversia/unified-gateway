@@ -175,14 +175,15 @@ const manualDebitCredit = async (req, res) => {
         );
       }
       // console.log(DIdata,"DIdata");
+      
       if (product === "Rail") {
-        configData.railCashBalance += amount;
+       configData.RailDiamount+configData.railCashBalance +amount;
         runningAmount = await priceRoundOffNumberValues(
           configData.railCashBalance
         );
       }
       if (product === "Flight") {
-        configData.maxcreditLimit += amount;
+        configData.flightDiamount+configData.maxcreditLimit+amount;
         runningAmount = await priceRoundOffNumberValues(
           configData.maxcreditLimit
         );
@@ -261,18 +262,33 @@ console.log('shdadajeieien')
               response: "User not found",
             };
           }
+
+          
           if (product === "Rail") {
             if (configData?.railCashBalance < amount) {
               return { response: "Insufficient Balance" };
             }
-            configData.railCashBalance -= tdsAmount;
+            
+            await agentConfig.findOneAndUpdate(
+              { userId: userId },
+              {
+                $inc: { RailDiamount: DIdata - tdsAmount }
+              }
+            );
+            // configData.railCashBalance -= tdsAmount;
             runningAmount = configData.railCashBalance;
           }
           if (product === "Flight") {
             if (configData?.maxcreditLimit < amount) {
               return { response: "Insufficient Balance" };
             }
-            configData.maxcreditLimit -= tdsAmount;
+            await agentConfig.findOneAndUpdate(
+              { userId: userId },
+              {
+                $inc: { flightDiamount: DIdata - tdsAmount }
+              }
+            );
+            // configData.maxcreditLimit -= tdsAmount;
             runningAmount = configData.maxcreditLimit;
           }
           await configData.save();
@@ -286,7 +302,7 @@ console.log('shdadajeieien')
             currencyType: "INR",
             fop: "DEBIT",
             transactionType: "DEBIT",
-            runningAmount,
+            runningAmount:runningAmount-tdsAmount,
             remarks: `TDS against ${tdsAmount} DI deposit.`,
             transactionBy: loginUser._id,
             cartId:bookingId||" ",

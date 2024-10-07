@@ -27,9 +27,9 @@ const contactDetailsSchema = new mongoose.Schema({
     },   
     phoneNo: { type: String, default:null },
     mobileNo: { type: String, default:null },
-    fAX: { type: Date, default: Date.now() },
+    fAX: { type: Date, default: Date.now },
     emailAddress: { type: String, default:null },
-    country: { type: Date, default: Date.now() },
+    country: { type: Date, default: Date.now },
     state: { type: String, default:null },
     city:{ type: String, default:null },
     address:{ type:String, default:null },
@@ -40,7 +40,7 @@ const contactDetailsSchema = new mongoose.Schema({
       ref: "User",
     },
     modifyAt: {
-      type: Date, default: Date.now(),
+      type: Date, default: Date.now,
     }    
   },
   {

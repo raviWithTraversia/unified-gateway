@@ -239,16 +239,15 @@ async function fetchCancellationCharges(req, res) {
         400,
         true
       );
-    const { error: chargesError, cancellationCharges } =
-      calculateCancellationCharges({
-        passengerToken,
-        booking,
-      });
+    const { error: chargesError, result } = calculateCancellationCharges({
+      passengerToken,
+      booking,
+    });
     if (chargesError) return apiErrorres(res, chargesError, 400, true);
     return apiSucessRes(
       res,
       "Fetched Cancellation Charges",
-      cancellationCharges,
+      result,
       ServerStatusCode.SUCESS_CODE
     );
   } catch (error) {

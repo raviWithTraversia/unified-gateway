@@ -121,10 +121,11 @@ const getCompanyBankDetalis = async (req, res) => {
 const updateBankDetails = async (req,res) => {
   try {
     
-    let {id} = req.query;
+    let {id} = req.body;
     let dataForUpdate = {
       ...req.body
     }
+    console.log(req.query)
     console.log(req.files)
     let updateBankDetails;
     if(req.files?.QrcodeImage){

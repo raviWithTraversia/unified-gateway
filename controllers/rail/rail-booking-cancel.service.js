@@ -119,11 +119,11 @@ module.exports.calculateCancellationCharges = ({ passengerToken, booking }) => {
     const cancelJourneyFor = passengerList.filter(
       (passenger, idx) => passengerTokenList[idx] === "Y"
     );
-    const result = cancelJourneyFor.map(({ netFare }) =>
+    const result = cancelJourneyFor.map(({ passengerNetFare }) =>
       calculateCharges({
         journeyClass,
         timeDifference,
-        netFare,
+        netFare: passengerNetFare,
       })
     );
     console.log({ result });

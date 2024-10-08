@@ -106,6 +106,14 @@ const groupTicketSchema = new mongoose.Schema({
   },
     unique: true
 },
+createdAt: {
+  type: Date,
+  default: Date.now,
+},
+modifyAt: {
+  type: Date,
+  default: Date.now,
+},
 },{
     timeStamp : true 
 });

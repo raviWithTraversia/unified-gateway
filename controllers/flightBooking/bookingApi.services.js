@@ -67,6 +67,7 @@ const getAllBooking = async (req, res) => {
       data: `Missing or null fields: ${missingFieldsString}`,
     };
   }
+  console.log({ fromDate, toDate });
   // if (!userId) {
   //   return {
   //     response: "User id does not exist",
@@ -185,7 +186,7 @@ const getAllBooking = async (req, res) => {
           .toDate();
         filter.createdAt["$gte"] = startDate;
       }
-      if (toDate && fromDate !== toDate) {
+      if (toDate) {
         if (!moment(toDate, "YYYY-MM-DD", true).isValid())
           return apiErrorres(
             res,
@@ -453,7 +454,7 @@ const getAllBooking = async (req, res) => {
           .toDate();
         filter.createdAt["$gte"] = startDate;
       }
-      if (toDate && fromDate !== toDate) {
+      if (toDate) {
         if (!moment(toDate, "YYYY-MM-DD", true).isValid())
           return apiErrorres(
             res,
@@ -710,7 +711,7 @@ const getAllBooking = async (req, res) => {
           .toDate();
         filter.createdAt["$gte"] = startDate;
       }
-      if (toDate && fromDate !== toDate) {
+      if (toDate) {
         if (!moment(toDate, "YYYY-MM-DD", true).isValid())
           return apiErrorres(
             res,
@@ -969,7 +970,7 @@ const getAllBooking = async (req, res) => {
             .toDate();
           filter.createdAt["$gte"] = startDate;
         }
-        if (toDate && fromDate !== toDate) {
+        if (toDate) {
           if (!moment(toDate, "YYYY-MM-DD", true).isValid())
             return apiErrorres(
               res,
@@ -1129,7 +1130,7 @@ const getAllBooking = async (req, res) => {
             .toDate();
           filter.createdAt["$gte"] = startDate;
         }
-        if (toDate && fromDate !== toDate) {
+        if (toDate) {
           if (!moment(toDate, "YYYY-MM-DD", true).isValid())
             return apiErrorres(
               res,
@@ -1286,7 +1287,7 @@ const getAllBooking = async (req, res) => {
             .toDate();
           filter.createdAt["$gte"] = startDate;
         }
-        if (toDate && fromDate !== toDate) {
+        if (toDate) {
           if (!moment(toDate, "YYYY-MM-DD", true).isValid())
             return apiErrorres(
               res,

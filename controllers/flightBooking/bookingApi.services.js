@@ -9,13 +9,14 @@ const CancelationBooking = require("../../models/booking/CancelationBooking");
 const { ObjectId } = require("mongodb");
 const moment = require("moment");
 const { Config } = require("../../configs/config");
-const InovoiceData=require('../../models/booking/InvoicingData')
+const InovoiceData = require("../../models/booking/InvoicingData");
 const {
   calculateOfferedPricePaxWise,
   getTicketNumberBySector,
   priceRoundOffNumberValues,
-  getTdsAndDsicount
+  getTdsAndDsicount,
 } = require("../commonFunctions/common.function");
+const { apiErrorres } = require("../../utils/commonResponce");
 
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
@@ -76,15 +77,13 @@ const getAllBooking = async (req, res) => {
   const checkUserIdExist = await User.findById(userId)
     .populate("roleId")
     .populate("company_ID");
-
+  console.log({ checkUserIdExist });
   //   console.log(JSON.stringify(checkUserIdExist));
   // if (!checkUserIdExist) {
   //   return {
   //     response: "User id does not exist",
   //   };
   // }
-
-
 
   // const userRole = checkUserIdExist.roleID;
   // console.log(JSON.stringify(userRole));
@@ -99,7 +98,7 @@ const getAllBooking = async (req, res) => {
   //     });
   //   }
 
-  //   const companyIds = inchargeRole.companyIds; 
+  //   const companyIds = inchargeRole.companyIds;
   //   filter.companyId = { $in: companyIds };
   // } else {
   //   // If not sales in-charge, only filter by the provided fields
@@ -112,141 +111,206 @@ const getAllBooking = async (req, res) => {
   ) {
     const filter = {};
 
-// Filter by AgencyId
-console.log('djei')
+    // Filter by AgencyId
+    console.log("djei");
 
-if(agencyId=="6555f84c991eaa63cb171a9f"&&checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual"){
-  filter.companyId= new ObjectId(agencyId)
-}
+    if (
+      agencyId == "6555f84c991eaa63cb171a9f" &&
+      checkUserIdExist.roleId &&
+      checkUserIdExist.roleId.type == "Manual"
+    ) {
+      filter.companyId = new ObjectId(agencyId);
+    } else if (agencyId !== undefined && agencyId !== "") {
+      console.log("djie");
+      filter.AgencyId = new ObjectId(agencyId);
+    } else {
+      console.log("jdi");
+      checkUserIdExist.roleId.type == "Manual" &&
+      checkUserIdExist.company_ID?.type == "TMC"
+        ? (filter.companyId = checkUserIdExist.company_ID._id)
+        : (filter.AgencyId = new ObjectId(checkUserIdExist?.company_ID?._id));
+    }
 
-else if (agencyId !== undefined && agencyId !== "") {
-  console.log('djie')
-  filter.AgencyId = new ObjectId(agencyId);
-}
-else{
-  console.log("jdi")
-  checkUserIdExist.roleId.type == "Manual"&&checkUserIdExist.company_ID?.type=="TMC"?filter.companyId=checkUserIdExist.company_ID._id: filter.AgencyId=new ObjectId(checkUserIdExist?.company_ID?._id)
-}
+    // Filter by bookingId
+    if (bookingId !== undefined && bookingId.trim() !== "") {
+      filter.bookingId = bookingId;
+    }
 
-// Filter by bookingId
-if (bookingId !== undefined && bookingId.trim() !== "") {
-  filter.bookingId = bookingId;
-}
+    // Filter by PNR
+    if (pnr !== undefined && pnr.trim() !== "") {
+      filter.PNR = pnr;
+    }
 
-// Filter by PNR
-if (pnr !== undefined && pnr.trim() !== "") {
-  filter.PNR = pnr;
-}
+    // Filter by bookingStatus
+    if (status !== undefined && status.trim() !== "") {
+      filter.bookingStatus = status;
+    }
 
-// Filter by bookingStatus
-if (status !== undefined && status.trim() !== "") {
-  filter.bookingStatus = status;
-}
+    // Filter by date range
+    // if (
+    //   fromDate !== undefined &&
+    //   fromDate.trim() !== "" &&
+    //   toDate !== undefined &&
+    //   toDate.trim() !== ""
+    // ) {
+    //   filter.bookingDateTime = {
+    //     $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+    //     $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+    //   };
+    // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    //   filter.bookingDateTime = {
+    //     $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+    //   };
+    // } else if (toDate !== undefined && toDate.trim() !== "") {
+    //   filter.bookingDateTime = {
+    //     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+    //   };
+    // }
 
-// Filter by date range
-if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
-  filter.bookingDateTime = {
-    $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-    $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-  };
-} else if (fromDate !== undefined && fromDate.trim() !== "") {
-  filter.bookingDateTime = {
-    $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-  };
-} else if (toDate !== undefined && toDate.trim() !== "") {
-  filter.bookingDateTime = {
-    $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-  };
-}
-console.log(filter)
-// Use the filter in the aggregation pipeline
-const bookingDetails = await bookingdetails.aggregate([
-  { $match: filter }, // Apply the filter here
+    if (fromDate || toDate) {
+      filter.createdAt = {};
+      if (fromDate) {
+        if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid fromDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
 
-  // Lookup for userId and its company
-  {
-    $lookup: {
-      from: "users",
-      localField: "userId",
-      foreignField: "_id",
-      as: "userId",
-      pipeline: [
-        {
-          $lookup: {
-            from: "companies",
-            localField: "company_ID",
-            foreignField: "_id",
-            as: "company_ID",
-          },
+        let startDate = moment(fromDate)
+          .set("hour", 0)
+          .set("minute", 0)
+          .set("second", 0)
+          .toDate();
+        query.createdAt["$gte"] = startDate;
+      }
+      if (toDate && fromDate !== toDate) {
+        if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid toDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+        let endDate = moment(toDate)
+          .set("hour", 23)
+          .set("minute", 59)
+          .second(59)
+          .toDate();
+        query.createdAt["$lte"] = endDate;
+      }
+    }
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return apiErrorres(
+          res,
+          "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+          400,
+          true
+        );
+      }
+    }
+    console.log(filter);
+    // Use the filter in the aggregation pipeline
+    const bookingDetails = await bookingdetails.aggregate([
+      { $match: filter }, // Apply the filter here
+
+      // Lookup for userId and its company
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userId",
+          pipeline: [
+            {
+              $lookup: {
+                from: "companies",
+                localField: "company_ID",
+                foreignField: "_id",
+                as: "company_ID",
+              },
+            },
+            {
+              $unwind: {
+                path: "$company_ID",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+          ],
         },
-        { $unwind: { path: "$company_ID", preserveNullAndEmptyArrays: true } },
-      ],
-    },
-  },
-  { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
+      },
+      { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
 
-  // Lookup for BookedBy field
-  {
-    $lookup: {
-      from: "users",
-      localField: "BookedBy",
-      foreignField: "_id",
-      as: "BookedBy",
-    },
-  },
-  { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
+      // Lookup for BookedBy field
+      {
+        $lookup: {
+          from: "users",
+          localField: "BookedBy",
+          foreignField: "_id",
+          as: "BookedBy",
+        },
+      },
+      { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
 
-  // Lookup for invoicingdatas
-  {
-    $lookup: {
-      from: "invoicingdatas",
-      localField: "_id",
-      foreignField: "bookingId",
-      as: "invoicingdatas",
-    },
-  },
-  { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
+      // Lookup for invoicingdatas
+      {
+        $lookup: {
+          from: "invoicingdatas",
+          localField: "_id",
+          foreignField: "bookingId",
+          as: "invoicingdatas",
+        },
+      },
+      {
+        $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true },
+      },
 
-  {
-    $addFields: {
-      companyIdForLookup: "$userId.company_ID._id"
-    }
-  },
+      {
+        $addFields: {
+          companyIdForLookup: "$userId.company_ID._id",
+        },
+      },
 
-  {
-    $lookup: {
-      from: "agentconfigurations",
-      localField: "companyIdForLookup", 
-      foreignField: "companyId",
-      as: "agentconfigurationData"
-    },
-  },
-  { $unwind: { path: "$agentconfigurationData", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: "agentconfigurations",
+          localField: "companyIdForLookup",
+          foreignField: "companyId",
+          as: "agentconfigurationData",
+        },
+      },
+      {
+        $unwind: {
+          path: "$agentconfigurationData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
 
-  {
-    $addFields: {
-      salesId: "$agentconfigurationData.salesInchargeIds"
-    }
-  },
+      {
+        $addFields: {
+          salesId: "$agentconfigurationData.salesInchargeIds",
+        },
+      },
 
-  {
-    $group: {
-      _id: "$_id",
-      bookingDetails: { $first: "$$ROOT" }, 
-      userId: { $first: "$userId" }, 
-      BookedBy: { $first: "$BookedBy" }, 
-      invoicingdatas: { $first: "$invoicingdatas" }, 
-      agentData: { $first: "$agentconfigurationData.salesInchargeIds" }
-    },
-  },
+      {
+        $group: {
+          _id: "$_id",
+          bookingDetails: { $first: "$$ROOT" },
+          userId: { $first: "$userId" },
+          BookedBy: { $first: "$BookedBy" },
+          invoicingdatas: { $first: "$invoicingdatas" },
+          agentData: { $first: "$agentconfigurationData.salesInchargeIds" },
+        },
+      },
 
-  {
-    $replaceRoot: { newRoot: "$bookingDetails" },
-  },
-]);
+      {
+        $replaceRoot: { newRoot: "$bookingDetails" },
+      },
+    ]);
 
-// Further processing...
-
+    // Further processing...
 
     console.log("1st");
     if (!bookingDetails || bookingDetails.length === 0) {
@@ -266,13 +330,10 @@ const bookingDetails = await bookingdetails.aggregate([
       };
 
       // Iterate over the bookingDetails array
-      var bookingIds=[];
+      var bookingIds = [];
 
       // Iterate over the bookingDetails array
       bookingDetails.forEach((booking) => {
-        
-       
-
         const status = booking.bookingStatus;
         // Increment the count corresponding to the status
         statusCounts[status]++;
@@ -280,7 +341,6 @@ const bookingDetails = await bookingdetails.aggregate([
       const allBookingData = [];
 
       await Promise.all(
-       
         bookingDetails.map(async (booking) => {
           let filter2 = { bookingId: booking.bookingId };
           if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
@@ -303,7 +363,6 @@ const bookingDetails = await bookingdetails.aggregate([
 
       let filteredBookingData = allBookingData; // Copy the original data
 
-   
       return {
         response: "Fetch Data Successfully",
         data: {
@@ -326,24 +385,28 @@ const bookingDetails = await bookingdetails.aggregate([
 
     if (agencyId !== undefined && agencyId !== "") {
       // filter.userId={}
-  if (checkUserIdExist?.roleId?.type === "Default") {
-  // Fetch all companies that have the current user's company ID as the parent
-  const companiesData = await Company.find({ parent: checkUserIdExist.company_ID._id });
+      if (checkUserIdExist?.roleId?.type === "Default") {
+        // Fetch all companies that have the current user's company ID as the parent
+        const companiesData = await Company.find({
+          parent: checkUserIdExist.company_ID._id,
+        });
 
-  // Extract and map company IDs into an array of ObjectIds
-  const companyIds = companiesData.map((element) => new ObjectId(element._id));
+        // Extract and map company IDs into an array of ObjectIds
+        const companyIds = companiesData.map(
+          (element) => new ObjectId(element._id)
+        );
 
-  // Assign the array of ObjectIds to filter.AgencyId
-  filter.AgencyId ={$in: companyIds};
-} else {
-  // Assign the specific agencyId as a single ObjectId
-  filter.AgencyId = new ObjectId(agencyId);
-}    // let allagencyId = agencyId.map(id => new ObjectId(id));
+        // Assign the array of ObjectIds to filter.AgencyId
+        filter.AgencyId = { $in: companyIds };
+      } else {
+        // Assign the specific agencyId as a single ObjectId
+        filter.AgencyId = new ObjectId(agencyId);
+      } // let allagencyId = agencyId.map(id => new ObjectId(id));
       // filter.AgencyId={$in:allagencyId}
 
       // console.log(filter.AgencyId)
     }
-   
+
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;
     }
@@ -353,29 +416,73 @@ const bookingDetails = await bookingdetails.aggregate([
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
-    if (
-      fromDate !== undefined &&
-      fromDate.trim() !== "" &&
-      toDate !== undefined &&
-      toDate.trim() !== ""
-    ) {
-      filter.bookingDateTime = {
-        $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-        $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-      };
+    // if (
+    //   fromDate !== undefined &&
+    //   fromDate.trim() !== "" &&
+    //   toDate !== undefined &&
+    //   toDate.trim() !== ""
+    // ) {
+    //   filter.bookingDateTime = {
+    //     $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+    //     $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+    //   };
+    // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    //   filter.bookingDateTime = {
+    //     $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+    //   };
+    // } else if (toDate !== undefined && toDate.trim() !== "") {
+    //   filter.bookingDateTime = {
+    //     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+    //   };
+    // }
+    if (fromDate || toDate) {
+      filter.createdAt = {};
+      if (fromDate) {
+        if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid fromDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+
+        let startDate = moment(fromDate)
+          .set("hour", 0)
+          .set("minute", 0)
+          .set("second", 0)
+          .toDate();
+        query.createdAt["$gte"] = startDate;
+      }
+      if (toDate && fromDate !== toDate) {
+        if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid toDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+        let endDate = moment(toDate)
+          .set("hour", 23)
+          .set("minute", 59)
+          .second(59)
+          .toDate();
+        query.createdAt["$lte"] = endDate;
+      }
     }
-    console.log(filter)
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return apiErrorres(
+          res,
+          "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+          400,
+          true
+        );
+      }
+    }
+    console.log(filter);
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter },
-    
+
       // Lookup for userId and its company
       {
         $lookup: {
@@ -392,12 +499,17 @@ const bookingDetails = await bookingdetails.aggregate([
                 as: "company_ID",
               },
             },
-            { $unwind: { path: "$company_ID", preserveNullAndEmptyArrays: true } },
+            {
+              $unwind: {
+                path: "$company_ID",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
           ],
         },
       },
       { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
-    
+
       // Lookup for BookedBy field
       {
         $lookup: {
@@ -408,7 +520,7 @@ const bookingDetails = await bookingdetails.aggregate([
         },
       },
       { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
-    
+
       // Lookup for invoicingdatas
       {
         $lookup: {
@@ -418,47 +530,52 @@ const bookingDetails = await bookingdetails.aggregate([
           as: "invoicingdatas",
         },
       },
-      { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
-    
       {
-        $addFields: {
-          companyIdForLookup: "$userId.company_ID._id"
-        }
+        $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true },
       },
-    
-      {
-        $lookup: {
-          from: "agentconfigurations",
-          localField: "companyIdForLookup", 
-          foreignField: "companyId",
-          as: "agentconfigurationData"
-        },
-      },
-      { $unwind: { path: "$agentconfigurationData", preserveNullAndEmptyArrays: true } },
 
       {
         $addFields: {
-          salesId: "$agentconfigurationData.salesInchargeIds"
-        }
+          companyIdForLookup: "$userId.company_ID._id",
+        },
       },
-    
-    
+
+      {
+        $lookup: {
+          from: "agentconfigurations",
+          localField: "companyIdForLookup",
+          foreignField: "companyId",
+          as: "agentconfigurationData",
+        },
+      },
+      {
+        $unwind: {
+          path: "$agentconfigurationData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      {
+        $addFields: {
+          salesId: "$agentconfigurationData.salesInchargeIds",
+        },
+      },
+
       {
         $group: {
           _id: "$_id",
-          bookingDetails: { $first: "$$ROOT" }, 
-          userId: { $first: "$userId" }, 
-          BookedBy: { $first: "$BookedBy" }, 
-          invoicingdatas: { $first: "$invoicingdatas" }, 
-          agentData: { $first: "$agentconfigurationData.salesInchargeIds" }
+          bookingDetails: { $first: "$$ROOT" },
+          userId: { $first: "$userId" },
+          BookedBy: { $first: "$BookedBy" },
+          invoicingdatas: { $first: "$invoicingdatas" },
+          agentData: { $first: "$agentconfigurationData.salesInchargeIds" },
         },
       },
-    
+
       {
         $replaceRoot: { newRoot: "$bookingDetails" },
       },
     ]);
-    
 
     console.log("2nd");
 
@@ -482,19 +599,12 @@ const bookingDetails = await bookingdetails.aggregate([
 
       // Iterate over the bookingDetails array
       bookingDetails.forEach((booking) => {
-        
-       
-
         const status = booking.bookingStatus;
         // Increment the count corresponding to the status
         statusCounts[status]++;
       });
       const allBookingData = [];
       await Promise.all(
-       
-      
-
-
         bookingDetails.map(async (booking) => {
           let filter2 = { bookingId: booking.bookingId };
           if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
@@ -513,10 +623,9 @@ const bookingDetails = await bookingdetails.aggregate([
             });
           }
         })
-    );
+      );
       let filteredBookingData = allBookingData; // Copy the original data
 
-     
       return {
         response: "Fetch Data Successfully",
         data: {
@@ -538,16 +647,21 @@ const bookingDetails = await bookingdetails.aggregate([
       checkUserIdExist?.company_ID == new ObjectId("6555f84c991eaa63cb171a9f"))
   ) {
     let filter = {};
-    if (agencyId !== undefined && agencyId !== ""&&agencyId != new ObjectId("6555f84c991eaa63cb171a9f")) {
+    if (
+      agencyId !== undefined &&
+      agencyId !== "" &&
+      agencyId != new ObjectId("6555f84c991eaa63cb171a9f")
+    ) {
       // filter.userId={}
-      checkUserIdExist?.roleId?.type == "Manual"?filter.companyId = new ObjectId(agencyId):filter.AgencyId=new ObjectId(agencyId);
+      checkUserIdExist?.roleId?.type == "Manual"
+        ? (filter.companyId = new ObjectId(agencyId))
+        : (filter.AgencyId = new ObjectId(agencyId));
       // let allagencyId = agencyId.map(id => new ObjectId(id));
       // filter.AgencyId={$in:allagencyId}
 
       // console.log(filter.AgencyId)
-    }
-    else if(agencyId !== undefined &&agencyId !== "" ){
-      filter.companyId = new ObjectId(agencyId)
+    } else if (agencyId !== undefined && agencyId !== "") {
+      filter.companyId = new ObjectId(agencyId);
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -559,29 +673,73 @@ const bookingDetails = await bookingdetails.aggregate([
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
-    if (
-      fromDate !== undefined &&
-      fromDate.trim() !== "" &&
-      toDate !== undefined &&
-      toDate.trim() !== ""
-    ) {
-      filter.bookingDateTime = {
-        $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-        $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-      };
+    // if (
+    //   fromDate !== undefined &&
+    //   fromDate.trim() !== "" &&
+    //   toDate !== undefined &&
+    //   toDate.trim() !== ""
+    // ) {
+    //   filter.bookingDateTime = {
+    //     $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+    //     $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+    //   };
+    // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    //   filter.bookingDateTime = {
+    //     $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+    //   };
+    // } else if (toDate !== undefined && toDate.trim() !== "") {
+    //   filter.bookingDateTime = {
+    //     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+    //   };
+    // }
+    if (fromDate || toDate) {
+      filter.createdAt = {};
+      if (fromDate) {
+        if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid fromDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+
+        let startDate = moment(fromDate)
+          .set("hour", 0)
+          .set("minute", 0)
+          .set("second", 0)
+          .toDate();
+        query.createdAt["$gte"] = startDate;
+      }
+      if (toDate && fromDate !== toDate) {
+        if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid toDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+        let endDate = moment(toDate)
+          .set("hour", 23)
+          .set("minute", 59)
+          .second(59)
+          .toDate();
+        query.createdAt["$lte"] = endDate;
+      }
     }
-    console.log(filter,"j;die")
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return apiErrorres(
+          res,
+          "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+          400,
+          true
+        );
+      }
+    }
+    console.log(filter, "j;die");
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter },
-    
+
       // Lookup for userId and its company
       {
         $lookup: {
@@ -598,12 +756,17 @@ const bookingDetails = await bookingdetails.aggregate([
                 as: "company_ID",
               },
             },
-            { $unwind: { path: "$company_ID", preserveNullAndEmptyArrays: true } },
+            {
+              $unwind: {
+                path: "$company_ID",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
           ],
         },
       },
       { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
-    
+
       // Lookup for BookedBy field
       {
         $lookup: {
@@ -614,7 +777,7 @@ const bookingDetails = await bookingdetails.aggregate([
         },
       },
       { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
-    
+
       // Lookup for invoicingdatas
       {
         $lookup: {
@@ -624,55 +787,60 @@ const bookingDetails = await bookingdetails.aggregate([
           as: "invoicingdatas",
         },
       },
-      { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
-    
       {
-        $addFields: {
-          companyIdForLookup: "$userId.company_ID._id"
-        }
+        $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true },
       },
-    
-      {
-        $lookup: {
-          from: "agentconfigurations",
-          localField: "companyIdForLookup", 
-          foreignField: "companyId",
-          as: "agentconfigurationData"
-        },
-      },
-      { $unwind: { path: "$agentconfigurationData", preserveNullAndEmptyArrays: true } },
 
       {
         $addFields: {
-          salesId: "$agentconfigurationData.salesInchargeIds"
-        }
+          companyIdForLookup: "$userId.company_ID._id",
+        },
       },
-    
-    
+
+      {
+        $lookup: {
+          from: "agentconfigurations",
+          localField: "companyIdForLookup",
+          foreignField: "companyId",
+          as: "agentconfigurationData",
+        },
+      },
+      {
+        $unwind: {
+          path: "$agentconfigurationData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      {
+        $addFields: {
+          salesId: "$agentconfigurationData.salesInchargeIds",
+        },
+      },
+
       {
         $group: {
           _id: "$_id",
-          bookingDetails: { $first: "$$ROOT" }, 
-          userId: { $first: "$userId" }, 
-          BookedBy: { $first: "$BookedBy" }, 
-          invoicingdatas: { $first: "$invoicingdatas" }, 
+          bookingDetails: { $first: "$$ROOT" },
+          userId: { $first: "$userId" },
+          BookedBy: { $first: "$BookedBy" },
+          invoicingdatas: { $first: "$invoicingdatas" },
         },
       },
-    
+
       {
         $replaceRoot: { newRoot: "$bookingDetails" },
       },
     ]);
-    
-    
-      // .find(filter)
-      // .populate({
-      //   path: "userId",
-      //   populate: {
-      //     path: "company_ID",
-      //   },
-      // })
-      // .populate("BookedBy");
+
+    // .find(filter)
+    // .populate({
+    //   path: "userId",
+    //   populate: {
+    //     path: "company_ID",
+    //   },
+    // })
+    // .populate("BookedBy");
     console.log("3rd");
     if (!bookingDetails || bookingDetails.length === 0) {
       return {
@@ -689,46 +857,43 @@ const bookingDetails = await bookingdetails.aggregate([
         HOLDRELEASED: 0,
         "FAILED PAYMENT": 0,
       };
-      var bookingIds=[];
+      var bookingIds = [];
 
       // Iterate over the bookingDetails array
       bookingDetails.forEach((booking) => {
-        
-       
-
         const status = booking.bookingStatus;
         // Increment the count corresponding to the status
         statusCounts[status]++;
       });
       const allBookingData = [];
-    
+
       await Promise.all(
-     
-      bookingDetails.map(async (booking) => {
+        bookingDetails.map(async (booking) => {
           let filter2 = { bookingId: booking.bookingId };
-      
+
           if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
             filter2["Passengers.Optional.TicketNumber"] = ticketNumber;
           }
-      
-          const passengerPreference = await passengerPreferenceSchema.find(filter2);
+
+          const passengerPreference = await passengerPreferenceSchema.find(
+            filter2
+          );
           const configDetails = await config.findOne({
             userId: booking.userId,
           });
-      
+
           if (passengerPreference.length) {
             allBookingData.push({
               bookingDetails: booking,
               passengerPreference: passengerPreference,
             });
           }
-        }),
+        })
       );
-      
+
       // console.log(allBookingData[0].bookingDetails,"djfie")
 
       let filteredBookingData = allBookingData; // Copy the original data
-     
 
       return {
         response: "Fetch Data Successfully",
@@ -767,24 +932,68 @@ const bookingDetails = await bookingdetails.aggregate([
         filter.bookingStatus = status;
       }
 
-      if (
-        fromDate !== undefined &&
-        fromDate.trim() !== "" &&
-        toDate !== undefined &&
-        toDate.trim() !== ""
-      ) {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-        };
+      // if (
+      //   fromDate !== undefined &&
+      //   fromDate.trim() !== "" &&
+      //   toDate !== undefined &&
+      //   toDate.trim() !== ""
+      // ) {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+      //     $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+      //   };
+      // }
+      if (fromDate || toDate) {
+        filter.createdAt = {};
+        if (fromDate) {
+          if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid fromDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+
+          let startDate = moment(fromDate)
+            .set("hour", 0)
+            .set("minute", 0)
+            .set("second", 0)
+            .toDate();
+          query.createdAt["$gte"] = startDate;
+        }
+        if (toDate && fromDate !== toDate) {
+          if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid toDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+          let endDate = moment(toDate)
+            .set("hour", 23)
+            .set("minute", 59)
+            .second(59)
+            .toDate();
+          query.createdAt["$lte"] = endDate;
+        }
+      }
+      if (fromDate && toDate) {
+        if (moment(toDate).isBefore(fromDate)) {
+          return apiErrorres(
+            res,
+            "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+            400,
+            true
+          );
+        }
       }
 
       const bookingDetails = await bookingdetails
@@ -883,24 +1092,68 @@ const bookingDetails = await bookingdetails.aggregate([
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
       }
-      if (
-        fromDate !== undefined &&
-        fromDate.trim() !== "" &&
-        toDate !== undefined &&
-        toDate.trim() !== ""
-      ) {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-        };
+      // if (
+      //   fromDate !== undefined &&
+      //   fromDate.trim() !== "" &&
+      //   toDate !== undefined &&
+      //   toDate.trim() !== ""
+      // ) {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+      //     $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+      //   };
+      // }
+      if (fromDate || toDate) {
+        filter.createdAt = {};
+        if (fromDate) {
+          if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid fromDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+
+          let startDate = moment(fromDate)
+            .set("hour", 0)
+            .set("minute", 0)
+            .set("second", 0)
+            .toDate();
+          query.createdAt["$gte"] = startDate;
+        }
+        if (toDate && fromDate !== toDate) {
+          if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid toDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+          let endDate = moment(toDate)
+            .set("hour", 23)
+            .set("minute", 59)
+            .second(59)
+            .toDate();
+          query.createdAt["$lte"] = endDate;
+        }
+      }
+      if (fromDate && toDate) {
+        if (moment(toDate).isBefore(fromDate)) {
+          return apiErrorres(
+            res,
+            "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+            400,
+            true
+          );
+        }
       }
 
       const bookingDetails = await bookingdetails
@@ -996,24 +1249,68 @@ const bookingDetails = await bookingdetails.aggregate([
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
       }
-      if (
-        fromDate !== undefined &&
-        fromDate.trim() !== "" &&
-        toDate !== undefined &&
-        toDate.trim() !== ""
-      ) {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-        };
+      // if (
+      //   fromDate !== undefined &&
+      //   fromDate.trim() !== "" &&
+      //   toDate !== undefined &&
+      //   toDate.trim() !== ""
+      // ) {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+      //     $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+      //   };
+      // }
+      if (fromDate || toDate) {
+        filter.createdAt = {};
+        if (fromDate) {
+          if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid fromDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+
+          let startDate = moment(fromDate)
+            .set("hour", 0)
+            .set("minute", 0)
+            .set("second", 0)
+            .toDate();
+          query.createdAt["$gte"] = startDate;
+        }
+        if (toDate && fromDate !== toDate) {
+          if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid toDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+          let endDate = moment(toDate)
+            .set("hour", 23)
+            .set("minute", 59)
+            .second(59)
+            .toDate();
+          query.createdAt["$lte"] = endDate;
+        }
+      }
+      if (fromDate && toDate) {
+        if (moment(toDate).isBefore(fromDate)) {
+          return apiErrorres(
+            res,
+            "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+            400,
+            true
+          );
+        }
       }
 
       const bookingDetails = await bookingdetails
@@ -1665,7 +1962,9 @@ const getBookingBill = async (req, res) => {
     {
       $match: {
         "bookingData.bookingStatus": "CONFIRMED",
-        "bookingData.userId": agencyId ? new ObjectId(agencyId) : { $exists: true },
+        "bookingData.userId": agencyId
+          ? new ObjectId(agencyId)
+          : { $exists: true },
       },
     },
     {
@@ -1704,11 +2003,16 @@ const getBookingBill = async (req, res) => {
         cartId: "$bookingData.bookingId",
         paxTotal: "$Passengers.totalBaggagePrice",
         itinerary: "$bookingData.itinerary",
-        itemAmount: { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0] },
+        itemAmount: {
+          $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0],
+        },
         sector: {
           $concat: [
             {
-              $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Code", 0],
+              $arrayElemAt: [
+                "$bookingData.itinerary.Sectors.Departure.Code",
+                0,
+              ],
             },
             " ",
             {
@@ -1728,10 +2032,16 @@ const getBookingBill = async (req, res) => {
         },
         class: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Class", 0] },
         ccUserName: "AUTO",
-        travelDateOutbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0] },
-        travelDateInbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0] },
+        travelDateOutbound: {
+          $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0],
+        },
+        travelDateInbound: {
+          $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0],
+        },
         issueDate: "$bookingData.bookingDateTime",
-        airlineTax: { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.Tax", 0] },
+        airlineTax: {
+          $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.Tax", 0],
+        },
         tranFee: "0",
         sTax: "0",
         commission: "0",
@@ -1740,7 +2050,9 @@ const getBookingBill = async (req, res) => {
         accountPost: "$bookingData.accountPost",
         purchaseCode: "0",
         flightCode: "$bookingData.Supplier",
-        airlineName: { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0] },
+        airlineName: {
+          $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
+        },
         bookingId1: {
           $concat: [
             { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
@@ -1760,32 +2072,32 @@ const getBookingBill = async (req, res) => {
     let netAmount = 0;
     netAmount = await calculateOfferedPricePaxWise(element);
 
-      switch (element.PaxType) {
-        case "ADT": // Adult
-          element.itemAmount = element.itinerary.PriceBreakup[0]?.BaseFare || 0;
-          element.airlineTax=element.itinerary.PriceBreakup[0]?.Tax || 0;
-          break;
-        case "CHD": // Child
-          element.itemAmount = element.itinerary.PriceBreakup[1]?.BaseFare || 0;
-          element.airlineTax=element.itinerary.PriceBreakup[1]?.Tax || 0;
+    switch (element.PaxType) {
+      case "ADT": // Adult
+        element.itemAmount = element.itinerary.PriceBreakup[0]?.BaseFare || 0;
+        element.airlineTax = element.itinerary.PriceBreakup[0]?.Tax || 0;
+        break;
+      case "CHD": // Child
+        element.itemAmount = element.itinerary.PriceBreakup[1]?.BaseFare || 0;
+        element.airlineTax = element.itinerary.PriceBreakup[1]?.Tax || 0;
 
-          break;
-        case "INF": // Infant
-          element.itemAmount = element.itinerary.PriceBreakup[2]?.BaseFare || 0;
-          element.airlineTax=element.itinerary.PriceBreakup[2]?.Tax || 0;
+        break;
+      case "INF": // Infant
+        element.itemAmount = element.itinerary.PriceBreakup[2]?.BaseFare || 0;
+        element.airlineTax = element.itinerary.PriceBreakup[2]?.Tax || 0;
 
-          break;
-        default:
-          element.itemAmount = 0; // Default if no match
-      }
+        break;
+      default:
+        element.itemAmount = 0; // Default if no match
+    }
 
     for (let item of element?.getCommercialArray) {
-      
-
       for (let items of item?.CommercialBreakup) {
         if (items?.CommercialType == "Discount") {
           element.commission = parseFloat(
-            (parseFloat(element.commission) + parseFloat(items.Amount)).toFixed(2)
+            (parseFloat(element.commission) + parseFloat(items.Amount)).toFixed(
+              2
+            )
           );
         }
         if (items?.CommercialType == "TDS") {
@@ -1809,7 +2121,6 @@ const getBookingBill = async (req, res) => {
       delete element.itinerary;
     }
   }
-  
 
   bookingBill.forEach(async (element, index) => {
     let ticketNumber = [element.pnr];
@@ -1841,7 +2152,7 @@ const getBookingBill = async (req, res) => {
 
 const getSalesReport = async (req, res) => {
   const { agencyId, fromDate, toDate } = req.body;
-  console.log(agencyId)
+  console.log(agencyId);
   const salesReport = await passengerPreferenceSchema.aggregate([
     {
       $match: {
@@ -2110,26 +2421,30 @@ const getSalesReport = async (req, res) => {
 
 const getBookingByPaxDetails = async (req, res) => {
   const { paxName, userId, ticketNumber } = req.body;
-const CheckRole=await User.findById(userId).populate([{path:"roleId"},{path:"company_ID", select:"type"}])
-var SearchFilterUserId
-if(CheckRole?.roleId?.name!="TMC"&&CheckRole?.roleId?.name=="Agency"){
-  SearchFilterUserId={"userId":new ObjectId(userId)}
-}
-
-else{
-
- CheckRole?.company_ID?.type=="Agency"?SearchFilterUserId={"userId":new ObjectId(CheckRole.company_ID)}: SearchFilterUserId={"companyId":new ObjectId(CheckRole.company_ID)}
-}
-console.log(SearchFilterUserId,"djie")
+  const CheckRole = await User.findById(userId).populate([
+    { path: "roleId" },
+    { path: "company_ID", select: "type" },
+  ]);
+  var SearchFilterUserId;
+  if (CheckRole?.roleId?.name != "TMC" && CheckRole?.roleId?.name == "Agency") {
+    SearchFilterUserId = { userId: new ObjectId(userId) };
+  } else {
+    CheckRole?.company_ID?.type == "Agency"
+      ? (SearchFilterUserId = { userId: new ObjectId(CheckRole.company_ID) })
+      : (SearchFilterUserId = {
+          companyId: new ObjectId(CheckRole.company_ID),
+        });
+  }
+  console.log(SearchFilterUserId, "djie");
   if (ticketNumber) {
     const getPaxByTicket = await passengerPreferenceSchema.aggregate([
       {
-        $match: { 
-          "Passengers.Optional.TicketNumber": ticketNumber
+        $match: {
+          "Passengers.Optional.TicketNumber": ticketNumber,
         },
       },
       { $unwind: "$Passengers" },
-      {$match:SearchFilterUserId},
+      { $match: SearchFilterUserId },
       {
         $lookup: {
           from: "bookingdetails",
@@ -2147,15 +2462,15 @@ console.log(SearchFilterUserId,"djie")
         },
       },
     ]);
-console.log(getPaxByTicket,"dji")
+    console.log(getPaxByTicket, "dji");
     getPaxByTicket.map((items) => {
       items?.passengerPreference.map((item) => {
         delete item.bookingDetails;
       });
     });
     if (!getPaxByTicket.length) {
-      SearchFilterUserId.PNR=ticketNumber;
-      console.log(SearchFilterUserId)
+      SearchFilterUserId.PNR = ticketNumber;
+      console.log(SearchFilterUserId);
       const getPaxByPnr = await bookingdetails.findOne(SearchFilterUserId);
       if (!getPaxByPnr) {
         return {
@@ -2223,10 +2538,10 @@ console.log(getPaxByTicket,"dji")
   }
   const getPassenger = await passengerPreferenceSchema.aggregate([
     {
-      $match: regexFilter,  // Match based on first name and last name
+      $match: regexFilter, // Match based on first name and last name
     },
     {
-      $match: SearchFilterUserId  // Now match the userId to filter by it
+      $match: SearchFilterUserId, // Now match the userId to filter by it
     },
     {
       $lookup: {
@@ -2275,7 +2590,7 @@ console.log(getPaxByTicket,"dji")
       },
     },
   ]);
-  console.log(getPassenger,"jiei")
+  console.log(getPassenger, "jiei");
   getPassenger.forEach((items) => {
     if (
       items?.passengerPreference &&
@@ -2382,7 +2697,12 @@ const getBillingData = async (req, res) => {
         pnr: "$bookingData.PNR",
         sector: {
           $concat: [
-            { $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Code", 0] },
+            {
+              $arrayElemAt: [
+                "$bookingData.itinerary.Sectors.Departure.Code",
+                0,
+              ],
+            },
             " ",
             {
               $arrayElemAt: [
@@ -2401,8 +2721,12 @@ const getBillingData = async (req, res) => {
         },
         class: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Class", 0] },
         ccUserName: "AUTO",
-        travelDateOutbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0] },
-        travelDateInbound: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0] },
+        travelDateOutbound: {
+          $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0],
+        },
+        travelDateInbound: {
+          $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0],
+        },
         issueDate: "$bookingData.bookingDateTime",
         airlineTax: "0",
         tranFee: "0",
@@ -2412,7 +2736,9 @@ const getBillingData = async (req, res) => {
         cashback: "0",
         purchaseCode: "0",
         flightCode: "$bookingData.Supplier",
-        airlineName: { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0] },
+        airlineName: {
+          $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
+        },
         bookingId1: {
           $concat: [
             { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
@@ -2424,11 +2750,15 @@ const getBillingData = async (req, res) => {
         getCommercialArray: "$bookingData.itinerary.PriceBreakup",
         itinerary: "$bookingData.itinerary",
 
-        baseFare: { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0] },
+        baseFare: {
+          $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0],
+        },
 
         itemAmount: {
           $add: [
-            { $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0] },
+            {
+              $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0],
+            },
             "$Passengers.totalBaggagePrice",
             "$Passengers.totalMealPrice",
             "$Passengers.totalSeatPrice",
@@ -2449,7 +2779,9 @@ const getBillingData = async (req, res) => {
         items.CommercialBreakup.map((item) => {
           if (item.CommercialType == "Discount") {
             element.commission = parseFloat(
-              (parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(2)
+              (parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(
+                2
+              )
             );
           }
           if (item.CommercialType == "TDS") {
@@ -2482,7 +2814,9 @@ const getBillingData = async (req, res) => {
       );
     }
     element.ticketNo =
-      ticketNumber.length != 0 && ticketNumber[0] != null && ticketNumber[0] != ""
+      ticketNumber.length != 0 &&
+      ticketNumber[0] != null &&
+      ticketNumber[0] != ""
         ? ticketNumber[0]
         : element.pnr;
 
@@ -2491,7 +2825,7 @@ const getBillingData = async (req, res) => {
     element.travelDateInbound = await ISTTime(element.travelDateInbound);
     element.issueDate = await ISTTime(element.issueDate);
     delete element.getCommercialArray;
-    delete element.baseFare
+    delete element.baseFare;
   }
 
   if (!billingData.length) {
@@ -2505,8 +2839,6 @@ const getBillingData = async (req, res) => {
     data: billingData,
   };
 };
-
-
 
 const updateBillPost = async (req, res) => {
   const { accountPostArr } = req.body;

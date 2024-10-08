@@ -25,6 +25,12 @@ rail_route.post(
 );
 rail_route.get("/getAgent-performance/:parentId",auth,balance.agentPerformanceReport)
 rail_route.post("/rail/cancel-booking", railController.cancelBooking);
+rail_route.post("/rail/refund-details", railController.fetchRefundDetails);
+rail_route.put(
+  "/rail/cancel-booking",
+  railController.updateCancellationDetails
+);
+rail_route.post("/rail/cancellations", railController.fetchCancellations);
 
 // easeBuzz_route.post('/paymentGateway/easeBussResponce', auth, easeBuzzController.easeBuzzResponce);
 

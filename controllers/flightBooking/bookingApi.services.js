@@ -16,6 +16,7 @@ const {
   priceRoundOffNumberValues,
   getTdsAndDsicount,
 } = require("../commonFunctions/common.function");
+const { apiErrorres } = require("../../utils/commonResponce");
 
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
@@ -415,24 +416,68 @@ const getAllBooking = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
-    if (
-      fromDate !== undefined &&
-      fromDate.trim() !== "" &&
-      toDate !== undefined &&
-      toDate.trim() !== ""
-    ) {
-      filter.bookingDateTime = {
-        $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-        $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-      };
+    // if (
+    //   fromDate !== undefined &&
+    //   fromDate.trim() !== "" &&
+    //   toDate !== undefined &&
+    //   toDate.trim() !== ""
+    // ) {
+    //   filter.bookingDateTime = {
+    //     $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+    //     $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+    //   };
+    // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    //   filter.bookingDateTime = {
+    //     $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+    //   };
+    // } else if (toDate !== undefined && toDate.trim() !== "") {
+    //   filter.bookingDateTime = {
+    //     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+    //   };
+    // }
+    if (fromDate || toDate) {
+      filter.createdAt = {};
+      if (fromDate) {
+        if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid fromDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+
+        let startDate = moment(fromDate)
+          .set("hour", 0)
+          .set("minute", 0)
+          .set("second", 0)
+          .toDate();
+        query.createdAt["$gte"] = startDate;
+      }
+      if (toDate && fromDate !== toDate) {
+        if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid toDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+        let endDate = moment(toDate)
+          .set("hour", 23)
+          .set("minute", 59)
+          .second(59)
+          .toDate();
+        query.createdAt["$lte"] = endDate;
+      }
+    }
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return apiErrorres(
+          res,
+          "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+          400,
+          true
+        );
+      }
     }
     console.log(filter);
     const bookingDetails = await bookingdetails.aggregate([
@@ -628,24 +673,68 @@ const getAllBooking = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
-    if (
-      fromDate !== undefined &&
-      fromDate.trim() !== "" &&
-      toDate !== undefined &&
-      toDate.trim() !== ""
-    ) {
-      filter.bookingDateTime = {
-        $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-        $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-      };
-    } else if (fromDate !== undefined && fromDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-      };
-    } else if (toDate !== undefined && toDate.trim() !== "") {
-      filter.bookingDateTime = {
-        $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-      };
+    // if (
+    //   fromDate !== undefined &&
+    //   fromDate.trim() !== "" &&
+    //   toDate !== undefined &&
+    //   toDate.trim() !== ""
+    // ) {
+    //   filter.bookingDateTime = {
+    //     $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+    //     $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+    //   };
+    // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+    //   filter.bookingDateTime = {
+    //     $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+    //   };
+    // } else if (toDate !== undefined && toDate.trim() !== "") {
+    //   filter.bookingDateTime = {
+    //     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+    //   };
+    // }
+    if (fromDate || toDate) {
+      filter.createdAt = {};
+      if (fromDate) {
+        if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid fromDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+
+        let startDate = moment(fromDate)
+          .set("hour", 0)
+          .set("minute", 0)
+          .set("second", 0)
+          .toDate();
+        query.createdAt["$gte"] = startDate;
+      }
+      if (toDate && fromDate !== toDate) {
+        if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid toDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+        let endDate = moment(toDate)
+          .set("hour", 23)
+          .set("minute", 59)
+          .second(59)
+          .toDate();
+        query.createdAt["$lte"] = endDate;
+      }
+    }
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return apiErrorres(
+          res,
+          "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+          400,
+          true
+        );
+      }
     }
     console.log(filter, "j;die");
     const bookingDetails = await bookingdetails.aggregate([
@@ -843,24 +932,68 @@ const getAllBooking = async (req, res) => {
         filter.bookingStatus = status;
       }
 
-      if (
-        fromDate !== undefined &&
-        fromDate.trim() !== "" &&
-        toDate !== undefined &&
-        toDate.trim() !== ""
-      ) {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-        };
+      // if (
+      //   fromDate !== undefined &&
+      //   fromDate.trim() !== "" &&
+      //   toDate !== undefined &&
+      //   toDate.trim() !== ""
+      // ) {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+      //     $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+      //   };
+      // }
+      if (fromDate || toDate) {
+        filter.createdAt = {};
+        if (fromDate) {
+          if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid fromDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+
+          let startDate = moment(fromDate)
+            .set("hour", 0)
+            .set("minute", 0)
+            .set("second", 0)
+            .toDate();
+          query.createdAt["$gte"] = startDate;
+        }
+        if (toDate && fromDate !== toDate) {
+          if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid toDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+          let endDate = moment(toDate)
+            .set("hour", 23)
+            .set("minute", 59)
+            .second(59)
+            .toDate();
+          query.createdAt["$lte"] = endDate;
+        }
+      }
+      if (fromDate && toDate) {
+        if (moment(toDate).isBefore(fromDate)) {
+          return apiErrorres(
+            res,
+            "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+            400,
+            true
+          );
+        }
       }
 
       const bookingDetails = await bookingdetails
@@ -959,24 +1092,68 @@ const getAllBooking = async (req, res) => {
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
       }
-      if (
-        fromDate !== undefined &&
-        fromDate.trim() !== "" &&
-        toDate !== undefined &&
-        toDate.trim() !== ""
-      ) {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-        };
+      // if (
+      //   fromDate !== undefined &&
+      //   fromDate.trim() !== "" &&
+      //   toDate !== undefined &&
+      //   toDate.trim() !== ""
+      // ) {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+      //     $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+      //   };
+      // }
+      if (fromDate || toDate) {
+        filter.createdAt = {};
+        if (fromDate) {
+          if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid fromDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+
+          let startDate = moment(fromDate)
+            .set("hour", 0)
+            .set("minute", 0)
+            .set("second", 0)
+            .toDate();
+          query.createdAt["$gte"] = startDate;
+        }
+        if (toDate && fromDate !== toDate) {
+          if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid toDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+          let endDate = moment(toDate)
+            .set("hour", 23)
+            .set("minute", 59)
+            .second(59)
+            .toDate();
+          query.createdAt["$lte"] = endDate;
+        }
+      }
+      if (fromDate && toDate) {
+        if (moment(toDate).isBefore(fromDate)) {
+          return apiErrorres(
+            res,
+            "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+            400,
+            true
+          );
+        }
       }
 
       const bookingDetails = await bookingdetails
@@ -1072,24 +1249,68 @@ const getAllBooking = async (req, res) => {
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
       }
-      if (
-        fromDate !== undefined &&
-        fromDate.trim() !== "" &&
-        toDate !== undefined &&
-        toDate.trim() !== ""
-      ) {
-        filter.bookingDateTime = {
-          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-        };
-      } else if (fromDate !== undefined && fromDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-        };
-      } else if (toDate !== undefined && toDate.trim() !== "") {
-        filter.bookingDateTime = {
-          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-        };
+      // if (
+      //   fromDate !== undefined &&
+      //   fromDate.trim() !== "" &&
+      //   toDate !== undefined &&
+      //   toDate.trim() !== ""
+      // ) {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+      //     $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+      //   };
+      // } else if (fromDate !== undefined && fromDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+      //   };
+      // } else if (toDate !== undefined && toDate.trim() !== "") {
+      //   filter.bookingDateTime = {
+      //     $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+      //   };
+      // }
+      if (fromDate || toDate) {
+        filter.createdAt = {};
+        if (fromDate) {
+          if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid fromDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+
+          let startDate = moment(fromDate)
+            .set("hour", 0)
+            .set("minute", 0)
+            .set("second", 0)
+            .toDate();
+          query.createdAt["$gte"] = startDate;
+        }
+        if (toDate && fromDate !== toDate) {
+          if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+            return apiErrorres(
+              res,
+              "invalid toDate format, must be YYYY-MM-DD",
+              400,
+              true
+            );
+          let endDate = moment(toDate)
+            .set("hour", 23)
+            .set("minute", 59)
+            .second(59)
+            .toDate();
+          query.createdAt["$lte"] = endDate;
+        }
+      }
+      if (fromDate && toDate) {
+        if (moment(toDate).isBefore(fromDate)) {
+          return apiErrorres(
+            res,
+            "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+            400,
+            true
+          );
+        }
       }
 
       const bookingDetails = await bookingdetails

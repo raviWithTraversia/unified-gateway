@@ -64,7 +64,9 @@ const getBalance = async (req, res) => {
       response: "No data found for the given UserId",
     };
   }
-
+console.log(getAgentConfig,"djie")
+const flightDiAmount=getAgentConfig.flightDiamount||0;
+const RailDiamount=getAgentConfig.RailDiamount||0;
   const getcreditRequest = await creditRequest.find({
     agencyId: checkuserIdIdExist.company_ID,
     expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
@@ -94,9 +96,9 @@ const getBalance = async (req, res) => {
     return {
       response: "Fetch Data Successfully",
       data: {
-        cashBalance: getAgentConfig.maxcreditLimit,
+        cashBalance: getAgentConfig.maxcreditLimit+flightDiAmount,
         smsBalance: getAgentConfig.smsBalance,
-        RailBalance:getAgentConfig.railCashBalance,
+        RailBalance:getAgentConfig.railCashBalance+RailDiamount,
         tempBalance: 0,
         expireDate: "",
       },

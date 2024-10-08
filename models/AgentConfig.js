@@ -109,7 +109,7 @@ const agentConfigSchema = new mongoose.Schema({
   },
   modifyAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   discountPercentage: {
     type: Number,
@@ -156,6 +156,17 @@ const agentConfigSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+
+  RailDiamount:{
+    type:Number,
+    default:0
+  },
+  flightDiamount:{
+    type:Number,
+    default:0
+  },
+
+
 }, { timestamps: true, });
 
 const AgentConfiguration = mongoose.model("AgentConfiguration", agentConfigSchema);

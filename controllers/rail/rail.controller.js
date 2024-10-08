@@ -10,11 +10,13 @@ const {
 const {
   cancelRailBooking,
   validatePsgnToken,
+  calculateCancellationCharges,
 } = require("./rail-booking-cancel.service");
 const User = require("../../models/User");
 const Company = require("../../models/Company");
 const RailCancellation = require("../../models/Irctc/rail-cancellation");
 const { fetchRailRefundDetails } = require("./rail-refund-details.service");
+const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
 // const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
 
 const railSearch = async (req, res) => {
@@ -222,6 +224,44 @@ const DecodeToken = async (req, res) => {
   }
 };
 
+async function fetchCancellationCharges(req, res) {
+  try {
+    const { passengerToken, reservationId } = req.body;
+    const { error } = validatePsgnToken(passengerToken);
+    if (error) return apiErrorres(res, error, 400, true);
+    if (!reservationId)
+      return apiErrorres(res, "reservationId Required", 400, true);
+    const booking = await bookingDetailsRail.findOne({ reservationId });
+    if (!booking)
+      return apiErrorres(
+        res,
+        "No Booking Found With Given Reservationid",
+        400,
+        true
+      );
+    const { error: chargesError, cancellationCharges } =
+      calculateCancellationCharges({
+        passengerToken,
+        booking,
+      });
+    if (chargesError) return apiErrorres(res, chargesError, 400, true);
+    return apiSucessRes(
+      res,
+      "Fetched Cancellation Charges",
+      cancellationCharges,
+      ServerStatusCode.SUCESS_CODE
+    );
+  } catch (error) {
+    console.log({ error });
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
 async function cancelBooking(req, res) {
   try {
     const { reservationId, txnId, passengerToken, Authentication } = req.body;
@@ -401,6 +441,7 @@ module.exports = {
   getTrainRoute,
   getFareEnquiry,
   DecodeToken,
+  fetchCancellationCharges,
   cancelBooking,
   fetchRefundDetails,
   updateCancellationDetails,

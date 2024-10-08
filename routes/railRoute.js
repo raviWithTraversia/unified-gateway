@@ -23,6 +23,10 @@ rail_route.post(
   "/rail/get-all-booking",
   railBookingController.findRailAllBooking
 );
+rail_route.post(
+  "/rail/cancellation-charges",
+  railController.fetchCancellationCharges
+);
 rail_route.post("/rail/cancel-booking", railController.cancelBooking);
 rail_route.post("/rail/refund-details", railController.fetchRefundDetails);
 rail_route.put(

@@ -2,6 +2,18 @@ const { default: axios } = require("axios");
 const Company = require("../../models/Company");
 const User = require("../../models/User");
 const RailCancellation = require("../../models/Irctc/rail-cancellation");
+const moment = require("moment");
+
+const chargesBefore48Hours = {
+  "1A": 240,
+  EC: 240,
+  "2A": 200,
+  "3A": 180,
+  "3E": 180,
+  SL: 120,
+  "2S": 60,
+  // CC: 0,
+};
 
 module.exports.cancelRailBooking = async function (request) {
   try {
@@ -81,3 +93,43 @@ module.exports.validatePsgnToken = (token) => {
     };
   return { isValid: true };
 };
+
+module.exports.calculateCancellationCharges = ({ passengerToken, booking }) => {
+  const now = moment();
+  const boardingDate = moment(booking.boardingDate, "DD-MM-YYYY hh:mm:ss");
+  const timeDifference = boardingDate.diff(now, "h");
+
+  console.log({ timeDifference, now, boardingDate: booking.boardingDate });
+
+  const { journeyClass, psgnDtlList: passengerList } = booking;
+  const passengerTokenList = passengerToken.split("");
+  const cancelJourneyFor = passengerList.filter(
+    (p, idx) => passengerTokenList[idx] === "Y"
+  );
+  const netFare = cancelJourneyFor.reduce(
+    (acc, passenger) => acc + passenger.passengerNetFare,
+    0
+  );
+  let cancellationCharges = netFare;
+  const minimumCharge = chargesBefore48Hours[journeyClass] || 0;
+  //  ? before 48 hours of departure
+  if (timeDifference > 48) cancellationCharges -= minimumCharge;
+  // ? 48 hours - 12 hours of departure
+  else if (timeDifference > 12)
+    cancellationCharges -= Math.max(minimumCharge, netFare * 0.25);
+  // ? 12 hours - 4 hours of departure
+  else if (timeDifference > 4)
+    cancellationCharges -= Math.max(minimumCharge, netFare * 0.5);
+  // ? chart prepared
+  return { cancellationCharges };
+};
+
+// const now = moment();
+// const boardingDate = moment("07-11-2024 14:05:00.0 IST", "DD-MM-YYYY hh:mm:ss");
+// const timeDifference = boardingDate.diff(now, "h");
+
+// console.log({
+//   now: now.toString(),
+//   boardingDate: boardingDate.toString(),
+//   timeDifference,
+// });

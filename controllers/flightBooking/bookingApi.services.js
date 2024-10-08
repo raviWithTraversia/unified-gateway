@@ -183,7 +183,7 @@ const getAllBooking = async (req, res) => {
           .set("minute", 0)
           .set("second", 0)
           .toDate();
-        query.createdAt["$gte"] = startDate;
+        filter.createdAt["$gte"] = startDate;
       }
       if (toDate && fromDate !== toDate) {
         if (!moment(toDate, "YYYY-MM-DD", true).isValid())
@@ -198,7 +198,7 @@ const getAllBooking = async (req, res) => {
           .set("minute", 59)
           .second(59)
           .toDate();
-        query.createdAt["$lte"] = endDate;
+        filter.createdAt["$lte"] = endDate;
       }
     }
     if (fromDate && toDate) {
@@ -451,7 +451,7 @@ const getAllBooking = async (req, res) => {
           .set("minute", 0)
           .set("second", 0)
           .toDate();
-        query.createdAt["$gte"] = startDate;
+        filter.createdAt["$gte"] = startDate;
       }
       if (toDate && fromDate !== toDate) {
         if (!moment(toDate, "YYYY-MM-DD", true).isValid())
@@ -466,7 +466,7 @@ const getAllBooking = async (req, res) => {
           .set("minute", 59)
           .second(59)
           .toDate();
-        query.createdAt["$lte"] = endDate;
+        filter.createdAt["$lte"] = endDate;
       }
     }
     if (fromDate && toDate) {
@@ -708,7 +708,7 @@ const getAllBooking = async (req, res) => {
           .set("minute", 0)
           .set("second", 0)
           .toDate();
-        query.createdAt["$gte"] = startDate;
+        filter.createdAt["$gte"] = startDate;
       }
       if (toDate && fromDate !== toDate) {
         if (!moment(toDate, "YYYY-MM-DD", true).isValid())
@@ -723,7 +723,7 @@ const getAllBooking = async (req, res) => {
           .set("minute", 59)
           .second(59)
           .toDate();
-        query.createdAt["$lte"] = endDate;
+        filter.createdAt["$lte"] = endDate;
       }
     }
     if (fromDate && toDate) {
@@ -967,7 +967,7 @@ const getAllBooking = async (req, res) => {
             .set("minute", 0)
             .set("second", 0)
             .toDate();
-          query.createdAt["$gte"] = startDate;
+          filter.createdAt["$gte"] = startDate;
         }
         if (toDate && fromDate !== toDate) {
           if (!moment(toDate, "YYYY-MM-DD", true).isValid())
@@ -982,7 +982,7 @@ const getAllBooking = async (req, res) => {
             .set("minute", 59)
             .second(59)
             .toDate();
-          query.createdAt["$lte"] = endDate;
+          filter.createdAt["$lte"] = endDate;
         }
       }
       if (fromDate && toDate) {
@@ -1127,7 +1127,7 @@ const getAllBooking = async (req, res) => {
             .set("minute", 0)
             .set("second", 0)
             .toDate();
-          query.createdAt["$gte"] = startDate;
+          filter.createdAt["$gte"] = startDate;
         }
         if (toDate && fromDate !== toDate) {
           if (!moment(toDate, "YYYY-MM-DD", true).isValid())
@@ -1142,7 +1142,7 @@ const getAllBooking = async (req, res) => {
             .set("minute", 59)
             .second(59)
             .toDate();
-          query.createdAt["$lte"] = endDate;
+          filter.createdAt["$lte"] = endDate;
         }
       }
       if (fromDate && toDate) {
@@ -1284,7 +1284,7 @@ const getAllBooking = async (req, res) => {
             .set("minute", 0)
             .set("second", 0)
             .toDate();
-          query.createdAt["$gte"] = startDate;
+          filter.createdAt["$gte"] = startDate;
         }
         if (toDate && fromDate !== toDate) {
           if (!moment(toDate, "YYYY-MM-DD", true).isValid())
@@ -1299,7 +1299,7 @@ const getAllBooking = async (req, res) => {
             .set("minute", 59)
             .second(59)
             .toDate();
-          query.createdAt["$lte"] = endDate;
+          filter.createdAt["$lte"] = endDate;
         }
       }
       if (fromDate && toDate) {

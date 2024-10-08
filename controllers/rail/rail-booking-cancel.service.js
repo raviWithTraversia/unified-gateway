@@ -95,33 +95,47 @@ module.exports.validatePsgnToken = (token) => {
 };
 
 module.exports.calculateCancellationCharges = ({ passengerToken, booking }) => {
-  const now = moment();
-  const boardingDate = moment(booking.boardingDate, "DD-MM-YYYY hh:mm:ss");
-  const timeDifference = boardingDate.diff(now, "h");
+  try {
+    const now = moment();
+    const boardingDate = moment(booking.boardingDate, "DD-MM-YYYY hh:mm:ss");
+    const timeDifference = boardingDate.diff(now, "h");
 
-  console.log({ timeDifference, now, boardingDate: booking.boardingDate });
+    console.log({ timeDifference, now, boardingDate: booking.boardingDate });
 
-  const { journeyClass, psgnDtlList: passengerList } = booking;
-  const passengerTokenList = passengerToken.split("");
-  const cancelJourneyFor = passengerList.filter(
-    (p, idx) => passengerTokenList[idx] === "Y"
-  );
-  const netFare = cancelJourneyFor.reduce(
-    (acc, passenger) => acc + passenger.passengerNetFare,
-    0
-  );
-  let cancellationCharges = netFare;
-  const minimumCharge = chargesBefore48Hours[journeyClass] || 0;
-  //  ? before 48 hours of departure
-  if (timeDifference > 48) cancellationCharges -= minimumCharge;
-  // ? 48 hours - 12 hours of departure
-  else if (timeDifference > 12)
-    cancellationCharges -= Math.max(minimumCharge, netFare * 0.25);
-  // ? 12 hours - 4 hours of departure
-  else if (timeDifference > 4)
-    cancellationCharges -= Math.max(minimumCharge, netFare * 0.5);
-  // ? chart prepared
-  return { cancellationCharges };
+    const { journeyClass, psgnDtlList: passengerList } = booking;
+    const passengerTokenList = passengerToken.split("");
+    const cancelJourneyFor = passengerList.filter(
+      (p, idx) => passengerTokenList[idx] === "Y"
+    );
+    const netFare = cancelJourneyFor.reduce(
+      (acc, passenger) => acc + passenger.passengerNetFare,
+      0
+    );
+    let cancellationCharges = netFare;
+    if (!chargesBefore48Hours[journeyClass])
+      return { error: `Invalid Journey class ${journeyClass}` };
+
+    const minimumCharge =
+      chargesBefore48Hours[journeyClass] * cancelJourneyFor.length;
+    //  ? before 48 hours of departure
+    if (timeDifference > 48) cancellationCharges = minimumCharge;
+    // ? 48 hours - 12 hours of departure
+    else if (timeDifference > 12)
+      cancellationCharges = Math.max(minimumCharge, netFare * 0.25);
+    // ? 12 hours - 4 hours of departure
+    else if (timeDifference > 4)
+      cancellationCharges = Math.max(minimumCharge, netFare * 0.5);
+    // ? chart prepared
+    else
+      return {
+        error:
+          "Cannot Cancel This Booking, Cause Chart Has Been Prepared, Please Follow TDR Instructions For Cancelling This Booking",
+      };
+    return { cancellationCharges };
+  } catch (error) {
+    console.log({ error });
+    return { error: "Something Went Wrong, While Cancelling Your Ticket" };
+  }
 };
 
 // const now = moment();

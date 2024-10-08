@@ -1896,21 +1896,26 @@ const getBookingCalendarCount = async (req, res) => {
 };
 
 const getDeparturesList = async (req, res) => {
+  try{
+
   const { userId, fromDate, toDate } = req.body;
   if (!userId) {
     return {
       response: "UserId id does not exist",
     };
   }
-  const getDepartureList = await bookingdetails
-    .find({
-      userId,
-      "itinerary.Sectors.Departure.DateTimeStamp": {
-        $gte: new Date(fromDate),
-        $lte: new Date(toDate + "T23:59:59.999Z"),
-      },
-    })
-    .populate("BookedBy");
+  const filter = {
+    userId:userId,
+    "itinerary.Sectors.Departure.Date": {
+      $gte: new Date(fromDate + "T00:00:00.000Z"),
+      $lte: new Date(toDate + "T23:59:59.999Z"),
+    },
+  };
+  
+  console.log(filter)
+  const getDepartureList = await bookingdetails.find(filter)
+.populate("BookedBy");
+console.log(getDepartureList)
   if (!getDepartureList.length) {
     return {
       response: "Data Not Found",
@@ -1920,7 +1925,10 @@ const getDeparturesList = async (req, res) => {
     response: "Fetch Data Successfully",
     data: getDepartureList,
   };
+}catch(error){
+  console.log(error)
 };
+}
 
 const getBookingBill = async (req, res) => {
   const { agencyId, fromDate, toDate } = req.body;

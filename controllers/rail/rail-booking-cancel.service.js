@@ -3,6 +3,7 @@ const Company = require("../../models/Company");
 const User = require("../../models/User");
 const RailCancellation = require("../../models/Irctc/rail-cancellation");
 const moment = require("moment");
+const { Config } = require("../../configs/config");
 
 const chargesBefore48Hours = {
   "1A": 240,
@@ -97,7 +98,8 @@ module.exports.calculateCancellationCharges = ({ passengerToken, booking }) => {
   try {
     const now = moment();
     const boardingDate = moment(booking.boardingDate, "DD-MM-YYYY hh:mm:ss");
-    const timeDifference = boardingDate.diff(now, "h");
+    // const timeDifference = boardingDate.diff(now, "h");
+    const timeDifference = 52;
 
     console.log({ timeDifference, now, boardingDate: booking.boardingDate });
 
@@ -138,7 +140,10 @@ module.exports.calculateCancellationCharges = ({ passengerToken, booking }) => {
 
 function calculateCharges({ journeyClass, netFare, timeDifference }) {
   console.log({ journeyClass, netFare, timeDifference });
-  const minimumCharges = chargesBefore48Hours[journeyClass];
+  const minimumCharges =
+    chargesBefore48Hours[journeyClass] +
+    chargesBefore48Hours[journeyClass] *
+      ((Config?.CancellationGSTRate || 5) / 100);
   let cancellationCharges = minimumCharges;
   if (timeDifference > 48) cancellationCharges = minimumCharges;
   // ? 48 hours - 12 hours of departure

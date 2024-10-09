@@ -8,6 +8,7 @@ const { Config } = require("../../configs/config");
 const chargesBefore48Hours = {
   "1A": 240,
   EC: 240,
+  CC: 240,
   "2A": 200,
   "3A": 180,
   "3E": 180,

@@ -155,10 +155,10 @@ module.exports.verifyOTP = async (request) => {
 
     const { data: response } = await axios.post(url);
     if (response.messageInfo.toLowerCase() !== "otp verified")
-      throw new Error(response?.messageInfo || "Something Went Wrong");
+      return { error: response };
     return { result: response };
   } catch (error) {
-    return { error: error.message };
+    return { error: error?.response?.data || error.message };
   }
 };
 

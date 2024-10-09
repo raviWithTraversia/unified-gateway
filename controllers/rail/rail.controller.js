@@ -328,7 +328,7 @@ async function verifyCancellationOTP(req, res) {
         true
       );
     const { error, result } = await verifyOTP(req.body);
-    if (error) return apiErrorres(res, error, 400, true);
+    if (error) return apiErrorres(res, "OTP Verification Failed", 400, error);
     return apiSucessRes(res, "OTP Verification Successful", result, 200);
   } catch (error) {
     console.log({ error });

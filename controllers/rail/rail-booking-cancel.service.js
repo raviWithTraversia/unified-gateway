@@ -153,15 +153,12 @@ module.exports.verifyOTP = async (request) => {
       Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
     }/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
-    const response = await axios.get(url, {
+
+    const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
     });
-    console.log({ response });
-    // const { data: response } = await axios.get(url, {
-    //   headers: { Authorization: auth },
-    // });
-    if (response.data?.messageInfo?.toLowerCase?.() !== "otp verified")
-      return { error: { response: JSON.stringify(response), url, auth } };
+    if (response.messageInfo?.toLowerCase?.() !== "otp verified")
+      return { error: response };
     return { result: response };
   } catch (error) {
     console.log({ error });

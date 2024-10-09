@@ -4,6 +4,7 @@ const User = require("../../models/User");
 const RailCancellation = require("../../models/Irctc/rail-cancellation");
 const moment = require("moment");
 const { Config } = require("../../configs/config");
+const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
 
 const chargesBefore48Hours = {
   "1A": 240,
@@ -54,6 +55,7 @@ module.exports.cancelRailBooking = async function (request) {
         response,
       };
     }
+
     const railCancellation = await RailCancellation.create({
       ...response,
       userId: user._id,
@@ -72,6 +74,19 @@ module.exports.cancelRailBooking = async function (request) {
       remark: remark ?? "",
       staff: staff ?? "",
     });
+
+    const booking = await bookingDetailsRail.findOne({ reservationId });
+    const tokenList = passengerToken.split("");
+    booking.psgnDtlList = booking.psgnDtlList.map((passenger, idx) => ({
+      ...passenger,
+      ...(tokenList[idx] === "Y" && { currentStatus: "CAN" }),
+    }));
+
+    const isFullCancelled =
+      passengerToken === "YYYYYY" ||
+      tokenList.filter((t) => t === "Y").length === booking.psgnDtlList.length;
+    if (isFullCancelled) booking.bookingStatus = "CANCELED";
+    await booking.save();
     return {
       IsSucess: true,
       message: "Cancellation Requested",

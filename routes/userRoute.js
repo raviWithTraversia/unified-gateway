@@ -383,6 +383,7 @@ user_route.patch('/update/company-proflie', (req, res, next) => {
   ]), auth, userController.updateCompayProfile)
 
 
+  user_route.get("/getAllagencyDistributer",userController.SearchAgencyFilter)
 user_route.get('/test', auth, function (req, res) {
   res.status(200).json({ status: "success", msg: "this is test responce" });
 });

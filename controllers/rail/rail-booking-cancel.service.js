@@ -152,7 +152,7 @@ module.exports.verifyOTP = async (request) => {
     let url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
     if (Authentication?.CredentialType === "LIVE")
       url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
-    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const auth = "Basic V0tBRkwwMDAwMTpUZXN0aW5nMQ==";
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
     });

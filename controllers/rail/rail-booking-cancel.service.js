@@ -152,8 +152,10 @@ module.exports.verifyOTP = async (request) => {
     let url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
     if (Authentication?.CredentialType === "LIVE")
       url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
-
-    const { data: response } = await axios.post(url);
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const { data: response } = await axios.get(url, {
+      headers: { Authorization: auth },
+    });
     if (response.messageInfo.toLowerCase() !== "otp verified")
       return { error: response };
     return { result: response };
@@ -170,7 +172,10 @@ module.exports.resendOTP = async (request) => {
     if (Authentication?.CredentialType === "LIVE")
       url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}`;
 
-    const { data: response } = await axios.post(url);
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const { data: response } = await axios.get(url, {
+      headers: { Authorization: auth },
+    });
     return { result: response };
   } catch (error) {
     return { error: error?.response?.data || error.message };

@@ -106,8 +106,9 @@ const groupTicketSchema = new mongoose.Schema({
   },
     unique: true
 },
+
 },{
-    timeStamp : true 
+  timestamps: true 
 });
 const groupTicketRequest = mongoose.model("groupTicketRequest", groupTicketSchema);
 module.exports = groupTicketRequest;

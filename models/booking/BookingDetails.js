@@ -1,69 +1,75 @@
 const mongoose = require("mongoose");
-const bookingDetailsSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-  companyId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Company",
-  },
-  AgencyId:[{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  }],
-  BookedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-  bookingId: {
-    type: String,
-    default: null,
-  },
-  prodBookingId: {
-    // 1,2,3,4,5,6,7,8,9
-    type: String,
-    default: null,
-  },
-  provider: {
-    type: String,
-    default: null,
-  },
-  bookingType: {
-    // The type of booking (e.g., "Staff", "Agency", etc.)
-    type: String,
-    default: null,
-  },
-  src: {
-    type: String,
-    default: null,
-  },
-  des: {
-    type: String,
-    default: null,
-  },
-  bookingDateTime: {
-    type: Date,
-    default: Date.now,
-  },
-  bookingStatus: {
-    type: String,
-    default: null,
-    // enum: ['INCOMPLETE', 'FAILED','CONFIRMED','CANCELLED','PENDING',HOLD, HOLDRELEASED]
-  },
-  providerBookingId: {
-    type: String,
-    default: null,
-  },
-  bookingRemarks: {
-    type: String,
-    default: null,
-  },
-  paymentMethodType: {
-    type: String,
-    default: null,
-  },
-  paymentGateway: { paymentCharges: { type: Number, default: 0 }, paymentMode: { type: String, default: null } },
+const bookingDetailsSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    companyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+    },
+    AgencyId: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    BookedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    bookingId: {
+      type: String,
+      default: null,
+    },
+    prodBookingId: {
+      // 1,2,3,4,5,6,7,8,9
+      type: String,
+      default: null,
+    },
+    provider: {
+      type: String,
+      default: null,
+    },
+    bookingType: {
+      // The type of booking (e.g., "Staff", "Agency", etc.)
+      type: String,
+      default: null,
+    },
+    src: {
+      type: String,
+      default: null,
+    },
+    des: {
+      type: String,
+      default: null,
+    },
+    bookingDateTime: {
+      type: Date,
+      default: Date.now,
+    },
+    bookingStatus: {
+      type: String,
+      default: null,
+      // enum: ['INCOMPLETE', 'FAILED','CONFIRMED','CANCELLED','PENDING',HOLD, HOLDRELEASED]
+    },
+    providerBookingId: {
+      type: String,
+      default: null,
+    },
+    bookingRemarks: {
+      type: String,
+      default: null,
+    },
+    paymentMethodType: {
+      type: String,
+      default: null,
+    },
+    paymentGateway: {
+      paymentCharges: { type: Number, default: 0 },
+      paymentMode: { type: String, default: null },
+    },
 
   PNR: {
     type: String,
@@ -115,7 +121,7 @@ const bookingDetailsSchema = new mongoose.Schema({
   },
   creationDate: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   travelType: {
     type: String,
@@ -137,7 +143,7 @@ const bookingDetailsSchema = new mongoose.Schema({
   },
   invoicingDate: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   PromoCode: {
     type: String,
@@ -281,14 +287,16 @@ const bookingDetailsSchema = new mongoose.Schema({
   },
   modifyAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   isRefund:{
     type:Boolean,
     default:false,
 
   },
-}, { timestamps: true, });
+},
+  { timestamps: true }
+);
 
 const BookingDetails = mongoose.model("BookingDetails", bookingDetailsSchema);
 module.exports = BookingDetails;

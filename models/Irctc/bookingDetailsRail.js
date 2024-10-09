@@ -158,13 +158,13 @@ bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAI
   serverId: {type:String,default:null},
   createdAt:{
     type: Date,
-    default: new Date(),
+    default: Date.now,
 
 },
 
 updatedAt:{
     type: Date,
-    default: new Date(),
+    default: Date.now,
 },
 });
 

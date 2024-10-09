@@ -126,7 +126,7 @@ const passengerPreferenceSchema = new mongoose.Schema({
   },
   modifyAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   }
 }, { timestamps: true });
 

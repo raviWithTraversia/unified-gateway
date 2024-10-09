@@ -270,7 +270,7 @@ const easeBuzzResponce = async (req, res) => {
             Logs(logData);
             Logs(logData1);
             Logs(logData2);
-            if (fSearchApiResponse.data.Status == "failed" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
+            if (fSearchApiResponse.data && typeof fSearchApiResponse.data.Status === 'string' && fSearchApiResponse.data.Status.toUpperCase() === "FAILED" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
               await BookingDetails.updateOne(
                 {
                   bookingId: udf1,

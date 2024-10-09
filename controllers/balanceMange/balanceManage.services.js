@@ -2,6 +2,7 @@ const User = require("../../models/User");
 const agentConfig = require("../../models/AgentConfig");
 const creditRequest = require("../../models/CreditRequest");
 const EventLogs = require("../logs/EventApiLogsCommon");
+ const Railledger=require('../../models/Irctc/ledgerRail')
 const ledger = require("../../models/Ledger");
 const {
   recieveDI,
@@ -63,7 +64,9 @@ const getBalance = async (req, res) => {
       response: "No data found for the given UserId",
     };
   }
-
+console.log(getAgentConfig,"djie")
+const flightDiAmount=getAgentConfig.flightDiamount||0;
+const RailDiamount=getAgentConfig.RailDiamount||0;
   const getcreditRequest = await creditRequest.find({
     agencyId: checkuserIdIdExist.company_ID,
     expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
@@ -93,9 +96,9 @@ const getBalance = async (req, res) => {
     return {
       response: "Fetch Data Successfully",
       data: {
-        cashBalance: getAgentConfig.maxcreditLimit,
+        cashBalance: getAgentConfig.maxcreditLimit+flightDiAmount,
         smsBalance: getAgentConfig.smsBalance,
-        RailBalance:getAgentConfig.railCashBalance,
+        RailBalance:getAgentConfig.railCashBalance+RailDiamount,
         tempBalance: 0,
         expireDate: "",
       },
@@ -663,27 +666,166 @@ runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.rai
   }
 };
 
-const BalanceTransferRailtoFlight=async(req,res)=>{
-try{
-  const doerId = req.user._id;
-  const getAgentConfig=await agentConfig.findById(doerId)
+// const BalanceTransferRailtoFlight=async(req,res)=>{
+// try{
+//   const doerId = req.user._id;
+//   const getAgentConfig=await agentConfig.findOne({userId:doerId})
 
-  if(!getAgentConfig){
-    return({
-      response:"agentData not found"
-    })
-  }
+//   if(!getAgentConfig){
+//     return({
+//       response:"agentData not found"
+//     })
+//   }
 
-  return {
-    response: "balance Found Succefully",
-    data: {
-      cashBalance: getAgentConfig.maxcreditLimit||0,
-      smsBalance: getAgentConfig.smsBalance||0,
-      RailBalance:getAgentConfig.railCashBalance||0,
-      tempBalance: 0,
-      expireDate: "",
-    },
-  };
+//   return {
+//     response: "balance Found Succefully",
+//     data: getAgentConfig
+//   };
+
+//   }catch(error){
+//     throw error
+//   }
+// }
+
+const selfTransfer=async(req,res)=>{
+  try{
+    const {amount,productto,remarks,bookingId,productfrom}=req.body;
+    const doerId = req.user._id;
+    const loginUser = await User.findById(doerId);
+const configData=await agentConfig.findOne({userId:doerId});
+
+
+  
+    if(!configData){
+      return({
+        response:"agentData not found"
+      })
+    }
+  
+    const checkBalance = (balance, product) => {
+      if (balance < amount) {
+        return { response: `Insufficient Balance` };
+      }
+    };
+
+    let insufficientBalanceResponse = null;
+    switch (productfrom.toUpperCase()) {
+      case "RAIL":
+        insufficientBalanceResponse = checkBalance(configData.railCashBalance, "Rail");
+        break;
+      case "FLIGHT":
+        insufficientBalanceResponse = checkBalance(configData.maxcreditLimit, "Flight");
+        break;
+      case "SMS":
+        insufficientBalanceResponse = checkBalance(configData.smsBalance, "SMS");
+        break;
+      default:
+        return { response: "Invalid product type" };
+    }
+
+    // Return response if balance is insufficient
+    if (insufficientBalanceResponse) {
+      return insufficientBalanceResponse;
+    }
+
+    // Perform balance update
+    let runningAmountDebit;
+    let runningAmountCredit;
+    const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
+    switch (productto.toUpperCase()) {
+      case "RAIL":
+        configData.maxcreditLimit -= amount;
+        configData.railCashBalance += amount;
+        runningAmountDebit = await priceRoundOffNumberValues(configData.railCashBalance);
+        runningAmountCredit = await priceRoundOffNumberValues(configData.maxcreditLimit);
+        await ledger.create({
+          userId: loginUser._id,
+          companyId:loginUser.company_ID,
+          ledgerId: ledgerId,
+          transactionId:  null,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount:runningAmountCredit,
+          remarks:"self Tranfer",
+          transactionBy: loginUser._id,
+          cartId:bookingId||" ",
+          product:"Flight",
+        });
+        await Railledger.create({
+          userId: loginUser._id,
+          companyId: loginUser.company_ID,
+          ledgerId,
+          transactionId: null,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "CREDIT",
+          transactionType: "CREDIT",
+          runningAmount:runningAmountDebit,
+          remarks:"self Tranfer",
+          transactionBy: loginUser._id,
+          cartId: bookingId || " ",
+          product:"RAIL",
+        });
+      
+
+        break;
+
+      case "FLIGHT":
+        configData.maxcreditLimit += amount;
+        configData.railCashBalance -= amount;
+        runningAmountDebit = await priceRoundOffNumberValues(configData.maxcreditLimit);
+        runningAmountCredit = await priceRoundOffNumberValues(configData.railCashBalance);
+        await Railledger.create({
+          userId: loginUser._id,
+          companyId:loginUser.company_ID,
+          ledgerId: ledgerId,
+          transactionId:  null,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount:runningAmountCredit,
+          remarks:"self Tranfer",
+          transactionBy: loginUser._id,
+          cartId:bookingId||" ",
+          product:"Rail",
+        });
+        await ledger.create({
+          userId: loginUser._id,
+          companyId: loginUser.company_ID,
+          ledgerId,
+          transactionId: null,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "CREDIT",
+          transactionType: "CREDIT",
+          runningAmount:runningAmountDebit,
+          remarks:"self Tranfer",
+          transactionBy: loginUser._id,
+          cartId: bookingId || " ",
+          product:"Flight",
+        });
+      
+        break;
+
+      case "SMS":
+        const sms = pgCharges ? amount - pgCharges : amount;
+        DistributerConfig.smsBalance -= sms;
+        configData.smsBalance += sms;
+        runningAmount = await priceRoundOffNumberValues(configData.smsBalance);
+        break;
+    }
+
+    await configData.save();
+  
+     // Example random number generation
+
+    
+
+    // Save the updated configuration
+    return { response: "Amount Transfer Successfully" };
 
   }catch(error){
     throw error
@@ -749,5 +891,5 @@ module.exports = {
   manualDebitCredit,
   getBalanceTmc,
   DistributermanualDebitCredit,
-  BalanceTransferRailtoFlight
+  selfTransfer
 };

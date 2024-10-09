@@ -491,7 +491,7 @@ const fetchLedgerRailReport = async (req) => {
           .toDate();
         query.createdAt["$gte"] = startDate;
       }
-      if (toDate && fromDate !== toDate) {
+      if (toDate) {
         if (!moment(toDate, "YYYY-MM-DD", true).isValid())
           return { error: "invalid toDate format, must be YYYY-MM-DD" };
         let endDate = moment(toDate)

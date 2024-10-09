@@ -47,6 +47,13 @@ module.exports.cancelRailBooking = async function (request) {
       headers: { Authorization: auth },
     });
     console.log({ response });
+    if (String(response.status) !== "true") {
+      return {
+        IsSucess: false,
+        message: "Something Went Wrong",
+        response,
+      };
+    }
     const railCancellation = await RailCancellation.create({
       ...response,
       userId: user._id,
@@ -76,6 +83,7 @@ module.exports.cancelRailBooking = async function (request) {
       IsSucess: false,
       message: "Something Went Wrong",
       error: error.message,
+      response: error?.response?.data,
     };
   }
 };

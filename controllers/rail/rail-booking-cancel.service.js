@@ -149,21 +149,23 @@ module.exports.verifyOTP = async (request) => {
   try {
     const { Authentication, cancellationId, pnr, otp } = request;
     const requestType = 2; // 2 -> verify OTP , 1 -> resend OTP
-    let url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
-    if (Authentication?.CredentialType === "LIVE")
-      url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
-    const auth = "Basic V0tBRkwwMDAwMTpUZXN0aW5nMQ==";
+    let url = `${
+      Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
+    }/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     const response = await axios.get(url, {
       headers: { Authorization: auth },
     });
+    console.log({ response });
     // const { data: response } = await axios.get(url, {
     //   headers: { Authorization: auth },
     // });
-    if (response.messageInfo.toLowerCase() !== "otp verified")
+    if (response.data?.messageInfo?.toLowerCase?.() !== "otp verified")
       return { error: { response: JSON.stringify(response), url, auth } };
     return { result: response };
   } catch (error) {
-    return { error: error?.response?.data || error.message };
+    console.log({ error });
+    return { error: error?.response || error.message };
   }
 };
 
@@ -171,9 +173,9 @@ module.exports.resendOTP = async (request) => {
   try {
     const { Authentication, cancellationId, pnr } = request;
     const requestType = 1; // 2 -> verify OTP , 1 -> resend OTP
-    let url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}`;
-    if (Authentication?.CredentialType === "LIVE")
-      url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}`;
+    let url = `${
+      Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
+    }/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}`;
 
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     const { data: response } = await axios.get(url, {

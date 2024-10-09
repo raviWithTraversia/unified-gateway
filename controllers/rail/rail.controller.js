@@ -482,6 +482,8 @@ async function fetchCancellations(req, res) {
   }
 }
 
+async function handleTDRRequest(req, res) {}
+
 module.exports = {
   railSearch,
   railSearchBtwnDate,

@@ -96,9 +96,9 @@ const RailDiamount=getAgentConfig.RailDiamount||0;
     return {
       response: "Fetch Data Successfully",
       data: {
-        cashBalance: getAgentConfig.maxcreditLimit+flightDiAmount,
+        cashBalance: getAgentConfig.maxcreditLimit,
         smsBalance: getAgentConfig.smsBalance,
-        RailBalance:getAgentConfig.railCashBalance+RailDiamount,
+        RailBalance:getAgentConfig.railCashBalance,
         tempBalance: 0,
         expireDate: "",
       },
@@ -395,10 +395,10 @@ const DistributermanualDebitCredit = async (req, res) => {
       return { response: "User id does not exist" };
     }
     
-    const findUser = await User.findById(userId);
+    const findUser = await User.findById(userId).populate("company_ID");
     
     const doerId = req.user._id;
-    const loginUser = await User.findById(doerId);
+    const loginUser = await User.findById(doerId).populate("company_ID");
     if (amountStatus === "credit") {
       
         // Fetch agent and distributer configuration data
@@ -484,7 +484,7 @@ const DistributermanualDebitCredit = async (req, res) => {
           const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
           await ledger.create({
             userId: loginUser._id,
-            companyId: loginUser.company_ID,
+            companyId: loginUser.company_ID._id,
             ledgerId,
             transactionId: null,
             transactionAmount: amount,
@@ -492,14 +492,14 @@ const DistributermanualDebitCredit = async (req, res) => {
             fop: "DEBIT",
             transactionType: "DEBIT",
             runningAmount:runningAmountDistributer,
-            remarks,
+            remarks:`Debited from ${loginUser.company_ID.companyName} [${loginUser.userId}] & Credited to ${findUser.company_ID.companyName} [${findUser.userId}] (JV)`,
             transactionBy: loginUser._id,
             cartId: bookingId || " ",
             product,
           });
           await ledger.create({
             userId: findUser._id,
-            companyId: findUser.company_ID,
+            companyId: findUser.company_ID._id,
             ledgerId,
             transactionId: null,
             transactionAmount: amount,
@@ -507,7 +507,7 @@ const DistributermanualDebitCredit = async (req, res) => {
             fop: "CREDIT",
             transactionType: "CREDIT",
             runningAmount: runningAmountAgent,
-            remarks,
+            remarks:`Debited from ${loginUser.company_ID.companyName} [${loginUser.userId}] & Credited to ${findUser.company_ID.companyName} [${findUser.userId}] (JV)`,
             transactionBy: loginUser._id,
             cartId: bookingId || " ",
             product,
@@ -519,7 +519,7 @@ const DistributermanualDebitCredit = async (req, res) => {
           eventName: "creditRequest",
           doerId: loginUser._id,
           doerName: loginUser.fname,
-          companyId: findUser.company_ID,
+          companyId: findUser.company_ID._id,
           documentId: findUser._id,
           description: "Amount Credited",
         };
@@ -530,7 +530,6 @@ const DistributermanualDebitCredit = async (req, res) => {
     }
     
     if (amountStatus == "debit") {
-      const findUser = await User.findById(userId);
       const configData = await agentConfig.findOne({ userId });
       if (!configData) {
         return {
@@ -604,7 +603,7 @@ runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.rai
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
       await ledger.create({
         userId: loginUser._id,
-        companyId:loginUser.company_ID,
+        companyId:loginUser.company_ID._id,
         ledgerId: ledgerId,
         transactionId:  null,
         transactionAmount: amount,
@@ -612,14 +611,14 @@ runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.rai
         fop: "CREDIT",
         transactionType: "CREDIT",
         runningAmount:runningAmountDistributer,
-        remarks,
+        remarks:`Debited from ${findUser.company_ID.companyName} [${findUser.userId}]  & Credited to ${loginUser.company_ID.companyName} [${loginUser.userId}] (JV)`,
         transactionBy: loginUser._id,
         cartId:bookingId||" ",
         product,
       });
       await ledger.create({
         userId: findUser._id,
-        companyId: findUser.company_ID,
+        companyId: findUser.company_ID._id,
         ledgerId,
         transactionId: null,
         transactionAmount: amount,
@@ -627,7 +626,7 @@ runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.rai
         fop: "DEBIT",
         transactionType: "DEBIT",
         runningAmount:runningAmountAgent,
-        remarks,
+        remarks:`Debited from ${findUser.company_ID.companyName} [${findUser.userId}]  & Credited to ${loginUser.company_ID.companyName} [${loginUser.userId}] (JV)`,
         transactionBy: loginUser._id,
         cartId: bookingId || " ",
         product,

@@ -50,7 +50,7 @@ module.exports.cancelRailBooking = async function (request) {
     if (String(response.success) !== "true") {
       return {
         IsSucess: false,
-        message: "Something Went Wrong",
+        message: response.message,
         response,
       };
     }

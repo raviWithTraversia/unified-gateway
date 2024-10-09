@@ -174,6 +174,10 @@ module.exports.verifyOTP = async (request) => {
     });
     if (response.messageInfo?.toLowerCase?.() !== "otp verified")
       return { error: response };
+    await RailCancellation.findOneAndUpdate(
+      { cancellationId },
+      { isRefundOTPVerified: true }
+    );
     return { result: response };
   } catch (error) {
     console.log({ error });

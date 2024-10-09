@@ -11,6 +11,8 @@ const {
   cancelRailBooking,
   validatePsgnToken,
   calculateCancellationCharges,
+  verifyOTP,
+  resendOTP,
 } = require("./rail-booking-cancel.service");
 const User = require("../../models/User");
 const Company = require("../../models/Company");
@@ -315,6 +317,53 @@ async function cancelBooking(req, res) {
     );
   }
 }
+async function verifyCancellationOTP(req, res) {
+  try {
+    const { Authentication, pnr, cancellationId, otp } = req.body;
+    if (!Authentication || !pnr || !cancellationId || !otp)
+      return apiErrorres(
+        res,
+        "Required Fields Missing, Authenticaion, pnr, cancellationId, otp",
+        400,
+        true
+      );
+    const { error, result } = await verifyOTP(req.body);
+    if (error) return apiErrorres(res, error, 400, true);
+    return apiSucessRes(res, "OTP Verification Successful", result, 200);
+  } catch (error) {
+    console.log({ error });
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+async function resendCancellationOTP(req, res) {
+  try {
+    const { Authentication, pnr, cancellationId } = req.body;
+    if (!Authentication || !pnr || !cancellationId)
+      return apiErrorres(
+        res,
+        "Required Fields Missing, Authenticaion, pnr, cancellationId",
+        400,
+        true
+      );
+    const { error, result } = await resendOTP(req.body);
+
+    if (error) return apiErrorres(res, "Error While Resending OTP", 500, error);
+    return apiSucessRes(res, "OTP Resent", result, 200);
+  } catch (error) {
+    console.log({ error });
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
 
 async function fetchRefundDetails(req, res) {
   try {
@@ -442,6 +491,8 @@ module.exports = {
   DecodeToken,
   fetchCancellationCharges,
   cancelBooking,
+  verifyCancellationOTP,
+  resendCancellationOTP,
   fetchRefundDetails,
   updateCancellationDetails,
   fetchCancellations,

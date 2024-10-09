@@ -23,7 +23,11 @@ rail_route.post(
   "/rail/get-all-booking",
   railBookingController.findRailAllBooking
 );
-rail_route.get("/getAgent-performance/:parentId",auth,balance.agentPerformanceReport)
+rail_route.get(
+  "/getAgent-performance/:parentId",
+  auth,
+  balance.agentPerformanceReport
+);
 rail_route.post(
   "/rail/cancellation-charges",
   railController.fetchCancellationCharges
@@ -33,6 +37,14 @@ rail_route.post("/rail/refund-details", railController.fetchRefundDetails);
 rail_route.put(
   "/rail/cancel-booking",
   railController.updateCancellationDetails
+);
+rail_route.post(
+  "/rail/cancel-booking/verify-otp",
+  railController.verifyCancellationOTP
+);
+rail_route.post(
+  "/rail/cancel-booking/resend-otp",
+  railController.resendCancellationOTP
 );
 rail_route.post("/rail/cancellations", railController.fetchCancellations);
 

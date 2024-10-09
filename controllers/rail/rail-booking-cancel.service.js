@@ -145,6 +145,38 @@ module.exports.calculateCancellationCharges = ({ passengerToken, booking }) => {
   }
 };
 
+module.exports.verifyOTP = async (request) => {
+  try {
+    const { Authentication, cancellationId, pnr, otp } = request;
+    const requestType = 2; // 2 -> verify OTP , 1 -> resend OTP
+    let url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
+    if (Authentication?.CredentialType === "LIVE")
+      url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
+
+    const { data: response } = await axios.post(url);
+    if (response.messageInfo.toLowerCase() !== "otp verified")
+      throw new Error(response?.messageInfo || "Something Went Wrong");
+    return { result: response };
+  } catch (error) {
+    return { error: error.message };
+  }
+};
+
+module.exports.resendOTP = async (request) => {
+  try {
+    const { Authentication, cancellationId, pnr } = request;
+    const requestType = 1; // 2 -> verify OTP , 1 -> resend OTP
+    let url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}`;
+    if (Authentication?.CredentialType === "LIVE")
+      url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}`;
+
+    const { data: response } = await axios.post(url);
+    return { result: response };
+  } catch (error) {
+    return { error: error?.response?.data || error.message };
+  }
+};
+
 function calculateCharges({ journeyClass, netFare, timeDifference }) {
   console.log({ journeyClass, netFare, timeDifference });
   const minimumCharges =

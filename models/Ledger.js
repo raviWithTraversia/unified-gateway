@@ -82,7 +82,7 @@ const ledgerSchema = new mongoose.Schema(
     },
     creationDate: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -90,7 +90,7 @@ const ledgerSchema = new mongoose.Schema(
     },
     modifyAt: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
   },
   {

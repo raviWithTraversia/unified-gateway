@@ -71,7 +71,7 @@ const ledgerRailSchema = new mongoose.Schema(
     },
     creationDate: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -79,7 +79,7 @@ const ledgerRailSchema = new mongoose.Schema(
     },
     modifyAt: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
   },
   {

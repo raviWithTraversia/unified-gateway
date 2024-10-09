@@ -1,12 +1,15 @@
 const User = require("../../../models/User");
 const agentConfig = require("../../../models/AgentConfig");
+const Company=require('../../../models/Company')
 const creditRequest = require("../../../models/CreditRequest");
 const EventLogs = require('../../logs/EventApiLogsCommon');
 const ledgerRail = require("../../../models/Irctc/ledgerRail");
 const { priceRoundOffNumberValues } = require("../../commonFunctions/common.function");
 const axios = require("axios");
+const mongoose=require('mongoose')
 const { response } = require("../../../routes/railRoute");
 const transaction = require("../../../models/transaction");
+const Deposite=require('../../../models/DepositRequest')
 
 
 const manualDebitCredit = async (req, res) => {
@@ -114,7 +117,7 @@ const manualDebitCredit = async (req, res) => {
         if(DIdata !=null || DIdata != 0){
 
 
-          let tdsAmount = parseInt(DIdata) * (5/100);
+          let tdsAmount = parseInt(DIdata) * (2/100);
           if(tdsAmount != 0){
             const findUser = await User.findById(userId);
             const configData = await agentConfig.findOne({ userId });
@@ -333,7 +336,205 @@ const manualDebitCredit = async (req, res) => {
     }
   }
 
+
+  const agentPerformanceReport=async(req,res)=>{
+    try{
+      const {parentId}=req.params
+      if(!parentId){
+        return({
+          response:"id not found"
+        })
+      }
+
+
+       let agency
+
+      var userId=new mongoose.Types.ObjectId(req.user._id)
+
+      const userData=await User.findById(userId).populate("roleId")
+
+    const findTmcUser=await Company.findById(parentId)
+    var matchingData={}
+    if(findTmcUser.type =="TMC"&&userData.roleId.type=="Default"){
+      console.log('shdadab')
+      agency = await Company.find()
+      matchingData = { $sort: { "userId": -1 } };
+    }
+
+    else if(findTmcUser.type =="TMC"&&userData.roleId.type=="Manual"){
+      console.log('shdaiaiei')
+      agency = await Company.find();
+      matchingData= {
+        $match: {
+          
+              $and: [
+                { "agentconfigurations.salesInchargeIds": userId }  // Apply salesInchargeIds condition
+              ]
+            }
+
+    }
+  }
+    else{
+
+      console.log('shdadi')
+      agency = await Company.find({
+        $or: [
+          { parent: parentId },
+          { _id: parentId }
+        ]
+      })
+      matchingData = { $sort: { "userId": -1 } }
+
+
+   }
+
+   
+    if (agency.length == 0) {
+      return {
+        response: 'No Agency with this TMC'
+      }
+    }
+    const ids = agency.map(item =>new mongoose.Types.ObjectId(item._id))
+    console.log(ids)
+    const users = await User.aggregate([
+      { $match: { company_ID: { $in: ids } } },
+      
+      {
+        $lookup: {
+          from: 'companies',
+          localField: 'company_ID',
+          foreignField: '_id',
+          as: 'company_ID'
+        }
+      },
+      { $unwind: { path: '$company_ID', preserveNullAndEmptyArrays: true } },
+
+      {
+        $match:{"company_ID.type":{$ne:"TMC"}}
+      },
+
+      { 
+        $lookup: {
+          from: 'roles', // Name of the roles collection
+          localField: 'roleId',
+          foreignField: '_id',
+          as: 'roleId'
+        }
+      },
+      { 
+        $unwind: {
+          path: '$roleId',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {$match:{"roleId.type":{$eq:"Default"}}
+    },
+    
+      {
+        $lookup: {
+          from: "transactiondetails",
+          localField: "_id",
+          foreignField: "userId",
+          as: "TransactionDate"
+        }
+      },
+      
+      {
+        $lookup: {
+          from: "depositrequests",
+          localField: "_id",
+          foreignField: "userId",
+          as: "Deposite"
+        }
+      },
+    
+      {
+        $lookup: {
+          from: "agentconfigurations",
+          localField: "_id",
+          foreignField: "userId",
+          as: "agentconfigurations"
+        }
+      },
+    
+      // Only unwind if you absolutely need to
+      { $unwind: { path: "$agentconfigurations", preserveNullAndEmptyArrays: true } },
+
+     
+      matchingData,
+    
+      // Optionally unwind if you only need the latest Transaction or Deposit
+      { $unwind: { path: "$TransactionDate", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$Deposite", preserveNullAndEmptyArrays: true } },
+
+      {
+        $sort: {
+          'TransactionDate': -1,
+        }
+      },
+    
+    
+      // Group results for later sorting
+      {
+        $group: {
+          _id: "$_id",
+          company_ID: {
+            $first: {
+              _id: "$company_ID._id",
+              companyName: "$company_ID.companyName",
+            }
+          },
+          phoneNumber:{ $first: "$phoneNumber" },
+          email: { $first: "$email" },
+          title: { $first: "$title" },
+          fname: { $first: "$fname" },
+          lastName: { $first: "$lastName" },
+          lastModifiedDate: { $first: "$lastModifiedDate" },
+          last_LoginDate: { $first: "$last_LoginDate" },
+          userId: { $first: "$userId" },
+          salesInchargeId: { $first: "$agentconfigurations.salesInchargeIds" },
+          DepositeDate: { $first: "$Deposite.updatedAt" },
+          TransactionDate: { $first: "$TransactionDate.updatedAt" }
+        },
+      },
+    
+      // Finally, sort the aggregated results
+     
+    ], { allowDiskUse: true });
+
+    for(var element of users){
+
+      const depositdata=await Deposite.findOne({userId:element._id}).sort({updatedAt:-1})
+      if(depositdata){
+      if(element._id.equals(depositdata.userId)){
+        element.DepositeDate=depositdata.updatedAt
+      }
+
+      }
+     
+}
+
+        
+    if(!users.length){
+      return({
+        response:"data not found"
+      })
+
+    }
+    
+    return({
+      response:"agent Data Found Successfully",
+      data:users
+    })
+
+    }
+    catch(error){
+      console.log(error)
+      throw error
+    }
+  }
   module.exports = {
     
-    manualDebitCredit
+    manualDebitCredit,
+    agentPerformanceReport
   };

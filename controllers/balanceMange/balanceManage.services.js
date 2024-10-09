@@ -2,6 +2,7 @@ const User = require("../../models/User");
 const agentConfig = require("../../models/AgentConfig");
 const creditRequest = require("../../models/CreditRequest");
 const EventLogs = require("../logs/EventApiLogsCommon");
+ const Railledger=require('../../models/Irctc/ledgerRail')
 const ledger = require("../../models/Ledger");
 const {
   recieveDI,
@@ -41,7 +42,7 @@ const getBalance = async (req, res) => {
     company_ID: userId,
   }).populate("roleId");
   const userWithAgencyRole = checkuserIdIdExistfind.find(
-    (user) => user.roleId.name === "Agency"
+    (user) => user.roleId.name === "Agency"||user.roleId.name === "Distributer"
   );
   const checkuserIdIdExistId = userWithAgencyRole
     ? userWithAgencyRole._id
@@ -63,7 +64,9 @@ const getBalance = async (req, res) => {
       response: "No data found for the given UserId",
     };
   }
-
+console.log(getAgentConfig,"djie")
+const flightDiAmount=getAgentConfig.flightDiamount||0;
+const RailDiamount=getAgentConfig.RailDiamount||0;
   const getcreditRequest = await creditRequest.find({
     agencyId: checkuserIdIdExist.company_ID,
     expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
@@ -93,9 +96,9 @@ const getBalance = async (req, res) => {
     return {
       response: "Fetch Data Successfully",
       data: {
-        cashBalance: getAgentConfig.maxcreditLimit,
+        cashBalance: getAgentConfig.maxcreditLimit+flightDiAmount,
         smsBalance: getAgentConfig.smsBalance,
-        RailBalance:getAgentConfig.railCashBalance,
+        RailBalance:getAgentConfig.railCashBalance+RailDiamount,
         tempBalance: 0,
         expireDate: "",
       },
@@ -251,7 +254,7 @@ console.log('shdadajeieien')
       };
       EventLogs(LogsData);
       if (DIdata != null || DIdata != 0) {
-        let tdsAmount = parseInt(DIdata) * (5 / 100);
+        let tdsAmount = parseInt(DIdata) * (2 / 100);
         if (tdsAmount != 0) {
           const findUser = await User.findById(userId);
           const configData = await agentConfig.findOne({ userId });
@@ -376,6 +379,460 @@ console.log('shdadajeieien')
   }
 };
 
+const DistributermanualDebitCredit = async (req, res) => {
+  try {
+    let {
+      userId,
+      amountStatus,
+      amount,
+      pgCharges,
+      product,
+      remarks,
+      bookingId,
+      AgencyId
+    } = req.body;
+    if (!userId) {
+      return { response: "User id does not exist" };
+    }
+    
+    const findUser = await User.findById(userId);
+    
+    const doerId = req.user._id;
+    const loginUser = await User.findById(doerId);
+    if (amountStatus === "credit") {
+      
+        // Fetch agent and distributer configuration data
+        const configData = await agentConfig
+          .findOne({ userId })
+          .populate("diSetupIds")
+          .populate({
+            path: "diSetupIds",
+            populate: { path: "diSetupIds", model: "diSetup" },
+          });
+    
+        const DistributerConfig = await agentConfig.findOne({ userId: loginUser._id });
+    
+        if (!DistributerConfig) {
+          return { response: "Distributer not found" };
+        }
+    
+        if (!configData) {
+          return { response: "User not found" };
+        }
+    
+        const checkBalance = (balance, product) => {
+          if (balance < amount) {
+            return { response: `Insufficient Balance` };
+          }
+        };
+    
+        let insufficientBalanceResponse = null;
+        switch (product.toUpperCase()) {
+          case "RAIL":
+            insufficientBalanceResponse = checkBalance(DistributerConfig.railCashBalance, "Rail");
+            break;
+          case "FLIGHT":
+            insufficientBalanceResponse = checkBalance(DistributerConfig.maxcreditLimit, "Flight");
+            break;
+          case "SMS":
+            insufficientBalanceResponse = checkBalance(DistributerConfig.smsBalance, "SMS");
+            break;
+          default:
+            return { response: "Invalid product type" };
+        }
+    
+        // Return response if balance is insufficient
+        if (insufficientBalanceResponse) {
+          return insufficientBalanceResponse;
+        }
+    
+        // Perform balance update
+        let runningAmountAgent;
+        let runningAmountDistributer
+        switch (product.toUpperCase()) {
+          case "RAIL":
+            DistributerConfig.railCashBalance -= amount;
+            configData.railCashBalance += amount;
+            runningAmountAgent = await priceRoundOffNumberValues(configData.railCashBalance);
+            runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.railCashBalance)
+
+            break;
+    
+          case "FLIGHT":
+            DistributerConfig.maxcreditLimit -= amount;
+            configData.maxcreditLimit += amount;
+            runningAmountAgent = await priceRoundOffNumberValues(configData.maxcreditLimit);
+            runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.maxcreditLimit)
+            break;
+    
+          case "SMS":
+            const sms = pgCharges ? amount - pgCharges : amount;
+            DistributerConfig.smsBalance -= sms;
+            configData.smsBalance += sms;
+            runningAmount = await priceRoundOffNumberValues(configData.smsBalance);
+            break;
+        }
+    
+        // Save the updated configuration
+        await DistributerConfig.save();
+        await configData.save();
+    
+        console.log(runningAmountAgent,"runningAmountAgent")
+        console.log(runningAmountDistributer,"runningAmountDistributer")
+        // Create ledger entry if the product is not SMS or is Flight
+        if (product.toUpperCase() !== "SMS" || product === "Flight") {
+          const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
+          await ledger.create({
+            userId: loginUser._id,
+            companyId: loginUser.company_ID,
+            ledgerId,
+            transactionId: null,
+            transactionAmount: amount,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "DEBIT",
+            runningAmount:runningAmountDistributer,
+            remarks,
+            transactionBy: loginUser._id,
+            cartId: bookingId || " ",
+            product,
+          });
+          await ledger.create({
+            userId: findUser._id,
+            companyId: findUser.company_ID,
+            ledgerId,
+            transactionId: null,
+            transactionAmount: amount,
+            currencyType: "INR",
+            fop: "CREDIT",
+            transactionType: "CREDIT",
+            runningAmount: runningAmountAgent,
+            remarks,
+            transactionBy: loginUser._id,
+            cartId: bookingId || " ",
+            product,
+          });
+        }
+    
+        // Log the event
+        const LogsData = {
+          eventName: "creditRequest",
+          doerId: loginUser._id,
+          doerName: loginUser.fname,
+          companyId: findUser.company_ID,
+          documentId: findUser._id,
+          description: "Amount Credited",
+        };
+        EventLogs(LogsData);
+    
+    
+      
+    }
+    
+    if (amountStatus == "debit") {
+      const findUser = await User.findById(userId);
+      const configData = await agentConfig.findOne({ userId });
+      if (!configData) {
+        return {
+          response: "User not found",
+        };
+      }
+      const DistributerConfig = await agentConfig.findOne({ userId: loginUser._id });
+      if (!DistributerConfig) {
+        return { response: "Distributer not found" };
+      }
+  
+      const checkBalance = (balance, product) => {
+        if (balance < amount) {
+          return { response: `Insufficient Balance` };
+        }
+      };
+  
+      let insufficientBalanceResponse = null;
+      switch (product.toUpperCase()) {
+        case "RAIL":
+          insufficientBalanceResponse = checkBalance(configData.railCashBalance, "Rail");
+          break;
+        case "FLIGHT":
+          insufficientBalanceResponse = checkBalance(configData.maxcreditLimit, "Flight");
+          break;
+        case "SMS":
+          insufficientBalanceResponse = checkBalance(configData.smsBalance, "SMS");
+          break;
+        default:
+          return { response: "Invalid product type" };
+      }
+  
+      // Return response if balance is insufficient
+      if (insufficientBalanceResponse) {
+        return insufficientBalanceResponse;
+      }
+  
+      // Perform balance update
+      let runningAmountAgent;
+      let runningAmountDistributer
+
+
+      switch (product.toUpperCase()) {
+        case "RAIL":
+          configData.railCashBalance -= amount;
+          DistributerConfig.railCashBalance += amount;
+          runningAmountAgent = await priceRoundOffNumberValues(configData.railCashBalance);
+runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.railCashBalance);
+          break;
+  
+        case "FLIGHT":
+          configData.maxcreditLimit -= amount;
+          DistributerConfig.maxcreditLimit += amount;
+          runningAmountAgent = await priceRoundOffNumberValues(configData.maxcreditLimit);
+          runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.maxcreditLimit);
+          break;
+  
+        case "SMS":
+          const sms = pgCharges ? amount - pgCharges : amount;
+          configData.smsBalance -= sms;
+          DistributerConfig.smsBalance += sms;
+          runningAmountAgent = await priceRoundOffNumberValues(configData.smsBalance);
+          runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.smsBalance);
+          break;
+      }
+  
+      // Save the updated configuration
+      await DistributerConfig.save();
+      await configData.save();
+  
+      const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+      await ledger.create({
+        userId: loginUser._id,
+        companyId:loginUser.company_ID,
+        ledgerId: ledgerId,
+        transactionId:  null,
+        transactionAmount: amount,
+        currencyType: "INR",
+        fop: "CREDIT",
+        transactionType: "CREDIT",
+        runningAmount:runningAmountDistributer,
+        remarks,
+        transactionBy: loginUser._id,
+        cartId:bookingId||" ",
+        product,
+      });
+      await ledger.create({
+        userId: findUser._id,
+        companyId: findUser.company_ID,
+        ledgerId,
+        transactionId: null,
+        transactionAmount: amount,
+        currencyType: "INR",
+        fop: "DEBIT",
+        transactionType: "DEBIT",
+        runningAmount:runningAmountAgent,
+        remarks,
+        transactionBy: loginUser._id,
+        cartId: bookingId || " ",
+        product,
+      });
+      const LogsData = {
+        eventName: "debitRequest",
+        doerId: loginUser._id,
+        doerName: loginUser.fname,
+        companyId: findUser.company_ID,
+        documentId: findUser._id,
+        description: "Amount Debited",
+      };
+
+      // await transaction.create({
+      //   userId: loginUser._id,
+      //   companyId: findUser.company_ID,
+      //   trnsNo: txnid,
+      //   trnsType: "DEBIT",
+      //   paymentMode: card_type,
+      //   paymentGateway:"EaseBuzz",
+      //   trnsStatus: "success",
+      //   // transactionBy: getuserDetails._id,
+      //   pgCharges:pgCharges,
+      //   transactionAmount:totalItemAmount,
+      //   trnsBankRefNo:bank_ref_num,
+      //   // cardType:cardCategory,
+      //   bankName:bank_name,
+      //   holderName:name_on_card
+      // });
+      EventLogs(LogsData);
+    }
+    return { response: "Amount Transfer Successfully" };
+  } catch (error) {
+    console.log("error inside service: ", error);
+    throw error;
+  }
+};
+
+// const BalanceTransferRailtoFlight=async(req,res)=>{
+// try{
+//   const doerId = req.user._id;
+//   const getAgentConfig=await agentConfig.findOne({userId:doerId})
+
+//   if(!getAgentConfig){
+//     return({
+//       response:"agentData not found"
+//     })
+//   }
+
+//   return {
+//     response: "balance Found Succefully",
+//     data: getAgentConfig
+//   };
+
+//   }catch(error){
+//     throw error
+//   }
+// }
+
+const selfTransfer=async(req,res)=>{
+  try{
+    const {amount,productto,remarks,bookingId,productfrom}=req.body;
+    const doerId = req.user._id;
+    const loginUser = await User.findById(doerId);
+const configData=await agentConfig.findOne({userId:doerId});
+
+
+  
+    if(!configData){
+      return({
+        response:"agentData not found"
+      })
+    }
+  
+    const checkBalance = (balance, product) => {
+      if (balance < amount) {
+        return { response: `Insufficient Balance` };
+      }
+    };
+
+    let insufficientBalanceResponse = null;
+    switch (productfrom.toUpperCase()) {
+      case "RAIL":
+        insufficientBalanceResponse = checkBalance(configData.railCashBalance, "Rail");
+        break;
+      case "FLIGHT":
+        insufficientBalanceResponse = checkBalance(configData.maxcreditLimit, "Flight");
+        break;
+      case "SMS":
+        insufficientBalanceResponse = checkBalance(configData.smsBalance, "SMS");
+        break;
+      default:
+        return { response: "Invalid product type" };
+    }
+
+    // Return response if balance is insufficient
+    if (insufficientBalanceResponse) {
+      return insufficientBalanceResponse;
+    }
+
+    // Perform balance update
+    let runningAmountDebit;
+    let runningAmountCredit;
+    const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
+    switch (productto.toUpperCase()) {
+      case "RAIL":
+        configData.maxcreditLimit -= amount;
+        configData.railCashBalance += amount;
+        runningAmountDebit = await priceRoundOffNumberValues(configData.railCashBalance);
+        runningAmountCredit = await priceRoundOffNumberValues(configData.maxcreditLimit);
+        await ledger.create({
+          userId: loginUser._id,
+          companyId:loginUser.company_ID,
+          ledgerId: ledgerId,
+          transactionId:  null,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount:runningAmountCredit,
+          remarks:"self Tranfer",
+          transactionBy: loginUser._id,
+          cartId:bookingId||" ",
+          product:"Flight",
+        });
+        await Railledger.create({
+          userId: loginUser._id,
+          companyId: loginUser.company_ID,
+          ledgerId,
+          transactionId: null,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "CREDIT",
+          transactionType: "CREDIT",
+          runningAmount:runningAmountDebit,
+          remarks:"self Tranfer",
+          transactionBy: loginUser._id,
+          cartId: bookingId || " ",
+          product:"RAIL",
+        });
+      
+
+        break;
+
+      case "FLIGHT":
+        configData.maxcreditLimit += amount;
+        configData.railCashBalance -= amount;
+        runningAmountDebit = await priceRoundOffNumberValues(configData.maxcreditLimit);
+        runningAmountCredit = await priceRoundOffNumberValues(configData.railCashBalance);
+        await Railledger.create({
+          userId: loginUser._id,
+          companyId:loginUser.company_ID,
+          ledgerId: ledgerId,
+          transactionId:  null,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount:runningAmountCredit,
+          remarks:"self Tranfer",
+          transactionBy: loginUser._id,
+          cartId:bookingId||" ",
+          product:"Rail",
+        });
+        await ledger.create({
+          userId: loginUser._id,
+          companyId: loginUser.company_ID,
+          ledgerId,
+          transactionId: null,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "CREDIT",
+          transactionType: "CREDIT",
+          runningAmount:runningAmountDebit,
+          remarks:"self Tranfer",
+          transactionBy: loginUser._id,
+          cartId: bookingId || " ",
+          product:"Flight",
+        });
+      
+        break;
+
+      case "SMS":
+        const sms = pgCharges ? amount - pgCharges : amount;
+        DistributerConfig.smsBalance -= sms;
+        configData.smsBalance += sms;
+        runningAmount = await priceRoundOffNumberValues(configData.smsBalance);
+        break;
+    }
+
+    await configData.save();
+  
+     // Example random number generation
+
+    
+
+    // Save the updated configuration
+    return { response: "Amount Transfer Successfully" };
+
+  }catch(error){
+    throw error
+  }
+}
+
+
 const getBalanceTmc = async (req, res) => {
   try {
     var Url = "";
@@ -433,4 +890,6 @@ module.exports = {
   getBalance,
   manualDebitCredit,
   getBalanceTmc,
+  DistributermanualDebitCredit,
+  selfTransfer
 };

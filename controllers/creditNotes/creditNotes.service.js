@@ -517,7 +517,7 @@ if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="
       response:refundProcessed.response
     })
   
-  }else if(refundProcessed.response=="Cancelation Proceed refund"){
+  }else if(refundProcessed.response=="Cancelation Proceed refund"||refundProcessed.response=="Update Status Succefully"){
     return({
       response:refundProcessed.response,
       

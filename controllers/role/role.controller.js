@@ -6,14 +6,15 @@ const createRoles = async (req,res) => {
   try{
     const result = await roles.createRoles(req,res);
     if(result.response === "companyId is not valid"){
+      console.log('companyDI')
         apiErrorres(
-            res,
+           res,
             result.response,
             ServerStatusCode.INVALID_CRED,
             true
         )
     }
-    else if("This role name is already exixt"){
+    else if(result.response=="This role name is already exixt"){
      apiErrorres(
         res,
         result.response,
@@ -21,7 +22,8 @@ const createRoles = async (req,res) => {
         true
      )
     }
-    else{
+    else if(result.response=="New Role Created Sucessfully"){
+      console.log('shadni')
       apiSucessRes(
         res,
         result.response,
@@ -29,8 +31,15 @@ const createRoles = async (req,res) => {
         ServerStatusCode.SUCESS_CODE
       )
     }
-
-  }catch(error){
+    else{
+      apiErrorres(
+        res,
+        errorResponse.SOMETHING_WRONG,
+        ServerStatusCode.ALREADY_EXIST,
+        true
+     )
+    }
+    }catch(error){
      apiErrorres(
         res,
         errorResponse.SOMETHING_WRONG,

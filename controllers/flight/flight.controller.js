@@ -548,7 +548,7 @@ const updateBookingStatus = async (req, res) => {
     console.error(error);
     apiErrorres(
       res,
-      errorResponse.SOMETHING_WRONG,
+      error.message,
       ServerStatusCode.SERVER_ERROR,
       true
     );

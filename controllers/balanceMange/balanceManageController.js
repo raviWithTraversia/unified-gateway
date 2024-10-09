@@ -63,8 +63,35 @@ const manualDebitCredit = async (req, res) => {
       );
     }
   } catch (error) {
-    throw error
+    apiErrorres(res, error.message, ServerStatusCode.SERVER_ERROR, true);
   }
+};
+
+const DistributermanualDebitCredit = async (req, res) => {
+  try {
+    const result = await balanceService.DistributermanualDebitCredit(req, res);
+    console.log(result)
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "User id does not exist" || result.response === "User not found" || result.response === "Insufficient Balance"||result.response==='DIdata not found') {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "Amount Transfer Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(res, error.message, ServerStatusCode.SERVER_ERROR, true);  }
 };
 
 const getBalanceTmc = async (req, res) => {
@@ -101,4 +128,67 @@ const getBalanceTmc = async (req, res) => {
   }
 };
 
-module.exports = { getbalance, manualDebitCredit,getBalanceTmc };
+// const BalanceTransferRailtoFlight = async (req, res) => {
+//   try {
+//     const result = await balanceService.BalanceTransferRailtoFlight(req, res);
+    
+//     if (!result.response && result.isSometingMissing) {
+//       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+//     } else if (result.response === "url not found" || result.response === "agentData not found") {
+//       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+//     } else if (result.response === "balance Found Succefully") {
+//       apiSucessRes(
+//         res,
+//         result.response,
+//         result.data,
+//         ServerStatusCode.SUCESS_CODE
+//       );
+//     } else {
+//       apiErrorres(
+//         res,
+//         errorResponse.SOME_UNOWN,
+//         ServerStatusCode.UNPROCESSABLE,
+//         true
+//       );
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     apiErrorres(
+//       res,
+//       errorResponse.SOMETHING_WRONG,
+//       ServerStatusCode.SERVER_ERROR,
+//       true
+//     );
+//   }
+// };
+
+const selfTransfer = async (req, res) => {
+  try {
+    const result = await balanceService.selfTransfer(req, res);
+    console.log(result)
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "Invalid product type" || result.response === "agentData not found" || result.response === "Insufficient Balance"||result.response==='DIdata not found') {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "Amount Transfer Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(res, error.message, ServerStatusCode.SERVER_ERROR, true);
+  }
+};
+
+
+module.exports = { getbalance, manualDebitCredit,getBalanceTmc,DistributermanualDebitCredit,selfTransfer };

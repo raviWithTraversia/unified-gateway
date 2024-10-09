@@ -1002,6 +1002,7 @@ const recieveDI = async (
   }
 };
 
+
 const createLeadger = async (
   getuserDetails,
   item,
@@ -1063,7 +1064,7 @@ const getTdsAndDsicount = async (ItineraryPriceCheckResponses) => {
       }
     }
   }
-  ldgrtds = Math.round(ldgrdiscount * 0.05);
+  ldgrtds = Math.round(ldgrdiscount * 0.02);
   return { ldgrtds, ldgrdiscount };
 };
 

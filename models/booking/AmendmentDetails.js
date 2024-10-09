@@ -148,7 +148,7 @@ const amendmentDetailsSchema = new mongoose.Schema(
     },
     creationDate: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
     travelType: {
       type: String,
@@ -170,7 +170,7 @@ const amendmentDetailsSchema = new mongoose.Schema(
     },
     invoicingDate: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
     PromoCode: {
       type: String,
@@ -319,7 +319,7 @@ const amendmentDetailsSchema = new mongoose.Schema(
     },
     modifyAt: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
   },
   {

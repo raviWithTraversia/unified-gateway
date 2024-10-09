@@ -153,7 +153,7 @@ module.exports.verifyOTP = async (request) => {
     if (Authentication?.CredentialType === "LIVE")
       url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
-    const { data: response } = await axios.post(url, {
+    const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
     });
     if (response.messageInfo.toLowerCase() !== "otp verified")
@@ -173,7 +173,7 @@ module.exports.resendOTP = async (request) => {
       url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}`;
 
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
-    const { data: response } = await axios.post(url, {
+    const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
     });
     return { result: response };

@@ -153,11 +153,14 @@ module.exports.verifyOTP = async (request) => {
     if (Authentication?.CredentialType === "LIVE")
       url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
     const auth = "Basic V0tBRkwwMDAwMTpUZXN0aW5nMQ==";
-    const { data: response } = await axios.get(url, {
+    const response = await axios.get(url, {
       headers: { Authorization: auth },
     });
+    // const { data: response } = await axios.get(url, {
+    //   headers: { Authorization: auth },
+    // });
     if (response.messageInfo.toLowerCase() !== "otp verified")
-      return { error: response };
+      return { error: { response: JSON.stringify(response), url, auth } };
     return { result: response };
   } catch (error) {
     return { error: error?.response?.data || error.message };

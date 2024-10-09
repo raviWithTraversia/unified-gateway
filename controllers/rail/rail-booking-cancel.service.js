@@ -98,8 +98,7 @@ module.exports.calculateCancellationCharges = ({ passengerToken, booking }) => {
   try {
     const now = moment();
     const boardingDate = moment(booking.boardingDate, "DD-MM-YYYY hh:mm:ss");
-    // const timeDifference = boardingDate.diff(now, "h");
-    const timeDifference = 52;
+    const timeDifference = boardingDate.diff(now, "h");
 
     console.log({ timeDifference, now, boardingDate: booking.boardingDate });
 

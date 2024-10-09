@@ -154,7 +154,7 @@ module.exports.verifyOTP = async (request) => {
       url = `https://www.ws.irctc.co.in/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     const { data: response } = await axios.get(url, {
-      headers: { Authorization: auth },
+      // headers: { Authorization: auth },
     });
     if (response.messageInfo.toLowerCase() !== "otp verified")
       return { error: response };

@@ -41,7 +41,7 @@ module.exports.cancelRailBooking = async function (request) {
     if (requestExists)
       return {
         IsSucess: false,
-        message:
+        Message:
           "Request Already Exists With Same Reservation Id And Passenger Token",
       };
     const { data: response } = await axios.get(url, {
@@ -51,8 +51,8 @@ module.exports.cancelRailBooking = async function (request) {
     if (String(response.success) !== "true") {
       return {
         IsSucess: false,
-        message: response.message,
-        response,
+        Message: response.message,
+        Result: response,
       };
     }
 
@@ -89,15 +89,15 @@ module.exports.cancelRailBooking = async function (request) {
     await booking.save();
     return {
       IsSucess: true,
-      message: "Cancellation Requested",
-      cancellationDetails: railCancellation,
+      Message: "Cancellation Requested",
+      Result: railCancellation,
     };
   } catch (error) {
     console.log({ error });
     return {
       IsSucess: false,
-      message: "Something Went Wrong",
-      error: error.message,
+      Message: "Something Went Wrong",
+      Error: error.message,
     };
   }
 };

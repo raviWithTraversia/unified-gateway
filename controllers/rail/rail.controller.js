@@ -482,6 +482,17 @@ async function fetchCancellations(req, res) {
   }
 }
 
+async function handleFetchTxnHistory(req, res) {
+  try {
+  } catch (error) {
+    console.log({ error });
+    return res.status(400).json({
+      IsSucess: false,
+      message: "something went wrong",
+      error: error.message,
+    });
+  }
+}
 async function handleTDRRequest(req, res) {}
 
 module.exports = {
@@ -498,4 +509,6 @@ module.exports = {
   fetchRefundDetails,
   updateCancellationDetails,
   fetchCancellations,
+  handleFetchTxnHistory,
+  handleTDRRequest,
 };

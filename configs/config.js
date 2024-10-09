@@ -6,12 +6,14 @@ module.exports.Config = {
     baseURLBackend: "https://kafila.traversia.net",
     additionalFlightsBaseURL: "http://tcilapi.traversia.net:31101/api",
     baseURLBackend: "https://kafila.traversia.net",
+    IRCTC_BASE_URL: "https://stagews.irctc.co.in",
   },
   LIVE: {
     baseURL: "https://agent.kafilaholidays.in", // frontend
     baseURLBackend: "https://agentapi.kafilaholidays.in",
     additionalFlightsBaseURL: "http://tcilapi.traversia.net:31101/api",
     baseURLBackend: "https://agentapi.kafilaholidays.in",
+    IRCTC_BASE_URL: "https://stagews.irctc.co.in",
   },
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",

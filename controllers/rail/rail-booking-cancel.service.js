@@ -30,19 +30,19 @@ module.exports.cancelRailBooking = async function (request) {
       staff,
     } = request;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
-    let url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
-    if (Authentication?.CredentialType === "LIVE")
-      url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
+    let url = `${
+      Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
+    }/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
 
-    const requestExists = await RailCancellation.exists({
+    const existingRailCancellation = await RailCancellation.findOne({
       reservationId,
       passengerToken,
     });
-    if (requestExists)
+    if (existingRailCancellation)
       return {
-        IsSucess: false,
-        Message:
-          "Request Already Exists With Same Reservation Id And Passenger Token",
+        IsSucess: true,
+        Message: "Cancellation Request Already Exists",
+        Result: existingRailCancellation,
       };
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
@@ -51,7 +51,7 @@ module.exports.cancelRailBooking = async function (request) {
     if (String(response.success) !== "true") {
       return {
         IsSucess: false,
-        Message: response.message,
+        Message: "Cancellation Request Failed",
         Result: response,
       };
     }

@@ -10,6 +10,8 @@ const mongoose=require('mongoose')
 const { response } = require("../../../routes/railRoute");
 const transaction = require("../../../models/transaction");
 const Deposite=require('../../../models/DepositRequest')
+const ledger=require('../../../models/Ledger')
+
 
 
 const manualDebitCredit = async (req, res) => {
@@ -337,202 +339,196 @@ const manualDebitCredit = async (req, res) => {
   }
 
 
-  const agentPerformanceReport=async(req,res)=>{
-    try{
-      const {parentId}=req.params
-      if(!parentId){
-        return({
-          response:"id not found"
-        })
+  const agentPerformanceReport = async (req, res) => {
+    try {
+      const { parentId } = req.params;
+      if (!parentId) {
+        return ({
+          response: "id not found"
+        });
       }
-
-
-       let agency
-
-      var userId=new mongoose.Types.ObjectId(req.user._id)
-
-      const userData=await User.findById(userId).populate("roleId")
-
-    const findTmcUser=await Company.findById(parentId)
-    var matchingData={}
-    if(findTmcUser.type =="TMC"&&userData.roleId.type=="Default"){
-      console.log('shdadab')
-      agency = await Company.find()
-      matchingData = { $sort: { "userId": -1 } };
-    }
-
-    else if(findTmcUser.type =="TMC"&&userData.roleId.type=="Manual"){
-      console.log('shdaiaiei')
-      agency = await Company.find();
-      matchingData= {
-        $match: {
-          
-              $and: [
-                { "agentconfigurations.salesInchargeIds": userId }  // Apply salesInchargeIds condition
-              ]
-            }
-
-    }
-  }
-    else{
-
-      console.log('shdadi')
-      agency = await Company.find({
-        $or: [
-          { parent: parentId },
-          { _id: parentId }
-        ]
-      })
-      matchingData = { $sort: { "userId": -1 } }
-
-
-   }
-
-   
-    if (agency.length == 0) {
-      return {
-        response: 'No Agency with this TMC'
+  
+      let agency;
+  
+      const userId = new mongoose.Types.ObjectId(req.user._id);
+      const userData = await User.findById(userId).populate("roleId");
+  
+      const findTmcUser = await Company.findById(parentId);
+      let matchingData = {};
+      if (findTmcUser.type == "TMC" && userData.roleId.type == "Default") {
+        agency = await Company.find();
+        matchingData = { $sort: { "userId": -1 } };
+      } else if (findTmcUser.type == "TMC" && userData.roleId.type == "Manual") {
+        agency = await Company.find();
+        matchingData = {
+          $match: {
+            $and: [
+              { "agentconfigurations.salesInchargeIds": userId }  // Apply salesInchargeIds condition
+            ]
+          }
+        };
+      } else {
+        agency = await Company.find({
+          $or: [
+            { parent: parentId },
+            { _id: parentId }
+          ]
+        });
+        matchingData = { $sort: { "userId": -1 } };
       }
-    }
-    const ids = agency.map(item =>new mongoose.Types.ObjectId(item._id))
-    console.log(ids)
-    const users = await User.aggregate([
-      { $match: { company_ID: { $in: ids } } },
-      
-      {
-        $lookup: {
-          from: 'companies',
-          localField: 'company_ID',
-          foreignField: '_id',
-          as: 'company_ID'
-        }
-      },
-      { $unwind: { path: '$company_ID', preserveNullAndEmptyArrays: true } },
-
-      {
-        $match:{"company_ID.type":{$ne:"TMC"}}
-      },
-
-      { 
-        $lookup: {
-          from: 'roles', // Name of the roles collection
-          localField: 'roleId',
-          foreignField: '_id',
-          as: 'roleId'
-        }
-      },
-      { 
-        $unwind: {
-          path: '$roleId',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {$match:{"roleId.type":{$eq:"Default"}}
-    },
-    
-      {
-        $lookup: {
-          from: "transactiondetails",
-          localField: "_id",
-          foreignField: "userId",
-          as: "TransactionDate"
-        }
-      },
-      
-      {
-        $lookup: {
-          from: "depositrequests",
-          localField: "_id",
-          foreignField: "userId",
-          as: "Deposite"
-        }
-      },
-    
-      {
-        $lookup: {
-          from: "agentconfigurations",
-          localField: "_id",
-          foreignField: "userId",
-          as: "agentconfigurations"
-        }
-      },
-    
-      // Only unwind if you absolutely need to
-      { $unwind: { path: "$agentconfigurations", preserveNullAndEmptyArrays: true } },
-
-     
-      matchingData,
-    
-      // Optionally unwind if you only need the latest Transaction or Deposit
-      { $unwind: { path: "$TransactionDate", preserveNullAndEmptyArrays: true } },
-      { $unwind: { path: "$Deposite", preserveNullAndEmptyArrays: true } },
-
-      {
-        $sort: {
-          'TransactionDate': -1,
-        }
-      },
-    
-    
-      // Group results for later sorting
-      {
-        $group: {
-          _id: "$_id",
-          company_ID: {
-            $first: {
-              _id: "$company_ID._id",
-              companyName: "$company_ID.companyName",
-            }
-          },
-          phoneNumber:{ $first: "$phoneNumber" },
-          email: { $first: "$email" },
-          title: { $first: "$title" },
-          fname: { $first: "$fname" },
-          lastName: { $first: "$lastName" },
-          lastModifiedDate: { $first: "$lastModifiedDate" },
-          last_LoginDate: { $first: "$last_LoginDate" },
-          userId: { $first: "$userId" },
-          salesInchargeId: { $first: "$agentconfigurations.salesInchargeIds" },
-          DepositeDate: { $first: "$Deposite.updatedAt" },
-          TransactionDate: { $first: "$TransactionDate.updatedAt" }
+  
+      if (agency.length == 0) {
+        return {
+          response: 'No Agency with this TMC'
+        };
+      }
+  
+      const ids = agency.map(item => new mongoose.Types.ObjectId(item._id));
+  
+      const users = await User.aggregate([
+        { $match: { company_ID: { $in: ids } } },
+        {
+          $lookup: {
+            from: 'companies',
+            localField: 'company_ID',
+            foreignField: '_id',
+            as: 'company_ID'
+          }
         },
-      },
-    
-      // Finally, sort the aggregated results
-     
-    ], { allowDiskUse: true });
-
-    for(var element of users){
-
-      const depositdata=await Deposite.findOne({userId:element._id}).sort({updatedAt:-1})
-      if(depositdata){
-      if(element._id.equals(depositdata.userId)){
-        element.DepositeDate=depositdata.updatedAt
+        { $unwind: { path: '$company_ID', preserveNullAndEmptyArrays: true } },
+        {
+          $match: { "company_ID.type": { $ne: "TMC" } }
+        },
+        {
+          $lookup: {
+            from: 'roles',
+            localField: 'roleId',
+            foreignField: '_id',
+            as: 'roleId'
+          }
+        },
+        {
+          $unwind: {
+            path: '$roleId',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        { $match: { "roleId.type": { $eq: "Default" } } },
+        {
+          $lookup: {
+            from: "transactiondetails",
+            localField: "_id",
+            foreignField: "userId",
+            as: "TransactionDate"
+          }
+        },
+        {
+          $lookup: {
+            from: "leadgers",
+            localField: "_id",
+            foreignField: "userId",
+            as: "Deposite"
+          }
+        },
+        {
+          $lookup: {
+            from: "agentconfigurations",
+            localField: "_id",
+            foreignField: "userId",
+            as: "agentconfigurations"
+          }
+        },
+        { $unwind: { path: "$agentconfigurations", preserveNullAndEmptyArrays: true } },
+        matchingData,
+        { $unwind: { path: "$TransactionDate", preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: "$Deposite", preserveNullAndEmptyArrays: true } },
+        {
+          $sort: {
+            'TransactionDate': -1,
+          }
+        },
+        {
+          $group: {
+            _id: "$_id",
+            company_ID: {
+              $first: {
+                _id: "$company_ID._id",
+                companyName: "$company_ID.companyName",
+              }
+            },
+            phoneNumber: { $first: "$phoneNumber" },
+            email: { $first: "$email" },
+            title: { $first: "$title" },
+            fname: { $first: "$fname" },
+            lastName: { $first: "$lastName" },
+            lastModifiedDate: { $first: "$lastModifiedDate" },
+            last_LoginDate: { $first: "$last_LoginDate" },
+            userId: { $first: "$userId" },
+            salesInchargeId: { $first: "$agentconfigurations.salesInchargeIds" },
+            DepositeDate: { $first: "$Deposite.updatedAt" },
+            TransactionDate: { $first: "$TransactionDate.updatedAt" }
+          }
+        }
+      ], { allowDiskUse: true });
+  
+      // Fetch latest ledger for each user (either Rail or Flight)
+      for (let element of users) {
+        const depositdata = await getLatestCreditTransaction(element._id);
+        if (depositdata && element._id.equals(depositdata.userId)) {
+          element.DepositeDate = depositdata.updatedAt;
+        }
       }
-
+  
+      if (!users.length) {
+        return ({
+          response: "data not found"
+        });
       }
-     
-}
-
-        
-    if(!users.length){
-      return({
-        response:"data not found"
-      })
-
+  
+      return ({
+        response: "agent Data Found Successfully",
+        data: users
+      });
+  
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
-    
-    return({
-      response:"agent Data Found Successfully",
-      data:users
-    })
-
+  };
+  
+  const getLatestCreditTransaction = async (userId) => {
+    try {
+      // Query for the latest credit transaction in Rail Ledger
+      const latestRailTransaction = await ledgerRail.findOne({
+        userId: userId,
+        transactionType: 'CREDIT',
+      }).sort({ createdAt: -1 }).lean();
+  
+      // Query for the latest credit transaction in Flight Ledger
+      const latestFlightTransaction = await ledger.findOne({
+        userId: userId,
+        transactionType: 'CREDIT',
+      }).sort({ createdAt: -1 }).lean();
+  
+      // Compare both transactions and return the most recent one
+      if (!latestRailTransaction && !latestFlightTransaction) {
+        return null; // No transactions found in either collection
+      } else if (!latestRailTransaction) {
+        return latestFlightTransaction; // Only Flight has a transaction
+      } else if (!latestFlightTransaction) {
+        return latestRailTransaction; // Only Rail has a transaction
+      } else {
+        // Compare the `createdAt` fields to find the latest
+        return (new Date(latestRailTransaction.createdAt) > new Date(latestFlightTransaction.createdAt))
+          ? latestRailTransaction
+          : latestFlightTransaction;
+      }
+    } catch (error) {
+      console.error('Error fetching latest credit transaction:', error);
+      throw error;
     }
-    catch(error){
-      console.log(error)
-      throw error
-    }
-  }
+  };
+  
   module.exports = {
     
     manualDebitCredit,

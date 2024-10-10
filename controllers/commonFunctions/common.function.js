@@ -1358,7 +1358,7 @@ const getAgentConfig =await agentConfig.findOne({userId:userId})
       // Create ledger entry
       await Railledger.create({
         userId:userId,
-        companyId: companyId,
+        companyId: getAgentConfig.companyId,
         ledgerId: ledgerId,
         transactionAmount:amount,
         currencyType: "INR",

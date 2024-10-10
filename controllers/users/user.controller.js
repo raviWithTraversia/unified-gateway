@@ -440,6 +440,8 @@ const updateCompayProfile = async (req, res) => {
   }
 };
 
+
+
 const agencyChangePassword = async (req, res) => {
   try {
     const result = await userServices.agencyChangePassword(req, res);
@@ -450,7 +452,7 @@ const agencyChangePassword = async (req, res) => {
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
-    } else if (result.response === "Password Changed Sucessfully"||result.response === "Email Changed Sucessfully") {
+    } else if (result.response === "RailSubAgentId Changed Sucessfully"||result.response === "SubAgentPassword Changed Sucessfully"||result.response === "Password Changed Sucessfully"||result.response === "Email Changed Sucessfully") {
       apiSucessRes(
         res,
         CrudMessage.PASSWORD_RESET,
@@ -556,6 +558,25 @@ const userFindEncrypted = async (req, res) => {
   }
 };
 
+const SearchAgencyFilter = async(req ,res) => {
+  try {
+      const result = await userServices.searchForAgency(req,res);
+          apiSucessRes(
+              res,
+              result.response,
+              result.data,
+              ServerStatusCode.SUCESS_CODE
+          )
+  } catch (error) {
+      apiErrorres(
+          res,
+          errorResponse.SOMETHING_WRONG,
+          ServerStatusCode.SERVER_ERROR,
+          true
+      )
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
@@ -573,5 +594,6 @@ module.exports = {
   updateCompayProfile,
   agencyChangePassword,
   userFindEncrypted,
-  addMissingEncryptedUserId
+  addMissingEncryptedUserId,
+  SearchAgencyFilter
 };

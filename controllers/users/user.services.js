@@ -1086,17 +1086,26 @@ const updateCompayProfile = async (req, res) => {
 
 const agencyChangePassword = async (req, res) => {
   try {
-    const { id, newPassword,email} = req.body;
+    const { id, newPassword,email,railSubAgentId,railSubAgentPassword} = req.body;
     let getUserByCompanyId = await User.findOne({ _id: id });
     if (!getUserByCompanyId) {
       return { response: "User doesn't exist" }
     }
-    var message="Email"
+    var message=""
     if(newPassword!==undefined){
 message="Password"
    var  hashedPassword = await bcrypt.hash(newPassword, 10);
   }
+  if(email&&email!==undefined){
+    message="Email"
+  }
+  if(railSubAgentId&&railSubAgentId!==undefined){
+    message="RailSubAgentId"
+  }
 
+  if(railSubAgentPassword&&railSubAgentPassword!==undefined){
+    message='SubAgentPassword'
+  }
     const UserExist=await User.findOne({email:email})
     if(UserExist){
 return({
@@ -1104,7 +1113,8 @@ return({
 })
     }
     
-    const payload={ password: hashedPassword,email:email,login_Id:email}
+    const userData=await User.findById(id)
+    const payload={ password: hashedPassword?hashedPassword:userData.password,email:email?email:userData.email,login_Id:email?email:userData.login_Id,railSubAgentId:railSubAgentId?railSubAgentId:userData.railSubAgentId,railSubAgentPassword:railSubAgentPassword?railSubAgentPassword:userData.railSubAgentPassword}
     await User.findOneAndUpdate({ _id: id }, { $set: payload });
     return {
       response: `${message} Changed Sucessfully`
@@ -1161,7 +1171,7 @@ const searchForAgency = async (req, res) => {
     matchConditions.push({ 'companyData.companyName': searchRegex });
 
     //if(getRole.name == 'TMC' || getRole.name == 'Distributer' || getRole.name == 'Supplier') {
-    const getCompaniesDetails = await UserModule.aggregate([
+    const getCompaniesDetails = await User.aggregate([
       {
         $lookup: {
           from: 'companies',
@@ -1171,6 +1181,17 @@ const searchForAgency = async (req, res) => {
         }
       },
       { $unwind: { path: '$companyData', preserveNullAndEmptyArrays: true } },
+
+      {$lookup:{
+        from:"roles",
+        localField:"roleId",
+        foreignField:"_id",
+        as:"roleId"
+      }},
+
+      {$unwind:{path:"$roleId",preserveNullAndEmptyArrays:true}},
+
+      {$match:{"roleId.type":"Default"}},
 
       {
         $addFields: {
@@ -1196,22 +1217,33 @@ const searchForAgency = async (req, res) => {
     let companiesList = [];
     for (let i = 0; i < getCompaniesDetails.length; i++) {
       const companyDetails = getCompaniesDetails[i];
-      const populatedCompanyDetails = await UserModule.findOne({ company_ID: companyDetails?._id, userStatus: "Active" });
+      const populatedCompanyDetails = await User.findOne({ company_ID: companyDetails?._id, userStatus: "Active" });
 
       // Check if populatedCompanyDetails exists before trying to access _id
       if (populatedCompanyDetails) {
-        companiesList.push({ _id: populatedCompanyDetails?._id, name: companyDetails?.companyName, userId: populatedCompanyDetails?.userId });
+        companiesList.push({ _id: populatedCompanyDetails?._id, name: companyDetails?.companyName, userId: populatedCompanyDetails?.userId ,company_ID:populatedCompanyDetails.company_ID});
       }
 
     }
 
-    const getUserDetails = await UserModule.aggregate([
+    const getUserDetails = await User.aggregate([
       {
         $match: {
           company_ID: getUserId.company_ID,
-          userStatus: "Active"
         }
       },
+      {$lookup:{
+        from:"roles",
+        localField:"roleId",
+        foreignField:"_id",
+        as:"roleId"
+      }},
+
+      {$unwind:{path:"$roleId",preserveNullAndEmptyArrays:true}},
+
+      {$match:{"roleId.type":"Default"}},
+
+
       {
         $addFields: {
           userIdString: { $toString: "$userId" }

@@ -1086,17 +1086,26 @@ const updateCompayProfile = async (req, res) => {
 
 const agencyChangePassword = async (req, res) => {
   try {
-    const { id, newPassword,email} = req.body;
+    const { id, newPassword,email,railSubAgentId,railSubAgentPassword} = req.body;
     let getUserByCompanyId = await User.findOne({ _id: id });
     if (!getUserByCompanyId) {
       return { response: "User doesn't exist" }
     }
-    var message="Email"
+    var message=""
     if(newPassword!==undefined){
 message="Password"
    var  hashedPassword = await bcrypt.hash(newPassword, 10);
   }
+  if(email&&email!==undefined){
+    message="Email"
+  }
+  if(railSubAgentId&&railSubAgentId!==undefined){
+    message="RailSubAgentId"
+  }
 
+  if(railSubAgentPassword&&railSubAgentPassword!==undefined){
+    message='SubAgentPassword'
+  }
     const UserExist=await User.findOne({email:email})
     if(UserExist){
 return({
@@ -1104,7 +1113,8 @@ return({
 })
     }
     
-    const payload={ password: hashedPassword,email:email,login_Id:email}
+    const userData=await User.findById(id)
+    const payload={ password: hashedPassword?hashedPassword:userData.password,email:email?email:userData.email,login_Id:email?email:userData.login_Id,railSubAgentId:railSubAgentId?railSubAgentId:userData.railSubAgentId,railSubAgentPassword:railSubAgentPassword?railSubAgentPassword:userData.railSubAgentPassword}
     await User.findOneAndUpdate({ _id: id }, { $set: payload });
     return {
       response: `${message} Changed Sucessfully`

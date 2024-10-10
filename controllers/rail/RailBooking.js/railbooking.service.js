@@ -1,37 +1,63 @@
-const railBookings=require('../../../models/Irctc/bookingDetailsRail')
-const {RailBookingCommonMethod}=require('../../../controllers/commonFunctions/common.function')
-const User=require('../../../models/User')
+const railBookings = require("../../../models/Irctc/bookingDetailsRail");
+const {
+  RailBookingCommonMethod,
+} = require("../../../controllers/commonFunctions/common.function");
+const User = require("../../../models/User");
 const config = require("../../../models/AgentConfig");
-const {ObjectId}=require('mongodb')
-const StartBookingRail=async(req,res)=>{
-    try{
-        const {userId,companyId,cartId ,amount,paymentmethod,agencyId,clientTransactionId}=req.body;
-console.log('sdjfdh')
-        const requiredFields=["userId","companyId","cartId","amount", "paymentmethod","agencyId","clientTransactionId"]
-        const missingFields = requiredFields.filter(
-            (field) => !req.body[field] // Checks for undefined, null, empty
-          );
-          
-          if (missingFields.length > 0) {
-            const missingFieldsString = missingFields.join(", ");
-            return ({
-              response: null,
-              isSometingMissing: true,
-              data: `Missing or null fields: ${missingFieldsString}`,
-            });
-          }
-          
-const railBoookingDetails=await railBookings.find({cartId:cartId})
-if(railBoookingDetails.length){
-    return({
-        response:"Your Booking allready exist"
-    })
-}
-    const RailBooking=await RailBookingCommonMethod(userId,amount,companyId,cartId,paymentmethod)
-    if(RailBooking.response=="Your Balance is not sufficient"){
-        return({
-            response:"Your Balance is not sufficient"
-        })
+const { ObjectId } = require("mongodb");
+const { generateQR } = require("../../../utils/generate-qr");
+
+const StartBookingRail = async (req, res) => {
+  try {
+    const {
+      userId,
+      companyId,
+      cartId,
+      amount,
+      paymentmethod,
+      agencyId,
+      clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,mobileNumber,emailId,ticketType,passengerList,boardingStation,
+    } = req.body;
+    console.log("sdjfdh");
+    const requiredFields = [
+      "userId",
+      "companyId",
+      "cartId",
+      "amount",
+      "paymentmethod",
+      "agencyId",
+      "clientTransactionId",
+    ];
+    const missingFields = requiredFields.filter(
+      (field) => !req.body[field] // Checks for undefined, null, empty
+    );
+
+    if (missingFields.length > 0) {
+      const missingFieldsString = missingFields.join(", ");
+      return {
+        response: null,
+        isSometingMissing: true,
+        data: `Missing or null fields: ${missingFieldsString}`,
+      };
+    }
+
+    const railBoookingDetails = await railBookings.find({ cartId: cartId });
+    if (railBoookingDetails.length) {
+      return {
+        response: "Your Booking allready exist",
+      };
+    }
+    const RailBooking = await RailBookingCommonMethod(
+      userId,
+      amount,
+      companyId,
+      cartId,
+      paymentmethod
+    );
+    if (RailBooking.response == "Your Balance is not sufficient") {
+      return {
+        response: "Your Balance is not sufficient",
+      };
     }
     
 if(RailBooking.response="amount transfer succefully"){
@@ -40,7 +66,12 @@ if(RailBooking.response="amount transfer succefully"){
         companyId:companyId,
         userId:userId,
         AgencyId:agencyId,
-        paymentMethod:paymentmethod
+        paymentMethod:paymentmethod,
+        trainNumber:trainNo,journeyDate:`${journeyDate} 00:00:00.0 IST`,fromStn:frmStn,destStn:toStn,jClass:jClass,reservationMode:reservationMode,mobileNumber:mobileNumber,emailId:emailId,ticketType:ticketType,boardingStn:boardingStation,
+        jQuota:jQuota,
+        psgnDtlList:passengerList
+
+
     })
 }
 return({
@@ -636,331 +667,312 @@ return({
       
             // Iterate over the railBooking array
 
-            railBooking.forEach((booking) => {
-        
-       
+      railBooking.forEach((booking) => {
+        const status = booking.bookingStatus;
+        // Increment the count corresponding to the status
+        statusCounts[status]++;
+      });
 
-                const status = booking.bookingStatus;
-                // Increment the count corresponding to the status
-                statusCounts[status]++;
-              });
-           
-           
-          
-      
-            let filteredBookingData = railBooking; // Copy the original data
-           
-      
-            return {
-              response: "Fetch Data Successfully",
-              data: {
-                bookingList: filteredBookingData.sort(
-                  (a, b) =>
+      let filteredBookingData = railBooking; // Copy the original data
 
-                    new Date(b.bookingDate) -
-                    new Date(a.bookingDate)
-                ),
-                statusCounts: statusCounts,
-              },
-            };
-          }
-        } else {
-          const userCompanyId = checkUserIdExist.company_ID;
-          const checkComapnyUser = await User.findOne({
-            company_ID: userCompanyId,
-          }).populate({
-            path: "roleId",
-            match: { type: "Default" },
-          });
-          if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Agency") {
-            let filter = { userId: checkComapnyUser._id };
-            if (agencyId !== undefined && agencyId !== "") {
-              ilter.userId = {};
-              filter.userId = { $in: agencyId };
-            }
-      
-            if (bookingId !== undefined && bookingId.trim() !== "") {
-              filter.clientTransactionId = bookingId;
-            }
-            if (pnr !== undefined && pnr.trim() !== "") {
-              filter.pnrNumber = pnr;
-            }
-            if (status !== undefined && status.trim() !== "") {
-              filter.bookingStatus = status;
-            }
-      
-            if (
-              fromDate !== undefined &&
-              fromDate.trim() !== "" &&
-              toDate !== undefined &&
-              toDate.trim() !== ""
-            ) {
-              filter.bookingDate = {
-                $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-                $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-              };
-            } else if (fromDate !== undefined && fromDate.trim() !== "") {
-              filter.bookingDate = {
-                $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-              };
-            } else if (toDate !== undefined && toDate.trim() !== "") {
-              filter.bookingDate = {
-                $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-              };
-            }
-      
-            // const railBooking = await railBooking
-            //   .find(filter)
-            //   .populate({
-            //     path: "userId",
-            //     populate: {
-            //       path: "company_ID",
-            //     },
-            //   })
-            //   .populate("BookedBy");
-      
-            if (!railBooking || railBooking.length === 0) {
-              return {
-                response: "Data Not Found",
-              };
-            } else {
-              const statusCounts = {
-                PENDING: 0,
-                CONFIRMED: 0,
-                FAILED: 0,
-                CANCELLED: 0,
-                INCOMPLETE: 0,
-                HOLD: 0,
-                HOLDRELEASED: 0,
-                "FAILED PAYMENT": 0,
-              };
-      
-              // Iterate over the railBooking array
-       
-      
-              let filteredBookingData = railBooking; // Copy the original data
-      
-              if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
-                filteredBookingData = allBookingData.filter(
-                  (bookingData) => bookingData.salesInchargeIds === salesInchargeIds
-                );
-              }
-              return {
-                response: "Fetch Data Successfully",
-                data: {
-                  bookingList: filteredBookingData.sort(
-                    (a, b) =>
-                      new Date(
-                        b.bookingDate -
-                          new Date(a.bookingDate)
-                      )
-                  ),
-                  statusCounts: statusCounts,
-                },
-              };
-            }
-          } else if (
-            checkComapnyUser.roleId &&
-            checkComapnyUser.roleId.name === "Distributer"
-          ) {
-            let filter = { companyId: checkComapnyUser.company_ID._id };
-            if (agencyId !== undefined && agencyId !== "") {
-              ilter.userId = {};
-              filter.userId = { $in: agencyId };
-            }
-      
-            if (bookingId !== undefined && bookingId.trim() !== "") {
-              filter.bookingId = bookingId;
-            }
-            if (pnr !== undefined && pnr.trim() !== "") {
-              filter.PNR = pnr;
-            }
-            if (status !== undefined && status.trim() !== "") {
-              filter.bookingStatus = status;
-            }
-            if (
-              fromDate !== undefined &&
-              fromDate.trim() !== "" &&
-              toDate !== undefined &&
-              toDate.trim() !== ""
-            ) {
-              filter.bookingDate = {
-                $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-                $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-              };
-            } else if (fromDate !== undefined && fromDate.trim() !== "") {
-              filter.bookingDate = {
-                $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-              };
-            } else if (toDate !== undefined && toDate.trim() !== "") {
-              filter.bookingDate = {
-                $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-              };
-            }
-      
-            const railBooking = await railBooking
-              .find(filter)
-              .populate({
-                path: "userId",
-                populate: {
-                  path: "company_ID",
-                },
-              })
-              .populate("BookedBy");
-      
-            if (!railBooking || railBooking.length === 0) {
-              return {
-                response: "Data Not Found",
-              };
-            } else {
-              const statusCounts = {
-                PENDING: 0,
-                CONFIRMED: 0,
-                FAILED: 0,
-                CANCELLED: 0,
-                INCOMPLETE: 0,
-                HOLD: 0,
-                HOLDRELEASED: 0,
-                "FAILED PAYMENT": 0,
-              };
-      
-              // Iterate over the railBooking array
-              railBooking.forEach((booking) => {
-                const status = booking.bookingStatus;
-                // Increment the count corresponding to the status
-                statusCounts[status]++;
-              });
-              const allBookingData = [];
-      
-              await Promise.all(
-                railBooking.map(async (booking) => {
-                  let filter2 = { bookingId: booking.bookingId };
-                  if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
-                    filter2["Passengers.Optional.TicketNumber"] = ticketNumber;
-                  }
-                  const passengerPreference = await passengerPreferenceSchema.find(
-                    filter2
-                  );
-                  const configDetails = await config.findOne({
-                    userId: booking.userId,
-                  });
-                  if (passengerPreference.length) {
-                    allBookingData.push({
-                      railBooking: booking,
-                      passengerPreference: passengerPreference,
-                      salesInchargeIds: configDetails?.salesInchargeIds,
-                    });
-                  }
-                })
-              );
-              let filteredBookingData = allBookingData; // Copy the original data
-      
-              if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
-                filteredBookingData = allBookingData.filter(
-                  (bookingData) => bookingData.salesInchargeIds === salesInchargeIds
-                );
-              }
-              return {
-                response: "Fetch Data Successfully",
-                data: {
-                  bookingList: filteredBookingData.sort(
-                    (a, b) =>
-                      new Date(b.bookingDate) -
-                      new Date(a.bookingDate)
-                  ),
-                  statusCounts: statusCounts,
-                },
-              };
-            }
-          } else if (
-            (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "TMC") ||
-            checkComapnyUser?.company_ID?.type === "TMC"
-          ) {
-            let filter = {};
-            if (agencyId !== undefined && agencyId !== "") {
-              ilter.userId = {};
-              filter.userId = { $in: agencyId };
-            }
-      
-            if (bookingId !== undefined && bookingId.trim() !== "") {
-              filter.bookingId = bookingId;
-            }
-            if (pnr !== undefined && pnr.trim() !== "") {
-              filter.PNR = pnr;
-            }
-            if (status !== undefined && status.trim() !== "") {
-              filter.bookingStatus = status;
-            }
-            if (
-              fromDate !== undefined &&
-              fromDate.trim() !== "" &&
-              toDate !== undefined &&
-              toDate.trim() !== ""
-            ) {
-              filter.bookingDate = {
-                $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-                $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
-              };
-            } else if (fromDate !== undefined && fromDate.trim() !== "") {
-              filter.bookingDate = {
-                $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
-              };
-            } else if (toDate !== undefined && toDate.trim() !== "") {
-              filter.bookingDate = {
-                $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
-              };
-            }
-      
-            const railBooking = await railBooking
-              .find(filter)
-              .populate({
-                path: "userId",
-                populate: {
-                  path: "company_ID",
-                },
-              })
-              .populate("BookedBy");
-      
-            if (!railBooking || railBooking.length === 0) {
-              return {
-                response: "Data Not Found",
-              };
-            } else {
-              const statusCounts = {
-                PENDING: 0,
-                CONFIRMED: 0,
-                FAILED: 0,
-                CANCELLED: 0,
-                INCOMPLETE: 0,
-                HOLD: 0,
-                HOLDRELEASED: 0,
-                "FAILED PAYMENT": 0,
-              };
-      
-              // Iterate over the railBooking array
-             
-              let filteredBookingData = railBooking; // Copy the original data
-      
-              console.log("sdhei");
-              if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
-                filteredBookingData = allBookingData.filter(
-                  (bookingData) => bookingData.salesInchargeIds === salesInchargeIds
-                );
-              }
-      
-              return {
-                response: "Fetch Data Successfully",
-                data: {
-                  bookingList: filteredBookingData.sort(
-                    (a, b) =>
-                      new Date(b.bookingDate) -
-                      new Date(a.bookingDate)
-                  ),
-                  statusCounts: statusCounts,
-                },
-              };
-            }
-          }
+      return {
+        response: "Fetch Data Successfully",
+        data: {
+          bookingList: filteredBookingData.sort(
+            (a, b) => new Date(b.bookingDate) - new Date(a.bookingDate)
+          ),
+          statusCounts: statusCounts,
+        },
+      };
+    }
+  } else {
+    const userCompanyId = checkUserIdExist.company_ID;
+    const checkComapnyUser = await User.findOne({
+      company_ID: userCompanyId,
+    }).populate({
+      path: "roleId",
+      match: { type: "Default" },
+    });
+    if (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "Agency") {
+      let filter = { userId: checkComapnyUser._id };
+      if (agencyId !== undefined && agencyId !== "") {
+        ilter.userId = {};
+        filter.userId = { $in: agencyId };
+      }
+
+      if (bookingId !== undefined && bookingId.trim() !== "") {
+        filter.clientTransactionId = bookingId;
+      }
+      if (pnr !== undefined && pnr.trim() !== "") {
+        filter.pnrNumber = pnr;
+      }
+      if (status !== undefined && status.trim() !== "") {
+        filter.bookingStatus = status;
+      }
+
+      if (
+        fromDate !== undefined &&
+        fromDate.trim() !== "" &&
+        toDate !== undefined &&
+        toDate.trim() !== ""
+      ) {
+        filter.bookingDate = {
+          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+        };
+      } else if (fromDate !== undefined && fromDate.trim() !== "") {
+        filter.bookingDate = {
+          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+        };
+      } else if (toDate !== undefined && toDate.trim() !== "") {
+        filter.bookingDate = {
+          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+        };
+      }
+
+      // const railBooking = await railBooking
+      //   .find(filter)
+      //   .populate({
+      //     path: "userId",
+      //     populate: {
+      //       path: "company_ID",
+      //     },
+      //   })
+      //   .populate("BookedBy");
+
+      if (!railBooking || railBooking.length === 0) {
+        return {
+          response: "Data Not Found",
+        };
+      } else {
+        const statusCounts = {
+          PENDING: 0,
+          CONFIRMED: 0,
+          FAILED: 0,
+          CANCELLED: 0,
+          INCOMPLETE: 0,
+          HOLD: 0,
+          HOLDRELEASED: 0,
+          "FAILED PAYMENT": 0,
+        };
+
+        // Iterate over the railBooking array
+
+        let filteredBookingData = railBooking; // Copy the original data
+
+        if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
+          filteredBookingData = allBookingData.filter(
+            (bookingData) => bookingData.salesInchargeIds === salesInchargeIds
+          );
         }
-      }   
-      module.exports = {StartBookingRail,findRailAllBooking}
+        return {
+          response: "Fetch Data Successfully",
+          data: {
+            bookingList: filteredBookingData.sort(
+              (a, b) => new Date(b.bookingDate - new Date(a.bookingDate))
+            ),
+            statusCounts: statusCounts,
+          },
+        };
+      }
+    } else if (
+      checkComapnyUser.roleId &&
+      checkComapnyUser.roleId.name === "Distributer"
+    ) {
+      let filter = { companyId: checkComapnyUser.company_ID._id };
+      if (agencyId !== undefined && agencyId !== "") {
+        ilter.userId = {};
+        filter.userId = { $in: agencyId };
+      }
+
+      if (bookingId !== undefined && bookingId.trim() !== "") {
+        filter.bookingId = bookingId;
+      }
+      if (pnr !== undefined && pnr.trim() !== "") {
+        filter.PNR = pnr;
+      }
+      if (status !== undefined && status.trim() !== "") {
+        filter.bookingStatus = status;
+      }
+      if (
+        fromDate !== undefined &&
+        fromDate.trim() !== "" &&
+        toDate !== undefined &&
+        toDate.trim() !== ""
+      ) {
+        filter.bookingDate = {
+          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+        };
+      } else if (fromDate !== undefined && fromDate.trim() !== "") {
+        filter.bookingDate = {
+          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+        };
+      } else if (toDate !== undefined && toDate.trim() !== "") {
+        filter.bookingDate = {
+          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+        };
+      }
+
+      const railBooking = await railBooking
+        .find(filter)
+        .populate({
+          path: "userId",
+          populate: {
+            path: "company_ID",
+          },
+        })
+        .populate("BookedBy");
+
+      if (!railBooking || railBooking.length === 0) {
+        return {
+          response: "Data Not Found",
+        };
+      } else {
+        const statusCounts = {
+          PENDING: 0,
+          CONFIRMED: 0,
+          FAILED: 0,
+          CANCELLED: 0,
+          INCOMPLETE: 0,
+          HOLD: 0,
+          HOLDRELEASED: 0,
+          "FAILED PAYMENT": 0,
+        };
+
+        // Iterate over the railBooking array
+        railBooking.forEach((booking) => {
+          const status = booking.bookingStatus;
+          // Increment the count corresponding to the status
+          statusCounts[status]++;
+        });
+        const allBookingData = [];
+
+        await Promise.all(
+          railBooking.map(async (booking) => {
+            let filter2 = { bookingId: booking.bookingId };
+            if (ticketNumber !== undefined && ticketNumber.trim() !== "") {
+              filter2["Passengers.Optional.TicketNumber"] = ticketNumber;
+            }
+            const passengerPreference = await passengerPreferenceSchema.find(
+              filter2
+            );
+            const configDetails = await config.findOne({
+              userId: booking.userId,
+            });
+            if (passengerPreference.length) {
+              allBookingData.push({
+                railBooking: booking,
+                passengerPreference: passengerPreference,
+                salesInchargeIds: configDetails?.salesInchargeIds,
+              });
+            }
+          })
+        );
+        let filteredBookingData = allBookingData; // Copy the original data
+
+        if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
+          filteredBookingData = allBookingData.filter(
+            (bookingData) => bookingData.salesInchargeIds === salesInchargeIds
+          );
+        }
+        return {
+          response: "Fetch Data Successfully",
+          data: {
+            bookingList: filteredBookingData.sort(
+              (a, b) => new Date(b.bookingDate) - new Date(a.bookingDate)
+            ),
+            statusCounts: statusCounts,
+          },
+        };
+      }
+    } else if (
+      (checkComapnyUser.roleId && checkComapnyUser.roleId.name === "TMC") ||
+      checkComapnyUser?.company_ID?.type === "TMC"
+    ) {
+      let filter = {};
+      if (agencyId !== undefined && agencyId !== "") {
+        ilter.userId = {};
+        filter.userId = { $in: agencyId };
+      }
+
+      if (bookingId !== undefined && bookingId.trim() !== "") {
+        filter.bookingId = bookingId;
+      }
+      if (pnr !== undefined && pnr.trim() !== "") {
+        filter.PNR = pnr;
+      }
+      if (status !== undefined && status.trim() !== "") {
+        filter.bookingStatus = status;
+      }
+      if (
+        fromDate !== undefined &&
+        fromDate.trim() !== "" &&
+        toDate !== undefined &&
+        toDate.trim() !== ""
+      ) {
+        filter.bookingDate = {
+          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
+          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+        };
+      } else if (fromDate !== undefined && fromDate.trim() !== "") {
+        filter.bookingDate = {
+          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+        };
+      } else if (toDate !== undefined && toDate.trim() !== "") {
+        filter.bookingDate = {
+          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+        };
+      }
+
+      const railBooking = await railBooking
+        .find(filter)
+        .populate({
+          path: "userId",
+          populate: {
+            path: "company_ID",
+          },
+        })
+        .populate("BookedBy");
+
+      if (!railBooking || railBooking.length === 0) {
+        return {
+          response: "Data Not Found",
+        };
+      } else {
+        const statusCounts = {
+          PENDING: 0,
+          CONFIRMED: 0,
+          FAILED: 0,
+          CANCELLED: 0,
+          INCOMPLETE: 0,
+          HOLD: 0,
+          HOLDRELEASED: 0,
+          "FAILED PAYMENT": 0,
+        };
+
+        // Iterate over the railBooking array
+
+        let filteredBookingData = railBooking; // Copy the original data
+
+        console.log("sdhei");
+        if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
+          filteredBookingData = allBookingData.filter(
+            (bookingData) => bookingData.salesInchargeIds === salesInchargeIds
+          );
+        }
+
+        return {
+          response: "Fetch Data Successfully",
+          data: {
+            bookingList: filteredBookingData.sort(
+              (a, b) => new Date(b.bookingDate) - new Date(a.bookingDate)
+            ),
+            statusCounts: statusCounts,
+          },
+        };
+      }
+    }
+  }
+};
+module.exports = { StartBookingRail, findRailAllBooking };

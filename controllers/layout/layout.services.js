@@ -3,7 +3,7 @@ const creditRequest = require('../../models/CreditRequest');
 const bookingdetails = require("../../models/booking/BookingDetails");
 const company = require("../../models/Company");
 const depositDetail = require("../../models/DepositRequest");
-
+const moment=require('moment')
 const axios = require('axios');
 const { Config } = require("../../configs/config");
 const registrationServices = require('../../controllers/registration/registration.services')
@@ -15,17 +15,33 @@ const dashBoardCount = async (req, res) => {
     let req1 = { params: { companyId: companyId } };
     const today = new Date();
 
+// Set the fromDate to the start of the current day in UTC
+const fromDate = new Date(today.setUTCHours(0, 0, 0, 0));
 
-const startDate = new Date(today.setUTCHours(0, 0, 0, 0));
-    const endDate = new Date(today.setUTCHours(23, 59, 59, 999));
-    const dateId = {
-      $gte: startDate,
-      $lt: endDate
-    };
+// Set the toDate to the end of the current day in UTC
+const toDate = new Date(today.setUTCHours(23, 59, 59, 999));
+
+const dateId = {};
+if (fromDate || toDate) {
+  dateId.createdAt = {};
+
+  if (fromDate) {
+    // Ensure the fromDate is in the correct format and is a valid date
+    const startDate = moment.utc(fromDate).toDate();
+    dateId.createdAt["$gte"] = startDate;
+  }
+
+  if (toDate) {
+    // Ensure the toDate is in the correct format and is a valid date
+    const endDate = moment.utc(toDate).toDate();
+    dateId.createdAt["$lte"] = endDate;
+  }
+}
+
     let [newRegistrationCount, creditReqCount, getBookingDetails, RegisteredAgentConfig, depositRequest] = await Promise.all([
       registrationServices.getAllRegistrationByCompany(req1, res),
       creditRequest.find({ companyId: companyId }),
-      bookingdetails.find({ createdAt: dateId, companyId }, { bookingStatus: 1 }),
+      bookingdetails.find({ dateId, companyId }, { bookingStatus: 1 }),
       company.countDocuments({ parent: companyId }),
       depositDetail.countDocuments({ companyId, status: "pending" })
     ]);

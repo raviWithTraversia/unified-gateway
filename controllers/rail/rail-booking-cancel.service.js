@@ -55,11 +55,12 @@ module.exports.cancelRailBooking = async function (request) {
         Result: response,
       };
     }
-
+    const booking = await bookingDetailsRail.findOne({ reservationId });
     const railCancellation = await RailCancellation.create({
       ...response,
       userId: user._id,
       companyId: company._id,
+      agencyId: booking.AgencyId,
       reservationId,
       passengerToken,
       txnId,
@@ -75,7 +76,6 @@ module.exports.cancelRailBooking = async function (request) {
       staff: staff ?? "",
     });
 
-    const booking = await bookingDetailsRail.findOne({ reservationId });
     const tokenList = passengerToken.split("");
     booking.psgnDtlList = booking.psgnDtlList.map((passenger, idx) => ({
       ...passenger,

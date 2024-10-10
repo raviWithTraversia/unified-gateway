@@ -65,7 +65,7 @@ const ReservationSchema = new mongoose.Schema({
     ref: "company",
   },
   cartId: { type: String, default: null },
-
+  qrImage: { type: String, default: "" },
   bookingStatus: {
     type: String,
     default: "INCOMPLETE",

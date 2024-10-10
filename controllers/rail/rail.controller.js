@@ -19,6 +19,7 @@ const Company = require("../../models/Company");
 const RailCancellation = require("../../models/Irctc/rail-cancellation");
 const { fetchRailRefundDetails } = require("./rail-refund-details.service");
 const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
+const moment = require("moment");
 // const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
 
 const railSearch = async (req, res) => {
@@ -460,24 +461,71 @@ async function updateCancellationDetails(req, res) {
 
 async function fetchCancellations(req, res) {
   try {
-    const { companyId, isRefunded } = req.body;
+    // date,
+    const { companyId, isRefunded, fromDate, toDate } = req.body;
     const query = {
       ...(companyId && { companyId: new ObjectId(companyId) }),
       ...(isRefunded != null && { isRefunded }),
     };
+
+    if (fromDate || toDate) {
+      query.createdAt = {};
+      if (fromDate) {
+        if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid fromDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+
+        let startDate = moment(fromDate)
+          .set("hour", 0)
+          .set("minute", 0)
+          .set("second", 0)
+          .toDate();
+        query.createdAt["$gte"] = startDate;
+      }
+      if (toDate) {
+        if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid toDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+        let endDate = moment(toDate)
+          .set("hour", 23)
+          .set("minute", 59)
+          .second(59)
+          .toDate();
+        query.createdAt["$lte"] = endDate;
+      }
+    }
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return apiErrorres(
+          res,
+          "Invalid Fromdate | Todate, Todate Must Be A Date Greater Than Or Equal To Fromdate",
+          400,
+          true
+        );
+      }
+    }
     console.log({ query });
+
     const cancellations = await RailCancellation.find(query).populate("userId");
     return res.status(200).json({
       IsSucess: true,
-      message: "cancellations fetched successfully",
-      cancellations,
+      Message: "Cancellations Fetched Successfully",
+      Result: cancellations,
     });
   } catch (error) {
     console.log({ error });
     return res.status(400).json({
       IsSucess: false,
-      message: "something went wrong",
-      error: error.message,
+      Message: "Something Went Wrong",
+      Error: error.message,
     });
   }
 }

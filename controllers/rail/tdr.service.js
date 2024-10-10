@@ -39,6 +39,10 @@ module.exports.fileTDR = async (request) => {
       headers: { Authorization: auth },
     });
     tdrRequest.irctcTdrResponse = response;
+    if (response.error) {
+      tdrRequest.status = "Failed";
+      tdrRequest.failReason = response.error;
+    }
     await tdrRequest.save();
     return { result: tdrRequest };
   } catch (error) {

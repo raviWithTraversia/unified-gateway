@@ -15,8 +15,13 @@ module.exports.fetchTxnHistory = async (request) => {
 };
 module.exports.fileTDR = async (request) => {
   try {
+    const { Authentication, txnId, passengerToken, reasonIndex } = request;
+    let url = `${
+      Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
+    }/eticketing/webservices/tatktservices/fileTDR/${txnId}/${passengerToken}/${reasonIndex}`;
+    const { data: response } = await axios.get(url);
+    return { result: response };
   } catch (error) {
-    console.log({ error });
-    return { error: error.message, result: error?.response?.data };
+    return { error: error.message, result: error?.response?.data ?? "" };
   }
 };

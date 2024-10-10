@@ -5,7 +5,7 @@ const config = require("../../../models/AgentConfig");
 const {ObjectId}=require('mongodb')
 const StartBookingRail=async(req,res)=>{
     try{
-        const {userId,companyId,cartId ,amount,paymentmethod,agencyId,clientTransactionId}=req.body;
+        const {userId,companyId,cartId ,amount,paymentmethod,agencyId,clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,mobileNumber,emailId,ticketType,passengerList,boardingStation}=req.body;
 console.log('sdjfdh')
         const requiredFields=["userId","companyId","cartId","amount", "paymentmethod","agencyId","clientTransactionId"]
         const missingFields = requiredFields.filter(
@@ -40,7 +40,12 @@ if(RailBooking.response="amount transfer succefully"){
         companyId:companyId,
         userId:userId,
         AgencyId:agencyId,
-        paymentMethod:paymentmethod
+        paymentMethod:paymentmethod,
+        trainNumber:trainNo,journeyDate:`${journeyDate} 00:00:00.0 IST`,fromStn:frmStn,destStn:toStn,jClass:jClass,reservationMode:reservationMode,mobileNumber:mobileNumber,emailId:emailId,ticketType:ticketType,boardingStn:boardingStation,
+        jQuota:jQuota,
+        psgnDtlList:passengerList
+
+
     })
 }
 return({

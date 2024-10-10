@@ -156,17 +156,13 @@ bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAI
   wpServiceTax: {type:Number,default:null},
   insuredPsgnCount: {type:Number,default:null},
   serverId: {type:String,default:null},
-  createdAt:{
-    type: Date,
-    default: Date.now,
-
-},
-
-updatedAt:{
-    type: Date,
-    default: Date.now,
-},
-});
+  jClass:{type:String,default:""},
+  reservationMode:{type:String,default:""},
+  mobileNumber:{type:String,default:""},
+  emailId:{type:String,default:""},
+  jQuota:{type:String,default:""}
+ 
+},{timestamps:true});
 
 
 // const bookingDetailsRailSchema = new mongoose.Schema(

@@ -11,12 +11,15 @@ const {
   cancelRailBooking,
   validatePsgnToken,
   calculateCancellationCharges,
+  verifyOTP,
+  resendOTP,
 } = require("./rail-booking-cancel.service");
 const User = require("../../models/User");
 const Company = require("../../models/Company");
 const RailCancellation = require("../../models/Irctc/rail-cancellation");
 const { fetchRailRefundDetails } = require("./rail-refund-details.service");
 const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
+const moment = require("moment");
 // const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
 
 const railSearch = async (req, res) => {
@@ -315,6 +318,53 @@ async function cancelBooking(req, res) {
     );
   }
 }
+async function verifyCancellationOTP(req, res) {
+  try {
+    const { Authentication, pnr, cancellationId, otp } = req.body;
+    if (!Authentication || !pnr || !cancellationId || !otp)
+      return apiErrorres(
+        res,
+        "Required Fields Missing, Authenticaion, pnr, cancellationId, otp",
+        400,
+        true
+      );
+    const { error, result } = await verifyOTP(req.body);
+    if (error) return apiErrorres(res, "OTP Verification Failed", 400, error);
+    return apiSucessRes(res, "OTP Verification Successful", result, 200);
+  } catch (error) {
+    console.log({ error });
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+async function resendCancellationOTP(req, res) {
+  try {
+    const { Authentication, pnr, cancellationId } = req.body;
+    if (!Authentication || !pnr || !cancellationId)
+      return apiErrorres(
+        res,
+        "Required Fields Missing, Authenticaion, pnr, cancellationId",
+        400,
+        true
+      );
+    const { error, result } = await resendOTP(req.body);
+
+    if (error) return apiErrorres(res, "Error While Resending OTP", 500, error);
+    return apiSucessRes(res, "OTP Resent", result, 200);
+  } catch (error) {
+    console.log({ error });
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
 
 async function fetchRefundDetails(req, res) {
   try {
@@ -370,17 +420,20 @@ async function fetchRefundDetails(req, res) {
 
 async function updateCancellationDetails(req, res) {
   try {
-    const { cancellationId, data } = req.body;
-    if (!cancellationId || !data)
+    const { txnId, refundAmount,cancellationCharge } = req.body;
+    if (!txnId || !refundAmount||!cancellationCharge)
       return apiErrorres(
         res,
         "Missing Required Parameter Cancellation Id Or Data",
         400,
         true
       );
-    const cancellationDetails = await RailCancellation.findByIdAndUpdate(
-      cancellationId,
-      data,
+    const cancellationDetails = await RailCancellation.findOneAndUpdate({txnId:txnId},{$set:{
+      refundAmount:refundAmount,
+      cashDeducted:cancellationCharge,
+      status:"REFUNDED",
+      isRefunded:true
+    }},
       { new: true }
     );
     if (!cancellationDetails)
@@ -411,18 +464,77 @@ async function updateCancellationDetails(req, res) {
 
 async function fetchCancellations(req, res) {
   try {
-    const { companyId, isRefunded } = req.body;
+    // date,
+    const { companyId, isRefunded, fromDate, toDate } = req.body;
     const query = {
       ...(companyId && { companyId: new ObjectId(companyId) }),
       ...(isRefunded != null && { isRefunded }),
     };
+
+    if (fromDate || toDate) {
+      query.createdAt = {};
+      if (fromDate) {
+        if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid fromDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+
+        let startDate = moment(fromDate)
+          .set("hour", 0)
+          .set("minute", 0)
+          .set("second", 0)
+          .toDate();
+        query.createdAt["$gte"] = startDate;
+      }
+      if (toDate) {
+        if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid toDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+        let endDate = moment(toDate)
+          .set("hour", 23)
+          .set("minute", 59)
+          .second(59)
+          .toDate();
+        query.createdAt["$lte"] = endDate;
+      }
+    }
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return apiErrorres(
+          res,
+          "Invalid Fromdate | Todate, Todate Must Be A Date Greater Than Or Equal To Fromdate",
+          400,
+          true
+        );
+      }
+    }
     console.log({ query });
+
     const cancellations = await RailCancellation.find(query).populate("userId");
     return res.status(200).json({
       IsSucess: true,
-      message: "cancellations fetched successfully",
-      cancellations,
+      Message: "Cancellations Fetched Successfully",
+      Result: cancellations,
     });
+  } catch (error) {
+    console.log({ error });
+    return res.status(400).json({
+      IsSucess: false,
+      Message: "Something Went Wrong",
+      Error: error.message,
+    });
+  }
+}
+
+async function handleFetchTxnHistory(req, res) {
+  try {
   } catch (error) {
     console.log({ error });
     return res.status(400).json({
@@ -432,6 +544,7 @@ async function fetchCancellations(req, res) {
     });
   }
 }
+async function handleTDRRequest(req, res) {}
 
 module.exports = {
   railSearch,
@@ -442,7 +555,11 @@ module.exports = {
   DecodeToken,
   fetchCancellationCharges,
   cancelBooking,
+  verifyCancellationOTP,
+  resendCancellationOTP,
   fetchRefundDetails,
   updateCancellationDetails,
   fetchCancellations,
+  handleFetchTxnHistory,
+  handleTDRRequest,
 };

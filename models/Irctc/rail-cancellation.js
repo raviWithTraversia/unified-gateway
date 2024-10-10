@@ -15,8 +15,12 @@ const railCancellationSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isRefundOTPVerified: {
+      type: Boolean,
+      default: false,
+    },
     staff: String,
-    reservationId: { type: String, required: true, unique: true },
+    reservationId: { type: String, required: true },
     txnId: { type: String, required: true },
     passengerToken: { type: String, required: true },
     isSuccess: Boolean,

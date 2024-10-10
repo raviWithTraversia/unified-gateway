@@ -4,6 +4,7 @@ const User = require("../../models/User");
 const RailCancellation = require("../../models/Irctc/rail-cancellation");
 const moment = require("moment");
 const { Config } = require("../../configs/config");
+const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
 
 const chargesBefore48Hours = {
   "1A": 240,
@@ -29,19 +30,19 @@ module.exports.cancelRailBooking = async function (request) {
       staff,
     } = request;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
-    let url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
-    if (Authentication?.CredentialType === "LIVE")
-      url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
+    let url = `${
+      Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
+    }/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
 
-    const requestExists = await RailCancellation.exists({
+    const existingRailCancellation = await RailCancellation.findOne({
       reservationId,
       passengerToken,
     });
-    if (requestExists)
+    if (existingRailCancellation)
       return {
-        IsSucess: false,
-        message:
-          "Request Already Exists With Same Reservation Id And Passenger Token",
+        IsSucess: true,
+        Message: "Cancellation Request Already Exists",
+        Result: existingRailCancellation,
       };
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
@@ -50,10 +51,11 @@ module.exports.cancelRailBooking = async function (request) {
     if (String(response.success) !== "true") {
       return {
         IsSucess: false,
-        message: "Something Went Wrong",
-        response,
+        Message: "Cancellation Request Failed",
+        Result: response,
       };
     }
+
     const railCancellation = await RailCancellation.create({
       ...response,
       userId: user._id,
@@ -72,17 +74,30 @@ module.exports.cancelRailBooking = async function (request) {
       remark: remark ?? "",
       staff: staff ?? "",
     });
+
+    const booking = await bookingDetailsRail.findOne({ reservationId });
+    const tokenList = passengerToken.split("");
+    booking.psgnDtlList = booking.psgnDtlList.map((passenger, idx) => ({
+      ...passenger,
+      ...(tokenList[idx] === "Y" && { currentStatus: "CAN" }),
+    }));
+
+    const isFullCancelled =
+      passengerToken === "YYYYYY" ||
+      tokenList.filter((t) => t === "Y").length === booking.psgnDtlList.length;
+    if (isFullCancelled) booking.bookingStatus = "CANCELLED";
+    await booking.save();
     return {
       IsSucess: true,
-      message: "Cancellation Requested",
-      cancellationDetails: railCancellation,
+      Message: "Cancellation Requested",
+      Result: railCancellation,
     };
   } catch (error) {
     console.log({ error });
     return {
       IsSucess: false,
-      message: "Something Went Wrong",
-      error: error.message,
+      Message: "Something Went Wrong",
+      Error: error.message,
     };
   }
 };
@@ -142,6 +157,49 @@ module.exports.calculateCancellationCharges = ({ passengerToken, booking }) => {
   } catch (error) {
     console.log({ error });
     return { error: "Something Went Wrong, While Cancelling Your Booking" };
+  }
+};
+
+module.exports.verifyOTP = async (request) => {
+  try {
+    const { Authentication, cancellationId, pnr, otp } = request;
+    const requestType = 2; // 2 -> verify OTP , 1 -> resend OTP
+    let url = `${
+      Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
+    }/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+
+    const { data: response } = await axios.get(url, {
+      headers: { Authorization: auth },
+    });
+    if (response.messageInfo?.toLowerCase?.() !== "otp verified")
+      return { error: response };
+    await RailCancellation.findOneAndUpdate(
+      { cancellationId },
+      { isRefundOTPVerified: true }
+    );
+    return { result: response };
+  } catch (error) {
+    console.log({ error });
+    return { error: error?.response || error.message };
+  }
+};
+
+module.exports.resendOTP = async (request) => {
+  try {
+    const { Authentication, cancellationId, pnr } = request;
+    const requestType = 1; // 2 -> verify OTP , 1 -> resend OTP
+    let url = `${
+      Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
+    }/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}`;
+
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const { data: response } = await axios.get(url, {
+      headers: { Authorization: auth },
+    });
+    return { result: response };
+  } catch (error) {
+    return { error: error?.response?.data || error.message };
   }
 };
 

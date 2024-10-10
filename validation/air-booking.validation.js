@@ -17,7 +17,8 @@ module.exports.validateAirBooking = async function (req) {
     const {
       SearchRequest: { Authentication, TravelType },
     } = req.body;
-    const fieldNames = [
+
+    const searchRequestFields = [
       "Authentication",
       "TypeOfTrip",
       "Segments",
@@ -29,15 +30,24 @@ module.exports.validateAirBooking = async function (req) {
       "Airlines",
       "FareFamily",
       "RefundableOnly",
+    ];
+    const fieldNames = [
       "PassengerPreferences",
       "ItineraryPriceCheckResponses",
       "paymentMethodType",
       "paymentGateway",
     ];
 
-    const missingFields = fieldNames.filter(
-      (fieldName) => req.body.SearchRequest[fieldName] == null
+    let missingFields = fieldNames.filter(
+      (fieldName) => req.body[fieldName] == null
     );
+
+    missingFields = [
+      ...missingFields,
+      ...searchRequestFields.filter(
+        (fieldName) => req.body?.SearchRequest?.[fieldName] == null
+      ),
+    ];
     if (missingFields.length) {
       const missingFieldsString = missingFields.join(", ");
       return {

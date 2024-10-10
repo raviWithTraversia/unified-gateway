@@ -23,7 +23,11 @@ rail_route.post(
   "/rail/get-all-booking",
   railBookingController.findRailAllBooking
 );
-rail_route.get("/getAgent-performance/:parentId",auth,balance.agentPerformanceReport)
+rail_route.get(
+  "/getAgent-performance/:parentId",
+  auth,
+  balance.agentPerformanceReport
+);
 rail_route.post(
   "/rail/cancellation-charges",
   railController.fetchCancellationCharges
@@ -34,7 +38,17 @@ rail_route.put(
   "/rail/cancel-booking",
   railController.updateCancellationDetails
 );
+rail_route.post(
+  "/rail/cancel-booking/verify-otp",
+  railController.verifyCancellationOTP
+);
+rail_route.post(
+  "/rail/cancel-booking/resend-otp",
+  railController.resendCancellationOTP
+);
 rail_route.post("/rail/cancellations", railController.fetchCancellations);
+rail_route.post("/rail/txn-history", railController.handleFetchTxnHistory);
+rail_route.post("/rail/file-tdr", railController.handleTDRRequest);
 
 // easeBuzz_route.post('/paymentGateway/easeBussResponce', auth, easeBuzzController.easeBuzzResponce);
 

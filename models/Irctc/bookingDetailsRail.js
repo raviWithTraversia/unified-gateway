@@ -1,117 +1,119 @@
 const mongoose = require("mongoose");
 
 const PassengerSchema = new mongoose.Schema({
-  passengerSerialNumber: {type:Number,default:null},
-  passengerName: {type:String,default:null},
-  passengerAge: {type:Number,default:null},
-  passengerGender: {type:String,default:null},
-  passengerBerthChoice: {type:String,default:null},
-  passengerBedrollChoice: {type:String,default:null},
-  passengerConcession: {type:String,default:null},
-  passengerIcardFlag: {type:Boolean,default:false},
-  childBerthFlag: {type:Boolean,default:false},
-  passengerNationality: {type:String,default:null},
-  fareChargedPercentage: {type:Number,default:null},
-  validationFlag: {type:String,default:null},
-  bookingStatusIndex: {type:Number,default:null},
-  bookingStatus: {type:String,default:null},
-  bookingCoachId: {type:String,default:null},
-  bookingBerthNo: {type:Number,default:null},
-  bookingBerthCode: {type:String,default:null},
-  currentStatusIndex: {type:Number,default:null},
-  currentStatus: {type:String,default:null},
-  currentCoachId: {type:String,default:null},
-  currentBerthNo: {type:Number,default:null},
-  currentBerthCode: {type:String,default:null},
-  passengerNetFare: {type:Number,default:null},
-  currentBerthChoice: {type:String,default:null},
-  insuranceIssued: {type:String,default:null},
-  psgnwlType: {type:Number,default:null},
-  dropWaitlistFlag: {type:Boolean,default:false},
+  passengerSerialNumber: { type: Number, default: null },
+  passengerName: { type: String, default: null },
+  passengerAge: { type: Number, default: null },
+  passengerGender: { type: String, default: null },
+  passengerBerthChoice: { type: String, default: null },
+  passengerBedrollChoice: { type: String, default: null },
+  passengerConcession: { type: String, default: null },
+  passengerIcardFlag: { type: Boolean, default: false },
+  childBerthFlag: { type: Boolean, default: false },
+  passengerNationality: { type: String, default: null },
+  fareChargedPercentage: { type: Number, default: null },
+  validationFlag: { type: String, default: null },
+  bookingStatusIndex: { type: Number, default: null },
+  bookingStatus: { type: String, default: null },
+  bookingCoachId: { type: String, default: null },
+  bookingBerthNo: { type: Number, default: null },
+  bookingBerthCode: { type: String, default: null },
+  currentStatusIndex: { type: Number, default: null },
+  currentStatus: { type: String, default: null },
+  currentCoachId: { type: String, default: null },
+  currentBerthNo: { type: Number, default: null },
+  currentBerthCode: { type: String, default: null },
+  passengerNetFare: { type: Number, default: null },
+  currentBerthChoice: { type: String, default: null },
+  insuranceIssued: { type: String, default: null },
+  psgnwlType: { type: Number, default: null },
+  dropWaitlistFlag: { type: Boolean, default: false },
 });
 const GstChargeSchema = new mongoose.Schema({
-  totalPRSGst: {type:Number,default:null},
-  irctcCgstCharge: {type:Number,default:null},
-  irctcSgstCharge: {type:Number,default:null},
-  irctcIgstCharge: {type:Number,default:null},
-  irctcUgstCharge: {type:Number,default:null},
-  totalIrctcGst: {type:Number,default:null},
+  totalPRSGst: { type: Number, default: null },
+  irctcCgstCharge: { type: Number, default: null },
+  irctcSgstCharge: { type: Number, default: null },
+  irctcIgstCharge: { type: Number, default: null },
+  irctcUgstCharge: { type: Number, default: null },
+  totalIrctcGst: { type: Number, default: null },
 });
 
 // Meal Transaction Schema
 const MealTransactionSchema = new mongoose.Schema({
-  ticketId: {type:Number,default:null},
-  reservationId: {type:Number,default:null},
-  mealBooked: {type:Boolean,default:false},
-  tktCanStatus: {type:Number,default:null},
-  bookingMode: {type:Number,default:null},
-  bookingSource: {type:Number,default:null},
+  ticketId: { type: Number, default: null },
+  reservationId: { type: Number, default: null },
+  mealBooked: { type: Boolean, default: false },
+  tktCanStatus: { type: Number, default: null },
+  bookingMode: { type: Number, default: null },
+  bookingSource: { type: Number, default: null },
 });
 const ReservationSchema = new mongoose.Schema({
-  reservationId: { type:String, default:null},
+  reservationId: { type: String, default: null },
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "company",
   },
- 
-    userId:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "user",
-        required: true,
 
-},
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    required: true,
+  },
 
-AgencyId: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "company",
-},
-cartId:{type:String,default:null},
- 
-bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAILED","CANCELED","INCOMPLETE"]},
+  AgencyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "company",
+  },
+  cartId: { type: String, default: null },
 
+  bookingStatus: {
+    type: String,
+    default: "INCOMPLETE",
+    enum: ["CONFIRMED", "PENDING", "FAILED", "CANCELLED", "INCOMPLETE"],
+  },
 
-  lapNumber: {type:Number,default:null},
-  numberOfpassenger: {type:Number,default:null},
-  timeTableFlag: {type:Number,default:null},
-  pnrNumber: {type:String,default:null},
-  departureTime: {type:String,default:null},
-  arrivalTime: {type:String,default:null},
-  reasonType: {type:String,default:null},
-  reasonIndex: {type:Number,default:null},
-  informationMessage: [{type:String,default:null}],
-  destArrvDate: {type:String,default:null}, // Consider converting to a Date object if needed
-  bookingDate: {type:Date,default:null},  // Consider converting to a Date object if needed
-  numberOfChilds: {type:Number,default:null},
-  numberOfAdults: {type:Number,default:null},
-  trainNumber: {type:String,default:null},
-  fromStn: {type:String,default:null},
-  destStn: {type:String,default:null},
-  resvnUptoStn: {type:String,default:null},
-  fromStnName: {type:String,default:null},
-  boardingStnName: {type:String,default:null},
-  resvnUptoStnName: {type:String,default:null},
-  journeyClass: {type:String,default:null},
-  journeyQuota: {type:String,default:null},
-  insuranceCharge: {type:Number,default:null},
-  totalCollectibleAmount: {type:Number,default:null},
+  lapNumber: { type: Number, default: null },
+  numberOfpassenger: { type: Number, default: null },
+  timeTableFlag: { type: Number, default: null },
+  pnrNumber: { type: String, default: null },
+  departureTime: { type: String, default: null },
+  arrivalTime: { type: String, default: null },
+  reasonType: { type: String, default: null },
+  reasonIndex: { type: Number, default: null },
+  informationMessage: [{ type: String, default: null }],
+  destArrvDate: { type: String, default: null }, // Consider converting to a Date object if needed
+  bookingDate: { type: Date, default: null }, // Consider converting to a Date object if needed
+  numberOfChilds: { type: Number, default: null },
+  numberOfAdults: { type: Number, default: null },
+  trainNumber: { type: String, default: null },
+  fromStn: { type: String, default: null },
+  destStn: { type: String, default: null },
+  resvnUptoStn: { type: String, default: null },
+  fromStnName: { type: String, default: null },
+  boardingStnName: { type: String, default: null },
+  resvnUptoStnName: { type: String, default: null },
+  journeyClass: { type: String, default: null },
+  journeyQuota: { type: String, default: null },
+  insuranceCharge: { type: Number, default: null },
+  totalCollectibleAmount: { type: Number, default: null },
   psgnDtlList: [PassengerSchema], // Embedded Passenger Schema
-  clientTransactionId: {type:String,default:null},
-  scheduleDepartureFlag: {type:Boolean,default:false},
-  scheduleArrivalFlag: {type:Boolean,default:false},
-  serviceChargeTotal: {type:Number,default:null},
-  ticketType: {type:String,default:null},
-  bookedQuota: {type:String,default:null},
-  avlForVikalp: {type:Boolean,default:false},
+  clientTransactionId: { type: String, default: null },
+  scheduleDepartureFlag: { type: Boolean, default: false },
+  scheduleArrivalFlag: { type: Boolean, default: false },
+  serviceChargeTotal: { type: Number, default: null },
+  ticketType: { type: String, default: null },
+  bookedQuota: { type: String, default: null },
+  avlForVikalp: { type: Boolean, default: false },
   gstCharge: GstChargeSchema, // Embedded GST Schema
-  gstFlag: {type:Boolean,default:false},
-  monthBkgTicket: {type:Number,default:null},
-  sai: {type:Boolean,default:false},
-  journeyLap: {type:Number,default:null},
-  sectorId: {type:Boolean,default:false},
-  canSpouseFlag: {type:Boolean,default:false},
-  mahakalFlag: {type:Boolean,default:false},
-  tourismUrl: {type:String,default:null},
-  rrHbFlag: {type:String,default:null},
+  gstFlag: { type: Boolean, default: false },
+  monthBkgTicket: { type: Number, default: null },
+  sai: { type: Boolean, default: false },
+  journeyLap: { type: Number, default: null },
+  sectorId: { type: Boolean, default: false },
+  canSpouseFlag: { type: Boolean, default: false },
+  mahakalFlag: { type: Boolean, default: false },
+  tourismUrl: { type: String, default: null },
+  rrHbFlag: { type: String, default: null },
   mealTransaction: MealTransactionSchema, // Embedded Meal Transaction Schema
   mealChoiceEnable: {type:Boolean,default:false},
   complaintFlag: {type:Number,default:null},
@@ -166,26 +168,24 @@ bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAI
 
 
 // const bookingDetailsRailSchema = new mongoose.Schema(
-    
+
 //     {
 //         companyId: {
 //         type: mongoose.Schema.Types.ObjectId,
 //         ref: "company",
 //       },
-     
+
 //         userID:{
 //             type: mongoose.Schema.Types.ObjectId,
 //             ref: "user",
 //             required: true,
 
 //     },
-    
+
 //     agencyId: {
 //       type: mongoose.Schema.Types.ObjectId,
 //       ref: "User",
 //     },
-
-    
 
 //     credentialType:{
 //         type: {type:String,default:null},
@@ -222,7 +222,6 @@ bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAI
 //         default: null,
 //     },
 
-
 //     boardingStation:{
 //         type: String,
 //         required: true,
@@ -232,7 +231,7 @@ bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAI
 //         type: String,
 //         required: true,
 //     },
-       
+
 //     jClass:{
 //         type: String,
 //         default:"null",
@@ -252,7 +251,7 @@ bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAI
 //         type: String,
 //         required: true,
 //     },
-    
+
 //     providerBookingId:{
 //         type: String,
 //         required: true,
@@ -272,8 +271,7 @@ bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAI
 //         type: Number,
 //         required: true,
 //     },
-    
-    
+
 //     createdBy: {
 //         type : mongoose.Schema.Types.ObjectId,
 //         ref: 'User',
@@ -308,7 +306,6 @@ bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAI
 //         type : String
 //       },
 
-
 //     createdAt:{
 //         type: Date,
 //         default: new Date(),
@@ -320,15 +317,13 @@ bookingStatus:{type:String,default:"INCOMPLETE",enum:["CONFIRMED","PENDING","FAI
 //         default: new Date(),
 // },
 //     },
-    
+
 //     {
 //       timestamps: true,
 //     }
 //   );
-  const bookingDetailsRail = mongoose.model("bookingDetailsRail", ReservationSchema);
-  module.exports = bookingDetailsRail;
-
-
- 
-  
-  
+const bookingDetailsRail = mongoose.model(
+  "bookingDetailsRail",
+  ReservationSchema
+);
+module.exports = bookingDetailsRail;

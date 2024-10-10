@@ -60,6 +60,7 @@ module.exports.cancelRailBooking = async function (request) {
       ...response,
       userId: user._id,
       companyId: company._id,
+      agencyId: Authentication.Agency,
       reservationId,
       passengerToken,
       txnId,

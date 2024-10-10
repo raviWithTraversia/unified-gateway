@@ -2,8 +2,12 @@ const User = require("../../models/User");
 const Company = require("../../models/Company");
 const axios = require("axios");
 const { Config } = require("../../configs/config");
-const jwt=require('jsonwebtoken');
-const RailBookingSchema=require('../../models/Irctc/bookingDetailsRail')
+const jwt = require("jsonwebtoken");
+const RailBookingSchema = require("../../models/Irctc/bookingDetailsRail");
+const {
+  prepareRailBookingQRDataString,
+  generateQR,
+} = require("../../utils/generate-qr");
 
 const getRailSearch = async (req, res) => {
   try {
@@ -240,28 +244,27 @@ const railFareEnquiry = async (req, res) => {
       url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
     }
 
-     let queryParams = {
-           
-            "masterId": "WKAFL00000",
-            "wsUserLogin": "WKAFL00001",
-            "enquiryType": "3",
-            "reservationChoice": "99",
-            "moreThanOneDay": "true",
-            "ignoreChoiceIfWl":ignoreChoiceIfWl,
-            "gnToCkOpted":"false",
-            "ticketType":ticketType,
-            "travelInsuranceOpted":travelInsuranceOpted,
-            "passengerList": passengerList,
-            "mobileNumber": mobileNumber,
-            "autoUpgradationSelected": autoUpgradationSelected,
-            "boardingStation": boardingStation,
-            "reservationMode": reservationMode,//B2B_WEB_OTP
-            "clientTransactionId": clientTransactionId,
-            "gstDetailInputFlag": gstDetailInputFlag,
-            "agentDeviceId": agentDeviceId,
-            "infantList": infantList,
-            "gstDetails": gstDetails
-        };
+    let queryParams = {
+      masterId: "WKAFL00000",
+      wsUserLogin: "WKAFL00001",
+      enquiryType: "3",
+      reservationChoice: "99",
+      moreThanOneDay: "true",
+      ignoreChoiceIfWl: ignoreChoiceIfWl,
+      gnToCkOpted: "false",
+      ticketType: ticketType,
+      travelInsuranceOpted: travelInsuranceOpted,
+      passengerList: passengerList,
+      mobileNumber: mobileNumber,
+      autoUpgradationSelected: autoUpgradationSelected,
+      boardingStation: boardingStation,
+      reservationMode: reservationMode, //B2B_WEB_OTP
+      clientTransactionId: clientTransactionId,
+      gstDetailInputFlag: gstDetailInputFlag,
+      agentDeviceId: agentDeviceId,
+      infantList: infantList,
+      gstDetails: gstDetails,
+    };
     const response = (
       await axios.post(url, queryParams, { headers: { Authorization: auth } })
     )?.data;
@@ -293,13 +296,13 @@ const DecodeToken = async (req, res) => {
 
     if (!data) {
       return {
-        response: "Token not found"
+        response: "Token not found",
       };
     }
 
     // Decode the Base64 token
-    const responseData = Buffer.from(data, 'base64').toString('utf-8');
-    
+    const responseData = Buffer.from(data, "base64").toString("utf-8");
+
     // Log the decoded data to check its structure
     // console.log("Decoded Data: ", responseData);
 
@@ -307,21 +310,36 @@ const DecodeToken = async (req, res) => {
     let jsonData;
     try {
       jsonData = JSON.parse(responseData);
-      let bookingDateStr =jsonData.bookingDate;
+      let bookingDateStr = jsonData.bookingDate;
 
-bookingDateStr = bookingDateStr.replace(".0", "").replace(" IST", "");
+      bookingDateStr = bookingDateStr.replace(".0", "").replace(" IST", "");
 
-let [datePart, timePart] = bookingDateStr.split(" ");
+      let [datePart, timePart] = bookingDateStr.split(" ");
 
-let [day, month, year] = datePart.split("-");
-let formattedDate = `${year}-${month}-${day}T${timePart}`;
+      let [day, month, year] = datePart.split("-");
+      let formattedDate = `${year}-${month}-${day}T${timePart}`;
 
+      jsonData.bookingStatus = "CONFIRMED";
 
-      jsonData.bookingStatus="CONFIRMED";
-
-      jsonData.bookingDate=new Date(formattedDate)
-      console.log(jsonData.clientTransactionId)
-      const updaterailBooking=await RailBookingSchema.findOneAndUpdate({clientTransactionId:jsonData.clientTransactionId},{$set:jsonData},{new:true})
+      jsonData.bookingDate = new Date(formattedDate);
+      console.log(jsonData.clientTransactionId);
+      if (jsonData?.reservationId && jsonData?.pnrNumber) {
+        const qrCodeData = prepareRailBookingQRDataString({
+          booking: jsonData,
+        });
+        if (qrCodeData) {
+          const qrImage = await generateQR({
+            text: qrCodeData,
+            fileName: `${Date.now()}-${jsonData.pnrNumber}.png`,
+          });
+          if (qrImage) jsonData.qrImage = qrImage;
+        }
+      }
+      const updaterailBooking = await RailBookingSchema.findOneAndUpdate(
+        { clientTransactionId: jsonData.clientTransactionId },
+        { $set: jsonData },
+        { new: true }
+      );
       let successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -380,39 +398,36 @@ let formattedDate = `${year}-${month}-${day}T${timePart}`;
             <p>PNR No.: ${updaterailBooking.pnrNumber}</p>
           <a href="${
             Config[Config.MODE].baseURL
-          }/home/manageRailBooking/railCartDetails?bookingId=${updaterailBooking.clientTransactionId}">Go to Merchant...</a>
+          }/home/manageRailBooking/railCartDetails?bookingId=${
+        updaterailBooking.clientTransactionId
+      }">Go to Merchant...</a>
         </div>
       </body>
  
       </html>`;
-      return successHtmlCode
+      return successHtmlCode;
     } catch (jsonError) {
-      console.log(jsonError.message)
+      console.log(jsonError.message);
       return {
         response: "Invalid JSON format",
-        error: jsonError.message
+        error: jsonError.message,
       };
     }
 
     // If JSON parsing succeeds, return the data
-    
-
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({
       message: "Something went wrong on the server",
-      error: error.message
+      error: error.message,
     });
   }
 };
-
-
-
 
 module.exports = {
   getRailSearch,
   railSearchBtwnDate,
   railRouteView,
   railFareEnquiry,
-  DecodeToken
+  DecodeToken,
 };

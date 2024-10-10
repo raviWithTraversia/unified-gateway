@@ -462,9 +462,9 @@ async function updateCancellationDetails(req, res) {
 async function fetchCancellations(req, res) {
   try {
     // date,
-    const { companyId, isRefunded, fromDate, toDate } = req.body;
+    const { companyId, agencyId, isRefunded, fromDate, toDate } = req.body;
     const query = {
-      ...(companyId && { companyId: new ObjectId(companyId) }),
+      ...(agencyId && { agencyId: new ObjectId(agencyId) }),
       ...(isRefunded != null && { isRefunded }),
     };
 

@@ -697,26 +697,19 @@ async function handleFetchTxnHistory(req, res) {
 }
 async function handleTDRRequest(req, res) {
   try {
-    const {
-      Authentication,
-      txnId,
-      passengerToken,
-      reasonIndex,
-      userId,
-      companyId,
-      agencyId,
-    } = req.body;
+    const { Authentication, txnId, passengerToken, reasonIndex } = req.body;
     if (
       !Authentication ||
       !txnId ||
       !passengerToken ||
       !reasonIndex ||
-      !userId ||
-      !agencyId
+      !Authentication?.UserId ||
+      !Authentication?.Agency ||
+      !Authentication?.CompanyId
     )
       return apiErrorres(
         res,
-        "Missing Fields | Authentication or txnId or passengerToken or reasonIndex or userId or companyId or agencyId",
+        "Missing Fields | Authentication or txnId or passengerToken or reasonIndex or Authentication.UserId or Authentication.CompanyId or Authentication.Agency",
         400,
         true
       );

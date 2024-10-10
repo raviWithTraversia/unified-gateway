@@ -20,24 +20,16 @@ module.exports.fetchTxnHistory = async (request) => {
 };
 module.exports.fileTDR = async (request) => {
   try {
-    const {
-      Authentication,
-      txnId,
-      passengerToken,
-      reasonIndex,
-      userId,
-      companyId,
-      agencyId,
-    } = request;
+    const { Authentication, txnId, passengerToken, reasonIndex } = request;
     let url = `${
       Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
     }/eticketing/webservices/tatktservices/fileTDR/${txnId}/${passengerToken}/${reasonIndex}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
 
     const tdrRequest = await TDRRequest.create({
-      userId,
-      companyId,
-      agencyId,
+      userId: Authentication.UserId,
+      companyId: Authentication.CompanyId,
+      agencyId: Authentication.Agency,
       txnId,
       passengerToken,
       reasonIndex,

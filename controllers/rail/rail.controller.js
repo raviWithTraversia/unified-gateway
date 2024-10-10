@@ -421,17 +421,20 @@ async function fetchRefundDetails(req, res) {
 
 async function updateCancellationDetails(req, res) {
   try {
-    const { cancellationId, data } = req.body;
-    if (!cancellationId || !data)
+    const { txnId, refundAmount,cancellationCharge } = req.body;
+    if (!txnId || !refundAmount||!cancellationCharge)
       return apiErrorres(
         res,
         "Missing Required Parameter Cancellation Id Or Data",
         400,
         true
       );
-    const cancellationDetails = await RailCancellation.findByIdAndUpdate(
-      cancellationId,
-      data,
+    const cancellationDetails = await RailCancellation.findOneAndUpdate({txnId:txnId},{$set:{
+      refundAmount:refundAmount,
+      cashDeducted:cancellationCharge,
+      status:"REFUNDED",
+      isRefunded:true
+    }},
       { new: true }
     );
     if (!cancellationDetails)

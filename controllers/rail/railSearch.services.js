@@ -300,17 +300,18 @@ const DecodeToken = async (req, res) => {
       };
     }
 
+    let successHtmlCode
     // Decode the Base64 token
     const responseData = Buffer.from(data, "base64").toString("utf-8");
 
     // Log the decoded data to check its structure
-    // console.log("Decoded Data: ", responseData);
+    console.log("Decoded Data: ", responseData);
 
     // Try parsing the decoded string as JSON
     let jsonData;
     try {
       jsonData = JSON.parse(responseData);
-      let bookingDateStr = jsonData.bookingDate;
+      let bookingDateStr =jsonData.bookingDate;
 
       bookingDateStr = bookingDateStr.replace(".0", "").replace(" IST", "");
 
@@ -340,7 +341,7 @@ const DecodeToken = async (req, res) => {
         { $set: jsonData },
         { new: true }
       );
-      let successHtmlCode = `<!DOCTYPE html>
+       successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">

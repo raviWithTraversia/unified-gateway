@@ -395,6 +395,7 @@ const DistributermanualDebitCredit = async (req, res) => {
       return { response: "User id does not exist" };
     }
     
+    var LeadgerName
     const findUser = await User.findById(userId).populate("company_ID");
     
     const doerId = req.user._id;
@@ -454,7 +455,8 @@ const DistributermanualDebitCredit = async (req, res) => {
             DistributerConfig.railCashBalance -= amount;
             configData.railCashBalance += amount;
             runningAmountAgent = await priceRoundOffNumberValues(configData.railCashBalance);
-            runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.railCashBalance)
+            runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.railCashBalance);
+            LeadgerName=Railledger;
 
             break;
     
@@ -462,7 +464,8 @@ const DistributermanualDebitCredit = async (req, res) => {
             DistributerConfig.maxcreditLimit -= amount;
             configData.maxcreditLimit += amount;
             runningAmountAgent = await priceRoundOffNumberValues(configData.maxcreditLimit);
-            runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.maxcreditLimit)
+            runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.maxcreditLimit);
+            LeadgerName=ledger;
             break;
     
           case "SMS":
@@ -482,7 +485,7 @@ const DistributermanualDebitCredit = async (req, res) => {
         // Create ledger entry if the product is not SMS or is Flight
         if (product.toUpperCase() !== "SMS" || product === "Flight") {
           const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
-          await ledger.create({
+          await LeadgerName.create({
             userId: loginUser._id,
             companyId: loginUser.company_ID._id,
             ledgerId,
@@ -497,7 +500,7 @@ const DistributermanualDebitCredit = async (req, res) => {
             cartId: bookingId || " ",
             product,
           });
-          await ledger.create({
+          await LeadgerName.create({
             userId: findUser._id,
             companyId: findUser.company_ID._id,
             ledgerId,
@@ -578,6 +581,7 @@ const DistributermanualDebitCredit = async (req, res) => {
           DistributerConfig.railCashBalance += amount;
           runningAmountAgent = await priceRoundOffNumberValues(configData.railCashBalance);
 runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.railCashBalance);
+LeadgerName=Railledger
           break;
   
         case "FLIGHT":
@@ -585,6 +589,7 @@ runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.rai
           DistributerConfig.maxcreditLimit += amount;
           runningAmountAgent = await priceRoundOffNumberValues(configData.maxcreditLimit);
           runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.maxcreditLimit);
+          LeadgerName=ledger;
           break;
   
         case "SMS":
@@ -601,7 +606,7 @@ runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.rai
       await configData.save();
   
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-      await ledger.create({
+      await LeadgerName.create({
         userId: loginUser._id,
         companyId:loginUser.company_ID._id,
         ledgerId: ledgerId,
@@ -616,7 +621,7 @@ runningAmountDistributer = await priceRoundOffNumberValues(DistributerConfig.rai
         cartId:bookingId||" ",
         product,
       });
-      await ledger.create({
+      await LeadgerName.create({
         userId: findUser._id,
         companyId: findUser.company_ID._id,
         ledgerId,

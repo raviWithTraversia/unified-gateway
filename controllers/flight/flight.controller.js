@@ -70,6 +70,9 @@ const getSearch = async (req, res) => {
       if (result.status === "fulfilled" && result.value?.data?.length)
         itineraries = [...itineraries, ...result.value.data];
     });
+    itineraries = itineraries.filter((itinerary) =>
+      ["Kafila", "1A"].includes(itinerary.Provider)
+    );
     if (itineraries.length) {
       apiSucessRes(
         res,
@@ -546,12 +549,7 @@ const updateBookingStatus = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    apiErrorres(
-      res,
-      error.message,
-      ServerStatusCode.SERVER_ERROR,
-      true
-    );
+    apiErrorres(res, error.message, ServerStatusCode.SERVER_ERROR, true);
   }
 };
 

@@ -48,6 +48,7 @@ rail_route.post(
 );
 rail_route.post("/rail/cancellations", railController.fetchCancellations);
 rail_route.post("/rail/txn-history", railController.handleFetchTxnHistory);
+rail_route.get("/rail/tdr-reasons", railController.handleFetchTDRReasons);
 rail_route.post("/rail/file-tdr", railController.handleTDRRequest);
 
 // easeBuzz_route.post('/paymentGateway/easeBussResponce', auth, easeBuzzController.easeBuzzResponce);

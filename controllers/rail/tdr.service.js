@@ -1,5 +1,6 @@
 const { default: axios } = require("axios");
 const { Config } = require("../../configs/config");
+const TDRRequest = require("../../models/tdr-request.model");
 
 module.exports.fetchTxnHistory = async (request) => {
   try {
@@ -19,16 +20,35 @@ module.exports.fetchTxnHistory = async (request) => {
 };
 module.exports.fileTDR = async (request) => {
   try {
-    const { Authentication, txnId, passengerToken, reasonIndex } = request;
+    const {
+      Authentication,
+      txnId,
+      passengerToken,
+      reasonIndex,
+      userId,
+      companyId,
+      agencyId,
+    } = request;
     let url = `${
       Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
     }/eticketing/webservices/tatktservices/fileTDR/${txnId}/${passengerToken}/${reasonIndex}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
 
+    const tdrRequest = await TDRRequest.create({
+      userId,
+      companyId,
+      agencyId,
+      txnId,
+      passengerToken,
+      reasonIndex,
+      irctcUserId: "WKAFL00000",
+    });
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
     });
-    return { result: response };
+    tdrRequest.irctcTdrResponse = response;
+    await tdrRequest.save();
+    return { result: tdrRequest };
   } catch (error) {
     return { error: error.message, result: error?.response?.data ?? "" };
   }

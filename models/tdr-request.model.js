@@ -23,6 +23,7 @@ const tdrRequestSchema = new Schema(
     failReason: String,
     irctcUserId: String,
     passengerToken: String,
+    irctcTdrResponse: {},
   },
   { timestamps: true }
 );

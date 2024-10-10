@@ -7,7 +7,11 @@ module.exports.fetchTxnHistory = async (request) => {
     let url = `${
       Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
     }/eticketing/webservices/tabkhservices/historySearchByTxnId/${userId}/${txnId}`;
-    const { data: response } = await axios.get(url);
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+
+    const { data: response } = await axios.get(url, {
+      headers: { Authorization: auth },
+    });
     return { result: response };
   } catch (error) {
     return { error: error.message, result: error?.response?.data ?? "" };
@@ -19,7 +23,11 @@ module.exports.fileTDR = async (request) => {
     let url = `${
       Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
     }/eticketing/webservices/tatktservices/fileTDR/${txnId}/${passengerToken}/${reasonIndex}`;
-    const { data: response } = await axios.get(url);
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+
+    const { data: response } = await axios.get(url, {
+      headers: { Authorization: auth },
+    });
     return { result: response };
   } catch (error) {
     return { error: error.message, result: error?.response?.data ?? "" };

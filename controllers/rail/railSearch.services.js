@@ -355,12 +355,7 @@ const railBoardingEnquiry = async (req, res) => {
     }
   } catch (error) {
     console.log(error, "error");
-    apiErrorres(
-      res,
-      errorResponse.SOMETHING_WRONG,
-      ServerStatusCode.SERVER_ERROR,
-      true
-    );
+   
   }
 };
 

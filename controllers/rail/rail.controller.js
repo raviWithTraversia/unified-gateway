@@ -216,6 +216,7 @@ const getFareEnquiry = async (req, res) => {
 const getBoardingStation = async (req, res) => {
   try {
     const result = await railSearchServices.railBoardingEnquiry(req, res);
+    console.log(result)
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (

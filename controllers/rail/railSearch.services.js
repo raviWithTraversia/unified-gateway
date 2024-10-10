@@ -2,8 +2,12 @@ const User = require("../../models/User");
 const Company = require("../../models/Company");
 const axios = require("axios");
 const { Config } = require("../../configs/config");
-const jwt=require('jsonwebtoken');
-const RailBookingSchema=require('../../models/Irctc/bookingDetailsRail')
+const jwt = require("jsonwebtoken");
+const RailBookingSchema = require("../../models/Irctc/bookingDetailsRail");
+const {
+  prepareRailBookingQRDataString,
+  generateQR,
+} = require("../../utils/generate-qr");
 
 const getRailSearch = async (req, res) => {
   try {
@@ -240,28 +244,27 @@ const railFareEnquiry = async (req, res) => {
       url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
     }
 
-     let queryParams = {
-           
-            "masterId": "WKAFL00000",
-            "wsUserLogin": "WKAFL00001",
-            "enquiryType": "3",
-            "reservationChoice": "99",
-            "moreThanOneDay": "true",
-            "ignoreChoiceIfWl":ignoreChoiceIfWl,
-            "gnToCkOpted":"false",
-            "ticketType":ticketType,
-            "travelInsuranceOpted":travelInsuranceOpted,
-            "passengerList": passengerList,
-            "mobileNumber": mobileNumber,
-            "autoUpgradationSelected": autoUpgradationSelected,
-            "boardingStation": boardingStation,
-            "reservationMode": reservationMode,//B2B_WEB_OTP
-            "clientTransactionId": clientTransactionId,
-            "gstDetailInputFlag": gstDetailInputFlag,
-            "agentDeviceId": agentDeviceId,
-            "infantList": infantList,
-            "gstDetails": gstDetails
-        };
+    let queryParams = {
+      masterId: "WKAFL00000",
+      wsUserLogin: "WKAFL00001",
+      enquiryType: "3",
+      reservationChoice: "99",
+      moreThanOneDay: "true",
+      ignoreChoiceIfWl: ignoreChoiceIfWl,
+      gnToCkOpted: "false",
+      ticketType: ticketType,
+      travelInsuranceOpted: travelInsuranceOpted,
+      passengerList: passengerList,
+      mobileNumber: mobileNumber,
+      autoUpgradationSelected: autoUpgradationSelected,
+      boardingStation: boardingStation,
+      reservationMode: reservationMode, //B2B_WEB_OTP
+      clientTransactionId: clientTransactionId,
+      gstDetailInputFlag: gstDetailInputFlag,
+      agentDeviceId: agentDeviceId,
+      infantList: infantList,
+      gstDetails: gstDetails,
+    };
     const response = (
       await axios.post(url, queryParams, { headers: { Authorization: auth } })
     )?.data;
@@ -293,14 +296,14 @@ const DecodeToken = async (req, res) => {
 
     if (!data) {
       return {
-        response: "Token not found"
+        response: "Token not found",
       };
     }
 
     let successHtmlCode
     // Decode the Base64 token
-    const responseData = Buffer.from(data, 'base64').toString('utf-8');
-    
+    const responseData = Buffer.from(data, "base64").toString("utf-8");
+
     // Log the decoded data to check its structure
     console.log("Decoded Data: ", responseData);
 
@@ -309,131 +312,35 @@ const DecodeToken = async (req, res) => {
     try {
       jsonData = JSON.parse(responseData);
       let bookingDateStr =jsonData.bookingDate;
-      if(!bookingDateStr||!jsonData.reservationId||jsonData.pnrNumber){
-   return     successHtmlCode=`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Failed Rail Ticket</title>
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f5f5f5;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
+      bookingDateStr = bookingDateStr.replace(".0", "").replace(" IST", "");
 
-.container {
-  width: 100%;
-  max-width: 400px;
-  padding: 20px;
-}
+      let [datePart, timePart] = bookingDateStr.split(" ");
 
-.card {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  padding: 30px;
-}
+      let [day, month, year] = datePart.split("-");
+      let formattedDate = `${year}-${month}-${day}T${timePart}`;
 
-.icon img {
-  width: 50px;
-  height: 50px;
-  margin-bottom: 20px;
-}
+      jsonData.bookingStatus = "CONFIRMED";
 
-h1 {
-  font-size: 24px;
-  margin-bottom: 10px;
-  color: #ff4d4d;
-}
-
-p {
-  font-size: 16px;
-  color: #555;
-  margin-bottom: 30px;
-}
-
-.options {
-  display: flex;
-  justify-content: space-between;
-}
-
-.retry-btn, .contact-btn {
-  background-color: #ff4d4d;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-}
-
-.retry-btn:hover, .contact-btn:hover {
-  background-color: #ff3333;
-}
-
-.retry-btn {
-  margin-right: 10px;
-}
-
-</style>
-</head>
-<body>
-  <div class="container">
-    <div class="card">
-      <div class="icon">
-        <img src="https://img.icons8.com/ios-filled/50/ff0000/error--v1.png" alt="Failed">
-      </div>
-      <h1>Booking Failed</h1>
-      <p>We're sorry, but your rail ticket booking could not be completed.</p>
-      <div class="options">
-        <button class="retry-btn" onclick="retryBooking()">Retry Booking</button>
-        <button class="contact-btn" onclick="contactSupport()">Contact Support</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function retryBooking() {
-      alert("Redirecting to retry booking...");
-      // Add functionality to retry the booking here
-    }
-
-    function contactSupport() {
-      alert("Redirecting to contact support...");
-      // Add functionality to contact support here
-    }
-  </script>
-</body>
-</html>
-`
+      jsonData.bookingDate = new Date(formattedDate);
+      console.log(jsonData.clientTransactionId);
+      if (jsonData?.reservationId && jsonData?.pnrNumber) {
+        const qrCodeData = prepareRailBookingQRDataString({
+          booking: jsonData,
+        });
+        if (qrCodeData) {
+          const qrImage = await generateQR({
+            text: qrCodeData,
+            fileName: `${Date.now()}-${jsonData.pnrNumber}.png`,
+          });
+          if (qrImage) jsonData.qrImage = qrImage;
+        }
       }
-
-bookingDateStr = bookingDateStr.replace(".0", "").replace(" IST", "");
-
-let [datePart, timePart] = bookingDateStr.split(" ");
-
-let [day, month, year] = datePart.split("-");
-let formattedDate = `${year}-${month}-${day}T${timePart}`;
-
-
-      jsonData.bookingStatus="CONFIRMED";
-
-      jsonData.bookingDate=new Date(formattedDate)
-      console.log(jsonData.clientTransactionId)
-      const updaterailBooking=await RailBookingSchema.findOneAndUpdate({clientTransactionId:jsonData.clientTransactionId},{$set:jsonData},{new:true})
+      const updaterailBooking = await RailBookingSchema.findOneAndUpdate(
+        { clientTransactionId: jsonData.clientTransactionId },
+        { $set: jsonData },
+        { new: true }
+      );
        successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -492,39 +399,36 @@ let formattedDate = `${year}-${month}-${day}T${timePart}`;
             <p>PNR No.: ${updaterailBooking.pnrNumber}</p>
           <a href="${
             Config[Config.MODE].baseURL
-          }/home/manageRailBooking/railCartDetails?bookingId=${updaterailBooking.clientTransactionId}">Go to Merchant...</a>
+          }/home/manageRailBooking/railCartDetails?bookingId=${
+        updaterailBooking.clientTransactionId
+      }">Go to Merchant...</a>
         </div>
       </body>
  
       </html>`;
-      return successHtmlCode
+      return successHtmlCode;
     } catch (jsonError) {
-      console.log(jsonError.message)
+      console.log(jsonError.message);
       return {
         response: "Invalid JSON format",
-        error: jsonError.message
+        error: jsonError.message,
       };
     }
 
     // If JSON parsing succeeds, return the data
-    
-
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({
       message: "Something went wrong on the server",
-      error: error.message
+      error: error.message,
     });
   }
 };
-
-
-
 
 module.exports = {
   getRailSearch,
   railSearchBtwnDate,
   railRouteView,
   railFareEnquiry,
-  DecodeToken
+  DecodeToken,
 };

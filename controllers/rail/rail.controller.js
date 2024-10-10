@@ -20,6 +20,7 @@ const RailCancellation = require("../../models/Irctc/rail-cancellation");
 const { fetchRailRefundDetails } = require("./rail-refund-details.service");
 const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
 const moment = require("moment");
+const { fetchTxnHistory, fileTDR } = require("./tdr.service");
 // const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
 
 const railSearch = async (req, res) => {
@@ -465,9 +466,9 @@ async function updateCancellationDetails(req, res) {
 async function fetchCancellations(req, res) {
   try {
     // date,
-    const { companyId, isRefunded, fromDate, toDate } = req.body;
+    const { companyId, agencyId, isRefunded, fromDate, toDate } = req.body;
     const query = {
-      ...(companyId && { companyId: new ObjectId(companyId) }),
+      ...(agencyId && { agencyId: new ObjectId(agencyId) }),
       ...(isRefunded != null && { isRefunded }),
     };
 
@@ -509,7 +510,7 @@ async function fetchCancellations(req, res) {
       if (moment(toDate).isBefore(fromDate)) {
         return apiErrorres(
           res,
-          "Invalid Fromdate | Todate, Todate Must Be A Date Greater Than Or Equal To Fromdate",
+          "Invalid From Date | To Date, To Date Must Be A Date Greater Than Or Equal To From Date",
           400,
           true
         );
@@ -535,6 +536,22 @@ async function fetchCancellations(req, res) {
 
 async function handleFetchTxnHistory(req, res) {
   try {
+    const { Authentication, txnId } = req.body;
+    if (!Authentication || !txnId)
+      return apiErrorres(
+        res,
+        "Missing Fields | Authentication or txnId",
+        400,
+        true
+      );
+    const { result, error } = await fetchTxnHistory(req.body);
+    if (error) return apiErrorres(res, error, 400, result);
+    return apiSucessRes(
+      res,
+      "History Fetched",
+      result,
+      ServerStatusCode.SUCESS_CODE
+    );
   } catch (error) {
     console.log({ error });
     return res.status(400).json({
@@ -544,7 +561,33 @@ async function handleFetchTxnHistory(req, res) {
     });
   }
 }
-async function handleTDRRequest(req, res) {}
+async function handleTDRRequest(req, res) {
+  try {
+    const { Authentication, txnId, passengerToken, reasonIndex } = req.body;
+    if (!Authentication || !txnId || !passengerToken || !reasonIndex)
+      return apiErrorres(
+        res,
+        "Missing Fields | Authentication or txnId or passengerToken or reasonIndex",
+        400,
+        true
+      );
+    const { result, error } = await fileTDR(req.body);
+    if (error) return apiErrorres(res, error, 400, result);
+    return apiSucessRes(
+      res,
+      "TDR Requested",
+      result,
+      ServerStatusCode.SUCESS_CODE
+    );
+  } catch (error) {
+    console.log({ error });
+    return res.status(400).json({
+      IsSucess: false,
+      message: "something went wrong",
+      error: error.message,
+    });
+  }
+}
 
 module.exports = {
   railSearch,

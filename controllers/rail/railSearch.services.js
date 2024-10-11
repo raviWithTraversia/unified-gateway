@@ -325,22 +325,16 @@ const railBoardingEnquiry = async (req, res) => {
       return { response: "companyId must be TMC" };
     }
     let renewDate = journeyDate.split("-");
-    let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/railBoardingEnquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}`;
+    let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/railBoardingEnquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}`;
+      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
     }
 
-    let queryParams = {
-      masterId: "WKAFL00000",
-      wsUserLogin: "WKAFL00001",
-      enquiryType: "3",
-      reservationChoice: "99",
-      moreThanOneDay: "true",
-      gnToCkOpted: "false",
-     };
+    
+  
     const response = (
-      await axios.post(url, queryParams, { headers: { Authorization: auth } })
+      await axios.get(url, { headers: { Authorization: auth } })
     )?.data;
     // console.log(response);
     if (!response) {
@@ -359,6 +353,125 @@ const railBoardingEnquiry = async (req, res) => {
   }
 };
 
+// change boarding Station
+
+const ChangeBoardingStation = async (req, res) => {
+  try {
+    const {
+      pnr,
+      boardingStation,
+      Authentication,
+      
+    } = req.body;
+    if ((!pnr, !Authentication)) {
+      return { response: "Provide required fields" };
+    }
+    if (!["LIVE", "TEST"].includes(Authentication.CredentialType)) {
+      return {
+        IsSucess: false,
+        response: "Credential Type does not exist",
+      };
+    }
+    const checkUser = await User.findById(Authentication.UserId).populate(
+      "roleId"
+    );
+    const checkCompany = await Company.findById(Authentication.CompanyId);
+    if (!checkUser || !checkCompany) {
+      return { response: "Either User or Company must exist" };
+    }
+    if (checkUser?.roleId?.name !== "Agency") {
+      return { response: "User role must be Agency" };
+    }
+    if (checkCompany?.type !== "TMC") {
+      return { response: "companyId must be TMC" };
+    }
+    let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/changeBoardingPoint/${pnr}/${boardingStation}`;
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    if (Authentication.CredentialType === "LIVE") {
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/changeBoardingPoint/${pnr}/${boardingStation}`;
+    }
+
+    
+  
+    const response = (
+      await axios.get(url, { headers: { Authorization: auth } })
+    )?.data;
+    // console.log(response);
+    if (!response) {
+      return {
+        response: "Error in fetching data",
+      };
+    } else {
+      return {
+        response: "Fetch Data Successfully",
+        data: response,
+      };
+    }
+  } catch (error) {
+    console.log(error, "error");
+   
+  }
+};
+
+
+// Pnr enquiry 
+
+const PnrEnquirry = async (req, res) => {
+  try {
+    const {
+      pnr,
+      Authentication,
+      
+    } = req.body;
+    if ((!pnr, !Authentication)) {
+      return { response: "Provide required fields" };
+    }
+    if (!["LIVE", "TEST"].includes(Authentication.CredentialType)) {
+      return {
+        IsSucess: false,
+        response: "Credential Type does not exist",
+      };
+    }
+    const checkUser = await User.findById(Authentication.UserId).populate(
+      "roleId"
+    );
+    const checkCompany = await Company.findById(Authentication.CompanyId);
+    if (!checkUser || !checkCompany) {
+      return { response: "Either User or Company must exist" };
+    }
+    if (checkUser?.roleId?.name !== "Agency") {
+      return { response: "User role must be Agency" };
+    }
+    if (checkCompany?.type !== "TMC") {
+      return { response: "companyId must be TMC" };
+    }
+    let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/pnrenquiry/${pnr}`;
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    if (Authentication.CredentialType === "LIVE") {
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/pnrenquiry/${pnr}`;
+    }
+
+    console.log(url,"url")
+  
+    const response = (
+      await axios.get(url, { headers: { Authorization: auth } })
+    )?.data;
+    // console.log(response);
+    if (!response) {
+      return {
+        response: "Error in fetching data",
+      };
+    } else {
+      return {
+        response: "Fetch Data Successfully",
+        data: response,
+      };
+    }
+  } catch (error) {
+    console.log(error, "error");
+   
+  }
+};
 
 const DecodeToken = async (req, res) => {
   try {
@@ -501,5 +614,7 @@ module.exports = {
   railRouteView,
   railFareEnquiry,
   DecodeToken,
-  railBoardingEnquiry
+  railBoardingEnquiry,
+  ChangeBoardingStation,
+  PnrEnquirry
 };

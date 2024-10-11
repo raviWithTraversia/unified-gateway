@@ -42,6 +42,8 @@ module.exports.fileTDR = async (request) => {
     if (response.error) {
       tdrRequest.status = "Failed";
       tdrRequest.failReason = response.error;
+      await tdrRequest.save();
+      return { error: response.error, result: tdrRequest };
     }
     await tdrRequest.save();
     return { result: tdrRequest };

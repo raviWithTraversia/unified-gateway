@@ -17,6 +17,8 @@ rail_route.post("/rail/stationName", auth, railController.getTrainStation);
 rail_route.post("/rail/railRoute", auth, railController.getTrainRoute);
 rail_route.post("/rail/fareEnquiry", auth, railController.getFareEnquiry);
 rail_route.post("/rail/get-boarding-station", auth, railController.getBoardingStation);
+rail_route.post("/rail/Change-boarding-station", auth, railController.ChangeBoardingStation);
+
 
 rail_route.post("/rail/manualDebitCredit", auth, balance.manualDebitCredit);
 rail_route.post("/rail/bookingSave", railController.DecodeToken);

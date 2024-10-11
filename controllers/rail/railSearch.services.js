@@ -353,6 +353,66 @@ const railBoardingEnquiry = async (req, res) => {
   }
 };
 
+// change boarding Station
+
+const ChangeBoardingStation = async (req, res) => {
+  try {
+    const {
+      pnr,
+      boardingStation,
+      Authentication,
+      
+    } = req.body;
+    if ((!pnr, !Authentication)) {
+      return { response: "Provide required fields" };
+    }
+    if (!["LIVE", "TEST"].includes(Authentication.CredentialType)) {
+      return {
+        IsSucess: false,
+        response: "Credential Type does not exist",
+      };
+    }
+    const checkUser = await User.findById(Authentication.UserId).populate(
+      "roleId"
+    );
+    const checkCompany = await Company.findById(Authentication.CompanyId);
+    if (!checkUser || !checkCompany) {
+      return { response: "Either User or Company must exist" };
+    }
+    if (checkUser?.roleId?.name !== "Agency") {
+      return { response: "User role must be Agency" };
+    }
+    if (checkCompany?.type !== "TMC") {
+      return { response: "companyId must be TMC" };
+    }
+    let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/changeBoardingPoint/${pnr}/${boardingStation}`;
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    if (Authentication.CredentialType === "LIVE") {
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/changeBoardingPoint/${pnr}/${boardingStation}`;
+    }
+
+    
+  
+    const response = (
+      await axios.get(url, { headers: { Authorization: auth } })
+    )?.data;
+    // console.log(response);
+    if (!response) {
+      return {
+        response: "Error in fetching data",
+      };
+    } else {
+      return {
+        response: "Fetch Data Successfully",
+        data: response,
+      };
+    }
+  } catch (error) {
+    console.log(error, "error");
+   
+  }
+};
+
 
 const DecodeToken = async (req, res) => {
   try {
@@ -495,5 +555,6 @@ module.exports = {
   railRouteView,
   railFareEnquiry,
   DecodeToken,
-  railBoardingEnquiry
+  railBoardingEnquiry,
+  ChangeBoardingStation
 };

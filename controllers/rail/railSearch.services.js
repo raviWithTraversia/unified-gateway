@@ -388,7 +388,7 @@ const ChangeBoardingStation = async (req, res) => {
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/changeBoardingPoint/${pnr}/${boardingStation}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/changeBoardingPointgit/${pnr}/${boardingStation}`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/changeBoardingPoint/${pnr}/${boardingStation}`;
     }
 
     
@@ -413,6 +413,65 @@ const ChangeBoardingStation = async (req, res) => {
   }
 };
 
+
+// Pnr enquiry 
+
+const PnrEnquirry = async (req, res) => {
+  try {
+    const {
+      pnr,
+      Authentication,
+      
+    } = req.body;
+    if ((!pnr, !Authentication)) {
+      return { response: "Provide required fields" };
+    }
+    if (!["LIVE", "TEST"].includes(Authentication.CredentialType)) {
+      return {
+        IsSucess: false,
+        response: "Credential Type does not exist",
+      };
+    }
+    const checkUser = await User.findById(Authentication.UserId).populate(
+      "roleId"
+    );
+    const checkCompany = await Company.findById(Authentication.CompanyId);
+    if (!checkUser || !checkCompany) {
+      return { response: "Either User or Company must exist" };
+    }
+    if (checkUser?.roleId?.name !== "Agency") {
+      return { response: "User role must be Agency" };
+    }
+    if (checkCompany?.type !== "TMC") {
+      return { response: "companyId must be TMC" };
+    }
+    let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/pnrenquiry/${pnr}`;
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    if (Authentication.CredentialType === "LIVE") {
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/pnrenquiry/${pnr}`;
+    }
+
+    console.log(url,"url")
+  
+    const response = (
+      await axios.get(url, { headers: { Authorization: auth } })
+    )?.data;
+    // console.log(response);
+    if (!response) {
+      return {
+        response: "Error in fetching data",
+      };
+    } else {
+      return {
+        response: "Fetch Data Successfully",
+        data: response,
+      };
+    }
+  } catch (error) {
+    console.log(error, "error");
+   
+  }
+};
 
 const DecodeToken = async (req, res) => {
   try {
@@ -556,5 +615,6 @@ module.exports = {
   railFareEnquiry,
   DecodeToken,
   railBoardingEnquiry,
-  ChangeBoardingStation
+  ChangeBoardingStation,
+  PnrEnquirry
 };

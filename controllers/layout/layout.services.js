@@ -57,7 +57,7 @@ let bookingDetailsQuery = {
     getBookingDetails.map(item => {
       if (item.bookingStatus == "PENDING") pending++;
       if (item.bookingStatus == "HOLD") hold++;
-      if (item.bookingStatus == "FAILEDPAYMENT") failedAtPayment++;
+      if (item.bookingStatus == "FAILED PAYMENT") failedAtPayment++;
       if (item.bookingStatus == "FAILED") allFailed++;
       if (item.bookingStatus == "REFUND") refund++;
       if (item.bookingStatus == "CANCELLATION PENDING") cancelPending++;

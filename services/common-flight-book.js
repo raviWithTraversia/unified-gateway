@@ -14,7 +14,7 @@ module.exports.commonFlightBook = async function (request) {
         .additionalFlightsBaseURL + "/booking/airbooking";
 
     const { data: response } = await axios.post(url, requestBody);
-    return { result: response };
+    return { result: { response, requestBody } };
   } catch (error) {
     console.log({ error });
     console.dir({ response: error?.response?.data }, { depth: null });

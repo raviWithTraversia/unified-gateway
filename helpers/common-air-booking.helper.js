@@ -137,6 +137,7 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
     lastName: traveler.LName,
     age: traveler.Age ?? "0",
     dob: traveler.Dob ?? "",
+    gender: traveler.Gender?.at?.(0)?.toUpperCase?.() || "",
     passportDetails: null,
     contactDetails: {
       address1: "",

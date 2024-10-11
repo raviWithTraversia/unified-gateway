@@ -21,6 +21,7 @@ const { fetchRailRefundDetails } = require("./rail-refund-details.service");
 const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
 const moment = require("moment");
 const agentConfig=require('../../models/AgentConfig')
+const Railleadger=require('../../models/Irctc/ledgerRail')
 const { fetchTxnHistory, fileTDR } = require("./tdr.service");
 // const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
 
@@ -571,7 +572,33 @@ async function updateCancellationDetails(req, res) {
         ResponseStatusCode: 404,
         Error: true,
       });
-const agencyConfig=await agentConfig.findOneAndUpdate({userId:cancellationDetails.userId},{$set:{$inc:{railCashBalance:refundAmount}}},{new:true})
+      const agencyConfig = await agentConfig.findOneAndUpdate(
+        { userId: cancellationDetails.userId },  // Filter criteria to find the document
+        { $inc: { railCashBalance: refundAmount } },  // Increment the railCashBalance by refundAmount
+        { new: true }  // Return the updated document
+      );
+      
+if(!agencyConfig)
+  return res.status(200).json({
+    IsSucess: false,
+    Message: "agencyConfig Details Not Found",
+    ResponseStatusCode: 404,
+    Error: true,
+  });
+
+console.log(agencyConfig,"agencyConfing")
+await Railleadger.create({
+  userId: agencyConfig._id,
+  companyId: agencyConfig.companyId,
+  ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+  transactionAmount:refundAmount ,
+  currencyType: "INR",
+  fop: "CREDIT",
+  transactionType: "CREDIT",
+  runningAmount:agencyConfig.railCashBalance-refundAmount,
+  remarks: "Cancelation Refund Your account",
+  transactionBy: req.user._id,
+});
 
 
 

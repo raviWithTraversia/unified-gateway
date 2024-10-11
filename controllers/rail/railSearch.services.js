@@ -290,6 +290,70 @@ const railFareEnquiry = async (req, res) => {
   }
 };
 
+const railBoardingEnquiry = async (req, res) => {
+  try {
+    const {
+      trainNo,
+      journeyDate,
+      frmStn,
+      toStn,
+      jClass,
+      jQuota,
+      Authentication,
+      
+    } = req.body;
+    if ((!trainNo, !Authentication)) {
+      return { response: "Provide required fields" };
+    }
+    if (!["LIVE", "TEST"].includes(Authentication.CredentialType)) {
+      return {
+        IsSucess: false,
+        response: "Credential Type does not exist",
+      };
+    }
+    const checkUser = await User.findById(Authentication.UserId).populate(
+      "roleId"
+    );
+    const checkCompany = await Company.findById(Authentication.CompanyId);
+    if (!checkUser || !checkCompany) {
+      return { response: "Either User or Company must exist" };
+    }
+    if (checkUser?.roleId?.name !== "Agency") {
+      return { response: "User role must be Agency" };
+    }
+    if (checkCompany?.type !== "TMC") {
+      return { response: "companyId must be TMC" };
+    }
+    let renewDate = journeyDate.split("-");
+    let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    if (Authentication.CredentialType === "LIVE") {
+      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
+    }
+
+    
+  
+    const response = (
+      await axios.get(url, { headers: { Authorization: auth } })
+    )?.data;
+    // console.log(response);
+    if (!response) {
+      return {
+        response: "Error in fetching data",
+      };
+    } else {
+      return {
+        response: "Fetch Data Successfully",
+        data: response,
+      };
+    }
+  } catch (error) {
+    console.log(error, "error");
+   
+  }
+};
+
+
 const DecodeToken = async (req, res) => {
   try {
     const { data } = req.body;
@@ -300,17 +364,18 @@ const DecodeToken = async (req, res) => {
       };
     }
 
+    let successHtmlCode
     // Decode the Base64 token
     const responseData = Buffer.from(data, "base64").toString("utf-8");
 
     // Log the decoded data to check its structure
-    // console.log("Decoded Data: ", responseData);
+    console.log("Decoded Data: ", responseData);
 
     // Try parsing the decoded string as JSON
     let jsonData;
     try {
       jsonData = JSON.parse(responseData);
-      let bookingDateStr = jsonData.bookingDate;
+      let bookingDateStr =jsonData.bookingDate;
 
       bookingDateStr = bookingDateStr.replace(".0", "").replace(" IST", "");
 
@@ -340,7 +405,7 @@ const DecodeToken = async (req, res) => {
         { $set: jsonData },
         { new: true }
       );
-      let successHtmlCode = `<!DOCTYPE html>
+       successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
@@ -430,4 +495,5 @@ module.exports = {
   railRouteView,
   railFareEnquiry,
   DecodeToken,
+  railBoardingEnquiry
 };

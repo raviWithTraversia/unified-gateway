@@ -165,17 +165,7 @@ const userSchema = new mongoose.Schema({
     encryptUserId: {
         type: Object,
         default: {}
-    },
-    railSubAgentId:{
-        type:String,
-        default:""
-
-    },
-    railSubAgentPassword:{
-        type:String,
-        default:""
     }
-    
 }, { timestamps: true });
 const counterSchema = new mongoose.Schema({
     _id: { type: String, required: true },

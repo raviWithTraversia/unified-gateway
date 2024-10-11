@@ -20,6 +20,7 @@ const RailCancellation = require("../../models/Irctc/rail-cancellation");
 const { fetchRailRefundDetails } = require("./rail-refund-details.service");
 const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
 const moment = require("moment");
+const agentConfig=require('../../models/AgentConfig')
 const { fetchTxnHistory, fileTDR } = require("./tdr.service");
 // const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
 
@@ -551,6 +552,9 @@ async function updateCancellationDetails(req, res) {
         400,
         true
       );
+    
+
+
     const cancellationDetails = await RailCancellation.findOneAndUpdate({txnId:txnId},{$set:{
       refundAmount:refundAmount,
       cashDeducted:cancellationCharge,
@@ -559,6 +563,7 @@ async function updateCancellationDetails(req, res) {
     }},
       { new: true }
     );
+
     if (!cancellationDetails)
       return res.status(200).json({
         IsSucess: false,
@@ -566,6 +571,12 @@ async function updateCancellationDetails(req, res) {
         ResponseStatusCode: 404,
         Error: true,
       });
+const agencyConfig=await agentConfig.findOneAndUpdate({userId:cancellationDetails.userId},{$set:{$inc:{railCashBalance:refundAmount}}},{new:true})
+
+
+
+
+
 
     return res.status(200).json({
       IsSucess: true,

@@ -1087,25 +1087,35 @@ const updateCompayProfile = async (req, res) => {
 const agencyChangePassword = async (req, res) => {
   try {
     const { id, newPassword,email,railSubAgentId,railSubAgentPassword} = req.body;
-    let getUserByCompanyId = await User.findOne({ _id: id });
+    var message=""
+
+if(railSubAgentId||railSubAgentPassword){
+  if(railSubAgentId&&railSubAgentId!==undefined){
+    message="RailSubAgentId"
+  }
+
+if(railSubAgentPassword&&railSubAgentPassword!==undefined){
+    message='SubAgentPassword'
+  }
+const AgencyData=await agentConfigModel.findOne({userId:id})
+
+  const payloadObj={railSubAgentId:railSubAgentId?railSubAgentId:AgencyData.railSubAgentId,railSubAgentPassword:railSubAgentPassword?railSubAgentPassword:AgencyData.railSubAgentPassword};
+  await agentConfigModel.findByIdAndUpdate(AgencyData._id,{$set:payloadObj},{new:true})
+
+}else{
+
+let getUserByCompanyId = await User.findOne({ _id: id });
     if (!getUserByCompanyId) {
       return { response: "User doesn't exist" }
     }
-    var message=""
-    if(newPassword!==undefined){
+        if(newPassword!==undefined){
 message="Password"
    var  hashedPassword = await bcrypt.hash(newPassword, 10);
   }
   if(email&&email!==undefined){
     message="Email"
   }
-  if(railSubAgentId&&railSubAgentId!==undefined){
-    message="RailSubAgentId"
-  }
-
-  if(railSubAgentPassword&&railSubAgentPassword!==undefined){
-    message='SubAgentPassword'
-  }
+ 
     const UserExist=await User.findOne({email:email})
     if(UserExist){
 return({
@@ -1114,8 +1124,10 @@ return({
     }
     
     const userData=await User.findById(id)
-    const payload={ password: hashedPassword?hashedPassword:userData.password,email:email?email:userData.email,login_Id:email?email:userData.login_Id,railSubAgentId:railSubAgentId?railSubAgentId:userData.railSubAgentId,railSubAgentPassword:railSubAgentPassword?railSubAgentPassword:userData.railSubAgentPassword}
+    const payload={ password: hashedPassword?hashedPassword:userData.password,email:email?email:userData.email,login_Id:email?email:userData.login_Id}
     await User.findOneAndUpdate({ _id: id }, { $set: payload });
+
+  }
     return {
       response: `${message} Changed Sucessfully`
     };

@@ -3,7 +3,7 @@ const creditRequest = require('../../models/CreditRequest');
 const bookingdetails = require("../../models/booking/BookingDetails");
 const company = require("../../models/Company");
 const depositDetail = require("../../models/DepositRequest");
-const moment=require('moment')
+
 const axios = require('axios');
 const { Config } = require("../../configs/config");
 const registrationServices = require('../../controllers/registration/registration.services')
@@ -13,35 +13,41 @@ const dashBoardCount = async (req, res) => {
     let { companyId } = req.query;
     let data = {};
     let req1 = { params: { companyId: companyId } };
+    const ISTtoUTC = (time) => {
+      const istDate = new Date(time);
+      const utcDate = new Date(istDate.getTime() - 5.5 * 60 * 60 * 1000); // IST to UTC conversion
+      return utcDate;
+    };
     const today = new Date();
 
-// Set the fromDate to the start of the current day in UTC
-const fromDate = new Date(today.setUTCHours(0, 0, 0, 0));
+// Set IST start and end times for today
+const startOfDayIST = new Date(today.setUTCHours(0, 0, 0, 0));  // Start of today in IST
+const endOfDayIST = new Date(today.setUTCHours(23, 59, 59, 999));  // End of today in IST
 
-// Set the toDate to the end of the current day in UTC
-const toDate = new Date(today.setUTCHours(23, 59, 59, 999));
+// Convert IST start and end times to UTC for MongoDB query
+const startDateUTC = ISTtoUTC(startOfDayIST);
+const endDateUTC = ISTtoUTC(endOfDayIST);
 
-const dateId = {};
-if (fromDate || toDate) {
-  dateId.createdAt = {};
-
-  if (fromDate) {
-    // Ensure the fromDate is in the correct format and is a valid date
-    const startDate = moment.utc(fromDate).toDate();
-    dateId.createdAt["$gte"] = startDate;
+// Build date filter
+const dateId = {
+  createdAt: {
+    $gte: startDateUTC,  // Start of the day in UTC
+    $lte: endDateUTC     // End of the day in UTC
   }
+};
 
-  if (toDate) {
-    // Ensure the toDate is in the correct format and is a valid date
-    const endDate = moment.utc(toDate).toDate();
-    dateId.createdAt["$lte"] = endDate;
-  }
-}
+// Now use this filter in your MongoDB query
+let bookingDetailsQuery = {
+  companyId: companyId,
+  createdAt: dateId.createdAt // Use the date range filter
+};
+
+
 
     let [newRegistrationCount, creditReqCount, getBookingDetails, RegisteredAgentConfig, depositRequest] = await Promise.all([
       registrationServices.getAllRegistrationByCompany(req1, res),
       creditRequest.find({ companyId: companyId }),
-      bookingdetails.find({ dateId, companyId }, { bookingStatus: 1 }),
+      bookingdetails.find(bookingDetailsQuery, { bookingStatus: 1 }),,
       company.countDocuments({ parent: companyId }),
       depositDetail.countDocuments({ companyId, status: "pending" })
     ]);

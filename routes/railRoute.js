@@ -16,6 +16,8 @@ rail_route.post(
 rail_route.post("/rail/stationName", auth, railController.getTrainStation);
 rail_route.post("/rail/railRoute", auth, railController.getTrainRoute);
 rail_route.post("/rail/fareEnquiry", auth, railController.getFareEnquiry);
+rail_route.post("/rail/get-boarding-station", auth, railController.getBoardingStation);
+
 rail_route.post("/rail/manualDebitCredit", auth, balance.manualDebitCredit);
 rail_route.post("/rail/bookingSave", railController.DecodeToken);
 rail_route.post("/rail/start-booking", railBookingController.StartBookingRail);
@@ -48,6 +50,7 @@ rail_route.post(
 );
 rail_route.post("/rail/cancellations", railController.fetchCancellations);
 rail_route.post("/rail/txn-history", railController.handleFetchTxnHistory);
+rail_route.get("/rail/tdr-reasons", railController.handleFetchTDRReasons);
 rail_route.post("/rail/file-tdr", railController.handleTDRRequest);
 
 // easeBuzz_route.post('/paymentGateway/easeBussResponce', auth, easeBuzzController.easeBuzzResponce);

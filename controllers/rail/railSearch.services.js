@@ -290,6 +290,76 @@ const railFareEnquiry = async (req, res) => {
   }
 };
 
+const railBoardingEnquiry = async (req, res) => {
+  try {
+    const {
+      trainNo,
+      journeyDate,
+      frmStn,
+      toStn,
+      jClass,
+      jQuota,
+      Authentication,
+      
+    } = req.body;
+    if ((!trainNo, !Authentication)) {
+      return { response: "Provide required fields" };
+    }
+    if (!["LIVE", "TEST"].includes(Authentication.CredentialType)) {
+      return {
+        IsSucess: false,
+        response: "Credential Type does not exist",
+      };
+    }
+    const checkUser = await User.findById(Authentication.UserId).populate(
+      "roleId"
+    );
+    const checkCompany = await Company.findById(Authentication.CompanyId);
+    if (!checkUser || !checkCompany) {
+      return { response: "Either User or Company must exist" };
+    }
+    if (checkUser?.roleId?.name !== "Agency") {
+      return { response: "User role must be Agency" };
+    }
+    if (checkCompany?.type !== "TMC") {
+      return { response: "companyId must be TMC" };
+    }
+    let renewDate = journeyDate.split("-");
+    let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/railBoardingEnquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}`;
+    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    if (Authentication.CredentialType === "LIVE") {
+      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/railBoardingEnquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}`;
+    }
+
+    let queryParams = {
+      masterId: "WKAFL00000",
+      wsUserLogin: "WKAFL00001",
+      enquiryType: "3",
+      reservationChoice: "99",
+      moreThanOneDay: "true",
+      gnToCkOpted: "false",
+     };
+    const response = (
+      await axios.post(url, queryParams, { headers: { Authorization: auth } })
+    )?.data;
+    // console.log(response);
+    if (!response) {
+      return {
+        response: "Error in fetching data",
+      };
+    } else {
+      return {
+        response: "Fetch Data Successfully",
+        data: response,
+      };
+    }
+  } catch (error) {
+    console.log(error, "error");
+   
+  }
+};
+
+
 const DecodeToken = async (req, res) => {
   try {
     const { data } = req.body;
@@ -431,4 +501,5 @@ module.exports = {
   railRouteView,
   railFareEnquiry,
   DecodeToken,
+  railBoardingEnquiry
 };

@@ -574,6 +574,101 @@ async function fetchCancellations(req, res) {
   }
 }
 
+async function handleFetchTDRReasons(req, res) {
+  try {
+    const tdrReasons = [
+      {
+        reasonIndex: "2",
+        tdrReason:
+          "Train Late More Than Three Hours and Passenger Not Travelled.",
+      },
+      {
+        reasonIndex: "3",
+        tdrReason: "Difference Of Fare In Case proper Coach Not Attached.",
+      },
+      {
+        reasonIndex: "4",
+        tdrReason: "Ac Failure",
+      },
+      {
+        reasonIndex: "7",
+        tdrReason:
+          "Party Partially Travelled. (Journey terminated short of destination) ",
+      },
+      {
+        reasonIndex: "8",
+        tdrReason: "ALL Confirmed Passenger Not Travelled",
+      },
+      {
+        reasonIndex: "9",
+        tdrReason: "Train Diverted And Passenger Not Travelled",
+      },
+      {
+        reasonIndex: "11",
+        tdrReason: "Train Diverted And Train Not Touching Boarding Station.",
+      },
+      {
+        reasonIndex: "12",
+        tdrReason: "Train Diverted And Train Not Touching Destination Station.",
+      },
+      {
+        reasonIndex: "13",
+        tdrReason:
+          "Passenger Not Travelled As Reservation Provided In Lower Class.",
+      },
+      {
+        reasonIndex: "14",
+        tdrReason:
+          "Passenger Not Travelled Due To Ticket In RAC After Chart Preparation.",
+      },
+      {
+        reasonIndex: "15",
+        tdrReason: "Train Terminated Short Of Destination.",
+      },
+      {
+        reasonIndex: "17",
+        tdrReason:
+          "Party Partially Confirmed/Waitlisted And All Passengers Did Not Travel.",
+      },
+      {
+        reasonIndex: "16",
+        tdrReason:
+          "Party Partially Confirmed/Waitlisted And Waitlisted Passengers Did Not Travel.",
+      },
+      {
+        reasonIndex: "22",
+        tdrReason: "Difference Of Fare As Passenger Travelled In Lower Class.",
+      },
+      {
+        reasonIndex: "25",
+        tdrReason: "Passenger Not Travelled Due To Coach Damage.",
+      },
+      {
+        reasonIndex: "29",
+        tdrReason:
+          "Passengers Not Allowed To Travel by Railway due To COVID-19 Condition",
+      },
+      {
+        reasonIndex: "28",
+        tdrReason:
+          "Unable To Cancel Due To Train Restored After Train Cancellation.",
+      },
+    ];
+    return apiSucessRes(
+      res,
+      "TDR Reasons Fetched",
+      tdrReasons,
+      ServerStatusCode.SUCESS_CODE
+    );
+  } catch (error) {
+    console.log({ error });
+    return res.status(400).json({
+      IsSucess: false,
+      message: "something went wrong",
+      error: error.message,
+    });
+  }
+}
 async function handleFetchTxnHistory(req, res) {
   try {
     const { Authentication, txnId } = req.body;
@@ -604,10 +699,18 @@ async function handleFetchTxnHistory(req, res) {
 async function handleTDRRequest(req, res) {
   try {
     const { Authentication, txnId, passengerToken, reasonIndex } = req.body;
-    if (!Authentication || !txnId || !passengerToken || !reasonIndex)
+    if (
+      !Authentication ||
+      !txnId ||
+      !passengerToken ||
+      !reasonIndex ||
+      !Authentication?.UserId ||
+      !Authentication?.Agency ||
+      !Authentication?.CompanyId
+    )
       return apiErrorres(
         res,
-        "Missing Fields | Authentication or txnId or passengerToken or reasonIndex",
+        "Missing Fields | Authentication or txnId or passengerToken or reasonIndex or Authentication.UserId or Authentication.CompanyId or Authentication.Agency",
         400,
         true
       );
@@ -643,7 +746,9 @@ module.exports = {
   fetchRefundDetails,
   updateCancellationDetails,
   fetchCancellations,
+  handleFetchTDRReasons,
   handleFetchTxnHistory,
+
   handleTDRRequest,
   getBoardingStation
 };

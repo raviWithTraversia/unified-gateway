@@ -332,16 +332,9 @@ const railBoardingEnquiry = async (req, res) => {
     }
 
     
-    let queryParams = {
-      masterId: "WKAFL00000",
-      wsUserLogin: "WKAFL00001",
-      enquiryType: "3",
-      reservationChoice: "99",
-      moreThanOneDay: "true",
-      gnToCkOpted: "false",
-     };
+  
     const response = (
-      await axios.get(url, queryParams, { headers: { Authorization: auth } })
+      await axios.get(url, { headers: { Authorization: auth } })
     )?.data;
     // console.log(response);
     if (!response) {

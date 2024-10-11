@@ -325,12 +325,13 @@ const railBoardingEnquiry = async (req, res) => {
       return { response: "companyId must be TMC" };
     }
     let renewDate = journeyDate.split("-");
-    let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/railBoardingEnquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}`;
+    let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/railBoardingEnquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}`;
+      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
     }
 
+    
     let queryParams = {
       masterId: "WKAFL00000",
       wsUserLogin: "WKAFL00001",
@@ -340,7 +341,7 @@ const railBoardingEnquiry = async (req, res) => {
       gnToCkOpted: "false",
      };
     const response = (
-      await axios.post(url, queryParams, { headers: { Authorization: auth } })
+      await axios.get(url, queryParams, { headers: { Authorization: auth } })
     )?.data;
     // console.log(response);
     if (!response) {

@@ -385,10 +385,10 @@ const ChangeBoardingStation = async (req, res) => {
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }
-    let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/changeBoardingPoint/${pnr}/${boardingStation}`;
+    let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/changeBoardingPoint/${pnr}/${boardingStation}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/changeBoardingPoint/${pnr}/${boardingStation}`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/changeBoardingPointgit /${pnr}/${boardingStation}`;
     }
 
     

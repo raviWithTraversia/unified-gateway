@@ -130,7 +130,7 @@ agentconfigurations: 1,
   
   // console.log(CancelBookingData[0]?.itinerary,"jdi")
   // const DealAmountAndTds=await 
-  invoiceNumber =CancelBookingData[0]?.agentconfigurations?.CreditNotesPrefix  + invoiceRandomNumber;
+  invoiceNumber =CancelBookingData[0]?.agentconfigurations?.RailCreditNotesPrefix + invoiceRandomNumber;
   
   console.log(invoiceNumber)
   

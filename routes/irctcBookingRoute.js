@@ -35,4 +35,12 @@ irctcBookingRoute.post(
   irctcBookingController.RailinvoiceGenerator
 );
 
+irctcBookingRoute.post(
+  "/irctc-credit-notes",
+  auth,
+  irctcBookingController.RailCreditNotes
+);
+
+
+
 module.exports = irctcBookingRoute;

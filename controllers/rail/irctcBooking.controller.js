@@ -6,6 +6,7 @@ const {
   errorResponse,
   CrudMessage,
 } = require("../../utils/constants");
+const creditNotesService=require('./creditNote')
 
 const createIrctcBooking = async (req, res) => {
   try {
@@ -159,11 +160,48 @@ const RailinvoiceGenerator = async (req, res) => {
           true
       );
   }
-}
+};
+
+const RailCreditNotes = async (req, res) => {
+  try {
+    const result = await creditNotesService.RailCreditNotes(
+      req,
+      res
+    ); 
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "User id does not exist" || result.response === "Error in updating assignedUser") {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);   
+     } else if (result.response === "Fetch Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
 module.exports = {
   createIrctcBooking,
   irctcPaymentSubmit,
   boardingstationenq,
   irctcAmountDeduction,
-  RailinvoiceGenerator
+  RailinvoiceGenerator,
+  RailCreditNotes
 };

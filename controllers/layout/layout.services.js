@@ -47,7 +47,7 @@ let bookingDetailsQuery = {
     let [newRegistrationCount, creditReqCount, getBookingDetails, RegisteredAgentConfig, depositRequest] = await Promise.all([
       registrationServices.getAllRegistrationByCompany(req1, res),
       creditRequest.find({ companyId: companyId }),
-      bookingdetails.find(bookingDetailsQuery, { bookingStatus: 1 }),,
+      bookingdetails.find(bookingDetailsQuery, { bookingStatus: 1 }),
       company.countDocuments({ parent: companyId }),
       depositDetail.countDocuments({ companyId, status: "pending" })
     ]);
@@ -80,7 +80,6 @@ let bookingDetailsQuery = {
     data['amendement'] = amendement;
     data['cancelPending'] = cancelPending;
     data['confirmed'] = confirmed;
-    
 
     if (newRegistrationCount) {
       return {

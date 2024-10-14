@@ -2763,17 +2763,12 @@ const getBillingData = async (req, res) => {
           $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0],
         },
 
-        itemAmount: {
-          $add: [
-            {
-              $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0],
-            },
-            "$Passengers.totalBaggagePrice",
-            "$Passengers.totalMealPrice",
-            "$Passengers.totalSeatPrice",
-          ],
-        },
-      },
+        totalBaggagePrice:"$Passengers.totalBaggagePrice",
+        totalMealPrice: "$Passengers.totalMealPrice",
+        totalSeatPrice:"$Passengers.totalSeatPrice",
+
+        itemAmount:"0"
+      }
     },
   ]);
 
@@ -2781,40 +2776,66 @@ const getBillingData = async (req, res) => {
   let processedBookingIds = new Set();
 
   for (const [index, element] of billingData.entries()) {
-    element.getCommercialArray.map((items) => {
+    // Initialize baseFare and airlineTax based on PaxType (ADT, CHD, INF)
+    switch (element.paxType) {
+      case "ADT": // Adult
+        element.baseFare = element.itinerary.PriceBreakup[0]?.BaseFare || 0;
+        element.airlineTax = element.itinerary.PriceBreakup[0]?.Tax || 0;
+        break;
+      case "CHD": // Child
+        element.baseFare = element.itinerary.PriceBreakup[1]?.BaseFare || 0;
+        element.airlineTax = element.itinerary.PriceBreakup[1]?.Tax || 0;
+        break;
+      case "INF": // Infant
+        element.baseFare = element.itinerary.PriceBreakup[2]?.BaseFare || 0;
+        element.airlineTax = element.itinerary.PriceBreakup[2]?.Tax || 0;
+        break;
+      default:
+        element.baseFare = 0;
+        element.airlineTax = 0;
+    }
+  
+    // Calculate itemAmount as the sum of baseFare, totalBaggagePrice, totalMealPrice, and totalSeatPrice
+    element.totalBaggagePrice = element.totalBaggagePrice || 0;
+    element.totalMealPrice = element.totalMealPrice || 0;
+    element.totalSeatPrice = element.totalSeatPrice || 0;
+  
+    element.itemAmount = element.baseFare + element.totalBaggagePrice + element.totalMealPrice + element.totalSeatPrice;
+  
+    // Map through getCommercialArray and calculate commission and TDS
+    element.getCommercialArray?.map((items) => {
       if (element.paxType === items.PassengerType) {
-        element.baseFare = items?.BaseFare;
-        element.airlineTax = items?.Tax;
+        element.baseFare = items?.BaseFare || element.baseFare;
+        element.airlineTax = items?.Tax || element.airlineTax;
         items.CommercialBreakup.map((item) => {
-          if (item.CommercialType == "Discount") {
+          if (item.CommercialType === "Discount") {
             element.commission = parseFloat(
-              (parseFloat(element.cashback) + parseFloat(item.Amount)).toFixed(
-                2
-              )
+              (parseFloat(element.cashback || 0) + parseFloat(item.Amount)).toFixed(2)
             );
           }
-          if (item.CommercialType == "TDS") {
+          if (item.CommercialType === "TDS") {
             element.tds = parseFloat(
-              (parseFloat(element.tds) + parseFloat(item.Amount)).toFixed(2)
+              (parseFloat(element.tds || 0) + parseFloat(item.Amount)).toFixed(2)
             );
           }
         });
       }
     });
-
-    let getTdsamount = await getTdsAndDsicount([element.itinerary]);
-
+  
+    // Check if the bookingId is already processed to avoid duplicate commissions and TDS
     if (processedBookingIds.has(element.bookingId)) {
       element.commission = 0;
       element.tds = 0;
       delete element.itinerary;
     } else {
+      let getTdsamount = await getTdsAndDsicount([element.itinerary]);
       element.commission = getTdsamount.ldgrdiscount;
       element.tds = getTdsamount.ldgrtds;
       processedBookingIds.add(element.bookingId);
       delete element.itinerary;
     }
-
+  
+    // Handle ticket number and other details
     let ticketNumber = [element.pnr];
     if (element.ticketNo?.ticketDetails) {
       ticketNumber = await getTicketNumberBySector(
@@ -2823,19 +2844,26 @@ const getBillingData = async (req, res) => {
       );
     }
     element.ticketNo =
-      ticketNumber.length != 0 &&
+      ticketNumber.length !== 0 &&
       ticketNumber[0] != null &&
-      ticketNumber[0] != ""
+      ticketNumber[0] !== ""
         ? ticketNumber[0]
         : element.pnr;
-
+  
+    // Convert dates to IST time format
     element.id = index + 1;
     element.travelDateOutbound = await ISTTime(element.travelDateOutbound);
     element.travelDateInbound = await ISTTime(element.travelDateInbound);
     element.issueDate = await ISTTime(element.issueDate);
+  
+    // Clean up fields before returning the final result
     delete element.getCommercialArray;
     delete element.baseFare;
+    delete element.totalBaggagePrice;
+    delete element.totalMealPrice;
+    delete element.totalSeatPrice;
   }
+  
 
   if (!billingData.length) {
     return {

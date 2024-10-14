@@ -183,7 +183,9 @@ RailInvoiceingPrefix: {
 RailCreditNotesPrefix:{
   type:String
 },
-
+RailbookingPrefix: {
+  type: String
+},
 
 
 }, { timestamps: true, });

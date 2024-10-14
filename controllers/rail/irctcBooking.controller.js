@@ -7,6 +7,7 @@ const {
   CrudMessage,
 } = require("../../utils/constants");
 const creditNotesService=require('./creditNote')
+const idCreation=require('./idCreation')
 
 const createIrctcBooking = async (req, res) => {
   try {
@@ -197,11 +198,45 @@ const RailCreditNotes = async (req, res) => {
     );
   }
 };
+
+const RailgetIdCreation = async (req, res) => {
+  try {
+    const result = await idCreation.getIdCreation(req, res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "TMC Compnay id does not exist" || result.response === "No data found for the given companyId" || result.response === "No data found for the given Prefix" || result.response === "Not Found" || result.response === "No Update") {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "Fetch Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
 module.exports = {
   createIrctcBooking,
   irctcPaymentSubmit,
   boardingstationenq,
   irctcAmountDeduction,
   RailinvoiceGenerator,
-  RailCreditNotes
+  RailCreditNotes,
+  RailgetIdCreation
 };

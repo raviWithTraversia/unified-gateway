@@ -174,7 +174,12 @@ const agentConfigSchema = new mongoose.Schema({
 railSubAgentPassword:{
     type:String,
     default:""
-}
+},
+
+RailInvoiceingPrefix: {
+  type: String
+},
+
 
 
 }, { timestamps: true, });

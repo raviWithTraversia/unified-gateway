@@ -1,5 +1,6 @@
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const irctcBookingService = require("./irctcBooking.service");
+const invoiceGeneratorService=require('./invoiceGenereter')
 const {
   ServerStatusCode,
   errorResponse,
@@ -128,9 +129,41 @@ const irctcAmountDeduction = async (req, res) => {
     );
   }
 };
+
+const RailinvoiceGenerator = async (req, res) => {
+  try {
+      const result = await invoiceGeneratorService.RailInoviceGerneter(req, res);
+      if (result.response ==="BookingId is required." || result.response ==="Pnr BookingId is required."||result.response==="Invoice not found") {
+          apiErrorres(res, result.response, ServerStatusCode.SERVER_ERROR, true);
+      } else if (result.response === "Invoice Generated Successfully!") {
+          apiSucessRes(
+              res,
+              result.response,
+              result.data,
+              ServerStatusCode.SUCESS_CODE
+          );
+      } else {
+          apiErrorres(
+              res,
+              errorResponse.SOME_UNOWN,
+              ServerStatusCode.UNPROCESSABLE,
+              true
+          );
+      }
+  } catch (error) {
+    console.log(error)
+      apiErrorres(
+          res,
+          errorResponse.SOMETHING_WRONG,
+          ServerStatusCode.SERVER_ERROR,
+          true
+      );
+  }
+}
 module.exports = {
   createIrctcBooking,
   irctcPaymentSubmit,
   boardingstationenq,
   irctcAmountDeduction,
+  RailinvoiceGenerator
 };

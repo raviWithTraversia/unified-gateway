@@ -180,6 +180,10 @@ RailInvoiceingPrefix: {
   type: String
 },
 
+RailCreditNotesPrefix:{
+  type:String
+},
+
 
 
 }, { timestamps: true, });

@@ -107,6 +107,24 @@ function convertAirPricingItineraryForCommonAPI({
     uniqueKey: response.uniqueKey,
     apiItinerary: false,
   });
+  console.log({ reqItinerary });
+  convertedItinerary.Sectors = convertedItinerary.Sectors.map(
+    (sector, idx) => ({
+      ...sector,
+      Departure: {
+        ...sector.Departure,
+        DateTimeStamp:
+          originalRequest.Itinerary[0].Sectors[idx].Departure.DateTimeStamp,
+      },
+      Arrival: {
+        ...sector.Arrival,
+        DateTimeStamp:
+          originalRequest.Itinerary[0].Sectors[idx].Arrival.DateTimeStamp,
+      },
+    })
+  );
+  console.log({ Sectors: convertedItinerary.Sectors });
+
   if (!convertedItinerary.TravelTime) {
     convertedItinerary.TravelTime = originalRequest.Itinerary[0].TravelTime;
   }
@@ -132,6 +150,7 @@ function convertAirPricingItineraryForCommonAPI({
   convertedItinerary.IsFareUpdate =
     journey.priceChange ?? itinerary.totalPrice !== reqItinerary.totalPrice;
   convertedItinerary.IsAncl = false;
+
   convertedItinerary.Param = {
     Trip: "D1",
     Adt: originalRequest.PaxDetail.Adults,

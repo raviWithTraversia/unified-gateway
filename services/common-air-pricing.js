@@ -15,14 +15,13 @@ async function getCommonAirPricing(request) {
       "/pricing/airpricing";
     const { data: response } = await axios.post(airPricingURL, requestBody);
     console.dir({ response }, { depth: null });
+    const convertedItinerary = convertAirPricingItineraryForCommonAPI({
+      response: response.data,
+      requestBody,
+      originalRequest: request,
+    });
     return {
-      result: [
-        convertAirPricingItineraryForCommonAPI({
-          response: response.data,
-          requestBody,
-          originalRequest: request,
-        }),
-      ],
+      result: [convertedItinerary],
     };
   } catch (error) {
     console.log({ error });

@@ -162,7 +162,8 @@ const ReservationSchema = new mongoose.Schema({
   reservationMode:{type:String,default:""},
   mobileNumber:{type:String,default:""},
   emailId:{type:String,default:""},
-  jQuota:{type:String,default:""}
+  jQuota:{type:String,default:""},
+  IsRefunded:{type:Boolean,default:false}
  
 },{timestamps:true});
 

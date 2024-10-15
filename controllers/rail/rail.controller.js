@@ -565,6 +565,7 @@ async function updateCancellationDetails(req, res) {
       { new: true }
     );
 
+
     if (!cancellationDetails)
       return res.status(200).json({
         IsSucess: false,
@@ -587,6 +588,8 @@ if(!agencyConfig)
   });
 
 console.log(agencyConfig,"agencyConfing")
+await bookingDetailsRail.findOneAndUpdate({cartId:txnId},{$set:{IsRefunded:true}})
+
 await Railleadger.create({
   userId: agencyConfig._id,
   companyId: agencyConfig.companyId,

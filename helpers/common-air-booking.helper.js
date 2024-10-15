@@ -20,9 +20,9 @@ function createAirBookingRequestBodyForCommonAPI(request) {
       travelType: convertTravelTypeForCommonAPI(SearchRequest.TravelType),
       systemEntity: "TCIL",
       systemName: "Astra2.0",
-      corpCode: "",
-      requestorCode: "",
-      empCode: "",
+      corpCode: "000000",
+      requestorCode: "000000",
+      empCode: "000000",
       uniqueKey: reqItinerary.UniqueKey,
       traceId: reqItinerary.TraceId,
       journey: [
@@ -162,7 +162,102 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
   };
 }
 
+function convertBookingResponse(request, response) {
+  // const tickets = response?.data?.journey?.[0]?.travellerDetails[0]?.eTicket;
+  const src = request.SearchRequest.Segments[0].Origin;
+  const des = request.SearchRequest.Segments[0].Destination;
+  const pnrs = response?.data?.journey?.[0]?.recLocInfo;
+  let [PNR, APnr, GPnr] = [null, null, null];
+  if (pnrs.length) {
+    PNR = pnrs.find((pnr) => pnr.type === "Airline").pnr ?? null;
+    APnr = pnrs.find((pnr) => pnr.type === "AirReservation").pnr ?? null;
+    GPnr = pnrs.find((pnr) => pnr.type === "GDS").pnr ?? null;
+  }
+  // if (tickets.length) {
+  // }
+  const travelerDetails = response?.data?.journey?.[0]?.travellerDetails;
+  try {
+    const data = {
+      Status: PNR ? "Success" : "Failed",
+      BookingInfo: {
+        BookingId: "",
+        BookingRemark: "",
+        PNR,
+        APnr,
+        GPnr,
+        SalePurchase: "",
+      },
+      PaxInfo: updatePassengerDetails(
+        request.PassengerPreferences,
+        travelerDetails,
+        src,
+        des
+      ),
+    };
+    data.BookingInfo.IsError = data.Status !== "Success";
+    data.BookingInfo.CurrentStatus =
+      data.Status !== "Success" ? "Failed" : "PENDING";
+    if (travelerDetails?.[0]?.eTicket?.length)
+      data.BookingInfo.CurrentStatus = "CONFIRMED";
+    data.ErrorMessage =
+      data.Status !== "Success" ? response?.message ?? "" : "";
+    data.WarningMessage = data.ErrorMessage;
+    return { data };
+  } catch (error) {
+    return {
+      data: {
+        Status: PNR ? "Success" : "Failed",
+        BookingInfo: {
+          BookingId: "",
+          BookingRemark: "",
+          PNR,
+          APnr,
+          GPnr,
+          SalePurchase: "",
+          IsError: true,
+          CurrentStatus: "Failed",
+          ErrorMessage: error.message,
+          WarningMessage: error.message,
+        },
+        PaxInfo: updatePassengerDetails(
+          request.PassengerPreferences,
+          travelerDetails,
+          src,
+          des
+        ),
+      },
+    };
+  }
+}
+
+function updatePassengerDetails(
+  passengerPreferences,
+  travelerDetails,
+  src,
+  des
+) {
+  if (!travelerDetails?.length) return passengerPreferences;
+  const updatedPassengerPreferences = {
+    ...passengerPreferences,
+    Passengers: passengerPreferences.Passengers.map((pax, idx) => {
+      if (!travelerDetails?.[idx]?.eTicket?.length) return pax;
+      return {
+        ...pax,
+        Optional: {
+          ...pax.Optional,
+          ticketDetails: travelerDetails[idx].eTicket.map((ticket) => ({
+            ticketNumber: ticket.eTicketNumber,
+            src,
+            des,
+          })),
+        },
+      };
+    }),
+  };
+  return updatedPassengerPreferences;
+}
 module.exports = {
   createAirBookingRequestBodyForCommonAPI,
   convertTravelerDetailsForCommonAPI,
+  convertBookingResponse,
 };

@@ -23,9 +23,9 @@ function createAirPricingRequestBodyForCommonAPI(request) {
       travelType: convertTravelTypeForCommonAPI(request.TravelType),
       systemEntity: "TCIL",
       systemName: "Astra2.0",
-      corpCode: "",
-      requestorCode: "",
-      empCode: "",
+      corpCode: "000000",
+      requestorCode: "000000",
+      empCode: "000000",
       uniqueKey: reqItinerary.UniqueKey,
       traceId: reqItinerary.TraceId,
       journey: [
@@ -113,11 +113,12 @@ function convertAirPricingItineraryForCommonAPI({
   if (!convertedItinerary.FlyingTime) {
     convertedItinerary.FlyingTime = originalRequest.Itinerary[0].FlyingTime;
   }
-  convertedItinerary.FareDifference +
-    calculateFareDifference({
-      itinerary,
-      reqItinerary,
-    });
+  convertedItinerary.FareDifference = calculateFareDifference({
+    itinerary,
+    reqItinerary,
+  });
+  console.dir({ itinerary }, { depth: null });
+  console.dir({ reqItinerary }, { depth: null });
   convertedItinerary.Error = {
     Status: null,
     Result: null,
@@ -129,7 +130,7 @@ function convertAirPricingItineraryForCommonAPI({
     IsWarning: false,
   };
   convertedItinerary.IsFareUpdate =
-    itinerary.totalPrice !== reqItinerary.totalPrice;
+    journey.priceChange ?? itinerary.totalPrice !== reqItinerary.totalPrice;
   convertedItinerary.IsAncl = false;
   convertedItinerary.Param = {
     Trip: "D1",

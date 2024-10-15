@@ -4,9 +4,8 @@ const {
   convertAirPricingItineraryForCommonAPI,
 } = require("../helpers/common-air-pricing.helper");
 const { Config } = require("../configs/config");
-
 async function getCommonAirPricing(request) {
-  console.log({ request });
+  console.dir({ request }, { depth: null });
   try {
     const { requestBody, error: requestError } =
       createAirPricingRequestBodyForCommonAPI(request);

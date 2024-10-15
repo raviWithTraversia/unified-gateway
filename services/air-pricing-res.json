@@ -1,0 +1,100 @@
+{
+  "success": true,
+  "status": 200,
+  "message": "Air Pricing results retrieved successfully",
+  "data": {
+    "uniqueKey": "09586556-dca9-4891-b56d-6d0f608b55f6",
+    "traceId": "16321b8a-ef51-4fd6-9cdd-1b57c53be1cf",
+    "journey": [
+      {
+        "journeyKey": "3481eeae-f9fd-4f30-82f1-8f1ccce9255c",
+        "origin": "DEL",
+        "destination": "BOM",
+        "priceChange": true,
+        "itinerary": [
+          {
+            "sessionKey": "00JKLGBRHY",
+            "uid": "1484d978-0765-4c2a-9948-af254f14f8d6",
+            "hostTokens": [
+              {
+                "key": "securityToken",
+                "value": "20DXRVLXD42I01XJZEYUOXUG05"
+              }
+            ],
+            "promoCodeType": "",
+            "priceBreakup": [
+              {
+                "passengerType": "ADT",
+                "noOfPassenger": 1,
+                "baseFare": 26090,
+                "tax": 1872,
+                "taxBreakup": [
+                  {
+                    "amount": 170,
+                    "taxType": "YR"
+                  },
+                  {
+                    "amount": 62,
+                    "taxType": "IN"
+                  },
+                  {
+                    "amount": 1313,
+                    "taxType": "K3"
+                  },
+                  {
+                    "amount": 236,
+                    "taxType": "P2"
+                  },
+                  {
+                    "amount": 91,
+                    "taxType": "WO"
+                  }
+                ]
+              }
+            ],
+            "baseFare": 26090,
+            "taxes": 1872,
+            "promotionalCode": "",
+            "provider": "1A",
+            "valCarrier": "AI",
+            "totalPrice": 27962,
+            "airSegments": [
+              {
+                "airlineCode": "AI",
+                "airlineName": "Air India",
+                "departure": {
+                  "code": "DEL",
+                  "date": "30/11/2024",
+                  "name": "Indira Gandhi International Airport",
+                  "cityCode": "DEL",
+                  "cityName": "Delhi",
+                  "countrycode": "IN",
+                  "countryName": "India"
+                },
+                "arrival": {
+                  "code": "BOM",
+                  "date": "30/11/2024",
+                  "name": "Chhatrapati Shivaji Maharaj International Airport",
+                  "cityCode": "BOM",
+                  "cityName": "Mumbai",
+                  "countrycode": "IN",
+                  "countryName": "India"
+                },
+                "classofService": "Y",
+                "cabinClass": "Economy Standard",
+                "baggageInfo": "15 KG",
+                "equipType": "",
+                "fareBasisCode": "YU1YXSII",
+                "availabilitySource": "",
+                "fltNum": "856",
+                "group": "0",
+                "handBaggage": "7 KG",
+                "transitTime": ""
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

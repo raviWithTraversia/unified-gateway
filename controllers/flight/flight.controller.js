@@ -227,16 +227,16 @@ const startBooking = async (req, res) => {
         );
       }
     }
-    if (req.body.ItineraryPriceCheckResponses?.[0]?.Provider !== "Kafila") {
-      const { result, error } = await commonFlightBook(req.body);
-      if (error) return apiErrorres(res, error, 500, true);
-      return apiSucessRes(
-        res,
-        "Fetch Data Successfully",
-        result,
-        ServerStatusCode.SUCESS_CODE
-      );
-    }
+    // if (req.body.ItineraryPriceCheckResponses?.[0]?.Provider !== "Kafila") {
+    //   const { result, error } = await commonFlightBook(req.body);
+    //   if (error) return apiErrorres(res, error, 500, true);
+    //   return apiSucessRes(
+    //     res,
+    //     "Fetch Data Successfully",
+    //     result,
+    //     ServerStatusCode.SUCESS_CODE
+    //   );
+    // }
     const result = await airBooking.startBooking(req, res);
     if (result.response === "Fetch Data Successfully") {
       apiSucessRes(

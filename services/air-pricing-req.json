@@ -1,0 +1,295 @@
+{
+  "Authentication": {
+    "CompanyId": "6555f84c991eaa63cb171a9f",
+    "UserId": "65cdfd5203e867cfc4153aa9",
+    "CredentialType": "TEST",
+    "SalesChannel": "B2B",
+    "TraceId": "16321b8a-ef51-4fd6-9cdd-1b57c53be1cf"
+  },
+  "TypeOfTrip": "ONEWAY",
+  "Segments": [
+    {
+      "Origin": "DEL",
+      "Destination": "BOM",
+      "OriginName": "Delhi",
+      "DestinationName": "Mumbai",
+      "DepartureDate": "2024-11-30",
+      "DepartureTime": "00:01",
+      "DepartureTimeTo": "23:59",
+      "ClassOfService": "Economy"
+    }
+  ],
+  "PaxDetail": {
+    "Adults": 1,
+    "Child": 0,
+    "Infants": 0,
+    "Youths": 0
+  },
+  "Flexi": 0,
+  "Direct": 0,
+  "ClassOfService": "",
+  "Airlines": [],
+  "TravelType": "Domestic",
+  "FareFamily": [],
+  "FareType": [],
+  "RefundableOnly": false,
+  "Itinerary": [
+    {
+      "UniqueKey": "09586556-dca9-4891-b56d-6d0f608b55f6",
+      "FreeSeat": false,
+      "FreeMeal": false,
+      "SessionKey": "",
+      "CarbonEmission": "",
+      "InPolicy": false,
+      "IsRecommended": false,
+      "UID": "1484d978-0765-4c2a-9948-af254f14f8d6",
+      "BaseFare": 33150,
+      "Taxes": 2225,
+      "TotalPrice": 35375,
+      "OfferedPrice": 35375,
+      "GrandTotal": 35375,
+      "Currency": "INR",
+      "FareType": "RP",
+      "Stop": 0,
+      "IsVia": false,
+      "TourCode": "",
+      "PricingMethod": "",
+      "FareFamily": "Regular Fare",
+      "PromotionalFare": false,
+      "FareFamilyDN": null,
+      "PromotionalCode": "",
+      "PromoCodeType": "",
+      "RefundableFare": true,
+      "IndexNumber": 21,
+      "Provider": "1A",
+      "ValCarrier": "AI",
+      "LastTicketingDate": "",
+      "TravelTime": "0d:2h:5m",
+      "PriceBreakup": [
+        {
+          "PassengerType": "ADT",
+          "NoOfPassenger": 1,
+          "Tax": 2225,
+          "BaseFare": 33150,
+          "TaxBreakup": [
+            {
+              "TaxType": "YR",
+              "Amount": 170
+            },
+            {
+              "TaxType": "IN",
+              "Amount": 62
+            },
+            {
+              "TaxType": "K3",
+              "Amount": 1666
+            },
+            {
+              "TaxType": "P2",
+              "Amount": 236
+            },
+            {
+              "TaxType": "WO",
+              "Amount": 91
+            }
+          ],
+          "AirPenalty": [],
+          "CommercialBreakup": [
+            {
+              "CommercialType": "Discount",
+              "Amount": 0,
+              "SupplierType": "TMC"
+            },
+            {
+              "CommercialType": "TDS",
+              "onCommercialApply": "Discount",
+              "Amount": 0,
+              "SupplierType": "TMC"
+            }
+          ],
+          "AgentMarkupBreakup": {
+            "BookingFee": 0,
+            "Basic": 0,
+            "Tax": 0
+          },
+          "key": null,
+          "OI": []
+        },
+        {},
+        {}
+      ],
+      "Sectors": [
+        {
+          "IsConnect": false,
+          "AirlineCode": "AI",
+          "AirlineName": "Air India",
+          "Class": "Y",
+          "CabinClass": "Economy Standard",
+          "BookingCounts": "",
+          "NoSeats": 9,
+          "FltNum": "856",
+          "EquipType": "32A",
+          "FlyingTime": "0d:2h:5m",
+          "TravelTime": "0d:2h:5m",
+          "TechStopOver": null,
+          "layover": "",
+          "Status": "",
+          "OperatingCarrier": "AI",
+          "MarketingCarrier": null,
+          "BaggageInfo": "15 KG",
+          "HandBaggage": "7 KG",
+          "TransitTime": null,
+          "MealCode": null,
+          "key": "",
+          "Distance": "",
+          "ETicket": "No",
+          "ChangeOfPlane": "",
+          "ParticipantLevel": "",
+          "OptionalServicesIndicator": false,
+          "AvailabilitySource": "",
+          "Group": "0",
+          "LinkAvailability": false,
+          "PolledAvailabilityOption": "",
+          "FareBasisCode": "YU1YX8AI",
+          "HostTokenRef": "",
+          "APISRequirementsRef": "",
+          "Departure": {
+            "Terminal": "3",
+            "Date": "2024-11-30",
+            "Time": "14:45",
+            "Day": "Saturday",
+            "DateTimeStamp": "2024-11-30T14:45:00",
+            "Code": "DEL",
+            "Name": "Indira Gandhi International Airport",
+            "CityCode": "DEL",
+            "CityName": "Delhi",
+            "CountryName": "India"
+          },
+          "Arrival": {
+            "Terminal": "2",
+            "Date": "2024-11-30",
+            "Time": "16:50",
+            "Day": "Saturday",
+            "DateTimeStamp": "2024-11-30T16:50:00",
+            "Code": "BOM",
+            "Name": "Chhatrapati Shivaji Maharaj International Airport",
+            "CityCode": "BOM",
+            "CityName": "Mumbai",
+            "CountryName": "India"
+          },
+          "OI": [],
+          "ProductClass": "",
+          "airlineLogo": "https://agentapi.kafilaholidays.in/assets/logo/AI.png"
+        }
+      ],
+      "FareRule": {
+        "CBNBG": null,
+        "CHKNBG": null,
+        "CBH": null,
+        "CWBH": null,
+        "RBH": null,
+        "RWBH": null,
+        "CBHA": null,
+        "CWBHA": null,
+        "RBHA": null,
+        "RWBHA": null,
+        "SF": null
+      },
+      "HostTokens": null,
+      "Key": "=02:05~856~Economy Standard~Indira Gandhi International Airport~14:45~Chhatrapati Shivaji Maharaj International Airport~16:50",
+      "SearchID": "3481eeae-f9fd-4f30-82f1-8f1ccce9255c",
+      "TRCNumber": null,
+      "TraceId": "16321b8a-ef51-4fd6-9cdd-1b57c53be1cf",
+      "OI": null,
+      "apiItinerary": {
+        "PId": 20,
+        "Id": 20,
+        "TId": 20,
+        "FCode": "AI",
+        "FName": "Air India",
+        "FNo": "856",
+        "DDate": "2024-11-30T14:45:00",
+        "ADate": "2024-11-30T16:50:00",
+        "Dur": "0d:2h:5m",
+        "Stop": 0,
+        "Seats": 9,
+        "Sector": "DEL,BOM",
+        "Itinerary": [
+          {
+            "Id": 0,
+            "Src": "DEL",
+            "SrcName": "Delhi",
+            "Des": "BOM",
+            "DesName": "Mumbai",
+            "FLogo": "",
+            "FCode": "AI",
+            "FName": "Air India",
+            "FNo": "856",
+            "DDate": "2024-11-30T14:45:00",
+            "ADate": "2024-11-30T16:50:00",
+            "DTrmnl": "3",
+            "ATrmnl": "2",
+            "DArpt": "Indira Gandhi International Airport",
+            "AArpt": "Chhatrapati Shivaji Maharaj International Airport",
+            "Dur": "0d:2h:5m",
+            "layover": "",
+            "Seat": 9,
+            "FClass": "Y",
+            "PClass": "",
+            "FBasis": "YU1YX8AI",
+            "FlightType": "",
+            "OI": null
+          }
+        ],
+        "Fare": {
+          "GrandTotal": 35375,
+          "BasicTotal": 33150,
+          "YqTotal": 0,
+          "TaxesTotal": 2225,
+          "Adt": {
+            "Basic": 33150,
+            "Yq": 0,
+            "Taxes": "2225",
+            "Total": null
+          },
+          "Chd": null,
+          "Inf": null,
+          "OI": null
+        },
+        "FareRule": {
+          "CBNBG": null,
+          "CHKNBG": null,
+          "CBH": null,
+          "CWBH": null,
+          "RBH": null,
+          "RWBH": null,
+          "CBHA": null,
+          "CWBHA": null,
+          "RBHA": null,
+          "RWBHA": null,
+          "SF": null
+        },
+        "Alias": "Regular Fare",
+        "FareType": null,
+        "PFClass": null,
+        "OI": null,
+        "Offer": null,
+        "Deal": {
+          "NETFARE": 35375,
+          "TDISC": 0,
+          "TDS": 0,
+          "GST": 0,
+          "DISCOUNT": {
+            "DIS": 0,
+            "SF": 0,
+            "PDIS": 0,
+            "CB": 0
+          }
+        }
+      },
+      "seatsAvlCounts": 9,
+      "commaSepratedLayoverTime": []
+    }
+  ],
+  "GstDetails": ""
+}

@@ -8,9 +8,9 @@ function createSearchRequestBodyForCommonAPI(request) {
     travelType: convertTravelTypeForCommonAPI(request.TravelType),
     systemEntity: "TCIL", // !TBD
     systemName: "Astra2.0", // !TBD
-    corpCode: "", // !TBD
-    requestorCode: "", // !TBD
-    empCode: "", // !TBD
+    corpCode: "000000", // !TBD
+    requestorCode: "000000", // !TBD
+    empCode: "000000", // !TBD
     uniqueKey: uniqueKey,
     sectors: request.Segments.map((segment) => ({
       origin: segment.Origin,
@@ -57,6 +57,7 @@ function convertItineraryForKafila({
     BaseFare: itinerary.baseFare,
     Taxes: Number(itinerary.taxes) || 0,
     TotalPrice: itinerary.totalPrice,
+    OfferedPrice: itinerary.totalPrice,
     GrandTotal: itinerary.totalPrice,
     Currency: "INR",
     FareType: itinerary.fareType,

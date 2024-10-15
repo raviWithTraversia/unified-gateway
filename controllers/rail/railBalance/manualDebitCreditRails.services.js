@@ -474,6 +474,7 @@ const manualDebitCredit = async (req, res) => {
       // Fetch latest ledger for each user (either Rail or Flight)
       for (let element of users) {
         const depositdata = await getLatestCreditTransaction(element._id);
+        console.log(depositdata,"jdiei")
         if (depositdata && element._id.equals(depositdata.userId)) {
           element.DepositeDate = depositdata.updatedAt;
         }
@@ -522,6 +523,8 @@ const manualDebitCredit = async (req, res) => {
         return (new Date(latestRailTransaction.createdAt) > new Date(latestFlightTransaction.createdAt))
           ? latestRailTransaction
           : latestFlightTransaction;
+
+        
       }
     } catch (error) {
       console.error('Error fetching latest credit transaction:', error);

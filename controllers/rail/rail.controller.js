@@ -591,14 +591,14 @@ console.log(agencyConfig,"agencyConfing")
 await bookingDetailsRail.findOneAndUpdate({cartId:txnId},{$set:{IsRefunded:true}})
 
 await Railleadger.create({
-  userId: agencyConfig._id,
+  userId: agencyConfig.userId,
   companyId: agencyConfig.companyId,
   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
   transactionAmount:refundAmount ,
   currencyType: "INR",
   fop: "CREDIT",
   transactionType: "CREDIT",
-  runningAmount:agencyConfig.railCashBalance-refundAmount,
+  runningAmount:agencyConfig.railCashBalance,
   remarks: "Cancelation Refund Your account",
   transactionBy: req.user._id,
 });

@@ -107,7 +107,6 @@ function convertAirPricingItineraryForCommonAPI({
     uniqueKey: response.uniqueKey,
     apiItinerary: false,
   });
-  console.log({ reqItinerary });
   convertedItinerary.Sectors = convertedItinerary.Sectors.map(
     (sector, idx) => ({
       ...sector,
@@ -123,8 +122,22 @@ function convertAirPricingItineraryForCommonAPI({
       },
     })
   );
-  console.log({ Sectors: convertedItinerary.Sectors });
+  const flightDetailKey = convertedItinerary.apiItinerary
+    ? "apiItinerary"
+    : "SelectedFlight";
 
+  convertedItinerary[flightDetailKey].DDate =
+    convertedItinerary.Sectors[0].Departure.DateTimeStamp;
+  convertedItinerary[flightDetailKey].ADate =
+    convertedItinerary.Sectors[0].Arrival.DateTimeStamp;
+
+  convertedItinerary[flightDetailKey].Itinerary = convertedItinerary[
+    flightDetailKey
+  ].Itinerary.map((itinerary, idx) => ({
+    ...itinerary,
+    DDate: convertedItinerary.Sectors[idx].Departure.DateTimeStamp,
+    ADate: convertedItinerary.Sectors[idx].Arrival.DateTimeStamp,
+  }));
   if (!convertedItinerary.TravelTime) {
     convertedItinerary.TravelTime = originalRequest.Itinerary[0].TravelTime;
   }

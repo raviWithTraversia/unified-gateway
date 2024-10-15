@@ -42,5 +42,10 @@ irctcBookingRoute.post(
 );
 
 
+irctcBookingRoute.post(
+  "/irctc-rail-booking-idcreation",
+  auth,
+  irctcBookingController.RailgetIdCreation
+);
 
 module.exports = irctcBookingRoute;

@@ -1,10 +1,13 @@
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const irctcBookingService = require("./irctcBooking.service");
+const invoiceGeneratorService=require('./invoiceGenereter')
 const {
   ServerStatusCode,
   errorResponse,
   CrudMessage,
 } = require("../../utils/constants");
+const creditNotesService=require('./creditNote')
+const idCreation=require('./idCreation')
 
 const createIrctcBooking = async (req, res) => {
   try {
@@ -128,9 +131,112 @@ const irctcAmountDeduction = async (req, res) => {
     );
   }
 };
+
+const RailinvoiceGenerator = async (req, res) => {
+  try {
+      const result = await invoiceGeneratorService.RailInoviceGerneter(req, res);
+      if (result.response ==="BookingId is required." || result.response ==="Pnr BookingId is required."||result.response==="Invoice not found") {
+          apiErrorres(res, result.response, ServerStatusCode.SERVER_ERROR, true);
+      } else if (result.response === "Invoice Generated Successfully!") {
+          apiSucessRes(
+              res,
+              result.response,
+              result.data,
+              ServerStatusCode.SUCESS_CODE
+          );
+      } else {
+          apiErrorres(
+              res,
+              errorResponse.SOME_UNOWN,
+              ServerStatusCode.UNPROCESSABLE,
+              true
+          );
+      }
+  } catch (error) {
+    console.log(error)
+      apiErrorres(
+          res,
+          errorResponse.SOMETHING_WRONG,
+          ServerStatusCode.SERVER_ERROR,
+          true
+      );
+  }
+};
+
+const RailCreditNotes = async (req, res) => {
+  try {
+    const result = await creditNotesService.RailCreditNotes(
+      req,
+      res
+    ); 
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "User id does not exist" || result.response === "Error in updating assignedUser") {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);   
+     } else if (result.response === "Fetch Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+
+const RailgetIdCreation = async (req, res) => {
+  try {
+    const result = await idCreation.getIdCreation(req, res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "TMC Compnay id does not exist" || result.response === "No data found for the given companyId" || result.response === "No data found for the given Prefix" || result.response === "Not Found" || result.response === "No Update") {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "Fetch Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
 module.exports = {
   createIrctcBooking,
   irctcPaymentSubmit,
   boardingstationenq,
   irctcAmountDeduction,
+  RailinvoiceGenerator,
+  RailCreditNotes,
+  RailgetIdCreation
 };

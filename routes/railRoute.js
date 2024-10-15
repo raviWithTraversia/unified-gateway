@@ -42,6 +42,7 @@ rail_route.post("/rail/cancel-booking", railController.cancelBooking);
 rail_route.post("/rail/refund-details", railController.fetchRefundDetails);
 rail_route.put(
   "/rail/cancel-booking",
+  auth,
   railController.updateCancellationDetails
 );
 rail_route.post(

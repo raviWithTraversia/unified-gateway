@@ -29,4 +29,23 @@ irctcBookingRoute.post(
   irctcBookingController.irctcAmountDeduction
 );
 
+irctcBookingRoute.post(
+  "/irctc-invoice-generator",
+  auth,
+  irctcBookingController.RailinvoiceGenerator
+);
+
+irctcBookingRoute.post(
+  "/irctc-credit-notes",
+  auth,
+  irctcBookingController.RailCreditNotes
+);
+
+
+irctcBookingRoute.post(
+  "/irctc-rail-booking-idcreation",
+  auth,
+  irctcBookingController.RailgetIdCreation
+);
+
 module.exports = irctcBookingRoute;

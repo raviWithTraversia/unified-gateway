@@ -80,6 +80,7 @@ const easeBuzzResponce = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1, net_amount_debit,card_type,payment_source, bankcode,bank_ref_num,bank_name,name_on_card, error_Message,pgCharges } = req.body;
     console.log(req.body,"jkssddjsj");
+    const refundItinery=[]
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
       if (BookingTempData) {
@@ -140,7 +141,7 @@ const easeBuzzResponce = async (req, res) => {
         //return getconfigAmount;
 
 
-        let totalItemAmount = 0; // Initialize totalItemAmount outside the reduce function
+        var totalItemAmount = 0; // Initialize totalItemAmount outside the reduce function
 
         const totalsAmount = ItineraryPriceCheckResponses.reduce((acc, curr) => {
           // Add current item prices to the accumulator
@@ -205,6 +206,7 @@ const easeBuzzResponce = async (req, res) => {
         // }
         
         console.log("jkssddjsj123");
+        let totalRefundAmount = 0;
         // const hitAPI = await Promise.all(
         const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
           let requestDataFSearch = {
@@ -271,40 +273,43 @@ const easeBuzzResponce = async (req, res) => {
             Logs(logData1);
             Logs(logData2);
             if (fSearchApiResponse.data && typeof fSearchApiResponse.data.Status === 'string' && fSearchApiResponse.data.Status.toUpperCase() === "FAILED" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
-              await BookingDetails.updateOne(
-                {
-                  bookingId: udf1,
-                  "itinerary.IndexNumber": item.IndexNumber,
-                },
-                {
-                  $set: {
-                    bookingStatus: "FAILED",
-                    bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED" ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark : fSearchApiResponse?.data?.ErrorMessage || error.message,
-                  },
-                }
-              );
-              await ledger.create({
-                userId: allIds[0], //getuserDetails._id,
-                companyId: getuserDetails.company_ID._id,
-                ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                transactionAmount: totalItemAmount,
-                currencyType: "INR",
-                fop: "DEBIT",
-                transactionType: "CREDIT",
-                runningAmount: newBalanceCredit,
-                remarks: `Refund Amount for Booking`,
-                transactionBy: getuserDetails._id,
-                cartId: udf1,
-              });
+          // Update the booking status
+// Update bookings to 'FAILED'
+await BookingDetails.updateMany(
+  {
+    bookingId: udf1,
+    "itinerary.IndexNumber": item.IndexNumber,
+  },
+  {
+    $set: {
+      bookingStatus: "FAILED",
+      bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus === "FAILED"
+        ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
+        : fSearchApiResponse?.data?.ErrorMessage || error.message,
+    },
+  }
+);
 
-              await agentConfig.updateOne(
-                { userId: allIds[0] },
-                { $inc: { maxcreditLimit: totalItemAmount } }
-              );
-              return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
-            }
+// Fetch booking details for the failed booking
+const updatedBooking = await BookingDetails.find(
+  {
+    bookingId: udf1,
+    bookingStatus: "FAILED"
+  },
+  { bookingTotalAmount: 1 }
+);
 
-            const bookingResponce = {
+// Accumulate the refund amounts
+var refundAmount = updatedBooking.reduce((sum, element) => {
+  return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
+}, 0);
+
+// Add to the total refund amount
+updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = refundAmount
+
+}            
+
+  const bookingResponce = {
               CartId: item.BookingId,
               bookingResponce: {
                 CurrentStatus:
@@ -342,7 +347,7 @@ const easeBuzzResponce = async (req, res) => {
                   PNR: fSearchApiResponse.data.BookingInfo.APnr,
                   APnr: fSearchApiResponse.data.BookingInfo.APnr,
                   GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
-                  SalePurchase: fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails.Account,
+                  SalePurchase: fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails.Account?fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails.Account:"",
                 },
               }
             );
@@ -449,26 +454,28 @@ const easeBuzzResponce = async (req, res) => {
         const results = await Promise.all(updatePromises);
         console.log("jkssddjsj456");
         if (results.length > 0) {
-          if (itemAmount !== 0) {
-            const runnnigBalance = newBalanceCredit - itemAmount;
-            // await agentConfig.updateOne(
-            //   { userId: getuserDetails._id },
-            //   { maxcreditLimit: runnnigBalance }
-            // );
-            // await ledger.create({
-            //   userId: getuserDetails._id,
-            //   companyId: getuserDetails.company_ID._id,
-            //   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-            //   transactionAmount: itemAmount,
-            //   currencyType: "INR",
-            //   fop: "DEBIT",
-            //   transactionType: "CREDIT",
-            //   runningAmount: runnnigBalance,
-            //   remarks: "Booking Amount Add Into 2nd Your Account.",
-            //   transactionBy: getuserDetails._id,
-            //   cartId: udf1,
-            // });
-          }
+            if (totalRefundAmount > 0) {
+              await ledger.create({
+                userId: allIds[0],
+                companyId: getuserDetails.company_ID._id,
+                ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+                transactionAmount: totalRefundAmount, // Use the total refund amount
+                currencyType: "INR",
+                fop: "DEBIT",
+                transactionType: "CREDIT",
+                runningAmount: getconfigAmount + totalRefundAmount, // Add to the running balance
+                remarks: `Refund Amount for Booking`,
+                transactionBy: getuserDetails._id,
+                cartId: udf1,
+              });
+            
+              // Update agent config once with the total refund amount
+              await agentConfig.updateOne(
+                { userId: allIds[0] },
+                { $inc: { maxcreditLimit: totalRefundAmount } }, { new: true } // Update max credit limit
+              );
+            }
+            
           return {
             response: "Fetch Data Successfully",
             data: "Save Successfully",

@@ -4,9 +4,8 @@ const {
   convertAirPricingItineraryForCommonAPI,
 } = require("../helpers/common-air-pricing.helper");
 const { Config } = require("../configs/config");
-
 async function getCommonAirPricing(request) {
-  console.log({ request });
+  console.dir({ request }, { depth: null });
   try {
     const { requestBody, error: requestError } =
       createAirPricingRequestBodyForCommonAPI(request);
@@ -16,14 +15,13 @@ async function getCommonAirPricing(request) {
       "/pricing/airpricing";
     const { data: response } = await axios.post(airPricingURL, requestBody);
     console.dir({ response }, { depth: null });
+    const convertedItinerary = convertAirPricingItineraryForCommonAPI({
+      response: response.data,
+      requestBody,
+      originalRequest: request,
+    });
     return {
-      result: [
-        convertAirPricingItineraryForCommonAPI({
-          response: response.data,
-          requestBody,
-          originalRequest: request,
-        }),
-      ],
+      result: [convertedItinerary],
     };
   } catch (error) {
     console.log({ error });

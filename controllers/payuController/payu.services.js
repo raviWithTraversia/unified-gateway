@@ -72,9 +72,8 @@ const payu = async (req, res) => {
     const firstnameres = firstName;
     const emailres = email;
     const phoneres = phone;
-    const surl = `${
-      Config[Config.MODE].baseURLBackend
-    }/api/paymentGateway/success`;
+    const surl = `${Config[Config.MODE].baseURLBackend
+    }/paymentGateway/success`;
     const furl = `${
       Config[Config.MODE].baseURLBackend
     }/api/paymentGateway/failed`;
@@ -530,6 +529,8 @@ const payuSuccess = async (req, res) => {
         // );
 
         //const hitAPI = await Promise.all(
+
+        var totalRefundAmount=0;
         const updatePromises = ItineraryPriceCheckResponses.map(
           async (item) => {
             let requestDataFSearch = {
@@ -619,25 +620,39 @@ const payuSuccess = async (req, res) => {
                   }
                 );
 
-                await ledger.create({
-                  userId: allIds[0], //getuserDetails._id,
-                  companyId: getuserDetails.company_ID._id,
-                  ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                  transactionAmount: totalItemAmount,
-                  currencyType: "INR",
-                  fop: "DEBIT",
-                  transactionType: "CREDIT",
-                  runningAmount: newBalanceCredit,
-                  remarks: `Refund Amount for Booking`,
-                  transactionBy: getuserDetails._id,
-                  cartId: udf1,
-                });
-
-                await agentConfig.updateOne(
-                  { userId: allIds[0] },
-                  { $inc: { maxcreditLimit: totalItemAmount } }
+                await BookingDetails.updateMany(
+                  {
+                    bookingId: udf1,
+                    "itinerary.IndexNumber": item.IndexNumber,
+                  },
+                  {
+                    $set: {
+                      bookingStatus: "FAILED",
+                      bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus === "FAILED"
+                        ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
+                        : fSearchApiResponse?.data?.ErrorMessage || error.message,
+                    },
+                  }
                 );
-                return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
+          
+                // Fetch booking details for the failed booking
+                const updatedBooking = await BookingDetails.find(
+                  {
+                    bookingId: udf1,
+                    bookingStatus: "FAILED"
+                  },
+                  { bookingTotalAmount: 1 }
+                );
+          
+                // Accumulate the refund amounts
+                const refundAmount = updatedBooking.reduce((sum, element) => {
+                  return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
+                }, 0);
+
+            updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount=refundAmount;
+
+          
+                // Add to the total refund amount
               }
 
               const bookingResponce = {
@@ -788,6 +803,28 @@ const payuSuccess = async (req, res) => {
         );
         //);
         const results = await Promise.all(updatePromises);
+        if(totalRefundAmount>0){
+          await ledger.create({
+            userId: allIds[0], //getuserDetails._id,
+            companyId: getuserDetails.company_ID._id,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount: totalRefundAmount,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "CREDIT",
+            runningAmount: getconfigAmount+totalRefundAmount,
+            remarks: `Refund Amount for Booking`,
+            transactionBy: getuserDetails._id,
+            cartId: udf1,
+          });
+
+          await agentConfig.updateOne(
+            { userId: allIds[0] },
+            { $inc: { maxcreditLimit: totalRefundAmount } }
+          );
+        }
+
+
         let successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
     <head>

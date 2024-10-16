@@ -23,9 +23,9 @@ function createAirPricingRequestBodyForCommonAPI(request) {
       travelType: convertTravelTypeForCommonAPI(request.TravelType),
       systemEntity: "TCIL",
       systemName: "Astra2.0",
-      corpCode: "",
-      requestorCode: "",
-      empCode: "",
+      corpCode: "000000",
+      requestorCode: "000000",
+      empCode: "000000",
       uniqueKey: reqItinerary.UniqueKey,
       traceId: reqItinerary.TraceId,
       journey: [
@@ -107,17 +107,49 @@ function convertAirPricingItineraryForCommonAPI({
     uniqueKey: response.uniqueKey,
     apiItinerary: false,
   });
+  convertedItinerary.Sectors = convertedItinerary.Sectors.map(
+    (sector, idx) => ({
+      ...sector,
+      Departure: {
+        ...sector.Departure,
+        DateTimeStamp:
+          originalRequest.Itinerary[0].Sectors[idx].Departure.DateTimeStamp,
+      },
+      Arrival: {
+        ...sector.Arrival,
+        DateTimeStamp:
+          originalRequest.Itinerary[0].Sectors[idx].Arrival.DateTimeStamp,
+      },
+    })
+  );
+  const flightDetailKey = convertedItinerary.apiItinerary
+    ? "apiItinerary"
+    : "SelectedFlight";
+
+  convertedItinerary[flightDetailKey].DDate =
+    convertedItinerary.Sectors[0].Departure.DateTimeStamp;
+  convertedItinerary[flightDetailKey].ADate =
+    convertedItinerary.Sectors[0].Arrival.DateTimeStamp;
+
+  convertedItinerary[flightDetailKey].Itinerary = convertedItinerary[
+    flightDetailKey
+  ].Itinerary.map((itinerary, idx) => ({
+    ...itinerary,
+    DDate: convertedItinerary.Sectors[idx].Departure.DateTimeStamp,
+    ADate: convertedItinerary.Sectors[idx].Arrival.DateTimeStamp,
+  }));
   if (!convertedItinerary.TravelTime) {
     convertedItinerary.TravelTime = originalRequest.Itinerary[0].TravelTime;
   }
   if (!convertedItinerary.FlyingTime) {
     convertedItinerary.FlyingTime = originalRequest.Itinerary[0].FlyingTime;
   }
-  convertedItinerary.FareDifference +
-    calculateFareDifference({
-      itinerary,
-      reqItinerary,
-    });
+  convertedItinerary.FareDifference = calculateFareDifference({
+    itinerary,
+    reqItinerary,
+  });
+  console.dir({ itinerary }, { depth: null });
+  console.dir({ reqItinerary }, { depth: null });
   convertedItinerary.Error = {
     Status: null,
     Result: null,
@@ -129,8 +161,9 @@ function convertAirPricingItineraryForCommonAPI({
     IsWarning: false,
   };
   convertedItinerary.IsFareUpdate =
-    itinerary.totalPrice !== reqItinerary.totalPrice;
+    journey.priceChange ?? itinerary.totalPrice !== reqItinerary.totalPrice;
   convertedItinerary.IsAncl = false;
+
   convertedItinerary.Param = {
     Trip: "D1",
     Adt: originalRequest.PaxDetail.Adults,

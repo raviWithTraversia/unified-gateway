@@ -73,7 +73,7 @@ const payu = async (req, res) => {
     const emailres = email;
     const phoneres = phone;
     const surl = `${Config[Config.MODE].baseURLBackend
-    }/paymentGateway/success`;
+    }/api/paymentGateway/success`;
     const furl = `${
       Config[Config.MODE].baseURLBackend
     }/api/paymentGateway/failed`;

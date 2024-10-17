@@ -214,6 +214,7 @@ const railFareEnquiry = async (req, res) => {
       gstDetailInputFlag,
       infantList,
       gstDetails,
+      RailAgentId
     } = req.body;
     if ((!trainNo, !Authentication)) {
       return { response: "Provide required fields" };
@@ -246,7 +247,7 @@ const railFareEnquiry = async (req, res) => {
 
     let queryParams = {
       masterId: "WKAFL00000",
-      wsUserLogin: "WKAFL00001",
+      wsUserLogin: RailAgentId,
       enquiryType: "3",
       reservationChoice: "99",
       moreThanOneDay: "true",

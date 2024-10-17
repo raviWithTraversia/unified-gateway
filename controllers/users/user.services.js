@@ -1086,10 +1086,10 @@ const updateCompayProfile = async (req, res) => {
 
 const agencyChangePassword = async (req, res) => {
   try {
-    const { id, newPassword,email,railSubAgentId,railSubAgentPassword} = req.body;
+    const { id, newPassword,email,railSubAgentId,railSubAgentPassword,railSubAgentDeviceId} = req.body;
     var message=""
 
-if(railSubAgentId||railSubAgentPassword){
+if(railSubAgentId||railSubAgentPassword||railSubAgentDeviceId){
   if(railSubAgentId&&railSubAgentId!==undefined){
     message="RailSubAgentId"
   }
@@ -1097,9 +1097,13 @@ if(railSubAgentId||railSubAgentPassword){
 if(railSubAgentPassword&&railSubAgentPassword!==undefined){
     message='SubAgentPassword'
   }
+
+  if(railSubAgentDeviceId&&railSubAgentDeviceId!==undefined){
+    message='railSubAgentDeviceId'
+  }
 const AgencyData=await agentConfigModel.findOne({userId:id})
 
-  const payloadObj={railSubAgentId:railSubAgentId?railSubAgentId:AgencyData.railSubAgentId,railSubAgentPassword:railSubAgentPassword?railSubAgentPassword:AgencyData.railSubAgentPassword};
+  const payloadObj={railSubAgentId:railSubAgentId?railSubAgentId:AgencyData.railSubAgentId,railSubAgentPassword:railSubAgentPassword?railSubAgentPassword:AgencyData.railSubAgentPassword,railSubAgentDeviceId:railSubAgentDeviceId?railSubAgentDeviceId:AgencyData.railSubAgentDeviceId};
   await agentConfigModel.findByIdAndUpdate(AgencyData._id,{$set:payloadObj},{new:true})
 
 }else{

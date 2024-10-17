@@ -452,7 +452,7 @@ const agencyChangePassword = async (req, res) => {
         ServerStatusCode.RESOURCE_NOT_FOUND,
         true
       );
-    } else if (result.response === "RailSubAgentId Changed Sucessfully"||result.response === "SubAgentPassword Changed Sucessfully"||result.response === "Password Changed Sucessfully"||result.response === "Email Changed Sucessfully") {
+    } else if (result.response === "railSubAgentDeviceId Changed Sucessfully"||result.response === "RailSubAgentId Changed Sucessfully"||result.response === "SubAgentPassword Changed Sucessfully"||result.response === "Password Changed Sucessfully"||result.response === "Email Changed Sucessfully") {
       apiSucessRes(
         res,
         CrudMessage.PASSWORD_RESET,

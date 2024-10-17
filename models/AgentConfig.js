@@ -175,6 +175,10 @@ railSubAgentPassword:{
     type:String,
     default:""
 },
+railSubAgentDeviceId:{
+  type:String,
+    default:""
+},
 
 RailInvoiceingPrefix: {
   type: String

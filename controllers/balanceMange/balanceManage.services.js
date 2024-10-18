@@ -229,7 +229,7 @@ console.log('shdadajeieien')
           fop: "DEBIT",
           transactionType: "DEBIT",
           runningAmount: runningAmount - parseInt(pgCharges),
-          remarks: "Wallet debited for PG charges(EaseBuzz)",
+          remarks: "Manual AUTO_PGcharges(EaseBuzz)",
           transactionBy: loginUser._id,
           cartId:bookingId||" "
         });
@@ -289,7 +289,7 @@ console.log('shdadajeieien')
             fop: "DEBIT",
             transactionType: "DEBIT",
             runningAmount,
-            remarks: `TDS against ${tdsAmount} DI deposit.`,
+            remarks: `Manual AUTO_TDS`,
             transactionBy: loginUser._id,
             cartId:bookingId||" ",
             product,

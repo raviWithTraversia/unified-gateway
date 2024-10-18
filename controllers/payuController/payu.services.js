@@ -993,7 +993,7 @@ const payuWalletResponceSuccess = async (req, res) => {
           fop: "DEBIT",
           transactionType: "DEBIT",
           runningAmount: newBalanceAmount - udf3,
-          remarks: "Wallet debited for PG charges(PayU)",
+          remarks: "Manual AUTO_PGcharges(PayU)",
           transactionBy: userData._id,
         });
         await agentConfig.findOneAndUpdate(
@@ -1048,7 +1048,7 @@ const payuWalletResponceSuccess = async (req, res) => {
               fop: "DEBIT",
               transactionType: "DEBIT",
               runningAmount,
-              remarks: `TDS against ${tdsAmount} DI deposit.`,
+              remarks: `Manual AUTO_TDS`,
               transactionBy: userData._id,
               productinfo,
             });

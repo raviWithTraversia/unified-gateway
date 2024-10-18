@@ -75,7 +75,8 @@ let bookingDetailsQuery = {
 
     newRegistrationCount = newRegistrationCount?.data?.length || 0;
     creditReqCount = creditReqCount.length || 0;
-    data['New RegistrationCount'] = newRegistrationCount;
+
+   data['New RegistrationCount'] = newRegistrationCount;
     data['Temp Credit Requests'] = creditReqCount;
     data['Hold'] = hold;
     data['Pending'] = pending;
@@ -88,7 +89,6 @@ let bookingDetailsQuery = {
     data['amendement'] = amendement;
     data['cancelPending'] = cancelPending;
     data['confirmed'] = confirmed;
-
     if (newRegistrationCount) {
       return {
         response: "Count Fetch Sucessfully",

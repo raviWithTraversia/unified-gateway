@@ -1236,7 +1236,7 @@ const RefundedCommonFunction = async (
             });
 
             await agentConfig.findByIdAndUpdate(agentConfigData._id, 
-              { $inc: { maxcreditLimit: refund.RefundableAmount } }
+              { $set: { maxcreditLimit:agentConfigData.maxcreditLimit+refund.RefundableAmount } }
             );
 
             await CancelationBooking.findOneAndUpdate(

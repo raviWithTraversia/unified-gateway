@@ -196,6 +196,19 @@ const companySchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    railSubAgentId:{
+      type:String,
+      default:""
+  
+  },
+  railSubAgentPassword:{
+      type:String,
+      default:""
+  },
+  railSubAgentDeviceId:{
+    type:String,
+      default:""
+  },
   },
   {
     timestamps: true,

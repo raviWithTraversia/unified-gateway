@@ -1104,7 +1104,7 @@ if(railSubAgentPassword&&railSubAgentPassword!==undefined){
 const AgencyData=await agentConfigModel.findOne({userId:id})
 
   const payloadObj={railSubAgentId:railSubAgentId?railSubAgentId:AgencyData.railSubAgentId,railSubAgentPassword:railSubAgentPassword?railSubAgentPassword:AgencyData.railSubAgentPassword,railSubAgentDeviceId:railSubAgentDeviceId?railSubAgentDeviceId:AgencyData.railSubAgentDeviceId};
-  await agentConfigModel.findByIdAndUpdate(AgencyData._id,{$set:payloadObj},{new:true})
+  await Company.findByIdAndUpdate(AgencyData.companyId,{$set:payloadObj},{new:true})
 
 }else{
 

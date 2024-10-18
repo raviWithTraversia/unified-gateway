@@ -165,21 +165,6 @@ const agentConfigSchema = new mongoose.Schema({
     type:Number,
     default:0
   },
-
-  railSubAgentId:{
-    type:String,
-    default:""
-
-},
-railSubAgentPassword:{
-    type:String,
-    default:""
-},
-railSubAgentDeviceId:{
-  type:String,
-    default:""
-},
-
 RailInvoiceingPrefix: {
   type: String
 },

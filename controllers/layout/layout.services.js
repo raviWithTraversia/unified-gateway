@@ -1,6 +1,7 @@
 const registration = require('../../models/Registration');
 const creditRequest = require('../../models/CreditRequest');
-const bookingdetails = require("../../models/booking/BookingDetails");
+var bookingdetails = require("../../models/booking/BookingDetails");
+var railBookingdetils=require('../../models/Irctc/bookingDetailsRail')
 const company = require("../../models/Company");
 const depositDetail = require("../../models/DepositRequest");
 
@@ -10,7 +11,14 @@ const registrationServices = require('../../controllers/registration/registratio
 
 const dashBoardCount = async (req, res) => {
   try {
-    let { companyId } = req.query;
+    let { companyId,product } = req.query;
+   var BookingDetails
+    if(product=="Flight"){
+      BookingDetails=bookingdetails
+    }
+    if(product=="Rail"){
+      BookingDetails=railBookingdetils
+    }
     let data = {};
     let req1 = { params: { companyId: companyId } };
     const ISTtoUTC = (time) => {
@@ -47,7 +55,7 @@ let bookingDetailsQuery = {
     let [newRegistrationCount, creditReqCount, getBookingDetails, RegisteredAgentConfig, depositRequest] = await Promise.all([
       registrationServices.getAllRegistrationByCompany(req1, res),
       creditRequest.find({ companyId: companyId }),
-      bookingdetails.find(bookingDetailsQuery, { bookingStatus: 1 }),
+      BookingDetails.find(bookingDetailsQuery, { bookingStatus: 1 }),
       company.countDocuments({ parent: companyId }),
       depositDetail.countDocuments({ companyId, status: "pending" })
     ]);

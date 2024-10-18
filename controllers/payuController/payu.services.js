@@ -1003,7 +1003,7 @@ const payuWalletResponceSuccess = async (req, res) => {
         );
         console.log("hjdsdh");
         if (DIdata !== null || DIdata !== 0) {
-          let tdsAmount = DIdata * (5 / 100);
+          let tdsAmount = DIdata * (2 / 100);
           // console.log(tdsAmount, "tdsAmount");
           if (tdsAmount != 0) {
             tdsAmount = await priceRoundOffNumberValues(tdsAmount);
@@ -1220,7 +1220,7 @@ const payuWalletRailResponceSuccess = async (req, res) => {
         );
         console.log("hjdsdh");
         if (DIdata !== null || DIdata !== 0) {
-          let tdsAmount = DIdata * (5 / 100);
+          let tdsAmount = DIdata * (2 / 100);
           // console.log(tdsAmount, "tdsAmount");
           if (tdsAmount != 0) {
             tdsAmount = await priceRoundOffNumberValues(tdsAmount);

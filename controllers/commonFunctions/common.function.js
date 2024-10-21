@@ -1308,7 +1308,7 @@ const RefundedCommonFunction = async (
                   ServiceFee: refund.CancelServiceCharge,
                   RefundableAmt: refund.RefundableAmount,
                   isRefund: false,
-                  calcelationStatus: "CANCEL",
+                  calcelationStatus: "CANCEL"
                 },
               },
               { new: true }
@@ -1316,7 +1316,12 @@ const RefundedCommonFunction = async (
             
             responseMessage = "Update Status Succefully";
           }
-          // break; // Exit the inner loop once a match is found
+          else{
+            responseMessage = "Cancelation Data Not Found";
+          }
+}
+        else{
+          responseMessage = "Cancelation Data Not Found"
         }
       }
     }

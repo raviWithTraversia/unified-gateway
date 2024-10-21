@@ -252,7 +252,7 @@ if (!creditNote) {
         invoiceId: CancelBookingData[0]?.InvoicingData,
         PNR: CancelBookingData[0]?.PNR,
         bookingDate: CancelBookingData[0]?.createdAt,
-        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        dueDate: CancelBookingData[0]?.cancelData?.updatedAt ,
         totalAmount: CancelBookingData[0]?.bookingTotalAmount,
         bookingId: providerBokingId,
         passengers: CancelBookingData[0]?.passengesDetails,

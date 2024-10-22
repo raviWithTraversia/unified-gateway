@@ -325,7 +325,7 @@ const dateQuery = {
   }
 };
 searchData.push(dateQuery)
-const neStatus={ calcelationStatus: { $ne: "REFUNDED" } }
+const neStatus={ calcelationStatus: { $eq: "CANCEL" } }
 const statusQuery = {
   calcelationStatus: status
 };
@@ -378,9 +378,13 @@ searchData.push(statusQuery)
 {$unwind:{path:"$companyData",preserveNullAndEmptyArrays:true}},
 
 {
-  $match:{"bookingdetailsData.bookingStatus": { $ne: "CANCELLATION PENDING" }
-}
+  $match: {
+    "bookingdetailsData.bookingStatus": { 
+      $nin: ["CANCELLATION PENDING", "CONFIRMED"] 
+    }
+  }
 },
+
 {
   $sort:{
     createdAt:-1
@@ -503,6 +507,7 @@ var supplier
 // const matchIds=filterData.map(item=> item.BookingId)
 
 // console.log(matchIds,"jiejiei")
+
 
 const cancelationbookignsData=await CancelationBooking.find({bookingId:bookingIds})
 if(!cancelationbookignsData){

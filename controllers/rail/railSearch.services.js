@@ -4,6 +4,7 @@ const axios = require("axios");
 const { Config } = require("../../configs/config");
 const jwt = require("jsonwebtoken");
 const RailBookingSchema = require("../../models/Irctc/bookingDetailsRail");
+const agentConfig=require('../../models/AgentConfig')
 const {
   prepareRailBookingQRDataString,
   generateQR,
@@ -225,19 +226,39 @@ const railFareEnquiry = async (req, res) => {
         response: "Credential Type does not exist",
       };
     }
-    const checkUser = await User.findById(Authentication.UserId).populate(
-      "roleId"
-    );
+    const checkUser = await agentConfig.findOne({userId:Authentication.UserId}).populate({
+      path: 'userId',      // First, populate the userId field
+      populate: {
+        path: 'roleId',    // Then, populate the roleId inside userId
+        model: 'Role',     // Specify the model for roleId (optional if correctly referenced)
+      },
+    }).populate("RailcommercialPlanIds");
+    
     const checkCompany = await Company.findById(Authentication.CompanyId);
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
     }
-    if (checkUser?.roleId?.name !== "Agency") {
+    if (checkUser?.userId?.roleId?.name !== "Agency") {
       return { response: "User role must be Agency" };
     }
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }
+
+console.log(checkUser.RailcommercialPlanIds)
+let agentCharges={}
+if(jClass=="SL"){
+  agentCharges.Conveniencefee=checkUser?.RailcommercialPlanIds?.Conveniencefee?.sleepar
+  agentCharges.Agent_service_charge=checkUser?.RailcommercialPlanIds?.Agent_service_charge?.sleepar
+  agentCharges.PG_charges=checkUser?.RailcommercialPlanIds?.PG_charges?.sleepar
+
+}
+else{
+  agentCharges.Conveniencefee=checkUser?.RailcommercialPlanIds?.Conveniencefee?.acCharge
+  agentCharges.Agent_service_charge=checkUser?.RailcommercialPlanIds?.Agent_service_charge?.acCharge
+  agentCharges.PG_charges=checkUser?.RailcommercialPlanIds?.PG_charges?.acCharge
+
+}
     let renewDate = journeyDate.split("-");
     let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
@@ -270,11 +291,13 @@ const railFareEnquiry = async (req, res) => {
       await axios.post(url, queryParams, { headers: { Authorization: auth } })
     )?.data;
     // console.log(response);
+
     if (!response) {
       return {
         response: "Error in fetching data",
       };
     } else {
+      response.CommercialCharges=agentCharges
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -319,9 +342,7 @@ const railBoardingEnquiry = async (req, res) => {
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
     }
-    if (checkUser?.roleId?.name !== "Agency") {
-      return { response: "User role must be Agency" };
-    }
+   
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }
@@ -380,9 +401,7 @@ const ChangeBoardingStation = async (req, res) => {
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
     }
-    if (checkUser?.roleId?.name !== "Agency") {
-      return { response: "User role must be Agency" };
-    }
+   
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }
@@ -440,9 +459,7 @@ const PnrEnquirry = async (req, res) => {
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
     }
-    if (checkUser?.roleId?.name !== "Agency") {
-      return { response: "User role must be Agency" };
-    }
+   
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }

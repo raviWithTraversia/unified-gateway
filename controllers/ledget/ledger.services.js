@@ -240,6 +240,9 @@ const getAllledgerbyDate = async (req, res) => {
         response: "please enter date",
       };
     }
+    console.log(companyId,"djei")
+    const findTmcUser=await Company.findById(companyId)
+   
     const inputDate = new Date(date);
     const startDate = new Date(inputDate.setUTCHours(0, 0, 0, 0));
     const endDate = new Date(inputDate.setUTCHours(23, 59, 59, 999));
@@ -247,9 +250,10 @@ const getAllledgerbyDate = async (req, res) => {
     const aggregationResult = await Company.aggregate([
       {
         $match: {
-          parent: new ObjectId(companyId),
-        },
+          type: { $in: ["Agency", "Distributer"] }
+        }
       },
+    
       {
         $lookup: {
           from: "users",
@@ -280,7 +284,7 @@ const getAllledgerbyDate = async (req, res) => {
       },
       {
         $match: {
-          "roledata.name": "Agency",
+          "roledata.type": "Default",
         },
       },
       {
@@ -291,6 +295,7 @@ const getAllledgerbyDate = async (req, res) => {
           as: "ledgerData",
         },
       },
+      
       {
         $set: {
           ledgerData: {
@@ -311,7 +316,7 @@ const getAllledgerbyDate = async (req, res) => {
         },
       },
       {
-        $unwind: "$ledgerData",
+        $unwind:{path: "$ledgerData",preserveNullAndEmptyArrays:true},
       },
       {
         $project: {

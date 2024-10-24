@@ -247,6 +247,7 @@ const getAgencyGroup = async (req, res) => {
     .populate('airlinePromoCodeGroupId')
     .populate('companyId')
     .populate('ssrCommercialGroupId')
+    .populate("RailcommercialPlanId")
     if (agencyGroup.length > 0) {
       return {
         response: "Agency Group Fetch Sucessfully",

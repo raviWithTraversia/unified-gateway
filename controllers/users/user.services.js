@@ -405,6 +405,7 @@ const userInsert = async (req, res) => {
         commercialPlanIds: agencyGroupId?.commercialPlanId || null,
         privilegePlansIds: agencyGroupId?.privilagePlanId || null,
         fareRuleGroupIds: agencyGroupId?.fareRuleGroupId || null,
+        RailcommercialPlanIds:agencyGroupId?.RailcommercialPlanId||null,
         plbGroupIds: agencyGroupId?.plbGroupId || null,
         incentiveGroupIds: agencyGroupId?.incentiveGroupId || null,
         airlinePromocodeIds: agencyGroupId?.airlinePromoCodeGroupId || null,

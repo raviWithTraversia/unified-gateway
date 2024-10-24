@@ -223,6 +223,7 @@ const getAgentConfig = async (req, res) => {
       .populate("airlinePromocodeIds")
       .populate("paymentGatewayIds")
       .populate("is_quote_without_price")
+      .populate("RailcommercialPlanIds")
     //console.log(agentConfigData);
     if (agentConfigData) {
       return {

@@ -62,6 +62,11 @@ const agentConfigSchema = new mongoose.Schema({
     ref: "ssrCommercialGroup",
     default: null
   },
+  RailcommercialPlanIds: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "railCommercial",
+    default: null
+  },
   initiallyLoad: {
     type: String,
     default: null

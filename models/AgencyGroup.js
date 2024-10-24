@@ -39,6 +39,11 @@ const agencyGroupSchema = new mongoose.Schema(
       ref: "ssrCommercialGroup",
       default: null
     },
+    RailcommercialPlanId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "railCommercial",
+      default: null
+    },
     isDefault: {
       type: Boolean,
       default: false,

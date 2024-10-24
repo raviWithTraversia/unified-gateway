@@ -249,11 +249,9 @@ const getAllledgerbyDate = async (req, res) => {
     //
     const aggregationResult = await Company.aggregate([
       {
-        $match: {
-          type: { $in: ["Agency", "Distributer"] }
-        }
+        $match:{ $and:[{ parent:new ObjectId(companyId)},{type: { $in: ["Agency", "Distributer"] }}] }
+        
       },
-    
       {
         $lookup: {
           from: "users",

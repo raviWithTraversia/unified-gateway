@@ -72,7 +72,8 @@ const payu = async (req, res) => {
     const firstnameres = firstName;
     const emailres = email;
     const phoneres = phone;
-    const surl = `${Config[Config.MODE].baseURLBackend
+    const surl = `${
+      Config[Config.MODE].baseURLBackend
     }/api/paymentGateway/success`;
     const furl = `${
       Config[Config.MODE].baseURLBackend
@@ -482,6 +483,13 @@ const payuSuccess = async (req, res) => {
           totalsAmount.totalBaggagePrice +
           totalsAmount.totalSeatPrice;
 
+          var pgChargesAmount=0
+          if(udf3>0){
+            totalItemAmount+udf3
+            pgChargesAmount=udf3
+            
+          }
+
         const newBalanceCredit = getconfigAmount + totalItemAmount;
 
         let itemAmount = 0;
@@ -507,29 +515,45 @@ const payuSuccess = async (req, res) => {
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
-
+var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
         await ledger.create({
           userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionAmount: totalItemAmount,
+          transactionAmount: totalItemAmount-pgChargesAmount,
           deal: gtTsAdDnt?.ldgrdiscount,
           tds: gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount: newBalanceCredit - totalItemAmount,
+          runningAmount:runningAmountShow-totalItemAmount,
           remarks: "Booking Amount Deducted from Your Account(PayU).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
+
+        if(udf3>0){
+          await ledger.create({
+            userId: allIds[0], //getuserDetails._id,
+            companyId: getuserDetails.company_ID._id,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount:pgChargesAmount,
+           currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "DEBIT",
+            runningAmount: newBalanceCredit-totalItemAmount,
+            remarks: "Manual PG_CHARGE",
+            transactionBy: getuserDetails._id,
+            cartId: udf1,
+          });
+        }
+        
         // await agentConfig.updateOne(
         //   { userId: allIds[0] },
         //   { maxcreditLimit: newBalanceCredit - totalItemAmount }
         // );
 
         //const hitAPI = await Promise.all(
-
         var totalRefundAmount=0;
         const updatePromises = ItineraryPriceCheckResponses.map(
           async (item) => {

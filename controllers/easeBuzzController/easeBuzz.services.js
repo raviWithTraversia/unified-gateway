@@ -155,6 +155,12 @@ const easeBuzzResponce = async (req, res) => {
         // Calculate totalItemAmount by summing up all prices
         totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice;
         // console.log(net_amount_debit, totalItemAmount,"jddsjk");
+        var pgChargesAmount=0
+        if(pgCharges>0){
+          totalItemAmount+pgCharges
+          pgChargesAmount=pgCharges
+          
+        }
         const newBalanceCredit =
           getconfigAmount + totalItemAmount;
         // console.log(newBalanceCredit,"newBalanceCreditnewBalanceCredit");
@@ -180,17 +186,33 @@ const easeBuzzResponce = async (req, res) => {
           userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionAmount: totalItemAmount,
+          transactionAmount: totalItemAmount-pgChargesAmount,
           deal:gtTsAdDnt?.ldgrdiscount,
           tds:gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount: newBalanceCredit-totalItemAmount,
+          runningAmount: newBalanceCredit+pgChargesAmount-totalItemAmount,
           remarks: "Booking Amount Deducted from Your Account(Easebuzz).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
+if(pgCharges>0){
+  await ledger.create({
+    userId: allIds[0], //getuserDetails._id,
+    companyId: getuserDetails.company_ID._id,
+    ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+    transactionAmount:pgChargesAmount,
+   currencyType: "INR",
+    fop: "DEBIT",
+    transactionType: "DEBIT",
+    runningAmount: newBalanceCredit-totalItemAmount,
+    remarks: "Manual PG_CHARGE",
+    transactionBy: getuserDetails._id,
+    cartId: udf1,
+  });
+}
+        
         console.log("jkss1");
         // if(pgCharges){
         //   // await agentConfig.updateOne(

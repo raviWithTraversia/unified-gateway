@@ -757,32 +757,41 @@ const getUser = async (req, res) => {
 const getAllAgencyAndDistributer = async (req, res) => {
   try {
     let parentId = req.query.id;
-    let agency
 
     const findTmcUser=await Company.findById(parentId)
-    if(findTmcUser.type !="TMC"){
-      agency = await Company.find({
-        $or: [
-          { parent: parentId },
-          { _id: parentId }
-        ]
-      })
-  
-    }
-    else{
-      agency = await Company.find()
-   }
-
    
-    if (agency.length == 0) {
-      return {
-        response: 'No Agency with this TMC'
-      }
-    }
 
-    const ids = agency.map(item =>new mongoose.Types.ObjectId(item._id));
     const users = await User.aggregate([
-      { $match: { company_ID: { $in: ids } } },
+      { 
+        $lookup: {
+          from: 'companies', // Name of the companies collection
+          localField: 'company_ID',
+          foreignField: '_id',
+          as: 'company_ID'
+        }
+      },
+      { 
+        $unwind: {
+          path: '$company_ID',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $addFields: {
+          matchCondition: {
+            $cond: {
+              if: { $eq: [findTmcUser.type, "TMC"] }, // Check if the type is "TMC"
+              then: { $in: ["$company_ID.type", ["TMC","Agency", "Distributer"]] }, // Condition when true
+              else: { $eq: ["$company_ID.parent", new mongoose.Types.ObjectId(parentId)] } // Condition when false
+            }
+          }
+        }
+      },
+      {
+        $match: {
+          matchCondition: true
+        }
+      },
       { 
         $lookup: {
           from: 'roles', // Name of the roles collection
@@ -811,21 +820,7 @@ const getAllAgencyAndDistributer = async (req, res) => {
           preserveNullAndEmptyArrays: true
         }
       },
-      { 
-        $lookup: {
-          from: 'companies', // Name of the companies collection
-          localField: 'company_ID',
-          foreignField: '_id',
-          as: 'company_ID'
-        }
-      },
-      { 
-        $unwind: {
-          path: '$company_ID',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      { 
+     { 
         $lookup: {
           from: 'companies',
           localField: 'company_ID.parent',
@@ -947,6 +942,7 @@ const getAllAgencyAndDistributer = async (req, res) => {
       
     ])
     
+    console.log(users)
     //console.log("=======>>>", users);
    
     let data = [];

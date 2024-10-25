@@ -42,6 +42,7 @@ const getAllBooking = async (req, res) => {
     fromDate,
     toDate,
     salesInchargeIds,
+    ArilineFilter,
     BookedBy,
   } = req.body;
   const fieldNames = [
@@ -147,6 +148,11 @@ const getAllBooking = async (req, res) => {
       filter.bookingStatus = status;
     }
 
+    let orConditions = []
+    if(ArilineFilter !== undefined && ArilineFilter !== ""){
+      orConditions.push({ "itinerary.Sectors.AirlineCode": new RegExp(`^${ArilineFilter}`, 'i') },{"itinerary.Sectors.AirlineName":new RegExp(`^${ArilineFilter}`, 'i')})
+      filter.$or=orConditions
+    }
     // Filter by date range
     // if (
     //   fromDate !== undefined &&
@@ -408,6 +414,12 @@ const getAllBooking = async (req, res) => {
       // console.log(filter.AgencyId)
     }
 
+    let orConditions = []
+    if(ArilineFilter !== undefined && ArilineFilter !== ""){
+      orConditions.push({ "itinerary.Sectors.AirlineCode": new RegExp(`^${ArilineFilter}`, 'i') },{"itinerary.Sectors.AirlineName":new RegExp(`^${ArilineFilter}`, 'i')})
+      filter.$or=orConditions
+    }
+
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;
     }
@@ -667,6 +679,11 @@ const getAllBooking = async (req, res) => {
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;
+    }
+    let orConditions = []
+    if(ArilineFilter !== undefined && ArilineFilter !== ""){
+      orConditions.push({ "itinerary.Sectors.AirlineCode": new RegExp(`^${ArilineFilter}`, 'i') },{"itinerary.Sectors.AirlineName":new RegExp(`^${ArilineFilter}`, 'i')})
+      filter.$or=orConditions
     }
     if (pnr !== undefined && pnr.trim() !== "") {
       filter.PNR = pnr;
@@ -933,6 +950,11 @@ const getAllBooking = async (req, res) => {
         filter.bookingStatus = status;
       }
 
+      let orConditions = []
+    if(ArilineFilter !== undefined && ArilineFilter !== ""){
+      orConditions.push({ "itinerary.Sectors.AirlineCode": new RegExp(`^${ArilineFilter}`, 'i') },{"itinerary.Sectors.AirlineName":new RegExp(`^${ArilineFilter}`, 'i')})
+      filter.$or=orConditions
+    }
       // if (
       //   fromDate !== undefined &&
       //   fromDate.trim() !== "" &&

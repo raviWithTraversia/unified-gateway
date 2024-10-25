@@ -304,13 +304,13 @@ else{
       };
     }
   } catch (error) {
-    console.log(error, "error");
-    apiErrorres(
-      res,
-      errorResponse.SOMETHING_WRONG,
-      ServerStatusCode.SERVER_ERROR,
-      true
-    );
+    // apiErrorres(
+    //   res,
+    //   errorResponse.SOMETHING_WRONG,
+    //   ServerStatusCode.SERVER_ERROR,
+    //   true
+    // );
+  throw error
   }
 };
 
@@ -422,6 +422,11 @@ const ChangeBoardingStation = async (req, res) => {
         response: "Error in fetching data",
       };
     } else {
+      if(response.success==true&&response.status=="Boarding point has been changed successfully."){
+        await RailBookingSchema.findOneAndUpdate({pnrNumber:response.pnr},{$set:{boardingStn:response.newBoardingPoint,boardingDate:response.newBoardingDate}},{new:true})
+
+      }
+
       return {
         response: "Fetch Data Successfully",
         data: response,

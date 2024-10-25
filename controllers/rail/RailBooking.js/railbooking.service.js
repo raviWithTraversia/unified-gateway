@@ -16,6 +16,7 @@ const StartBookingRail = async (req, res) => {
       amount,
       paymentmethod,
       agencyId,
+      CommercialCharges,
       clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,mobileNumber,emailId,ticketType,passengerList,boardingStation,
     } = req.body;
     console.log("sdjfdh");
@@ -69,10 +70,9 @@ if(RailBooking.response="amount transfer succefully"){
         paymentMethod:paymentmethod,
         trainNumber:trainNo,journeyDate:`${journeyDate} 00:00:00.0 IST`,fromStn:frmStn,destStn:toStn,jClass:jClass,reservationMode:reservationMode,mobileNumber:mobileNumber,emailId:emailId,ticketType:ticketType,boardingStn:boardingStation,
         jQuota:jQuota,
+        RailCommercial:CommercialCharges,
         psgnDtlList:passengerList
-
-
-    })
+})
 }
 return({
     response:"your amount transfer Succefully"

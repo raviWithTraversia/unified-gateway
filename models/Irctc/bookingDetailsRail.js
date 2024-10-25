@@ -47,6 +47,12 @@ const MealTransactionSchema = new mongoose.Schema({
   bookingMode: { type: Number, default: null },
   bookingSource: { type: Number, default: null },
 });
+
+const RailCommercialSchema=new mongoose.Schema({
+  commericalConveniencefee:{type:Number,default:0},
+  agentServiceCharge:{type:Number,default:0},
+  pgCharges:{type:Number,default:0},
+});
 const ReservationSchema = new mongoose.Schema({
   reservationId: { type: String, default: null },
   companyId: {
@@ -115,6 +121,7 @@ const ReservationSchema = new mongoose.Schema({
   tourismUrl: { type: String, default: null },
   rrHbFlag: { type: String, default: null },
   mealTransaction: MealTransactionSchema, // Embedded Meal Transaction Schema
+  RailCommercial:RailCommercialSchema,
   mealChoiceEnable: {type:Boolean,default:false},
   complaintFlag: {type:Number,default:null},
   travelnsuranceRefundAmount: {type:Number,default:null},

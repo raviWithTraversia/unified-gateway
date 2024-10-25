@@ -241,16 +241,30 @@ const getAllledgerbyDate = async (req, res) => {
       };
     }
     console.log(companyId,"djei")
-    const findTmcUser=await Company.findById(companyId)
+    
    
     const inputDate = new Date(date);
     const startDate = new Date(inputDate.setUTCHours(0, 0, 0, 0));
     const endDate = new Date(inputDate.setUTCHours(23, 59, 59, 999));
     //
+    const findTmcUser=await Company.findById(companyId)
+
     const aggregationResult = await Company.aggregate([
       {
-        $match:{ $and:[{ parent:new ObjectId(companyId)},{type: { $in: ["Agency", "Distributer"] }}] }
-        
+        $addFields: {
+          matchCondition: {
+            $cond: {
+              if: { $eq: [findTmcUser.type, "TMC"] }, // Check if the type is "TMC"
+              then: { $in: ["$type", ["Agency", "Distributer"]] }, // Condition when true
+              else: { $eq: ["$parent", new ObjectId(companyId)] } // Condition when false
+            }
+          }
+        }
+      },
+      {
+        $match: {
+          matchCondition: true
+        }
       },
       {
         $lookup: {
@@ -323,7 +337,13 @@ const getAllledgerbyDate = async (req, res) => {
             companyName: "$companyName",
             type: "$type",
           },
-          runningAmount: "$ledgerData.runningAmount",
+          runningAmount:{
+            $cond: {
+              if: { $gt: ["$ledgerData.runningAmount", 0] },  // Condition to check if runningAmount > 0
+              then: "$ledgerData.runningAmount",               // Value if true
+              else: 0                                          // Value if false
+            }
+          },
           createdAt: "$ledgerData.createdAt",
         },
       },

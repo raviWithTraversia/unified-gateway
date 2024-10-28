@@ -4,6 +4,7 @@ const agentConfigSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+    unique:true
   },
   companyId: {
     type: mongoose.Schema.Types.ObjectId,

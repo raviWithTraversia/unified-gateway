@@ -120,6 +120,9 @@ const airPricing = async (req, res) => {
         ResponseStatusCode: 200,
         Message: "Fetch Data Successfully",
         Result: result,
+        ApiReq: {
+          Itinerary: result,
+        },
       });
     }
     const result = await airPricingCheck.airPricing(req, res);

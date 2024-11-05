@@ -757,26 +757,35 @@ const updateBookingStatus = async (req, res) => {
 
   }
   bulkOps.forEach(async(element)=>{
- if(element.updateOne.update.$set.bookingStatus.toUpperCase()=="FAILED"){
-  const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
-  const bookingsData=await bookingDetails.findById(element.updateOne.filter._id)
-  const agentData=await agentConfig.findOneAndUpdate({userId:bookingsData.userId},{$set:{$inc:{maxcreditLimit:bookingsData.bookingTotalAmount}}},{new:true})
-  await ledger.create({
-      userId: bookingsData.userId,
-      companyId:bookingsData.AgencyId,
-      ledgerId: ledgerId,
-      cartId: bookingsData?.bookingId,
-      transactionAmount: bookingsData.bookingTotalAmount,
-      currencyType: "INR",
-      fop: "DEBIT",
-      transactionType: "CREDIT",
-      runningAmount:agentData.maxcreditLimit,
-      remarks: "Rfund amount failed booking",
-      transactionBy: bookingsData.userId,
-    });
-
-
-    }
+    if (element.updateOne.update.$set.bookingStatus.toUpperCase() === "FAILED") {
+      const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
+      
+      // Fetch the booking data
+      const bookingsData = await bookingDetails.findById(element.updateOne.filter._id);
+      
+      // Update maxcreditLimit for the agent by incrementing it with bookingTotalAmount
+      const agentData = await agentConfig.findOneAndUpdate(
+          { userId: bookingsData.userId },
+          { $inc: { maxcreditLimit: bookingsData.bookingTotalAmount } },  // Use $inc directly
+          { new: true }
+      );
+  
+      // Create a new ledger entry
+      await ledger.create({
+          userId: bookingsData.userId,
+          companyId: bookingsData.AgencyId,
+          ledgerId: ledgerId,
+          cartId: bookingsData?.bookingId,
+          transactionAmount: bookingsData.bookingTotalAmount,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "CREDIT",
+          runningAmount: agentData.maxcreditLimit,
+          remarks: "Refund amount failed booking",
+          transactionBy: bookingsData.userId,
+      });
+  }
+  
   })
 
   if (bulkOps.length) {

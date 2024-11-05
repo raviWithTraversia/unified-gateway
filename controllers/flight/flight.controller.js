@@ -207,9 +207,10 @@ const startBooking = async (req, res) => {
         validationResult.response === "Trace Id Required" ||
         validationResult.response === "Credential Type does not exist" ||
         validationResult.response === "Supplier credentials does not exist" ||
-        validationResult.response === "Company or User id field are required" ||
+        validationResult.response === "Company or User Trace id field are required" ||
         validationResult.response === "TMC Compnay id does not exist" ||
-        validationResult.response === "Travel Type Not Valid"
+        validationResult.response === "Travel Type Not Valid"||
+        validationResult.response==="allready created booking"
       ) {
         return apiErrorres(
           res,
@@ -245,7 +246,16 @@ const startBooking = async (req, res) => {
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    } else {
+    }
+    else if(result.response==="allready created booking"){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+     else {
       apiErrorres(
         res,
         errorResponse.SOME_UNOWN,

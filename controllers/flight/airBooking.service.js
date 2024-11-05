@@ -81,12 +81,19 @@ const startBooking = async (req, res) => {
 
   let companyId = Authentication.CompanyId;
   let UserId = Authentication.UserId;
-  if (!companyId || !UserId) {
+  let TraceId=Authentication.TraceId
+  if (!companyId || !UserId||!TraceId) {
     return {
-      response: "Company or User id field are required",
+      response: "Company or User Trace id field are required",
     };
   }
 
+  const bookingData=await BookingDetails.find({"itinerary.TraceId":TraceId})
+  if(bookingData.length>0){
+    return {
+      response:"allready created booking"
+    }
+  }
   // Check if company Id exists
   const checkCompanyIdExist = await Company.findById(companyId);
   if (!checkCompanyIdExist || checkCompanyIdExist.type !== "TMC") {

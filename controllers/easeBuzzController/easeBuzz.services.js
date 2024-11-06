@@ -230,7 +230,9 @@ if(pgCharges>0){
         console.log("jkssddjsj123");
         let totalRefundAmount = 0;
         // const hitAPI = await Promise.all(
+        var bookingId=""
         const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
+          bookingId=item.BookingId
           let requestDataFSearch = {
             FareChkRes: {
               Error: item.Error,
@@ -422,26 +424,7 @@ updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = re
               //   { statusDetail: status, trnsNo:txnid,paymentMode:card_type,bankName:bank_name,holderName:name_on_card, }
               // );
               //console.log("jkssddjsj");
-              await transaction.create({
-                userId: Authentication.UserId,
-                bookingId:item?.BookingId,
-                companyId:getAgentConfigForUpdateagain.companyId,
-                trnsNo: txnid,
-                trnsType: "DEBIT",
-                paymentMode: card_type,
-                paymentGateway:"EaseBuzz",
-                trnsStatus: "success",
-                // transactionBy: getuserDetails._id,
-                pgCharges:pgCharges,
-                transactionAmount:totalItemAmount+pgChargesAmount,
-                statusDetail: status, 
-                trnsNo:txnid,
-                trnsBankRefNo:bank_ref_num,
-                // cardType:cardCategory,
-                bankName:bank_name,
-                holderName:name_on_card
-              });
-
+             
 
             }
             //return fSearchApiResponse.data;
@@ -476,6 +459,7 @@ updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = re
         const results = await Promise.all(updatePromises);
         console.log("jkssddjsj456");
         if (results.length > 0) {
+
             if (totalRefundAmount > 0) {
               await ledger.create({
                 userId: allIds[0],
@@ -497,7 +481,26 @@ updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = re
                 { $inc: { maxcreditLimit: totalRefundAmount } }, { new: true } // Update max credit limit
               );
             }
-            
+             await transaction.create({
+                userId: Authentication.UserId,
+                bookingId:bookingId,
+                companyId:getAgentConfigForUpdateagain.companyId,
+                trnsNo: txnid,
+                trnsType: "DEBIT",
+                paymentMode: card_type,
+                paymentGateway:"EaseBuzz",
+                trnsStatus: "success",
+                // transactionBy: getuserDetails._id,
+                pgCharges:pgCharges,
+                transactionAmount:totalItemAmount+pgChargesAmount,
+                statusDetail: status, 
+                trnsNo:txnid,
+                trnsBankRefNo:bank_ref_num,
+                // cardType:cardCategory,
+                bankName:bank_name,
+                holderName:name_on_card
+              });
+
           return {
             response: "Fetch Data Successfully",
             data: "Save Successfully",

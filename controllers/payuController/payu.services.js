@@ -555,8 +555,10 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
 
         //const hitAPI = await Promise.all(
         var totalRefundAmount=0;
+        var bookingId=""
         const updatePromises = ItineraryPriceCheckResponses.map(
           async (item) => {
+            bookingId=item.BookingId
             let requestDataFSearch = {
               FareChkRes: {
                 Error: item.Error,
@@ -777,24 +779,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                 //     cardType:cardCategory
                 //   }
                 // );
-                await transaction.create({
-                  userId: Authentication.UserId,
-                  bookingId: item?.BookingId,
-                  companyId: Authentication.CompanyId,
-                  trnsNo: txnid,
-                  trnsType: "DEBIT",
-                  // paymentMode: "Payu",
-                  paymentMode: PG_TYPE,
-                  paymentGateway: "PayU",
-                  trnsStatus: "success",
-                  transactionBy: Authentication.UserId,
-                  pgCharges: udf3,
-                  transactionAmount: Number(udf2)+Number(pgChargesAmount),
-                  statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
-                  trnsNo: txnid,
-                  trnsBankRefNo: bank_ref_num,
-                  cardType: cardCategory,
-                });
+                
               }
               //return fSearchApiResponse.data;
               const barcodeupdate = await updateBarcode2DByBookingId(
@@ -827,6 +812,26 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
         );
         //);
         const results = await Promise.all(updatePromises);
+        if(results.length>0){
+          await transaction.create({
+            userId: Authentication.UserId,
+            bookingId: bookingId,
+            companyId: Authentication.CompanyId,
+            trnsNo: txnid,
+            trnsType: "DEBIT",
+            // paymentMode: "Payu",
+            paymentMode: PG_TYPE,
+            paymentGateway: "PayU",
+            trnsStatus: "success",
+            transactionBy: Authentication.UserId,
+            pgCharges: udf3,
+            transactionAmount: Number(udf2)+Number(pgChargesAmount),
+            statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
+            trnsNo: txnid,
+            trnsBankRefNo: bank_ref_num,
+            cardType: cardCategory,
+          });
+        }
         if(totalRefundAmount>0){
           await ledger.create({
             userId: allIds[0], //getuserDetails._id,

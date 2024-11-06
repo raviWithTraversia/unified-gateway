@@ -104,6 +104,7 @@ const payuSuccess = async (req, res) =>
       //   );
       // }
     } catch (error) {
+      console.log(error)
       apiErrorres(
         res,
         errorResponse.SOME_UNOWN,
@@ -122,7 +123,7 @@ const payuSuccess = async (req, res) =>
       } catch (error) {
         apiErrorres(
           res,
-          errorResponse.SOME_UNOWN,
+          error.message,
           ServerStatusCode.INVALID_CRED,
           true
         );

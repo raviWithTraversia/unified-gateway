@@ -172,7 +172,7 @@ const transactionDetailsSchema = new mongoose.Schema(
     },
     billingNumber:{
       type:Number,
-      unique: true
+      unique:true
 
     },
     transactionAmount:{

@@ -789,7 +789,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                   trnsStatus: "success",
                   transactionBy: Authentication.UserId,
                   pgCharges: udf3,
-                  transactionAmount: udf2,
+                  transactionAmount: Number(udf2)+Number(pgChargesAmount),
                   statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
                   trnsNo: txnid,
                   trnsBankRefNo: bank_ref_num,

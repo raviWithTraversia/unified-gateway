@@ -422,7 +422,7 @@ const ChangeBoardingStation = async (req, res) => {
         response: "Error in fetching data",
       };
     } else {
-      if(response.success==true&&response.status=="Boarding point has been changed successfully."){
+      if(response.success==true){
         await RailBookingSchema.findOneAndUpdate({pnrNumber:response.pnr},{$set:{boardingStn:response.newBoardingPoint,boardingDate:response.newBoardingDate}},{new:true})
 
       }

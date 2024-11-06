@@ -157,8 +157,8 @@ const easeBuzzResponce = async (req, res) => {
         // console.log(net_amount_debit, totalItemAmount,"jddsjk");
         var pgChargesAmount=0
         if(pgCharges>0){
-          totalItemAmount+pgCharges
-          pgChargesAmount=pgCharges
+          totalItemAmount+Number(pgCharges)
+          pgChargesAmount=Number(pgCharges)
           
         }
         const newBalanceCredit =
@@ -433,7 +433,7 @@ updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = re
                 trnsStatus: "success",
                 // transactionBy: getuserDetails._id,
                 pgCharges:pgCharges,
-                transactionAmount:totalItemAmount,
+                transactionAmount:totalItemAmount+pgChargesAmount,
                 statusDetail: status, 
                 trnsNo:txnid,
                 trnsBankRefNo:bank_ref_num,

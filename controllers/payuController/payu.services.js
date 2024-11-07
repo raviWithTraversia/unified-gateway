@@ -555,7 +555,8 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
 
         //const hitAPI = await Promise.all(
         var totalRefundAmount=0;
-        var bookingId=""
+        var bookingId="";
+        var FailedbookingIdenty=[]
         const updatePromises = ItineraryPriceCheckResponses.map(
           async (item) => {
             bookingId=item.BookingId
@@ -641,7 +642,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                         "FAILED"
                           ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
                           : fSearchApiResponse?.data?.ErrorMessage ||
-                            error.message,
+                            "FAILED",
                     },
                   }
                 );
@@ -656,7 +657,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                       bookingStatus: "FAILED",
                       bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus === "FAILED"
                         ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
-                        : fSearchApiResponse?.data?.ErrorMessage || error.message,
+                        : fSearchApiResponse?.data?.ErrorMessage || "FAILED",
                     },
                   }
                 );
@@ -675,11 +676,15 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                   return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
                 }, 0);
 
+                FailedbookingIdenty.push(false)
+
             updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount=refundAmount;
 
           
                 // Add to the total refund amount
               }
+
+              FailedbookingIdenty.push(true)
 
               const bookingResponce = {
                 CartId: item.BookingId,
@@ -812,26 +817,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
         );
         //);
         const results = await Promise.all(updatePromises);
-        if(results.length>0){
-          await transaction.create({
-            userId: Authentication.UserId,
-            bookingId: bookingId,
-            companyId: Authentication.CompanyId,
-            trnsNo: txnid,
-            trnsType: "DEBIT",
-            // paymentMode: "Payu",
-            paymentMode: PG_TYPE,
-            paymentGateway: "PayU",
-            trnsStatus: "success",
-            transactionBy: Authentication.UserId,
-            pgCharges: udf3,
-            transactionAmount: Number(udf2)+Number(pgChargesAmount),
-            statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
-            trnsNo: txnid,
-            trnsBankRefNo: bank_ref_num,
-            cardType: cardCategory,
-          });
-        }
+        
         if(totalRefundAmount>0){
           await ledger.create({
             userId: allIds[0], //getuserDetails._id,
@@ -852,6 +838,28 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
             { $inc: { maxcreditLimit: totalRefundAmount } }
           );
         }
+        if(!FailedbookingIdenty.includes(false)){
+
+          await transaction.create({
+            userId: Authentication.UserId,
+            bookingId: bookingId,
+            companyId: Authentication.CompanyId,
+            trnsNo: txnid,
+            trnsType: "DEBIT",
+            // paymentMode: "Payu",
+            paymentMode: PG_TYPE,
+            paymentGateway: "PayU",
+            trnsStatus: "success",
+            transactionBy: Authentication.UserId,
+            pgCharges: udf3,
+            transactionAmount: Number(udf2)+Number(pgChargesAmount)-totalRefundAmount,
+            statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
+            trnsNo: txnid,
+            trnsBankRefNo: bank_ref_num,
+            cardType: cardCategory,
+          });
+        }
+
 
 
         let successHtmlCode = `<!DOCTYPE html>

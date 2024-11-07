@@ -35,6 +35,7 @@ const payu = async (req, res) => {
       cartId,
       pgCharges,
       normalAmount,
+      agentId
     } = req.body;
 
     if (
@@ -105,6 +106,7 @@ const payu = async (req, res) => {
       udf1: cartIdres,
       udf2: normalAmount,
       udf3: pgCharges,
+      udf5: agentId,
     };
 
     // Add the hash to payment details

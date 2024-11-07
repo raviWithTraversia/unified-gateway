@@ -1,5 +1,43 @@
 const mongoose = require("mongoose");
 
+const gstDetailsSchema = new mongoose.Schema({
+  gstIn: {
+    type: String,
+    required: false,
+    // match: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, // GSTIN format validation
+  },
+  nameOnGst: {
+    type: String,
+    required: false,
+  },
+  flat: {
+    type: String,
+    required: false,
+  },
+  street: {
+    type: String,
+    required: false,
+  },
+  pin: {
+    type: String,
+    required: false,
+    // match: /^[0-9]{6}$/, // Pin code format validation
+  },
+  state: {
+    type: String,
+    required: false,
+  },
+  city: {
+    type: String,
+    required: false,
+  },
+  error: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+
 const PassengerSchema = new mongoose.Schema({
   passengerSerialNumber: { type: Number, default: null },
   passengerName: { type: String, default: null },
@@ -94,6 +132,14 @@ const ReservationSchema = new mongoose.Schema({
   trainNumber: { type: String, default: null },
   fromStn: { type: String, default: null },
   destStn: { type: String, default: null },
+  gstDetailsDTO: {
+    type: gstDetailsSchema,
+  default:{}
+  },
+  gstFlag: {
+    type: Boolean,
+    default: false,
+  },
   resvnUptoStn: { type: String, default: null },
   fromStnName: { type: String, default: null },
   boardingStnName: { type: String, default: null },

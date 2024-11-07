@@ -382,6 +382,7 @@ const ChangeBoardingStation = async (req, res) => {
     const {
       pnr,
       boardingStation,
+      boardingStnName,
       Authentication,
       
     } = req.body;
@@ -422,10 +423,10 @@ const ChangeBoardingStation = async (req, res) => {
         response: "Error in fetching data",
       };
     } else {
-      if(response.success==true){
-        await RailBookingSchema.findOneAndUpdate({pnrNumber:response.pnr},{$set:{boardingStn:response.newBoardingPoint,boardingDate:response.newBoardingDate}},{new:true})
-
-      }
+      if(response.success=='true'&&response.status.includes("Boarding point has been changed successfully.")){
+        console.log(response)
+        await RailBookingSchema.findOneAndUpdate({pnrNumber:response.pnr},{$set:{boardingStn:response.newBoardingPoint,boardingDate:response.newBoardingDate,boardingStnName:boardingStnName}},{new:true})
+}
 
       return {
         response: "Fetch Data Successfully",

@@ -230,7 +230,9 @@ if(pgCharges>0){
         console.log("jkssddjsj123");
         let totalRefundAmount = 0;
         // const hitAPI = await Promise.all(
-        var bookingId=""
+        var bookingId="";
+        var FailedbookingIdenty=[]
+
         const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
           bookingId=item.BookingId
           let requestDataFSearch = {
@@ -299,6 +301,7 @@ if(pgCharges>0){
             if (fSearchApiResponse.data && typeof fSearchApiResponse.data.Status === 'string' && fSearchApiResponse.data.Status.toUpperCase() === "FAILED" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
           // Update the booking status
 // Update bookings to 'FAILED'
+
 await BookingDetails.updateMany(
   {
     bookingId: udf1,
@@ -329,6 +332,8 @@ var refundAmount = updatedBooking.reduce((sum, element) => {
 }, 0);
 
 // Add to the total refund amount
+
+FailedbookingIdenty.push(false)
 updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = refundAmount
 
 }            
@@ -452,6 +457,27 @@ updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = re
                 },
               }
             );
+
+            await ledger.create({
+              userId: allIds[0],
+              companyId: getuserDetails.company_ID._id,
+              ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+              transactionAmount: totalRefundAmount, // Use the total refund amount
+              currencyType: "INR",
+              fop: "DEBIT",
+              transactionType: "CREDIT",
+              runningAmount: getconfigAmount + totalRefundAmount, // Add to the running balance
+              remarks: `Refund Amount for Booking`,
+              transactionBy: getuserDetails._id,
+              cartId: udf1,
+            });
+          
+            // Update agent config once with the total refund amount
+            await agentConfig.updateOne(
+              { userId: allIds[0] },
+              { $inc: { maxcreditLimit: totalRefundAmount } }, { new: true } // Update max credit limit
+            );
+            
             return error.message;
           }
         })
@@ -481,6 +507,8 @@ updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = re
                 { $inc: { maxcreditLimit: totalRefundAmount } }, { new: true } // Update max credit limit
               );
             }
+            if(!FailedbookingIdenty.includes(false)){
+
              await transaction.create({
                 userId: Authentication.UserId,
                 bookingId:bookingId,
@@ -492,7 +520,7 @@ updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = re
                 trnsStatus: "success",
                 // transactionBy: getuserDetails._id,
                 pgCharges:pgCharges,
-                transactionAmount:totalItemAmount+pgChargesAmount,
+                transactionAmount:totalItemAmount+pgChargesAmount-totalRefundAmount,
                 statusDetail: status, 
                 trnsNo:txnid,
                 trnsBankRefNo:bank_ref_num,
@@ -500,6 +528,7 @@ updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = re
                 bankName:bank_name,
                 holderName:name_on_card
               });
+            }
 
           return {
             response: "Fetch Data Successfully",

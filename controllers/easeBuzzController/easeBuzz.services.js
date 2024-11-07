@@ -312,7 +312,7 @@ await BookingDetails.updateMany(
       bookingStatus: "FAILED",
       bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus === "FAILED"
         ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
-        : fSearchApiResponse?.data?.ErrorMessage || error.message,
+        : fSearchApiResponse?.data?.ErrorMessage ||"FAILED" ,
     },
   }
 );
@@ -336,7 +336,9 @@ var refundAmount = updatedBooking.reduce((sum, element) => {
 FailedbookingIdenty.push(false)
 updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = refundAmount
 
-}            
+}     
+
+FailedbookingIdenty.push(true)
 
   const bookingResponce = {
               CartId: item.BookingId,
@@ -458,27 +460,8 @@ updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = re
               }
             );
 
-            await ledger.create({
-              userId: allIds[0],
-              companyId: getuserDetails.company_ID._id,
-              ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-              transactionAmount: totalRefundAmount, // Use the total refund amount
-              currencyType: "INR",
-              fop: "DEBIT",
-              transactionType: "CREDIT",
-              runningAmount: getconfigAmount + totalRefundAmount, // Add to the running balance
-              remarks: `Refund Amount for Booking`,
-              transactionBy: getuserDetails._id,
-              cartId: udf1,
-            });
-          
-            // Update agent config once with the total refund amount
-            await agentConfig.updateOne(
-              { userId: allIds[0] },
-              { $inc: { maxcreditLimit: totalRefundAmount } }, { new: true } // Update max credit limit
-            );
-            
-            return error.message;
+
+             return error.message;
           }
         })
         // );

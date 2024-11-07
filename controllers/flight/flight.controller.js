@@ -45,7 +45,7 @@ const getSearch = async (req, res) => {
       validationResult.response === "Supplier credentials does not exist" ||
       validationResult.response === "Company or User id field are required" ||
       validationResult.response === "TMC Compnay id does not exist" ||
-      validationResult.response === "Travel Type Not Valid"
+      validationResult.response === "Travel Type Not Valid"||validationResult.response==="your company not Active"
     )
       return apiErrorres(
         res,

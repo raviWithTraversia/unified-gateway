@@ -1,5 +1,5 @@
 const Company = require("../models/Company");
-
+const Users=require('../models/User')
 module.exports.validateSearchRequest = async (req) => {
   const { Authentication, TravelType } = req.body;
   const fieldNames = [
@@ -36,10 +36,16 @@ module.exports.validateSearchRequest = async (req) => {
     };
 
   const checkCompanyIdExist = await Company.findById(companyId);
+  const checkCompanycompanyStatus=await Users.findById(UserId).populate({path:'company_ID',select:"companyStatus"})
   if (!checkCompanyIdExist || checkCompanyIdExist.type !== "TMC")
     return {
       response: "TMC Compnay id does not exist",
     };
+
+    if (!checkCompanyIdExist || checkCompanycompanyStatus?.company_ID?.companyStatus.toUpperCase() !== "ACTIVE")
+      return {
+        response: "your company not Active",
+      };
 
   // Also CHeck Role Of TMC by Company Id( PENDING )
   // Logs Pending

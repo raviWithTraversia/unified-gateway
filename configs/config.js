@@ -6,7 +6,7 @@ module.exports.Config = {
     baseURLBackend: "https://kafila.traversia.net",
     additionalFlightsBaseURL: "http://tcilapi.traversia.net:31101/api",
     baseURLBackend: "https://kafila.traversia.net",
-    IRCTC_BASE_URL: "https://stagews.irctc.co.in",
+    IRCTC_BASE_URL: "https://www.aps.irctc.co.in",
   },
   LIVE: {
     baseURL: "https://agent.kafilaholidays.in", // frontend

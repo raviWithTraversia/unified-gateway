@@ -4,7 +4,7 @@ const TDRRequest = require("../../models/tdr-request.model");
 
 module.exports.fetchTxnHistory = async (request) => {
   try {
-    const { Authentication, userId = "WKAFL00000", txnId } = request;
+    const { Authentication, userId = "WKAFILA00000", txnId } = request;
     let url = `${
       Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
     }/eticketing/webservices/tabkhservices/historySearchByTxnId/${userId}/${txnId}`;
@@ -33,7 +33,7 @@ module.exports.fileTDR = async (request) => {
       txnId,
       passengerToken,
       reasonIndex,
-      irctcUserId: "WKAFL00000",
+      irctcUserId: "WKAFILA00000",
     });
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },

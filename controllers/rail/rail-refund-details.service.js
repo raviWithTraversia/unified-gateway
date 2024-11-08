@@ -4,7 +4,7 @@ module.exports.fetchRailRefundDetails = async function (request) {
   try {
     const { reservationId, cancellationId, Authentication } = request;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
-    let url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/refunddetails/${reservationId}?agentCanId=${cancellationId}`;
+    let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/refunddetails/${reservationId}?agentCanId=${cancellationId}`;
     if (Authentication?.CredentialType === "LIVE")
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/refunddetails/${reservationId}?agentCanId=${cancellationId}`;
     const { data: response } = await axios.get(url, {

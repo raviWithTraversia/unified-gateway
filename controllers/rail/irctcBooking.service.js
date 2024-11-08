@@ -35,7 +35,7 @@ const irctcPaymentSubmit = async (req, res) => {
       return { response: "companyId must be TMC" };
     }
 
-    let url = `/eticketing/webservices/tatktservices/paymentsubmit`;
+    let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/paymentsubmit`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/paymentsubmit`;
@@ -113,7 +113,7 @@ const boardingstationenq = async (req, res) => {
       return { response: "companyId must be TMC" };
     }
     let renewDate = jrnyDate.split("-");
-    let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStation}/${toStation}/${jrnClass}`;
+    let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStation}/${toStation}/${jrnClass}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStation}/${toStation}/${jrnClass}`;

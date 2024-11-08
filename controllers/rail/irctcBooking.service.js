@@ -3,6 +3,8 @@ var ObjectId = require("mongoose").Types.ObjectId;
 const User = require("../../models/User");
 const Company = require("../../models/Company");
 const axios = require("axios");
+const { Config } = require("../../configs/config");
+
 
 const createIrctcBooking = async (req, res) => {};
 
@@ -33,14 +35,14 @@ const irctcPaymentSubmit = async (req, res) => {
       return { response: "companyId must be TMC" };
     }
 
-    let url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/paymentsubmit`;
+    let url = `/eticketing/webservices/tatktservices/paymentsubmit`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `https://stagews.irctc.co.in/eticketing/webservices/tatktservices/paymentsubmit`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/paymentsubmit`;
     }
 
     let queryParams = {
-      wsUserLogin: "WKAFL00001",
+      wsUserLogin: "WKAFILA00000",
       clientTransactionId: clientTransactionId,
       paymentMode: paymentMode,
       paramMap: paramMap,
@@ -114,7 +116,7 @@ const boardingstationenq = async (req, res) => {
     let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStation}/${toStation}/${jrnClass}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStation}/${toStation}/${jrnClass}`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStation}/${toStation}/${jrnClass}`;
     }
 
     const response = (

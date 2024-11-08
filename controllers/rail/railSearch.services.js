@@ -39,7 +39,7 @@ const getRailSearch = async (req, res) => {
     let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/tatwnstns/${fromStn}/${toStn}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/tatwnstns/${fromStn}/${toStn}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/tatwnstns/${fromStn}/${toStn}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
     }
 
     const response = (
@@ -96,7 +96,7 @@ const railSearchBtwnDate = async (req, res) => {
     let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${fromStn}/${toStn}/${cls}/${quota}/N`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${fromStn}/${toStn}/${cls}/${quota}/N`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${fromStn}/${toStn}/${cls}/${quota}/N`;
     }
 
     const response = (
@@ -163,7 +163,7 @@ const railRouteView = async (req, res) => {
     // console.log(url,"url");
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/trnscheduleEnq/${trainNo}`; //?journeyDate=${journeyDate}&startingStationCode=${startingStationCode}`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/trnscheduleEnq/${trainNo}`; //?journeyDate=${journeyDate}&startingStationCode=${startingStationCode}`;
     }
 
     const response = (
@@ -263,11 +263,11 @@ else{
     let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
     }
 
     let queryParams = {
-      masterId: "WKAFL00000",
+      masterId: "WKAFILA00000",
       wsUserLogin: RailAgentId,
       enquiryType: "3",
       reservationChoice: "99",
@@ -287,6 +287,8 @@ else{
       infantList: infantList,
       gstDetails: gstDetails,
     };
+
+    console.log(url,"url")
     const response = (
       await axios.post(url, queryParams, { headers: { Authorization: auth } })
     )?.data;
@@ -350,7 +352,7 @@ const railBoardingEnquiry = async (req, res) => {
     let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
     }
 
     

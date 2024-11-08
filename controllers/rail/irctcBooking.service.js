@@ -116,7 +116,7 @@ const boardingstationenq = async (req, res) => {
     let url = `https://stagews.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStation}/${toStation}/${jrnClass}`;
     const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
     if (Authentication.CredentialType === "LIVE") {
-      url = `${Config.LIVE.IRCTC_BASE_URL}.irctc.co.in/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStation}/${toStation}/${jrnClass}`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStation}/${toStation}/${jrnClass}`;
     }
 
     const response = (

@@ -28,6 +28,7 @@ const { fetchTxnHistory, fileTDR } = require("./tdr.service");
 const railSearch = async (req, res) => {
   try {
     const result = await railSearchServices.getRailSearch(req, res);
+    console.log(result,"djei")
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (

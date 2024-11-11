@@ -42,7 +42,7 @@ const irctcPaymentSubmit = async (req, res) => {
     }
 
     let queryParams = {
-      wsUserLogin: "WKAFILA00000",
+      wsUserLogin: Authentication.CredentialType === "LIVE"?Config.LIVE.IRCTC_MASTER_ID:Config.TEST.IRCTC_MASTER_ID ,
       clientTransactionId: clientTransactionId,
       paymentMode: paymentMode,
       paramMap: paramMap,

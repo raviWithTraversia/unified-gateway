@@ -103,7 +103,7 @@ const railSearchBtwnDate = async (req, res) => {
       await axios.post(
         url,
         {
-          masterId: "WKAFL00000", //this is hard code master id for temp use
+          masterId:Authentication.CredentialType === "LIVE"?Config.LIVE.IRCTC_MASTER_ID:Config.TEST.IRCTC_MASTER_ID , //this is hard code master id for temp use
           enquiryType: "3",
           reservationChoice: "99",
           moreThanOneDay: "true",
@@ -267,7 +267,7 @@ else{
     }
 
     let queryParams = {
-      masterId: "WKAFILA00000",
+      masterId: Authentication.CredentialType === "LIVE"?Config.LIVE.IRCTC_MASTER_ID:Config.TEST.IRCTC_MASTER_ID,
       wsUserLogin: RailAgentId,
       enquiryType: "3",
       reservationChoice: "99",

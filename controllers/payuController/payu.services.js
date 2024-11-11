@@ -106,6 +106,7 @@ const payu = async (req, res) => {
       udf1: cartIdres,
       udf2: normalAmount,
       udf3: pgCharges,
+      udf4:agentId,
       udf5: agentId,
     };
 

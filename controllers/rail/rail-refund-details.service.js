@@ -3,7 +3,7 @@ const {Config}=require('../../configs/config')
 module.exports.fetchRailRefundDetails = async function (request) {
   try {
     const { reservationId, cancellationId, Authentication } = request;
-    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/refunddetails/${reservationId}?agentCanId=${cancellationId}`;
     if (Authentication?.CredentialType === "LIVE")
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/refunddetails/${reservationId}?agentCanId=${cancellationId}`;

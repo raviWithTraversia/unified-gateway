@@ -8,7 +8,7 @@ module.exports.fetchTxnHistory = async (request) => {
     let url = `${
       Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
     }/eticketing/webservices/tabkhservices/historySearchByTxnId/${userId}/${txnId}`;
-    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
 
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
@@ -24,7 +24,7 @@ module.exports.fileTDR = async (request) => {
     let url = `${
       Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
     }/eticketing/webservices/tatktservices/fileTDR/${txnId}/${passengerToken}/${reasonIndex}`;
-    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
 
     const tdrRequest = await TDRRequest.create({
       userId: Authentication.UserId,

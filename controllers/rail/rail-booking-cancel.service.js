@@ -29,7 +29,7 @@ module.exports.cancelRailBooking = async function (request) {
       remark,
       staff,
     } = request;
-    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
     let url = `${
       Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
     }/eticketing/webservices/tatktservices/cancel/${reservationId}/${txnId}/${passengerToken}`;
@@ -167,7 +167,7 @@ module.exports.verifyOTP = async (request) => {
     let url = `${
       Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
     }/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}?otpcode=${otp}`;
-    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
 
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
@@ -193,7 +193,7 @@ module.exports.resendOTP = async (request) => {
       Config[Authentication?.CredentialType ?? "TEST"].IRCTC_BASE_URL
     }/eticketing/webservices/tatktservices/canOtpAuthentication/${pnr}/${cancellationId}/${requestType}`;
 
-    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
     const { data: response } = await axios.get(url, {
       headers: { Authorization: auth },
     });

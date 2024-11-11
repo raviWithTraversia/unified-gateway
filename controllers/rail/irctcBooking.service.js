@@ -36,7 +36,7 @@ const irctcPaymentSubmit = async (req, res) => {
     }
 
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/paymentsubmit`;
-    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/paymentsubmit`;
     }
@@ -114,7 +114,7 @@ const boardingstationenq = async (req, res) => {
     }
     let renewDate = jrnyDate.split("-");
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStation}/${toStation}/${jrnClass}`;
-    const auth = "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==";
+    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStation}/${toStation}/${jrnClass}`;
     }

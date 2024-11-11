@@ -41,7 +41,7 @@ const getRailSearch = async (req, res) => {
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/tatwnstns/${fromStn}/${toStn}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
     }
-
+console.log(url,"url")
     const response = (
       await axios.get(url, { headers: { Authorization: auth } })
     )?.data;

@@ -106,8 +106,6 @@ const payu = async (req, res) => {
       udf1: cartIdres,
       udf2: normalAmount,
       udf3: pgCharges,
-      udf4:agentId,
-      udf5: agentId,
     };
 
     // Add the hash to payment details
@@ -1104,7 +1102,7 @@ const payuWalletResponceSuccess = async (req, res) => {
           paymentGateway: "PayU",
           trnsStatus: "success",
           transactionBy: userData._id,
-          transactionAmount: udf2,
+          transactionAmount: Number(udf2)+Number(udf3),
           pgCharges: udf3,
         });
 

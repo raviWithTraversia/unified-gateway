@@ -17,7 +17,7 @@ module.exports.Config = {
     baseURLBackend: "https://agentapi.kafilaholidays.in",
     IRCTC_BASE_URL: "https://www.aps.irctc.co.in",
     IRCTC_MASTER_ID:"WKAFILA00000",
-    IRCTC_AUTH:""
+    IRCTC_AUTH:"Basic V0tBRklMQTAwMDAwOjBaZzFDMw=="
   },
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",

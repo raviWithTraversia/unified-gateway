@@ -10,6 +10,7 @@ const {
   generateQR,
 } = require("../../utils/generate-qr");
 
+const {commonAgentPGCharges}=require('../../controllers/commonFunctions/common.function')
 const getRailSearch = async (req, res) => {
   try {
     const { fromStn, toStn, date, Authentication } = req.body;
@@ -215,7 +216,8 @@ const railFareEnquiry = async (req, res) => {
       gstDetailInputFlag,
       infantList,
       gstDetails,
-      RailAgentId
+      RailAgentId,
+      amount
     } = req.body;
     if ((!trainNo, !Authentication)) {
       return { response: "Provide required fields" };
@@ -250,20 +252,21 @@ let agentCharges={}
 if(jClass=="SL"){
   agentCharges.Conveniencefee=checkUser?.RailcommercialPlanIds?.Conveniencefee?.sleepar
   agentCharges.Agent_service_charge=checkUser?.RailcommercialPlanIds?.Agent_service_charge?.sleepar
-  agentCharges.PG_charges=checkUser?.RailcommercialPlanIds?.PG_charges?.sleepar
+  agentCharges.PG_charges=await commonAgentPGCharges(amount)
 
 }
 else{
   agentCharges.Conveniencefee=checkUser?.RailcommercialPlanIds?.Conveniencefee?.acCharge
   agentCharges.Agent_service_charge=checkUser?.RailcommercialPlanIds?.Agent_service_charge?.acCharge
-  agentCharges.PG_charges=checkUser?.RailcommercialPlanIds?.PG_charges?.acCharge
+  agentCharges.PG_charges=await commonAgentPGCharges(amount)
 
 }
+console.log(agentCharges)
     let renewDate = journeyDate.split("-");
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
     const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
-      url = `${Config.LIVE.IRCTC_BASE_URL}/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
     }
 
     let queryParams = {
@@ -352,7 +355,7 @@ const railBoardingEnquiry = async (req, res) => {
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
     const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
-      url = `${Config.LIVE.IRCTC_BASE_URL}/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
     }
 
     

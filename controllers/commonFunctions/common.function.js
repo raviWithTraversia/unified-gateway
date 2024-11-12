@@ -1403,6 +1403,12 @@ const getAgentConfig =await agentConfig.findOne({userId:userId})
 throw error
 }
 }
+
+const commonAgentPGCharges=async(amout)=>{
+  const amounts=Number(amout)
+  const pgCharges=amounts<2000?amounts*0.0075:amounts*0.01
+return pgCharges
+}
 module.exports = {
   createToken,
   securePassword,
@@ -1433,5 +1439,6 @@ module.exports = {
   priceRoundOffNumberValues,
   RefundedCommonFunction,
   sendTicketSms,
-  RailBookingCommonMethod
+  RailBookingCommonMethod,
+  commonAgentPGCharges
 };

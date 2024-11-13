@@ -711,9 +711,17 @@ const updateBookingStatus = async (req, res) => {
       }
     );
 
+    if(response.ErrorMessage.includes("Data not found.")||!response.IsError){
+      return {
+        response:response?.WarningMessage
+      }
+
+    }
+
       const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.bookingId });
       if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
         await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
+          
           const apiPassenger = response.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
           if (apiPassenger) {
           //  console.log(passenger,"apiPassenger");
@@ -1031,7 +1039,208 @@ else if(refundProcessed.response=="Update Status Succefully"){
   // }
 }
 
+const updateConfirmBookingStatus = async (req, res) => {
+  const { _BookingId, credentialsType } = req.body;
+  if (!_BookingId.length) {
+    return { response: "_BookingId or companyId or credentialsType does not exist" }
+  }
+  if (!["LIVE", "TEST"].includes(credentialsType)) {
+    return {
+      IsSucess: false,
+      response: "Credential Type does not exist",
+    };
+  }
+  const objectIdArray = _BookingId.map(id => new ObjectId(id));
+  const getBookingbyBookingId = await bookingDetails.aggregate([{ $match: { _id: { $in: objectIdArray } } }, {
+    $lookup: {
+      from: "suppliercodes",
+      localField: "provider",
+      foreignField: "supplierCode",
+      as: "supplierData",
+    },
+  }, { $unwind: "$supplierData" }, {
+    $lookup: {
+      from: "suppliers",
+      localField: "supplierData._id",
+      foreignField: "supplierCodeId",
+      as: "supplyData",
+    },
+  }, {
+    $project: {
+      providerBookingId: 1,
+      bookingId: 1,
+      "itinerary.TraceId": 1,
+      credentialsTypeData: {
+        $filter: {
+          input: "$supplyData",
+          as: "item",
+          cond: {
+            $and: [
+              { $eq: ["$$item.credentialsType", credentialsType] },
+              { $eq: ["$$item.status", true] }
+            ]
+          }
+        }
+      }
+    }
+  }, { $unwind: "$credentialsTypeData" }, {
+    $project: {
+      providerBookingId: 1,
+      bookingId:1,
+      traceId: "$itinerary.TraceId",
+      supplierUserId: "$credentialsTypeData.supplierUserId",
+      supplierPassword: "$credentialsTypeData.supplierPassword",
+      supplierWsapSesssion: "$credentialsTypeData.supplierWsapSesssion",
+      credentialsTypeData:1
+    }
+  }]);
+
+  if (!getBookingbyBookingId.length) {
+    return {
+      response: "No booking Found!"
+    }
+  }
+  let supplier = getBookingbyBookingId[0].credentialsTypeData;
+  let supplierLiveUrl =  "";
+  let supplierTestUrl = "";
+  if(supplier){
+    supplierLiveUrl = supplier.supplierLiveUrl;
+    supplierTestUrl = supplier.supplierTestUrl;
+  }else{
+    supplierLiveUrl = "http://fhapip.ksofttechnology.com";
+    supplierTestUrl = "http://stage1.ksofttechnology.com";
+  }
+  let createTokenUrl;
+  let credentialEnv = "D";
+  if (credentialsType === "LIVE") {
+    credentialEnv = "P";
+    createTokenUrl = `${supplierLiveUrl}/api/Freport`; // Live Url here
+  } else {
+    createTokenUrl = `${supplierTestUrl}/api/Freport`; // Test Url here
+  }
+
+  const bulkOps = [];
+  for (const item of getBookingbyBookingId) {
+    const concatenatedString = ((`${item.supplierUserId}|${item.supplierPassword}`).toUpperCase());
+    let postData = {
+      P_TYPE: "API",
+      R_TYPE: "FLIGHT",
+      R_NAME: "FlightBookingResponse",
+      R_DATA: {
+        TYPE: "PNRRES",
+        BOOKING_ID: item.providerBookingId,
+        TRACE_ID: item.traceId
+      },
+      AID: item.supplierWsapSesssion,
+      MODULE: "B2B",
+      IP: "182.73.146.154",
+      TOKEN: crypto.createHash('md5').update(concatenatedString).digest('hex'),
+      ENV: credentialEnv,
+      Version: "1.0.0.0.0.0"
+    };
+
+    const response = (await axios.post(createTokenUrl, postData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }))?.data;
+
+    let fSearchApiResponse = await axios.post(
+      createTokenUrl,
+      postData,
+      
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+      const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.bookingId });
+      if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
+        await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
+          const apiPassenger = response.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
+          if (apiPassenger) {
+          //  console.log(passenger,"apiPassenger");
+            if(passenger?.Optional?.ticketDetails?.length > 0){
+              const ticketUpdate = passenger.Optional.ticketDetails.find(p => p.src === fSearchApiResponse.data.Param.Sector[0].Src && p.des === fSearchApiResponse.data.Param.Sector[0].Des);
+          //    console.log(ticketUpdate,"ticketUpdate");
+              if(ticketUpdate){
+                console.log(apiPassenger?.Optional?.TicketNumber,"jdsdsjkdj")
+                ticketUpdate.ticketNumber = apiPassenger?.Optional?.TicketNumber;
+              }
+            }
+            
+            passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
+            passenger.Status = "CONFIRMED";
+          }
+        }));
+
+        await getpassengersPrefrence.save();
+      }
+
+
+
+    // return {
+    //   response: "Status updated Successfully!",
+    //   data:response
+    // }
+    // console.log(response);
+
+
+    bulkOps.push({
+      updateOne: {
+        filter: { _id: item._id },
+        update: { $set: { 
+          bookingStatus: response?.BookingInfo?.CurrentStatus,
+          APnr: response?.BookingInfo?.APnr,
+          GPnr:  response?.BookingInfo?.GPnr,
+          PNR: response?.BookingInfo?.APnr,
+         } }
+      }
+    });
+
+  }
+  bulkOps.forEach(async(element)=>{
+    if (element.updateOne.update.$set.bookingStatus.toUpperCase() === "CANCELLED") {
+      const bookingsData = await bookingDetails.findById(element.updateOne.filter._id);
+      const BookingIdDetails = new CancelationBooking({
+        calcelationStatus: "CANCEL" || null ,
+        bookingId:BookingIdDetails.providerBookingId,
+        providerBookingId:BookingIdDetails.providerBookingId,
+        AirlineCode: BookingIdDetails?.itinerary?.Sectors[0]?.AirlineCode || null ,
+        companyId: Authentication?.CompanyId || null,
+        userId: Authentication?.UserId || null,
+        PNR: BookingIdDetails?.PNR || null,
+        fare:BookingIdDetails?.itinerary?.TotalPrice || null ,
+        AirlineCancellationFee: 0,
+        AirlineRefund: 0,
+        ServiceFee: 0 || 0,
+        RefundableAmt: 0 || 0,
+        description:fSearchApiResponse.data.WarningMessage || null,
+        modifyBy: Authentication?.UserId || null,
+        modifyAt: new Date(),
+      });
+      // Fetch the booking data
+      await cancelationBookingInstance.save();
+      
+  }
+  
+  })
+
+  if (bulkOps.length) {
+    await bookingDetails.bulkWrite(bulkOps);
+    
+    return {
+      response: "Status updated Successfully!"
+    }
+  } else {
+    return {
+      response: "Error in updating Status!"
+    }
+  }
+}
 
 module.exports = {
-  fullCancelation, updateBookingStatus,updatePendingBookingStatus
+  fullCancelation, updateBookingStatus,updatePendingBookingStatus,updateConfirmBookingStatus
 };

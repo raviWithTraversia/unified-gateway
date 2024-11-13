@@ -552,7 +552,7 @@ const updateBookingStatus = async (req, res) => {
     } else {
       apiErrorres(
         res,
-        errorResponse.SOME_UNOWN,
+        result.response,
         ServerStatusCode.UNPROCESSABLE,
         true
       );
@@ -563,6 +563,40 @@ const updateBookingStatus = async (req, res) => {
   }
 };
 
+const updateConfirmBookingStatus = async (req, res) => {
+  try {
+    const result = await cancelationServices.updateConfirmBookingStatus(req, res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (
+      result.response ===
+        "_BookingId or companyId or credentialsType does not exist" ||
+      result.response === "Credential Type does not exist" ||
+      result.response === "Supplier credentials does not exist" ||
+      result.response === "Error in updating Status!" ||
+      result.response === "No booking Found!"
+    ) {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "Status updated Successfully!") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(res, error.message, ServerStatusCode.SERVER_ERROR, true);
+  }
+};
 const amendmentDetails = async (req, res) => {
   try {
     const result = await amendment.amendment(req, res);
@@ -891,4 +925,5 @@ module.exports = {
   deleteAmendmentDetail,
   amadeusTest,
   updatePendingBookingStatus,
+  updateConfirmBookingStatus
 };

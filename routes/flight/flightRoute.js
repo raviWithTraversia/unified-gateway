@@ -39,6 +39,11 @@ flight_route.post(
   flight.updatePendingBookingStatus
 );
 
+flight_route.post(
+  "/flight/updateConfirmBookingStatus",
+  flight.updateConfirmBookingStatus
+);
+
 flight_route.post("/flight/amendment", auth, flight.amendmentDetails);
 flight_route.post("/flight/allAmendment", auth, flight.getAllAmendment);
 flight_route.post(

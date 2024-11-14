@@ -2,6 +2,7 @@ const moment = require("moment");
 const {
   convertTravelTypeForCommonAPI,
   convertItineraryForKafila,
+  convertSegmentForKafila,
 } = require("./common-search.helper");
 
 function createAirPricingRequestBodyForCommonAPI(request) {
@@ -212,6 +213,113 @@ function convertAirPricingItineraryForCommonAPI({
   return convertedItinerary;
 }
 
+function convertSSRItineraryForCommonAPI({
+  responseMealOrBaggage,
+  responseSeat,
+  requestBody,
+  originalRequest,
+}) {
+  const reqItinerary = requestBody.journey[0].itinerary[0];
+  const journey = responseMealOrBaggage.journey[0];
+  const itinerary = journey.itinerary[0];
+  const convertedSSRResponse ={}
+ 
+  convertedSSRResponse.FareBreakup = calculateFareDifference({
+    itinerary,
+    reqItinerary,
+  });
+  convertedSSRResponse.Error = {
+    Status: null,
+    Result: null,
+    ErrorMessage: "",
+    ErrorCode: null,
+    Location: "SELL",
+    WarningMessage: "",
+    IsError: false,
+    IsWarning: false,
+  };
+  convertedSSRResponse.IsFareUpdate =
+    journey.priceChange ?? itinerary.totalPrice !== reqItinerary.totalPrice;
+    convertedSSRResponse.IsAncl = false;
+
+    convertedSSRResponse.Param = {
+    Trip: "D1",
+    Adt: originalRequest.PaxDetail.Adults,
+    Chd: originalRequest.PaxDetail.Child ?? 0,
+    Inf: originalRequest.PaxDetail.Infants ?? 0,
+    Sector:itinerary.airSegments.map(convertSegmentForKafila),
+    PF: "",
+    PC: "",
+    Routing: "ALL",
+    Ver: "1.0.0.0",
+    Auth: {
+      AgentId: null,
+      Token: null,
+    },
+    Env: "D",
+    Module: "B2B",
+    OtherInfo: {
+      PromoCode: itinerary.promotionalCode,
+      FFlight: "",
+      FareType: "",
+      TraceId: responseMealOrBaggage.traceId,
+      IsUnitTesting: false,
+      TPnr: false,
+      FAlias: null,
+      IsLca: false,
+    },
+  };
+  convertedSSRResponse.GstData = {
+    IsGst: false,
+    GstDetails: {
+      Name: "",
+      Address: "",
+      Email: "",
+      Mobile: "",
+      Pin: "",
+      State: "",
+      Type: "",
+      Gstn: "",
+      isAgentGst: false,
+    },
+  };
+  convertedSSRResponse.Ancl = {
+    Baggage: itinerary?.ssrInfo?.baggage?.map((baggage) => ({
+      Complmnt:false,
+      Paid:baggage?.paid||false,
+      Currency:baggage?.currency||"INR",
+      FCode:baggage?.airlineCode,
+      FNo:baggage?.flightNumber||"INR",
+      OI:baggage?.code||"INR",
+      Price:baggage?.amount||0,
+      SsrCode:baggage?.code||"",
+      SsrDesc:baggage?.name||"",
+      SsrFor:"Journey",
+      Trip:baggage?.wayType,
+      Src: baggage.origin,
+      Des: baggage.destination,
+    })),
+    Meals: itinerary?.ssrInfo?.meal?.map((meal) => ({
+      Complmnt:false,
+      Paid:meal?.paid||false,
+      Currency:meal?.currency||"INR",
+      FCode:meal?.airlineCode,
+      FNo:meal?.flightNumber||"INR",
+      OI:meal?.code||"INR",
+      Price:meal?.amount||0,
+      SsrCode:meal?.code||"",
+      SsrDesc:meal?.name||"",
+      SsrFor:"Journey",
+      Trip:meal?.wayType,
+      Src: meal.origin,
+      Des: meal.destination,
+    })),
+    
+  };
+  return convertedSSRResponse;
+}
+
+
 function calculateFareDifference({ itinerary, reqItinerary }) {
   return {
     FareDifference: itinerary.totalPrice - reqItinerary.totalPrice,
@@ -313,6 +421,65 @@ function airPricingBreakupForKafila(type, priceBreakup) {
   };
 }
 
+function prePareCommonSeatMapListForKafila(allSegmentsList) {
+  const allSeatsList = { SeatRow: [] };
+  allSegmentsList.forEach((segmentsList) => {
+    segmentsList.seatRows.forEach((seatRows) => {
+      seatRows.facilities.forEach((seatFacilities) => {
+        const {
+          SeatRow,
+          SeatCode,
+          Avlt,
+          Currency,
+          SsrDesc,
+          Price,
+          Compartemnt,
+          FCode,
+          FNo,
+          FType,
+          Src,
+          Des,
+          Group,
+          DDate,
+          Deck,
+          OI,
+          SsrProperty,
+        } = seatFacilities;
+        let seatRowObj = allSeatsList.SeatRow.find(
+          (row) => row.Number === seat.SeatRow
+        );
+        if (!seatRowObj) {
+          seatRowObj = { Number: seat.SeatRow, Facilities: [] };
+          allSeatsList.SeatRow.push(seatRowObj);
+        }
+        seatRowObj.Facilities.push({
+          Compartemnt: Compartemnt,
+          Type: "Seat",
+          Seatcode: SeatCode,
+          Availability: Avlt,
+          Paid: Avlt,
+          Currency: Currency,
+          Characteristics: [SsrDesc],
+          TotalPrice: Price,
+          Key: OI,
+          FCode: FCode,
+          FNo: FNo,
+          FType: FType,
+          Src: Src,
+          Des: Des,
+          Group: Group,
+          DDate: DDate,
+          Deck: Deck,
+          SsrProperty: SsrProperty,
+        });
+      });
+    });
+  });
+
+  return allSeatsList;
+};
+
+
 module.exports = {
   createAirPricingRequestBodyForCommonAPI,
   convertDurationForCommonAPI,
@@ -320,4 +487,5 @@ module.exports = {
   convertPriceBreakupForCommonAPI,
   formatDateForCommonAPI,
   convertAirPricingItineraryForCommonAPI,
+  convertSSRItineraryForCommonAPI
 };

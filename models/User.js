@@ -182,6 +182,9 @@ userSchema.pre("save", async function (next) {
 userSchema.pre("save", async function (next) {
     if (!this.isNew) return next();
 
+    if (this.userId) return next();
+
+
     try {
         const counter = await Counter.findByIdAndUpdate({ _id: "userId" }, { $inc: { seq: 1 } }, { new: true, upsert: true });
         this.userId = counter.seq;

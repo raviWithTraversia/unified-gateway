@@ -216,17 +216,23 @@ const userInsert = async (req, res) => {
       gstCity,
       gstNumber,
       gstName,
+      address,
       gstAddress_1,
       gstAddress_2,
       isIATA,
       holdPnrAllowed,
       saleInChargeId,
       cityId,
+      city,
       creditBalance,
       maxCreditLimit,
       agencyGroupId,
       adhar_Detail,
-      adhar_Number
+      adhar_Number,
+      agentId,
+      RailCashBalance,
+      flightCashBalance,
+      pincode
     } = req.body;
 
     const existingUser = await User.findOne({ email });
@@ -267,8 +273,10 @@ const userInsert = async (req, res) => {
       gstCity: gstCity || null,
       gstNumber: gstNumber || null,
       gstName: gstName || null,
-      gstAddress_1: gstAddress_1 || null,
-      gstAddress_2: gstAddress_2 || null,
+      gstAddress_1: address || null,
+      gstAddress_2: address || null,
+      companyAddress:address,
+      companyPinCode:pincode,
       isIATA: isIATA || false,
       holdPnrAllowed: holdPnrAllowed || false,
     });
@@ -326,11 +334,13 @@ const userInsert = async (req, res) => {
       roleId,
       company_ID: savedCompany._id,
       modifiedBy: req?.user?.id || null,
-      cityId,
+      city:cityId?cityId:city,
       adhar_Detail,
       adhar_Number,
+      userId:agentId,
       resetToken: resetToken
     });
+
 
     let userCreated = await newUser.save();
     let mailConfig = await Smtp.findOne({ companyId: parent });
@@ -420,6 +430,8 @@ const userInsert = async (req, res) => {
         addressOnTicketCopy: true,
         holdPNRAllowed: true,
         portalLedgerAllowed: true,
+        railCashBalance:RailCashBalance,
+        maxCreditLimit:flightCashBalance,
         fareTypes: ["NDF", "CPNS1", "CPN", "MAIN", "CDF", "SME", "CPNS", "CRCT", "CRCT1", "FD", "FF", "TBF"],
       });
       agentConfigsInsert = await agentConfigsInsert.save();

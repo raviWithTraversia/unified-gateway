@@ -186,7 +186,6 @@ const defaultFareRuleForKafila = {
 };
 
 function sumDurationForKafila(airSegments = [], type = "travelTime") {
-  console.dir({ airSegments, type }, { depth: null });
   const duration = airSegments.reduce(
     (acc, segment) => {
       if (!segment[type]) return acc;

@@ -15,9 +15,6 @@ function createAirPricingRequestBodyForCommonAPI(request) {
         "Invalid request data 'Itinerary[]' or 'Segment[]' missing"
       );
 
-    console.dir({ reqItinerary }, { depth: null });
-    console.dir({ reqSegment }, { depth: null });
-
     const requestBody = {
       typeOfTrip: request.TypeOfTrip,
       credentialType: request.Authentication.CredentialType,
@@ -149,8 +146,6 @@ function convertAirPricingItineraryForCommonAPI({
     itinerary,
     reqItinerary,
   });
-  console.dir({ itinerary }, { depth: null });
-  console.dir({ reqItinerary }, { depth: null });
   convertedItinerary.Error = {
     Status: null,
     Result: null,
@@ -213,7 +208,7 @@ function convertAirPricingItineraryForCommonAPI({
   return convertedItinerary;
 }
 
-function convertSSRItineraryForCommonAPI({
+async function convertSSRItineraryForCommonAPI({
   responseMealOrBaggage,
   responseSeat,
   requestBody,
@@ -222,8 +217,14 @@ function convertSSRItineraryForCommonAPI({
   const reqItinerary = requestBody.journey[0].itinerary[0];
   const journey = responseMealOrBaggage.journey[0];
   const itinerary = journey.itinerary[0];
-  const convertedSSRResponse ={}
- 
+  let allSegmentsOfSeatMap = [],
+    allSeatsList;
+    console.log(responseSeat?.journey[0]?.itinerary[0]?.airSegments,"airSegments")
+  if (responseSeat?.journey[0]?.itinerary?.length) {
+    allSegmentsOfSeatMap = responseSeat?.journey[0]?.itinerary[0]?.airSegments;
+  }
+  const convertedSSRResponse = {};
+
   convertedSSRResponse.FareBreakup = calculateFareDifference({
     itinerary,
     reqItinerary,
@@ -240,14 +241,14 @@ function convertSSRItineraryForCommonAPI({
   };
   convertedSSRResponse.IsFareUpdate =
     journey.priceChange ?? itinerary.totalPrice !== reqItinerary.totalPrice;
-    convertedSSRResponse.IsAncl = false;
+  convertedSSRResponse.IsAncl = false;
 
-    convertedSSRResponse.Param = {
+  convertedSSRResponse.Param = {
     Trip: "D1",
     Adt: originalRequest.PaxDetail.Adults,
     Chd: originalRequest.PaxDetail.Child ?? 0,
     Inf: originalRequest.PaxDetail.Infants ?? 0,
-    Sector:itinerary.airSegments.map(convertSegmentForKafila),
+    Sector: itinerary.airSegments.map(convertSegmentForKafila),
     PF: "",
     PC: "",
     Routing: "ALL",
@@ -283,42 +284,48 @@ function convertSSRItineraryForCommonAPI({
       isAgentGst: false,
     },
   };
+  allSeatsList = await prePareCommonSeatMapResponseForKafila(
+    allSegmentsOfSeatMap
+  );
+
   convertedSSRResponse.Ancl = {
     Baggage: itinerary?.ssrInfo?.baggage?.map((baggage) => ({
-      Complmnt:false,
-      Paid:baggage?.paid||false,
-      Currency:baggage?.currency||"INR",
-      FCode:baggage?.airlineCode,
-      FNo:baggage?.flightNumber||"INR",
-      OI:baggage?.code||"INR",
-      Price:baggage?.amount||0,
-      SsrCode:baggage?.code||"",
-      SsrDesc:baggage?.name||"",
-      SsrFor:"Journey",
-      Trip:baggage?.wayType,
+      Complmnt: false,
+      Paid: baggage?.paid || false,
+      Currency: baggage?.currency || "INR",
+      FCode: baggage?.airlineCode,
+      FNo: baggage?.flightNumber || "INR",
+      OI: baggage?.code || "INR",
+      Price: baggage?.amount || 0,
+      SsrCode: baggage?.code || "",
+      SsrDesc: baggage?.name || "",
+      SsrFor: "Journey",
+      Trip: baggage?.wayType,
       Src: baggage.origin,
       Des: baggage.destination,
     })),
     Meals: itinerary?.ssrInfo?.meal?.map((meal) => ({
-      Complmnt:false,
-      Paid:meal?.paid||false,
-      Currency:meal?.currency||"INR",
-      FCode:meal?.airlineCode,
-      FNo:meal?.flightNumber||"INR",
-      OI:meal?.code||"INR",
-      Price:meal?.amount||0,
-      SsrCode:meal?.code||"",
-      SsrDesc:meal?.name||"",
-      SsrFor:"Journey",
-      Trip:meal?.wayType,
+      Complmnt: false,
+      Paid: meal?.paid || false,
+      Currency: meal?.currency || "INR",
+      FCode: meal?.airlineCode,
+      FNo: meal?.flightNumber || "INR",
+      OI: meal?.code || "INR",
+      Price: meal?.amount || 0,
+      SsrCode: meal?.code || "",
+      SsrDesc: meal?.name || "",
+      SsrFor: "Journey",
+      Trip: meal?.wayType,
       Src: meal.origin,
       Des: meal.destination,
     })),
-    
+    Seat: {
+      SeatRow: allSeatsList,
+    },
+    Specials: [],
   };
   return convertedSSRResponse;
 }
-
 
 function calculateFareDifference({ itinerary, reqItinerary }) {
   return {
@@ -365,7 +372,6 @@ function convertFlightDetailsForCommonAPI(flight) {
 }
 
 function convertPriceBreakupForCommonAPI(breakups) {
-  console.log({ breakups });
   breakups = breakups.reduce(
     (acc, breakup) => {
       if (!breakup.PassengerType) return acc;
@@ -421,64 +427,73 @@ function airPricingBreakupForKafila(type, priceBreakup) {
   };
 }
 
-function prePareCommonSeatMapListForKafila(allSegmentsList) {
-  const allSeatsList = { SeatRow: [] };
-  allSegmentsList.forEach((segmentsList) => {
+async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
+  const seatMapRowColumnList = [];
+  let facilitiesArrayList = [];
+  if(!allSegmentsList?.length)
+    return
+  await allSegmentsList.forEach((segmentsList) => {
     segmentsList.seatRows.forEach((seatRows) => {
+      facilitiesArrayList = [];
       seatRows.facilities.forEach((seatFacilities) => {
         const {
-          SeatRow,
-          SeatCode,
-          Avlt,
-          Currency,
-          SsrDesc,
-          Price,
-          Compartemnt,
-          FCode,
-          FNo,
-          FType,
-          Src,
-          Des,
-          Group,
-          DDate,
-          Deck,
-          OI,
-          SsrProperty,
+          type,
+          seatCode,
+          availability,
+          currency,
+          amount,
+          compartment,
+          key,
+          deck,
+          characteristics,
+          paid,
         } = seatFacilities;
-        let seatRowObj = allSeatsList.SeatRow.find(
-          (row) => row.Number === seat.SeatRow
-        );
-        if (!seatRowObj) {
-          seatRowObj = { Number: seat.SeatRow, Facilities: [] };
-          allSeatsList.SeatRow.push(seatRowObj);
+
+        let DDate = "",
+          ssrProperty = [];
+        if (segmentsList?.origin?.date) {
+          DDate = moment(segmentsList?.origin?.date, "DD/MM/YYYY").format(
+            "YYYY-MM-DD"
+          );
+          DDate = DDate + "T00:00:00.000Z";
         }
-        seatRowObj.Facilities.push({
-          Compartemnt: Compartemnt,
-          Type: "Seat",
-          Seatcode: SeatCode,
-          Availability: Avlt,
-          Paid: Avlt,
-          Currency: Currency,
-          Characteristics: [SsrDesc],
-          TotalPrice: Price,
-          Key: OI,
-          FCode: FCode,
-          FNo: FNo,
-          FType: FType,
-          Src: Src,
-          Des: Des,
-          Group: Group,
+        if (characteristics?.length && characteristics.includes("Aisle seat"))
+          ssrProperty.push({
+            SKey: "AISLE",
+            SValue: "True",
+          });
+        facilitiesArrayList.push({
+          Compartemnt: compartment,
+          Type: type || "Seat",
+          Seatcode: seatCode,
+          Availability: availability == "Available" ? true : false,
+          Paid: paid,
+          Currency: currency,
+          Characteristics: characteristics,
+          TotalPrice: amount,
+          Key: key,
+          FCode: segmentsList?.airlineCode || "",
+          FNo: segmentsList?.flightNumber || "",
+          FType: "",
+          Src: segmentsList?.origin?.code || "",
+          Des: segmentsList?.destination?.code || "",
+          Group: "",
           DDate: DDate,
-          Deck: Deck,
-          SsrProperty: SsrProperty,
+          Deck: deck,
+          SsrProperty: ssrProperty,
         });
       });
+      if (facilitiesArrayList?.length) {
+        seatMapRowColumnList.push({
+          Number: seatRows?.number,
+          Facilities: facilitiesArrayList,
+        });
+      }
     });
   });
 
-  return allSeatsList;
-};
-
+  return seatMapRowColumnList;
+}
 
 module.exports = {
   createAirPricingRequestBodyForCommonAPI,
@@ -487,5 +502,5 @@ module.exports = {
   convertPriceBreakupForCommonAPI,
   formatDateForCommonAPI,
   convertAirPricingItineraryForCommonAPI,
-  convertSSRItineraryForCommonAPI
+  convertSSRItineraryForCommonAPI,
 };

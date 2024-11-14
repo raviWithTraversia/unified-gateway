@@ -28,7 +28,7 @@ module.exports.getCommonSSR = async (request) => {
       ssrOnlySeatURL,
       requestBody
     );
-    const convertedSSRItinerary = convertSSRItineraryForCommonAPI({
+    const convertedSSRItinerary = await convertSSRItineraryForCommonAPI({
       responseMealOrBaggage: responseMealOrBaggage.data,
       responseSeat: responseSeat.data,
       requestBody,

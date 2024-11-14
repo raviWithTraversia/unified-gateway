@@ -303,7 +303,7 @@ const specialServiceReq = async (req, res) => {
     } else {
       apiErrorres(
         res,
-        errorResponse.SOME_UNOWN,
+        result?.response||errorResponse.SOME_UNOWN,
         ServerStatusCode.UNPROCESSABLE,
         true
       );
@@ -312,7 +312,7 @@ const specialServiceReq = async (req, res) => {
     console.error(error);
     apiErrorres(
       res,
-      errorResponse.SOMETHING_WRONG,
+      error?.message||errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );

@@ -82,12 +82,23 @@ const specialServiceReq = async (req, res) => {
       ssrReqData?.Itinerary?.[0]?.Provider &&
       ssrReqData?.Itinerary?.[0]?.Provider !== "Kafila"
     ) {
-      console.log("fetching common SSR");
       try {
         const { result, error } = await getCommonSSR(req.body);
-        return { response: "Fetch Data Successfully", data: { result, error } };
+
+        let convertedSSRData = {
+          IsSucess: true,
+            response: {
+              IsSucess: true,
+              response: result||null,
+            },
+          
+        };
+        return { response: "Fetch Data Successfully", data: convertedSSRData };
       } catch (commonSSRError) {
-        console.log({ commonSSRError });
+        return {
+          response: commonSSRError?.message || "Error in Baggage",
+          data: commonSSRError,
+        };
       }
     } else {
       result = await handleflight(

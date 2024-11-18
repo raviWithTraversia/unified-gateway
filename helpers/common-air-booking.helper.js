@@ -169,9 +169,9 @@ function convertBookingResponse(request, response) {
   const pnrs = response?.data?.journey?.[0]?.recLocInfo;
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs.length) {
-    PNR = pnrs.find((pnr) => pnr.type === "Airline").pnr ?? null;
-    APnr = pnrs.find((pnr) => pnr.type === "AirReservation").pnr ?? null;
-    GPnr = pnrs.find((pnr) => pnr.type === "GDS").pnr ?? null;
+    PNR = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
+    APnr = pnrs.find((pnr) => pnr.type === "AirReservation")?.pnr ?? null;
+    GPnr = pnrs.find((pnr) => pnr.type === "GDS")?.pnr ?? null;
   }
   // if (tickets.length) {
   // }

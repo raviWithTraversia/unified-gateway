@@ -13,6 +13,7 @@ const airlineCodeModel = require("../../models/AirlineCode");
 const ssrCommercialModel = require("../../models/SsrCommercial");
 const moment = require("moment");
 const agencyConfigModel = require("../../models/AgentConfig");
+const { getCommonSSR } = require("../../services/common-ssr.service");
 
 const specialServiceReq = async (req, res) => {
   try {
@@ -77,6 +78,28 @@ const specialServiceReq = async (req, res) => {
       return {
         response: "Travel Type Not Valid",
       };
+    } else if (
+      ssrReqData?.Itinerary?.[0]?.Provider &&
+      ssrReqData?.Itinerary?.[0]?.Provider !== "Kafila"
+    ) {
+      try {
+        const { result, error } = await getCommonSSR(req.body);
+
+        let convertedSSRData = {
+          IsSucess: true,
+            response: {
+              IsSucess: true,
+              response: result||null,
+            },
+          
+        };
+        return { response: "Fetch Data Successfully", data: convertedSSRData };
+      } catch (commonSSRError) {
+        return {
+          response: commonSSRError?.message || "Error in Baggage",
+          data: commonSSRError,
+        };
+      }
     } else {
       result = await handleflight(
         Authentication,
@@ -103,15 +126,15 @@ const specialServiceReq = async (req, res) => {
         //console.log("<<<<",Authentication.UserId, TravelType,DepartureDate,AirlinesData ,">>>>>>>>>>>>>>>>>>>>")
         let tmcSsrData;
         try {
-            tmcSsrData = await ssrCommercialGroup(
-                Authentication.UserId,
-                TravelType,
-                DepartureDate,
-                AirlinesData
-            );
+          tmcSsrData = await ssrCommercialGroup(
+            Authentication.UserId,
+            TravelType,
+            DepartureDate,
+            AirlinesData
+          );
         } catch (error) {
-            console.error("Error occurred while fetching TMC SSR data:", error);
-            tmcSsrData = null; // Assigning null in case of an error
+          console.error("Error occurred while fetching TMC SSR data:", error);
+          tmcSsrData = null; // Assigning null in case of an error
         }
 
         //console.log("---------------------",tmcSsrData);
@@ -121,7 +144,7 @@ const specialServiceReq = async (req, res) => {
         } else {
           result.tmcSsrData = null;
         }
-        
+
         if (tmcSsrData != null && tmcSsrData.length > 0) {
           let seatObj = result.response.response.Ancl.Seat.SeatRow;
           let mealObj = result.response.response.Ancl.Meals;
@@ -130,25 +153,25 @@ const specialServiceReq = async (req, res) => {
           let baggageSsr = tmcSsrData[0]?.baggage;
           let mealSsr = tmcSsrData[0]?.meal;
           //console.log("===>>>>>>>>>>>>>>>>>>>>>>>>",seatSsr);
-          if (typeof seatSsr !== 'undefined') {
-          result.response.response.Ancl.Seat.SeatRow = rePriceSeat(
-            seatObj,
-            seatSsr
-          );
-          }else{
+          if (typeof seatSsr !== "undefined") {
+            result.response.response.Ancl.Seat.SeatRow = rePriceSeat(
+              seatObj,
+              seatSsr
+            );
+          } else {
             result.response.response.Ancl.Seat.SeatRow = [];
           }
-          if (typeof mealSsr !== 'undefined') {
+          if (typeof mealSsr !== "undefined") {
             result.response.response.Ancl.Meals = rePriceMeal(mealObj, mealSsr);
-          }else{
+          } else {
             result.response.response.Ancl.Meals = [];
           }
-          if (typeof baggageSsr !== 'undefined') {
+          if (typeof baggageSsr !== "undefined") {
             result.response.response.Ancl.Baggage = repriceBaggage(
               baggageObj,
               baggageSsr
             );
-          }else{
+          } else {
             result.response.response.Ancl.Baggage = [];
           }
         }
@@ -475,7 +498,7 @@ const processSsrArray = (reqArray, provider) => {
           DDate,
           Deck,
           OI,
-          SsrProperty
+          SsrProperty,
         } = seat;
         let seatRowObj = resArray.SeatRow.find(
           (row) => row.Number === seat.SeatRow
@@ -503,7 +526,7 @@ const processSsrArray = (reqArray, provider) => {
           Group: Group,
           DDate: DDate,
           Deck: Deck,
-          SsrProperty:SsrProperty
+          SsrProperty: SsrProperty,
         });
       });
     });
@@ -556,32 +579,34 @@ const ssrCommercialGroup = async (
           model: "ssrCommercial",
         },
       },
-    }).populate({
+    })
+    .populate({
       path: "ssrCommercialGroupId",
       populate: {
         path: "ssrCommercialIds",
         model: "ssrCommercial",
       },
     });
-  
+
   //console.log("pppppppppppppppppppppp",ssrCommercialGroup);
   let ssrCommercialGroupData = null;
-  if (ssrCommercialGroup && ssrCommercialGroup.ssrCommercialGroupId != null) {    
-      ssrCommercialGroupData = ssrCommercialGroup.ssrCommercialGroupId.ssrCommercialIds;
+  if (ssrCommercialGroup && ssrCommercialGroup.ssrCommercialGroupId != null) {
+    ssrCommercialGroupData =
+      ssrCommercialGroup.ssrCommercialGroupId.ssrCommercialIds;
   } else {
-      ssrCommercialGroupData = ssrCommercialGroup?.agencyGroupId?.ssrCommercialGroupId?.ssrCommercialIds ?? null;
+    ssrCommercialGroupData =
+      ssrCommercialGroup?.agencyGroupId?.ssrCommercialGroupId
+        ?.ssrCommercialIds ?? null;
   }
-  
-  
-    
+
   let ssrCommercialBestMatch = [];
   if (ssrCommercialGroupData != null && ssrCommercialGroupData.length > 0) {
     for (let i = 0; i < ssrCommercialGroupData.length; i++) {
       let airlineCodeId;
       let airlineCodeData = await airlineCodeModel.findById(
         ssrCommercialGroupData[i].airlineCodeId
-      ); 
-      //console.log("pppppppppppppppppppppp",airlineCodeData);     
+      );
+      //console.log("pppppppppppppppppppppp",airlineCodeData);
       // moment(currentTimestamp).isAfter(moment(otpData[0]?.otpExpireTime))
       if (airlineCodeData !== null) {
         // console.log("=======>>>", i ,'---',moment(DepartureDate).isAfter(
@@ -623,11 +648,11 @@ const ssrCommercialGroup = async (
         ) {
           ssrCommercialBestMatch.push(ssrCommercialGroupData[i]);
           break;
-        } 
+        }
         // else {
         //   ssrCommercialBestMatch.push(null);
         // }
-      } 
+      }
       // else {
       //   ssrCommercialBestMatch.push(null); // Push null if airlineCodeData is null
       // }
@@ -647,20 +672,21 @@ const rePriceSeat = (seatObj, seatSsr) => {
           if (key === "TotalPrice" && facility[key] > 0) {
             let price = facility[key];
             let markupPercent = (price / 100) * seatSsr?.markup?.percentCharge;
-            
+
             let discountPercent =
-              ((price + markupPercent + seatSsr?.markup?.fixCharge ) / 100) * seatSsr?.discount?.percentCharge;
+              ((price + markupPercent + seatSsr?.markup?.fixCharge) / 100) *
+              seatSsr?.discount?.percentCharge;
             let totalMarkup = markupPercent + seatSsr?.markup?.fixCharge;
             let totalDiscount = discountPercent + seatSsr?.discount?.fixCharge;
 
             if (totalMarkup >= seatSsr?.markup?.maxValue) {
               totalMarkup = totalMarkup;
-            }else{
+            } else {
               totalMarkup = seatSsr?.markup?.maxValue;
             }
             if (totalDiscount >= seatSsr?.discount?.maxValue) {
               totalDiscount = totalDiscount;
-            }else{
+            } else {
               totalDiscount = seatSsr?.discount?.maxValue;
             }
 
@@ -681,28 +707,29 @@ const rePriceSeat = (seatObj, seatSsr) => {
   return seatObj;
 };
 
-const rePriceMeal = (mealObj, mealSsr) => {  
+const rePriceMeal = (mealObj, mealSsr) => {
   for (let obj of mealObj) {
     for (let key in obj) {
       if (key === "Price" && obj[key] > 0) {
         let price = obj[key];
-        
-        let percentPrice = (price  / 100) * mealSsr.markup.percentCharge;
+
+        let percentPrice = (price / 100) * mealSsr.markup.percentCharge;
         let percentPriceDiscount =
-          ((price + percentPrice + mealSsr.markup.fixCharge) / 100) * mealSsr.discount.percentCharge;
+          ((price + percentPrice + mealSsr.markup.fixCharge) / 100) *
+          mealSsr.discount.percentCharge;
         let fixAndPercentMarkup = percentPrice + mealSsr.markup.fixCharge;
         let fixAndPercentMarkupDiscount =
           percentPriceDiscount + mealSsr.discount.fixCharge;
 
         if (fixAndPercentMarkup >= mealSsr.markup.maxValue) {
           fixAndPercentMarkup = fixAndPercentMarkup;
-        }else{
+        } else {
           fixAndPercentMarkup = mealSsr.markup.maxValue;
         }
-        
+
         if (fixAndPercentMarkupDiscount >= mealSsr.discount.maxValue) {
           fixAndPercentMarkupDiscount = fixAndPercentMarkupDiscount;
-        }else{
+        } else {
           fixAndPercentMarkupDiscount = mealSsr.discount.maxValue;
         }
 
@@ -711,7 +738,7 @@ const rePriceMeal = (mealObj, mealSsr) => {
           mealSsr.discount.tds === null || mealSsr.discount.tds < 5
             ? (fixAndPercentMarkupDiscount / 100) * 5
             : (fixAndPercentMarkupDiscount / 100) * mealSsr.discount.tds;
-           
+
         let newPrice = price + netMarkup;
         obj.rePrice = newPrice;
         obj.tds = tds;
@@ -726,27 +753,29 @@ const repriceBaggage = (baggageObj, baggageSsr) => {
     for (let key in baggage) {
       if (key === "Price") {
         if (baggage[key] > 0) {
-          let price = baggage[key];          
+          let price = baggage[key];
           let percentPrice =
             (baggage[key] / 100) * baggageSsr.markup.percentCharge;
-            
+
           let percentPriceDiscount =
-            ((baggage[key] + percentPrice + baggageSsr.markup.fixCharge) / 100) * baggageSsr.discount.percentCharge;
+            ((baggage[key] + percentPrice + baggageSsr.markup.fixCharge) /
+              100) *
+            baggageSsr.discount.percentCharge;
           let fixAndPercentMarkup = percentPrice + baggageSsr.markup.fixCharge;
-          
+
           let fixAndPercentMarkupDiscount =
             percentPriceDiscount + baggageSsr.discount.fixCharge;
 
           if (fixAndPercentMarkup >= baggageSsr.markup.maxValue) {
             fixAndPercentMarkup = fixAndPercentMarkup;
-          }else{
+          } else {
             fixAndPercentMarkup = baggageSsr.markup.maxValue;
           }
           if (fixAndPercentMarkupDiscount >= baggageSsr.discount.maxValue) {
             fixAndPercentMarkupDiscount = fixAndPercentMarkupDiscount;
-          }else{
+          } else {
             fixAndPercentMarkupDiscount = baggageSsr.discount.maxValue;
-          }          
+          }
           let netMarkup = fixAndPercentMarkup - fixAndPercentMarkupDiscount;
           let tds;
           if (baggageSsr.discount.tds === null || baggageSsr.discount.tds < 5) {

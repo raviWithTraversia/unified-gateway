@@ -5,7 +5,8 @@ const agentConfig = require("../../models/AgentConfig");
 const UserModule = require("../../models/User");
 const agencyGroup = require("../../models/AgencyGroup");
 const EventLogs=require('../logs/EventApiLogsCommon')
-const user=require('../../models/User')
+const user=require('../../models/User');
+const { getCommonFairRules } = require("../../services/common-fair-rules.service");
 
 const addFareRuleGroup = async (req, res) => {
   try {
@@ -165,32 +166,44 @@ const getCustomFareRule = async (req, res) => {
     };
   }
 
-  const userDetails = await UserModule.findOne({ _id: UserId });
-  if (!userDetails) {
-    return {
-      IsSuccess: false,
-      response: "User Id Not Available",
-    };
-  }
-  const companyDetails = await Company.findOne({
-    _id: userDetails.company_ID,
-  }).populate("parent", "type");
+  if (provider == "Kafila") {
+    const userDetails = await UserModule.findOne({ _id: UserId });
+    if (!userDetails) {
+      return {
+        IsSuccess: false,
+        response: "User Id Not Available",
+      };
+    }
+    const companyDetails = await Company.findOne({
+      _id: userDetails.company_ID,
+    }).populate("parent", "type");
 
-  // Check if company Id exists
-  if (!companyDetails) {
-    return {
-      response: "TMC Compnay id does not exist",
-    };
-  }
-  const assignFareRuleGroup = await getAssignCommercial(
-    companyDetails._id,
-    req.body
-  );
+    // Check if company Id exists
+    if (!companyDetails) {
+      return {
+        response: "TMC Compnay id does not exist",
+      };
+    }
+    const assignFareRuleGroup = await getAssignCommercial(
+      companyDetails._id,
+      req.body
+    );
 
-  return {
-    response: "Fetch Data Successfully",
-    data: assignFareRuleGroup,
-  };
+    return {
+      response: "Fetch Data Successfully",
+      data: assignFareRuleGroup,
+    };
+  } else if (provider == "1A") {
+    try {
+      const { result, error } = await getCommonFairRules(req.body);
+      return { response: "Fetch Data Successfully", data: result };
+    } catch (commonCustomFareRuleError) {
+      return {
+        response: commonCustomFareRuleError?.message || "Error in Fare Rule",
+        data: commonCustomFareRuleError,
+      };
+    }
+  }
 };
 const getAssignCommercial = async (companyId, requestPayload) => {
   let getAgentConfig = await agentConfig.findOne({ companyId: companyId });

@@ -145,14 +145,14 @@ const getCustomFareRule = async (req,res) => {
   }else{
     apiErrorres(
       res,
-      ServerStatusCode.RESOURCE_NOT_FOUND,
+      result?.response||ServerStatusCode.RESOURCE_NOT_FOUND,
       errorResponse.SOME_UNOWN,
       true
     );
   }
 
   }catch(error){
-     apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
+     apiErrorres(res,error?.message|| error, ServerStatusCode.SERVER_ERROR, true);
 
   }
 }

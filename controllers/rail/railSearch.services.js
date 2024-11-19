@@ -10,10 +10,10 @@ const {
   generateQR,
 } = require("../../utils/generate-qr");
 
-const {commonAgentPGCharges}=require('../../controllers/commonFunctions/common.function')
+const {commonAgentPGCharges,commonFunctionsRailLogs}=require('../../controllers/commonFunctions/common.function')
 const getRailSearch = async (req, res) => {
   try {
-    const { fromStn, toStn, date, Authentication } = req.body;
+    const { fromStn, toStn, date, Authentication,traceId } = req.body;
     if ((!fromStn, !toStn, !date, !Authentication)) {
       return { response: "Provide required fields" };
     }
@@ -23,9 +23,11 @@ const getRailSearch = async (req, res) => {
         response: "Credential Type does not exist",
       };
     }
+    
     const checkUser = await User.findById(Authentication.UserId).populate(
       "roleId"
     );
+    
     const checkCompany = await Company.findById(Authentication.CompanyId);
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
@@ -51,6 +53,9 @@ console.log(url,"url")
         response: "Error in fetching data",
       };
     } else {
+      response.traceId=traceId
+      commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"Rail Search",url,req.body,response)
+      
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -69,7 +74,7 @@ console.log(url,"url")
 
 const railSearchBtwnDate = async (req, res) => {
   try {
-    const { trainNo, fromStn, toStn, date, Authentication, quota, cls } =
+    const { trainNo, fromStn, toStn, date, Authentication, quota, cls,traceId } =
       req.body;
     if ((!fromStn, !toStn, !date, !Authentication)) {
       return { response: "Provide required fields" };
@@ -117,6 +122,8 @@ const railSearchBtwnDate = async (req, res) => {
         response: "Error in fetching data",
       };
     } else {
+      commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"Rail Search between Date",url,req.body,response)
+      
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -176,6 +183,9 @@ const railRouteView = async (req, res) => {
         response: "Error in fetching data",
       };
     } else {
+      response.traceId=traceId
+      commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"Rail Search",url,req.body,response)
+      
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -217,7 +227,8 @@ const railFareEnquiry = async (req, res) => {
       infantList,
       gstDetails,
       RailAgentId,
-      amount
+      amount,
+      traceId
     } = req.body;
     if ((!trainNo, !Authentication)) {
       return { response: "Provide required fields" };
@@ -302,7 +313,10 @@ console.log(agentCharges)
         response: "Error in fetching data",
       };
     } else {
+      response.traceId=traceId
       response.CommercialCharges=agentCharges
+      commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"FareEnquiry",url,req.body,response)
+      
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -364,11 +378,13 @@ const railBoardingEnquiry = async (req, res) => {
       await axios.get(url, { headers: { Authorization: auth } })
     )?.data;
     // console.log(response);
+    
     if (!response) {
       return {
         response: "Error in fetching data",
       };
     } else {
+      
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -389,6 +405,7 @@ const ChangeBoardingStation = async (req, res) => {
       boardingStation,
       boardingStnName,
       Authentication,
+      traceId
       
     } = req.body;
     if ((!pnr, !Authentication)) {
@@ -430,8 +447,11 @@ const ChangeBoardingStation = async (req, res) => {
     } else {
       if(response.success=='true'&&response.status.includes("Boarding point has been changed successfully.")){
         console.log(response)
+        response.traceId=traceId
+
         await RailBookingSchema.findOneAndUpdate({pnrNumber:response.pnr},{$set:{boardingStn:response.newBoardingPoint,boardingDate:response.newBoardingDate,boardingStnName:boardingStnName}},{new:true})
 }
+commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"Boarding Station",url,req.body,response)
 
       return {
         response: "Fetch Data Successfully",
@@ -491,6 +511,7 @@ const PnrEnquirry = async (req, res) => {
         response: "Error in fetching data",
       };
     } else {
+    
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -553,6 +574,7 @@ const DecodeToken = async (req, res) => {
         { $set: jsonData },
         { new: true }
       );
+      // commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.userId,traceId,"Decode Token for Booking","TOken",data,jsonData)
        successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>

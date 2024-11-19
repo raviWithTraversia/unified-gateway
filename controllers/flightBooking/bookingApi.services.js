@@ -3050,7 +3050,7 @@ const UpdateAdvanceMarkup = async (req, res) => {
     //   }
     // };
     const updateData = data.map((item) => {
-      const { id, advanceAgentMarkup } = item;
+      const { id, advanceAgentMarkup ,advanceMarkupTotalDiscount} = item;
       if (!id || !advanceAgentMarkup) {
         return {
           response: "id advanceAgentMarkup not found",
@@ -3058,7 +3058,10 @@ const UpdateAdvanceMarkup = async (req, res) => {
       }
       return bookingdetails.findByIdAndUpdate(
         new ObjectId(id),
-        { $set: { "itinerary.advanceAgentMarkup": advanceAgentMarkup } },
+        { $set: { "itinerary.advanceAgentMarkup": advanceAgentMarkup,
+          "itinerary.advanceMarkupTotalDiscount":advanceMarkupTotalDiscount
+
+         } },
         { new: true }
       );
     });

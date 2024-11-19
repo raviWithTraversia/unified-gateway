@@ -19,6 +19,8 @@ const RailBookingSchema=require('../../models/Irctc/bookingDetailsRail');
 const { UserBindingInstance } = require("twilio/lib/rest/chat/v2/service/user/userBinding");
 const { UserDefinedMessageInstance } = require("twilio/lib/rest/api/v2010/account/call/userDefinedMessage");
 const transaction=require('../../models/transaction')
+const railLogs=require('../../models/Irctc/railLogs')
+const {ObjectId}=require('mongodb')
 
 const createToken = async (id) => {
   try {
@@ -1409,6 +1411,34 @@ const commonAgentPGCharges=async(amout)=>{
   const pgCharges=amounts<2000?amounts*0.0075:amounts*0.01
 return pgCharges
 }
+
+const commonFunctionsRailLogs = async (userId, companyId, traceId, type, url, req, res) => {
+  try {
+    console.log(userId, companyId, traceId, type, url, req, res);
+
+    // Ensure `userId` and `companyId` are valid ObjectId instances
+    const validUserId = new mongoose.Types.ObjectId(userId);
+    const validCompanyId = new mongoose.Types.ObjectId(companyId);
+
+    // Create the document
+    const raillog = new railLogs({
+      userId: validUserId,
+      companyId: validCompanyId,
+      traceId,
+      type,
+      url,
+      req:JSON.stringify(req),
+      res:JSON.stringify(res),
+    });
+
+    // Save the instance
+console.log(railLogs,"djieie")
+  await   raillog.save()
+    console.log('Document created successfully');
+  } catch (error) {
+    console.error('Error creating document:', error.message);
+  }
+}
 module.exports = {
   createToken,
   securePassword,
@@ -1440,5 +1470,6 @@ module.exports = {
   RefundedCommonFunction,
   sendTicketSms,
   RailBookingCommonMethod,
-  commonAgentPGCharges
+  commonAgentPGCharges,
+  commonFunctionsRailLogs
 };

@@ -218,7 +218,10 @@ const bookingDetailsSchema = new mongoose.Schema(
           feesFare: { type: Number, default: 0 },
           gstFare: { type: Number, default: 0 },
         },
+
+
       },
+      advanceMarkupTotalDiscount:{type :Number,default:0},
       PriceBreakup: [
         {
           PassengerType: { type: String, default: null },

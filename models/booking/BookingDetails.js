@@ -189,6 +189,7 @@ const bookingDetailsSchema = new mongoose.Schema(
     },
     itinerary: {
       UID: { type: String, default: null },
+      UniqueKey: { type: String, default: null },
       BaseFare: { type: Number, default: null },
       Taxes: { type: Number, default: null },
       TotalPrice: { type: Number, default: null },

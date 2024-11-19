@@ -9,6 +9,7 @@ const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
+const { commonAirBookingCancellation } = require("../../services/common-air-cancellation");
 const flightCache = new NodeCache();
 
 const fullCancelationCharge = async (req, res) => {
@@ -82,37 +83,57 @@ const fullCancelationCharge = async (req, res) => {
        agencyUserId = agencyUser._id;
      }
    }
-console.log(TravelType,"djfe")
-  let result;
-  if (TravelType !== "International" && TravelType !== "Domestic") {
-    return {
-      response: "Travel Type Not Valid",
-    };
-  } else {
-    result = await handleflight(
-      Authentication,
-      Provider,
-      PNR,
-      TravelType,
-      BookingId,
-      CancelType,      
-      Sector,
-      Reason,
-      agencyUserId      
-    );
-// console.log(Reason,'0')
-  }
+  if (Provider == "Kafila") {
+    let result;
+    if (TravelType !== "International" && TravelType !== "Domestic") {
+      return {
+        response: "Travel Type Not Valid",
+      };
+    } else {
+      result = await handleflight(
+        Authentication,
+        Provider,
+        PNR,
+        TravelType,
+        BookingId,
+        CancelType,
+        Sector,
+        Reason,
+        agencyUserId
+      );
+      // console.log(Reason,'0')
+    }
 
-  if (!result.IsSucess) {
-    return {
-      response: result.response,
-    };
-  } else {
-    return {
-      response: "Fetch Data Successfully",
-      data: result.response,
-      apiReq: result.apiReq,
-    };
+    if (!result.IsSucess) {
+      return {
+        response: result.response,
+      };
+    } else {
+      return {
+        response: "Fetch Data Successfully",
+        data: result.response,
+        apiReq: result.apiReq,
+      };
+    }
+  }else if(Provider == "1A"){
+    try {
+      const { result, error } = await commonAirBookingCancellation(req.body);
+
+      let convertedSSRData = { 
+        IsSucess: true,
+          response: {
+            IsSucess: true,
+            response: result||null,
+          },
+        
+      };
+      return { response: "Fetch Data Successfully", data: convertedSSRData };
+    } catch (commonCancellationError) {
+      return {
+        response: commonCancellationError?.message || "Error in Cancellations",
+        data: commonCancellationError,
+      };
+    }
   }
 };
 

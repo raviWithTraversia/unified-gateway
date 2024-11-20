@@ -989,7 +989,7 @@ const KafilaFun = async (
             totalSeatPrice: itineraryItem.totalSeatPrice ?? 0,
             itinerary: {
               UID: itineraryItem.UID,
-              UniqueKey: itineraryItem.UniqueKey,
+              UniqueKey: itineraryItem?.UniqueKey||"",
               BaseFare: itineraryItem.BaseFare,
               Taxes: itineraryItem.Taxes,
               TotalPrice: itineraryItem.TotalPrice,
@@ -1633,7 +1633,7 @@ const kafilaFunOnlinePayment = async (
         totalSeatPrice: itineraryItem.totalSeatPrice,
         itinerary: {
           UID: itineraryItem.UID,
-          UniqueKey: itineraryItem.UniqueKey,
+          UniqueKey: itineraryItem?.UniqueKey||"",
           BaseFare: itineraryItem.BaseFare,
           Taxes: itineraryItem.Taxes,
           TotalPrice: itineraryItem.TotalPrice,

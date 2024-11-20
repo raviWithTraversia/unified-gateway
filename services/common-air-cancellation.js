@@ -16,7 +16,6 @@ module.exports.commonAirBookingCancellation = async function (request) {
         .additionalFlightsBaseURL + "/cancel/cancelPNR";
 
     const { data: response } = await axios.post(url, requestBody);
-    console.dir({ response }, { depth: null });
     return {result:response?.data}
   } catch (error) {
     console.log({ error });

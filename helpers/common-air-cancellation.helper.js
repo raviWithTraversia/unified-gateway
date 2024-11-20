@@ -37,7 +37,7 @@ function createAirCancellationRequestBodyForCommonAPI(request) {
             {
               recordLocator: "MXML6Q",
               cancelRemarks: reqItinerary?.Reason?.Reason||"",
-              cancelType: request?.cancelType||"",
+              cancelType: request?.CancelType||"",
               airSegments: request.Segments.map((sector) => ({
                 airlineCode: sector?.AirlineCode,
                 departure: convertFlightDetailsForCommonAPI(sector?.Departure),
@@ -46,12 +46,16 @@ function createAirCancellationRequestBodyForCommonAPI(request) {
                   ? { code: reqItinerary?.ValCarrier }
                   : null,
                 fltNum: sector?.FltNum,
+                travellerDetails:sector?.travellerDetails||[]
               })),
-            },
+            }, 
           ],
         },
       ],
     };
+
+    
+    console.log(JSON.stringify(requestBody),"requestBody")
     return { requestBody };
   } catch (error) {
     return { error: error.message };

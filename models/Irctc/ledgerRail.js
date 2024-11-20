@@ -22,16 +22,20 @@ const ledgerRailSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
-    deal:{
+    agentCharges:{
       type: Number,
       default: 0,
     },
-    tds:{
+    convenceFee:{
+      type: Number,
+      default: 0,
+    },
+    pgCharges:{
       type: Number,
       default: 0,
     },
     product: {
-      type: String,
+      type: String, 
     },
     currencyType: {  
       type: String,
@@ -68,18 +72,6 @@ const ledgerRailSchema = new mongoose.Schema(
     cartId: {
       type: String,
       default: null,
-    },
-    creationDate: {
-      type: Date,
-      default: Date.now,
-    },
-    modifyBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    modifyAt: {
-      type: Date,
-      default: Date.now,
     },
   },
   {

@@ -1334,7 +1334,7 @@ console.log('dji')
   }
 };
 
-const RailBookingCommonMethod=async(userId,amount,companyId,bookingId,paymentMethodType)=>{
+const RailBookingCommonMethod=async(userId,amount,companyId,bookingId,paymentMethodType,commercialBreakup)=>{
 try{
   if (paymentMethodType === "Wallet") {
     try {
@@ -1361,13 +1361,15 @@ const getAgentConfig =await agentConfig.findOne({userId:userId})
 
       // Generate random ledger ID
       var ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-
       // Create ledger entry
       await Railledger.create({
         userId:userId,
         companyId: getAgentConfig.companyId,
         ledgerId: ledgerId,
         transactionAmount:amount,
+        agentCharges:commercialBreakup?.agentServiceCharge,
+        convenceFee:commercialBreakup?.commericalConveniencefee,
+        pgCharges:commercialBreakup?.pgCharges,
         currencyType: "INR",
         fop: "CREDIT",
       transactionType: "DEBIT",

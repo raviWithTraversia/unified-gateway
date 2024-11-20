@@ -6,7 +6,7 @@ const User = require("../../../models/User");
 const config = require("../../../models/AgentConfig");
 const { ObjectId } = require("mongodb");
 const { generateQR } = require("../../../utils/generate-qr");
-
+const {commonFunctionsRailLogs}=require('../../../controllers/commonFunctions/common.function')
 const StartBookingRail = async (req, res) => {
   try {
     const {
@@ -17,6 +17,7 @@ const StartBookingRail = async (req, res) => {
       paymentmethod,
       agencyId,
       CommercialCharges,
+      traceId,
       clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,mobileNumber,emailId,ticketType,passengerList,boardingStation,
     } = req.body;
     console.log("sdjfdh");
@@ -53,7 +54,8 @@ const StartBookingRail = async (req, res) => {
       amount,
       companyId,
       cartId,
-      paymentmethod
+      paymentmethod,
+      CommercialCharges
     );
     if (RailBooking.response == "Your Balance is not sufficient") {
       return {
@@ -62,6 +64,7 @@ const StartBookingRail = async (req, res) => {
     }
     
 if(RailBooking.response="amount transfer succefully"){
+  
     await railBookings.create({cartId:cartId,
         clientTransactionId:clientTransactionId,
         companyId:companyId,
@@ -71,9 +74,12 @@ if(RailBooking.response="amount transfer succefully"){
         trainNumber:trainNo,journeyDate:`${journeyDate} 00:00:00.0 IST`,fromStn:frmStn,destStn:toStn,jClass:jClass,reservationMode:reservationMode,mobileNumber:mobileNumber,emailId:emailId,ticketType:ticketType,boardingStn:boardingStation,
         jQuota:jQuota,
         RailCommercial:CommercialCharges,
-        psgnDtlList:passengerList
+        psgnDtlList:passengerList,
+        traceId:traceId
 })
 }
+
+commonFunctionsRailLogs(companyId,userId,traceId,"start booking","startBooking",req.body,RailBooking?.response)
 return({
     response:"your amount transfer Succefully"
 })

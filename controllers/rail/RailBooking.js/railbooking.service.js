@@ -18,7 +18,7 @@ const StartBookingRail = async (req, res) => {
       agencyId,
       CommercialCharges,
       traceId,
-      clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,mobileNumber,emailId,ticketType,passengerList,boardingStation,
+      clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,contactDetails,ticketType,passengerList,boardingStation,
     } = req.body;
     console.log("sdjfdh");
     const requiredFields = [
@@ -71,7 +71,9 @@ if(RailBooking.response="amount transfer succefully"){
         userId:userId,
         AgencyId:agencyId,
         paymentMethod:paymentmethod,
-        trainNumber:trainNo,journeyDate:`${journeyDate} 00:00:00.0 IST`,fromStn:frmStn,destStn:toStn,jClass:jClass,reservationMode:reservationMode,mobileNumber:mobileNumber,emailId:emailId,ticketType:ticketType,boardingStn:boardingStation,
+      clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,contactDetails,ticketType,passengerList,boardingStation,
+      clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,contactDetails,ticketType,passengerList,boardingStation,
+        trainNumber:trainNo,journeyDate:`${journeyDate} 00:00:00.0 IST`,fromStn:frmStn,destStn:toStn,jClass:jClass,reservationMode:reservationMode,mobileNumber:contactDetails.mobileNumber,emailId:contactDetails.emailId,ticketType:ticketType,boardingStn:boardingStation,
         jQuota:jQuota,
         RailCommercial:CommercialCharges,
         psgnDtlList:passengerList,

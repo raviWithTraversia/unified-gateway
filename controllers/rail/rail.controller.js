@@ -1,6 +1,7 @@
 const railSearchServices = require("./railSearch.services");
 const railBookingServices = require("./railBooking.services");
 const { ObjectId } = require("mongodb");
+const railBillingData=require('./rail-reports.controller')
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
@@ -856,6 +857,72 @@ async function handleTDRRequest(req, res) {
   }
 }
 
+const getBillingRailData = async (req, res) => {
+  try {
+    const result = await railBillingData.getBillingRailData(req);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "Data Not Found" || result.response === "Please provide required fields" || result.response === "Access Denied! Provide a valid Key!") {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "Fetch Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.log(error)
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+const updateBillPost = async (req, res) => {
+  try {
+    const result = await railBillingData.updateBillPost(req);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "Data Not Found" || result.response === "Please provide valid AccountPost" || result.response === "Error in Updating AccountPost") {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "AccountPost Updated Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.log(error)
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
+
 module.exports = {
   railSearch,
   railSearchBtwnDate,
@@ -876,5 +943,7 @@ module.exports = {
   handleTDRRequest,
   getBoardingStation,
   ChangeBoardingStation,
-  PnrEnquirry
+  PnrEnquirry,
+  getBillingRailData,
+  updateBillPost
 };

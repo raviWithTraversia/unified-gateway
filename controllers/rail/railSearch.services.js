@@ -557,6 +557,9 @@ const DecodeToken = async (req, res) => {
 
       jsonData.bookingDate = new Date(formattedDate);
       console.log(jsonData.clientTransactionId);
+      if(!jsonData?.pnrNumber){
+        return "jddieiei"
+      }
       if (jsonData?.reservationId && jsonData?.pnrNumber) {
         const qrCodeData = prepareRailBookingQRDataString({
           booking: jsonData,
@@ -645,7 +648,7 @@ const DecodeToken = async (req, res) => {
       console.log(jsonError.message);
       return {
         response: "Invalid JSON format",
-        error: jsonError.message,
+        error: "Something went wrong",
       };
     }
 

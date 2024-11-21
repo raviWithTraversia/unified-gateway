@@ -66,6 +66,7 @@ const PassengerSchema = new mongoose.Schema({
   insuranceIssued: { type: String, default: null },
   psgnwlType: { type: Number, default: null },
   dropWaitlistFlag: { type: Boolean, default: false },
+  accountPost:{type:Number,default:0}
 });
 const GstChargeSchema = new mongoose.Schema({
   totalPRSGst: { type: Number, default: null },
@@ -95,18 +96,18 @@ const ReservationSchema = new mongoose.Schema({
   reservationId: { type: String, default: null },
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "company",
+    ref: "Company",
   },
 
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: "User",
     required: true,
   },
 
   AgencyId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "company",
+    ref: "Company",
   },
   cartId: { type: String, default: null },
   qrImage: { type: String, default: "" },
@@ -217,7 +218,7 @@ const ReservationSchema = new mongoose.Schema({
   emailId:{type:String,default:""},
   jQuota:{type:String,default:""},
   IsRefunded:{type:Boolean,default:false},
-  traceId:{type:String,default:false}
+  traceId:{type:String,default:false},
  
 },{timestamps:true});
 

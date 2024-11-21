@@ -4,7 +4,21 @@ const { ObjectId } = require("mongodb");
 const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
 const User = require("../../models/User");
 const Company = require("../../models/Company");
-module.exports.fetchRailReports = async (req, res) => {
+const { forEach } = require("lodash");
+const {Config}=require('../../configs/config')
+const ISOTime = async (time) => {
+  const utcDate = new Date(time);
+  const istDate = new Date(utcDate.getTime() - 5.5 * 60 * 60 * 1000);
+  return istDate.toISOString();
+};
+
+const ISTTime = async (time) => {
+  const utcDate = new Date(time);
+  const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
+  return istDate.toISOString();
+};
+
+const fetchRailReports = async (req, res) => {
   try {
     const { userId, agencyId, fromDate, toDate } = req.body;
     if (!userId) return apiErrorres(res, "user id required", 400, true);
@@ -133,3 +147,174 @@ module.exports.fetchRailReports = async (req, res) => {
     apiErrorres(res, "something went wrong", 500, true);
   }
 };
+
+const getBillingRailData = async (req, res) => {
+  const { key, fromDate, toDate } = req.query;
+  const istDateString = await ISOTime(fromDate);
+  const istDateString2 = await ISOTime(toDate);
+
+  if (!fromDate || !toDate || !key) {
+    return {
+      response: "Please provide required fields",
+    };
+  }
+
+  let MODEENV = "D";
+  let authKey = "667bd5d44dccc9b2d2b80690";
+  if (Config.MODE === "LIVE") {
+    MODEENV = "P";
+    authKey = "667bd64d2ca70f085a8328ca";
+  }
+  if (authKey !== key) {
+    return {
+      response: "Access Denied! Provide a valid Key!",
+    };
+  }
+
+  const BillingData = await bookingDetailsRail
+  .find({
+    createdAt: {
+      $gte: new Date(istDateString),
+      $lte: new Date(istDateString2),
+    },
+    bookingStatus: "CONFIRMED",
+  })
+  .populate([
+    { path: "userId" }, // Populates the `user` collection for `userId`
+    { path: "companyId" }, // Populates the `company` collection for `companyId`
+    { path: "AgencyId" }, // Populates the `company` collection for `AgencyId`
+  ]);
+
+
+
+// Use flatMap to flatten the results from psgnDtlList
+const paxbyBillingData = BillingData.flatMap((element) => {
+  const BookingIds = commonMethodDate(element?.createdAt);
+  const commission = 
+    element?.RailCommercial?.agentServiceCharge +
+    element?.RailCommercial?.commericalConveniencefee +
+    Math.round(element?.RailCommercial?.pgCharges);
+
+  return element.psgnDtlList.map((psg) => ({
+    _id: psg?._id,
+    bookingId: BookingIds?.bookingId,
+    agency_name: element?.AgencyId?.companyName,
+    agent_id: element?.userId?.userId,
+    ticket_no: element?.pnrNumber,
+    item_amount: psg?.passengerNetFare,
+    pnr: element?.pnrNumber,
+    pax_name: psg?.passengerName,
+    sector: `${element?.fromStn}-${element?.destStn}`,
+    class: element?.journeyClass,
+    cc_user: "",
+    trav_date_outbound: element?.boardingDate || element?.journeyDate,
+    trave_date_inbound: element?.destArrvDate,
+    issue_date: BookingIds?.bookingDate,
+    airline_name: "RAILWAY TICKET",
+    airline_tax: Math.round(element?.serviceTax),
+    tran_fee: 0,
+    s_tax: 0,
+    commission: commission,
+    tds: 0,
+    cash_back: 0,
+    account_post: 0,
+    purchase_code: 0,
+    FLCODE: null,
+    bookingId_1: "WKAFILA00000",
+  }));
+});
+
+const processedBookingIds = new Set();
+
+const adjustedBillingData = paxbyBillingData.map((element) => {
+  if (processedBookingIds.has(element.pnr)) {
+    return {
+      ...element,
+      airline_tax: 0,
+      commission: 0,
+    };
+  } else {
+    processedBookingIds.add(element.pnr);
+    return element;
+  }
+});
+
+const data=await Promise.all(adjustedBillingData)
+
+
+
+
+
+
+  
+
+  return {
+    response: "Fetch Data Successfully",
+    data: adjustedBillingData,
+  };
+};
+
+
+const updateBillPost = async (req, res) => {
+  const { accountPostArr } = req.body;
+  if (!accountPostArr.length) {
+    return {
+      response: "Please provide valid AccountPost",
+    };
+  }
+  const bulkOps = [];
+  for (let item of accountPostArr) {
+    bulkOps.push({
+      updateOne: {
+        filter: { "Passengers._id": item._id },
+        update: { $set: { "Passengers.$.accountPost": item.accountPost } },
+      },
+    });
+  }
+  if (!bulkOps.length) {
+    return {
+      response: "Data Not Found",
+    };
+  }
+  console.log(bulkOps)
+  let updatedData = await bookingDetailsRail.bulkWrite(bulkOps);
+  console.log(updatedData)
+  if (updatedData.modifiedCount < 1) {
+    return {
+      response: "Error in Updating AccountPost",
+    };
+  }
+  return {
+    response: "AccountPost Updated Successfully",
+  };
+};
+
+const commonMethodDate = (bookingDate) => {
+  const date = new Date(bookingDate);
+
+  // Extract components
+  const day = String(date.getDate()).padStart(2, '0'); // Ensures 2 digits
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const year = String(date.getFullYear()).slice(2); // Get last 2 digits of the year
+  const hour = String(date.getHours()).padStart(2, '0'); // Ensures 2 digits
+  const minute = String(date.getMinutes()).padStart(2, '0'); // Ensures 2 digits
+
+  // Determine AM/PM
+  let timetype = "";
+  if (Number(hour + minute) > 1159) {
+    timetype = "PM";
+  } else {
+    timetype = "AM";
+  }
+
+const randomNumber=Math.random().toString(36).substring(2, 2 + 5);
+  // Concatenate to desired format
+  return { bookingId:`RL${day}${month}${year}${hour}${minute}${timetype}${randomNumber}`,
+bookingDate:`${day}-${month}-${year} ${hour}:${minute}:00.0 IST`
+}
+};
+module.exports={
+  getBillingRailData,
+  fetchRailReports,
+  updateBillPost
+}

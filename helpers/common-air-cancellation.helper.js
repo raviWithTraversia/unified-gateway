@@ -9,9 +9,6 @@ function createAirCancellationRequestBodyForCommonAPI(request) {
   try {
     const reqItinerary = request.Itinerary?.[0];
     const reqSegment = request.Segments?.[0];
-
-    console.log(reqItinerary,"requestBody")
-    console.log(reqSegment,"reqSegment")
     if (!reqItinerary || !reqSegment)
       throw new Error(
         "Invalid request data 'Itinerary[]' or 'Segment[]' missing"
@@ -35,8 +32,8 @@ function createAirCancellationRequestBodyForCommonAPI(request) {
           destination: reqSegment?.Arrival?.Code,
           itinerary: [
             {
-              recordLocator: "MXML6Q",
-              cancelRemarks: reqItinerary?.Reason?.Reason||"",
+              recordLocator: request?.PNR,
+              cancelRemarks: request?.Reason?.Reason||"",
               cancelType: request?.CancelType||"",
               airSegments: request.Segments.map((sector) => ({
                 airlineCode: sector?.AirlineCode,
@@ -46,16 +43,13 @@ function createAirCancellationRequestBodyForCommonAPI(request) {
                   ? { code: reqItinerary?.ValCarrier }
                   : null,
                 fltNum: sector?.FltNum,
-                travellerDetails:sector?.travellerDetails||[]
               })),
+              travellerDetails:request?.passengarList||null
             }, 
           ],
         },
       ],
     };
-
-    
-    console.log(JSON.stringify(requestBody),"requestBody")
     return { requestBody };
   } catch (error) {
     return { error: error.message };

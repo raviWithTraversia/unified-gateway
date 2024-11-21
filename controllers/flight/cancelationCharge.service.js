@@ -118,16 +118,7 @@ const fullCancelationCharge = async (req, res) => {
   }else if(Provider == "1A"){
     try {
       const { result, error } = await commonAirBookingCancellation(req.body);
-
-      let convertedSSRData = { 
-        IsSucess: true,
-          response: {
-            IsSucess: true,
-            response: result||null,
-          },
-        
-      };
-      return { response: "Fetch Data Successfully", data: convertedSSRData };
+      return { response: "Fetch Data Successfully", data: result };
     } catch (commonCancellationError) {
       return {
         response: commonCancellationError?.message || "Error in Cancellations",

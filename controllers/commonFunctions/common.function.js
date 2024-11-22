@@ -1353,7 +1353,7 @@ const getAgentConfig =await agentConfig.findOne({userId:userId})
       }
 
       // Deduct balance from user configuration and update in DB
-      const newBalance = maxCreditLimit - amount;
+      const newBalance = maxCreditLimit - Math.round(amount);
       await agentConfig.updateOne(
         { userId:userId },
         { railCashBalance: newBalance }
@@ -1373,7 +1373,7 @@ const getAgentConfig =await agentConfig.findOne({userId:userId})
         currencyType: "INR",
         fop: "CREDIT",
       transactionType: "DEBIT",
-        runningAmount: newBalance,
+        runningAmount:Math.round(newBalance),
         remarks: "Booking amount deducted from your account.",
         transactionBy: userId,
         cartId: bookingId,
@@ -1441,6 +1441,31 @@ console.log(railLogs,"djieie")
     console.error('Error creating document:', error.message);
   }
 }
+
+const commonMethodDate = (bookingDate=new Date()) => {
+  const date = new Date(bookingDate);
+
+  // Extract components
+  const day = String(date.getDate()).padStart(2, '0'); // Ensures 2 digits
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const year = String(date.getFullYear()).slice(2); // Get last 2 digits of the year
+  const hour = String(date.getHours()).padStart(2, '0'); // Ensures 2 digits
+  const minute = String(date.getMinutes()).padStart(2, '0'); // Ensures 2 digits
+
+  // Determine AM/PM
+  let timetype = "";
+  if (Number(hour + minute) > 1159) {
+    timetype = "PM";
+  } else {
+    timetype = "AM";
+  }
+
+const randomNumber=Math.random().toString(36).substring(2, 2 + 5);
+  // Concatenate to desired format
+  return { bookingId:`RL${day}${month}${year}${hour}${minute}${timetype}${randomNumber}`,
+bookingDate:`${day}-${month}-${year} ${hour}:${minute}:00.0 IST`
+}
+};
 module.exports = {
   createToken,
   securePassword,
@@ -1473,5 +1498,6 @@ module.exports = {
   sendTicketSms,
   RailBookingCommonMethod,
   commonAgentPGCharges,
-  commonFunctionsRailLogs
+  commonFunctionsRailLogs,
+  commonMethodDate
 };

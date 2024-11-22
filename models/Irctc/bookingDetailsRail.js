@@ -219,6 +219,7 @@ const ReservationSchema = new mongoose.Schema({
   jQuota:{type:String,default:""},
   IsRefunded:{type:Boolean,default:false},
   traceId:{type:String,default:false},
+  providerbookingId:{type:String,default:""}
  
 },{timestamps:true});
 

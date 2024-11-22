@@ -207,7 +207,7 @@ const paxbyBillingData = BillingData.flatMap((element) => {
     pax_name: psg?.passengerName,
     sector: `${element?.fromStn}-${element?.destStn}`,
     class: element?.journeyClass,
-    cc_user: "",
+    cc_user: `${element?.reservationId}/${element?.bookedQuota}`,
     trav_date_outbound: element?.boardingDate || element?.journeyDate,
     trave_date_inbound: element?.destArrvDate,
     issue_date: BookingIds?.bookingDate,

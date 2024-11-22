@@ -1353,7 +1353,7 @@ const getAgentConfig =await agentConfig.findOne({userId:userId})
       }
 
       // Deduct balance from user configuration and update in DB
-      const newBalance = maxCreditLimit - amount;
+      const newBalance = maxCreditLimit - Math.round(amount);
       await agentConfig.updateOne(
         { userId:userId },
         { railCashBalance: newBalance }
@@ -1373,7 +1373,7 @@ const getAgentConfig =await agentConfig.findOne({userId:userId})
         currencyType: "INR",
         fop: "CREDIT",
       transactionType: "DEBIT",
-        runningAmount: newBalance,
+        runningAmount:Math.round(newBalance),
         remarks: "Booking amount deducted from your account.",
         transactionBy: userId,
         cartId: bookingId,

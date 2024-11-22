@@ -6,7 +6,7 @@ const User = require("../../../models/User");
 const config = require("../../../models/AgentConfig");
 const { ObjectId } = require("mongodb");
 const { generateQR } = require("../../../utils/generate-qr");
-const {commonFunctionsRailLogs}=require('../../../controllers/commonFunctions/common.function')
+const {commonFunctionsRailLogs ,commonMethodDate}=require('../../../controllers/commonFunctions/common.function')
 const StartBookingRail = async (req, res) => {
   try {
     const {
@@ -43,12 +43,12 @@ const StartBookingRail = async (req, res) => {
       };
     }
 
-    const railBoookingDetails = await railBookings.find({ cartId: cartId });
-    if (railBoookingDetails.length) {
-      return {
-        response: "Your Booking allready exist",
-      };
-    }
+    // const railBoookingDetails = await railBookings.find({ cartId: cartId });
+    // if (railBoookingDetails.length) {
+    //   return {
+    //     response: "Your Booking allready exist",
+    //   };
+    // }
     const RailBooking = await RailBookingCommonMethod(
       userId,
       amount,
@@ -65,6 +65,8 @@ const StartBookingRail = async (req, res) => {
     
 if(RailBooking.response="amount transfer succefully"){
   
+
+const CommonDateBooking=await commonMethodDate()
     await railBookings.create({cartId:cartId,
         clientTransactionId:clientTransactionId,
         companyId:companyId,
@@ -77,7 +79,9 @@ if(RailBooking.response="amount transfer succefully"){
         jQuota:jQuota,
         RailCommercial:CommercialCharges,
         psgnDtlList:passengerList,
-        traceId:traceId
+        traceId:traceId,
+        providerbookingId:CommonDateBooking?.bookingId
+        
 })
 }
 

@@ -6,6 +6,7 @@ const User = require("../../models/User");
 const Company = require("../../models/Company");
 const { forEach } = require("lodash");
 const {Config}=require('../../configs/config')
+const {commonMethodDate}=require('../../controllers/commonFunctions/common.function')
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
   const istDate = new Date(utcDate.getTime() - 5.5 * 60 * 60 * 1000);
@@ -197,7 +198,7 @@ const paxbyBillingData = BillingData.flatMap((element) => {
 
   return element.psgnDtlList.map((psg) => ({
     _id: psg?._id,
-    bookingId: BookingIds?.bookingId,
+    bookingId:element?.providerbookingId,
     agency_name: element?.AgencyId?.companyName,
     agent_id: element?.userId?.userId,
     ticket_no: element?.pnrNumber,
@@ -217,7 +218,7 @@ const paxbyBillingData = BillingData.flatMap((element) => {
     commission: commission,
     tds: 0,
     cash_back: 0,
-    account_post: 0,
+    account_post: psg?.accountPost,
     purchase_code: 0,
     FLCODE: null,
     bookingId_1: "WKAFILA00000",
@@ -266,8 +267,8 @@ const updateBillPost = async (req, res) => {
   for (let item of accountPostArr) {
     bulkOps.push({
       updateOne: {
-        filter: { "Passengers._id": item._id },
-        update: { $set: { "Passengers.$.accountPost": item.accountPost } },
+        filter: { "psgnDtlList._id": item._id },
+        update: { $set: { "psgnDtlList.$.accountPost": item.accountPost } },
       },
     });
   }
@@ -278,7 +279,6 @@ const updateBillPost = async (req, res) => {
   }
   console.log(bulkOps)
   let updatedData = await bookingDetailsRail.bulkWrite(bulkOps);
-  console.log(updatedData)
   if (updatedData.modifiedCount < 1) {
     return {
       response: "Error in Updating AccountPost",
@@ -289,30 +289,7 @@ const updateBillPost = async (req, res) => {
   };
 };
 
-const commonMethodDate = (bookingDate) => {
-  const date = new Date(bookingDate);
 
-  // Extract components
-  const day = String(date.getDate()).padStart(2, '0'); // Ensures 2 digits
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-  const year = String(date.getFullYear()).slice(2); // Get last 2 digits of the year
-  const hour = String(date.getHours()).padStart(2, '0'); // Ensures 2 digits
-  const minute = String(date.getMinutes()).padStart(2, '0'); // Ensures 2 digits
-
-  // Determine AM/PM
-  let timetype = "";
-  if (Number(hour + minute) > 1159) {
-    timetype = "PM";
-  } else {
-    timetype = "AM";
-  }
-
-const randomNumber=Math.random().toString(36).substring(2, 2 + 5);
-  // Concatenate to desired format
-  return { bookingId:`RL${day}${month}${year}${hour}${minute}${timetype}${randomNumber}`,
-bookingDate:`${day}-${month}-${year} ${hour}:${minute}:00.0 IST`
-}
-};
 module.exports={
   getBillingRailData,
   fetchRailReports,

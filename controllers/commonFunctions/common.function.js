@@ -1366,7 +1366,7 @@ const getAgentConfig =await agentConfig.findOne({userId:userId})
         userId:userId,
         companyId: getAgentConfig.companyId,
         ledgerId: ledgerId,
-        transactionAmount:amount,
+        transactionAmount:Math.round(amount),
         agentCharges:commercialBreakup?.agentServiceCharge,
         convenceFee:commercialBreakup?.commericalConveniencefee,
         pgCharges:commercialBreakup?.pgCharges,

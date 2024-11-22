@@ -43,12 +43,12 @@ const StartBookingRail = async (req, res) => {
       };
     }
 
-    // const railBoookingDetails = await railBookings.find({ cartId: cartId });
-    // if (railBoookingDetails.length) {
-    //   return {
-    //     response: "Your Booking allready exist",
-    //   };
-    // }
+    const railBoookingDetails = await railBookings.find({ cartId: cartId });
+    if (railBoookingDetails.length) {
+      return {
+        response: "Your Booking allready exist",
+      };
+    }
     const RailBooking = await RailBookingCommonMethod(
       userId,
       amount,

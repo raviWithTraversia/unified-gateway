@@ -240,7 +240,7 @@ const adjustedBillingData = paxbyBillingData.map((element) => {
   }
 });
 
-const data=await Promise.all(adjustedBillingData)
+const data=await  Promise.all(adjustedBillingData)
 
 
 

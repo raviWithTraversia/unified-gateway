@@ -1466,6 +1466,23 @@ const randomNumber=Math.random().toString(36).substring(2, 2 + 5);
 bookingDate:`${day}-${month}-${year} ${hour}:${minute}:00.0 IST`
 }
 };
+
+const convertTimeISTtoUTC=(Isodate)=>{
+  const inputDate = Isodate;
+
+// Step 1: Parse the date
+const [day, month, yearAndTime] = inputDate.split('-');
+const [year, time] = yearAndTime.split(' ');
+const dateString = `${year}-${month}-${day}T${time.replace('.0', '')}`;
+
+// Step 2: Convert to ISO format
+// India Standard Time (IST) is UTC+5:30
+const localDate = new Date(dateString + "+05:30"); // Add IST offset
+const isoDate = localDate.toISOString();
+
+return isoDate
+
+}
 module.exports = {
   createToken,
   securePassword,
@@ -1499,5 +1516,6 @@ module.exports = {
   RailBookingCommonMethod,
   commonAgentPGCharges,
   commonFunctionsRailLogs,
-  commonMethodDate
+  commonMethodDate,
+  convertTimeISTtoUTC
 };

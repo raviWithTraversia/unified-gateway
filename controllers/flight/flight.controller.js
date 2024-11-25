@@ -534,6 +534,7 @@ const partialCancelationCharge = async (req, res) => {
 const updateBookingStatus = async (req, res) => {
   try {
     const result = await cancelationServices.updateBookingStatus(req, res);
+    console.log(result)
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (

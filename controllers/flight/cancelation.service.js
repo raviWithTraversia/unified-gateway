@@ -721,7 +721,6 @@ const updateBookingStatus = async (req, res) => {
     // }
     // console.log(item?.bookingId,"jdiei")
       const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.bookingId });
-      console.log(getpassengersPrefrence,"jdidieiei")
       if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
         // console.log('shadab')
         await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {

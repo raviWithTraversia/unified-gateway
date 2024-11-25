@@ -206,6 +206,7 @@ const paxbyBillingData = BillingData.flatMap((element) => {
     pnr: element?.pnrNumber,
     pax_name: psg?.passengerName,
     sector: `${element?.fromStn}-${element?.destStn}`,
+    flight_no:`RL ${element?.trainNumber} (${element?.trainName})`,
     class: element?.journeyClass,
     cc_user: `${element?.reservationId}/${element?.bookedQuota}`,
     trav_date_outbound: convertTimeISTtoUTC(element?.boardingDate) || convertTimeISTtoUTC(element?.journeyDate),

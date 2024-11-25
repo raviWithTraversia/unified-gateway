@@ -650,6 +650,8 @@ const updateBookingStatus = async (req, res) => {
     }
   }]);
 
+  // console.log(getBookingbyBookingId,"djieei")
+
   if (!getBookingbyBookingId.length) {
     return {
       response: "No booking Found!"
@@ -675,6 +677,7 @@ const updateBookingStatus = async (req, res) => {
   }
 
   const bulkOps = [];
+
   for (const item of getBookingbyBookingId) {
     const concatenatedString = ((`${item.supplierUserId}|${item.supplierPassword}`).toUpperCase());
     let postData = {
@@ -710,16 +713,17 @@ const updateBookingStatus = async (req, res) => {
         },
       }
     );
+    // if(response.ErrorMessage=="Data not found."||!response.IsError){
+    //   return {
+    //     response:response?.WarningMessage
+    //   }
 
-    if(response.ErrorMessage.includes("Data not found.")||!response.IsError){
-      return {
-        response:response?.WarningMessage
-      }
-
-    }
-
+    // }
+    // console.log(item?.bookingId,"jdiei")
       const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.bookingId });
+      console.log(getpassengersPrefrence,"jdidieiei")
       if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
+        // console.log('shadab')
         await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
           
           const apiPassenger = response.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);

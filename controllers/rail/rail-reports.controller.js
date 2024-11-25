@@ -6,7 +6,7 @@ const User = require("../../models/User");
 const Company = require("../../models/Company");
 const { forEach } = require("lodash");
 const {Config}=require('../../configs/config')
-const {commonMethodDate}=require('../../controllers/commonFunctions/common.function')
+const {commonMethodDate,convertTimeISTtoUTC}=require('../../controllers/commonFunctions/common.function')
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
   const istDate = new Date(utcDate.getTime() - 5.5 * 60 * 60 * 1000);
@@ -206,11 +206,12 @@ const paxbyBillingData = BillingData.flatMap((element) => {
     pnr: element?.pnrNumber,
     pax_name: psg?.passengerName,
     sector: `${element?.fromStn}-${element?.destStn}`,
+    flight_no:`RL ${element?.trainNumber} (${element?.trainName})`,
     class: element?.journeyClass,
     cc_user: `${element?.reservationId}/${element?.bookedQuota}`,
-    trav_date_outbound: element?.boardingDate || element?.journeyDate,
-    trave_date_inbound: element?.destArrvDate,
-    issue_date: BookingIds?.bookingDate,
+    trav_date_outbound: convertTimeISTtoUTC(element?.boardingDate) || convertTimeISTtoUTC(element?.journeyDate),
+    trave_date_inbound: convertTimeISTtoUTC(element?.destArrvDate),
+    issue_date: element?.createdAt,
     airline_name: "RAILWAY TICKET",
     airline_tax: Math.round(element?.serviceTax),
     tran_fee: 0,

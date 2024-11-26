@@ -193,7 +193,7 @@ const getCustomFareRule = async (req, res) => {
       response: "Fetch Data Successfully",
       data: assignFareRuleGroup,
     };
-  } else if (provider == "1A") {
+  } else {
     try {
       const { result, error } = await getCommonFairRules(req.body);
       return { response: "Fetch Data Successfully", data: result };

@@ -142,7 +142,7 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
       amount: seat?.TotalPrice,
       currency: seat?.Currency || "INR",
       paid: seat?.Paid,
-      desc: seat?.Characteristics.join(","),
+      desc: seat?.SsrDesc,
       key: seat?.Key,
       origin: seat?.Src,
       destination: seat?.Des,

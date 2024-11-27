@@ -686,7 +686,7 @@ const updateBookingStatus = async (req, res) => {
       R_NAME: "FlightBookingResponse",
       R_DATA: {
         TYPE: "PNRRES",
-        BOOKING_ID: item.providerBookingId,
+        BOOKING_ID: "",
         TRACE_ID: item.traceId
       },
       AID: item.supplierWsapSesssion,
@@ -703,6 +703,7 @@ const updateBookingStatus = async (req, res) => {
       }
     }))?.data;
 
+    console.log(postData)
     let fSearchApiResponse = await axios.post(
       createTokenUrl,
       postData,
@@ -1243,7 +1244,7 @@ const updateConfirmBookingStatus = async (req, res) => {
     }
   }
 }
-
+ 
 module.exports = {
   fullCancelation, updateBookingStatus,updatePendingBookingStatus,updateConfirmBookingStatus
 };

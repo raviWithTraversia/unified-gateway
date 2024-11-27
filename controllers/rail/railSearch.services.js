@@ -263,13 +263,13 @@ let agentCharges={}
 if(jClass=="SL"){
   agentCharges.Conveniencefee=checkUser?.RailcommercialPlanIds?.Conveniencefee?.sleepar
   agentCharges.Agent_service_charge=checkUser?.RailcommercialPlanIds?.Agent_service_charge?.sleepar
-  agentCharges.PG_charges=await commonAgentPGCharges(amount)
+  agentCharges.PG_charges=await commonAgentPGCharges(amount,passengerList.length)
 
 }
 else{
   agentCharges.Conveniencefee=checkUser?.RailcommercialPlanIds?.Conveniencefee?.acCharge
   agentCharges.Agent_service_charge=checkUser?.RailcommercialPlanIds?.Agent_service_charge?.acCharge
-  agentCharges.PG_charges=await commonAgentPGCharges(amount)
+  agentCharges.PG_charges=await commonAgentPGCharges(amount,passengerList.length)
 
 }
 console.log(agentCharges)

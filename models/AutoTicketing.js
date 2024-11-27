@@ -18,7 +18,30 @@ const autoTicketingConfig = new mongoose.Schema({
     modifyBy : {
       type :  mongoose.Schema.Types.ObjectId,
       ref : 'User'
-    }
+    },
+    fareFamily : {
+      type : mongoose.Schema.Types.ObjectId,
+      ref : 'FareFamilyMaster'
+    },
+    queueNumber : {
+       type : String
+    },
+    queueOfficeId : {
+      type : String
+   },
+   queuePcc : {
+    type : String
+ },
+ status : {
+  type : String
+},
+ticketingOn : {
+  type : String
+},
+ticketingType : {
+  type : String
+},
+
 }, {
    timestamps : true
 });

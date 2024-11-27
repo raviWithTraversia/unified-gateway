@@ -1408,8 +1408,8 @@ throw error
 }
 }
 
-const commonAgentPGCharges=async(amout)=>{
-  const amounts=Number(amout)
+const commonAgentPGCharges=async(amout,index=1)=>{
+  const amounts=Number(amout)*index
   const pgCharges=amounts<2000?amounts*0.0075:amounts*0.01
 return pgCharges
 }

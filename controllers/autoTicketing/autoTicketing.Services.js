@@ -25,6 +25,27 @@ const addAutoTicketingConfig = async (req, res) => {
     if(req.body.travelType){
       query.travelType = req.body.travelType
     }
+    if(req.body.fareFamily){
+      query.fareFamily = req.body.fareFamily
+    }
+    if(req.body.queueNumber){
+      query.queueNumber = req.body.queueNumber
+    }
+    if(req.body.queueOfficeId){
+      query.queueOfficeId = req.body.queueOfficeId
+    }
+    if(req.body.queuePcc){
+      query.queuePcc = req.body.queuePcc
+    }
+    if(req.body.status){
+      query.status = req.body.status
+    }
+    if(req.body.ticketingOn){
+      query.ticketingOn = req.body.ticketingOn
+    }
+    if(req.body.ticketingType){
+      query.ticketingType = req.body.ticketingType
+    }
     let checkIsautoTicketingDataExist = await autoTicketingModel.find(query);
     if(checkIsautoTicketingDataExist.length > 0){
       return {
@@ -50,7 +71,7 @@ const addAutoTicketingConfig = async (req, res) => {
 const getAutoTicketingConfig = async (req, res) => {
   try {
     let companyId = req.query.companyId;
-    let autoTicketingData = await autoTicketingModel.find({ companyId: companyId }).populate('provider');
+    let autoTicketingData = await autoTicketingModel.find({ companyId: companyId }).populate([{path:'provider'},{path:"fareFamily"}]);
    // console.log("===>>>>>>>>>>",autoTicketingData)
     if (autoTicketingData.length > 0) {
       return {

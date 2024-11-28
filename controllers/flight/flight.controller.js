@@ -71,7 +71,7 @@ const getSearch = async (req, res) => {
         itineraries = [...itineraries, ...result.value.data];
     });
     itineraries = itineraries.filter((itinerary) =>
-      ["Kafila", "1A"].includes(itinerary.Provider)
+      ["Kafila", "1A","6E","SG"].includes(itinerary.Provider)
     );
     if (itineraries.length) {
       apiSucessRes(
@@ -93,7 +93,7 @@ const getSearch = async (req, res) => {
     console.error(error);
     apiErrorres(
       res,
-      errorResponse.SOMETHING_WRONG,
+      error.message||errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );

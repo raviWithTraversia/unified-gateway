@@ -115,7 +115,7 @@ const fullCancelationCharge = async (req, res) => {
         apiReq: result.apiReq,
       };
     }
-  }else if(Provider == "1A"){
+  }else {
     try {
       const { result, error } = await commonAirBookingCancellation(req.body);
       return { response: "Fetch Data Successfully", data: result };

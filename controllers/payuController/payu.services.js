@@ -440,7 +440,7 @@ const payuSuccess = async (req, res) => {
         let getconfigAmount; // Declare getconfigAmount outside of the if block
         const companieIds = await UserModel.findById(getuserDetails._id);
 
-        const getAllComapnies = await UserModel.find({
+        const getAllComapnies = await UserModel.find({ 
           company_ID: companieIds.company_ID,
         }).populate("roleId");
         let allIds = getAllComapnies
@@ -1448,7 +1448,7 @@ const payuWalletRailResponceSuccess = async (req, res) => {
           paymentGateway: "PayU",
           trnsStatus: "success",
           transactionBy: userData._id,
-          transactionAmount: udf2,
+          transactionAmount:Number(udf2)+Number(udf3),
           pgCharges: udf3,
         });
 

@@ -449,6 +449,7 @@ const fullCancelationCharge = async (req, res) => {
 const partialCancelation = async (req, res) => {
   try {
     const result = await partialServices.partialCancelation(req, res);
+    console.log(result?.data,"jdieiiei")
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (

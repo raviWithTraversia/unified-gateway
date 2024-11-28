@@ -263,16 +263,17 @@ let agentCharges={}
 if(jClass=="SL"){
   agentCharges.Conveniencefee=checkUser?.RailcommercialPlanIds?.Conveniencefee?.sleepar
   agentCharges.Agent_service_charge=checkUser?.RailcommercialPlanIds?.Agent_service_charge?.sleepar
-  agentCharges.PG_charges=await commonAgentPGCharges(amount)
+  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount,passengerList.length):0
 
 }
 else{
   agentCharges.Conveniencefee=checkUser?.RailcommercialPlanIds?.Conveniencefee?.acCharge
   agentCharges.Agent_service_charge=checkUser?.RailcommercialPlanIds?.Agent_service_charge?.acCharge
-  agentCharges.PG_charges=await commonAgentPGCharges(amount)
+  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount,passengerList.length):0
 
 }
-console.log(agentCharges)
+// console.log(agentCharges)
+
     let renewDate = journeyDate.split("-");
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
     const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
@@ -314,7 +315,7 @@ console.log(agentCharges)
       };
     } else {
       response.traceId=traceId
-      response.CommercialCharges=agentCharges
+       response.CommercialCharges=agentCharges
       commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"FareEnquiry",url,req.body,response)
       
       return {

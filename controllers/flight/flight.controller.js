@@ -534,7 +534,6 @@ const partialCancelationCharge = async (req, res) => {
 const updateBookingStatus = async (req, res) => {
   try {
     const result = await cancelationServices.updateBookingStatus(req, res);
-    console.log(result)
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
@@ -556,14 +555,21 @@ const updateBookingStatus = async (req, res) => {
     } else {
       apiErrorres(
         res,
-        result.response,
+        result?.data||"something went wrong",
         ServerStatusCode.UNPROCESSABLE,
         true
       );
     }
   } catch (error) {
-    console.error(error);
-    apiErrorres(res, error.message, ServerStatusCode.SERVER_ERROR, true);
+    console.log(error.message)
+    apiErrorres(
+      res,
+      error.message.includes("Cannot read properties of undefined (reading 'Passengers')")
+        ? "Try after some time or Contact to call center."
+        : error.message,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
   }
 };
 

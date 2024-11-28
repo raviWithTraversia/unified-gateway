@@ -210,7 +210,7 @@ const getFareEnquiry = async (req, res) => {
     console.error(error);
     apiErrorres(
       res,
-      errorResponse.SOMETHING_WRONG,
+     error.message||errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );

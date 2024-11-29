@@ -43,19 +43,19 @@ const StartBookingRail = async (req, res) => {
       };
     }
 
-    const railBoookingDetails = await railBookings.find({ cartId: cartId });
-    if (railBoookingDetails.length) {
-      return {
-        response: "Your Booking allready exist",
-      };
-    }
+    // const railBoookingDetails = await railBookings.find({ cartId: cartId });
+    // if (railBoookingDetails.length) {
+    //   return {
+    //     response: "Your Booking allready exist",
+    //   };
+    // }
     const RailBooking = await RailBookingCommonMethod(
       userId,
       amount,
       companyId,
       cartId,
       paymentmethod,
-      CommercialCharges,
+      railFareBreakupRes?.CommercialCharges,
       railFareBreakupRes?.enqClass
     );
     if (RailBooking.response == "Your Balance is not sufficient") {

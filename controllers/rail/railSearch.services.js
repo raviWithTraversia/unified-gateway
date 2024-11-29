@@ -261,14 +261,14 @@ const railFareEnquiry = async (req, res) => {
 console.log(checkUser.RailcommercialPlanIds)
 let agentCharges={}
 if(jClass=="SL"){
-  agentCharges.Conveniencefee=checkUser?.RailcommercialPlanIds?.Conveniencefee?.sleepar
-  agentCharges.Agent_service_charge=checkUser?.RailcommercialPlanIds?.Agent_service_charge?.sleepar
+  agentCharges.Conveniencefee=17.5
+  agentCharges.Agent_service_charge=10
   agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount,passengerList.length):0
 
 }
 else{
-  agentCharges.Conveniencefee=checkUser?.RailcommercialPlanIds?.Conveniencefee?.acCharge
-  agentCharges.Agent_service_charge=checkUser?.RailcommercialPlanIds?.Agent_service_charge?.acCharge
+  agentCharges.Conveniencefee=35
+  agentCharges.Agent_service_charge=20
   agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount,passengerList.length):0
 
 }

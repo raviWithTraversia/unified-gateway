@@ -20,7 +20,8 @@ const { UserBindingInstance } = require("twilio/lib/rest/chat/v2/service/user/us
 const { UserDefinedMessageInstance } = require("twilio/lib/rest/api/v2010/account/call/userDefinedMessage");
 const transaction=require('../../models/transaction')
 const railLogs=require('../../models/Irctc/railLogs')
-const {ObjectId}=require('mongodb')
+const {ObjectId}=require('mongodb');
+const { totalmem } = require("os");
 
 const createToken = async (id) => {
   try {
@@ -1334,66 +1335,73 @@ console.log('dji')
   }
 };
 
-const RailBookingCommonMethod=async(userId,amount,companyId,bookingId,paymentMethodType,commercialBreakup)=>{
+const RailBookingCommonMethod=async(userId,amount,companyId,bookingId,paymentMethodType,commercialBreakup,jClass)=>{
 try{
   if (paymentMethodType === "Wallet") {
     try {
       // Retrieve agent configuration
-      console.log('sdhfsdi')
-const getAgentConfig =await agentConfig.findOne({userId:userId})
+
+      const getAgentConfig =await agentConfig.findOne({userId:userId}).populate("RailcommercialPlanIds")
+const pgCharges=await commonAgentPGCharges(amount)
+
+var agentCommercialMinus={}
+      if(jClass=="SL"){
+
+        agentCommercialMinus={Conveniencefee:getAgentConfig.RailcommercialPlanIds?.Conveniencefee?.sleepar,Agent_service_charge:getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar,pgCharges:pgCharges}
+      }{
+        agentCommercialMinus={Conveniencefee:getAgentConfig.RailcommercialPlanIds?.Conveniencefee?.sleepar,Agent_service_charge:getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar,pgCharges:pgCharges}
+      }
+
+      const total = Object.values(agentCommercialMinus).reduce((sum, value) => sum + value, 0);
      
       const checkCreditLimit =
         getAgentConfig?.railCashBalance ?? 0 + amount;
       const maxCreditLimit = getAgentConfig?.railCashBalance ?? 0;
 
-      console.log(getAgentConfig.railCashBalance)
       // Check if balance is sufficient
       if (checkCreditLimit < amount) {
          return({response:"Your Balance is not sufficient"});
       }
-
+      
       // Deduct balance from user configuration and update in DB
-      const newBalance = maxCreditLimit - Math.round(amount);
-      await agentConfig.updateOne(
-        { userId:userId },
-        { railCashBalance: newBalance }
-      );
-
-      // Generate random ledger ID
-      var ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+    console.log(total,"agentCommercialMinus")
+   ticketAmount= amount-total
+      const newBalance = maxCreditLimit - Math.round(ticketAmount);
+      console.log(newBalance,"newBalance")
+      const ledgerId = `LG${Math.floor(100000 + Math.random() * 900000)}`;
+    
       // Create ledger entry
       await Railledger.create({
-        userId:userId,
+        userId,
         companyId: getAgentConfig.companyId,
-        ledgerId: ledgerId,
-        transactionAmount:Math.round(amount),
-        agentCharges:commercialBreakup?.agentServiceCharge,
-        convenceFee:commercialBreakup?.commericalConveniencefee,
-        pgCharges:commercialBreakup?.pgCharges,
+        ledgerId,
+        transactionAmount: Math.round(amount),
+        agentCharges: (commercialBreakup?.agentServiceCharge || 0) - (agentCommercialMinus.Agent_service_charge || 0),
+        convenceFee: (commercialBreakup?.commericalConveniencefee || 0) - (agentCommercialMinus.Conveniencefee || 0),
+        pgCharges: commercialBreakup?.pgCharges || 0,
         currencyType: "INR",
         fop: "CREDIT",
-      transactionType: "DEBIT",
-        runningAmount:Math.round(newBalance),
+        transactionType: "DEBIT",
+        runningAmount: Math.round(newBalance),
         remarks: "Booking amount deducted from your account.",
         transactionBy: userId,
         cartId: bookingId,
       });
-
-      // Create transaction Entry
+    
+      // Create transaction entry
       await transaction.create({
-        userId: userId,
-        companyId: companyId,
+        userId,
+        companyId: getAgentConfig.companyId,
         trnsNo: Math.floor(100000 + Math.random() * 900000),
         trnsType: "DEBIT",
         paymentMode: "CL",
         trnsStatus: "success",
         transactionBy: userId,
-        bookingId:bookingId,
+        bookingId,
       });
-
-      return ({
-        response:"amount transfer succefully"
-      })
+    
+      return { response: "Amount transferred successfully." };
+      
       //return addToLedger;
     } catch (error) {
       // Handle errors

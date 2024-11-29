@@ -18,7 +18,7 @@ const StartBookingRail = async (req, res) => {
       agencyId,
       CommercialCharges,
       traceId,
-      clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,contactDetails,ticketType,passengerList,boardingStation,
+      clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,contactDetails,ticketType,passengerList,boardingStation,railFareBreakupRes
     } = req.body;
     console.log("sdjfdh");
     const requiredFields = [
@@ -55,7 +55,8 @@ const StartBookingRail = async (req, res) => {
       companyId,
       cartId,
       paymentmethod,
-      CommercialCharges
+      CommercialCharges,
+      railFareBreakupRes?.enqClass
     );
     if (RailBooking.response == "Your Balance is not sufficient") {
       return {
@@ -73,9 +74,7 @@ const CommonDateBooking=await commonMethodDate()
         userId:userId,
         AgencyId:agencyId,
         paymentMethod:paymentmethod,
-      clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,contactDetails,ticketType,passengerList,boardingStation,
-      clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,contactDetails,ticketType,passengerList,boardingStation,
-        trainNumber:trainNo,journeyDate:`${journeyDate} 00:00:00.0 IST`,fromStn:frmStn,destStn:toStn,jClass:jClass,reservationMode:reservationMode,mobileNumber:contactDetails.mobileNumber,emailId:contactDetails.emailId,ticketType:ticketType,boardingStn:boardingStation,
+       trainNumber:railFareBreakupRes?.trainNo,journeyDate:`${journeyDate} 00:00:00.0 IST`,fromStn:railFareBreakupRes?.frmStn,destStn:railFareBreakupRes?.toStn,jClass:railFareBreakupRes?.enqClass,reservationMode:reservationMode,mobileNumber:contactDetails.mobileNumber,emailId:contactDetails.emailId,ticketType:ticketType,boardingStn:boardingStation,
         jQuota:jQuota,
         RailCommercial:CommercialCharges,
         psgnDtlList:passengerList,

@@ -262,13 +262,13 @@ console.log(checkUser.RailcommercialPlanIds)
 let agentCharges={}
 if(jClass=="SL"){
   agentCharges.Conveniencefee=17.5
-  agentCharges.Agent_service_charge=10
+  agentCharges.Agent_service_charge=20
   agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount,passengerList.length):0
 
 }
 else{
   agentCharges.Conveniencefee=35
-  agentCharges.Agent_service_charge=20
+  agentCharges.Agent_service_charge=40
   agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount,passengerList.length):0
 
 }
@@ -527,7 +527,7 @@ const PnrEnquirry = async (req, res) => {
 const DecodeToken = async (req, res) => {
   try {
     const { data } = req.body;
-
+const ssl=Config.MODE==="TEST"?"http://":"https://"
     if (!data) {
       return {
         response: "Token not found",
@@ -541,10 +541,104 @@ const DecodeToken = async (req, res) => {
     // Log the decoded data to check its structure
     console.log("Decoded Data: ", responseData);
 
+
     // Try parsing the decoded string as JSON
     let jsonData;
     try {
       jsonData = JSON.parse(responseData);
+
+      if(!jsonData.pnrNumber){
+        return successHtmlCode=`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Train Error</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .error-container {
+      background-color: #fff;
+      color: #333;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      width: 90%;
+      max-width: 450px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .error-container h1 {
+      color: #e74c3c;
+      font-size: 2.5rem;
+      margin: 0 0 10px;
+    }
+
+    .error-container p {
+      color: #555;
+      font-size: 1rem;
+      margin: 0 0 20px;
+    }
+
+    .error-container .train-icon img {
+      max-width: 100px; /* Ensures the image doesn't exceed 100px width */
+      max-height: 100px; /* Ensures the image doesn't exceed 100px height */
+      object-fit: contain; /* Keeps the image aspect ratio intact */
+      margin-bottom: 15px;
+    }
+
+    .error-container a {
+      display: inline-block;
+      text-decoration: none;
+      color: #fff;
+      background-color: #3498db;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    .error-container a:hover {
+      background-color: #2980b9;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="error-container">
+    <div class="train-icon">
+      <img src="${ssl}${req.headers.host}/Public/uploadImage/kafila_logo.png" alt="Train Logo">
+    </div>
+    <h1>Error</h1>
+    <p id="error-message">${jsonData?.errorMessage || 'Something went wrong with your train search.'}</p>
+    <a href="${
+      Config[Config.MODE].baseURL
+    }/home/rail/railSearch">Back to Search</a>
+  </div>
+</body>
+</html>
+`
+      }
       let bookingDateStr =jsonData.bookingDate;
 
       bookingDateStr = bookingDateStr.replace(".0", "").replace(" IST", "");
@@ -557,10 +651,7 @@ const DecodeToken = async (req, res) => {
       jsonData.bookingStatus = "CONFIRMED";
 
       jsonData.bookingDate = new Date(formattedDate);
-      console.log(jsonData.clientTransactionId);
-      if(!jsonData?.pnrNumber){
-        return "jddieiei"
-      }
+      
       if (jsonData?.reservationId && jsonData?.pnrNumber) {
         const qrCodeData = prepareRailBookingQRDataString({
           booking: jsonData,

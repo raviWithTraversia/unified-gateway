@@ -511,7 +511,35 @@ const fetchLedgerRailReport = async (req) => {
       }
     }
     console.log({ query });
-    const result = await ledgerRail.find(query).sort("-createdAt");
+    const result = await ledgerRail.aggregate([{$match:query},{
+      $lookup:{
+        from:"bookingdetailsrails",
+        localField:"cartId",
+        foreignField:"cartId",
+        as:"railBookingDetails"
+      }
+
+    },{$unwind:{
+      path:"$railBookingDetails",
+      preserveNullAndEmptyArrays:true
+    }
+  },
+  {
+    $addFields: {
+      mergedDetails: {
+        ledger: "$$ROOT",                
+        booking: "$railBookingDetails", 
+      },
+    },
+  },
+  {
+    $sort: {
+      "ledger.createdAt": -1, 
+    },
+  },
+
+  
+  ]).sort("-createdAt");
     return { result };
   } catch (error) {
     console.log({ error });

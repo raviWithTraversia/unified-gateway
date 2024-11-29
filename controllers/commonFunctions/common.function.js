@@ -1347,9 +1347,9 @@ const pgCharges=await commonAgentPGCharges(amount)
 var agentCommercialMinus={}
       if(jClass=="SL"){
 
-        agentCommercialMinus={Conveniencefee:getAgentConfig.RailcommercialPlanIds?.Conveniencefee?.sleepar,Agent_service_charge:getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar,pgCharges:pgCharges}
+        agentCommercialMinus={Agent_service_charge:getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar,pgCharges:pgCharges}
       }{
-        agentCommercialMinus={Conveniencefee:getAgentConfig.RailcommercialPlanIds?.Conveniencefee?.sleepar,Agent_service_charge:getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar,pgCharges:pgCharges}
+        agentCommercialMinus={Agent_service_charge:getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.acCharge,pgCharges:pgCharges}
       }
 
       const total = Object.values(agentCommercialMinus).reduce((sum, value) => sum + value, 0);
@@ -1369,16 +1369,16 @@ var agentCommercialMinus={}
       const newBalance = maxCreditLimit - Math.round(ticketAmount);
       console.log(newBalance,"newBalance")
       const ledgerId = `LG${Math.floor(100000 + Math.random() * 900000)}`;
+      await agentConfig.findOneAndUpdate({userId:userId},{$set:{railCashBalance:newBalance}},{new:true})
     
-      // Create ledger entry
       await Railledger.create({
         userId,
         companyId: getAgentConfig.companyId,
         ledgerId,
         transactionAmount: Math.round(amount),
-        agentCharges: (commercialBreakup?.agentServiceCharge || 0) - (agentCommercialMinus.Agent_service_charge || 0),
-        convenceFee: (commercialBreakup?.commericalConveniencefee || 0) - (agentCommercialMinus.Conveniencefee || 0),
-        pgCharges: commercialBreakup?.pgCharges || 0,
+        agentCharges: (commercialBreakup?.Agent_service_charge || 0) - (agentCommercialMinus.Agent_service_charge || 0),
+        convenceFee: (commercialBreakup?.Conveniencefee || 0) ,
+        pgCharges: pgCharges || 0,
         currencyType: "INR",
         fop: "CREDIT",
         transactionType: "DEBIT",

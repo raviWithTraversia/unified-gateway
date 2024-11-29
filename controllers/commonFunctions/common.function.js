@@ -1375,7 +1375,7 @@ var agentCommercialMinus={}
         userId,
         companyId: getAgentConfig.companyId,
         ledgerId,
-        transactionAmount: Math.round(amount),
+        transactionAmount: Math.round(ticketAmount),
         agentCharges: (commercialBreakup?.Agent_service_charge || 0) - (agentCommercialMinus.Agent_service_charge || 0),
         convenceFee: (commercialBreakup?.Conveniencefee || 0) ,
         pgCharges: pgCharges || 0,

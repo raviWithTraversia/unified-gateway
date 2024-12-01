@@ -122,6 +122,7 @@ const manualDebitCredit = async (req, res) => {
     if (!userId) {
       return { response: "User id does not exist" };
     }
+    amount = parseInt(amount) // converting to number
     let amountforDI = amount;
     if (pgCharges) {
       console.log(amount,"amount")

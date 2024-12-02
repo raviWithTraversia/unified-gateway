@@ -63,6 +63,11 @@ const StartBookingRail = async (req, res) => {
         response: "Your Balance is not sufficient",
       };
     }
+    if(RailBooking.response=="An error occurred. Please try again later."){
+      return {
+        response:"something Went wrong"
+      }
+    }
     
 if(RailBooking.response="amount transfer succefully"){
   

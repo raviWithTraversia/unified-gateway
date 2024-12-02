@@ -15,7 +15,8 @@ const StartBookingRail=async(req,res)=>{
             result.response === "Your Balance is not sufficient" ||
             result.response === "Either User or Company must exist" ||
             result.response === "User role must be Agency" ||
-            result.response === "companyId must be TMC"
+            result.response === "companyId must be TMC"||
+            result.response=="something Went wrong"
         ) {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
         } else if (result.response === "your amount transfer Succefully") {

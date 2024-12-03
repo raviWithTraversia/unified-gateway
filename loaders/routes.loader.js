@@ -80,6 +80,8 @@ const ledgerRailRoute = require("../routes/ledgerRailRoute");
 const irctcBookingRoute = require("../routes/irctcBookingRoute");
 const railReportRoute = require("../routes/rail-reports.route");
 const railCommercial=require('../routes/railCommercial.Routes')
+const railPgCharges=require("../routes/railPgCharges")
+const railGroupManage=require('../routes/railPGChargesGroup')
 class RoutesLoader {
   static initRoutes(app) {
     app.use("/api", userRoute);
@@ -330,6 +332,11 @@ class RoutesLoader {
     app.use("/api", creditNotesRoute);
 
     app.use('/api',railCommercial)
+
+    app.use('/api',railPgCharges)
+    
+
+    app.use('/api',railGroupManage)
 
     // // Intergalactic Credit
     // app.use('/api', intergalacticCreditRoute);

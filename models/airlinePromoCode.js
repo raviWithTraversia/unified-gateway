@@ -28,7 +28,12 @@ const airLinePremoSchema = new mongoose.Schema({
     type : {
         type : String,
         dafault : null
+    },
+    Remarks:{
+        type:String,
+        default:null
     }
+    
 }, {
     timestamps : true 
 });

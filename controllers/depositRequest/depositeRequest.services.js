@@ -249,6 +249,10 @@ const approveAndRejectDeposit = async (req, res) => {
         runningAmount = configData.maxRailCredit;
       }
       if (updateResponse.product === "Flight") {
+        console.log(configData.maxcreditLimit,"jfieie")
+        console.log(updateResponse.amount)
+        console.log(DIdata)
+
         configData.maxcreditLimit += updateResponse.amount + DIdata;
         runningAmount = configData.maxcreditLimit;
       }

@@ -4,7 +4,7 @@ const EventLogs=require('../logs/EventApiLogsCommon')
 const user=require('../../models/User')
 const addAirlinePromoCode = async (req,res) => {
     try{
-    let { companyId, supplierCode, airLineCode,fareFamily,premoCode,displayName,type } = req.body;
+    let { companyId, supplierCode, airLineCode,fareFamily,premoCode,displayName,type,Remarks } = req.body;
     let checkIsValidCompanyId = FUNC.checkIsValidId(companyId); 
     if(checkIsValidCompanyId ==  'Invalid Mongo Object Id'){
         return{
@@ -18,7 +18,8 @@ const addAirlinePromoCode = async (req,res) => {
         fareFamily,
         premoCode,
         displayName,
-        type
+        type,
+        Remarks
     }) ;
     insertAirlinePromoCode = await insertAirlinePromoCode.save();
     const userData=await user.findById(req.user._id)

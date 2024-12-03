@@ -187,7 +187,6 @@ RailbookingPrefix: {
 },   {
   timestamps: true,
   strict: true, // Ensures only defined fields are saved
-  strictQuery: "throw", // Throws an error for any undefined query fields
 });
 
 const AgentConfiguration = mongoose.model("AgentConfiguration", agentConfigSchema);

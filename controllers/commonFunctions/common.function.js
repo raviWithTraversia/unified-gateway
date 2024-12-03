@@ -1347,7 +1347,7 @@ const RailBookingCommonMethod = async (
 ) => {
   try {
     if (paymentMethodType !== "Wallet") {
-      return { response: "Unsupported payment method." };
+      throw new Error("Unsupported payment method.")
     }
 
     // Retrieve agent configuration
@@ -1356,12 +1356,12 @@ const RailBookingCommonMethod = async (
       .populate("RailcommercialPlanIds");
 
     if (!getAgentConfig) {
-      return { response: "Agent configuration not found." };
+      throw new Error("Agent configuration not found.");
     }
 
     const pgCharges = await commonAgentPGCharges(amount);
     if (!pgCharges) {
-      return { response: "Failed to calculate PG charges." };
+      throw new Error("Failed to calculate PG charges.") ;
     }
 
 
@@ -1406,7 +1406,7 @@ const RailBookingCommonMethod = async (
     );
 
     if (!updatedAgentConfig) {
-      return { response: "Failed to update agent balance." };
+      throw new Error("Failed to update agent balance." );
     }
 
 

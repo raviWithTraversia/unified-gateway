@@ -88,7 +88,8 @@ const agentConfigSchema = new mongoose.Schema({
 
   
   railCashBalance: {
-    type: Number, default: 0
+    type: Number, 
+    default: 0
   },
   holdPNRAllowed: {
     type: Boolean
@@ -183,7 +184,11 @@ RailbookingPrefix: {
 },
 
 
-}, { timestamps: true, });
+},   {
+  timestamps: true,
+  strict: true, // Ensures only defined fields are saved
+  strictQuery: "throw", // Throws an error for any undefined query fields
+});
 
 const AgentConfiguration = mongoose.model("AgentConfiguration", agentConfigSchema);
 module.exports = AgentConfiguration;

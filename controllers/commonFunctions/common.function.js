@@ -1174,7 +1174,7 @@ const priceRoundOffNumberValues = async (numberValue) => {
   const result =
     fractionalPart >= 0.5 ? Math.ceil(numberValue) : Math.floor(numberValue);
   // @FIXIT: change to number
-  return result.toFixed(2);
+  return Number(result.toFixed(2));
 };
 
 const RefundedCommonFunction = async (

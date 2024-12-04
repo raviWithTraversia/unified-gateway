@@ -43,6 +43,7 @@ function createAirBookingRequestBodyForCommonAPI(request) {
               provider: reqItinerary.Provider,
               promoCodeType: reqItinerary.PromoCodeType,
               airSegments: reqItinerary.Sectors.map((sector) => ({
+                key: sector.key ?? "",
                 travelTime: convertDurationForCommonAPI(sector.TravelTime),
                 airlineCode: sector.AirlineCode,
                 airlineName: sector.AirlineName,

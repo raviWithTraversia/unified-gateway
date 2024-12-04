@@ -12,6 +12,7 @@ manageAirlineCred_route.post(
     manageAirlineCredModels.addAirlineCred 
 );
 
+
 manageAirlineCred_route.patch(
     '/manageAirlineCred/updateAirlineCred',
     auth,

@@ -1359,10 +1359,7 @@ const RailBookingCommonMethod = async (
       throw new Error("Agent configuration not found.");
     }
 
-    const pgCharges = await commonAgentPGCharges(amount);
-    if (!pgCharges) {
-      throw new Error("Failed to calculate PG charges.") ;
-    }
+  
 
 
     let agentCommercialMinus = {};
@@ -1370,13 +1367,13 @@ const RailBookingCommonMethod = async (
       agentCommercialMinus = {
         Agent_service_charge:
           getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar || 0,
-        pgCharges: pgCharges,
+        pgCharges: commercialBreakup?.PG_charges||commercialBreakup?.pgCharges,
       };
     } else {
       agentCommercialMinus = {
         Agent_service_charge:
           getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.acCharge || 0,
-        pgCharges: pgCharges,
+        pgCharges: commercialBreakup?.PG_charges||commercialBreakup?.pgCharges,
       };
     }
 
@@ -1422,7 +1419,7 @@ const RailBookingCommonMethod = async (
         (commercialBreakup?.Agent_service_charge || 0) -
         (agentCommercialMinus.Agent_service_charge || 0),
       convenceFee: commercialBreakup?.Conveniencefee || 0,
-      pgCharges: pgCharges || 0,
+      pgCharges: agentCommercialMinus?.pgCharges || 0,
       currencyType: "INR",
       fop: "CREDIT",
       transactionType: "DEBIT",

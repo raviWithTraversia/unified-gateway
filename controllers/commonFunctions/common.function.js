@@ -898,50 +898,50 @@ const recieveDI = async (
     const amountNumber = Number(amount);
     // console.log(minAmount < amountNumber, "sjkjks");
     // console.log(slabOptions, minAmount, amountNumber, "slabOptions111");
-    // if (minAmount < amountNumber) {
+    if (minAmount < amountNumber) {
       bonusAmount =
         (parseInt(slabOptions[slabOptions.length - 1]?.diPersentage) / 100) *
         amount;
       bonusAmount = await priceRoundOffNumberValues(bonusAmount);
       slabBreakups.push(slabOptions[slabOptions.length - 1]);
       // console.log(bonusAmount, "bonusAmount1");
-    // } else {
-    //   for (let i = 0; i < slabOptions.length; i++) {
-    //     if (!isMultipleSlab) {
-    //       if (slabOptions[i].minAmount == amount) {
-    //         bonusAmount =
-    //           (parseInt(slabOptions[i].diPersentage) / 100) * amount;
-    //         slabBreakups.push(slabOptions[i]);
-    //         break;
-    //       }
-    //     }
-    //     if (slabOptions[i].minAmount > amount) {
-    //       isMultipleSlab = true;
-    //       let mainAmountBonus =
-    //         ((parseInt(slabOptions[i - 1]?.diPersentage) || 0) / 100) *
-    //         parseInt(slabOptions[i - 1]?.minAmount || 0);
-    //       let restAmount = amount - slabOptions[i - 1]?.minAmount || 0;
-    //       let restAmountBonus =
-    //         ((parseInt(slabOptions[i]?.diPersentage) || 0) / 100) * restAmount;
-    //       bonusAmount = mainAmountBonus + restAmountBonus;
+    } else {
+      for (let i = 0; i < slabOptions.length; i++) {
+        if (!isMultipleSlab) {
+          if (slabOptions[i].minAmount == amount) {
+            bonusAmount =
+              (parseInt(slabOptions[i].diPersentage) / 100) * amount;
+            slabBreakups.push(slabOptions[i]);
+            break;
+          }
+        }
+        if (slabOptions[i].minAmount > amount) {
+          isMultipleSlab = true;
+          let mainAmountBonus =
+            ((parseInt(slabOptions[i - 1]?.diPersentage) || 0) / 100) *
+            parseInt(slabOptions[i - 1]?.minAmount || 0);
+          let restAmount = amount - slabOptions[i - 1]?.minAmount || 0;
+          let restAmountBonus =
+            ((parseInt(slabOptions[i]?.diPersentage) || 0) / 100) * restAmount;
+          bonusAmount = mainAmountBonus + restAmountBonus;
 
-    //       console.log(
-    //         bonusAmount,
-    //         mainAmountBonus,
-    //         restAmountBonus,
-    //         "bonusAmount2"
-    //       );
-    //       if (bonusAmount > 0) {
-    //         if (!slabOptions[i - 1]) {
-    //           slabBreakups.push(slabOptions[i]);
-    //         } else {
-    //           slabBreakups.push(slabOptions[i - 1], slabOptions[i]);
-    //         }
-    //       }
-    //       break;
-    //     }
-    //   }
-    // }
+          console.log(
+            bonusAmount,
+            mainAmountBonus,
+            restAmountBonus,
+            "bonusAmount2"
+          );
+          if (bonusAmount > 0) {
+            if (!slabOptions[i - 1]) {
+              slabBreakups.push(slabOptions[i]);
+            } else {
+              slabBreakups.push(slabOptions[i - 1], slabOptions[i]);
+            }
+          }
+          break;
+        }
+      }
+    }
     // console.log(bonusAmount, "bonusAmount11");
     const ADRdata = new AgentDiRecieve({
       userId: findUser._id,
@@ -1173,8 +1173,8 @@ const priceRoundOffNumberValues = async (numberValue) => {
   const fractionalPart = numberValue - integerPart;
   const result =
     fractionalPart >= 0.5 ? Math.ceil(numberValue) : Math.floor(numberValue);
-  // @FIXIT: change to number
-  return Number(result.toFixed(2));
+   
+   return Number(result.toFixed(2));
 };
 
 const RefundedCommonFunction = async (

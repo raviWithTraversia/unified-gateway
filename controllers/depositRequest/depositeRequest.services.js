@@ -256,7 +256,9 @@ const approveAndRejectDeposit = async (req, res) => {
         configData.maxcreditLimit += updateResponse.amount + DIdata;
         runningAmount = configData.maxcreditLimit;
       }
-      await configData.save();
+
+      
+
       const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
       await ledger.create({
         userId: updateResponse.userId,
@@ -265,12 +267,36 @@ const approveAndRejectDeposit = async (req, res) => {
         transactionAmount: updateResponse.amount,
         currencyType: "INR",
         fop: "Credit",
-        transactionType: "Credit",
+        transactionType: "CREDIT",
         runningAmount,
         remarks: remarks,
         transactionBy: updateResponse.userId,
         product: updateResponse.product,
       });
+
+    if(DIdata>0){
+const tdsAmount=parseInt(DIdata)*2/100
+configData.maxcreditLimit-=tdsAmount
+runningAmount=configData.maxcreditLimit
+await ledger.create({
+  userId: updateResponse.userId,
+  companyId: updateResponse.companyId,
+  ledgerId: ledgerId,
+  transactionAmount: tdsAmount,
+  currencyType: "INR",
+  fop: "Credit",
+  transactionType: "DEBIT",
+  runningAmount,
+  remarks:  `Manual AUTO_TDS`,
+  transactionBy: updateResponse.userId,
+  product: updateResponse.product,
+});
+
+          }
+
+
+      await configData.save();
+      
 
       const LogsData = {
         eventName: "creditRequest",

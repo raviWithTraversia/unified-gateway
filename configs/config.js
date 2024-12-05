@@ -19,6 +19,7 @@ module.exports.Config = {
     IRCTC_MASTER_ID:"WKAFILA00000",
     IRCTC_AUTH:"Basic V0tBRklMQTAwMDAwOjBaZzFDMw=="
   },
+  TMCID:"6555f84c991eaa63cb171a9f",
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",
   MONGODB_URL:

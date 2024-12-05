@@ -114,7 +114,8 @@ const addAgencyGroup = async (req, res) => {
       isDefault,
       companyId,
       name,
-      ssrCommercialGroupId
+      ssrCommercialGroupId,
+      railPgChargesGroup
     } = req.body;
     let agencyGroupNameExist =
     await agencyGroupModel.findOne({
@@ -147,6 +148,7 @@ const addAgencyGroup = async (req, res) => {
       isDefault,
       companyId,
       name,
+      railPgChargesGroup:railPgChargesGroup,
       createdBy: req.user._id,
       modifyBy: req.user._id,
       ssrCommercialGroupId
@@ -248,6 +250,7 @@ const getAgencyGroup = async (req, res) => {
     .populate('companyId')
     .populate('ssrCommercialGroupId')
     .populate("RailcommercialPlanId")
+    .populate("railPgChargesGroup")
     if (agencyGroup.length > 0) {
       return {
         response: "Agency Group Fetch Sucessfully",

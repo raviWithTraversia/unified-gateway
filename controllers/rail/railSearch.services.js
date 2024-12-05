@@ -32,9 +32,9 @@ const getRailSearch = async (req, res) => {
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
     }
-    if (checkUser?.roleId?.name !== "Agency") {
-      return { response: "User role must be Agency" };
-    }
+    // if (checkUser?.roleId?.name !== "Agency") {
+    //   return { response: "User role must be Agency" };
+    // }
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }
@@ -92,9 +92,9 @@ const railSearchBtwnDate = async (req, res) => {
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
     }
-    if (checkUser?.roleId?.name !== "Agency") {
-      return { response: "User role must be Agency" };
-    }
+    // if (checkUser?.roleId?.name !== "Agency") {
+    //   return { response: "User role must be Agency" };
+    // }
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }
@@ -160,9 +160,9 @@ const railRouteView = async (req, res) => {
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
     }
-    if (checkUser?.roleId?.name !== "Agency") {
-      return { response: "User role must be Agency" };
-    }
+    // if (checkUser?.roleId?.name !== "Agency") {
+    //   return { response: "User role must be Agency" };
+    // }
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }
@@ -251,9 +251,9 @@ const railFareEnquiry = async (req, res) => {
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
     }
-    if (checkUser?.userId?.roleId?.name !== "Agency") {
-      return { response: "User role must be Agency" };
-    }
+    // if (checkUser?.userId?.roleId?.name !== "Agency") {
+    //   return { response: "User role must be Agency" };
+    // }
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }

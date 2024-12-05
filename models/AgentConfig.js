@@ -147,6 +147,10 @@ const agentConfigSchema = new mongoose.Schema({
     ref: "User",
     default: null
   },
+  railPayementGateWayIds:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"railPaymentGatewayGroupModel"
+  },
   defaultPg: {
     type: String,
     default: null

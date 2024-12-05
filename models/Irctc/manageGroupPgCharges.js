@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const railpaymentGatewayGroupSchema = new mongoose.Schema({
     paymentGatewayIds: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'railPaymentGatewayCharges'
+        ref: 'railPaymentGatewayCharge'
       }],
       paymentGatewayGroupName : {
         type : String

@@ -67,12 +67,15 @@ const addSupplier = async (req,res) => {
         }
       }
       else{
+        console.log("jdoeoeiei")
         return{
             response : 'Supplier not added',
             data : null
         }
       }
     }else{
+      console.log("suhiei")
+
        return {
         response : 'Invalid Mongo Object Id',
         data : null
@@ -142,8 +145,31 @@ const getSupplier = async (req,res) => {
     }
 };
 
+const deleteSupplierCredential = async (req, res) => {
+  try {
+    let id = req.query.id;
+    let deleteData = await supplier.findByIdAndDelete(
+      id
+    );
+    if (deleteData) {
+      return {
+        response: "Data deleted sucessfully",
+      };
+    } else {
+      return {
+        response: "SupplierCredential data not found for this id",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+
 module.exports = {
     addSupplier,
     updateSupplier,
-    getSupplier
+    getSupplier,
+    deleteSupplierCredential
 }

@@ -103,7 +103,11 @@ const supplierSchema = new mongoose.Schema({
      supplierTestUrl:{
         type : String,
         default: null
-     }
+     },
+     isActive:{
+        type:Boolean,
+        default:false
+     },
   }, {
     timestamps: true // Adds created_at and updated_at fields
   });

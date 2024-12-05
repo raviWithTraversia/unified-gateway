@@ -44,6 +44,10 @@ const agencyGroupSchema = new mongoose.Schema(
       ref: "railCommercial",
       default: null
     },
+    railPgChargesGroup: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "railPaymentGatewayGroupModel",
+    },
     isDefault: {
       type: Boolean,
       default: false,

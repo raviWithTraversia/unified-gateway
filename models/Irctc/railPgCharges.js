@@ -39,5 +39,5 @@ const RailpaymentGateway = new mongoose.Schema({
   timestamps: true
 });
 
-const railPaymentGatewayCharges = mongoose.model("railPaymentGatewayCharges", RailpaymentGateway);
+const railPaymentGatewayCharges = mongoose.model("railPaymentGatewayCharge", RailpaymentGateway);
 module.exports = railPaymentGatewayCharges;

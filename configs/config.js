@@ -4,11 +4,12 @@ module.exports.Config = {
   TEST: {
     baseURL: "https://kafilaui.traversia.net", // frontend
     baseURLBackend: "https://kafila.traversia.net",
-    additionalFlightsBaseURL: "http://kafilaapi.traversia.net:61101/api",
+    additionalFlightsBaseURL: "http://localhost:31101/api",
+    // additionalFlightsBaseURL: "http://kafilaapi.traversia.net:61101/api",
     baseURLBackend: "https://kafila.traversia.net",
     IRCTC_BASE_URL: "https://stagews.irctc.co.in",
-    IRCTC_MASTER_ID:"WKAFL00000",
-    IRCTC_AUTH:"Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ=="
+    IRCTC_MASTER_ID: "WKAFL00000",
+    IRCTC_AUTH: "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==",
   },
   LIVE: {
     baseURL: "https://agent.kafilaholidays.in", // frontend
@@ -16,8 +17,8 @@ module.exports.Config = {
     additionalFlightsBaseURL: "http://kafilaapi.traversia.net:61101/api",
     baseURLBackend: "https://agentapi.kafilaholidays.in",
     IRCTC_BASE_URL: "https://www.aps.irctc.co.in",
-    IRCTC_MASTER_ID:"WKAFILA00000",
-    IRCTC_AUTH:"Basic V0tBRklMQTAwMDAwOjBaZzFDMw=="
+    IRCTC_MASTER_ID: "WKAFILA00000",
+    IRCTC_AUTH: "Basic V0tBRklMQTAwMDAwOjBaZzFDMw==",
   },
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",

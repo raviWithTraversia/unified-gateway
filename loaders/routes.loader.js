@@ -23,6 +23,7 @@ const commercialAirPlanRoute = require("../routes/commercialAirPlanRoute");
 const fareFamilyRoute = require("../routes/fareFamilyMasterRoute");
 const verifyOtpRoute = require("../routes/verifyOtpRoute");
 const flightRoute = require("../routes/flight/flightRoute");
+const flightRouteV1_1 = require("../routes/flight/flightRoute v1-1");
 const balanceManageRoute = require("../routes/balanceManageRoute");
 const flightBookingRoute = require("../routes/flight/flightBookingRoute");
 const carrierRoute = require("../routes/carrierRoute");
@@ -79,9 +80,9 @@ const invoiceGeneratorRoute = require("../routes/invoiceGeneratorRoute");
 const ledgerRailRoute = require("../routes/ledgerRailRoute");
 const irctcBookingRoute = require("../routes/irctcBookingRoute");
 const railReportRoute = require("../routes/rail-reports.route");
-const railCommercial=require('../routes/railCommercial.Routes')
-const railPgCharges=require("../routes/railPgCharges")
-const railGroupManage=require('../routes/railPGChargesGroup')
+const railCommercial = require("../routes/railCommercial.Routes");
+const railPgCharges = require("../routes/railPgCharges");
+const railGroupManage = require("../routes/railPGChargesGroup");
 class RoutesLoader {
   static initRoutes(app) {
     app.use("/api", userRoute);
@@ -148,6 +149,7 @@ class RoutesLoader {
 
     // Flight Route Start Here
     app.use("/api", flightRoute);
+    app.use("/api/v1-1", flightRouteV1_1);
 
     // Balance Manage Route
     app.use("/api", balanceManageRoute);
@@ -331,12 +333,11 @@ class RoutesLoader {
 
     app.use("/api", creditNotesRoute);
 
-    app.use('/api',railCommercial)
+    app.use("/api", railCommercial);
 
-    app.use('/api',railPgCharges)
-    
+    app.use("/api", railPgCharges);
 
-    app.use('/api',railGroupManage)
+    app.use("/api", railGroupManage);
 
     // // Intergalactic Credit
     // app.use('/api', intergalacticCreditRoute);

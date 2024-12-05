@@ -2,6 +2,7 @@ const airLinePromo = require('../../models/AirlinePromoCode');
 const FUNC = require('../commonFunctions/common.function');
 const EventLogs=require('../logs/EventApiLogsCommon')
 const user=require('../../models/User')
+const {Config}=require('../../configs/config')
 const addAirlinePromoCode = async (req,res) => {
     try{
     let { companyId, supplierCode, airLineCode,fareFamily,premoCode,displayName,type,Remarks } = req.body;
@@ -106,15 +107,29 @@ const getPromoCode = async (req,res) => {
        }
     }
     let airlinePromoCodeData;
-    airlinePromoCodeData = await airLinePromo.find({companyId : id}).populate('supplierCode')
+    const companyData=await user.findById(req.user._id)
+    const companyId=companyData?.company_ID.toString()
+    airlinePromoCodeData = await airLinePromo.find().populate('supplierCode')
     .populate('airLineCode')
     .populate('fareFamily');
+    const airlineCodeId = airlinePromoCodeData.filter(element => element?.companyId.toString() === companyId);
+     const allpromoCode = airlinePromoCodeData.filter(element => element?.companyId.toString() === Config?.TMCID);
+
+    const airlineCodeIdsSet = new Set(airlineCodeId.map(airline => airline.airLineCode?._id));
+
+const filteredPromoCode = allpromoCode.filter(promo => !airlineCodeIdsSet.has(promo?.airLineCode?._id));
+
+const uniqueResult = Array.from(
+    new Map(
+        [...airlineCodeId, ...filteredPromoCode].map(item => [item.airLineCode?._id, item])
+    ).values()
+);
    
    // console.log(airlinePromoCodeData)
-    if(airlinePromoCodeData){
+    if(uniqueResult.length>0){
         return{
             response : "Data Fetch Sucessfully",
-            data : airlinePromoCodeData
+            data : uniqueResult
         }
     }else{
         return {

@@ -88,7 +88,8 @@ const agentConfigSchema = new mongoose.Schema({
 
   
   railCashBalance: {
-    type: Number, default: 0
+    type: Number, 
+    default: 0
   },
   holdPNRAllowed: {
     type: Boolean
@@ -146,6 +147,10 @@ const agentConfigSchema = new mongoose.Schema({
     ref: "User",
     default: null
   },
+  railPayementGateWayIds:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"railPaymentGatewayGroupModel"
+  },
   defaultPg: {
     type: String,
     default: null
@@ -183,7 +188,10 @@ RailbookingPrefix: {
 },
 
 
-}, { timestamps: true, });
+},   {
+  timestamps: true,
+  strict: true, // Ensures only defined fields are saved
+});
 
 const AgentConfiguration = mongoose.model("AgentConfiguration", agentConfigSchema);
 module.exports = AgentConfiguration;

@@ -20,7 +20,8 @@ const { UserBindingInstance } = require("twilio/lib/rest/chat/v2/service/user/us
 const { UserDefinedMessageInstance } = require("twilio/lib/rest/api/v2010/account/call/userDefinedMessage");
 const transaction=require('../../models/transaction')
 const railLogs=require('../../models/Irctc/railLogs')
-const {ObjectId}=require('mongodb')
+const {ObjectId}=require('mongodb');
+const { totalmem } = require("os");
 
 const createToken = async (id) => {
   try {
@@ -1172,7 +1173,8 @@ const priceRoundOffNumberValues = async (numberValue) => {
   const fractionalPart = numberValue - integerPart;
   const result =
     fractionalPart >= 0.5 ? Math.ceil(numberValue) : Math.floor(numberValue);
-  return result.toFixed(2);
+   
+   return Number(result.toFixed(2));
 };
 
 const RefundedCommonFunction = async (
@@ -1334,79 +1336,117 @@ console.log('dji')
   }
 };
 
-const RailBookingCommonMethod=async(userId,amount,companyId,bookingId,paymentMethodType,commercialBreakup)=>{
-try{
-  if (paymentMethodType === "Wallet") {
-    try {
-      // Retrieve agent configuration
-      console.log('sdhfsdi')
-const getAgentConfig =await agentConfig.findOne({userId:userId})
-     
-      const checkCreditLimit =
-        getAgentConfig?.railCashBalance ?? 0 + amount;
-      const maxCreditLimit = getAgentConfig?.railCashBalance ?? 0;
-
-      console.log(getAgentConfig.railCashBalance)
-      // Check if balance is sufficient
-      if (checkCreditLimit < amount) {
-         return({response:"Your Balance is not sufficient"});
-      }
-
-      // Deduct balance from user configuration and update in DB
-      const newBalance = maxCreditLimit - Math.round(amount);
-      await agentConfig.updateOne(
-        { userId:userId },
-        { railCashBalance: newBalance }
-      );
-
-      // Generate random ledger ID
-      var ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-      // Create ledger entry
-      await Railledger.create({
-        userId:userId,
-        companyId: getAgentConfig.companyId,
-        ledgerId: ledgerId,
-        transactionAmount:Math.round(amount),
-        agentCharges:commercialBreakup?.agentServiceCharge,
-        convenceFee:commercialBreakup?.commericalConveniencefee,
-        pgCharges:commercialBreakup?.pgCharges,
-        currencyType: "INR",
-        fop: "CREDIT",
-      transactionType: "DEBIT",
-        runningAmount:Math.round(newBalance),
-        remarks: "Booking amount deducted from your account.",
-        transactionBy: userId,
-        cartId: bookingId,
-      });
-
-      // Create transaction Entry
-      await transaction.create({
-        userId: userId,
-        companyId: companyId,
-        trnsNo: Math.floor(100000 + Math.random() * 900000),
-        trnsType: "DEBIT",
-        paymentMode: "CL",
-        trnsStatus: "success",
-        transactionBy: userId,
-        bookingId:bookingId,
-      });
-
-      return ({
-        response:"amount transfer succefully"
-      })
-      //return addToLedger;
-    } catch (error) {
-      // Handle errors
-      console.log('shfeieiei')
-      console.error("Error:", error.message);
-      return "An error occurred. Please try again later.";
+const RailBookingCommonMethod = async (
+  userId,
+  amount,
+  companyId,
+  bookingId,
+  paymentMethodType,
+  commercialBreakup,
+  jClass
+) => {
+  try {
+    if (paymentMethodType !== "Wallet") {
+      throw new Error("Unsupported payment method.")
     }
-  }
 
-}catch(error){
-throw error
-}
-}
+    // Retrieve agent configuration
+    const getAgentConfig = await agentConfig
+      .findOne({ userId: userId })
+      .populate("RailcommercialPlanIds");
+
+    if (!getAgentConfig) {
+      throw new Error("Agent configuration not found.");
+    }
+
+  
+
+
+    let agentCommercialMinus = {};
+    if (jClass === "SL") {
+      agentCommercialMinus = {
+        Agent_service_charge:
+          getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar || 0,
+        pgCharges: commercialBreakup?.PG_charges||commercialBreakup?.pgCharges,
+      };
+    } else {
+      agentCommercialMinus = {
+        Agent_service_charge:
+          getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.acCharge || 0,
+        pgCharges: commercialBreakup?.PG_charges||commercialBreakup?.pgCharges,
+      };
+    }
+
+
+    const total = Object.values(agentCommercialMinus).reduce(
+      (sum, value) => sum + (value || 0),
+      0
+    );
+
+    // Check credit limit
+    const currentBalance = getAgentConfig?.railCashBalance || 0;
+    const checkCreditLimit = currentBalance - amount;
+
+    if (checkCreditLimit < total) {
+      return { response: "Your Balance is not sufficient." };
+    }
+
+    // Calculate ticket amount
+    const ticketAmount = Math.round(amount - total);
+    const newBalance = Math.round(currentBalance - ticketAmount);
+
+    // Update balance in DB
+    const updatedAgentConfig = await agentConfig.findOneAndUpdate(
+      { userId: userId },
+      { $set: { railCashBalance: newBalance } },
+      { new: true }
+    );
+
+    if (!updatedAgentConfig) {
+      throw new Error("Failed to update agent balance." );
+    }
+
+
+    const ledgerId = `LG${Math.floor(100000 + Math.random() * 900000)}`;
+
+    // Create ledger entry
+    await Railledger.create({
+      userId,
+      companyId: getAgentConfig.companyId,
+      ledgerId,
+      transactionAmount: ticketAmount,
+      agentCharges:
+        (commercialBreakup?.Agent_service_charge || 0) -
+        (agentCommercialMinus.Agent_service_charge || 0),
+      convenceFee: commercialBreakup?.Conveniencefee || 0,
+      pgCharges: agentCommercialMinus?.pgCharges || 0,
+      currencyType: "INR",
+      fop: "CREDIT",
+      transactionType: "DEBIT",
+      runningAmount: newBalance,
+      remarks: "Booking amount deducted from your account.",
+      transactionBy: userId,
+      cartId: bookingId,
+    });
+
+    // Create transaction entry
+    await transaction.create({
+      userId,
+      companyId: getAgentConfig.companyId,
+      trnsNo: Math.floor(100000 + Math.random() * 900000),
+      trnsType: "DEBIT",
+      paymentMode: "CL",
+      trnsStatus: "success",
+      transactionBy: userId,
+      bookingId,
+    });
+
+    return { response: "Amount transferred successfully." };
+  } catch (error) {
+    console.error("Error in RailBookingCommonMethod:", error.message);
+    return { response: "An error occurred. Please try again later.", error: error.message };
+  }
+};
 
 const commonAgentPGCharges=async(amout,index=1)=>{
   const amounts=Number(amout)*index

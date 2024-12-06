@@ -255,7 +255,7 @@ function convertSegmentForKafila(segment) {
     HandBaggage: segment.handBaggage ?? "",
     TransitTime: null,
     MealCode: null,
-    key: "",
+    key: segment.key ?? "",
     Distance: "",
     ETicket: "No",
     ChangeOfPlane: "",
@@ -335,5 +335,5 @@ module.exports = {
   convertItineraryForKafila,
   convertFlightDetailsForKafila,
   convertTravelTypeForCommonAPI,
-  convertSegmentForKafila
+  convertSegmentForKafila,
 };

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 
-const paymentGateway = new mongoose.Schema({
+const RailpaymentGateway = new mongoose.Schema({
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -39,5 +39,5 @@ const paymentGateway = new mongoose.Schema({
   timestamps: true
 });
 
-const paymentGatewayCharges = mongoose.model("paymentGatewayCharges", paymentGateway);
-module.exports = paymentGatewayCharges;
+const railPaymentGatewayCharges = mongoose.model("railPaymentGatewayCharge", RailpaymentGateway);
+module.exports = railPaymentGatewayCharges;

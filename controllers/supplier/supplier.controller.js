@@ -116,8 +116,39 @@ const getSupplier = async (req,res) => {
     }
 };
 
+const deleteSupplierCredential = async (req, res) => {
+    try {
+      const result = await supplierServices.deleteSupplierCredential(req, res);
+      if (result.response == "Data deleted sucessfully") {
+        apiSucessRes(
+          res,
+          result.response,
+          result.data,
+          ServerStatusCode.SUCESS_CODE
+        );
+      } else if (result.response == "SupplierCredential data not found for this id") {
+        apiErrorres(
+          res,
+          result.response,
+          ServerStatusCode.RESOURCE_NOT_FOUND,
+          true
+        );
+      } else {
+        apiErrorres(
+          res,
+          ServerStatusCode.RESOURCE_NOT_FOUND,
+          errorResponse.SOME_UNOWN,
+          true
+        );
+      }
+    } catch (error) {
+      apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
+    }
+  };
+
 module.exports = {
     addSupplier,
     updateSupplier,
-    getSupplier
+    getSupplier,
+    deleteSupplierCredential
 }

@@ -24,6 +24,9 @@ supplier_route.patch(
    supplierController.updateSupplier
 )
 
+
+supplier_route.delete("/supplier/deleteSupplier",supplierController.deleteSupplierCredential)
+
 supplier_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

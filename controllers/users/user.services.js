@@ -1196,48 +1196,58 @@ const searchForAgency = async (req, res) => {
     matchConditions.push({ 'companyData.companyName': searchRegex });
 
     //if(getRole.name == 'TMC' || getRole.name == 'Distributer' || getRole.name == 'Supplier') {
-    const getCompaniesDetails = await User.aggregate([
-      {
-        $lookup: {
-          from: 'companies',
-          localField: 'company_ID',
-          foreignField: '_id',
-          as: 'companyData'
+      const getCompaniesDetails = await User.aggregate([
+        {
+          $lookup: {
+            from: 'companies',
+            localField: 'company_ID',
+            foreignField: '_id',
+            as: 'companyData'
+          }
+        },
+        { $unwind: { path: '$companyData', preserveNullAndEmptyArrays: true } },
+  
+        {
+          $lookup: {
+            from: 'roles',
+            localField: 'roleId',
+            foreignField: '_id',
+            as: 'roleId'
+          }
+        },
+        { $unwind: { path: '$roleId', preserveNullAndEmptyArrays: true } },
+  
+        {
+          $match: {
+            $and: [
+              { 'roleId.type': 'Default' },
+              { 'companyData.type': { $ne: 'TMC' } }
+            ]
+          }
+        },
+  
+        {
+          $addFields: {
+            userIdString: { $toString: '$userId' }
+          }
+        },
+        {
+          $match: {
+            'companyData.parent': getUserId.company_ID,
+            $or: [
+              { userIdString: new RegExp(search, 'i') },
+              { 'companyData.companyName': new RegExp(search, 'i') }
+            ]
+          }
+        },
+        {
+          $group: {
+            _id: '$companyData._id',
+            companyName: { $first: '$companyData.companyName' }
+          }
         }
-      },
-      { $unwind: { path: '$companyData', preserveNullAndEmptyArrays: true } },
-
-      {$lookup:{
-        from:"roles",
-        localField:"roleId",
-        foreignField:"_id",
-        as:"roleId"
-      }},
-
-      {$unwind:{path:"$roleId",preserveNullAndEmptyArrays:true}},
-
-      {$match:{"roleId.type":"Default"}},
-
-      {
-        $addFields: {
-          userIdString: { $toString: '$userId' }
-        }
-      },
-      {
-        $match: {
-          'companyData.parent': getUserId.company_ID,
-          $or: [{ userIdString: new RegExp(search, 'i') },
-          { 'companyData.companyName': new RegExp(search, 'i') }
-          ]
-        }
-      }, {
-        $group: {
-          _id: "$companyData._id",
-          companyName: { $first: "$companyData.companyName" },
-        }
-      }
-
-    ]);
+      ]);
+  
     console.log(getCompaniesDetails)
     let companiesList = [];
     for (let i = 0; i < getCompaniesDetails.length; i++) {

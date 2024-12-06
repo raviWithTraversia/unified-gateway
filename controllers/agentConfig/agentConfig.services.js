@@ -224,6 +224,7 @@ const getAgentConfig = async (req, res) => {
       .populate("paymentGatewayIds")
       .populate("is_quote_without_price")
       .populate("RailcommercialPlanIds")
+      .populate("railPayementGateWayIds")
     //console.log(agentConfigData);
     if (agentConfigData) {
       return {
@@ -306,15 +307,21 @@ const getUserProfile = async (req, res) => {
         model: 'Company',
         select: 'companyName type'
       }
-    }).populate('cityId').populate('roleId')
-    if (userData) {
-      return {
-        response: 'User data found SucessFully',
-        data: userData
-      }
-    } else {
+    }).populate('cityId').populate('roleId').lean()
+    const agentData = await agentConfigsModels.findOne(
+      { userId: userId },
+      {fareTypes:1}
+    ).lean();
+    if (!userData||!agentData) {
+      
       return {
         response: 'User data not found'
+      }
+    } else {
+      const mergeObject=Object.assign({}, userData,agentData)
+     return {
+        response: 'User data found SucessFully',
+        data: mergeObject
       }
     }
 

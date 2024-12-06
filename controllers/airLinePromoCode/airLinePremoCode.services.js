@@ -97,15 +97,16 @@ const promoCode=await airLinePromo.findById(id)
     }
 };
 
+
 const getPromoCode = async (req,res) => {
     try{
-    let id = req.query.companyId;
-    let checkIsValidId = FUNC.checkIsValidId(id); 
-    if(checkIsValidId == 'Invalid Mongo Object Id'){
-       return {
-          response : 'Invalid Mongo Object Id'
-       }
-    }
+    // let id = req.query.companyId;
+    // let checkIsValidId = FUNC.checkIsValidId(id); 
+    // if(checkIsValidId == 'Invalid Mongo Object Id'){
+    //    return {
+    //       response : 'Invalid Mongo Object Id'
+    //    }
+    // }
     let airlinePromoCodeData;
     const companyData=await user.findById(req.user._id)
     const companyId=companyData?.company_ID.toString()
@@ -141,6 +142,38 @@ const uniqueResult = Array.from(
         console.log(error);
         throw error
     }
+}
+const getCompanBasePromoCode=async(req,res)=>{
+    try{
+        let id = req.query.companyId;
+        let checkIsValidId = FUNC.checkIsValidId(id); 
+        if(checkIsValidId == 'Invalid Mongo Object Id'){
+           return {
+              response : 'Invalid Mongo Object Id'
+           }
+        }
+        let airlinePromoCodeData;
+        
+        airlinePromoCodeData = await airLinePromo.find({companyId:id}).populate('supplierCode')
+        .populate('airLineCode')
+        .populate('fareFamily');
+     
+       // console.log(airlinePromoCodeData)
+        if(airlinePromoCodeData.length>0){
+            return{
+                response : "Data Fetch Sucessfully",
+                data : airlinePromoCodeData
+            }
+        }else{
+            return {
+                response : 'No Airline Promo Data Found'
+            }
+        }
+    
+        }catch(error){
+            console.log(error);
+            throw error
+        }
 }
 const deletePromoCode = async(req,res) => {
     try{
@@ -182,5 +215,6 @@ module.exports = {
     addAirlinePromoCode ,
     editAirlinePromoCode,
     getPromoCode,
-    deletePromoCode
+    deletePromoCode,
+    getCompanBasePromoCode
 }

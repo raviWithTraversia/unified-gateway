@@ -791,10 +791,22 @@ const getAllAgencyAndDistributer = async (req, res) => {
       {
         $addFields: {
           matchCondition: {
-            $cond: {
-              if: { $eq: [findTmcUser.type, "TMC"] }, // Check if the type is "TMC"
-              then: { $in: ["$company_ID.type", ["TMC","Agency", "Distributer"]] }, // Condition when true
-              else: { $eq: ["$company_ID.parent", new mongoose.Types.ObjectId(parentId)] } // Condition when false
+            $switch: {
+              branches: [
+                {
+                  case: { $eq: [findTmcUser.type, "TMC"] }, // First condition
+                  then: { $in: ["$company_ID.type", ["TMC", "Agency", "Distributer"]] } // Result if true
+                },
+                {
+                  case: { $eq: ["$company_ID.parent", new mongoose.Types.ObjectId(parentId)] }, // Second condition (else if)
+                  then: true // Result if true
+                },
+                {
+                  case: { $eq: ["$company_ID._id", new mongoose.Types.ObjectId(parentId)] }, // Second condition (else if)
+                  then: true 
+                }
+              ],
+              default: false // Result if no conditions match
             }
           }
         }

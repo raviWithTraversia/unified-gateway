@@ -138,6 +138,52 @@ const getPromoCode = async (req,res) => {
           ); 
     }
 }
+
+const getCompanBasePromoCode = async (req,res) => {
+    try{
+        let result = await airlinePromoCodeServices.getCompanBasePromoCode(req,res);
+        if(result.response == 'Invalid Mongo Object Id'){
+           apiErrorres(
+               res,
+               result.response,
+               ServerStatusCode.INVALID_CRED,
+               true
+              )
+        }
+        else if(result.response == 'Data Fetch Sucessfully'){
+            apiSucessRes(
+                res,
+                result.response,
+                result.data,
+                ServerStatusCode.SUCESS_CODE
+            )
+        }
+        else if(result.response == 'No Airline Promo Data Found'){
+            apiErrorres(
+                res,
+                result.response,
+                ServerStatusCode.RECORD_NOTEXIST,
+                true
+            )
+        }
+        else{
+            apiErrorres(
+                res,
+                errorResponse.SOME_UNOWN,
+                ServerStatusCode.PRECONDITION_FAILED,
+                true
+            )
+        }
+   
+    }catch(error){
+        apiErrorres(
+            res,
+             error,
+            ServerStatusCode.SERVER_ERROR,
+            true
+          ); 
+    }
+}
 const deletePromoCode = async(req,res) => {
     try{
         let result = await airlinePromoCodeServices.deletePromoCode(req,res);
@@ -188,5 +234,6 @@ module.exports = {
     addAirlinePromoCode ,
     editAirlinePromoCode,
     getPromoCode,
-    deletePromoCode
+    deletePromoCode,
+    getCompanBasePromoCode
 }

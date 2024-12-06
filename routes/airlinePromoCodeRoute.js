@@ -21,6 +21,11 @@ airlinePromoCode_route.get(
     auth,
     airlinePromoController.getPromoCode
 );
+airlinePromoCode_route.get(
+    '/airlineCompanyPromocode/getPromo',
+    auth,
+    airlinePromoController.getCompanBasePromoCode
+);
 airlinePromoCode_route.delete(
     '/airlinePromocode/deletePromo',
     auth,

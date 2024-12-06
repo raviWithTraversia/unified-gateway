@@ -65,6 +65,7 @@ const passengerPreferenceSchema = new mongoose.Schema({
       ],
       PassportNo: { type: String, default: null },
       PassportExpiryDate: { type: String, default: null },
+      PassportIssuedDate: { type: String, default: null },
       FrequentFlyerNo: { type: String, default: null },
       Nationality: { type: String, default: null },
       ResidentCountry: { type: String, default: null },

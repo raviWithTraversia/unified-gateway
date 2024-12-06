@@ -260,6 +260,7 @@ const bookingDetailsSchema = new mongoose.Schema(
           FlyingTime: { type: String, default: null },
           TravelTime: { type: String, default: null },
           layover: { type: String, default: null },
+          Group:{ type: String, default: null },
           Departure: {
             Terminal: { type: String, default: null },
             Date: { type: String, default: null },

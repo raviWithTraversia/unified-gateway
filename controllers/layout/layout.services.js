@@ -45,10 +45,20 @@ const dateId = {
 };
 
 // Now use this filter in your MongoDB query
-let bookingDetailsQuery = {
+let bookingDetailsQuery
+if(Config?.TMCID!==companyId){
+  bookingDetailsQuery = {
+    AgencyId: companyId,
+    createdAt: dateId.createdAt // Use the date range filter
+  }
+}
+else{
+
+ bookingDetailsQuery = {
   companyId: companyId,
   createdAt: dateId.createdAt // Use the date range filter
 };
+}
 
 
 

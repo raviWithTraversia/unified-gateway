@@ -6,7 +6,7 @@ const { ServerStatusCode, errorResponse, CrudMessage, } = require("../../../util
 const StartBookingRail=async(req,res)=>{
     try{
         const result = await railBookingServices.StartBookingRail(req, res);
-        console.log(result.response)
+        console.log(result.response,"ji")
         if (!result.response && result.isSometingMissing) {
             apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
         } else if (
@@ -19,7 +19,7 @@ const StartBookingRail=async(req,res)=>{
             result.response=="something Went wrong"
         ) {
             apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
-        } else if (result.response === "your amount transfer Succefully") {
+        } else if (result.response === "Amount transferred successfully."||result.response === "Cart Created Succefully.") {
             apiSucessRes(
                 res,
                 result.response,

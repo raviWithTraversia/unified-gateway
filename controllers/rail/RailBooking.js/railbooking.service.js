@@ -69,7 +69,7 @@ const StartBookingRail = async (req, res) => {
       }
     }
     
-if(RailBooking.response="amount transfer succefully"){
+if(RailBooking?.response==="amount transfer succefully" ||RailBooking?.response==="Cart Created Succefully."){
   
 
 const CommonDateBooking=await commonMethodDate()
@@ -91,7 +91,7 @@ const CommonDateBooking=await commonMethodDate()
 
 commonFunctionsRailLogs(companyId,userId,traceId,"start booking","startBooking",req.body,RailBooking?.response)
 return({
-    response:"your amount transfer Succefully"
+    response:RailBooking?.response
 })
 
     }catch(error){

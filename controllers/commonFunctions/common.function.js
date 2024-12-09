@@ -1350,6 +1350,10 @@ const RailBookingCommonMethod = async (
       throw new Error("Unsupported payment method.")
     }
 
+    if(paymentMethodType==="PaymentGateway"){
+      return { response: "Cart Created Succefully." };
+    }
+
     // Retrieve agent configuration
     const getAgentConfig = await agentConfig
       .findOne({ userId: userId })

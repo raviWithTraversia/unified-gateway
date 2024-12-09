@@ -35,6 +35,13 @@ payu_route.post(
     payuController.payuFail
 );
 
+payu_route.post("/rail/paymentGateway/failed",payuController.railPayuFail)
+
+payu_route.post(
+    '/rail/paymentGateway/success',
+    payuController.railPayuSuccess
+);
+
 payu_route.post(
     '/paymentGateway/payu2',
     auth,

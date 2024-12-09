@@ -7,6 +7,7 @@ const BookingDetails = require("../../models/booking/BookingDetails");
 const transaction = require("../../models/transaction");
 const ledger = require("../../models/Ledger");
 const Railledger=require('../../models/Irctc/ledgerRail')
+const RailBookingDetail=require('../../models/Irctc/bookingDetailsRail')
 const agentConfig = require("../../models/AgentConfig");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
@@ -1521,6 +1522,109 @@ const payuWalletRailResponceSuccess = async (req, res) => {
   }
 };
 
+const payuRailSuccess= async (req, res) => {
+  try {
+    const {
+      status,
+      txnid,
+      productinfo,
+      udf1,
+      udf2,
+      udf3,
+      amount,
+      payment_source,
+      bank_ref_num,
+      PG_TYPE,
+      cardCategory,
+    } = req.body;
+
+    
+   
+
+
+ if (status === "success") {
+
+      
+
+
+        
+
+
+
+        let successHtmlCode = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Payment Success</title>
+      <style>
+      .success-txt{
+        color: #51a351;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f2f2f2;
+      }
+      
+      .success-container {
+        max-width: 400px;
+        width: 100%;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+        text-align: center;
+      }
+      .success-container p {
+        margin-top: 10px;
+      }
+      
+      .success-container a {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      
+      .success-container a:hover {
+        background-color: #0056b3;
+      }
+    </style>
+
+    </head>
+    <body>
+      <div class="success-container">
+        <h1 class="success-txt">Payment Successful!</h1>
+        <p class="success-txt">Your payment has been successfully processed.</p>
+        <p>Thank you for your purchase.</p>
+        <a href="${
+          Config[Config.MODE].baseURL
+        }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+      </div>
+    </body>
+    </html>`;
+
+       
+          return successHtmlCode;
+        
+      }
+    }
+  catch (error) {
+    throw error;
+  }
+};
+
+
+
 const payuFail = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1, error_Message } = req.body;
@@ -1633,6 +1737,114 @@ const payuFail = async (req, res) => {
     return "Data does not exist";
   }
 };
+
+
+const payuRailFail = async (req, res) => {
+  try {
+    const { status, txnid, productinfo, udf1, error_Message } = req.body;
+    const BookingTempData = await RailBookingDetail.findOne({ BookingId: udf1 });
+
+    if (!BookingTempData) {
+      return "Data does not exist";
+    }
+
+   
+    let getuserDetails;
+    try {
+      getuserDetails = await UserModel.findOne({
+        _id: Authentication.UserId,
+      }).populate("company_ID");
+      if (!getuserDetails) {
+        return "User Not Found";
+      }
+    } catch (error) {
+      // console.error('Error retrieving user details:', error);
+      return "Data does not exist";
+    }
+
+    try {
+      await RailBookingDetail.updateMany(
+        { bookingId: udf1 },
+        {
+          $set: {
+            bookingStatus: "FAILED PAYMENT",
+            bookingRemarks: error_Message || "Payment Failed",
+          },
+        }
+      );
+
+      const failedHtmlCode = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Payment Failed</title>
+          <style>
+            .failed-txt {
+              color: #bd362f;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background-color: #f2f2f2;
+            }
+            .failed-container {
+              max-width: 400px;
+              width: 100%;
+              padding: 20px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+              background-color: #fff;
+              text-align: center;
+            }
+            .failed-container p {
+              margin-top: 10px;
+            }
+            .failed-container a {
+              display: inline-block;
+              margin-top: 20px;
+              padding: 10px 20px;
+              background-color: #007bff;
+              color: #fff;
+              text-decoration: none;
+              border-radius: 5px;
+            }
+            .failed-container a:hover {
+              background-color: #0056b3;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="failed-container">
+            <h1 class="failed-txt">Payment Failed!</h1>
+            <p class="failed-txt">Your payment has failed.</p>
+            <p>Please try again later.</p>
+            <a href="${
+              Config[Config.MODE].baseURL
+            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+          </div>
+        </body>
+        </html>
+      `;
+      return failedHtmlCode;
+    } catch (error) {
+      //console.error('Error updating booking details:', error);
+      return "Data does not exist";
+    }
+  } catch (error) {
+    // console.error('Error handling payuFail request:', error);
+
+    return "Data does not exist";
+  }
+};
+
+
 const payuWalletFail = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1 } = req.body;
@@ -1915,5 +2127,6 @@ module.exports = {
   payuWalletRailResponceSuccess,
   payuWalletResponceSuccess,
   payuWalletFail,
-  payu2
+  payu2,
+  payuRailSuccess
 };

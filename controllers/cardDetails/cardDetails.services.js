@@ -110,9 +110,9 @@ const updateCardDetails = async (req,res) => {
 };
 const getCardDetails = async (req,res) => {
     try{
-        const {cardId} = req.query;
+        // const {cardId} = req.query;
         
-      let cardDetails = await cardDetailModel.findById(cardId);
+      let cardDetails = await cardDetailModel.find();
       if(cardDetails){
         return {
             response : "Card Details Fetch Sucessfully",

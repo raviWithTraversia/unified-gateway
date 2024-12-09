@@ -1218,7 +1218,6 @@ const searchForAgency = async (req, res) => {
           }
         },
         { $unwind: { path: '$companyData', preserveNullAndEmptyArrays: true } },
-  
         {
           $lookup: {
             from: 'roles',
@@ -1228,16 +1227,15 @@ const searchForAgency = async (req, res) => {
           }
         },
         { $unwind: { path: '$roleId', preserveNullAndEmptyArrays: true } },
-  
         {
           $match: {
             $and: [
-              { 'roleId.type': 'Default' },
+              {"companyData":{$exists:true}},
+              { 'roleId.type':{$eq:'Default'} },
               { 'companyData.type': { $ne: 'TMC' } }
             ]
           }
         },
-  
         {
           $addFields: {
             userIdString: { $toString: '$userId' }
@@ -1245,86 +1243,95 @@ const searchForAgency = async (req, res) => {
         },
         {
           $match: {
-            'companyData.parent': getUserId.company_ID,
             $or: [
               { userIdString: new RegExp(search, 'i') },
-              { 'companyData.companyName': new RegExp(search, 'i') }
+              { 'companyData.companyName': new RegExp(search, 'i') },
+              { fname: new RegExp(search, 'i') },
+              { lastName: new RegExp(search, 'i') }
             ]
           }
         },
         {
           $group: {
-            _id: '$companyData._id',
-            companyName: { $first: '$companyData.companyName' }
+            _id: '$_id',
+            name: { $first: '$companyData.companyName' },
+            userId: { $first: '$userId' }, // Fixed
+            company_ID: { $first: '$companyData._id' } // Fixed
           }
         }
       ]);
+      
   
-    console.log(getCompaniesDetails)
-    let companiesList = [];
-    for (let i = 0; i < getCompaniesDetails.length; i++) {
-      const companyDetails = getCompaniesDetails[i];
-      const populatedCompanyDetails = await User.findOne({ company_ID: companyDetails?._id, userStatus: "Active" });
-
-      // Check if populatedCompanyDetails exists before trying to access _id
-      if (populatedCompanyDetails) {
-        companiesList.push({ _id: populatedCompanyDetails?._id, name: companyDetails?.companyName, userId: populatedCompanyDetails?.userId ,company_ID:populatedCompanyDetails.company_ID});
+      if(getCompaniesDetails.length<=0){
+return data=[]
+      }else{
+   return {data:getCompaniesDetails}
       }
 
-    }
+    // let companiesList = [];
+//     for (let i = 0; i < getCompaniesDetails.length; i++) {
+//       const companyDetails = getCompaniesDetails[i];
+//       const populatedCompanyDetails = await User.findOne({ company_ID: companyDetails?._id, userStatus: "Active" });
 
-    const getUserDetails = await User.aggregate([
-      {
-        $match: {
-          company_ID: getUserId.company_ID,
-        }
-      },
-      {$lookup:{
-        from:"roles",
-        localField:"roleId",
-        foreignField:"_id",
-        as:"roleId"
-      }},
+//       // Check if populatedCompanyDetails exists before trying to access _id
+//       if (populatedCompanyDetails) {
+//         companiesList.push({ _id: populatedCompanyDetails?._id, name: companyDetails?.companyName, userId: populatedCompanyDetails?.userId ,company_ID:populatedCompanyDetails.company_ID});
+//       }
 
-      {$unwind:{path:"$roleId",preserveNullAndEmptyArrays:true}},
+//     }
 
-      {$match:{"roleId.type":"Default"}},
+//     const getUserDetails = await User.aggregate([
+//       {
+//         $match: {
+//           company_ID: getUserId.company_ID,
+//         }
+//       },
+//       {$lookup:{
+//         from:"roles",
+//         localField:"roleId",
+//         foreignField:"_id",
+//         as:"roleId"
+//       }},
+
+//       {$unwind:{path:"$roleId",preserveNullAndEmptyArrays:true}},
+
+//       {$match:{$and:[{"roleId.type":"Default"},{"roleId.name":"TMC"}]}},
 
 
-      {
-        $addFields: {
-          userIdString: { $toString: "$userId" }
-        }
-      },
-      {
-        $match: {
-          $or: [
-            { fname: new RegExp(search, 'i') },
-            { lastName: new RegExp(search, 'i') },
-            { userIdString: new RegExp(search, 'i') }
-          ]
-        }
-      }
-    ]);
-
-    for (let i = 0; i < getUserDetails.length; i++) {
-      const userDetails = getUserDetails[i];
-      companiesList.push({ _id: userDetails?._id, name: userDetails?.fname + ' ' + userDetails?.lastName, userId: userDetails?.userId });
-    }
-    //console.log(companiesList)   
+//       {
+//         $addFields: {
+//           userIdString: { $toString: "$userId" }
+//         }
+//       },
+//       {
+//         $match: {
+//           $or: [
+//             { fname: new RegExp(search, 'i') },
+//             { lastName: new RegExp(search, 'i') },
+//             { userIdString: new RegExp(search, 'i') }
+//           ]
+//         }
+//       }
+//     ]);
+// console.log(getUserDetails,"")
+//     for (let i = 0; i < getUserDetails.length; i++) {
+//       const userDetails = getUserDetails[i];
+//       companiesList.push({ _id: userDetails?._id, name: userDetails?.fname + ' ' + userDetails?.lastName, userId: userDetails?.userId });
+//     }
+//     //console.log(companiesList)   
 
     //const getUserDetails = await UserModule.findOne({ company_ID : getUserId.company_ID });
 
     //  return false
-    if (companiesList.length > 0) {
-      return {
-        data: companiesList
-      };
-    } else {
-      return {
-        data: []
-      };
-    }
+    // if (companiesList.length > 0) {
+    //   return {
+    //     data: companiesList
+    //   };
+    // } else {
+    //   return {
+    //     data: []
+    //   };
+    // }
     //}else{
     // const result = await UserModule.find({
     //     companyId: companyId,

@@ -18,6 +18,8 @@ ledger_route.post(
   ledgerRailController.getAllledgerbyDate
 );
 
+
+ledger_route.post("/rail/railagenbalanceReport",ledgerRailController.getBalanceReport)
 ledger_route.get("/test", auth, function (req, res) {
   res.status(200).json({ status: "success", msg: "this is test responce" });
 });

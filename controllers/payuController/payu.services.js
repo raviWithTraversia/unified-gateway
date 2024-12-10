@@ -1632,6 +1632,18 @@ const payuRailSuccess= async (req, res) => {
         preserveNullAndEmptyArrays: true, 
       },
     },
+    {$lookup:{from: "companies", 
+      localField: "AgencyId", 
+      foreignField: "_id", 
+      as: "ComapnyData",
+
+    }},
+    {
+      $unwind: {
+        path: "$ComapnyData", 
+        preserveNullAndEmptyArrays: true, 
+      },
+    },
   ]);
   // console.log("jsoeo",agentData);
   
@@ -1641,6 +1653,8 @@ const payuRailSuccess= async (req, res) => {
   
   const runningAmount=agentData[0].agentData?.railCashBalance||0
   const userData=agentData[0]?.agentData||null
+  const CompnayData=agentData[0]?.ComapnyData
+  console.log(CompnayData)
 
   if(udf3>0){
     parseInt(amount)+=parseInt(udf3)
@@ -1655,7 +1669,7 @@ const payuRailSuccess= async (req, res) => {
     currencyType: "INR",
     fop: "CREDIT",
     transactionType: "CREDIT",
-    runningAmount: runningAmount+parseInt(amount),
+    runningAmount:Number(runningAmount),
     remarks: "Credit Ticket Amount.",
     transactionBy: userData?.userId,
   });
@@ -1669,7 +1683,7 @@ const payuRailSuccess= async (req, res) => {
     currencyType: "INR",
     fop: "DEBIT",
     transactionType: "DEBIT",
-    runningAmount: runningAmount+parseInt(amount)-udf3,
+    runningAmount: Number(runningAmount),
     remarks: "debited Ticket Amount",
     transactionBy: userData._id,
   });
@@ -1683,22 +1697,25 @@ const payuRailSuccess= async (req, res) => {
     currencyType: "INR",
     fop: "DEBIT",
     transactionType: "DEBIT",
-    runningAmount: runningAmount+parseInt(amount)-udf3,
+    runningAmount: Number(runningAmount),
     remarks: "debited for PG charges(PayU)",
     transactionBy: userData._id,
   });
   ;
-  const wsLoginUrl = Config[request.Authentication.CredentialType].IRCTC_BASE_URL +
-  "/flight/search";
+  const wsLoginUrl = req.headers.host == "localhost:3111" ||
+  req.headers.host == "kafila.traversia.net"?Config?.TEST?.IRCTC_BASE_URL +
+  "/eticketing/wsapplogin":Config?.LIVE?.IRCTC_BASE_URL +
+  "/eticketing/wsapplogin";
   let irctcLoginFormFields = {
-    wsTxnId: this.railPassengarDetailsValues?.clientTransactionId,
-    wsloginId: this.railPassengarDetailsValues?.RailAgentId,
-    wsReturnUrl: Config[request.Authentication.CredentialType].baseURLBackend +
+    wsTxnId:udf1 ,
+    wsloginId: CompnayData?.railSubAgentId,
+    wsReturnUrl:req.headers.host == "localhost:3111" ||
+    req.headers.host == "kafila.traversia.net"? Config?.TEST?.baseURLBackend +
+  "/rail/bookingSave":Config?.LIVE?.baseURLBackend +
   "/rail/bookingSave",
   } 
   
 
-  console.log(runningAmount,"jieiei")
       
   // const agentData=await agentConfig.findOne({userId:Authentication.userId})
 
@@ -1770,7 +1787,7 @@ const payuRailSuccess= async (req, res) => {
     </html>`;
 
        
-    //       return successHtmlCode;
+          return successHtmlCode;
         
       }
     }

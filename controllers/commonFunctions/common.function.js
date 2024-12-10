@@ -1346,7 +1346,7 @@ const RailBookingCommonMethod = async (
   jClass
 ) => {
   try {
-    if (paymentMethodType !== "Wallet") {
+    if (paymentMethodType !== "Wallet"&&paymentMethodType!=="PaymentGateway") {
       throw new Error("Unsupported payment method.")
     }
 

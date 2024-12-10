@@ -1,6 +1,7 @@
 const pgChargesModels = require('../../../models/Irctc/railPgCharges');
 const User = require('../../../models/User');
 const EventLogs = require('../../logs/EventApiLogsCommon');
+const agentConfig=require('../../../models/AgentConfig')
 
 const addPgCharges = async (req, res) => {
   try {
@@ -179,10 +180,83 @@ const getPgCharges = async (req, res) => {
     throw error;
   }
 };
+const getAssignPGChargesGroup = async (req, res) => {
+  try {
+    const { UserId } = req.body; 
+
+    if(!UserId){
+      return {
+        response : 'Not Found'
+      }
+    }
+    // check user and its role
+   let agencyUserId;
+   const checkUserRole = await User.findById(UserId)
+     .populate("company_ID")
+     .populate("roleId");    
+
+   if(checkUserRole){  
+    if (checkUserRole?.roleId.name === "Agency") {
+      agencyUserId = checkUserRole._id;
+    } else {
+      const checkAgencyByCompany = await User.find({
+        company_ID: checkUserRole.company_ID,
+      })
+        .populate("company_ID")
+        .populate("roleId");
+      const agencyUser = checkAgencyByCompany.find(
+        (user) => user.roleId.name === "Agency"
+      );
+      if (agencyUser) {
+        agencyUserId = agencyUser._id;
+      }
+    }
+   }
+   const getAgentConfig = await agentConfig.findOne({
+    userId: agencyUserId,
+  }).populate({
+    path: "railPayementGateWayIds",
+    populate: {
+      path: "paymentGatewayIds"
+    }
+  }).populate({
+    path: "agencyGroupId",
+    populate: {
+      path: "railPgChargesGroup",
+      populate: {
+        path: "paymentGatewayIds"
+      }
+    }
+  }); 
+  if(getAgentConfig && getAgentConfig.railPayementGateWayIds !== null){    
+    return {
+      data: getAgentConfig?.railPayementGateWayIds?.paymentGatewayIds,
+      response: "Fetch Data Sucessfully",
+    };
+  }else if(getAgentConfig && getAgentConfig.agencyGroupId !== null){
+    return {
+      data: getAgentConfig?.agencyGroupId?.railPgChargesGroup?.paymentGatewayIds,
+      response: "Fetch Data Sucessfully",
+    };
+
+  }else{
+    return {
+      response : 'Not Found'
+    }
+  }
+
+
+
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
 
 module.exports = {
   addPgCharges,
   editPgcharges,
   calculatePgCharges,
-  getPgCharges
+  getPgCharges,
+  getAssignPGChargesGroup
 };

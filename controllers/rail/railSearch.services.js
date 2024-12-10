@@ -263,13 +263,13 @@ let agentCharges={}
 if(jClass=="SL"){
   agentCharges.Conveniencefee=17.5
   agentCharges.Agent_service_charge=20
-  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount,passengerList.length):0
+  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount):0
 
 }
 else{
   agentCharges.Conveniencefee=35
   agentCharges.Agent_service_charge=40
-  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount,passengerList.length):0
+  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount):0
 
 }
 // console.log(agentCharges)

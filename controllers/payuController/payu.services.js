@@ -1538,14 +1538,186 @@ const payuRailSuccess= async (req, res) => {
       cardCategory,
     } = req.body;
 
+    const CheckAllereadyBooking = await RailBookingDetail.find({CartId:udf1,bookingStatus:{$ne:"INCOMPLETE"}})
+    if(CheckAllereadyBooking.length){
+      let successHtmlCode = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Success</title>
+        <style>
+        .success-txt{
+          color: #51a351;
+        }
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background-color: #f2f2f2;
+        }
+        
+        .success-container {
+          max-width: 400px;
+          width: 100%;
+          padding: 20px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          background-color: #fff;
+          text-align: center;
+        }
+        .success-container p {
+          margin-top: 10px;
+        }
+        
+        .success-container a {
+          display: inline-block;
+          margin-top: 20px;
+          padding: 10px 20px;
+          background-color: #007bff;
+          color: #fff;
+          text-decoration: none;
+          border-radius: 5px;
+        }
+        
+        .success-container a:hover {
+          background-color: #0056b3;
+        }
+      </style>
+  
+      </head>
+      <body>
+        <div class="success-container">
+          <h1 class="success-txt">Payment Successful!</h1>
+          <p class="success-txt">Your payment has been successfully processed.</p>
+          <p>Thank you for your purchase.</p>
+          <a href="${
+            Config[Config.MODE].baseURL
+          }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+        </div>
+      </body>
+      </html>`
+      return successHtmlCode
+    }
+
     
+
+
    
 
 
- if (status === "success") {
+ else if (status === "success") {
+      console.log(udf1)
+  const agentData = await RailBookingDetail.aggregate([
+    {
+      $match: {
+        cartId: udf1, 
+      },
+    },
+    {
+      $lookup: {
+        from: "agentconfigurations", 
+        localField: "userId", 
+        foreignField: "userId", 
+        as: "agentData", 
+      },
+    },
+    {
+      $unwind: {
+        path: "$agentData", 
+        preserveNullAndEmptyArrays: true, 
+      },
+    },
+    {$lookup:{from: "companies", 
+      localField: "AgencyId", 
+      foreignField: "_id", 
+      as: "ComapnyData",
+
+    }},
+    {
+      $unwind: {
+        path: "$ComapnyData", 
+        preserveNullAndEmptyArrays: true, 
+      },
+    },
+  ]);
+  // console.log("jsoeo",agentData);
+  
+  if(agentData.length==0){
+    throw new Error("Data not found")
+  }
+  
+  const runningAmount=agentData[0].agentData?.railCashBalance||0
+  const userData=agentData[0]?.agentData||null
+  const CompnayData=agentData[0]?.ComapnyData
+  console.log(CompnayData)
+
+  if(udf3>0){
+    parseInt(amount)+=parseInt(udf3)
+  }
+
+  await Railledger.create({
+    userId: userData.userId,
+    companyId: userData.companyId,
+    ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+    transactionId: txnid,
+    transactionAmount: amount,
+    currencyType: "INR",
+    fop: "CREDIT",
+    transactionType: "CREDIT",
+    runningAmount:Number(runningAmount),
+    remarks: "Credit Ticket Amount.",
+    transactionBy: userData?.userId,
+  });
+
+  await Railledger.create({
+    userId: userData._id,
+    companyId: userData.company_ID,
+    ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+    transactionId: txnid,
+    transactionAmount: udf3,
+    currencyType: "INR",
+    fop: "DEBIT",
+    transactionType: "DEBIT",
+    runningAmount: Number(runningAmount),
+    remarks: "debited Ticket Amount",
+    transactionBy: userData._id,
+  });
+  
+  await Railledger.create({
+    userId: userData._id,
+    companyId: userData.company_ID,
+    ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+    transactionId: txnid,
+    transactionAmount: udf3,
+    currencyType: "INR",
+    fop: "DEBIT",
+    transactionType: "DEBIT",
+    runningAmount: Number(runningAmount),
+    remarks: "debited for PG charges(PayU)",
+    transactionBy: userData._id,
+  });
+  ;
+  const wsLoginUrl = req.headers.host == "localhost:3111" ||
+  req.headers.host == "kafila.traversia.net"?Config?.TEST?.IRCTC_BASE_URL +
+  "/eticketing/wsapplogin":Config?.LIVE?.IRCTC_BASE_URL +
+  "/eticketing/wsapplogin";
+  let irctcLoginFormFields = {
+    wsTxnId:udf1 ,
+    wsloginId: CompnayData?.railSubAgentId,
+    wsReturnUrl:req.headers.host == "localhost:3111" ||
+    req.headers.host == "kafila.traversia.net"? Config?.TEST?.baseURLBackend +
+  "/rail/bookingSave":Config?.LIVE?.baseURLBackend +
+  "/rail/bookingSave",
+  } 
+  
 
       
-
+  // const agentData=await agentConfig.findOne({userId:Authentication.userId})
 
         
 
@@ -1602,14 +1774,15 @@ const payuRailSuccess= async (req, res) => {
 
     </head>
     <body>
-      <div class="success-container">
-        <h1 class="success-txt">Payment Successful!</h1>
-        <p class="success-txt">Your payment has been successfully processed.</p>
-        <p>Thank you for your purchase.</p>
-        <a href="${
-          Config[Config.MODE].baseURL
-        }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
-      </div>
+     <form id="redirectForm" method="POST" action="${wsLoginUrl}">
+          <input type="hidden" name="wsloginId" value='${irctcLoginFormFields.wsloginId}' />
+          <input type="hidden" name="wsTxnId" value='${irctcLoginFormFields.wsTxnId}' />
+          <input type="hidden" name="wsReturnUrl" value='${irctcLoginFormFields.wsReturnUrl}' />
+        </form>
+        <script>
+          document.getElementById("redirectForm").submit();
+        </script>
+    
     </body>
     </html>`;
 
@@ -2128,5 +2301,6 @@ module.exports = {
   payuWalletResponceSuccess,
   payuWalletFail,
   payu2,
-  payuRailSuccess
+  payuRailSuccess,
+  payuRailFail
 };

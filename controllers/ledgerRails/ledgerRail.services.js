@@ -511,41 +511,54 @@ const fetchLedgerRailReport = async (req) => {
       }
     }
     console.log({ query });
-    const result = await ledgerRail.aggregate([{$match:query},{
-      $lookup:{
-        from:"bookingdetailsrails",
-        localField:"cartId",
-        foreignField:"cartId",
-        as:"railBookingDetails"
-      }
 
-    },{$unwind:{
-      path:"$railBookingDetails",
-      preserveNullAndEmptyArrays:true
-    }
-  },
-  {
-    $addFields: {
-      mergedDetails: {
-        ledger: "$$ROOT",                
-        booking: "$railBookingDetails", 
+    const result = await ledgerRail.aggregate([
+      { $match: query },
+      {
+        $lookup: {
+          from: "bookingdetailsrails",
+          localField: "cartId",
+          foreignField: "cartId",
+          as: "railBookingDetails",
+        },
       },
-    },
-  },
-  {
-    $sort: {
-      "ledger.createdAt": -1, 
-    },
-  },
+      {
+        $unwind: {
+          path: "$railBookingDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          latestEntry: { $first: "$$ROOT" },
+        },
+      },
+      {
+        $replaceRoot: { newRoot: "$latestEntry" },
+      },
+      {
+        $sort: {
+          createdAt: -1, // Apply final sort after grouping
+        },
+      },
+      {
+        $addFields: {
+          mergedDetails: {
+            ledger: "$$ROOT",
+            booking: "$railBookingDetails",
+          },
+        },
+      },
+    ]);
 
-  
-  ]).sort("-createdAt");
     return { result };
   } catch (error) {
     console.log({ error });
     return { error: error.message };
   }
 };
+
 
 const GetBalanceReport=async(req ,res)=>{
     try {
@@ -652,10 +665,10 @@ const GetBalanceReport=async(req ,res)=>{
               companyName: "$companyName",
               type: "$type",
             },
-            railCashBalance:{
+            runningAmount:{
               $cond: {
-                if: { $gt: ["$ledgerData.railCashBalance", 0] },  // Condition to check if runningAmount > 0
-                then: "$ledgerData.railCashBalance",               // Value if true
+                if: { $gt: ["$ledgerData.runningAmount", 0] },  // Condition to check if runningAmount > 0
+                then: "$ledgerData.runningAmount",               // Value if true
                 else: 0                                          // Value if false
               }
             },

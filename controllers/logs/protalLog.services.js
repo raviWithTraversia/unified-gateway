@@ -83,14 +83,13 @@ const getBookingLogs = async (req, res) => {
         filter.companyId=new ObjectId(companyId)
       }
       if(traceId){
-        filter.traceId= new ObjectId(traceId)
+        filter.traceId= traceId
       }
       if(type){
         filter.type=type
       }
       
     //   console.log(filter, "Filter");
-  
       const getPortalBookingLogs = await PortalLog.find(filter);
       if (!getPortalBookingLogs.length) {
         return ({

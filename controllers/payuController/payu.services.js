@@ -1604,7 +1604,6 @@ const payuRailSuccess = async (req, res) => {
 
 
     else if (status === "success") {
-      console.log(udf1)
       const agentData = await RailBookingDetail.aggregate([
         {
           $match: {
@@ -1654,67 +1653,47 @@ const payuRailSuccess = async (req, res) => {
       const parsedPgCharges = Number(udf3);
       const initialRunningAmount = Number(runningAmount);
 
-      if (isNaN(parsedAmount) || isNaN(parsedPgCharges) || isNaN(initialRunningAmount)) {
-        throw new Error("Invalid numeric values detected in the transaction");
-      }
+      
 
-      await Railledger.create({
-        userId: userData.userId,
-        companyId: userData.companyId,
-        ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-        transactionId: txnid,
-        transactionAmount: parsedAmount,
-        currencyType: "INR",
-        fop: "CREDIT",
-        transactionType: "CREDIT",
-        runningAmount: initialRunningAmount + parsedAmount,
-        remarks: "Credit Ticket Amount.",
-        transactionBy: userData?.userId,
-      });
+      runningAmount += parsedAmount;
+    await createLedgerEntry({
+      userId: userData.userId,
+        companyId:CompnayData._id,
+      transactionType: "CREDIT",
+      transactionAmount: parsedAmount,
+      updatedRunningAmount: runningAmount,
+      remarks: "Credit Ticket Amount.",
+      txnid,
+    });
 
-      // Calculate amounts for DEBIT
+      
+
       const debitAmountWithoutPgCharges = parsedAmount - parsedPgCharges;
-      const updatedRunningAmount = initialRunningAmount - debitAmountWithoutPgCharges;
-
-      if (isNaN(updatedRunningAmount)) {
-        throw new Error("Invalid calculation for updatedRunningAmount");
-      }
-
-      await Railledger.create({
-        userId: userData._id,
-        companyId: userData.company_ID,
-        ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-        transactionId: txnid,
-        transactionAmount: debitAmountWithoutPgCharges,
-        currencyType: "INR",
-        fop: "DEBIT",
+      runningAmount -= debitAmountWithoutPgCharges;
+      await createLedgerEntry({
+        userId: userData.userId,
+        companyId:CompnayData._id,
         transactionType: "DEBIT",
-        runningAmount: updatedRunningAmount,
-        remarks: "Debited Ticket Amount",
-        transactionBy: userData._id,
+        transactionAmount: debitAmountWithoutPgCharges,
+        updatedRunningAmount: runningAmount,
+        remarks: "Debited Ticket Amount.",
+        txnid,
+      });
+  
+
+      if (parsedPgCharges > 0) {
+
+         runningAmount -= parsedPgCharges;
+      await createLedgerEntry({
+       userId: userData.userId,
+       companyId:CompnayData._id,
+        transactionType: "DEBIT",
+        transactionAmount: parsedPgCharges,
+        updatedRunningAmount: runningAmount,
+        remarks: "Debited for PG charges (PayU).",
+        txnid,
       });
 
-      // Handle PG charges if applicable
-      if (parsedPgCharges > 0) {
-        const runningAmountAfterPg = updatedRunningAmount - parsedPgCharges;
-
-        if (isNaN(runningAmountAfterPg)) {
-          throw new Error("Invalid calculation for runningAmountAfterPg");
-        }
-
-        await Railledger.create({
-          userId: userData._id,
-          companyId: userData.company_ID,
-          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionId: txnid,
-          transactionAmount: parsedPgCharges,
-          currencyType: "INR",
-          fop: "DEBIT",
-          transactionType: "DEBIT",
-          runningAmount: runningAmountAfterPg,
-          remarks: "Debited for PG charges (PayU)",
-          transactionBy: userData._id,
-        });
       }
 
       const wsLoginUrl = req.headers.host == "localhost:3111" ||
@@ -1751,7 +1730,7 @@ const payuRailSuccess = async (req, res) => {
 
       // const agentData=await agentConfig.findOne({userId:Authentication.userId})
 
-
+await RailBookingDetail.findOneAndUpdate({cartId:udf1},{$set:{bookingStatus:"PENDING"}},{new:true})
 
 
 
@@ -1822,6 +1801,9 @@ const payuRailSuccess = async (req, res) => {
       return successHtmlCode;
 
     }
+    else{
+
+    }
   }
   catch (error) {
     throw error;
@@ -1829,6 +1811,32 @@ const payuRailSuccess = async (req, res) => {
 };
 
 
+const createLedgerEntry = async ({
+  userId,
+  companyId,
+  transactionType,
+  transactionAmount,
+  updatedRunningAmount,
+  remarks,
+  txnid
+}) => {
+  if (isNaN(updatedRunningAmount)) {
+    throw new Error("Invalid running amount in ledger creation");
+  }
+  await Railledger.create({
+    userId: userId,
+    companyId: companyId,
+    ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+    transactionId: txnid,
+    transactionAmount,
+    currencyType: "INR",
+    fop: transactionType === "CREDIT" ? "CREDIT" : "DEBIT",
+    transactionType,
+    runningAmount: updatedRunningAmount,
+    remarks,
+    transactionBy: userId,
+  });
+};
 
 const payuFail = async (req, res) => {
   try {
@@ -1952,19 +1960,8 @@ const payuRailFail = async (req, res) => {
       return "Data does not exist";
     }
 
-
-    let getuserDetails;
-    try {
-      getuserDetails = await UserModel.findOne({
-        _id: Authentication.UserId,
-      }).populate("company_ID");
-      if (!getuserDetails) {
-        return "User Not Found";
-      }
-    } catch (error) {
-      // console.error('Error retrieving user details:', error);
-      return "Data does not exist";
-    }
+ 
+    
 
     try {
       await RailBookingDetail.updateMany(

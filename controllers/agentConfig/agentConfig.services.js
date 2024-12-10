@@ -310,8 +310,9 @@ const getUserProfile = async (req, res) => {
     }).populate('cityId').populate('roleId').lean()
     const agentData = await agentConfigsModels.findOne(
       { userId: userId },
-      {fareTypes:1}
-    ).lean();
+      {fareTypes:1},
+      {RailcommercialPlanIds:1}
+       ).populate("RailcommercialPlanIds").lean();
     if (!userData||!agentData) {
       
       return {

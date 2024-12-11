@@ -4,7 +4,8 @@ module.exports.Config = {
   TEST: {
     baseURL: "https://kafilaui.traversia.net", // frontend
     baseURLBackend: "https://kafila.traversia.net",
-    additionalFlightsBaseURL: "http://kafilaapi.traversia.net:61101/api",
+    additionalFlightsBaseURL: "http://localhost:31101/api",
+    // additionalFlightsBaseURL: "http://kafilaapi.traversia.net:61101/api",
     baseURLBackend: "https://kafila.traversia.net",
     IRCTC_BASE_URL: "https://stagews.irctc.co.in",
     IRCTC_MASTER_ID: "WKAFL00000",
@@ -19,7 +20,6 @@ module.exports.Config = {
     IRCTC_MASTER_ID: "WKAFILA00000",
     IRCTC_AUTH: "Basic V0tBRklMQTAwMDAwOjBaZzFDMw==",
   },
-  TMCID:"6555f84c991eaa63cb171a9f",
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",
   MONGODB_URL:

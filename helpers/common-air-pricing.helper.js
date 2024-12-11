@@ -402,6 +402,7 @@ function convertPriceBreakupForCommonAPI(breakups) {
           taxType: tax.TaxType,
         })),
         airPenalty: breakup.AirPenalty,
+        key: breakup?.key || "",
       };
       return acc;
     },

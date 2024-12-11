@@ -54,7 +54,7 @@ const irctcPaymentSubmit = async (req, res) => {
     console.log(response, "response");
     if (!response) {
       return {
-        response: "Error in fetching data",
+        response: "No Response from Irctc",
       };
     } else {
       return {
@@ -125,7 +125,7 @@ const boardingstationenq = async (req, res) => {
     console.log(response, "response");
     if (!response) {
       return {
-        response: "Error in fetching data",
+        response: "No Response from Irctc",
       };
     } else {
       return {
@@ -172,7 +172,7 @@ const irctcAmountDeduction = async (req, res) => {
 
     // if (!response) {
     //   return {
-    //     response: "Error in fetching data",
+    //     response: "No Response from Irctc",
     //   };
     // } else {
     //   return {

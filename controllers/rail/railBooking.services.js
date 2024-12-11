@@ -15,7 +15,7 @@ const getRailSearch = async (req, res) => {
         const response = (await axios.get(url, { headers: { 'Authorization': auth } }))?.data;
         if (!response?.trainBtwnStnsList?.length) {
             return {
-                response: "Error in fetching data",
+                response: "No Response from Irctc",
             }
         } else {
             return {

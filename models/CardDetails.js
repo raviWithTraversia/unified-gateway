@@ -29,6 +29,10 @@ const CardDetailsSchema = new mongoose.Schema({
         type : String,
       
     },
+    stateId : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'State'
+    },
     cityId : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'City'
@@ -74,18 +78,18 @@ const CardDetailsSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User'
     },
-    createdAt :{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'User'
-    },
     modifyBy : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User'
     },
-    modifyAt : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'User'
-    }
+    createdAt : {
+        type : Date,
+        default : new Date()
+       },
+   modifyAt : {
+        type : Date,
+        default : new Date()
+       },
  
 },{
     timestamps : true 

@@ -6,8 +6,8 @@ const UserModel = require("../../models/User");
 const BookingDetails = require("../../models/booking/BookingDetails");
 const transaction = require("../../models/transaction");
 const ledger = require("../../models/Ledger");
-const Railledger=require('../../models/Irctc/ledgerRail')
-const RailBookingDetail=require('../../models/Irctc/bookingDetailsRail')
+const Railledger = require('../../models/Irctc/ledgerRail')
+const RailBookingDetail = require('../../models/Irctc/bookingDetailsRail')
 const agentConfig = require("../../models/AgentConfig");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
@@ -47,14 +47,14 @@ const payu = async (req, res) => {
         !amount ||
         !productinfo ||
         !phone,
-      !cartId)
+        !cartId)
     ) {
       return {
         response: "All field are required",
       };
     }
 
- 
+
 
     // const key = 'gtKFFx';
     // const txnid = '4c14e4f2-91c6-4e4e-b942-de29e5210f5f';
@@ -74,12 +74,10 @@ const payu = async (req, res) => {
     const firstnameres = firstName;
     const emailres = email;
     const phoneres = phone;
-    const surl = `${
-      Config[Config.MODE].baseURLBackend
-    }/api/paymentGateway/success`;
-    const furl = `${
-      Config[Config.MODE].baseURLBackend
-    }/api/paymentGateway/failed`;
+    const surl = `${Config[Config.MODE].baseURLBackend
+      }/api/paymentGateway/success`;
+    const furl = `${Config[Config.MODE].baseURLBackend
+      }/api/paymentGateway/failed`;
 
     const salt =
       Config.MODE == "TEST"
@@ -192,7 +190,7 @@ const payu2 = async (req, res) => {
         !amount ||
         !productinfo ||
         !phone,
-      !cartId)
+        !cartId)
     ) {
       return {
         response: "All field are required",
@@ -207,22 +205,20 @@ const payu2 = async (req, res) => {
     // const email = 'test@example.com';
     // const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
 
-    const key ="DlSTL0cw"
-    
+    const key = "DlSTL0cw"
+
     const txnid = uuidv4();
     const amountres = amount;
     const productinfores = productinfo;
     const firstnameres = firstName;
     const emailres = email;
     const phoneres = phone;
-    const surl = `${
-      Config[Config.MODE].baseURLBackend
-    }/api/paymentGateway/success`;
-    const furl = `${
-      Config[Config.MODE].baseURLBackend
-    }/api/paymentGateway/failed`;
+    const surl = `${Config[Config.MODE].baseURLBackend
+      }/api/paymentGateway/success`;
+    const furl = `${Config[Config.MODE].baseURLBackend
+      }/api/paymentGateway/failed`;
 
-    const salt ="HYDinl3tea"
+    const salt = "HYDinl3tea"
     const cartIdres = cartId;
 
     // Concatenate the transaction details
@@ -325,9 +321,9 @@ const payuSuccess = async (req, res) => {
       cardCategory,
     } = req.body;
 
-    
-    const CheckAllereadyBooking = await BookingDetails.find({bookingId:udf1,bookingStatus:{$ne:"INCOMPLETE"}})
-    if(CheckAllereadyBooking.length){
+
+    const CheckAllereadyBooking = await BookingDetails.find({ bookingId: udf1, bookingStatus: { $ne: "INCOMPLETE" } })
+    if (CheckAllereadyBooking.length) {
       let successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -383,9 +379,8 @@ const payuSuccess = async (req, res) => {
           <h1 class="success-txt">Payment Successful!</h1>
           <p class="success-txt">Your payment has been successfully processed.</p>
           <p>Thank you for your purchase.</p>
-          <a href="${
-            Config[Config.MODE].baseURL
-          }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+          <a href="${Config[Config.MODE].baseURL
+        }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
         </div>
       </body>
       </html>`
@@ -393,10 +388,10 @@ const payuSuccess = async (req, res) => {
     }
 
 
- else if (status === "success") {
+    else if (status === "success") {
 
-     const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
-      
+      const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
+
 
 
       if (BookingTempData) {
@@ -441,7 +436,7 @@ const payuSuccess = async (req, res) => {
         let getconfigAmount; // Declare getconfigAmount outside of the if block
         const companieIds = await UserModel.findById(getuserDetails._id);
 
-        const getAllComapnies = await UserModel.find({ 
+        const getAllComapnies = await UserModel.find({
           company_ID: companieIds.company_ID,
         }).populate("roleId");
         let allIds = getAllComapnies
@@ -485,12 +480,12 @@ const payuSuccess = async (req, res) => {
           totalsAmount.totalBaggagePrice +
           totalsAmount.totalSeatPrice;
 
-          var pgChargesAmount=0
-          if(udf3>0){
-            totalItemAmount+udf3
-            pgChargesAmount=udf3
-            
-          }
+        var pgChargesAmount = 0
+        if (udf3 > 0) {
+          totalItemAmount + udf3
+          pgChargesAmount = udf3
+
+        }
 
         const newBalanceCredit = getconfigAmount + totalItemAmount;
 
@@ -517,51 +512,51 @@ const payuSuccess = async (req, res) => {
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
-var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
+        var runningAmountShow = newBalanceCredit + Number(pgChargesAmount)
         await ledger.create({
           userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionAmount: totalItemAmount-pgChargesAmount,
+          transactionAmount: totalItemAmount - pgChargesAmount,
           deal: gtTsAdDnt?.ldgrdiscount,
           tds: gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount:runningAmountShow-totalItemAmount,
+          runningAmount: runningAmountShow - totalItemAmount,
           remarks: "Booking Amount Deducted from Your Account(PayU).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
 
-        if(udf3>0){
+        if (udf3 > 0) {
           await ledger.create({
             userId: allIds[0], //getuserDetails._id,
             companyId: getuserDetails.company_ID._id,
             ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-            transactionAmount:pgChargesAmount,
-           currencyType: "INR",
+            transactionAmount: pgChargesAmount,
+            currencyType: "INR",
             fop: "DEBIT",
             transactionType: "DEBIT",
-            runningAmount: newBalanceCredit-totalItemAmount,
+            runningAmount: newBalanceCredit - totalItemAmount,
             remarks: "Manual PG_CHARGE",
             transactionBy: getuserDetails._id,
             cartId: udf1,
           });
         }
-        
+
         // await agentConfig.updateOne(
         //   { userId: allIds[0] },
         //   { maxcreditLimit: newBalanceCredit - totalItemAmount }
         // );
 
         //const hitAPI = await Promise.all(
-        var totalRefundAmount=0;
-        var bookingId="";
-        var FailedbookingIdenty=[]
+        var totalRefundAmount = 0;
+        var bookingId = "";
+        var FailedbookingIdenty = []
         const updatePromises = ItineraryPriceCheckResponses.map(
           async (item) => {
-            bookingId=item.BookingId
+            bookingId = item.BookingId
             let requestDataFSearch = {
               FareChkRes: {
                 Error: item.Error,
@@ -641,10 +636,10 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                       bookingStatus: "FAILED",
                       bookingRemarks:
                         fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ==
-                        "FAILED"
+                          "FAILED"
                           ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
                           : fSearchApiResponse?.data?.ErrorMessage ||
-                            "FAILED",
+                          "FAILED",
                     },
                   }
                 );
@@ -663,7 +658,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                     },
                   }
                 );
-          
+
                 // Fetch booking details for the failed booking
                 const updatedBooking = await BookingDetails.find(
                   {
@@ -672,7 +667,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                   },
                   { bookingTotalAmount: 1 }
                 );
-          
+
                 // Accumulate the refund amounts
                 const refundAmount = updatedBooking.reduce((sum, element) => {
                   return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
@@ -680,9 +675,9 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
 
                 FailedbookingIdenty.push(false)
 
-            updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount=refundAmount;
+                updatedBooking.length > 1 ? totalRefundAmount = totalItemAmount : totalRefundAmount = refundAmount;
 
-          
+
                 // Add to the total refund amount
               }
 
@@ -747,9 +742,9 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                       passenger.Optional.ticketDetails.find(
                         (p) =>
                           p.src ===
-                            fSearchApiResponse.data.Param.Sector[0].Src &&
+                          fSearchApiResponse.data.Param.Sector[0].Src &&
                           p.des ===
-                            fSearchApiResponse.data.Param.Sector[0].Des
+                          fSearchApiResponse.data.Param.Sector[0].Des
                       );
                     if (ticketUpdate) {
                       ticketUpdate.ticketNumber =
@@ -786,7 +781,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                 //     cardType:cardCategory
                 //   }
                 // );
-                
+
               }
               //return fSearchApiResponse.data;
               const barcodeupdate = await updateBarcode2DByBookingId(
@@ -819,8 +814,8 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
         );
         //);
         const results = await Promise.all(updatePromises);
-        
-        if(totalRefundAmount>0){
+
+        if (totalRefundAmount > 0) {
           await ledger.create({
             userId: allIds[0], //getuserDetails._id,
             companyId: getuserDetails.company_ID._id,
@@ -829,7 +824,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
             currencyType: "INR",
             fop: "DEBIT",
             transactionType: "CREDIT",
-            runningAmount: getconfigAmount+totalRefundAmount,
+            runningAmount: getconfigAmount + totalRefundAmount,
             remarks: `Refund Amount for Booking`,
             transactionBy: getuserDetails._id,
             cartId: udf1,
@@ -840,7 +835,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
             { $inc: { maxcreditLimit: totalRefundAmount } }
           );
         }
-        if(!FailedbookingIdenty.includes(false)){
+        if (!FailedbookingIdenty.includes(false)) {
 
           await transaction.create({
             userId: Authentication.UserId,
@@ -854,7 +849,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
             trnsStatus: "success",
             transactionBy: Authentication.UserId,
             pgCharges: udf3,
-            transactionAmount: Number(udf2)+Number(pgChargesAmount)-totalRefundAmount,
+            transactionAmount: Number(udf2) + Number(pgChargesAmount) - totalRefundAmount,
             statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
             trnsNo: txnid,
             trnsBankRefNo: bank_ref_num,
@@ -919,9 +914,8 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
         <h1 class="success-txt">Payment Successful!</h1>
         <p class="success-txt">Your payment has been successfully processed.</p>
         <p>Thank you for your purchase.</p>
-        <a href="${
-          Config[Config.MODE].baseURL
-        }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+        <a href="${Config[Config.MODE].baseURL
+          }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
       </div>
     </body>
     </html>`;
@@ -966,10 +960,10 @@ const payuWalletResponceSuccess = async (req, res) => {
     console.log("jksdsds");
     //productinfo = product udf3= pgcharges;
 
-var successHtmlCode
-    const findtransaction=await transaction.find({trnsNo:txnid})
-    if(findtransaction.length>0){
-       successHtmlCode = `<!DOCTYPE html>
+    var successHtmlCode
+    const findtransaction = await transaction.find({ trnsNo: txnid })
+    if (findtransaction.length > 0) {
+      successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
@@ -1028,9 +1022,9 @@ var successHtmlCode
         </div>
       </body>
       </html>`;
-          return successHtmlCode;
+      return successHtmlCode;
     }
-   else if (status === "success") {
+    else if (status === "success") {
       const userData = await User.findOne({ company_ID: udf1 }).populate({
         path: "roleId",
         match: { name: "Agency" },
@@ -1168,11 +1162,11 @@ var successHtmlCode
           paymentGateway: "PayU",
           trnsStatus: "success",
           transactionBy: userData._id,
-          transactionAmount: Number(udf2)+Number(udf3),
+          transactionAmount: Number(udf2) + Number(udf3),
           pgCharges: udf3,
         });
 
-         successHtmlCode = `<!DOCTYPE html>
+        successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
@@ -1247,10 +1241,10 @@ const payuWalletRailResponceSuccess = async (req, res) => {
       req.body;
     console.log("shadaab ali");
     //productinfo = product udf3= pgcharges;
-    var successHtmlCode 
-    const findtransaction=await transaction.find({trnsNo:txnid})
-    if(findtransaction.length>0){
-       successHtmlCode = `<!DOCTYPE html>
+    var successHtmlCode
+    const findtransaction = await transaction.find({ trnsNo: txnid })
+    if (findtransaction.length > 0) {
+      successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
@@ -1309,7 +1303,7 @@ const payuWalletRailResponceSuccess = async (req, res) => {
         </div>
       </body>
       </html>`;
-          return successHtmlCode;
+      return successHtmlCode;
     }
     if (status === "success") {
       const userData = await User.findOne({ company_ID: udf1 }).populate({
@@ -1449,11 +1443,11 @@ const payuWalletRailResponceSuccess = async (req, res) => {
           paymentGateway: "PayU",
           trnsStatus: "success",
           transactionBy: userData._id,
-          transactionAmount:Number(udf2)+Number(udf3),
+          transactionAmount: Number(udf2) + Number(udf3),
           pgCharges: udf3,
         });
 
-         successHtmlCode = `<!DOCTYPE html>
+        successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
@@ -1522,7 +1516,7 @@ const payuWalletRailResponceSuccess = async (req, res) => {
   }
 };
 
-const payuRailSuccess= async (req, res) => {
+const payuRailSuccess = async (req, res) => {
   try {
     const {
       status,
@@ -1538,20 +1532,209 @@ const payuRailSuccess= async (req, res) => {
       cardCategory,
     } = req.body;
 
-    
-   
+    const CheckAllereadyBooking = await RailBookingDetail.find({ CartId: udf1, bookingStatus: { $ne: "INCOMPLETE" } })
+    if (CheckAllereadyBooking.length) {
+      let successHtmlCode = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Success</title>
+        <style>
+        .success-txt{
+          color: #51a351;
+        }
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background-color: #f2f2f2;
+        }
+        
+        .success-container {
+          max-width: 400px;
+          width: 100%;
+          padding: 20px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          background-color: #fff;
+          text-align: center;
+        }
+        .success-container p {
+          margin-top: 10px;
+        }
+        
+        .success-container a {
+          display: inline-block;
+          margin-top: 20px;
+          padding: 10px 20px;
+          background-color: #007bff;
+          color: #fff;
+          text-decoration: none;
+          border-radius: 5px;
+        }
+        
+        .success-container a:hover {
+          background-color: #0056b3;
+        }
+      </style>
+  
+      </head>
+      <body>
+        <div class="success-container">
+          <h1 class="success-txt">Payment Successful!</h1>
+          <p class="success-txt">Your payment has been successfully processed.</p>
+          <p>Thank you for your purchase.</p>
+          <a href="${Config[Config.MODE].baseURL
+        }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+        </div>
+      </body>
+      </html>`
+      return successHtmlCode
+    }
 
 
- if (status === "success") {
+
+
+
+
+
+    else if (status === "success") {
+      const agentData = await RailBookingDetail.aggregate([
+        {
+          $match: {
+            cartId: udf1,
+          },
+        },
+        {
+          $lookup: {
+            from: "agentconfigurations",
+            localField: "userId",
+            foreignField: "userId",
+            as: "agentData",
+          },
+        },
+        {
+          $unwind: {
+            path: "$agentData",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "AgencyId",
+            foreignField: "_id",
+            as: "ComapnyData",
+
+          }
+        },
+        {
+          $unwind: {
+            path: "$ComapnyData",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ]);
+      // console.log("jsoeo",agentData);
+
+      if (agentData.length == 0) {
+        throw new Error("Data not found")
+      }
+
+      let runningAmount = agentData[0].agentData?.railCashBalance || 0
+      const userData = agentData[0]?.agentData || null
+      const CompnayData = agentData[0]?.ComapnyData
+      const parsedAmount = Number(amount);
+      const parsedPgCharges = Number(udf3);
+      const initialRunningAmount = Number(runningAmount);
 
       
 
+      runningAmount += parsedAmount;
+    await createLedgerEntry({
+      userId: userData.userId,
+        companyId:CompnayData._id,
+      transactionType: "CREDIT",
+      transactionAmount: parsedAmount,
+      updatedRunningAmount: runningAmount,
+      remarks: "Credit Ticket Amount.",
+      txnid,
+    });
 
-        
+      
+
+      const debitAmountWithoutPgCharges = parsedAmount - parsedPgCharges;
+      runningAmount -= debitAmountWithoutPgCharges;
+      await createLedgerEntry({
+        userId: userData.userId,
+        companyId:CompnayData._id,
+        transactionType: "DEBIT",
+        transactionAmount: debitAmountWithoutPgCharges,
+        updatedRunningAmount: runningAmount,
+        remarks: "Debited Ticket Amount.",
+        txnid,
+      });
+  
+
+      if (parsedPgCharges > 0) {
+
+         runningAmount -= parsedPgCharges;
+      await createLedgerEntry({
+       userId: userData.userId,
+       companyId:CompnayData._id,
+        transactionType: "DEBIT",
+        transactionAmount: parsedPgCharges,
+        updatedRunningAmount: runningAmount,
+        remarks: "Debited for PG charges (PayU).",
+        txnid,
+      });
+
+      }
+
+      const wsLoginUrl = req.headers.host == "localhost:3111" ||
+        req.headers.host == "kafila.traversia.net" ? Config?.TEST?.IRCTC_BASE_URL +
+      "/eticketing/wsapplogin" : Config?.LIVE?.IRCTC_BASE_URL +
+      "/eticketing/wsapplogin";
+      let irctcLoginFormFields = {
+        wsTxnId: udf1,
+        wsloginId: CompnayData?.railSubAgentId,
+        wsReturnUrl: req.headers.host == "localhost:3111" ||
+          req.headers.host == "kafila.traversia.net" ? Config?.TEST?.baseURLBackend +
+        "/api/rail/bookingSave" : Config?.LIVE?.baseURLBackend +
+        "/api/rail/bookingSave",
+      }
+
+      await transaction.create({
+        userId: agentData?.userId,
+        bookingId: udf3,
+        companyId: CompnayData?._id,
+        trnsNo: txnid,
+        trnsType: "DEBIT",
+        // paymentMode: "Payu",
+        paymentMode: PG_TYPE,
+        paymentGateway: "PayU",
+        trnsStatus: "success",
+        transactionBy: agentData?.userId,
+        pgCharges: udf3,
+        transactionAmount: parsedAmount,
+        statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
+        trnsNo: txnid,
+        trnsBankRefNo: bank_ref_num,
+        cardType: cardCategory,
+      });
+
+      // const agentData=await agentConfig.findOne({userId:Authentication.userId})
+
+await RailBookingDetail.findOneAndUpdate({cartId:udf1},{$set:{bookingStatus:"PENDING"}},{new:true})
 
 
 
-        let successHtmlCode = `<!DOCTYPE html>
+      let successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
@@ -1602,28 +1785,58 @@ const payuRailSuccess= async (req, res) => {
 
     </head>
     <body>
-      <div class="success-container">
-        <h1 class="success-txt">Payment Successful!</h1>
-        <p class="success-txt">Your payment has been successfully processed.</p>
-        <p>Thank you for your purchase.</p>
-        <a href="${
-          Config[Config.MODE].baseURL
-        }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
-      </div>
+     <form id="redirectForm" method="POST" action="${wsLoginUrl}">
+          <input type="hidden" name="wsloginId" value='${irctcLoginFormFields.wsloginId}' />
+          <input type="hidden" name="wsTxnId" value='${irctcLoginFormFields.wsTxnId}' />
+          <input type="hidden" name="wsReturnUrl" value='${irctcLoginFormFields.wsReturnUrl}' />
+        </form>
+        <script>
+          document.getElementById("redirectForm").submit();
+        </script>
+    
     </body>
     </html>`;
 
-       
-          return successHtmlCode;
-        
-      }
+
+      return successHtmlCode;
+
     }
+    else{
+
+    }
+  }
   catch (error) {
     throw error;
   }
 };
 
 
+const createLedgerEntry = async ({
+  userId,
+  companyId,
+  transactionType,
+  transactionAmount,
+  updatedRunningAmount,
+  remarks,
+  txnid
+}) => {
+  if (isNaN(updatedRunningAmount)) {
+    throw new Error("Invalid running amount in ledger creation");
+  }
+  await Railledger.create({
+    userId: userId,
+    companyId: companyId,
+    ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+    transactionId: txnid,
+    transactionAmount,
+    currencyType: "INR",
+    fop: transactionType === "CREDIT" ? "CREDIT" : "DEBIT",
+    transactionType,
+    runningAmount: updatedRunningAmount,
+    remarks,
+    transactionBy: userId,
+  });
+};
 
 const payuFail = async (req, res) => {
   try {
@@ -1719,9 +1932,8 @@ const payuFail = async (req, res) => {
             <h1 class="failed-txt">Payment Failed!</h1>
             <p class="failed-txt">Your payment has failed.</p>
             <p>Please try again later.</p>
-            <a href="${
-              Config[Config.MODE].baseURL
-            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+            <a href="${Config[Config.MODE].baseURL
+        }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
           </div>
         </body>
         </html>
@@ -1748,19 +1960,8 @@ const payuRailFail = async (req, res) => {
       return "Data does not exist";
     }
 
-   
-    let getuserDetails;
-    try {
-      getuserDetails = await UserModel.findOne({
-        _id: Authentication.UserId,
-      }).populate("company_ID");
-      if (!getuserDetails) {
-        return "User Not Found";
-      }
-    } catch (error) {
-      // console.error('Error retrieving user details:', error);
-      return "Data does not exist";
-    }
+ 
+    
 
     try {
       await RailBookingDetail.updateMany(
@@ -1825,9 +2026,8 @@ const payuRailFail = async (req, res) => {
             <h1 class="failed-txt">Payment Failed!</h1>
             <p class="failed-txt">Your payment has failed.</p>
             <p>Please try again later.</p>
-            <a href="${
-              Config[Config.MODE].baseURL
-            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+            <a href="${Config[Config.MODE].baseURL
+        }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
           </div>
         </body>
         </html>
@@ -2128,5 +2328,6 @@ module.exports = {
   payuWalletResponceSuccess,
   payuWalletFail,
   payu2,
-  payuRailSuccess
+  payuRailSuccess,
+  payuRailFail
 };

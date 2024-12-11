@@ -228,7 +228,7 @@ const payuWalletRailResponceSuccess = async (req, res) =>
     const railPayuFail = async (req, res) => 
       {
         try {
-          const result = await payuServices.payuFail(req, res);
+          const result = await payuServices.railPayuFail(req, res);
           res.send(result);
           // if (result.response == "Failed") {
           //   apiSucessRes(

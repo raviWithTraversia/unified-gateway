@@ -12,7 +12,7 @@ const StartBookingRail=async(req,res)=>{
         } else if (
             result.response === "Select only Wallet Payment Method" ||
             result.response === "Your Booking allready exist" ||
-            result.response === "Your Balance is not sufficient" ||
+            result.response === "Your Balance is not sufficient." ||
             result.response === "Either User or Company must exist" ||
             result.response === "User role must be Agency" ||
             result.response === "companyId must be TMC"||

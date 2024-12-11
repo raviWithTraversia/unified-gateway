@@ -21,6 +21,10 @@ router.get(
     railPgCharges.getPgCharges
 )
 
+router.post(
+    '/rail/pgCharges/getAssignPGChargesGroupByUserId',    
+    railPgCharges.getAssignPGChargesGroup
+);
 
 
 

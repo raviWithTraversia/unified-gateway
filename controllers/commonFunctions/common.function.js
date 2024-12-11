@@ -1346,8 +1346,12 @@ const RailBookingCommonMethod = async (
   jClass
 ) => {
   try {
-    if (paymentMethodType !== "Wallet") {
+    if (paymentMethodType !== "Wallet"&&paymentMethodType!=="PaymentGateway") {
       throw new Error("Unsupported payment method.")
+    }
+
+    if(paymentMethodType==="PaymentGateway"){
+      return { response: "Cart Created Succefully." };
     }
 
     // Retrieve agent configuration
@@ -1449,7 +1453,7 @@ const RailBookingCommonMethod = async (
 };
 
 const commonAgentPGCharges=async(amout,index=1)=>{
-  const amounts=Number(amout)*index
+  const amounts=Number(amout)
   const pgCharges=amounts<2000?amounts*0.0075:amounts*0.01
 return pgCharges
 }

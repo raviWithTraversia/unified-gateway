@@ -13,7 +13,7 @@ const addCardDetails = async (req,res) => {
             "expiryMonth",
             "expiryYear",
             "Address1",
-            "Address2",
+            "stateId",
             "cityId",
             "Pincode",
             "DisplayName",
@@ -36,6 +36,23 @@ const addCardDetails = async (req,res) => {
               data: `Missing or null fields: ${missingFieldsString}`,
             };
           };
+          const {
+            bankName,
+            cardNumber,
+            cardHolderName,
+            expiryMonth,
+            expiryYear,
+            Address1,
+            stateId,
+            cityId,
+            Pincode,
+            DisplayName,
+            billingCycleDayFrom,
+            billingCycleDayTo,
+            cardType,
+            ApplicableOnBookingSupplier,
+            cvv,
+          } = req.body;
     const hashedCVV = await bcrypt.hash(cvv, cvv.length)
     const existingCard = await cardDetailModel.findOne({ cardNumber: req.body.cardNumber }, {bankName : req.body.bankName});
         if (existingCard) {
@@ -110,9 +127,9 @@ const updateCardDetails = async (req,res) => {
 };
 const getCardDetails = async (req,res) => {
     try{
-        const {cardId} = req.query;
+        // const {cardId} = req.query;
         
-      let cardDetails = await cardDetailModel.findById(cardId);
+      let cardDetails = await cardDetailModel.find().populate('stateId').populate('cityId');
       if(cardDetails){
         return {
             response : "Card Details Fetch Sucessfully",

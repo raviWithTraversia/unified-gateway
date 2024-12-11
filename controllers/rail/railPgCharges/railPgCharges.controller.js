@@ -175,10 +175,46 @@ const getPgCharges = async (req, res) => {
     );
   }
 }
-
+const getAssignPGChargesGroup = async (req,res) => {
+  try{
+  const result = await pgChargesServices.getAssignPGChargesGroup(req,res);
+    if(result.response == 'Fetch Data Sucessfully'){
+      apiSucessRes(
+          res,
+          result.response,
+          result.data,
+    ServerStatusCode.SUCESS_CODE
+      )
+    }else if(result.response == 'Not Found'){
+     apiErrorres(
+      res,
+      result.response,
+      ServerStatusCode.PRECONDITION_FAILED,
+      true
+     )
+    } else{
+      apiErrorres(
+          res,
+          errorResponse.SOME_UNOWN,
+          ServerStatusCode.PRECONDITION_FAILED,
+          true
+      )
+    }
+  }
+  catch(error){
+      apiErrorres(
+          res,
+          error,
+          ServerStatusCode.SERVER_ERROR,
+          true
+        );
+     
+  }
+}
 module.exports = {
   addPgCharges,
   editPgcharges,
   calculatePgCharges,
-  getPgCharges
+  getPgCharges,
+  getAssignPGChargesGroup
 }

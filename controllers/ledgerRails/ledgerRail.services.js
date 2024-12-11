@@ -511,44 +511,418 @@ const fetchLedgerRailReport = async (req) => {
       }
     }
     console.log({ query });
-    const result = await ledgerRail.aggregate([{$match:query},{
-      $lookup:{
-        from:"bookingdetailsrails",
-        localField:"cartId",
-        foreignField:"cartId",
-        as:"railBookingDetails"
-      }
 
-    },{$unwind:{
-      path:"$railBookingDetails",
-      preserveNullAndEmptyArrays:true
-    }
-  },
-  {
-    $addFields: {
-      mergedDetails: {
-        ledger: "$$ROOT",                
-        booking: "$railBookingDetails", 
+    const result = await ledgerRail.aggregate([
+      { $match: query },
+      {
+        $lookup: {
+          from: "bookingdetailsrails",
+          localField: "cartId",
+          foreignField: "cartId",
+          as: "railBookingDetails",
+        },
       },
-    },
-  },
-  {
-    $sort: {
-      "ledger.createdAt": -1, 
-    },
-  },
+      {
+        $unwind: {
+          path: "$railBookingDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          latestEntry: { $first: "$$ROOT" },
+        },
+      },
+      {
+        $replaceRoot: { newRoot: "$latestEntry" },
+      },
+      {
+        $sort: {
+          createdAt: -1, // Apply final sort after grouping
+        },
+      },
+      {
+        $addFields: {
+          mergedDetails: {
+            ledger: "$$ROOT",
+            booking: "$railBookingDetails",
+          },
+        },
+      },
+    ]);
 
-  
-  ]).sort("-createdAt");
     return { result };
   } catch (error) {
     console.log({ error });
     return { error: error.message };
   }
 };
+
+
+const GetBalanceReport=async(req ,res)=>{
+    try {
+      const { date, companyId } = req.body;
+      if (!date) {
+        return {
+          response: "please enter date",
+        };
+      }
+      console.log(companyId,"djei")
+      
+     
+      const inputDate = new Date(date);
+      const startDate = new Date(inputDate.setUTCHours(0, 0, 0, 0));
+      const endDate = new Date(inputDate.setUTCHours(23, 59, 59, 999));
+      //
+      const findTmcUser=await Company.findById(companyId)
+  
+      const aggregationResult = await Company.aggregate([
+        {
+          $addFields: {
+            matchCondition: {
+              $cond: {
+                if: { $eq: [findTmcUser.type, "TMC"] }, // Check if the type is "TMC"
+                then: { $in: ["$type", ["Agency", "Distributer"]] }, // Condition when true
+                else: { $eq: ["$parent", new ObjectId(companyId)] } // Condition when false
+              }
+            }
+          }
+        },
+        {
+          $match: {
+            matchCondition: true
+          }
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "_id",
+            foreignField: "company_ID",
+            as: "userData",
+          },
+        },
+        {
+          $unwind: {
+            path: "$userData",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "roles",
+            localField: "userData.roleId",
+            foreignField: "_id",
+            as: "roledata",
+          },
+        },
+        {
+          $unwind: {
+            path: "$roledata",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $match: {
+            "roledata.type": "Default",
+          },
+        },
+        {
+          $lookup: {
+            from: "ledgerrails",
+            localField: "userData._id",
+            foreignField: "userId",
+            as: "ledgerData",
+          },
+        },
+        
+        {
+          $set: {
+            ledgerData: {
+              $sortArray: { input: "$ledgerData", sortBy: { createdAt: -1 } },
+            },
+          },
+        },
+        {
+          $set: {
+            ledgerData: {
+              $filter: {
+                input: "$ledgerData",
+                as: "ledgerrail",
+                cond: { $lte: ["$$ledgerrail.createdAt", endDate] },
+                limit: 1,
+              },
+            },
+          },
+        },
+        {
+          $unwind:{path: "$ledgerData",preserveNullAndEmptyArrays:true},
+        },
+        {
+          $project: {
+            userId: "$userData.userId",
+            companyId: {
+              companyName: "$companyName",
+              type: "$type",
+            },
+            runningAmount:{
+              $cond: {
+                if: { $gt: ["$ledgerData.runningAmount", 0] },  // Condition to check if runningAmount > 0
+                then: "$ledgerData.runningAmount",               // Value if true
+                else: 0                                          // Value if false
+              }
+            },
+            createdAt: "$ledgerData.createdAt",
+          },
+        },
+      ]);
+      return {
+        response: "ledger find succefully",
+        data: aggregationResult,
+      };
+      //
+  
+      // Create start and end range for the day
+      // const startDate = new Date(inputDate.setUTCHours(0, 0, 0, 0));
+      // const endDate = new Date(inputDate.setUTCHours(23, 59, 59, 999));
+  
+      // const dateId = {
+      //   $gte: startDate,
+      //   $lt: endDate,
+      // };
+  
+      // const uniqueCompanyIds = await Company.aggregate([
+      //   {
+      //     $match: {
+      //       parent: new ObjectId(companyId),
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "users",
+      //       localField: "_id",
+      //       foreignField: "company_ID",
+      //       as: "userData",
+      //     },
+      //   },
+      //   {
+      //     $unwind: {
+      //       path: "$userData",
+      //       preserveNullAndEmptyArrays: true,
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "roles",
+      //       localField: "userData.roleId",
+      //       foreignField: "_id",
+      //       as: "roledata",
+      //     },
+      //   },
+      //   {
+      //     $unwind: {
+      //       path: "$roledata",
+      //       preserveNullAndEmptyArrays: true,
+      //     },
+      //   },
+      //   {
+      //     $match: {
+      //       "roledata.name": "Agency",
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "ledgers",
+      //       localField: "userData._id",
+      //       foreignField: "userId",
+      //       as: "ledgerData",
+      //     },
+      //   },
+      //   {
+      //     $unwind: {
+      //       path: "$ledgerData",
+      //       preserveNullAndEmptyArrays: true,
+      //     },
+      //   },
+  
+      //   {
+      //     $sort: {
+      //       "ledgerData.createdAt": -1,
+      //     },
+      //   },
+      //   {
+      //     $group: {
+      //       _id: "$_id",
+      //       userId: { $first: "$userData.userId" },
+      //       companyId: {
+      //         $first: {
+      //           companyName: "$companyName",
+      //           type: "$type",
+      //         },
+      //       },
+      //       matchedRunningAmount: {
+      //         $first: {
+      //           $cond: {
+      //             if: {
+      //               $and: [
+      //                 { $lte: ["$ledgerData.createdAt", inputDate] },
+      //                 // { $gte: ["$ledgerData.createdAt", startDate] },
+      //                 // { $lte: ["$ledgerData.createdAt", endDate] },
+      //               ],
+      //             },
+      //             then: "$ledgerData.runningAmount",
+      //             else: null,
+      //           },
+      //         },
+      //       },
+      //       latestRunningAmount: { $first: "$ledgerData.runningAmount" },
+      //       createdAt: { $first: "$ledgerData.createdAt" },
+      //     },
+      //   },
+      //   {
+      //     $addFields: {
+      //       runningAmount: {
+      //         $ifNull: ["$matchedRunningAmount", "$latestRunningAmount"],
+      //       },
+      //       dateMatched: {
+      //         $cond: {
+      //           if: { $ne: ["$matchedRunningAmount", null] },
+      //           then: true,
+      //           else: false,
+      //         },
+      //       },
+      //     },
+      //   },
+      //   {
+      //     $project: {
+      //       _id: 1,
+      //       userId: 1,
+      //       companyId: 1,
+      //       runningAmount: {
+      //         $cond: {
+      //           if: { $eq: ["$runningAmount", null] },
+      //           then: 0,
+      //           else: "$runningAmount",
+      //         },
+      //       },
+      //       createdAt: 1,
+      //       dateMatched: 1,
+      //     },
+      //   },
+      // ]);
+  
+      // const FindbyDate = await Company.aggregate([
+      //   {
+      //     $match: {
+      //       parent: new ObjectId(companyId),
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "users",
+      //       localField: "_id",
+      //       foreignField: "company_ID",
+      //       as: "userData",
+      //     },
+      //   },
+      //   {
+      //     $unwind: {
+      //       path: "$userData",
+      //       preserveNullAndEmptyArrays: true,
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "roles",
+      //       localField: "userData.roleId",
+      //       foreignField: "_id",
+      //       as: "roledata",
+      //     },
+      //   },
+      //   {
+      //     $unwind: {
+      //       path: "$roledata",
+      //       preserveNullAndEmptyArrays: true,
+      //     },
+      //   },
+      //   {
+      //     $match: {
+      //       "roledata.name": "Agency",
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "ledgers",
+      //       localField: "userData._id",
+      //       foreignField: "userId",
+      //       as: "ledgerData",
+      //     },
+      //   },
+      //   {
+      //     $unwind: {
+      //       path: "$ledgerData",
+      //       preserveNullAndEmptyArrays: true,
+      //     },
+      //   },
+      //   {
+      //     $sort: {
+      //       "ledgerData.createdAt": -1,
+      //     },
+      //   },
+      //   {
+      //     $match: {
+      //       "ledgerData.createdAt": dateId,
+      //     },
+      //   },
+      //   {
+      //     $group: {
+      //       _id: "$_id",
+      //       userId: { $first: "$userData.userId" },
+      //       companyId: {
+      //         $first: {
+      //           companyName: "$companyName",
+      //           type: "$type",
+      //         },
+      //       },
+      //       runningAmount: { $first: "$ledgerData.runningAmount" },
+      //       createdAt: { $first: "$ledgerData.createdAt" },
+      //     },
+      //   },
+      // ]);
+  
+      // let element = [];
+      // for (let i = 0; i < uniqueCompanyIds.length; i++) {
+      //   let found = false;
+      //   for (let j = 0; j < FindbyDate.length; j++) {
+      //     if (uniqueCompanyIds[i].userId == FindbyDate[j].userId) {
+      //       found = true;
+      //     }
+      //   }
+      //   if (!found) {
+      //     element.push(uniqueCompanyIds[i]);
+      //   }
+      // }
+  
+      // const data = FindbyDate.concat(element);
+  
+      // if (!uniqueCompanyIds) {
+      //   return {
+      //     response: "ledger not found",
+      //   };
+      // } else {
+      //   return {
+      //     response: "ledger find succefully",
+      //     data: data,
+      //   };
+      // }
+    } catch (error) {
+      throw error;
+    }
+  }
 module.exports = {
   getAllledger,
   transactionReport,
   getAllledgerbyDate,
   fetchLedgerRailReport,
+  GetBalanceReport
 };

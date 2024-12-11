@@ -50,7 +50,7 @@ console.log(url,"url")
     )?.data;
     if (!response?.trainBtwnStnsList?.length) {
       return {
-        response: "Error in fetching data",
+        response: "No Response from Irctc",
       };
     } else {
       response.traceId=traceId
@@ -119,7 +119,7 @@ const railSearchBtwnDate = async (req, res) => {
     )?.data;
     if (!response) {
       return {
-        response: "Error in fetching data",
+        response: "No Response from Irctc",
       };
     } else {
       commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"Rail Search between Date",url,req.body,response)
@@ -180,7 +180,7 @@ const railRouteView = async (req, res) => {
 
     if (!response) {
       return {
-        response: "Error in fetching data",
+        response: "No Response from Irctc",
       };
     } else {
       response.traceId=traceId
@@ -263,13 +263,13 @@ let agentCharges={}
 if(jClass=="SL"){
   agentCharges.Conveniencefee=17.5
   agentCharges.Agent_service_charge=20
-  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount,passengerList.length):0
+  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount):0
 
 }
 else{
   agentCharges.Conveniencefee=35
   agentCharges.Agent_service_charge=40
-  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount,passengerList.length):0
+  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount):0
 
 }
 // console.log(agentCharges)
@@ -311,7 +311,7 @@ else{
 
     if (!response) {
       return {
-        response: "Error in fetching data",
+        response: "No Response from Irctc",
       };
     } else {
       response.traceId=traceId
@@ -382,7 +382,7 @@ const railBoardingEnquiry = async (req, res) => {
     
     if (!response) {
       return {
-        response: "Error in fetching data",
+        response: "No Response from Irctc",
       };
     } else {
       
@@ -443,7 +443,7 @@ const ChangeBoardingStation = async (req, res) => {
     // console.log(response);
     if (!response) {
       return {
-        response: "Error in fetching data",
+        response: "No Response from Irctc",
       };
     } else {
       if(response.success=='true'&&response.status.includes("Boarding point has been changed successfully.")){
@@ -509,7 +509,7 @@ const PnrEnquirry = async (req, res) => {
     // console.log(response);
     if (!response) {
       return {
-        response: "Error in fetching data",
+        response: "No Response from Irctc",
       };
     } else {
     

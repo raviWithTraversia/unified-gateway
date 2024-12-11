@@ -318,6 +318,7 @@ const getUser = async (req, res) => {
 const getAllAgencyAndDistributer = async (req, res) => {
   try {
     let result = await userServices.getAllAgencyAndDistributer(req, res);
+    console.log(result)
     if (result.response === "Agency Data fetch Sucessfully") {
       apiSucessRes(
         res,
@@ -328,7 +329,7 @@ const getAllAgencyAndDistributer = async (req, res) => {
     } else if (result.response === "No Agency with this TMC") {
       apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
     } else if (result.response === "Agency Data not found") {
-      apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);
+      apiErrorres(res, result.response, ServerStatusCode.NOT_EXIST_CODE, true);
     }
     else {
       apiErrorres(

@@ -34,7 +34,7 @@ const railSearch = async (req, res) => {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response === "Provide required fields" ||
-      result.response === "Error in fetching data" ||
+      result.response === "No Response from Irctc" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Either User or Company must exist" ||
       result.response === "User role must be Agency" ||
@@ -74,7 +74,7 @@ const railSearchBtwnDate = async (req, res) => {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response === "Provide required fields" ||
-      result.response === "Error in fetching data" ||
+      result.response === "No Response from Irctc" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Either User or Company must exist" ||
       result.response === "User role must be Agency" ||
@@ -144,7 +144,7 @@ const getTrainRoute = async (req, res) => {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response === "Provide required fields" ||
-      result.response === "Error in fetching data" ||
+      result.response === "No Response from Irctc" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Either User or Company must exist" ||
       result.response === "User role must be Agency" ||
@@ -184,7 +184,7 @@ const getFareEnquiry = async (req, res) => {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response === "Provide required fields" ||
-      result.response === "Error in fetching data" ||
+      result.response === "No Response from Irctc" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Either User or Company must exist" ||
       result.response === "User role must be Agency" ||
@@ -225,7 +225,7 @@ const getBoardingStation = async (req, res) => {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response === "Provide required fields" ||
-      result.response === "Error in fetching data" ||
+      result.response === "No Response from Irctc" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Either User or Company must exist" ||
       result.response === "User role must be Agency" ||
@@ -266,7 +266,7 @@ const ChangeBoardingStation = async (req, res) => {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response === "Provide required fields" ||
-      result.response === "Error in fetching data" ||
+      result.response === "No Response from Irctc" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Either User or Company must exist" ||
       result.response === "User role must be Agency" ||
@@ -307,7 +307,7 @@ const PnrEnquirry = async (req, res) => {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response === "Provide required fields" ||
-      result.response === "Error in fetching data" ||
+      result.response === "No Response from Irctc" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Either User or Company must exist" ||
       result.response === "User role must be Agency" ||

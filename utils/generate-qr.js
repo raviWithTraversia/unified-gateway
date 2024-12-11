@@ -14,7 +14,7 @@ async function generateQR({ text, fileName }) {
     );
     return fileName;
   } catch (err) {
-    console.error(err);
+    console.error({ err });
     return false;
   }
 }
@@ -24,14 +24,14 @@ function prepareRailBookingQRDataString({ booking }) {
     let qrDataString = `PNR NO. ${booking?.pnrNumber}
     ID: ${booking?.reservationId}
     ${booking?.psgnDtlList
-      ?.map(
-        (psgn) => `Passenger Name: ${psgn.passengerName}
+        ?.map(
+          (psgn) => `Passenger Name: ${psgn.passengerName}
       Gender: ${psgn.passengerGender}
       Age: ${psgn.passengerAge}
       Status: ${psgn.currentStatus}
       `
-      )
-      .join("\n ")}
+        )
+        .join("\n ")}
       Quota: ${booking.bookedQuota}
       Train Number: ${booking.trainNumber}
       Train Name: ${booking.trainName}

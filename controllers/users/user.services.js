@@ -769,9 +769,21 @@ const getUser = async (req, res) => {
 const getAllAgencyAndDistributer = async (req, res) => {
   try {
     let parentId = req.query.id;
+    const searchQuery = req.query.search || ''; 
+    const page = parseInt(req.query.page) || 1; 
+    const limit = parseInt(req.query.limit) || 1000;
+
 
     const findTmcUser=await Company.findById(parentId)
-   
+    const skip = (page - 1) * limit;
+    const searchCondition = searchQuery
+      ? { $or: [
+          { fname: { $regex: searchQuery, $options: 'i' } }, // Search by first name
+          { lastName: { $regex: searchQuery, $options: 'i' } }, // Search by last name
+          { "company_ID.companyName": { $regex: searchQuery, $options: 'i' } } // Search by company name
+        ] }
+      : {};
+
 
     const users = await User.aggregate([
       { 
@@ -858,6 +870,8 @@ const getAllAgencyAndDistributer = async (req, res) => {
           preserveNullAndEmptyArrays: true
         }
       },
+
+      {$match:searchCondition},
       {
         $lookup:{
           from:'agentconfigurations',
@@ -960,8 +974,10 @@ const getAllAgencyAndDistributer = async (req, res) => {
           agentConfigID: { $first: "$agentconfigurations._id" }
         }
       },
-      
       {$sort:{userId:1}},
+      
+      { $skip: skip }, 
+      { $limit: limit },
       
       
     ])

@@ -7,98 +7,149 @@ const config = require("../../../models/AgentConfig");
 const { ObjectId } = require("mongodb");
 const { generateQR } = require("../../../utils/generate-qr");
 const {commonFunctionsRailLogs ,commonMethodDate}=require('../../../controllers/commonFunctions/common.function')
-const StartBookingRail = async (req, res) => {
+const StartBookingRail = async (req) => {
   try {
-    const {
-      userId,
-      companyId,
-      cartId,
-      amount,
-      paymentmethod,
-      agencyId,
-      CommercialCharges,
-      traceId,
-      clientTransactionId,trainNo,journeyDate,frmStn,toStn,jClass,jQuota,paymentEnqFlag,reservationMode,autoUpgradationSelected,travelInsuranceOpted,ignoreChoiceIfWl,contactDetails,ticketType,passengerList,boardingStation,railFareBreakupRes
-    } = req.body;
-    console.log("sdjfdh");
-    const requiredFields = [
-      "userId",
-      "companyId",
-      "cartId",
-      "amount",
-      "paymentmethod",
-      "agencyId",
-      "clientTransactionId",
-    ];
-    const missingFields = requiredFields.filter(
-      (field) => !req.body[field] // Checks for undefined, null, empty
-    );
+      const {
+          userId,
+          companyId,
+          cartId,
+          amount,
+          paymentmethod,
+          agencyId,
+          CommercialCharges,
+          traceId,
+          clientTransactionId,
+          journeyDate,
+          contactDetails,
+          ticketType,
+          passengerList,
+          boardingStation,
+          railFareBreakupRes,
+          reservationMode,
+          jQuota
+      } = req.body;
 
-    if (missingFields.length > 0) {
-      const missingFieldsString = missingFields.join(", ");
-      return {
-        response: null,
-        isSometingMissing: true,
-        data: `Missing or null fields: ${missingFieldsString}`,
-      };
-    }
+      // Required fields validation
+      const requiredFields = [
+          "userId",
+          "companyId",
+          "cartId",
+          "amount",
+          "paymentmethod",
+          "agencyId",
+          "clientTransactionId",
+      ];
 
-    const railBoookingDetails = await railBookings.find({ cartId: cartId });
-    if (railBoookingDetails.length) {
-      return {
-        response: "Your Booking allready exist",
-      };
-    }
-    const RailBooking = await RailBookingCommonMethod(
-      userId,
-      amount,
-      companyId,
-      cartId,
-      paymentmethod,
-      railFareBreakupRes?.CommercialCharges,
-      railFareBreakupRes?.enqClass
-    );
-    if (RailBooking.response == "Your Balance is not sufficient") {
-      return {
-        response: "Your Balance is not sufficient",
-      };
-    }
-    if(RailBooking.response=="An error occurred. Please try again later."){
-      return {
-        response:"something Went wrong"
+      const missingFields = requiredFields.filter(field => !req.body[field]);
+      if (missingFields.length > 0) {
+          return {
+              response: null,
+              isSomethingMissing: true,
+              data: `Missing or null fields: ${missingFields.join(", ")}`,
+          };
       }
-    }
-    
-if(RailBooking?.response==="amount transfer succefully" ||RailBooking?.response==="Cart Created Succefully."){
-  
 
-const CommonDateBooking=await commonMethodDate()
-    await railBookings.create({cartId:cartId,
-        clientTransactionId:clientTransactionId,
-        companyId:companyId,
-        userId:userId,
-        AgencyId:agencyId,
-        paymentMethod:paymentmethod,
-       trainNumber:railFareBreakupRes?.trainNo,journeyDate:`${journeyDate} 00:00:00.0 IST`,fromStn:railFareBreakupRes?.frmStn,destStn:railFareBreakupRes?.toStn,jClass:railFareBreakupRes?.enqClass,reservationMode:reservationMode,mobileNumber:contactDetails.mobileNumber,emailId:contactDetails.emailId,ticketType:ticketType,boardingStn:boardingStation,
-        jQuota:jQuota,
-        RailCommercial:CommercialCharges,
-        psgnDtlList:passengerList,
-        traceId:traceId,
-        providerbookingId:CommonDateBooking?.bookingId
-        
-})
-}
+      // Check if booking already exists
+      const existingBooking = await railBookings.findOne({ cartId });
+      if (existingBooking) {
+          return {
+              response: "Your Booking already exists",
+          };
+      }
 
-commonFunctionsRailLogs(companyId,userId,traceId,"start booking","startBooking",req.body,RailBooking?.response)
-return({
-    response:RailBooking?.response
-})
+      // Process Rail Booking
+      const RailBooking = await RailBookingCommonMethod(
+          userId,
+          amount,
+          companyId,
+          cartId,
+          paymentmethod,
+          railFareBreakupRes?.CommercialCharges,
+          railFareBreakupRes?.enqClass
+      );
 
-    }catch(error){
-        throw error
-    }
-    }
-    const findRailAllBooking = async (req, res) => {
+      if (RailBooking.response === "Your Balance is not sufficient.") {
+          return {
+              response: "Your Balance is not sufficient.",
+          };
+      }
+
+      if (RailBooking.response === "An error occurred. Please try again later.") {
+          return {
+              response: "Something went wrong",
+          };
+      }
+
+      // Handle successful booking responses
+      const CommonDateBooking = await commonMethodDate();
+
+      if (
+          RailBooking?.response == "Amount transferred successfully." ||
+          RailBooking?.response === "Cart Created Succefully."
+      ) {
+          console.log(CommonDateBooking)
+
+          const newBooking = {
+              cartId,
+              clientTransactionId,
+              companyId,
+              userId,
+              AgencyId: agencyId,
+              paymentMethod: paymentmethod,
+              trainNumber: railFareBreakupRes?.trainNo,
+              journeyDate: `${journeyDate} 00:00:00.0 IST`,
+              fromStn: railFareBreakupRes?.frmStn,
+              destStn: railFareBreakupRes?.toStn,
+              jClass: railFareBreakupRes?.enqClass,
+              reservationMode,
+              mobileNumber: contactDetails?.mobileNumber || null,
+              emailId: contactDetails?.emailId || null,
+              ticketType,
+              boardingStn: boardingStation,
+              jQuota,
+              RailCommercial: CommercialCharges,
+              psgnDtlList: passengerList,
+              traceId,
+              providerbookingId: CommonDateBooking?.bookingId,
+          };
+
+          // Save booking to database
+          const createdBooking = await railBookings.create(newBooking);
+
+          if (!createdBooking) {
+              return {
+                  response: "Failed to create booking",
+              };
+          }
+
+          // Log booking process
+          commonFunctionsRailLogs(
+              companyId,
+              userId,
+              traceId,
+              "start booking",
+              "startBooking",
+              req.body,
+              RailBooking?.response
+          );
+
+          return {
+              response: RailBooking?.response,
+              bookingId: createdBooking._id,
+          };
+      }
+
+      // Default fallback response
+      return {
+          response: "Unknown response from RailBookingCommonMethod",
+      };
+
+  } catch (error) {
+      console.error("Error in StartBookingRail:", error);
+      throw error; // Rethrow the error for higher-level handling
+  }
+};
+  const findRailAllBooking = async (req, res) => {
         const {
           userId,
           agencyId,

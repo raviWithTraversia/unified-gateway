@@ -6,12 +6,12 @@ const { ServerStatusCode, errorResponse, CrudMessage, } = require("../../../util
 const StartBookingRail=async(req,res)=>{
     try{
         const result = await railBookingServices.StartBookingRail(req, res);
-        console.log(result.response,"ji")
+        console.log(result?.response,"ji")
         if (!result.response && result.isSometingMissing) {
             apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
         } else if (
             result.response === "Select only Wallet Payment Method" ||
-            result.response === "Your Booking allready exist" ||
+            result.response === "Your Booking already exists" ||
             result.response === "Your Balance is not sufficient." ||
             result.response === "Either User or Company must exist" ||
             result.response === "User role must be Agency" ||

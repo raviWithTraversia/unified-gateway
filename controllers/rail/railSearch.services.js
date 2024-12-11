@@ -4,16 +4,16 @@ const axios = require("axios");
 const { Config } = require("../../configs/config");
 const jwt = require("jsonwebtoken");
 const RailBookingSchema = require("../../models/Irctc/bookingDetailsRail");
-const agentConfig=require('../../models/AgentConfig')
+const agentConfig = require('../../models/AgentConfig')
 const {
   prepareRailBookingQRDataString,
   generateQR,
 } = require("../../utils/generate-qr");
 
-const {commonAgentPGCharges,commonFunctionsRailLogs}=require('../../controllers/commonFunctions/common.function')
+const { commonAgentPGCharges, commonFunctionsRailLogs } = require('../../controllers/commonFunctions/common.function')
 const getRailSearch = async (req, res) => {
   try {
-    const { fromStn, toStn, date, Authentication,traceId } = req.body;
+    const { fromStn, toStn, date, Authentication, traceId } = req.body;
     if ((!fromStn, !toStn, !date, !Authentication)) {
       return { response: "Provide required fields" };
     }
@@ -23,11 +23,11 @@ const getRailSearch = async (req, res) => {
         response: "Credential Type does not exist",
       };
     }
-    
+
     const checkUser = await User.findById(Authentication.UserId).populate(
       "roleId"
     );
-    
+
     const checkCompany = await Company.findById(Authentication.CompanyId);
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
@@ -40,11 +40,11 @@ const getRailSearch = async (req, res) => {
     }
     let renewDate = date.split("-");
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/tatwnstns/${fromStn}/${toStn}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
-    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
+    const auth = Authentication.CredentialType === "LIVE" ? Config.LIVE.IRCTC_AUTH : Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/tatwnstns/${fromStn}/${toStn}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
     }
-console.log(url,"url")
+    console.log(url, "url")
     const response = (
       await axios.get(url, { headers: { Authorization: auth } })
     )?.data;
@@ -53,9 +53,9 @@ console.log(url,"url")
         response: "No Response from Irctc",
       };
     } else {
-      response.traceId=traceId
-      commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"Rail Search",url,req.body,response)
-      
+      response.traceId = traceId
+      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "Rail Search", url, req.body, response)
+
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -74,7 +74,7 @@ console.log(url,"url")
 
 const railSearchBtwnDate = async (req, res) => {
   try {
-    const { trainNo, fromStn, toStn, date, Authentication, quota, cls,traceId } =
+    const { trainNo, fromStn, toStn, date, Authentication, quota, cls, traceId } =
       req.body;
     if ((!fromStn, !toStn, !date, !Authentication)) {
       return { response: "Provide required fields" };
@@ -100,7 +100,7 @@ const railSearchBtwnDate = async (req, res) => {
     }
     let renewDate = date.split("-");
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${fromStn}/${toStn}/${cls}/${quota}/N`;
-    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
+    const auth = Authentication.CredentialType === "LIVE" ? Config.LIVE.IRCTC_AUTH : Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${fromStn}/${toStn}/${cls}/${quota}/N`;
     }
@@ -109,7 +109,7 @@ const railSearchBtwnDate = async (req, res) => {
       await axios.post(
         url,
         {
-          masterId:Authentication.CredentialType === "LIVE"?Config.LIVE.IRCTC_MASTER_ID:Config.TEST.IRCTC_MASTER_ID , //this is hard code master id for temp use
+          masterId: Authentication.CredentialType === "LIVE" ? Config.LIVE.IRCTC_MASTER_ID : Config.TEST.IRCTC_MASTER_ID, //this is hard code master id for temp use
           enquiryType: "3",
           reservationChoice: "99",
           moreThanOneDay: "true",
@@ -122,8 +122,8 @@ const railSearchBtwnDate = async (req, res) => {
         response: "No Response from Irctc",
       };
     } else {
-      commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"Rail Search between Date",url,req.body,response)
-      
+      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "Rail Search between Date", url, req.body, response)
+
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -169,7 +169,7 @@ const railRouteView = async (req, res) => {
     // let renewDate = journeyDate.split("-");
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/trnscheduleEnq/${trainNo}`; //?journeyDate=${journeyDate}&startingStationCode=${startingStationCode}`;
     // console.log(url,"url");
-    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
+    const auth = Authentication.CredentialType === "LIVE" ? Config.LIVE.IRCTC_AUTH : Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/trnscheduleEnq/${trainNo}`; //?journeyDate=${journeyDate}&startingStationCode=${startingStationCode}`;
     }
@@ -183,9 +183,9 @@ const railRouteView = async (req, res) => {
         response: "No Response from Irctc",
       };
     } else {
-      response.traceId=traceId
-      commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"Rail Search",url,req.body,response)
-      
+      response.traceId = traceId
+      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "Rail Search", url, req.body, response)
+
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -239,14 +239,14 @@ const railFareEnquiry = async (req, res) => {
         response: "Credential Type does not exist",
       };
     }
-    const checkUser = await agentConfig.findOne({userId:Authentication.UserId}).populate({
+    const checkUser = await agentConfig.findOne({ userId: Authentication.UserId }).populate({
       path: 'userId',      // First, populate the userId field
       populate: {
         path: 'roleId',    // Then, populate the roleId inside userId
         model: 'Role',     // Specify the model for roleId (optional if correctly referenced)
       },
     }).populate("RailcommercialPlanIds");
-    
+
     const checkCompany = await Company.findById(Authentication.CompanyId);
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
@@ -258,31 +258,31 @@ const railFareEnquiry = async (req, res) => {
       return { response: "companyId must be TMC" };
     }
 
-console.log(checkUser.RailcommercialPlanIds)
-let agentCharges={}
-if(jClass=="SL"){
-  agentCharges.Conveniencefee=17.5
-  agentCharges.Agent_service_charge=20
-  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount):0
+    console.log(checkUser.RailcommercialPlanIds)
+    let agentCharges = {}
+    if (jClass == "SL") {
+      agentCharges.Conveniencefee = 17.5
+      agentCharges.Agent_service_charge = 20
+      agentCharges.PG_charges = paymentEnqFlag === "Y" ? await commonAgentPGCharges(amount) : 0
 
-}
-else{
-  agentCharges.Conveniencefee=35
-  agentCharges.Agent_service_charge=40
-  agentCharges.PG_charges=paymentEnqFlag==="Y"?await commonAgentPGCharges(amount):0
+    }
+    else {
+      agentCharges.Conveniencefee = 35
+      agentCharges.Agent_service_charge = 40
+      agentCharges.PG_charges = paymentEnqFlag === "Y" ? await commonAgentPGCharges(amount) : 0
 
-}
-// console.log(agentCharges)
+    }
+    // console.log(agentCharges)
 
     let renewDate = journeyDate.split("-");
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
-    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
+    const auth = Authentication.CredentialType === "LIVE" ? Config.LIVE.IRCTC_AUTH : Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/avlFareenquiry/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}/${jQuota}/${paymentEnqFlag}`;
     }
 
     let queryParams = {
-      masterId: Authentication.CredentialType === "LIVE"?Config.LIVE.IRCTC_MASTER_ID:Config.TEST.IRCTC_MASTER_ID,
+      masterId: Authentication.CredentialType === "LIVE" ? Config.LIVE.IRCTC_MASTER_ID : Config.TEST.IRCTC_MASTER_ID,
       wsUserLogin: RailAgentId,
       enquiryType: "3",
       reservationChoice: "99",
@@ -303,7 +303,7 @@ else{
       gstDetails: gstDetails,
     };
 
-    console.log(url,"url")
+    console.log(url, "url")
     const response = (
       await axios.post(url, queryParams, { headers: { Authorization: auth } })
     )?.data;
@@ -314,10 +314,10 @@ else{
         response: "No Response from Irctc",
       };
     } else {
-      response.traceId=traceId
-       response.CommercialCharges=agentCharges
-      commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"FareEnquiry",url,req.body,response)
-      
+      response.traceId = traceId
+      response.CommercialCharges = agentCharges
+      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "FareEnquiry", url, req.body, response)
+
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -330,7 +330,7 @@ else{
     //   ServerStatusCode.SERVER_ERROR,
     //   true
     // );
-  throw error
+    throw error
   }
 };
 
@@ -344,7 +344,7 @@ const railBoardingEnquiry = async (req, res) => {
       jClass,
       jQuota,
       Authentication,
-      
+
     } = req.body;
     if ((!trainNo, !Authentication)) {
       return { response: "Provide required fields" };
@@ -362,30 +362,30 @@ const railBoardingEnquiry = async (req, res) => {
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
     }
-   
+
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }
     let renewDate = journeyDate.split("-");
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
-    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
+    const auth = Authentication.CredentialType === "LIVE" ? Config.LIVE.IRCTC_AUTH : Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/boardingstationenq/${trainNo}/${renewDate[0]}${renewDate[1]}${renewDate[2]}/${frmStn}/${toStn}/${jClass}`;
     }
 
-    
-  
+
+
     const response = (
       await axios.get(url, { headers: { Authorization: auth } })
     )?.data;
     // console.log(response);
-    
+
     if (!response) {
       return {
         response: "No Response from Irctc",
       };
     } else {
-      
+
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -393,7 +393,7 @@ const railBoardingEnquiry = async (req, res) => {
     }
   } catch (error) {
     console.log(error, "error");
-   
+
   }
 };
 
@@ -407,7 +407,7 @@ const ChangeBoardingStation = async (req, res) => {
       boardingStnName,
       Authentication,
       traceId
-      
+
     } = req.body;
     if ((!pnr, !Authentication)) {
       return { response: "Provide required fields" };
@@ -425,18 +425,18 @@ const ChangeBoardingStation = async (req, res) => {
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
     }
-   
+
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/changeBoardingPoint/${pnr}/${boardingStation}`;
-    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
+    const auth = Authentication.CredentialType === "LIVE" ? Config.LIVE.IRCTC_AUTH : Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/changeBoardingPoint/${pnr}/${boardingStation}`;
     }
 
-    
-  
+
+
     const response = (
       await axios.get(url, { headers: { Authorization: auth } })
     )?.data;
@@ -446,13 +446,13 @@ const ChangeBoardingStation = async (req, res) => {
         response: "No Response from Irctc",
       };
     } else {
-      if(response.success=='true'&&response.status.includes("Boarding point has been changed successfully.")){
+      if (response.success == 'true' && response.status.includes("Boarding point has been changed successfully.")) {
         console.log(response)
-        response.traceId=traceId
+        response.traceId = traceId
 
-        await RailBookingSchema.findOneAndUpdate({pnrNumber:response.pnr},{$set:{boardingStn:response.newBoardingPoint,boardingDate:response.newBoardingDate,boardingStnName:boardingStnName}},{new:true})
-}
-commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId,"Boarding Station",url,req.body,response)
+        await RailBookingSchema.findOneAndUpdate({ pnrNumber: response.pnr }, { $set: { boardingStn: response.newBoardingPoint, boardingDate: response.newBoardingDate, boardingStnName: boardingStnName } }, { new: true })
+      }
+      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "Boarding Station", url, req.body, response)
 
       return {
         response: "Fetch Data Successfully",
@@ -461,7 +461,7 @@ commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.UserId,traceId
     }
   } catch (error) {
     console.log(error, "error");
-   
+
   }
 };
 
@@ -473,7 +473,7 @@ const PnrEnquirry = async (req, res) => {
     const {
       pnr,
       Authentication,
-      
+
     } = req.body;
     if ((!pnr, !Authentication)) {
       return { response: "Provide required fields" };
@@ -491,18 +491,18 @@ const PnrEnquirry = async (req, res) => {
     if (!checkUser || !checkCompany) {
       return { response: "Either User or Company must exist" };
     }
-   
+
     if (checkCompany?.type !== "TMC") {
       return { response: "companyId must be TMC" };
     }
     let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/pnrenquiry/${pnr}`;
-    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
+    const auth = Authentication.CredentialType === "LIVE" ? Config.LIVE.IRCTC_AUTH : Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/pnrenquiry/${pnr}`;
     }
 
-    console.log(url,"url")
-  
+    console.log(url, "url")
+
     const response = (
       await axios.get(url, { headers: { Authorization: auth } })
     )?.data;
@@ -512,7 +512,7 @@ const PnrEnquirry = async (req, res) => {
         response: "No Response from Irctc",
       };
     } else {
-    
+
       return {
         response: "Fetch Data Successfully",
         data: response,
@@ -520,14 +520,14 @@ const PnrEnquirry = async (req, res) => {
     }
   } catch (error) {
     console.log(error, "error");
-   
+
   }
 };
 
 const DecodeToken = async (req, res) => {
   try {
     const { data } = req.body;
-const ssl=Config.MODE==="TEST"?"http://":"https://"
+    const ssl = Config.MODE === "TEST" ? "http://" : "https://"
     if (!data) {
       return {
         response: "Token not found",
@@ -547,8 +547,8 @@ const ssl=Config.MODE==="TEST"?"http://":"https://"
     try {
       jsonData = JSON.parse(responseData);
 
-      if(!jsonData.pnrNumber){
-        return successHtmlCode=`<!DOCTYPE html>
+      if (!jsonData?.pnrNumber) {
+        return successHtmlCode = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -631,15 +631,14 @@ const ssl=Config.MODE==="TEST"?"http://":"https://"
     </div>
     <h1>Error</h1>
     <p id="error-message">${jsonData?.errorMessage || 'Something went wrong with your train search.'}</p>
-    <a href="${
-      Config[Config.MODE].baseURL
-    }/home/rail/railSearch">Back to Search</a>
+    <a href="${Config[Config.MODE].baseURL
+          }/home/rail/railSearch">Back to Search</a>
   </div>
 </body>
 </html>
 `
       }
-      let bookingDateStr =jsonData.bookingDate;
+      let bookingDateStr = jsonData.bookingDate;
 
       bookingDateStr = bookingDateStr.replace(".0", "").replace(" IST", "");
 
@@ -651,26 +650,29 @@ const ssl=Config.MODE==="TEST"?"http://":"https://"
       jsonData.bookingStatus = "CONFIRMED";
 
       jsonData.bookingDate = new Date(formattedDate);
-      
+
       if (jsonData?.reservationId && jsonData?.pnrNumber) {
         const qrCodeData = prepareRailBookingQRDataString({
           booking: jsonData,
         });
+        console.dir({ jsonData, qrCodeData }, { depth: null })
         if (qrCodeData) {
           const qrImage = await generateQR({
             text: qrCodeData,
-            fileName: `${Date.now()}-${jsonData.pnrNumber}.png`,
+            fileName: `${Date.now()}-${jsonData?.pnrNumber}.png`,
           });
           if (qrImage) jsonData.qrImage = qrImage;
         }
       }
       const updaterailBooking = await RailBookingSchema.findOneAndUpdate(
-        { clientTransactionId: jsonData.clientTransactionId },
+        { cartId: jsonData?.clientTransactionId },
         { $set: jsonData },
         { new: true }
       );
+      console.log(jsonData?.clientTransactionId)
+      console.log(updaterailBooking)
       // commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.userId,traceId,"Decode Token for Booking","TOken",data,jsonData)
-       successHtmlCode = `<!DOCTYPE html>
+      successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
@@ -725,19 +727,17 @@ const ssl=Config.MODE==="TEST"?"http://":"https://"
           <h1 class="success-txt">Ticket Booked Successful!</h1>
           <p class="success-txt">Your Ticket has been Booked successfully...</p>
           <p>Thank you for your purchase.</p>
-            <p>PNR No.: ${updaterailBooking.pnrNumber}</p>
-          <a href="${
-            Config[Config.MODE].baseURL
-          }/home/manageRailBooking/railCartDetails?bookingId=${
-        updaterailBooking.clientTransactionId
-      }">Go to Merchant...</a>
+            <p>PNR No.: ${updaterailBooking?.pnrNumber}</p>
+          <a href="${Config[Config.MODE].baseURL
+        }/home/manageRailBooking/railCartDetails?bookingId=${updaterailBooking?.clientTransactionId
+        }">Go to Merchant...</a>
         </div>
       </body>
  
       </html>`;
       return successHtmlCode;
     } catch (jsonError) {
-      console.log(jsonError.message);
+      console.log(jsonError);
       return {
         response: "Invalid JSON format",
         error: "Something went wrong",

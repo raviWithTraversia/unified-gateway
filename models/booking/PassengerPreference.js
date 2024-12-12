@@ -67,7 +67,42 @@ const passengerPreferenceSchema = new mongoose.Schema(
               },
             },
           ],
-          emd: {},
+          EMDDetails: [
+            {
+              EMDNumber: {
+                type: String,
+                default: null,
+              },
+              IssuedDate: {
+                type: String,
+                default: null,
+              },
+              amount: {
+                type: Number,
+                default: null,
+              },
+              currency: {
+                type: String,
+                default: null,
+              },
+              type: {
+                type: String,
+                default: null,
+              },
+              status: {
+                type: String,
+                default: null,
+              },
+              origin: {
+                type: String,
+                default: null,
+              },
+              destination: {
+                type: String,
+                default: null,
+              },
+            },
+          ],
           PassportNo: { type: String, default: null },
           PassportExpiryDate: { type: String, default: null },
           PassportIssuedDate: { type: String, default: null },

@@ -292,7 +292,7 @@ function updatePassengerDetails(
             src,
             des,
           })),
-          emd: travelerDetails[idx]?.emd ?? [],
+          EMDDetails: travelerDetails[idx]?.emd ?? [],
         },
       };
     }),

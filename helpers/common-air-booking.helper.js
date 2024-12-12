@@ -210,7 +210,7 @@ function convertBookingResponse(request, response) {
   const des = request.SearchRequest.Segments[0].Destination;
   const pnrs = response?.data?.journey?.[0]?.recLocInfo;
   let [PNR, APnr, GPnr] = [null, null, null];
-  if (pnrs.length) {
+  if (pnrs?.length) {
     PNR = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
     APnr = pnrs.find((pnr) => pnr.type === "AirReservation")?.pnr ?? null;
     GPnr = pnrs.find((pnr) => pnr.type === "GDS")?.pnr ?? null;
@@ -292,10 +292,12 @@ function updatePassengerDetails(
             src,
             des,
           })),
+          emdDetails: travelerDetails[idx]?.emd ?? [],
         },
       };
     }),
   };
+  console.dir({ updatedPassengerPreferences }, { depth: null });
   return updatedPassengerPreferences;
 }
 module.exports = {

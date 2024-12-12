@@ -81,18 +81,20 @@ const startBooking = async (req, res) => {
 
   let companyId = Authentication.CompanyId;
   let UserId = Authentication.UserId;
-  let TraceId=Authentication.TraceId
-  if (!companyId || !UserId||!TraceId) {
+  let TraceId = Authentication.TraceId;
+  if (!companyId || !UserId || !TraceId) {
     return {
       response: "Company or User Trace id field are required",
     };
   }
 
-  const bookingData=await BookingDetails.find({"itinerary.TraceId":TraceId})
-  if(bookingData.length>0){
+  const bookingData = await BookingDetails.find({
+    "itinerary.TraceId": TraceId,
+  });
+  if (bookingData.length > 0) {
     return {
-      response:"allready created booking"
-    }
+      response: "allready created booking",
+    };
   }
   // Check if company Id exists
   const checkCompanyIdExist = await Company.findById(companyId);
@@ -990,7 +992,7 @@ const KafilaFun = async (
             totalSeatPrice: itineraryItem.totalSeatPrice ?? 0,
             itinerary: {
               UID: itineraryItem.UID,
-              UniqueKey: itineraryItem?.UniqueKey||"",
+              UniqueKey: itineraryItem?.UniqueKey || "",
               BaseFare: itineraryItem.BaseFare,
               Taxes: itineraryItem.Taxes,
               TotalPrice: itineraryItem.TotalPrice,
@@ -1062,7 +1064,8 @@ const KafilaFun = async (
                 Gender: passenger?.Gender,
                 Dob: passenger?.Dob,
                 Optional: {
-                  ticketDetails: passenger?.Optional?.ticketDetails,
+                  ticketDetails: passenger?.Optional?.ticketDetails ?? [],
+                  emdDetails: passenger?.Optional?.emdDetails ?? [],
                   PassportNo: passenger?.Optional?.PassportNo,
                   PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
                   PassportIssuedDate: passenger?.Optional?.PassportIssuedDate,
@@ -1636,7 +1639,7 @@ const kafilaFunOnlinePayment = async (
         totalSeatPrice: itineraryItem.totalSeatPrice,
         itinerary: {
           UID: itineraryItem.UID,
-          UniqueKey: itineraryItem?.UniqueKey||"",
+          UniqueKey: itineraryItem?.UniqueKey || "",
           BaseFare: itineraryItem.BaseFare,
           Taxes: itineraryItem.Taxes,
           TotalPrice: itineraryItem.TotalPrice,

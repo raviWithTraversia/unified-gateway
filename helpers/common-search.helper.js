@@ -308,7 +308,7 @@ function passengerPriceBreakupForKafila(type, priceBreakup) {
       Basic: 0,
       Tax: 0,
     },
-    key: null,
+    key: priceBreakup.key ?? "",
     OI: [],
   };
 }

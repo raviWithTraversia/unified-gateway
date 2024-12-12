@@ -219,7 +219,6 @@ async function convertSSRItineraryForCommonAPI({
   const itinerary = journey.itinerary[0];
   let allSegmentsOfSeatMap = [],
     allSeatsList;
-    console.log(responseSeat?.journey[0]?.itinerary[0]?.airSegments,"airSegments")
   if (responseSeat?.journey[0]?.itinerary?.length) {
     allSegmentsOfSeatMap = responseSeat?.journey[0]?.itinerary[0]?.airSegments;
   }
@@ -243,11 +242,29 @@ async function convertSSRItineraryForCommonAPI({
     journey.priceChange ?? itinerary.totalPrice !== reqItinerary.totalPrice;
   convertedSSRResponse.IsAncl = false;
 
+  const paxDetails = {
+    adults: 0,
+    children: 0,
+    infants: 0,
+  };
+  itinerary?.priceBreakup?.forEach((breakup) => {
+    switch (breakup.passengerType) {
+      case "ADT":
+        paxDetails.adults = Number(breakup.noOfPassenger);
+        break;
+      case "CHD":
+        paxDetails.children = Number(breakup.noOfPassenger);
+        break;
+      case "INF":
+        paxDetails.infants = Number(breakup.noOfPassenger);
+        break;
+    }
+  });
   convertedSSRResponse.Param = {
     Trip: "D1",
-    Adt: originalRequest.PaxDetail.Adults,
-    Chd: originalRequest.PaxDetail.Child ?? 0,
-    Inf: originalRequest.PaxDetail.Infants ?? 0,
+    Adt: paxDetails.adults,
+    Chd: paxDetails.children,
+    Inf: paxDetails.infants,
     Sector: itinerary.airSegments.map(convertSegmentForKafila),
     PF: "",
     PC: "",
@@ -385,6 +402,7 @@ function convertPriceBreakupForCommonAPI(breakups) {
           taxType: tax.TaxType,
         })),
         airPenalty: breakup.AirPenalty,
+        key: breakup?.key || "",
       };
       return acc;
     },
@@ -430,12 +448,11 @@ function airPricingBreakupForKafila(type, priceBreakup) {
 async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
   const seatMapRowColumnList = [];
   let facilitiesArrayList = [];
-  if(!allSegmentsList?.length)
-    return
+  if (!allSegmentsList?.length) return;
   await allSegmentsList.forEach((segmentsList) => {
-    segmentsList.seatRows.forEach((seatRows) => {
+    segmentsList?.seatRows?.forEach?.((seatRows) => {
       facilitiesArrayList = [];
-      seatRows.facilities.forEach((seatFacilities) => {
+      seatRows?.facilities?.forEach?.((seatFacilities) => {
         const {
           type,
           seatCode,

@@ -292,12 +292,11 @@ function updatePassengerDetails(
             src,
             des,
           })),
-          emdDetails: travelerDetails[idx]?.emd ?? [],
+          emd: travelerDetails[idx]?.emd ?? [],
         },
       };
     }),
   };
-  console.dir({ updatedPassengerPreferences }, { depth: null });
   return updatedPassengerPreferences;
 }
 module.exports = {

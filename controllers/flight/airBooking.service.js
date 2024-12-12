@@ -1065,7 +1065,7 @@ const KafilaFun = async (
                 Dob: passenger?.Dob,
                 Optional: {
                   ticketDetails: passenger?.Optional?.ticketDetails ?? [],
-                  emdDetails: passenger?.Optional?.emdDetails ?? [],
+                  emd: passenger?.Optional?.emd ?? [],
                   PassportNo: passenger?.Optional?.PassportNo,
                   PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
                   PassportIssuedDate: passenger?.Optional?.PassportIssuedDate,
@@ -1313,6 +1313,14 @@ const KafilaFun = async (
                         fSearchApiResponse?.data?.PaxInfo?.Passengers?.[
                           i
                         ]?.Optional?.ticketDetails;
+                    if (
+                      fSearchApiResponse?.data?.PaxInfo?.Passengers?.[i]
+                        ?.Optional?.emd
+                    )
+                      pax.Optional.emd =
+                        fSearchApiResponse?.data?.PaxInfo?.Passengers?.[
+                          i
+                        ]?.Optional?.emd;
                   }
 
                   bookingResponce.PassengerPreferences.Passengers =
@@ -1705,7 +1713,8 @@ const kafilaFunOnlinePayment = async (
           Gender: passenger?.Gender,
           Dob: passenger?.Dob,
           Optional: {
-            ticketDetails: passenger?.Optional?.ticketDetails,
+            ticketDetails: passenger?.Optional?.ticketDetails ?? [],
+            emd: passenger?.Optional?.emd ?? [],
             PassportNo: passenger?.Optional.PassportNo,
             PassportExpiryDate: passenger?.Optional?.PassportExpiryDate,
             PassportIssuedDate: passenger?.Optional?.PassportIssuedDate,

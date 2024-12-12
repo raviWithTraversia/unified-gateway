@@ -173,7 +173,7 @@ const railRouteView = async (req, res) => {
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/trnscheduleEnq/${trainNo}`; //?journeyDate=${journeyDate}&startingStationCode=${startingStationCode}`;
     }
-
+console.log(url,"url")
     const response = (
       await axios.get(url, { headers: { Authorization: auth } })
     )?.data;

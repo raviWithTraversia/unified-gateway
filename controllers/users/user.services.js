@@ -771,7 +771,7 @@ const getAllAgencyAndDistributer = async (req, res) => {
     let parentId = req.query.id;
     const searchQuery = req.query.search || ''; 
     const page = parseInt(req.query.page) || 1; 
-    const limit = parseInt(req.query.limit) || 1000;
+    const limit = parseInt(req.query.limit) || 4000;
 
 
     const findTmcUser=await Company.findById(parentId)

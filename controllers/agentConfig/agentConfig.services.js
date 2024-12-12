@@ -298,6 +298,7 @@ const updateAgencyProfile = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
   try {
+
     let { userId } = req.query;
     let userData = await userModel.findById(userId).populate('roleId', 'name type').populate({
       path: 'company_ID',
@@ -313,13 +314,12 @@ const getUserProfile = async (req, res) => {
       {fareTypes:1},
       {RailcommercialPlanIds:1}
        ).populate("RailcommercialPlanIds").lean();
-    if (!userData||!agentData) {
-      
+    if (!userData) {
       return {
         response: 'User data not found'
       }
     } else {
-      const mergeObject=Object.assign({}, userData,agentData)
+      const mergeObject=Object.assign({}, userData,agentData?agentData:{})
      return {
         response: 'User data found SucessFully',
         data: mergeObject

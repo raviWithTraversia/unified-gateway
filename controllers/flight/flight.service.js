@@ -12,6 +12,7 @@ const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
 const moment = require("moment");
+const { saveLogInFile } = require("../../utils/save-log");
 
 const getSearch = async (req, res) => {
   const {
@@ -499,6 +500,7 @@ const KafilaFun = async (
     console.log(`[${new Date().toISOString()}] -  APi responce`);
     //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
     let apiResponse = fSearchApiResponse.data;
+    saveLogInFile("kafila-response.json", apiResponse);
     let apiResponseCommon = [];
     console.log(`[${new Date().toISOString()}] - Comman responce start`);
     for (let index = 0; index < apiResponse.Schedules[0].length; index++) {
@@ -535,7 +537,9 @@ const KafilaFun = async (
             ? {
                 PassengerType: "ADT",
                 NoOfPassenger: PaxDetail.Adults,
-                Tax: schedule.Fare.Adt.Taxes,
+                Tax:
+                  (Number(schedule?.Fare?.Adt?.Taxes) || 0) +
+                  (Number(schedule?.Fare?.Adt?.Yq) || 0),
                 BaseFare: schedule.Fare.Adt.Basic,
                 // MarkUp: 0.0,
                 // TaxMarkUp: 0.0,
@@ -551,6 +555,10 @@ const KafilaFun = async (
                 // Discount: 0.0,
                 // BaseCharges: 0.0,
                 TaxBreakup: [
+                  {
+                    TaxType: "Taxes",
+                    Amount: schedule.Fare.Adt.Taxes,
+                  },
                   {
                     TaxType: "YQ",
                     Amount: schedule.Fare.Adt.Yq,
@@ -571,7 +579,10 @@ const KafilaFun = async (
             ? {
                 PassengerType: "CHD",
                 NoOfPassenger: PaxDetail.Child,
-                Tax: schedule.Fare.Chd.Taxes,
+                Tax:
+                  (Number(schedule?.Fare?.Chd?.Taxes) || 0) +
+                  (Number(schedule?.Fare?.Chd?.Yq) || 0),
+                // Tax: schedule.Fare.Chd.Taxes,
                 BaseFare: schedule.Fare.Chd.Basic,
                 // MarkUp: 0.0,
                 // TaxMarkUp: 0.0,
@@ -587,6 +598,10 @@ const KafilaFun = async (
                 // Discount: 0.0,
                 // BaseCharges: 0.0,
                 TaxBreakup: [
+                  {
+                    TaxType: "Taxes",
+                    Amount: schedule.Fare.Chd.Taxes,
+                  },
                   {
                     TaxType: "YQ",
                     Amount: schedule.Fare.Chd.Yq,
@@ -607,7 +622,10 @@ const KafilaFun = async (
             ? {
                 PassengerType: "INF",
                 NoOfPassenger: PaxDetail.Infants,
-                Tax: schedule.Fare.Inf.Taxes,
+                Tax:
+                  (Number(schedule?.Fare?.Inf?.Taxes) || 0) +
+                  (Number(schedule?.Fare?.Inf?.Yq) || 0),
+                // Tax: schedule.Fare.Inf.Taxes,
                 BaseFare: schedule.Fare.Inf.Basic,
                 // MarkUp: 0.0,
                 // TaxMarkUp: 0.0,
@@ -623,6 +641,10 @@ const KafilaFun = async (
                 // Discount: 0.0,
                 // BaseCharges: 0.0,
                 TaxBreakup: [
+                  {
+                    TaxType: "Taxes",
+                    Amount: schedule.Fare.Inf.Taxes,
+                  },
                   {
                     TaxType: "YQ",
                     Amount: schedule.Fare.Inf.Yq,

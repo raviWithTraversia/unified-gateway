@@ -14,13 +14,17 @@ const agentConfig = require("../../models/AgentConfig");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
 const PassengerPreference = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
-const Railledger=require('../../models/Irctc/ledgerRail')
-const RailBookingSchema=require('../../models/Irctc/bookingDetailsRail');
-const { UserBindingInstance } = require("twilio/lib/rest/chat/v2/service/user/userBinding");
-const { UserDefinedMessageInstance } = require("twilio/lib/rest/api/v2010/account/call/userDefinedMessage");
-const transaction=require('../../models/transaction')
-const railLogs=require('../../models/Irctc/railLogs')
-const {ObjectId}=require('mongodb');
+const Railledger = require("../../models/Irctc/ledgerRail");
+const RailBookingSchema = require("../../models/Irctc/bookingDetailsRail");
+const {
+  UserBindingInstance,
+} = require("twilio/lib/rest/chat/v2/service/user/userBinding");
+const {
+  UserDefinedMessageInstance,
+} = require("twilio/lib/rest/api/v2010/account/call/userDefinedMessage");
+const transaction = require("../../models/transaction");
+const railLogs = require("../../models/Irctc/railLogs");
+const { ObjectId } = require("mongodb");
 const { totalmem } = require("os");
 
 const createToken = async (id) => {
@@ -1005,7 +1009,6 @@ const recieveDI = async (
   }
 };
 
-
 const createLeadger = async (
   getuserDetails,
   item,
@@ -1045,7 +1048,7 @@ const createLeadger = async (
 const getTdsAndDsicount = async (ItineraryPriceCheckResponses) => {
   let ldgrtds = 0;
   let ldgrdiscount = 0;
-  console.log(ItineraryPriceCheckResponses,"interieri")
+  console.log(ItineraryPriceCheckResponses, "interieri");
   for (let ipb of ItineraryPriceCheckResponses) {
     let pricebrkup = ipb.PriceBreakup;
     if (pricebrkup) {
@@ -1142,10 +1145,10 @@ const calculateOfferedPricePaxWise = async (iternayObj) => {
     if (PassengerType == iternayObj.PaxType) {
       returnCalculatedOfferedPrice += Number(BaseFare);
       returnCalculatedOfferedPrice += Number(Tax); //* NoOfPassenger;
-      TaxBreakup?.forEach((taxBreakup) => {
-        let { TaxType, Amount } = taxBreakup;
-        if (TaxType) returnCalculatedOfferedPrice += Number(Amount); // * NoOfPassenger;
-      });
+      // TaxBreakup?.forEach((taxBreakup) => {
+      //   let { TaxType, Amount } = taxBreakup;
+      //   if (TaxType) returnCalculatedOfferedPrice += Number(Amount); // * NoOfPassenger;
+      // });
       CommercialBreakup?.forEach((commercialBreakup) => {
         let { CommercialType, Amount } = commercialBreakup;
         if (offerPriceMinusInAmount(CommercialType))
@@ -1173,8 +1176,8 @@ const priceRoundOffNumberValues = async (numberValue) => {
   const fractionalPart = numberValue - integerPart;
   const result =
     fractionalPart >= 0.5 ? Math.ceil(numberValue) : Math.floor(numberValue);
-   
-   return Number(result.toFixed(2));
+
+  return Number(result.toFixed(2));
 };
 
 const RefundedCommonFunction = async (
@@ -1197,7 +1200,7 @@ const RefundedCommonFunction = async (
               },
             });
             if (refund.CType === "PARTIAL") {
-              console.log('shdaaab')
+              console.log("shdaaab");
               for (let cpassenger of refund.CSector[0]?.CPax) {
                 await PassengerPreference.findOneAndUpdate(
                   {
@@ -1239,9 +1242,12 @@ const RefundedCommonFunction = async (
               transactionBy: matchingBooking.userId,
             });
 
-            await agentConfig.findByIdAndUpdate(agentConfigData._id, 
-              { $set: { maxcreditLimit:agentConfigData.maxcreditLimit+refund.RefundableAmount } }
-            );
+            await agentConfig.findByIdAndUpdate(agentConfigData._id, {
+              $set: {
+                maxcreditLimit:
+                  agentConfigData.maxcreditLimit + refund.RefundableAmount,
+              },
+            });
 
             await CancelationBooking.findOneAndUpdate(
               { bookingId: refund.BookingId },
@@ -1260,9 +1266,9 @@ const RefundedCommonFunction = async (
             );
 
             responseMessage = "Cancelation Proceed refund";
-      } else if(refund?.IsCancelled&&!refund.IsRefunded){
-        console.log("djie")
-            console.log(matchingBooking?.bookingId)
+          } else if (refund?.IsCancelled && !refund.IsRefunded) {
+            console.log("djie");
+            console.log(matchingBooking?.bookingId);
             const bookingDetails = await BookingDetails.findOne({
               providerBookingId: matchingBooking?.bookingId,
             });
@@ -1273,7 +1279,7 @@ const RefundedCommonFunction = async (
                   { $set: { bookingStatus: "PARIALLY CANCELLED" } },
                   { new: true }
                 );
-    
+
                 await PassengerPreference.findOneAndUpdate(
                   {
                     bookingId: bookingDetails.bookingId,
@@ -1291,7 +1297,7 @@ const RefundedCommonFunction = async (
                 { $set: { bookingStatus: "CANCELLED" } },
                 { new: true }
               );
-  
+
               await PassengerPreference.updateOne(
                 { bookingId: bookingDetails.bookingId },
                 {
@@ -1300,8 +1306,6 @@ const RefundedCommonFunction = async (
               );
             }
 
-
-            
             await CancelationBooking.findOneAndUpdate(
               { bookingId: refund.BookingId },
               {
@@ -1312,24 +1316,22 @@ const RefundedCommonFunction = async (
                   ServiceFee: refund.CancelServiceCharge,
                   RefundableAmt: refund.RefundableAmount,
                   isRefund: false,
-                  calcelationStatus: "CANCEL"
+                  calcelationStatus: "CANCEL",
                 },
               },
               { new: true }
             );
-            
+
             responseMessage = "Update Status Succefully";
-          }
-          else{
+          } else {
             responseMessage = "Cancelation Data Not Found";
           }
-}
-        else{
-          responseMessage = "Cancelation Data Not Found"
+        } else {
+          responseMessage = "Cancelation Data Not Found";
         }
       }
     }
-console.log('dji')
+    console.log("dji");
     return { response: responseMessage };
   } catch (error) {
     throw error;
@@ -1346,11 +1348,14 @@ const RailBookingCommonMethod = async (
   jClass
 ) => {
   try {
-    if (paymentMethodType !== "Wallet"&&paymentMethodType!=="PaymentGateway") {
-      throw new Error("Unsupported payment method.")
+    if (
+      paymentMethodType !== "Wallet" &&
+      paymentMethodType !== "PaymentGateway"
+    ) {
+      throw new Error("Unsupported payment method.");
     }
 
-    if(paymentMethodType==="PaymentGateway"){
+    if (paymentMethodType === "PaymentGateway") {
       return { response: "Cart Created Succefully." };
     }
 
@@ -1363,24 +1368,24 @@ const RailBookingCommonMethod = async (
       throw new Error("Agent configuration not found.");
     }
 
-  
-
-
     let agentCommercialMinus = {};
     if (jClass === "SL") {
       agentCommercialMinus = {
         Agent_service_charge:
-          getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar || 0,
-        pgCharges: commercialBreakup?.PG_charges||commercialBreakup?.pgCharges,
+          getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar ||
+          0,
+        pgCharges:
+          commercialBreakup?.PG_charges || commercialBreakup?.pgCharges,
       };
     } else {
       agentCommercialMinus = {
         Agent_service_charge:
-          getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.acCharge || 0,
-        pgCharges: commercialBreakup?.PG_charges||commercialBreakup?.pgCharges,
+          getAgentConfig.RailcommercialPlanIds?.Agent_service_charge
+            ?.acCharge || 0,
+        pgCharges:
+          commercialBreakup?.PG_charges || commercialBreakup?.pgCharges,
       };
     }
-
 
     const total = Object.values(agentCommercialMinus).reduce(
       (sum, value) => sum + (value || 0),
@@ -1407,9 +1412,8 @@ const RailBookingCommonMethod = async (
     );
 
     if (!updatedAgentConfig) {
-      throw new Error("Failed to update agent balance." );
+      throw new Error("Failed to update agent balance.");
     }
-
 
     const ledgerId = `LG${Math.floor(100000 + Math.random() * 900000)}`;
 
@@ -1448,17 +1452,28 @@ const RailBookingCommonMethod = async (
     return { response: "Amount transferred successfully." };
   } catch (error) {
     console.error("Error in RailBookingCommonMethod:", error.message);
-    return { response: "An error occurred. Please try again later.", error: error.message };
+    return {
+      response: "An error occurred. Please try again later.",
+      error: error.message,
+    };
   }
 };
 
-const commonAgentPGCharges=async(amout,index=1)=>{
-  const amounts=Number(amout)
-  const pgCharges=amounts<2000?amounts*0.0075:amounts*0.01
-return pgCharges
-}
+const commonAgentPGCharges = async (amout, index = 1) => {
+  const amounts = Number(amout);
+  const pgCharges = amounts < 2000 ? amounts * 0.0075 : amounts * 0.01;
+  return pgCharges;
+};
 
-const commonFunctionsRailLogs = async (userId, companyId, traceId, type, url, req, res) => {
+const commonFunctionsRailLogs = async (
+  userId,
+  companyId,
+  traceId,
+  type,
+  url,
+  req,
+  res
+) => {
   try {
     console.log(userId, companyId, traceId, type, url, req, res);
 
@@ -1473,28 +1488,28 @@ const commonFunctionsRailLogs = async (userId, companyId, traceId, type, url, re
       traceId,
       type,
       url,
-      req:JSON.stringify(req),
-      res:JSON.stringify(res),
+      req: JSON.stringify(req),
+      res: JSON.stringify(res),
     });
 
     // Save the instance
-console.log(railLogs,"djieie")
-  await   raillog.save()
-    console.log('Document created successfully');
+    console.log(railLogs, "djieie");
+    await raillog.save();
+    console.log("Document created successfully");
   } catch (error) {
-    console.error('Error creating document:', error.message);
+    console.error("Error creating document:", error.message);
   }
-}
+};
 
-const commonMethodDate = (bookingDate=new Date()) => {
+const commonMethodDate = (bookingDate = new Date()) => {
   const date = new Date(bookingDate);
 
   // Extract components
-  const day = String(date.getDate()).padStart(2, '0'); // Ensures 2 digits
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const day = String(date.getDate()).padStart(2, "0"); // Ensures 2 digits
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
   const year = String(date.getFullYear()).slice(2); // Get last 2 digits of the year
-  const hour = String(date.getHours()).padStart(2, '0'); // Ensures 2 digits
-  const minute = String(date.getMinutes()).padStart(2, '0'); // Ensures 2 digits
+  const hour = String(date.getHours()).padStart(2, "0"); // Ensures 2 digits
+  const minute = String(date.getMinutes()).padStart(2, "0"); // Ensures 2 digits
 
   // Determine AM/PM
   let timetype = "";
@@ -1504,29 +1519,31 @@ const commonMethodDate = (bookingDate=new Date()) => {
     timetype = "AM";
   }
 
-const randomNumber=Math.random().toString(36).substring(2, 2 + 5);
+  const randomNumber = Math.random()
+    .toString(36)
+    .substring(2, 2 + 5);
   // Concatenate to desired format
-  return { bookingId:`RL${day}${month}${year}${hour}${minute}${timetype}${randomNumber}`,
-bookingDate:`${day}-${month}-${year} ${hour}:${minute}:00.0 IST`
-}
+  return {
+    bookingId: `RL${day}${month}${year}${hour}${minute}${timetype}${randomNumber}`,
+    bookingDate: `${day}-${month}-${year} ${hour}:${minute}:00.0 IST`,
+  };
 };
 
-const convertTimeISTtoUTC=(Isodate)=>{
+const convertTimeISTtoUTC = (Isodate) => {
   const inputDate = Isodate;
 
-// Step 1: Parse the date
-const [day, month, yearAndTime] = inputDate.split('-');
-const [year, time] = yearAndTime.split(' ');
-const dateString = `${year}-${month}-${day}T${time.replace('.0', '')}`;
+  // Step 1: Parse the date
+  const [day, month, yearAndTime] = inputDate.split("-");
+  const [year, time] = yearAndTime.split(" ");
+  const dateString = `${year}-${month}-${day}T${time.replace(".0", "")}`;
 
-// Step 2: Convert to ISO format
-// India Standard Time (IST) is UTC+5:30
-const localDate = new Date(dateString + "+05:30"); // Add IST offset
-const isoDate = localDate.toISOString();
+  // Step 2: Convert to ISO format
+  // India Standard Time (IST) is UTC+5:30
+  const localDate = new Date(dateString + "+05:30"); // Add IST offset
+  const isoDate = localDate.toISOString();
 
-return isoDate
-
-}
+  return isoDate;
+};
 module.exports = {
   createToken,
   securePassword,
@@ -1561,5 +1578,5 @@ module.exports = {
   commonAgentPGCharges,
   commonFunctionsRailLogs,
   commonMethodDate,
-  convertTimeISTtoUTC
+  convertTimeISTtoUTC,
 };

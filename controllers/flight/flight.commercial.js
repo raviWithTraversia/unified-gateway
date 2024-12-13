@@ -317,24 +317,23 @@ const getApplyAllCommercial = async (
     //         "Pcc": "364549474E3030303343507E464C58",
     //         "Security": "6EIGN0003CP~FLX"
     //     }
-    // }     
+    // }
     // ];
-    
-  //console.log(commonArrayDummy[0].PriceBreakup);
+
+    //console.log(commonArrayDummy[0].PriceBreakup);
     for (const singleFlightDetails of commonArray) {
-    // for (const singleFlightDetails of commonArrayDummy) {
+      // for (const singleFlightDetails of commonArrayDummy) {
       // Check Commertial status and Commertial Apply
-      if (commercialPlanDetails.IsSuccess === true) { 
-        //console.log(commercialPlanDetails.data);        
+      if (commercialPlanDetails.IsSuccess === true) {
+        //console.log(commercialPlanDetails.data);
         // get group of priority base
         groupPriority = await makePriorityGroup(
           TravelType,
           singleFlightDetails,
           commercialPlanDetails
         );
-        
+
         if (groupPriority.length > 0) {
-          
           const sortedGroupPriority = groupPriority.sort((a, b) => {
             if (a.carrier === null && b.carrier === null) {
               return 0;
@@ -347,10 +346,10 @@ const getApplyAllCommercial = async (
             }
             return a.priority - b.priority;
           });
-          
+
           for (let i = 0; i < sortedGroupPriority.length; i++) {
             const commList = sortedGroupPriority[i];
-            
+
             if (
               TravelType === commList.travelType &&
               commList.carrier === singleFlightDetails.ValCarrier &&
@@ -359,7 +358,6 @@ const getApplyAllCommercial = async (
               commList.fareFamily === singleFlightDetails.FareFamily &&
               !["FD", "FF"].includes(singleFlightDetails.FareFamily)
             ) {
-              
               checkInnerFilterfun = await checkInnerFilter(
                 commList,
                 singleFlightDetails,
@@ -556,7 +554,7 @@ const getApplyAllCommercial = async (
                 // singleFlightDetails.PriceBreakup[0].BaseFare = singleFlightDetails.PriceBreakup[0].BaseFare + commertialMatrixValueHandle.percentage.onFuelSurcharge;
                 break;
               }
-            } else if (              
+            } else if (
               commList.fareFamily === singleFlightDetails.FareFamily &&
               ["FD", "FF"].includes(singleFlightDetails.FareFamily)
             ) {
@@ -672,7 +670,7 @@ const getApplyAllCommercial = async (
 
         // singleFlightDetails.PriceBreakup = checkPLBFilterfun.checkMarkupFilterfun;
       }
-      
+
       // this is last update and push function
       applyResponceCommercialArray.push(singleFlightDetails);
     }
@@ -684,7 +682,7 @@ const getApplyAllCommercial = async (
     companyDetails.type == "Agency" &&
     companyDetails.parent.type == "Distributer"
   ) {
-    console.log('TMC-Distributer-Agency');
+    console.log("TMC-Distributer-Agency");
     // TMC-Distributer-Agency // Two time apply commertioal
     const [
       commercialPlanDetails,
@@ -709,8 +707,8 @@ const getApplyAllCommercial = async (
     );
 
     for (const singleFlightDetails of commonArray) {
-        //for (const singleFlightDetails of commonArrayDummy) {
-        // Check Commertial status and Commertial Apply
+      //for (const singleFlightDetails of commonArrayDummy) {
+      // Check Commertial status and Commertial Apply
       if (commercialPlanDetails.IsSuccess === true) {
         // get group of priority base
         groupPriority = await makePriorityGroup(
@@ -1351,7 +1349,7 @@ const getApplyAllCommercial = async (
     companyDetails.type == "Distributer" &&
     companyDetails.parent.type == "TMC"
   ) {
-    console.log('Distributer-TMC');
+    console.log("Distributer-TMC");
     // Distributer-TMC // one time apply commertioal
     const [
       commercialPlanDetails,
@@ -1664,12 +1662,9 @@ const getApplyAllCommercial = async (
     return applyResponceCommercialArray.sort(
       (a, b) => a.TotalPrice - b.TotalPrice
     );
-  }
-  else if(companyDetails.parent.type == "TMC"){
-    console.log('tmcc');
-    return singleFlightDetails.sort(
-      (a, b) => a.TotalPrice - b.TotalPrice
-    );;
+  } else if (companyDetails.parent.type == "TMC") {
+    console.log("tmcc");
+    return singleFlightDetails.sort((a, b) => a.TotalPrice - b.TotalPrice);
   }
 
   return {
@@ -3751,16 +3746,16 @@ const checkIncentiveFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[0].Tax;
-                  singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
                   const tdsCheckFromConfig = configDetails.IsSuccess
                     ? configDetails.data.tds || 5
                     : 2;
@@ -3844,16 +3839,16 @@ const checkIncentiveFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[1].Tax;
-                  singleFlightDetails.PriceBreakup[1].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[1].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
                   const tdsCheckFromConfig = configDetails.IsSuccess
                     ? configDetails.data.tds || 2
                     : 2;
@@ -3937,16 +3932,16 @@ const checkIncentiveFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[2].Tax;
-                  singleFlightDetails.PriceBreakup[2].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[2].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
                   const tdsCheckFromConfig = configDetails.IsSuccess
                     ? configDetails.data.tds || 2
                     : 2;
@@ -4561,16 +4556,16 @@ const checkIncentiveFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[0].tax;
-                  singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
 
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
@@ -4627,16 +4622,16 @@ const checkIncentiveFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[1].tax;
-                  singleFlightDetails.PriceBreakup[1].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[1].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -4692,16 +4687,16 @@ const checkIncentiveFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[2].tax;
-                  singleFlightDetails.PriceBreakup[2].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[2].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -5353,7 +5348,7 @@ const checkPLBFilter = async (
                 ) {
                   const tdsCheckFromConfig = configDetails.IsSuccess
                     ? configDetails.data.tds || 2
-                    :2;
+                    : 2;
                   const calculateBase = await calculateAfterCommertialPricePLB(
                     singleFlightDetails.PriceBreakup,
                     "base",
@@ -5945,16 +5940,16 @@ const checkPLBFilter = async (
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[0].Tax;
 
-                  singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
 
                   const tdsCheckFromConfig = configDetails.IsSuccess
                     ? configDetails.data.tds || 2
@@ -6034,16 +6029,16 @@ const checkPLBFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[1].Tax;
-                  singleFlightDetails.PriceBreakup[1].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[1].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
                   const tdsCheckFromConfig = configDetails.IsSuccess
                     ? configDetails.data.tds || 2
                     : 2;
@@ -6122,16 +6117,16 @@ const checkPLBFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[2].Tax;
-                  singleFlightDetails.PriceBreakup[2].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[2].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
                   const tdsCheckFromConfig = configDetails.IsSuccess
                     ? configDetails.data.tds || 2
                     : 2;
@@ -6689,16 +6684,16 @@ const checkPLBFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[0]).length !== 0
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[0].Tax;
-                  singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[0].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
 
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
@@ -6750,16 +6745,16 @@ const checkPLBFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[1]).length !== 0
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[1].Tax;
-                  singleFlightDetails.PriceBreakup[1].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[1].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -6810,16 +6805,16 @@ const checkPLBFilter = async (
                   Object.keys(singleFlightDetails.PriceBreakup[2]).length !== 0
                 ) {
                   let allTaxes = singleFlightDetails.PriceBreakup[2].Tax;
-                  singleFlightDetails.PriceBreakup[2].TaxBreakup.forEach(
-                    (taxItem) => {
-                      if (
-                        taxItem.TaxType !== "YQ" &&
-                        taxItem.TaxType !== "YR"
-                      ) {
-                        allTaxes += taxItem.Amount;
-                      }
-                    }
-                  );
+                  // singleFlightDetails.PriceBreakup[2].TaxBreakup.forEach(
+                  //   (taxItem) => {
+                  //     if (
+                  //       taxItem.TaxType !== "YQ" &&
+                  //       taxItem.TaxType !== "YR"
+                  //     ) {
+                  //       allTaxes += taxItem.Amount;
+                  //     }
+                  //   }
+                  // );
                   const totalIncentiveVal = allTaxes * persentageValue;
                   if (checkminPrice && checkmaxPrice) {
                     if (
@@ -7012,7 +7007,6 @@ const commertialMatrixValue = async (
   configDetails,
   supplierTypeFor
 ) => {
-    
   // console.log("Total=====>>",singleFlightDetails.TotalPrice)
   //  console.log("b=====>>",singleFlightDetails.PriceBreakup[0].BaseFare)
   //   "[[[[[[[[[[[[[[[[",singleFlightDetails,
@@ -7058,7 +7052,6 @@ const commertialMatrixValue = async (
     oldTaxFareInf = singleFlightDetails.PriceBreakup[2].Tax;
     oldTaxBreakupInf = singleFlightDetails.PriceBreakup[2].TaxBreakup;
   }
-  
 
   // Markup Rate start Here
   const markupRateAllColumn = commList.updateaircommercialmatrixes.data.filter(
@@ -7075,7 +7068,7 @@ const commertialMatrixValue = async (
         filter.AirCommertialColumnMasterId.commercialType === "rate" &&
         filter.AirCommertialColumnMasterId.type === "coloumn"
     );
-    
+
     if (
       rateSingleColumn &&
       rateSingleColumn.textType === "number" &&

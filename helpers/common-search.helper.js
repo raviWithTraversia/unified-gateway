@@ -18,7 +18,7 @@ function createSearchRequestBodyForCommonAPI(request) {
       departureDate: moment(segment.DepartureDate).format("DD-MM-YYYY"),
       departureTimeFrom: segment.DepartureTime,
       departureTimeTo: segment.DepartureTimeTo,
-      cabinClass: segment.ClassOfService,
+      cabinClass: segment.ClassOfService.replace(" ", ""),
     })),
     paxDetail: {
       adults: request.PaxDetail.Adults,

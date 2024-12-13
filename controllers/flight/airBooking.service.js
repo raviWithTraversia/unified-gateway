@@ -603,11 +603,11 @@ const KafilaFun = async (
         returnCalculatedOfferedPrice += Number(BaseFare) * NoOfPassenger;
         returnCalculatedOfferedPrice += Number(Tax) * NoOfPassenger;
 
-        TaxBreakup?.forEach((taxBreakup) => {
-          let { TaxType, Amount } = taxBreakup;
-          if (TaxType)
-            returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
-        });
+        // TaxBreakup?.forEach((taxBreakup) => {
+        //   let { TaxType, Amount } = taxBreakup;
+        //   if (TaxType)
+        //     returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
+        // });
 
         CommercialBreakup?.forEach((commercialBreakup) => {
           let { CommercialType, Amount } = commercialBreakup;

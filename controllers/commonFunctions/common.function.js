@@ -1391,12 +1391,13 @@ const RailBookingCommonMethod = async (
     const currentBalance = getAgentConfig?.railCashBalance || 0;
     const checkCreditLimit = currentBalance - amount;
 
-    if (checkCreditLimit < total) {
-      return { response: "Your Balance is not sufficient." };
-    }
+   
 
     // Calculate ticket amount
     const ticketAmount = Math.round(amount - total);
+    if (currentBalance < ticketAmount) {
+      return { response: "Your Balance is not sufficient." };
+    }
     const newBalance = Math.round(currentBalance - ticketAmount);
 
     // Update balance in DB

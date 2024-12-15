@@ -69,12 +69,30 @@ const StartBookingRail = async (req) => {
       );
 
       if (RailBooking.response === "Your Balance is not sufficient.") {
+        commonFunctionsRailLogs(
+          companyId,
+          userId,
+          traceId,
+          "start booking",
+          "startBooking",
+          req.body,
+          RailBooking?.response
+      );
           return {
               response: "Your Balance is not sufficient.",
           };
       }
 
       if (RailBooking.response === "An error occurred. Please try again later.") {
+        commonFunctionsRailLogs(
+          companyId,
+          userId,
+          traceId,
+          "start booking",
+          "startBooking",
+          req.body,
+          RailBooking?.response
+      );
           return {
               response: "Something went wrong",
           };

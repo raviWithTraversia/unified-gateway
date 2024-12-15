@@ -141,7 +141,7 @@ const railSearchBtwnDate = async (req, res) => {
 };
 
 const railRouteView = async (req, res) => {
-  try {
+ try {
     const { trainNo, journeyDate, startingStationCode, Authentication } =
       req.body;
     if ((!trainNo, !Authentication)) {
@@ -192,13 +192,8 @@ console.log(url,"url")
       };
     }
   } catch (error) {
-    console.log(error);
-    apiErrorres(
-      res,
-      errorResponse.SOMETHING_WRONG,
-      ServerStatusCode.SERVER_ERROR,
-      true
-    );
+    throw error
+   
   }
 };
 

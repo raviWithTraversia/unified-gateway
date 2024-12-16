@@ -11,7 +11,9 @@ function saveLogInFile(fileName, data) {
       typeof data !== "string" ? JSON.stringify(data, null, 2) : data,
       "utf-8"
     );
-  } catch (error) {}
+  } catch (ignoreError) {
+    console.log({ ignoreError });
+  }
 }
 
 module.exports = { saveLogInFile };

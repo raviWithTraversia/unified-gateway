@@ -25,6 +25,7 @@ const {
 const SupplierCode = require("../../models/supplierCode");
 const { getSupplierCredentials } = require("../../utils/get-supplier-creds");
 const { commonFlightBook } = require("../../services/common-flight-book");
+const { saveLogInFile } = require("../../utils/save-log");
 
 const startBooking = async (req, res) => {
   const {
@@ -1087,7 +1088,7 @@ const KafilaFun = async (
 
           console.log("before hitting API");
           const hitAPI = await Promise.all(
-            ItineraryPriceCheckResponses.map(async (item) => {
+            ItineraryPriceCheckResponses.map(async (item, idx) => {
               if (item.GstData) {
                 let gstD = item.GstData;
                 console.log(gstD, "gstD12");
@@ -1121,7 +1122,13 @@ const KafilaFun = async (
                     }
                   );
                 } else {
-                  fSearchApiResponse = await commonFlightBook(req.body);
+                  const reqSegment = req.body?.SearchRequest.Segments?.[0];
+                  saveLogInFile("request-segment.json", { reqSegment });
+                  fSearchApiResponse = await commonFlightBook(
+                    req.body,
+                    reqSegment,
+                    item
+                  );
                 }
                 console.dir({ fSearchApiResponse }, { depth: null });
                 const logData = {

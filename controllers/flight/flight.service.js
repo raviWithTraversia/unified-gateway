@@ -500,7 +500,6 @@ const KafilaFun = async (
     console.log(`[${new Date().toISOString()}] -  APi responce`);
     //flightCache.set(cacheKey, fSearchApiResponse.data, 300);
     let apiResponse = fSearchApiResponse.data;
-    saveLogInFile("kafila-response.json", apiResponse);
     let apiResponseCommon = [];
     console.log(`[${new Date().toISOString()}] - Comman responce start`);
     for (let index = 0; index < apiResponse.Schedules[0].length; index++) {

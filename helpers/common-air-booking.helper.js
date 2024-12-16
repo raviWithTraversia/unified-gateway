@@ -1,3 +1,4 @@
+const { saveLogInFile } = require("../utils/save-log");
 const {
   convertDurationForCommonAPI,
   convertFlightDetailsForCommonAPI,
@@ -5,19 +6,39 @@ const {
 } = require("./common-air-pricing.helper");
 const { convertTravelTypeForCommonAPI } = require("./common-search.helper");
 
-function createAirBookingRequestBodyForCommonAPI(request) {
+function createAirBookingRequestBodyForCommonAPI(
+  request,
+  reqSegment,
+  reqItinerary
+) {
   try {
     const { SearchRequest, PassengerPreferences } = request;
-    const reqSegment = SearchRequest.Segments?.[0];
-    const reqItinerary = request.ItineraryPriceCheckResponses?.[0];
+    // const reqSegment = SearchRequest.Segments?.[0];
+    // const reqItinerary = request.ItineraryPriceCheckResponses?.[0];
     if (!reqItinerary || !reqSegment)
       throw new Error(
         "Invalid request data 'Itinerary[]' or 'Segment[]' missing"
       );
+    const segmentMap = {};
+    reqItinerary?.Sectors?.forEach((sector) => {
+      segmentMap[`${sector.Departure.CityCode}-${sector.Arrival.CityCode}`] =
+        sector;
+    });
+    saveLogInFile("segment-map.json", segmentMap);
+    const travelType = convertTravelTypeForCommonAPI(SearchRequest.TravelType);
+    const origin =
+      travelType === "dom"
+        ? reqItinerary?.Sectors?.[0]?.Departure?.CityCode
+        : reqSegment.Origin;
+    const destination =
+      travelType === "dom"
+        ? reqItinerary?.Sectors?.at(-1)?.Arrival?.CityCode
+        : reqSegment.Destination;
+
     const requestBody = {
       typeOfTrip: SearchRequest.TypeOfTrip,
       credentialType: SearchRequest?.Authentication?.CredentialType ?? "TEST",
-      travelType: convertTravelTypeForCommonAPI(SearchRequest.TravelType),
+      travelType,
       systemEntity: "TCIL",
       systemName: "Astra2.0",
       corpCode: "000000",
@@ -28,12 +49,12 @@ function createAirBookingRequestBodyForCommonAPI(request) {
       journey: [
         {
           journeyKey: reqItinerary.SearchID,
-          origin: reqSegment.Origin,
-          destination: reqSegment.Destination,
+          origin,
+          destination,
           rbdChanged: false, // ! TODO:
           travellerDetails: PassengerPreferences?.Passengers?.map(
             (passenger, idx) =>
-              convertTravelerDetailsForCommonAPI(passenger, idx)
+              convertTravelerDetailsForCommonAPI(passenger, idx, segmentMap)
           ),
           itinerary: [
             {
@@ -124,13 +145,20 @@ function createAirBookingRequestBodyForCommonAPI(request) {
       isHoldBooking: false,
       fareMasking: false,
     };
+    saveLogInFile("request-body.json", requestBody);
     return { requestBody };
   } catch (error) {
+    saveLogInFile("error-creating-common-booking-request.json", {
+      stack: error.stack,
+      message: error.message,
+    });
+    console.log({ error });
     return { error: error.message };
   }
 }
 
-function convertTravelerDetailsForCommonAPI(traveler, idx) {
+function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
+  saveLogInFile("preference.json", pref);
   return {
     travellerId: "",
     type: traveler.PaxType,
@@ -138,7 +166,9 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
     firstName: traveler.FName,
     middleName: "",
     lastName: traveler.LName,
-    seatPreferences: traveler.Seat.map((seat) => ({
+    seatPreferences: traveler.Seat.filter(
+      (pref) => segmentMap[`${pref.Src}-${pref.Des}`]
+    ).map((seat) => ({
       code: seat?.SeatCode,
       amount: seat?.TotalPrice,
       currency: seat?.Currency || "INR",
@@ -151,7 +181,9 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
       flightNumber: seat?.FNo,
       wayType: seat?.Trip,
     })),
-    baggagePreferences: traveler.Baggage.map((baggage) => ({
+    baggagePreferences: traveler.Baggage.filter(
+      (pref) => pref.Src === segmentMap[`${pref.Src}-${pref.Des}`]
+    ).map((baggage) => ({
       name: baggage?.SsrDesc,
       code: baggage?.SsrCode,
       amount: baggage?.Price,
@@ -165,7 +197,9 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
       flightNumber: baggage?.FNo,
       wayType: baggage?.Trip,
     })),
-    mealPreferences: traveler.Meal.map((meal) => ({
+    mealPreferences: traveler.Meal.filter(
+      (pref) => pref.Src === segmentMap[`${pref.Src}-${pref.Des}`]
+    ).map((meal) => ({
       name: meal?.SsrDesc,
       code: meal?.SsrCode,
       amount: meal?.Price,
@@ -206,8 +240,8 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
 
 function convertBookingResponse(request, response) {
   // const tickets = response?.data?.journey?.[0]?.travellerDetails[0]?.eTicket;
-  const src = request.SearchRequest.Segments[0].Origin;
-  const des = request.SearchRequest.Segments[0].Destination;
+  const src = request.SearchRequest.Segments[0].Origin; // TODO: needs to be dynamic
+  const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
   const pnrs = response?.data?.journey?.[0]?.recLocInfo;
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
@@ -246,6 +280,7 @@ function convertBookingResponse(request, response) {
     data.WarningMessage = data.ErrorMessage;
     return { data };
   } catch (error) {
+    saveLogInFile("error.json", { stack: error.stack, message: error.message });
     return {
       data: {
         Status: PNR ? "Success" : "Failed",

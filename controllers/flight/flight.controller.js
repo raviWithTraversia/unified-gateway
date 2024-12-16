@@ -72,11 +72,11 @@ const getSearch = async (req, res) => {
       saveLogInFile("result.json", result);
       if (
         result.status === "fulfilled" &&
-        (result?.value?.response?.length || result.value?.data?.length)
+        (result?.value?.data?.response?.length || result.value?.data?.length)
       )
         itineraries = [
           ...itineraries,
-          ...(result?.value?.response || result.value.data),
+          ...(result?.value?.data?.response || result.value.data),
         ];
     });
     itineraries = itineraries.filter((itinerary) =>

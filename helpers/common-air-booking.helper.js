@@ -158,7 +158,7 @@ function createAirBookingRequestBodyForCommonAPI(
 }
 
 function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
-  saveLogInFile("preference.json", pref);
+  saveLogInFile("traveler.json", traveler);
   return {
     travellerId: "",
     type: traveler.PaxType,
@@ -181,9 +181,17 @@ function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
       flightNumber: seat?.FNo,
       wayType: seat?.Trip,
     })),
-    baggagePreferences: traveler.Baggage.filter(
-      (pref) => pref.Src === segmentMap[`${pref.Src}-${pref.Des}`]
-    ).map((baggage) => ({
+    baggagePreferences: traveler.Baggage.filter((pref) => {
+      const segments = Object.values(segmentMap);
+      let isSrc = false;
+      let isDes = false;
+      for (let segment of segments) {
+        if (segment.Departure?.Code === pref.Src) isSrc = true;
+        if (segment.Arrival?.Code === pref.Des) isDes = true;
+      }
+      return isSrc && isDes;
+      // segmentMap[`${pref.Src}-${pref.Des}`]
+    }).map((baggage) => ({
       name: baggage?.SsrDesc,
       code: baggage?.SsrCode,
       amount: baggage?.Price,
@@ -198,7 +206,7 @@ function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
       wayType: baggage?.Trip,
     })),
     mealPreferences: traveler.Meal.filter(
-      (pref) => pref.Src === segmentMap[`${pref.Src}-${pref.Des}`]
+      (pref) => segmentMap[`${pref.Src}-${pref.Des}`]
     ).map((meal) => ({
       name: meal?.SsrDesc,
       code: meal?.SsrCode,

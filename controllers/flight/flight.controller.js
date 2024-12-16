@@ -28,6 +28,7 @@ const {
 } = require("../../validation/air-booking.validation");
 const { commonFlightSearch } = require("../../services/common-search");
 const { commonFlightBook } = require("../../services/common-flight-book");
+const { saveLogInFile } = require("../../utils/save-log");
 
 const getSearch = async (req, res) => {
   try {
@@ -45,7 +46,8 @@ const getSearch = async (req, res) => {
       validationResult.response === "Supplier credentials does not exist" ||
       validationResult.response === "Company or User id field are required" ||
       validationResult.response === "TMC Compnay id does not exist" ||
-      validationResult.response === "Travel Type Not Valid"||validationResult.response==="your company not Active"
+      validationResult.response === "Travel Type Not Valid" ||
+      validationResult.response === "your company not Active"
     )
       return apiErrorres(
         res,
@@ -67,11 +69,18 @@ const getSearch = async (req, res) => {
     const results = await Promise.allSettled(flightRequests);
     let itineraries = [];
     results.forEach((result) => {
-      if (result.status === "fulfilled" && result.value?.data?.length)
-        itineraries = [...itineraries, ...result.value.data];
+      saveLogInFile("result.json", result);
+      if (
+        result.status === "fulfilled" &&
+        (result?.value?.response?.length || result.value?.data?.length)
+      )
+        itineraries = [
+          ...itineraries,
+          ...(result?.value?.response || result.value.data),
+        ];
     });
     itineraries = itineraries.filter((itinerary) =>
-      ["Kafila", "1A","6E","SG"].includes(itinerary.Provider)
+      ["Kafila", "1A", "6E", "SG"].includes(itinerary.Provider)
     );
     if (itineraries.length) {
       apiSucessRes(
@@ -93,7 +102,7 @@ const getSearch = async (req, res) => {
     console.error(error);
     apiErrorres(
       res,
-      error.message||errorResponse.SOMETHING_WRONG,
+      error.message || errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );
@@ -210,10 +219,11 @@ const startBooking = async (req, res) => {
         validationResult.response === "Trace Id Required" ||
         validationResult.response === "Credential Type does not exist" ||
         validationResult.response === "Supplier credentials does not exist" ||
-        validationResult.response === "Company or User Trace id field are required" ||
+        validationResult.response ===
+          "Company or User Trace id field are required" ||
         validationResult.response === "TMC Compnay id does not exist" ||
-        validationResult.response === "Travel Type Not Valid"||
-        validationResult.response==="allready created booking"
+        validationResult.response === "Travel Type Not Valid" ||
+        validationResult.response === "allready created booking"
       ) {
         return apiErrorres(
           res,
@@ -249,16 +259,9 @@ const startBooking = async (req, res) => {
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    }
-    else if(result.response==="allready created booking"){
-      apiErrorres(
-        res,
-        result.response,
-        ServerStatusCode.UNPROCESSABLE,
-        true
-      );
-    }
-     else {
+    } else if (result.response === "allready created booking") {
+      apiErrorres(res, result.response, ServerStatusCode.UNPROCESSABLE, true);
+    } else {
       apiErrorres(
         res,
         errorResponse.SOME_UNOWN,
@@ -303,7 +306,7 @@ const specialServiceReq = async (req, res) => {
     } else {
       apiErrorres(
         res,
-        result?.response||errorResponse.SOME_UNOWN,
+        result?.response || errorResponse.SOME_UNOWN,
         ServerStatusCode.UNPROCESSABLE,
         true
       );
@@ -312,7 +315,7 @@ const specialServiceReq = async (req, res) => {
     console.error(error);
     apiErrorres(
       res,
-      error?.message||errorResponse.SOMETHING_WRONG,
+      error?.message || errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );
@@ -430,7 +433,7 @@ const fullCancelationCharge = async (req, res) => {
     } else {
       apiErrorres(
         res,
-        result.response||errorResponse.SOME_UNOWN,
+        result.response || errorResponse.SOME_UNOWN,
         ServerStatusCode.UNPROCESSABLE,
         true
       );
@@ -439,7 +442,7 @@ const fullCancelationCharge = async (req, res) => {
     console.error(error);
     apiErrorres(
       res,
-      error?.message||errorResponse.SOMETHING_WRONG,
+      error?.message || errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );
@@ -449,7 +452,7 @@ const fullCancelationCharge = async (req, res) => {
 const partialCancelation = async (req, res) => {
   try {
     const result = await partialServices.partialCancelation(req, res);
-    console.log(result?.data,"jdieiiei")
+    console.log(result?.data, "jdieiiei");
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
@@ -556,16 +559,18 @@ const updateBookingStatus = async (req, res) => {
     } else {
       apiErrorres(
         res,
-        result?.data||"something went wrong",
+        result?.data || "something went wrong",
         ServerStatusCode.UNPROCESSABLE,
         true
       );
     }
   } catch (error) {
-    console.log(error.message)
+    console.log(error.message);
     apiErrorres(
       res,
-      error.message.includes("Cannot read properties of undefined (reading 'Passengers')")
+      error.message.includes(
+        "Cannot read properties of undefined (reading 'Passengers')"
+      )
         ? "Try after some time or Contact to call center."
         : error.message,
       ServerStatusCode.SERVER_ERROR,
@@ -576,7 +581,10 @@ const updateBookingStatus = async (req, res) => {
 
 const updateConfirmBookingStatus = async (req, res) => {
   try {
-    const result = await cancelationServices.updateConfirmBookingStatus(req, res);
+    const result = await cancelationServices.updateConfirmBookingStatus(
+      req,
+      res
+    );
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
@@ -936,5 +944,5 @@ module.exports = {
   deleteAmendmentDetail,
   amadeusTest,
   updatePendingBookingStatus,
-  updateConfirmBookingStatus
+  updateConfirmBookingStatus,
 };

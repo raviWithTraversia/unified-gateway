@@ -1,3 +1,4 @@
+const moment = require("moment");
 const { saveLogInFile } = require("../utils/save-log");
 const {
   convertDurationForCommonAPI,
@@ -223,7 +224,15 @@ function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
     })),
     dob: traveler.Dob ?? "",
     gender: traveler.Gender?.at?.(0)?.toUpperCase?.() || "M",
-    passportDetails: null,
+    passportDetails: traveler?.Optional?.PassportNo
+      ? {
+          number: traveler?.Optional?.PassportNo ?? "",
+          issuingCountry: traveler?.Optional?.ResidentCountry,
+          expiryDate: moment(traveler?.Optional?.PassportExpiryDate).format(
+            "YYYY-MM-DD"
+          ),
+        }
+      : null,
     contactDetails: {
       address1:
         traveler.AddressLine1 ??

@@ -9,6 +9,7 @@ const {
 const {
   getApplyAllCommercial,
 } = require("../controllers/flight/flight.commercial");
+const { saveLogInFile } = require("../utils/save-log");
 
 async function commonFlightSearch(request) {
   try {
@@ -19,6 +20,7 @@ async function commonFlightSearch(request) {
       "/flight/search";
     console.log({ url });
     const { data: response } = await axios.post(url, requestBody);
+    saveLogInFile("response.json", response);
     // fs.writeFileSync(
     //   path.resolve(__dirname, "response.json"),
     //   JSON.stringify(response, null, 2)
@@ -43,6 +45,7 @@ async function commonFlightSearch(request) {
     }
     return { data: itineraries || [] };
   } catch (error) {
+    console.log({ error });
     return { error: error.message };
   }
 }

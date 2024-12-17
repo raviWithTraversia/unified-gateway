@@ -332,6 +332,7 @@ const KafilaFun = async (
   paymentGateway,
   req
 ) => {
+  const paxList = JSON.parse(JSON.stringify(req.body.PassengerPreferences));
   let tripTypeValue;
   if (TravelType == "International") {
     switch (TypeOfTrip) {
@@ -1091,9 +1092,7 @@ const KafilaFun = async (
             ItineraryPriceCheckResponses.map(async (item, idx) => {
               if (item.GstData) {
                 let gstD = item.GstData;
-                console.log(gstD, "gstD12");
                 delete gstD.GstDetails.isAgentGst;
-                console.log(gstD, "djkds12");
               }
               let requestDataFSearch = {
                 FareChkRes: {
@@ -1122,15 +1121,15 @@ const KafilaFun = async (
                     }
                   );
                 } else {
-                  const reqSegment = req.body?.SearchRequest.Segments?.[0];
+                  const reqSegment = req.body?.SearchRequest?.Segments?.[idx];
                   saveLogInFile("request-segment.json", { reqSegment });
                   fSearchApiResponse = await commonFlightBook(
                     req.body,
                     reqSegment,
-                    item
+                    item,
+                    paxList
                   );
                 }
-                console.dir({ fSearchApiResponse }, { depth: null });
                 const logData = {
                   traceId: Authentication?.TraceId,
                   companyId: Authentication?.CompanyId,
@@ -1144,12 +1143,7 @@ const KafilaFun = async (
                   responce: fSearchApiResponse?.data,
                 };
                 Logs(logData);
-                console.log(fSearchApiResponse, "fSearchApiResponse1");
                 let fSearchApiResponseStatus = fSearchApiResponse?.data?.Status;
-                console.log(
-                  fSearchApiResponseStatus,
-                  "fSearchApiResponseStatus"
-                );
                 if (
                   fSearchApiResponseStatus?.toLowerCase() == "failed" ||
                   fSearchApiResponse?.data?.IsError == true ||
@@ -1266,40 +1260,39 @@ const KafilaFun = async (
                     bookingId: item?.BookingId,
                   });
 
+                // item.Provider === "Kafila" &&
+                // getpassengersPrefrence && getpassengersPrefrence.Passengers
                 if (
                   item.Provider === "Kafila" &&
-                  getpassengersPrefrence &&
-                  getpassengersPrefrence.Passengers
+                  getpassengersPrefrence?.Passengers
                 ) {
-                  await Promise.all(
-                    getpassengersPrefrence.Passengers.map(async (passenger) => {
-                      const apiPassenger =
-                        fSearchApiResponse.data.PaxInfo.Passengers.find(
+                  // await Promise.all(
+                  getpassengersPrefrence.Passengers.map((passenger) => {
+                    const apiPassenger =
+                      fSearchApiResponse.data.PaxInfo.Passengers.find(
+                        (p) =>
+                          p.FName === passenger.FName &&
+                          p.LName === passenger.LName
+                      );
+                    if (apiPassenger) {
+                      const ticketUpdate =
+                        passenger?.Optional?.ticketDetails?.find?.(
                           (p) =>
-                            p.FName === passenger.FName &&
-                            p.LName === passenger.LName
+                            p?.src ===
+                              fSearchApiResponse?.data?.Param?.Sector?.[0]
+                                ?.Src &&
+                            p?.des ===
+                              fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                         );
-                      if (apiPassenger) {
-                        const ticketUpdate =
-                          passenger?.Optional?.ticketDetails?.find?.(
-                            (p) =>
-                              p?.src ===
-                                fSearchApiResponse?.data?.Param?.Sector?.[0]
-                                  ?.Src &&
-                              p?.des ===
-                                fSearchApiResponse?.data?.Param?.Sector?.[0]
-                                  ?.Des
-                          );
-                        console.log(ticketUpdate, "jkticketUpdate");
-                        if (ticketUpdate) {
-                          ticketUpdate.ticketNumber =
-                            apiPassenger?.Optional?.TicketNumber;
-                        }
-
-                        // passenger.Status = "CONFIRMED";
+                      if (ticketUpdate) {
+                        ticketUpdate.ticketNumber =
+                          apiPassenger?.Optional?.TicketNumber;
                       }
-                    })
-                  );
+
+                      // passenger.Status = "CONFIRMED";
+                    }
+                  });
+                  // );
                   bookingResponce.PassengerPreferences.Passengers =
                     getpassengersPrefrence.Passengers;
                   await getpassengersPrefrence.save();
@@ -1307,35 +1300,78 @@ const KafilaFun = async (
                   fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
                   "CONFIRMED"
                 ) {
-                  const passengersLength =
-                    getpassengersPrefrence.Passengers.length;
-                  console.log({ passengersLength });
-                  for (let i = 0; i < passengersLength; i++) {
-                    const pax = getpassengersPrefrence.Passengers[i];
-                    if (
-                      fSearchApiResponse?.data?.PaxInfo?.Passengers?.[i]
-                        ?.Optional?.ticketDetails
-                    )
-                      pax.Optional.ticketDetails =
-                        fSearchApiResponse?.data?.PaxInfo?.Passengers?.[
-                          i
-                        ]?.Optional?.ticketDetails;
-                    if (
-                      fSearchApiResponse?.data?.PaxInfo?.Passengers?.[i]
-                        ?.Optional?.EMDDetails
-                    )
-                      pax.Optional.EMDDetails =
-                        fSearchApiResponse?.data?.PaxInfo?.Passengers?.[
-                          i
-                        ]?.Optional?.EMDDetails;
-                  }
-
+                  getpassengersPrefrence.Passengers.map?.(async (passenger) => {
+                    const segmentMap = {};
+                    passenger.Optional.ticketDetails.forEach((ticket, idx) => {
+                      segmentMap[`${ticket.src}-${ticket.des}`] = idx;
+                    });
+                    const selectedPax =
+                      fSearchApiResponse.data.PaxInfo.Passengers.find(
+                        (p) =>
+                          p.FName === passenger.FName &&
+                          p.LName === passenger.LName
+                      );
+                    if (!selectedPax) return passenger;
+                    saveLogInFile("selected-pax.json", selectedPax);
+                    passenger.Optional.EMDDetails = [
+                      ...(passenger.Optional.EMDDetails || []),
+                      ...(selectedPax?.Optional?.EMDDetails || []),
+                    ];
+                    if (selectedPax?.Optional?.ticketDetails?.length) {
+                      selectedPax.Optional?.ticketDetails.forEach((ticket) => {
+                        const segmentIdx =
+                          segmentMap[`${ticket.src}-${ticket.des}`];
+                        if (segmentIdx != null) {
+                          passenger.Optional.ticketDetails[
+                            segmentIdx
+                          ].ticketNumber = ticket.ticketNumber;
+                        } else {
+                          passenger.Optional.ticketDetails.push(ticket);
+                        }
+                      });
+                    }
+                    return passenger;
+                  });
                   bookingResponce.PassengerPreferences.Passengers =
                     getpassengersPrefrence.Passengers;
+                  saveLogInFile(
+                    "pax-preferences.json",
+                    getpassengersPrefrence._doc
+                  );
                   await getpassengersPrefrence.save();
                 }
+                // else if (
+                //   fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
+                //   "CONFIRMED"
+                // ) {
+                //   const passengersLength =
+                //     getpassengersPrefrence.Passengers.length;
+                //   console.log({ passengersLength });
+                //   for (let i = 0; i < passengersLength; i++) {
+                //     const pax = getpassengersPrefrence.Passengers[i];
+                //     if (
+                //       fSearchApiResponse?.data?.PaxInfo?.Passengers?.[i]
+                //         ?.Optional?.ticketDetails
+                //     )
+                //       pax.Optional.ticketDetails =
+                //         fSearchApiResponse?.data?.PaxInfo?.Passengers?.[
+                //           i
+                //         ]?.Optional?.ticketDetails;
+                //     if (
+                //       fSearchApiResponse?.data?.PaxInfo?.Passengers?.[i]
+                //         ?.Optional?.EMDDetails
+                //     )
+                //       pax.Optional.EMDDetails =
+                //         fSearchApiResponse?.data?.PaxInfo?.Passengers?.[
+                //           i
+                //         ]?.Optional?.EMDDetails;
+                //   }
 
-                console.log("kdsjjkdsjs12");
+                //   bookingResponce.PassengerPreferences.Passengers =
+                //     getpassengersPrefrence.Passengers;
+                //   await getpassengersPrefrence.save();
+                // }
+
                 if (
                   fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ===
                   "FAILED"

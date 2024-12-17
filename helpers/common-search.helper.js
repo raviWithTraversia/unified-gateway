@@ -1,5 +1,6 @@
 const moment = require("moment");
 const uuid = require("uuid");
+const { saveLogInFile } = require("../utils/save-log");
 function createSearchRequestBodyForCommonAPI(request) {
   const uniqueKey = uuid.v4();
   const requestBody = {

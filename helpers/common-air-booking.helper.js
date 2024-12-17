@@ -221,7 +221,7 @@ function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
       flightNumber: meal?.FNo,
       wayType: meal?.Trip,
     })),
-    dob: traveler.Dob ?? "1900-01-01",
+    dob: traveler.Dob ?? "",
     gender: traveler.Gender?.at?.(0)?.toUpperCase?.() || "M",
     passportDetails: null,
     contactDetails: {
@@ -246,10 +246,12 @@ function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
   };
 }
 
-function convertBookingResponse(request, response) {
+function convertBookingResponse(request, response, reqSegment) {
   // const tickets = response?.data?.journey?.[0]?.travellerDetails[0]?.eTicket;
-  const src = request.SearchRequest.Segments[0].Origin; // TODO: needs to be dynamic
-  const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
+  // const src = request.SearchRequest.Segments[0].Origin; // TODO: needs to be dynamic
+  const src = reqSegment.Origin;
+  const des = reqSegment.Destination;
+  // const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
   const pnrs = response?.data?.journey?.[0]?.recLocInfo;
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
@@ -305,7 +307,7 @@ function convertBookingResponse(request, response) {
           WarningMessage: error.message,
         },
         PaxInfo: updatePassengerDetails(
-          request.PassengerPreferences,
+          passengerPreferences,
           travelerDetails,
           src,
           des
@@ -326,16 +328,40 @@ function updatePassengerDetails(
     ...passengerPreferences,
     Passengers: passengerPreferences.Passengers.map((pax, idx) => {
       if (!travelerDetails?.[idx]?.eTicket?.length) return pax;
+      const ticketDetails =
+        travelerDetails?.[idx]?.eTicket?.map?.((ticket) => ({
+          ticketNumber: ticket.eTicketNumber,
+          src,
+          des,
+        })) || [];
+      const EMDDetails = travelerDetails[idx]?.emd || [];
+      // if (
+      //   ticketDetails?.length &&
+      //   !pax.Optional?.ticketDetails?.some((ticket) => ticket?.ticketNumber)
+      // ) {
+      //   pax.Optional.ticketDetails = ticketDetails;
+      // } else {
+      //   pax.Optional.ticketDetails = [
+      //     ...pax.Optional.ticketDetails,
+      //     ticketDetails,
+      //   ];
+      // }
+      // if (
+      //   EMDDetails.length &&
+      //   !pax.Optional?.EMD?.some((emd) => emd?.EMDNumber)
+      // ) {
+      //   pax.Optional.EMDDetails = EMDDetails;
+      // } else {
+      //   pax.Optional.EMDDetails = [...pax.Optional.EMDDetails, EMDDetails];
+      // }
+      // return pax;
+      saveLogInFile("tickets.json", { ticketDetails, EMDDetails });
       return {
         ...pax,
         Optional: {
-          ...pax.Optional,
-          ticketDetails: travelerDetails[idx].eTicket.map((ticket) => ({
-            ticketNumber: ticket.eTicketNumber,
-            src,
-            des,
-          })),
-          EMDDetails: travelerDetails[idx]?.emd ?? [],
+          ticketDetails,
+          EMDDetails,
+          // ...pax.Optional = {}
         },
       };
     }),

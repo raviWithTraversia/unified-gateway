@@ -27,7 +27,6 @@ const {
   validateAirBooking,
 } = require("../../validation/air-booking.validation");
 const { commonFlightSearch } = require("../../services/common-search");
-const { commonFlightBook } = require("../../services/common-flight-book");
 const { saveLogInFile } = require("../../utils/save-log");
 
 const getSearch = async (req, res) => {
@@ -79,9 +78,11 @@ const getSearch = async (req, res) => {
           ...(result?.value?.data?.response || result.value.data),
         ];
     });
-    itineraries = itineraries.filter((itinerary) =>
-      ["Kafila", "1A", "6E", "SG"].includes(itinerary.Provider)
-    );
+    itineraries = itineraries
+      .filter((itinerary) =>
+        ["Kafila", "1A", "6E", "SG"].includes(itinerary.Provider)
+      )
+      .sort((a, b) => a.TotalPrice - b.TotalPrice);
     if (itineraries.length) {
       apiSucessRes(
         res,

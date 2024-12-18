@@ -25,6 +25,7 @@ const {
 const SupplierCode = require("../../models/supplierCode");
 const { getSupplierCredentials } = require("../../utils/get-supplier-creds");
 const { commonFlightBook } = require("../../services/common-flight-book");
+const { saveLogInFile } = require("../../utils/save-log");
 
 const startBooking = async (req, res) => {
   const {
@@ -331,6 +332,7 @@ const KafilaFun = async (
   paymentGateway,
   req
 ) => {
+  const paxList = JSON.parse(JSON.stringify(req.body.PassengerPreferences));
   let tripTypeValue;
   if (TravelType == "International") {
     switch (TypeOfTrip) {
@@ -603,24 +605,26 @@ const KafilaFun = async (
         returnCalculatedOfferedPrice += Number(BaseFare) * NoOfPassenger;
         returnCalculatedOfferedPrice += Number(Tax) * NoOfPassenger;
 
-        TaxBreakup?.forEach((taxBreakup) => {
-          let { TaxType, Amount } = taxBreakup;
-          if (TaxType)
-            returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
-        });
+        // TaxBreakup?.forEach((taxBreakup) => {
+        //   let { TaxType, Amount } = taxBreakup;
+        //   if (TaxType)
+        //     returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
+        // });
 
         CommercialBreakup?.forEach((commercialBreakup) => {
           let { CommercialType, Amount } = commercialBreakup;
           if (offerPricePlusInAmount(CommercialType) && CommercialType != "TDS")
-            returnCalculatedOfferedPrice += Math.round(Amount) * NoOfPassenger;
+            returnCalculatedOfferedPrice +=
+              roundOffNumberValues(Amount) * NoOfPassenger;
           if (offerPriceMinusInAmount(CommercialType))
-            returnCalculatedOfferedPrice -= Math.round(Amount) * NoOfPassenger;
+            returnCalculatedOfferedPrice -=
+              roundOffNumberValues(Amount) * NoOfPassenger;
           if (
             CommercialType == "Discount" ||
             CommercialType == "SegmentKickback"
           ) {
             // console.log(PassengerType, "PassengerType");
-            const discountOrSegmentValue = Math.round(Amount);
+            const discountOrSegmentValue = roundOffNumberValues(Amount);
             // console.log(CommercialType + "=" + discountOrSegmentValue, "before adding");
             returnCalculatedOfferedPrice +=
               discountOrSegmentValue * 0.02 * NoOfPassenger;
@@ -661,11 +665,15 @@ const KafilaFun = async (
 
   const calculationOfferPriceWithCommercial =
     await calculateOfferedPriceForAll();
+
   // ("");
   // Check Balance Available or Not Available
   const totalSSRWithCalculationPrice =
     calculationOfferPriceWithCommercial + totalssrPrice;
-
+  saveLogInFile("price-with-commercial.json", {
+    calculationOfferPriceWithCommercial,
+    totalSSRWithCalculationPrice,
+  });
   if (paymentMethodType === "Wallet") {
     try {
       // Retrieve agent configuration
@@ -1087,12 +1095,10 @@ const KafilaFun = async (
 
           console.log("before hitting API");
           const hitAPI = await Promise.all(
-            ItineraryPriceCheckResponses.map(async (item) => {
+            ItineraryPriceCheckResponses.map(async (item, idx) => {
               if (item.GstData) {
                 let gstD = item.GstData;
-                console.log(gstD, "gstD12");
                 delete gstD.GstDetails.isAgentGst;
-                console.log(gstD, "djkds12");
               }
               let requestDataFSearch = {
                 FareChkRes: {
@@ -1121,9 +1127,15 @@ const KafilaFun = async (
                     }
                   );
                 } else {
-                  fSearchApiResponse = await commonFlightBook(req.body);
+                  const reqSegment = req.body?.SearchRequest?.Segments?.[idx];
+                  saveLogInFile("request-segment.json", { reqSegment });
+                  fSearchApiResponse = await commonFlightBook(
+                    req.body,
+                    reqSegment,
+                    item,
+                    paxList
+                  );
                 }
-                console.dir({ fSearchApiResponse }, { depth: null });
                 const logData = {
                   traceId: Authentication?.TraceId,
                   companyId: Authentication?.CompanyId,
@@ -1137,12 +1149,7 @@ const KafilaFun = async (
                   responce: fSearchApiResponse?.data,
                 };
                 Logs(logData);
-                console.log(fSearchApiResponse, "fSearchApiResponse1");
                 let fSearchApiResponseStatus = fSearchApiResponse?.data?.Status;
-                console.log(
-                  fSearchApiResponseStatus,
-                  "fSearchApiResponseStatus"
-                );
                 if (
                   fSearchApiResponseStatus?.toLowerCase() == "failed" ||
                   fSearchApiResponse?.data?.IsError == true ||
@@ -1174,20 +1181,18 @@ const KafilaFun = async (
                   // Check if maxCreditLimit exists, otherwise set it to 0
                   const maxCreditLimitPrice =
                     getAgentConfigForUpdate?.maxcreditLimit ?? 0;
-                  const transactionAmount =
-                    item.Provider === "Kafila"
-                      ? item?.offeredPrice +
-                          item?.totalMealPrice +
-                          item?.totalBaggagePrice +
-                          item?.totalSeatPrice || item.GrandTotal
-                      : item.GrandTotal;
+                  // const transactionAmount =
+                  //   item.Provider === "Kafila"
+                  //     ? item?.offeredPrice +
+                  //         item?.totalMealPrice +
+                  //         item?.totalBaggagePrice +
+                  //         item?.totalSeatPrice || item.GrandTotal
+                  //     : item.GrandTotal;
                   const newBalanceCredit =
-                    maxCreditLimitPrice + transactionAmount;
-                  console.log({
-                    newBalanceCredit,
-                    maxCreditLimitPrice,
-                    transactionAmount,
-                    stage: 3,
+                    maxCreditLimitPrice + totalSSRWithCalculationPrice;
+                  // maxCreditLimitPrice + transactionAmount;
+                  saveLogInFile("transaction-amount.json", {
+                    totalSSRWithCalculationPrice,
                   });
                   await agentConfig.updateOne(
                     { userId: getuserDetails._id },
@@ -1198,7 +1203,7 @@ const KafilaFun = async (
                     companyId: getuserDetails.company_ID._id,
                     ledgerId:
                       "LG" + Math.floor(100000 + Math.random() * 900000),
-                    transactionAmount,
+                    transactionAmount: totalSSRWithCalculationPrice,
                     currencyType: "INR",
                     fop: "CREDIT",
                     transactionType: "CREDIT",
@@ -1259,40 +1264,39 @@ const KafilaFun = async (
                     bookingId: item?.BookingId,
                   });
 
+                // item.Provider === "Kafila" &&
+                // getpassengersPrefrence && getpassengersPrefrence.Passengers
                 if (
                   item.Provider === "Kafila" &&
-                  getpassengersPrefrence &&
-                  getpassengersPrefrence.Passengers
+                  getpassengersPrefrence?.Passengers
                 ) {
-                  await Promise.all(
-                    getpassengersPrefrence.Passengers.map(async (passenger) => {
-                      const apiPassenger =
-                        fSearchApiResponse.data.PaxInfo.Passengers.find(
+                  // await Promise.all(
+                  getpassengersPrefrence.Passengers.map((passenger) => {
+                    const apiPassenger =
+                      fSearchApiResponse.data.PaxInfo.Passengers.find(
+                        (p) =>
+                          p.FName === passenger.FName &&
+                          p.LName === passenger.LName
+                      );
+                    if (apiPassenger) {
+                      const ticketUpdate =
+                        passenger?.Optional?.ticketDetails?.find?.(
                           (p) =>
-                            p.FName === passenger.FName &&
-                            p.LName === passenger.LName
+                            p?.src ===
+                              fSearchApiResponse?.data?.Param?.Sector?.[0]
+                                ?.Src &&
+                            p?.des ===
+                              fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                         );
-                      if (apiPassenger) {
-                        const ticketUpdate =
-                          passenger?.Optional?.ticketDetails?.find?.(
-                            (p) =>
-                              p?.src ===
-                                fSearchApiResponse?.data?.Param?.Sector?.[0]
-                                  ?.Src &&
-                              p?.des ===
-                                fSearchApiResponse?.data?.Param?.Sector?.[0]
-                                  ?.Des
-                          );
-                        console.log(ticketUpdate, "jkticketUpdate");
-                        if (ticketUpdate) {
-                          ticketUpdate.ticketNumber =
-                            apiPassenger?.Optional?.TicketNumber;
-                        }
-
-                        // passenger.Status = "CONFIRMED";
+                      if (ticketUpdate) {
+                        ticketUpdate.ticketNumber =
+                          apiPassenger?.Optional?.TicketNumber;
                       }
-                    })
-                  );
+
+                      // passenger.Status = "CONFIRMED";
+                    }
+                  });
+                  // );
                   bookingResponce.PassengerPreferences.Passengers =
                     getpassengersPrefrence.Passengers;
                   await getpassengersPrefrence.save();
@@ -1300,35 +1304,78 @@ const KafilaFun = async (
                   fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
                   "CONFIRMED"
                 ) {
-                  const passengersLength =
-                    getpassengersPrefrence.Passengers.length;
-                  console.log({ passengersLength });
-                  for (let i = 0; i < passengersLength; i++) {
-                    const pax = getpassengersPrefrence.Passengers[i];
-                    if (
-                      fSearchApiResponse?.data?.PaxInfo?.Passengers?.[i]
-                        ?.Optional?.ticketDetails
-                    )
-                      pax.Optional.ticketDetails =
-                        fSearchApiResponse?.data?.PaxInfo?.Passengers?.[
-                          i
-                        ]?.Optional?.ticketDetails;
-                    if (
-                      fSearchApiResponse?.data?.PaxInfo?.Passengers?.[i]
-                        ?.Optional?.EMDDetails
-                    )
-                      pax.Optional.EMDDetails =
-                        fSearchApiResponse?.data?.PaxInfo?.Passengers?.[
-                          i
-                        ]?.Optional?.EMDDetails;
-                  }
-
+                  getpassengersPrefrence.Passengers.map?.(async (passenger) => {
+                    const segmentMap = {};
+                    passenger.Optional.ticketDetails.forEach((ticket, idx) => {
+                      segmentMap[`${ticket.src}-${ticket.des}`] = idx;
+                    });
+                    const selectedPax =
+                      fSearchApiResponse.data.PaxInfo.Passengers.find(
+                        (p) =>
+                          p.FName === passenger.FName &&
+                          p.LName === passenger.LName
+                      );
+                    if (!selectedPax) return passenger;
+                    saveLogInFile("selected-pax.json", selectedPax);
+                    passenger.Optional.EMDDetails = [
+                      ...(passenger.Optional.EMDDetails || []),
+                      ...(selectedPax?.Optional?.EMDDetails || []),
+                    ];
+                    if (selectedPax?.Optional?.ticketDetails?.length) {
+                      selectedPax.Optional?.ticketDetails.forEach((ticket) => {
+                        const segmentIdx =
+                          segmentMap[`${ticket.src}-${ticket.des}`];
+                        if (segmentIdx != null) {
+                          passenger.Optional.ticketDetails[
+                            segmentIdx
+                          ].ticketNumber = ticket.ticketNumber;
+                        } else {
+                          passenger.Optional.ticketDetails.push(ticket);
+                        }
+                      });
+                    }
+                    return passenger;
+                  });
                   bookingResponce.PassengerPreferences.Passengers =
                     getpassengersPrefrence.Passengers;
+                  saveLogInFile(
+                    "pax-preferences.json",
+                    getpassengersPrefrence._doc
+                  );
                   await getpassengersPrefrence.save();
                 }
+                // else if (
+                //   fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
+                //   "CONFIRMED"
+                // ) {
+                //   const passengersLength =
+                //     getpassengersPrefrence.Passengers.length;
+                //   console.log({ passengersLength });
+                //   for (let i = 0; i < passengersLength; i++) {
+                //     const pax = getpassengersPrefrence.Passengers[i];
+                //     if (
+                //       fSearchApiResponse?.data?.PaxInfo?.Passengers?.[i]
+                //         ?.Optional?.ticketDetails
+                //     )
+                //       pax.Optional.ticketDetails =
+                //         fSearchApiResponse?.data?.PaxInfo?.Passengers?.[
+                //           i
+                //         ]?.Optional?.ticketDetails;
+                //     if (
+                //       fSearchApiResponse?.data?.PaxInfo?.Passengers?.[i]
+                //         ?.Optional?.EMDDetails
+                //     )
+                //       pax.Optional.EMDDetails =
+                //         fSearchApiResponse?.data?.PaxInfo?.Passengers?.[
+                //           i
+                //         ]?.Optional?.EMDDetails;
+                //   }
 
-                console.log("kdsjjkdsjs12");
+                //   bookingResponce.PassengerPreferences.Passengers =
+                //     getpassengersPrefrence.Passengers;
+                //   await getpassengersPrefrence.save();
+                // }
+
                 if (
                   fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ===
                   "FAILED"
@@ -1340,19 +1387,20 @@ const KafilaFun = async (
                   const maxCreditLimitPrice =
                     getAgentConfigForUpdate?.maxcreditLimit ?? 0;
 
-                  const transactionAmount =
-                    item.Provider === "Kafila"
-                      ? item?.offeredPrice +
-                          item?.totalMealPrice +
-                          item?.totalBaggagePrice +
-                          item?.totalSeatPrice || item.GrandTotal
-                      : item.GrandTotal;
+                  // const transactionAmount =
+                  // item.Provider === "Kafila"
+                  //   ? item?.offeredPrice +
+                  //       item?.totalMealPrice +
+                  //       item?.totalBaggagePrice +
+                  //       item?.totalSeatPrice || item.GrandTotal
+                  //   : item.GrandTotal;
                   const newBalanceCredit =
-                    maxCreditLimitPrice + transactionAmount;
+                    maxCreditLimitPrice + totalSSRWithCalculationPrice;
+                  // maxCreditLimitPrice + transactionAmount;
                   console.log({
                     newBalanceCredit,
                     maxCreditLimitPrice,
-                    transactionAmount,
+                    totalSSRWithCalculationPrice,
                     stage: 2,
                   });
                   await agentConfig.updateOne(
@@ -1364,7 +1412,7 @@ const KafilaFun = async (
                     companyId: getuserDetails.company_ID._id,
                     ledgerId:
                       "LG" + Math.floor(100000 + Math.random() * 900000),
-                    transactionAmount,
+                    transactionAmount: totalSSRWithCalculationPrice,
                     currencyType: "INR",
                     fop: "CREDIT",
                     transactionType: "CREDIT",
@@ -1428,20 +1476,21 @@ const KafilaFun = async (
                 const maxCreditLimitPrice =
                   getAgentConfigForUpdate?.maxcreditLimit ?? 0;
 
-                const transactionAmount =
-                  item.Provider === "Kafila"
-                    ? item?.offeredPrice +
-                        item?.totalMealPrice +
-                        item?.totalBaggagePrice +
-                        item?.totalSeatPrice || item.GrandTotal
-                    : item.GrandTotal;
+                // const transactionAmount =
+                //   item.Provider === "Kafila"
+                //     ? item?.offeredPrice +
+                //         item?.totalMealPrice +
+                //         item?.totalBaggagePrice +
+                //         item?.totalSeatPrice || item.GrandTotal
+                //     : item.GrandTotal;
 
                 const newBalanceCredit =
-                  maxCreditLimitPrice + transactionAmount;
+                  maxCreditLimitPrice + totalSSRWithCalculationPrice;
+                // maxCreditLimitPrice + transactionAmount;
                 console.log({
                   newBalanceCredit,
                   maxCreditLimitPrice,
-                  transactionAmount,
+                  // transactionAmount,
                   stage: 1,
                 });
                 await agentConfig.updateOne(
@@ -1454,7 +1503,7 @@ const KafilaFun = async (
                   userId: getuserDetails._id,
                   companyId: getuserDetails.company_ID._id,
                   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                  transactionAmount,
+                  transactionAmount: totalSSRWithCalculationPrice,
                   currencyType: "INR",
                   fop: "CREDIT",
                   transactionType: "CREDIT",

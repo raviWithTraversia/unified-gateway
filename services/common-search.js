@@ -6,6 +6,10 @@ const {
   convertItineraryForKafila,
   createSearchRequestBodyForCommonAPI,
 } = require("../helpers/common-search.helper");
+const {
+  getApplyAllCommercial,
+} = require("../controllers/flight/flight.commercial");
+const { saveLogInFile } = require("../utils/save-log");
 
 async function commonFlightSearch(request) {
   try {
@@ -16,26 +20,32 @@ async function commonFlightSearch(request) {
       "/flight/search";
     console.log({ url });
     const { data: response } = await axios.post(url, requestBody);
+    saveLogInFile("response.json", response);
     // fs.writeFileSync(
     //   path.resolve(__dirname, "response.json"),
     //   JSON.stringify(response, null, 2)
     // );
     //  ? assumption: only one way flights are considered
-    const itineraries = response.data.journey[0].itinerary.map(
-      (itinerary, idx) =>
-        convertItineraryForKafila({
-          itinerary,
-          idx,
-          response: response.data,
-          uniqueKey,
-        })
+    let itineraries = response.data.journey[0].itinerary.map((itinerary, idx) =>
+      convertItineraryForKafila({
+        itinerary,
+        idx,
+        response: response.data,
+        uniqueKey,
+      })
     );
-    // fs.writeFileSync(
-    //   path.resolve(__dirname, "converted-response.json"),
-    //   JSON.stringify(itineraries, null, 2)
-    // );
-    return { data: itineraries };
+    try {
+      itineraries = await getApplyAllCommercial(
+        request.Authentication,
+        request.TravelType,
+        itineraries
+      );
+    } catch (errorApplyingCommercial) {
+      console.log({ errorApplyingCommercial });
+    }
+    return { data: itineraries || [] };
   } catch (error) {
+    console.log({ error });
     return { error: error.message };
   }
 }

@@ -1,5 +1,6 @@
 const moment = require("moment");
 const uuid = require("uuid");
+const { saveLogInFile } = require("../utils/save-log");
 function createSearchRequestBodyForCommonAPI(request) {
   const uniqueKey = uuid.v4();
   const requestBody = {
@@ -18,7 +19,7 @@ function createSearchRequestBodyForCommonAPI(request) {
       departureDate: moment(segment.DepartureDate).format("DD-MM-YYYY"),
       departureTimeFrom: segment.DepartureTime,
       departureTimeTo: segment.DepartureTimeTo,
-      cabinClass: segment.ClassOfService,
+      cabinClass: segment.ClassOfService.replace(" ", ""),
     })),
     paxDetail: {
       adults: request.PaxDetail.Adults,

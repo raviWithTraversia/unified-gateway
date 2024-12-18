@@ -9,9 +9,7 @@ const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
-const {
-  getCommonAirPricing,
-} = require("../../services/common-air-pricing");
+const { getCommonAirPricing } = require("../../services/common-air-pricing");
 const flightCache = new NodeCache();
 
 const airPricing = async (req, res) => {
@@ -460,15 +458,19 @@ const KafilaFun = async (
           ? {
               Basic: item.PriceBreakup[0]?.BaseFare || 0,
               Yq:
-                item.PriceBreakup[0]?.TaxBreakup.find(
+                item.PriceBreakup?.[0]?.TaxBreakup.find(
                   (tax) => tax.TaxType === "YQ"
                 )?.Amount || 0,
-              Taxes: item.PriceBreakup[0]?.Tax || 0,
+              Taxes:
+                item.PriceBreakup?.[0]?.TaxBreakup?.find(
+                  (tax) => tax.TaxType === "Taxes"
+                )?.Amount || 0,
+              // Taxes: item.PriceBreakup[0]?.Tax || 0,
               Total:
                 (item.PriceBreakup[0]?.BaseFare || 0) +
-                (item.PriceBreakup[0]?.TaxBreakup.find(
-                  (tax) => tax.TaxType === "YQ"
-                )?.Amount || 0) +
+                // (item.PriceBreakup[0]?.TaxBreakup.find(
+                //   (tax) => tax.TaxType === "YQ"
+                // )?.Amount || 0) +
                 (item.PriceBreakup[0]?.Tax || 0),
             }
           : null;
@@ -481,12 +483,16 @@ const KafilaFun = async (
                   item.PriceBreakup[1]?.TaxBreakup.find(
                     (tax) => tax.TaxType === "YQ"
                   )?.Amount || 0,
-                Taxes: item.PriceBreakup[1]?.Tax || 0,
+                Taxes:
+                  item.PriceBreakup[1]?.TaxBreakup.find(
+                    (tax) => tax.TaxType === "Taxes"
+                  )?.Amount || 0,
+                // Taxes: item.PriceBreakup[1]?.Tax || 0,
                 Total:
                   (item.PriceBreakup[1]?.BaseFare || 0) +
-                  (item.PriceBreakup[1]?.TaxBreakup.find(
-                    (tax) => tax.TaxType === "YQ"
-                  )?.Amount || 0) +
+                  // (item.PriceBreakup[1]?.TaxBreakup.find(
+                  //   (tax) => tax.TaxType === "YQ"
+                  // )?.Amount || 0) +
                   (item.PriceBreakup[1]?.Tax || 0),
               }
             : null;
@@ -499,12 +505,16 @@ const KafilaFun = async (
                   item.PriceBreakup[2]?.TaxBreakup.find(
                     (tax) => tax.TaxType === "YQ"
                   )?.Amount || 0,
-                Taxes: item.PriceBreakup[2]?.Tax || 0,
+                Taxes:
+                  item.PriceBreakup[2]?.TaxBreakup.find(
+                    (tax) => tax.TaxType === "Taxes"
+                  )?.Amount || 0,
+                // Taxes: item.PriceBreakup[2]?.Tax || 0,
                 Total:
                   (item.PriceBreakup[2]?.BaseFare || 0) +
-                  (item.PriceBreakup[2]?.TaxBreakup.find(
-                    (tax) => tax.TaxType === "YQ"
-                  )?.Amount || 0) +
+                  // (item.PriceBreakup[2]?.TaxBreakup.find(
+                  //   (tax) => tax.TaxType === "YQ"
+                  // )?.Amount || 0) +
                   (item.PriceBreakup[2]?.Tax || 0),
               }
             : null;
@@ -703,7 +713,10 @@ const KafilaFun = async (
               ? {
                   PassengerType: "ADT",
                   NoOfPassenger: PaxDetail.Adults,
-                  Tax: schedule.Fare.Adt.Taxes,
+                  Tax:
+                    (Number(schedule?.Fare?.Adt?.Taxes) || 0) +
+                    (Number(schedule?.Fare?.Adt?.Yq) || 0),
+                  // Tax: schedule.Fare.Adt.Taxes,
                   BaseFare: schedule.Fare.Adt.Basic,
                   // MarkUp: 0.0,
                   // TaxMarkUp: 0.0,
@@ -719,6 +732,10 @@ const KafilaFun = async (
                   // Discount: 0.0,
                   // BaseCharges: 0.0,
                   TaxBreakup: [
+                    {
+                      TaxType: "Taxes",
+                      Amount: schedule.Fare.Adt.Taxes,
+                    },
                     {
                       TaxType: "YQ",
                       Amount: schedule.Fare.Adt.Yq,
@@ -739,7 +756,10 @@ const KafilaFun = async (
               ? {
                   PassengerType: "CHD",
                   NoOfPassenger: PaxDetail.Child,
-                  Tax: schedule.Fare.Chd.Taxes,
+                  Tax:
+                    (Number(schedule?.Fare?.Chd?.Taxes) || 0) +
+                    (Number(schedule?.Fare?.Chd?.Yq) || 0),
+                  // Tax: schedule.Fare.Chd.Taxes,
                   BaseFare: schedule.Fare.Chd.Basic,
                   // MarkUp: 0.0,
                   // TaxMarkUp: 0.0,
@@ -755,6 +775,10 @@ const KafilaFun = async (
                   // Discount: 0.0,
                   // BaseCharges: 0.0,
                   TaxBreakup: [
+                    {
+                      TaxType: "Taxes",
+                      Amount: schedule.Fare.Chd.Taxes,
+                    },
                     {
                       TaxType: "YQ",
                       Amount: schedule.Fare.Chd.Yq,
@@ -775,7 +799,10 @@ const KafilaFun = async (
               ? {
                   PassengerType: "INF",
                   NoOfPassenger: PaxDetail.Infants,
-                  Tax: schedule.Fare.Inf.Taxes,
+                  Tax:
+                    (Number(schedule?.Fare?.Inf?.Taxes) || 0) +
+                    (Number(schedule?.Fare?.Inf?.Yq) || 0),
+                  // Tax: schedule.Fare.Inf.Taxes,
                   BaseFare: schedule.Fare.Inf.Basic,
                   // MarkUp: 0.0,
                   // TaxMarkUp: 0.0,
@@ -791,6 +818,10 @@ const KafilaFun = async (
                   // Discount: 0.0,
                   // BaseCharges: 0.0,
                   TaxBreakup: [
+                    {
+                      TaxType: "Taxes",
+                      Amount: schedule.Fare.Inf.Taxes,
+                    },
                     {
                       TaxType: "YQ",
                       Amount: schedule.Fare.Inf.Yq,

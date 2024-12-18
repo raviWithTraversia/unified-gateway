@@ -1,3 +1,5 @@
+const moment = require("moment");
+const { saveLogInFile } = require("../utils/save-log");
 const {
   convertDurationForCommonAPI,
   convertFlightDetailsForCommonAPI,
@@ -5,19 +7,39 @@ const {
 } = require("./common-air-pricing.helper");
 const { convertTravelTypeForCommonAPI } = require("./common-search.helper");
 
-function createAirBookingRequestBodyForCommonAPI(request) {
+function createAirBookingRequestBodyForCommonAPI(
+  request,
+  reqSegment,
+  reqItinerary
+) {
   try {
     const { SearchRequest, PassengerPreferences } = request;
-    const reqSegment = SearchRequest.Segments?.[0];
-    const reqItinerary = request.ItineraryPriceCheckResponses?.[0];
+    // const reqSegment = SearchRequest.Segments?.[0];
+    // const reqItinerary = request.ItineraryPriceCheckResponses?.[0];
     if (!reqItinerary || !reqSegment)
       throw new Error(
         "Invalid request data 'Itinerary[]' or 'Segment[]' missing"
       );
+    const segmentMap = {};
+    reqItinerary?.Sectors?.forEach((sector) => {
+      segmentMap[`${sector.Departure.CityCode}-${sector.Arrival.CityCode}`] =
+        sector;
+    });
+    saveLogInFile("segment-map.json", segmentMap);
+    const travelType = convertTravelTypeForCommonAPI(SearchRequest.TravelType);
+    const origin =
+      travelType === "dom"
+        ? reqItinerary?.Sectors?.[0]?.Departure?.CityCode
+        : reqSegment.Origin;
+    const destination =
+      travelType === "dom"
+        ? reqItinerary?.Sectors?.at(-1)?.Arrival?.CityCode
+        : reqSegment.Destination;
+
     const requestBody = {
       typeOfTrip: SearchRequest.TypeOfTrip,
       credentialType: SearchRequest?.Authentication?.CredentialType ?? "TEST",
-      travelType: convertTravelTypeForCommonAPI(SearchRequest.TravelType),
+      travelType,
       systemEntity: "TCIL",
       systemName: "Astra2.0",
       corpCode: "000000",
@@ -28,12 +50,12 @@ function createAirBookingRequestBodyForCommonAPI(request) {
       journey: [
         {
           journeyKey: reqItinerary.SearchID,
-          origin: reqSegment.Origin,
-          destination: reqSegment.Destination,
+          origin,
+          destination,
           rbdChanged: false, // ! TODO:
           travellerDetails: PassengerPreferences?.Passengers?.map(
             (passenger, idx) =>
-              convertTravelerDetailsForCommonAPI(passenger, idx)
+              convertTravelerDetailsForCommonAPI(passenger, idx, segmentMap)
           ),
           itinerary: [
             {
@@ -124,13 +146,20 @@ function createAirBookingRequestBodyForCommonAPI(request) {
       isHoldBooking: false,
       fareMasking: false,
     };
+    saveLogInFile("request-body.json", requestBody);
     return { requestBody };
   } catch (error) {
+    saveLogInFile("error-creating-common-booking-request.json", {
+      stack: error.stack,
+      message: error.message,
+    });
+    console.log({ error });
     return { error: error.message };
   }
 }
 
-function convertTravelerDetailsForCommonAPI(traveler, idx) {
+function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
+  saveLogInFile("traveler.json", traveler);
   return {
     travellerId: "",
     type: traveler.PaxType,
@@ -138,7 +167,9 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
     firstName: traveler.FName,
     middleName: "",
     lastName: traveler.LName,
-    seatPreferences: traveler.Seat.map((seat) => ({
+    seatPreferences: traveler.Seat.filter(
+      (pref) => segmentMap[`${pref.Src}-${pref.Des}`]
+    ).map((seat) => ({
       code: seat?.SeatCode,
       amount: seat?.TotalPrice,
       currency: seat?.Currency || "INR",
@@ -151,7 +182,17 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
       flightNumber: seat?.FNo,
       wayType: seat?.Trip,
     })),
-    baggagePreferences: traveler.Baggage.map((baggage) => ({
+    baggagePreferences: traveler.Baggage.filter((pref) => {
+      const segments = Object.values(segmentMap);
+      let isSrc = false;
+      let isDes = false;
+      for (let segment of segments) {
+        if (segment.Departure?.Code === pref.Src) isSrc = true;
+        if (segment.Arrival?.Code === pref.Des) isDes = true;
+      }
+      return isSrc && isDes;
+      // segmentMap[`${pref.Src}-${pref.Des}`]
+    }).map((baggage) => ({
       name: baggage?.SsrDesc,
       code: baggage?.SsrCode,
       amount: baggage?.Price,
@@ -165,7 +206,9 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
       flightNumber: baggage?.FNo,
       wayType: baggage?.Trip,
     })),
-    mealPreferences: traveler.Meal.map((meal) => ({
+    mealPreferences: traveler.Meal.filter(
+      (pref) => segmentMap[`${pref.Src}-${pref.Des}`]
+    ).map((meal) => ({
       name: meal?.SsrDesc,
       code: meal?.SsrCode,
       amount: meal?.Price,
@@ -179,9 +222,17 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
       flightNumber: meal?.FNo,
       wayType: meal?.Trip,
     })),
-    dob: traveler.Dob ?? "1900-01-01",
+    dob: traveler.Dob ?? "",
     gender: traveler.Gender?.at?.(0)?.toUpperCase?.() || "M",
-    passportDetails: null,
+    passportDetails: traveler?.Optional?.PassportNo
+      ? {
+          number: traveler?.Optional?.PassportNo ?? "",
+          issuingCountry: traveler?.Optional?.ResidentCountry,
+          expiryDate: moment(traveler?.Optional?.PassportExpiryDate).format(
+            "YYYY-MM-DD"
+          ),
+        }
+      : null,
     contactDetails: {
       address1:
         traveler.AddressLine1 ??
@@ -204,10 +255,12 @@ function convertTravelerDetailsForCommonAPI(traveler, idx) {
   };
 }
 
-function convertBookingResponse(request, response) {
+function convertBookingResponse(request, response, reqSegment) {
   // const tickets = response?.data?.journey?.[0]?.travellerDetails[0]?.eTicket;
-  const src = request.SearchRequest.Segments[0].Origin;
-  const des = request.SearchRequest.Segments[0].Destination;
+  // const src = request.SearchRequest.Segments[0].Origin; // TODO: needs to be dynamic
+  const src = reqSegment.Origin;
+  const des = reqSegment.Destination;
+  // const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
   const pnrs = response?.data?.journey?.[0]?.recLocInfo;
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
@@ -246,6 +299,7 @@ function convertBookingResponse(request, response) {
     data.WarningMessage = data.ErrorMessage;
     return { data };
   } catch (error) {
+    saveLogInFile("error.json", { stack: error.stack, message: error.message });
     return {
       data: {
         Status: PNR ? "Success" : "Failed",
@@ -262,7 +316,7 @@ function convertBookingResponse(request, response) {
           WarningMessage: error.message,
         },
         PaxInfo: updatePassengerDetails(
-          request.PassengerPreferences,
+          passengerPreferences,
           travelerDetails,
           src,
           des
@@ -283,16 +337,40 @@ function updatePassengerDetails(
     ...passengerPreferences,
     Passengers: passengerPreferences.Passengers.map((pax, idx) => {
       if (!travelerDetails?.[idx]?.eTicket?.length) return pax;
+      const ticketDetails =
+        travelerDetails?.[idx]?.eTicket?.map?.((ticket) => ({
+          ticketNumber: ticket.eTicketNumber,
+          src,
+          des,
+        })) || [];
+      const EMDDetails = travelerDetails[idx]?.emd || [];
+      // if (
+      //   ticketDetails?.length &&
+      //   !pax.Optional?.ticketDetails?.some((ticket) => ticket?.ticketNumber)
+      // ) {
+      //   pax.Optional.ticketDetails = ticketDetails;
+      // } else {
+      //   pax.Optional.ticketDetails = [
+      //     ...pax.Optional.ticketDetails,
+      //     ticketDetails,
+      //   ];
+      // }
+      // if (
+      //   EMDDetails.length &&
+      //   !pax.Optional?.EMD?.some((emd) => emd?.EMDNumber)
+      // ) {
+      //   pax.Optional.EMDDetails = EMDDetails;
+      // } else {
+      //   pax.Optional.EMDDetails = [...pax.Optional.EMDDetails, EMDDetails];
+      // }
+      // return pax;
+      saveLogInFile("tickets.json", { ticketDetails, EMDDetails });
       return {
         ...pax,
         Optional: {
-          ...pax.Optional,
-          ticketDetails: travelerDetails[idx].eTicket.map((ticket) => ({
-            ticketNumber: ticket.eTicketNumber,
-            src,
-            des,
-          })),
-          EMDDetails: travelerDetails[idx]?.emd ?? [],
+          ticketDetails,
+          EMDDetails,
+          // ...pax.Optional = {}
         },
       };
     }),

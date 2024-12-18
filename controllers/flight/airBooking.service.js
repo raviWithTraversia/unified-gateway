@@ -614,15 +614,17 @@ const KafilaFun = async (
         CommercialBreakup?.forEach((commercialBreakup) => {
           let { CommercialType, Amount } = commercialBreakup;
           if (offerPricePlusInAmount(CommercialType) && CommercialType != "TDS")
-            returnCalculatedOfferedPrice += Math.round(Amount) * NoOfPassenger;
+            returnCalculatedOfferedPrice +=
+              roundOffNumberValues(Amount) * NoOfPassenger;
           if (offerPriceMinusInAmount(CommercialType))
-            returnCalculatedOfferedPrice -= Math.round(Amount) * NoOfPassenger;
+            returnCalculatedOfferedPrice -=
+              roundOffNumberValues(Amount) * NoOfPassenger;
           if (
             CommercialType == "Discount" ||
             CommercialType == "SegmentKickback"
           ) {
             // console.log(PassengerType, "PassengerType");
-            const discountOrSegmentValue = Math.round(Amount);
+            const discountOrSegmentValue = roundOffNumberValues(Amount);
             // console.log(CommercialType + "=" + discountOrSegmentValue, "before adding");
             returnCalculatedOfferedPrice +=
               discountOrSegmentValue * 0.02 * NoOfPassenger;
@@ -663,11 +665,15 @@ const KafilaFun = async (
 
   const calculationOfferPriceWithCommercial =
     await calculateOfferedPriceForAll();
+
   // ("");
   // Check Balance Available or Not Available
   const totalSSRWithCalculationPrice =
     calculationOfferPriceWithCommercial + totalssrPrice;
-
+  saveLogInFile("price-with-commercial.json", {
+    calculationOfferPriceWithCommercial,
+    totalSSRWithCalculationPrice,
+  });
   if (paymentMethodType === "Wallet") {
     try {
       // Retrieve agent configuration
@@ -1175,20 +1181,18 @@ const KafilaFun = async (
                   // Check if maxCreditLimit exists, otherwise set it to 0
                   const maxCreditLimitPrice =
                     getAgentConfigForUpdate?.maxcreditLimit ?? 0;
-                  const transactionAmount =
-                    item.Provider === "Kafila"
-                      ? item?.offeredPrice +
-                          item?.totalMealPrice +
-                          item?.totalBaggagePrice +
-                          item?.totalSeatPrice || item.GrandTotal
-                      : item.GrandTotal;
+                  // const transactionAmount =
+                  //   item.Provider === "Kafila"
+                  //     ? item?.offeredPrice +
+                  //         item?.totalMealPrice +
+                  //         item?.totalBaggagePrice +
+                  //         item?.totalSeatPrice || item.GrandTotal
+                  //     : item.GrandTotal;
                   const newBalanceCredit =
-                    maxCreditLimitPrice + transactionAmount;
-                  console.log({
-                    newBalanceCredit,
-                    maxCreditLimitPrice,
-                    transactionAmount,
-                    stage: 3,
+                    maxCreditLimitPrice + totalSSRWithCalculationPrice;
+                  // maxCreditLimitPrice + transactionAmount;
+                  saveLogInFile("transaction-amount.json", {
+                    totalSSRWithCalculationPrice,
                   });
                   await agentConfig.updateOne(
                     { userId: getuserDetails._id },
@@ -1199,7 +1203,7 @@ const KafilaFun = async (
                     companyId: getuserDetails.company_ID._id,
                     ledgerId:
                       "LG" + Math.floor(100000 + Math.random() * 900000),
-                    transactionAmount,
+                    transactionAmount: totalSSRWithCalculationPrice,
                     currencyType: "INR",
                     fop: "CREDIT",
                     transactionType: "CREDIT",
@@ -1383,19 +1387,20 @@ const KafilaFun = async (
                   const maxCreditLimitPrice =
                     getAgentConfigForUpdate?.maxcreditLimit ?? 0;
 
-                  const transactionAmount =
-                    item.Provider === "Kafila"
-                      ? item?.offeredPrice +
-                          item?.totalMealPrice +
-                          item?.totalBaggagePrice +
-                          item?.totalSeatPrice || item.GrandTotal
-                      : item.GrandTotal;
+                  // const transactionAmount =
+                  // item.Provider === "Kafila"
+                  //   ? item?.offeredPrice +
+                  //       item?.totalMealPrice +
+                  //       item?.totalBaggagePrice +
+                  //       item?.totalSeatPrice || item.GrandTotal
+                  //   : item.GrandTotal;
                   const newBalanceCredit =
-                    maxCreditLimitPrice + transactionAmount;
+                    maxCreditLimitPrice + totalSSRWithCalculationPrice;
+                  // maxCreditLimitPrice + transactionAmount;
                   console.log({
                     newBalanceCredit,
                     maxCreditLimitPrice,
-                    transactionAmount,
+                    totalSSRWithCalculationPrice,
                     stage: 2,
                   });
                   await agentConfig.updateOne(
@@ -1407,7 +1412,7 @@ const KafilaFun = async (
                     companyId: getuserDetails.company_ID._id,
                     ledgerId:
                       "LG" + Math.floor(100000 + Math.random() * 900000),
-                    transactionAmount,
+                    transactionAmount: totalSSRWithCalculationPrice,
                     currencyType: "INR",
                     fop: "CREDIT",
                     transactionType: "CREDIT",
@@ -1471,20 +1476,21 @@ const KafilaFun = async (
                 const maxCreditLimitPrice =
                   getAgentConfigForUpdate?.maxcreditLimit ?? 0;
 
-                const transactionAmount =
-                  item.Provider === "Kafila"
-                    ? item?.offeredPrice +
-                        item?.totalMealPrice +
-                        item?.totalBaggagePrice +
-                        item?.totalSeatPrice || item.GrandTotal
-                    : item.GrandTotal;
+                // const transactionAmount =
+                //   item.Provider === "Kafila"
+                //     ? item?.offeredPrice +
+                //         item?.totalMealPrice +
+                //         item?.totalBaggagePrice +
+                //         item?.totalSeatPrice || item.GrandTotal
+                //     : item.GrandTotal;
 
                 const newBalanceCredit =
-                  maxCreditLimitPrice + transactionAmount;
+                  maxCreditLimitPrice + totalSSRWithCalculationPrice;
+                // maxCreditLimitPrice + transactionAmount;
                 console.log({
                   newBalanceCredit,
                   maxCreditLimitPrice,
-                  transactionAmount,
+                  // transactionAmount,
                   stage: 1,
                 });
                 await agentConfig.updateOne(
@@ -1497,7 +1503,7 @@ const KafilaFun = async (
                   userId: getuserDetails._id,
                   companyId: getuserDetails.company_ID._id,
                   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                  transactionAmount,
+                  transactionAmount: totalSSRWithCalculationPrice,
                   currencyType: "INR",
                   fop: "CREDIT",
                   transactionType: "CREDIT",

@@ -17,7 +17,7 @@ const airLinePremoSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'FareFamilyMaster'
     },
-    premoCode :{
+    promoCode :{
         type : String,
         default : null
     },

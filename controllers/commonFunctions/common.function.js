@@ -1367,7 +1367,7 @@ const RailBookingCommonMethod = async (
 
 
     let agentCommercialMinus = {};
-    if (jClass === "SL") {
+    if (jClass === "SL"||jClass==="2S") {
       agentCommercialMinus = {
         Agent_service_charge:
           getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar || 0,

@@ -255,7 +255,7 @@ const railFareEnquiry = async (req, res) => {
 
     console.log(checkUser.RailcommercialPlanIds)
     let agentCharges = {}
-    if (jClass == "SL") {
+    if (jClass == "SL"||jClass == "2S") {
       agentCharges.Conveniencefee = 17.7
       agentCharges.Agent_service_charge = 20
       agentCharges.PG_charges = paymentEnqFlag === "Y" ? await commonAgentPGCharges(amount) : 0

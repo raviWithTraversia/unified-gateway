@@ -71,4 +71,48 @@ else{
 }
 
 
-module.exports = { getRailSearch ,getTrainStation}
+const createTrainStation = async (req, res) => {
+    try {
+        const { StationCode, StationName, Location, CountryCode } = req.body;
+
+        if (!StationCode || !StationName || !Location || !CountryCode) {
+            return {
+                response: "Provide required fields",
+            };
+        }
+        const trainStationS = new trainStation(req.body);
+        await trainStationS.save();
+        return {
+            response: "Train Station Added Successfully",
+        }
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+const updateTrainStation = async (req, res) => {
+    try {
+        console.log(req.query)
+        const id=req.query.id;
+        if(!id){
+            return {
+                response:"id not found"
+            }
+        }
+        const trainStationS = await trainStation.findByIdAndUpdate(id,req.body,{new:true});
+        if(!trainStationS){
+            return {
+                response:"Train Station not found"
+            }
+        }
+        return {
+            response:"Train Station Updated Successfully",
+        }
+
+}catch(error){
+    console.error(error);
+    throw error;
+}
+}
+module.exports = { getRailSearch ,getTrainStation,createTrainStation,updateTrainStation}

@@ -15,6 +15,8 @@ rail_route.post(
 );
 rail_route.post("/rail/stationName", auth, railController.getTrainStation);
 rail_route.post("/rail/railRoute", auth, railController.getTrainRoute);
+rail_route.post("/rail/create-station-master",auth,railController.createTrainStation);
+rail_route.patch("/rail/update-station-master",auth,railController.updateTrainStation);
 rail_route.post("/rail/fareEnquiry", auth, railController.getFareEnquiry);
 rail_route.post("/rail/get-boarding-station", auth, railController.getBoardingStation);
 rail_route.post("/rail/Change-boarding-station", auth, railController.ChangeBoardingStation);

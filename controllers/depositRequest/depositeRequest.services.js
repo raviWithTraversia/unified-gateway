@@ -4,6 +4,7 @@ const User = require("../../models/User");
 const config = require("../../models/AgentConfig");
 const ledger = require("../../models/Ledger");
 const EventLogs = require("../logs/EventApiLogsCommon");
+const Railleadger=require('../../models/Irctc/ledgerRail')
 const { recieveDI } = require("../commonFunctions/common.function");
 
 const adddepositDetails = async (req, res) => {
@@ -205,6 +206,8 @@ const approveAndRejectDeposit = async (req, res) => {
     }
     // const doerId = req.user._id;
     const loginUser = await User.findById(req.user._id);
+     
+    var leadgers
 
     let updateResponse;
     if (status == "approved") {
@@ -217,7 +220,7 @@ const approveAndRejectDeposit = async (req, res) => {
         },
         { new: true }
       );
-      //console.log(updateResponse);
+      console.log(updateResponse);
       const findUser = await User.findById(updateResponse.userId);
       const configData = await config
         .findOne({ userId: updateResponse.userId })
@@ -244,22 +247,28 @@ const approveAndRejectDeposit = async (req, res) => {
         ""
       );
       let runningAmount = 0;
-      if (updateResponse.product === "Rail") {
-        configData.maxRailCredit += updateResponse.amount + DIdata;
-        runningAmount = configData.maxRailCredit;
+      const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+ if (updateResponse.product === "Rail") {
+        configData.railCashBalance += updateResponse.amount;
+        runningAmount = configData.railCashBalance;
+        await Railleadger.create({
+          userId: updateResponse.userId,
+          companyId: updateResponse.agencyId,
+          ledgerId: ledgerId,
+          transactionAmount: updateResponse.amount,
+          currencyType: "INR",
+          fop: "Credit",
+          transactionType: "CREDIT",
+          runningAmount,
+          remarks: remarks,
+          transactionBy: updateResponse.userId,
+          product: updateResponse.product,
+        });
+        
       }
       if (updateResponse.product === "Flight") {
-        console.log(configData.maxcreditLimit,"jfieie")
-        console.log(updateResponse.amount)
-        console.log(DIdata)
-
         configData.maxcreditLimit += updateResponse.amount + DIdata;
         runningAmount = configData.maxcreditLimit;
-      }
-
-      
-
-      const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
       await ledger.create({
         userId: updateResponse.userId,
         companyId: updateResponse.companyId,
@@ -273,8 +282,13 @@ const approveAndRejectDeposit = async (req, res) => {
         transactionBy: updateResponse.userId,
         product: updateResponse.product,
       });
+      }
 
-    if(DIdata>0){
+      
+
+      
+
+    if(DIdata>0&&updateResponse.product==="Flight"){
 const tdsAmount=parseInt(DIdata)*2/100
 configData.maxcreditLimit-=tdsAmount
 runningAmount=configData.maxcreditLimit

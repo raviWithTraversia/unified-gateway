@@ -6,7 +6,7 @@ const User = require("../../../models/User");
 const config = require("../../../models/AgentConfig");
 const { ObjectId } = require("mongodb");
 const { generateQR } = require("../../../utils/generate-qr");
-const {commonFunctionsRailLogs ,commonMethodDate}=require('../../../controllers/commonFunctions/common.function')
+const {commonFunctionsRailLogs ,commonMethodDate,ProivdeIndiaStandardTime}=require('../../../controllers/commonFunctions/common.function')
 
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
@@ -221,7 +221,9 @@ const StartBookingRail = async (req) => {
           .populate("roleId")
           .populate("company_ID");
       
+    const commonDateItc=await ProivdeIndiaStandardTime(fromDate,toDate)
     
+
         if (
           (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") ||
           (checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual")
@@ -254,16 +256,16 @@ const StartBookingRail = async (req) => {
       
       if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
         filter.bookingDate = {
-          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+          $gte: commonDateItc.startDateUTC, // Start of fromDate
+          $lte: commonDateItc.endDateUTC, // End of toDate
         };
       } else if (fromDate !== undefined && fromDate.trim() !== "") {
         filter.bookingDate = {
-          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+          $lte: commonDateItc.endDateUTC, // End of fromDate
         };
       } else if (toDate !== undefined && toDate.trim() !== "") {
         filter.bookingDate = {
-          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+          $gte: commonDateItc.startDateUTC, // Start of toDate
         };
       }
       console.log(filter)
@@ -436,16 +438,16 @@ const StartBookingRail = async (req) => {
             toDate.trim() !== ""
           ) {
             filter.bookingDate = {
-              $gte: new Date(fromDate + "T00:00:00.000Z"), 
-              $lte: new Date(toDate + "T23:59:59.999Z"), 
+              $gte: commonDateItc.startDateUTC, // Start of fromDate
+              $lte: commonDateItc.endDateUTC, // End of toDate
             };
           } else if (fromDate !== undefined && fromDate.trim() !== "") {
             filter.bookingDate = {
-              $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+              $lte: commonDateItc.endDateUTC, // End of fromDate
             };
           } else if (toDate !== undefined && toDate.trim() !== "") {
             filter.bookingDate = {
-              $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+              $gte: commonDateItc.startDateUTC, // Start of toDate
             };
           }
       
@@ -628,16 +630,16 @@ const StartBookingRail = async (req) => {
             toDate.trim() !== ""
           ) {
             filter.bookingDate = {
-              $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-              $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+              $gte: commonDateItc.startDateUTC, // Start of fromDate
+              $lte: commonDateItc.endDateUTC, // End of toDate
             };
           } else if (fromDate !== undefined && fromDate.trim() !== "") {
             filter.bookingDate = {
-              $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+              $lte: commonDateItc.endDateUTC, // End of fromDate
             };
           } else if (toDate !== undefined && toDate.trim() !== "") {
             filter.bookingDate = {
-              $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+              $gte: commonDateItc.startDateUTC, // Start of toDate
             };
           }
           console.log(filter,"j;die")
@@ -814,16 +816,16 @@ const StartBookingRail = async (req) => {
         toDate.trim() !== ""
       ) {
         filter.bookingDate = {
-          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+          $gte: commonDateItc.startDateUTC, // Start of fromDate
+          $lte: commonDateItc.endDateUTC, // End of toDate
         };
       } else if (fromDate !== undefined && fromDate.trim() !== "") {
         filter.bookingDate = {
-          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+          $lte:commonDateItc.endDateUTC, // End of fromDate
         };
       } else if (toDate !== undefined && toDate.trim() !== "") {
         filter.bookingDate = {
-          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+          $gte: commonDateItc.startDateUTC, // Start of toDate
         };
       }
 
@@ -1009,16 +1011,16 @@ const StartBookingRail = async (req) => {
         toDate.trim() !== ""
       ) {
         filter.bookingDate = {
-          $gte: new Date(fromDate + "T00:00:00.000Z"), // Start of fromDate
-          $lte: new Date(toDate + "T23:59:59.999Z"), // End of toDate
+          $gte: commonDateItc.startDateUTC ,// Start of fromDate
+          $lte: commonDateItc.endDateUTC, // End of toDate
         };
       } else if (fromDate !== undefined && fromDate.trim() !== "") {
         filter.bookingDate = {
-          $lte: new Date(fromDate + "T23:59:59.999Z"), // End of fromDate
+          $lte: commonDateItc.endDateUTC, // End of fromDate
         };
       } else if (toDate !== undefined && toDate.trim() !== "") {
         filter.bookingDate = {
-          $gte: new Date(toDate + "T00:00:00.000Z"), // Start of toDate
+          $gte: commonDateItc.startDateUTC, // Start of toDate
         };
       }
 

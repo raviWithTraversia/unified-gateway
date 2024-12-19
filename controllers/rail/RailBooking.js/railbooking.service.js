@@ -7,6 +7,18 @@ const config = require("../../../models/AgentConfig");
 const { ObjectId } = require("mongodb");
 const { generateQR } = require("../../../utils/generate-qr");
 const {commonFunctionsRailLogs ,commonMethodDate}=require('../../../controllers/commonFunctions/common.function')
+
+const ISOTime = async (time) => {
+  const utcDate = new Date(time);
+  const istDate = new Date(utcDate.getTime() - 5.5 * 60 * 60 * 1000);
+  return istDate.toISOString();
+};
+
+const ISTTime = async (time) => {
+  const utcDate = new Date(time);
+  const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
+  return istDate.toISOString();
+};
 const StartBookingRail = async (req) => {
   try {
       const {

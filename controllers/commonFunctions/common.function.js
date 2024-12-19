@@ -1530,21 +1530,69 @@ const commonMethodDate = (bookingDate = new Date()) => {
   };
 };
 
-const convertTimeISTtoUTC = (Isodate) => {
-  const inputDate = Isodate;
 
+
+const convertTimeISTtoUTC = (Isodate) => {
+  let inputDate = Isodate;
+  if (!inputDate.includes("IST")) { 
+    inputDate = formatDate(inputDate);
+  }
   // Step 1: Parse the date
-  const [day, month, yearAndTime] = inputDate.split("-");
-  const [year, time] = yearAndTime.split(" ");
-  const dateString = `${year}-${month}-${day}T${time.replace(".0", "")}`;
+  const [day, month, yearAndTime] = inputDate.split('-');
+  console.log({ day, month, yearAndTime })
+  const [year, time] = yearAndTime.split(' ');
+  const dateString = `${year}-${month}-${day}T${time.replace('.0', '')}`;
 
   // Step 2: Convert to ISO format
   // India Standard Time (IST) is UTC+5:30
   const localDate = new Date(dateString + "+05:30"); // Add IST offset
   const isoDate = localDate.toISOString();
 
-  return isoDate;
+  return isoDate
+
+}
+
+function formatDate(inputDate) {
+  // Parse the input date
+  const date = new Date(inputDate);
+
+  // Extract date components
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const year = date.getFullYear();
+
+  // Extract time components
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const milliseconds = Math.floor(date.getMilliseconds() / 100); // Take only the first digit
+
+  // Format the date and time
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+const ISTtoUTC = (time) => {
+  const istDate = new Date(time);
+  const utcDate = new Date(istDate.getTime() - 5.5 * 60 * 60 * 1000); // IST to UTC conversion
+  return utcDate;
 };
+
+const ProivdeIndiaStandardTime = (toDate, fromDate) => {
+  
+  const startOfDayIST = new Date(`${toDate}T00:00:00+05:30`); // Start of today in IST
+const endOfDayIST = new Date(`${fromDate}T23:59:59+05:30`); // End of today in IST
+
+const startDateUTC = ISTtoUTC(startOfDayIST);
+const endDateUTC = ISTtoUTC(endOfDayIST);
+
+
+  return {
+    startDateUTC,
+    endDateUTC
+}
+}
+
+
+
 module.exports = {
   createToken,
   securePassword,
@@ -1580,4 +1628,5 @@ module.exports = {
   commonFunctionsRailLogs,
   commonMethodDate,
   convertTimeISTtoUTC,
+  ProivdeIndiaStandardTime 
 };

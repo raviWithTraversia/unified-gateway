@@ -167,7 +167,10 @@ const manualDebitCredit = async (req, res) => {
       let DIdata; // = await recieveDI(configData, findUser, product, amount, loginUser._id);
       if (ApplyDI == true) {
         DIdata = 0;
-      } else {
+      } else if(easeBuzzSuccessReponse&&easeBuzzSuccessReponse?.status == "success"&&easeBuzzSuccessReponse?.card_type.toUpperCase() == "CREDIT CARD"){
+        DIdata=0
+      }
+      else {
         DIdata = await recieveDI(
           configData,
           findUser,

@@ -179,7 +179,14 @@ const getBillingRailData = async (req, res) => {
       $gte: new Date(istDateString),
       $lte: new Date(istDateString2),
     },
-    bookingStatus: "CONFIRMED",
+  bookingStatus: "CONFIRMED",
+  bookingStatus: "CONFIRMED",
+  "psgnDtlList": {
+    $elemMatch: {
+      accountPost: 0
+    }
+  } 
+   
   })
   .populate([
     { path: "userId" }, // Populates the `user` collection for `userId`

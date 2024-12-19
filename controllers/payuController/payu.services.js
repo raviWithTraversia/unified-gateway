@@ -956,8 +956,6 @@ const payuWalletResponceSuccess = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1, udf2, udf3, amount, PG_TYPE } =
       req.body;
-    console.log(req.body, "req");
-    console.log("jksdsds");
     //productinfo = product udf3= pgcharges;
 
     var successHtmlCode
@@ -1045,7 +1043,12 @@ const payuWalletResponceSuccess = async (req, res) => {
       // const doerId = req.user._id;
       const loginUser = userData._id;
       // console.log(loginUser, "loginUser");
-      let DIdata = await recieveDI(
+      var DIdata
+      if(PG_TYPE == "CC-PG"){
+       DIdata=0
+      }else{
+
+       DIdata = await recieveDI(
         configData,
         findUser,
         productinfo,
@@ -1053,6 +1056,8 @@ const payuWalletResponceSuccess = async (req, res) => {
         loginUser,
         txnid
       );
+    }
+
       // console.log(DIdata, "DIdata1");
       // return false;
       if (userData) {

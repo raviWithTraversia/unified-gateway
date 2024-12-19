@@ -183,8 +183,8 @@ console.log(url,"url")
         response: "No Response from Irctc",
       };
     } else {
-      response.traceId = traceId
-      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "Rail Search", url, req.body, response)
+      // response.traceId = traceId
+      // commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "Rail Search", url, req.body, response)
 
       return {
         response: "Fetch Data Successfully",

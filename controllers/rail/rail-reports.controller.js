@@ -153,6 +153,7 @@ const getBillingRailData = async (req, res) => {
   const { key, fromDate, toDate } = req.query;
   const istDateString = await ISOTime(fromDate);
   const istDateString2 = await ISOTime(toDate);
+  console.log(istDateString,istDateString2)
 
   if (!fromDate || !toDate || !key) {
     return {
@@ -175,7 +176,7 @@ const getBillingRailData = async (req, res) => {
 
   const BillingData = await bookingDetailsRail
   .find({
-    createdAt: {
+    bookingDate: {
       $gte: new Date(istDateString),
       $lte: new Date(istDateString2),
     },

@@ -80,7 +80,7 @@ const getSearch = async (req, res) => {
     });
     // "6E", "SG"
     itineraries = itineraries
-      .filter((itinerary) => ["Kafila", "1A"].includes(itinerary.Provider))
+      .filter((itinerary) => ["Kafila", "1A","1AN"].includes(itinerary.Provider))
       .sort((a, b) => a.TotalPrice - b.TotalPrice);
     if (itineraries.length) {
       apiSucessRes(

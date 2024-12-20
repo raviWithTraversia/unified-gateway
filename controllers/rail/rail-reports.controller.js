@@ -180,12 +180,8 @@ const getBillingRailData = async (req, res) => {
       $gte: new Date(istDateString),
       $lte: new Date(istDateString2),
     },
-  bookingStatus: "CONFIRMED",
-  "psgnDtlList": {
-    $elemMatch: {
-      accountPost: 0
-    }
-  } 
+  bookingStatus:{ $in: ["CONFIRMED","CANCELLED"] },
+ 
    
   })
   .populate([
@@ -224,7 +220,7 @@ const paxbyBillingData = BillingData.flatMap((element) => {
     airline_tax: Math.round(element?.serviceTax),
     tran_fee: 0,
     s_tax: 0,
-    commission: commission,
+    commission: Math.round(commission),
     tds: 0,
     cash_back: 0,
     account_post: psg?.accountPost,
@@ -237,16 +233,18 @@ const paxbyBillingData = BillingData.flatMap((element) => {
 const processedBookingIds = new Set();
 
 const adjustedBillingData = paxbyBillingData.map((element) => {
-  if (processedBookingIds.has(element.pnr)) {
-    return {
-      ...element,
-      airline_tax: 0,
-      commission: 0,
-    };
-  } else {
-    processedBookingIds.add(element.pnr);
-    return element;
-  }
+    if (processedBookingIds.has(element.pnr)) {
+      return {
+        ...element,
+        airline_tax: 0,
+        commission: 0,
+      };
+    } else {
+      processedBookingIds.add(element.pnr);
+      return element;
+    }
+  
+ 
 });
 
 const data=await  Promise.all(adjustedBillingData)
@@ -260,7 +258,7 @@ const data=await  Promise.all(adjustedBillingData)
 
   return {
     response: "Fetch Data Successfully",
-    data: adjustedBillingData,
+    data: adjustedBillingData.filter((item) => item.account_post == 0),
   };
 };
 

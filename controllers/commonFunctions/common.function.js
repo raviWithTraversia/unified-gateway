@@ -16,6 +16,7 @@ const PassengerPreference = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
 const Railledger = require("../../models/Irctc/ledgerRail");
 const RailBookingSchema = require("../../models/Irctc/bookingDetailsRail");
+const moment=require('moment')
 const {
   UserBindingInstance,
 } = require("twilio/lib/rest/chat/v2/service/user/userBinding");
@@ -1571,25 +1572,37 @@ function formatDate(inputDate) {
   return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}.${milliseconds}`;
 }
 const ISTtoUTC = (time) => {
+  // Convert the IST time to UTC by subtracting 5.5 hours
   const istDate = new Date(time);
   const utcDate = new Date(istDate.getTime() - 5.5 * 60 * 60 * 1000); // IST to UTC conversion
   return utcDate;
 };
 
 const ProivdeIndiaStandardTime = (toDate, fromDate) => {
+  // Start of the day in IST
+  const startOfDayIST = moment(toDate)
+    .set('hour', 0)
+    .set('minute', 0)
+    .set('second', 0)
+    .toDate();
   
-  const startOfDayIST = new Date(`${toDate}T00:00:00+05:30`); // Start of today in IST
-const endOfDayIST = new Date(`${fromDate}T23:59:59+05:30`); // End of today in IST
+  // End of the day in IST
+  const endOfDayIST = moment(fromDate)
+    .set('hour', 23)
+    .set('minute', 59)
+    .set('second', 59)
+    .toDate();
 
-const startDateUTC = ISTtoUTC(startOfDayIST);
-const endDateUTC = ISTtoUTC(endOfDayIST);
-
+  // Convert the IST dates to UTC for querying
+  const startDateUTC = startOfDayIST;
+  const endDateUTC = endOfDayIST;
 
   return {
-    startDateUTC,
-    endDateUTC
-}
-}
+    startDateUTC,  // This will be the UTC start date
+    endDateUTC,    // This will be the UTC end date
+  };
+};
+
 
 
 

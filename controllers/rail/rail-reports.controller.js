@@ -180,7 +180,6 @@ const getBillingRailData = async (req, res) => {
       $lte: new Date(istDateString2),
     },
   bookingStatus: "CONFIRMED",
-  bookingStatus: "CONFIRMED",
   "psgnDtlList": {
     $elemMatch: {
       accountPost: 0

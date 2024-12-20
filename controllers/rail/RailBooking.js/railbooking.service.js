@@ -221,7 +221,7 @@ const StartBookingRail = async (req) => {
           .populate("roleId")
           .populate("company_ID");
       
-    const commonDateItc=await ProivdeIndiaStandardTime(fromDate,toDate)
+    const commonDateItc=await ProivdeIndiaStandardTime(toDate,fromDate)
     
 
         if (

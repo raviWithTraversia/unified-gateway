@@ -1788,6 +1788,7 @@ const kafilaFunOnlinePayment = async (
         );
         const authData = JSON.stringify(Authentication);
         const request = JSON.stringify({
+          SearchRequest: JSON.stringify(SearchRequest),
           PassengerPreferences: passengerPreferencesString,
           ItineraryPriceCheckResponses: itineraryPriceCheckResponsesString,
           Authentication: authData,

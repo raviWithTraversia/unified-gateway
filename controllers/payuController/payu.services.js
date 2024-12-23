@@ -22,6 +22,8 @@ const {
   recieveDI,
 } = require("../commonFunctions/common.function");
 const AgentConfiguration = require("../../models/AgentConfig");
+const { saveLogInFile } = require("../../utils/save-log");
+const { commonFlightBook } = require("../../services/common-flight-book");
 
 const payu = async (req, res) => {
   try {
@@ -397,8 +399,14 @@ const payuSuccess = async (req, res) => {
         const PassengerPreferences = JSON.parse(
           convertDataBookingTempRes.PassengerPreferences
         );
+        const paxList = JSON.parse(
+          convertDataBookingTempRes.PassengerPreferences
+        );
         const ItineraryPriceCheckResponses = JSON.parse(
           convertDataBookingTempRes.ItineraryPriceCheckResponses
+        );
+        const SearchRequest = JSON.parse(
+          convertDataBookingTempRes.SearchRequest ?? {}
         );
 
         const Authentication = JSON.parse(
@@ -552,7 +560,7 @@ const payuSuccess = async (req, res) => {
         var bookingId = "";
         var FailedbookingIdenty = [];
         const updatePromises = ItineraryPriceCheckResponses.map(
-          async (item) => {
+          async (item, idx) => {
             bookingId = item.BookingId;
             let requestDataFSearch = {
               FareChkRes: {
@@ -572,16 +580,25 @@ const payuSuccess = async (req, res) => {
               let fSearchApiResponse = null;
 
               if (item.Provider === "Kafila") {
+                fSearchApiResponse = await axios.post(
+                  flightSearchUrl,
+                  requestDataFSearch,
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+              } else {
+                const reqSegment = SearchRequest?.Segments?.[idx];
+                saveLogInFile("request-segment.json", { reqSegment });
+                fSearchApiResponse = await commonFlightBook(
+                  { SearchRequest, PassengerPreferences },
+                  reqSegment,
+                  item,
+                  paxList
+                );
               }
-              fSearchApiResponse = await axios.post(
-                flightSearchUrl,
-                requestDataFSearch,
-                {
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                }
-              );
               const logData = {
                 traceId: Authentication.TraceId,
                 companyId: Authentication.CompanyId,
@@ -622,7 +639,7 @@ const payuSuccess = async (req, res) => {
               Logs(logData1);
               Logs(logData2);
               if (
-                fSearchApiResponse.data.Status == "failed" ||
+                fSearchApiResponse?.data?.Status?.toLowerCase?.() == "failed" ||
                 fSearchApiResponse?.data?.IsError == true ||
                 fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"
               ) {
@@ -731,10 +748,17 @@ const payuSuccess = async (req, res) => {
               );
 
               const getpassengersPrefrence =
-                await passengerPreferenceModel.findOne({ bookingId: udf1 });
+                await passengerPreferenceModel.findOne({
+                  bookingId: item?.BookingId,
+                });
+              // await passengerPreferenceModel.findOne({ bookingId: udf1 });
 
-              await Promise.all(
-                getpassengersPrefrence.Passengers.map(async (passenger) => {
+              if (
+                item.Provider === "Kafila" &&
+                getpassengersPrefrence?.Passengers
+              ) {
+                // await Promise.all(
+                getpassengersPrefrence.Passengers.map((passenger) => {
                   const apiPassenger =
                     fSearchApiResponse.data.PaxInfo.Passengers.find(
                       (p) =>
@@ -754,9 +778,56 @@ const payuSuccess = async (req, res) => {
 
                     // passenger.Status = "CONFIRMED";
                   }
-                })
-              );
-              await getpassengersPrefrence.save();
+                });
+                // );
+                // TODO:
+                // bookingResponce.PassengerPreferences.Passengers =  getpassengersPrefrence.Passengers;
+
+                await getpassengersPrefrence.save();
+              } else if (
+                fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
+                "CONFIRMED"
+              ) {
+                getpassengersPrefrence.Passengers.map?.(async (passenger) => {
+                  const segmentMap = {};
+                  passenger.Optional.ticketDetails.forEach((ticket, idx) => {
+                    segmentMap[`${ticket.src}-${ticket.des}`] = idx;
+                  });
+                  const selectedPax =
+                    fSearchApiResponse.data.PaxInfo.Passengers.find(
+                      (p) =>
+                        p.FName === passenger.FName &&
+                        p.LName === passenger.LName
+                    );
+                  if (!selectedPax) return passenger;
+                  saveLogInFile("selected-pax.json", selectedPax);
+                  passenger.Optional.EMDDetails = [
+                    ...(passenger.Optional.EMDDetails || []),
+                    ...(selectedPax?.Optional?.EMDDetails || []),
+                  ];
+                  if (selectedPax?.Optional?.ticketDetails?.length) {
+                    selectedPax.Optional?.ticketDetails.forEach((ticket) => {
+                      const segmentIdx =
+                        segmentMap[`${ticket.src}-${ticket.des}`];
+                      if (segmentIdx != null) {
+                        passenger.Optional.ticketDetails[
+                          segmentIdx
+                        ].ticketNumber = ticket.ticketNumber;
+                      } else {
+                        passenger.Optional.ticketDetails.push(ticket);
+                      }
+                    });
+                  }
+                  return passenger;
+                });
+                // bookingResponce.PassengerPreferences.Passengers =
+                //   getpassengersPrefrence.Passengers;
+                saveLogInFile(
+                  "pax-preferences.json",
+                  getpassengersPrefrence._doc
+                );
+                await getpassengersPrefrence.save();
+              }
 
               if (
                 fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"

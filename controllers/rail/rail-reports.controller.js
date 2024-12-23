@@ -153,6 +153,7 @@ const getBillingRailData = async (req, res) => {
   const { key, fromDate, toDate } = req.query;
   const istDateString = await ISOTime(fromDate);
   const istDateString2 = await ISOTime(toDate);
+  console.log(istDateString,istDateString2)
 
   if (!fromDate || !toDate || !key) {
     return {
@@ -175,11 +176,13 @@ const getBillingRailData = async (req, res) => {
 
   const BillingData = await bookingDetailsRail
   .find({
-    createdAt: {
+    bookingDate: {
       $gte: new Date(istDateString),
       $lte: new Date(istDateString2),
     },
-    bookingStatus: "CONFIRMED",
+  bookingStatus:{ $in: ["CONFIRMED","CANCELLED"] },
+ 
+   
   })
   .populate([
     { path: "userId" }, // Populates the `user` collection for `userId`
@@ -217,7 +220,7 @@ const paxbyBillingData = BillingData.flatMap((element) => {
     airline_tax: Math.round(element?.serviceTax),
     tran_fee: 0,
     s_tax: 0,
-    commission: commission,
+    commission: Math.round(commission),
     tds: 0,
     cash_back: 0,
     account_post: psg?.accountPost,
@@ -230,16 +233,18 @@ const paxbyBillingData = BillingData.flatMap((element) => {
 const processedBookingIds = new Set();
 
 const adjustedBillingData = paxbyBillingData.map((element) => {
-  if (processedBookingIds.has(element.pnr)) {
-    return {
-      ...element,
-      airline_tax: 0,
-      commission: 0,
-    };
-  } else {
-    processedBookingIds.add(element.pnr);
-    return element;
-  }
+    if (processedBookingIds.has(element.pnr)) {
+      return {
+        ...element,
+        airline_tax: 0,
+        commission: 0,
+      };
+    } else {
+      processedBookingIds.add(element.pnr);
+      return element;
+    }
+  
+ 
 });
 
 const data=await  Promise.all(adjustedBillingData)
@@ -253,7 +258,7 @@ const data=await  Promise.all(adjustedBillingData)
 
   return {
     response: "Fetch Data Successfully",
-    data: adjustedBillingData,
+    data: adjustedBillingData.filter((item) => item.account_post == 0),
   };
 };
 

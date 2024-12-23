@@ -528,6 +528,19 @@ const fetchLedgerRailReport = async (req) => {
           preserveNullAndEmptyArrays: true,
         },
       },
+      {$lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "userData",
+      }},
+      {
+        $unwind: {
+          path: "$userData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+     
       {
         $group: {
           _id: "$_id",
@@ -542,14 +555,15 @@ const fetchLedgerRailReport = async (req) => {
           createdAt: -1, // Apply final sort after grouping
         },
       },
-      {
-        $addFields: {
-          mergedDetails: {
-            ledger: "$$ROOT",
-            booking: "$railBookingDetails",
-          },
-        },
-      },
+      // {
+      //   $addFields: {
+      //     mergedDetails: {
+      //       ledger: "$$ROOT",
+      //       booking: "$railBookingDetails",
+      //       user: "$userData",
+      //     },
+      //   },
+      // },
     ]);
 
     return { result };

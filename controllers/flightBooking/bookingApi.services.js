@@ -2695,7 +2695,7 @@ const getBillingData = async (req, res) => {
     { $unwind: "$bookingData" },
     {
       $match: {
-        "bookingData.bookingStatus": "CONFIRMED",
+        "bookingData.bookingStatus": {$in:["CANCELLED","CONFIRMED"]},
         "Passengers.accountPost": "0",
       },
     },

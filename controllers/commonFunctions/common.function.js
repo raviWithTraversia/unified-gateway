@@ -16,6 +16,7 @@ const PassengerPreference = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
 const Railledger = require("../../models/Irctc/ledgerRail");
 const RailBookingSchema = require("../../models/Irctc/bookingDetailsRail");
+const moment=require('moment')
 const {
   UserBindingInstance,
 } = require("twilio/lib/rest/chat/v2/service/user/userBinding");
@@ -1369,7 +1370,7 @@ const RailBookingCommonMethod = async (
     }
 
     let agentCommercialMinus = {};
-    if (jClass === "SL") {
+    if (jClass === "SL"||jClass==="2S") {
       agentCommercialMinus = {
         Agent_service_charge:
           getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar ||
@@ -1396,12 +1397,13 @@ const RailBookingCommonMethod = async (
     const currentBalance = getAgentConfig?.railCashBalance || 0;
     const checkCreditLimit = currentBalance - amount;
 
-    if (checkCreditLimit < total) {
-      return { response: "Your Balance is not sufficient." };
-    }
+   
 
     // Calculate ticket amount
     const ticketAmount = Math.round(amount - total);
+    if (currentBalance < ticketAmount) {
+      return { response: "Your Balance is not sufficient." };
+    }
     const newBalance = Math.round(currentBalance - ticketAmount);
 
     // Update balance in DB
@@ -1529,21 +1531,81 @@ const commonMethodDate = (bookingDate = new Date()) => {
   };
 };
 
-const convertTimeISTtoUTC = (Isodate) => {
-  const inputDate = Isodate;
 
+
+const convertTimeISTtoUTC = (Isodate) => {
+  let inputDate = Isodate;
+  if (!inputDate.includes("IST")) { 
+    inputDate = formatDate(inputDate);
+  }
   // Step 1: Parse the date
-  const [day, month, yearAndTime] = inputDate.split("-");
-  const [year, time] = yearAndTime.split(" ");
-  const dateString = `${year}-${month}-${day}T${time.replace(".0", "")}`;
+  const [day, month, yearAndTime] = inputDate.split('-');
+  console.log({ day, month, yearAndTime })
+  const [year, time] = yearAndTime.split(' ');
+  const dateString = `${year}-${month}-${day}T${time.replace('.0', '')}`;
 
   // Step 2: Convert to ISO format
   // India Standard Time (IST) is UTC+5:30
   const localDate = new Date(dateString + "+05:30"); // Add IST offset
   const isoDate = localDate.toISOString();
 
-  return isoDate;
+  return isoDate
+
+}
+
+function formatDate(inputDate) {
+  // Parse the input date
+  const date = new Date(inputDate);
+
+  // Extract date components
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const year = date.getFullYear();
+
+  // Extract time components
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const milliseconds = Math.floor(date.getMilliseconds() / 100); // Take only the first digit
+
+  // Format the date and time
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+const ISTtoUTC = (time) => {
+  // Convert the IST time to UTC by subtracting 5.5 hours
+  const istDate = new Date(time);
+  const utcDate = new Date(istDate.getTime() - 5.5 * 60 * 60 * 1000); // IST to UTC conversion
+  return utcDate;
 };
+
+const ProivdeIndiaStandardTime = (toDate, fromDate) => {
+  // Start of the day in IST
+  const startOfDayIST = moment(toDate)
+    .set('hour', 0)
+    .set('minute', 0)
+    .set('second', 0)
+    .toDate();
+  
+  // End of the day in IST
+  const endOfDayIST = moment(fromDate)
+    .set('hour', 23)
+    .set('minute', 59)
+    .set('second', 59)
+    .toDate();
+
+  // Convert the IST dates to UTC for querying
+  const startDateUTC = startOfDayIST;
+  const endDateUTC = endOfDayIST;
+
+  return {
+    startDateUTC,  // This will be the UTC start date
+    endDateUTC,    // This will be the UTC end date
+  };
+};
+
+
+
+
 module.exports = {
   createToken,
   securePassword,
@@ -1579,4 +1641,5 @@ module.exports = {
   commonFunctionsRailLogs,
   commonMethodDate,
   convertTimeISTtoUTC,
+  ProivdeIndiaStandardTime 
 };

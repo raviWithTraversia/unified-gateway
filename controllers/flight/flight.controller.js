@@ -32,6 +32,7 @@ const { saveLogInFile } = require("../../utils/save-log");
 const getSearch = async (req, res) => {
   try {
     const validationResult = await validateSearchRequest(req);
+    // console.log({ validationResult });
     if (!validationResult.response && validationResult.isSometingMissing)
       return apiErrorres(
         res,
@@ -64,7 +65,6 @@ const getSearch = async (req, res) => {
     if (!isInternationalRoundTrip)
       flightRequests.push(flightSearch.getSearch(req, res));
     if (isTestEnv) flightRequests.push(commonFlightSearch(req.body));
-    console.log({ flightRequests });
     const results = await Promise.allSettled(flightRequests);
     let itineraries = [];
     results.forEach((result) => {
@@ -80,7 +80,7 @@ const getSearch = async (req, res) => {
     });
     // "6E", "SG"
     itineraries = itineraries
-      .filter((itinerary) => ["Kafila", "1A"].includes(itinerary.Provider))
+      .filter((itinerary) => ["Kafila", "1A","1AN"].includes(itinerary.Provider))
       .sort((a, b) => a.TotalPrice - b.TotalPrice);
     if (itineraries.length) {
       apiSucessRes(

@@ -137,6 +137,75 @@ const getTrainStation = async (req, res) => {
   }
 };
 
+const createTrainStation = async (req, res) => {
+  try {
+    const result = await railBookingServices.createTrainStation(req, res);
+    if (result.response === "Train Station Added Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else if (result.response === "Provide required fields") {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+        console.error(error);
+        if(error.code === "ER_DUP_ENTRY"){
+          apiErrorres(res, "Train Station Code already exists", ServerStatusCode.SERVER_ERROR, true);
+        }else{  
+          apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+          );
+        }
+}
+}
+
+const updateTrainStation = async (req, res) => {
+  try {
+    const result = await railBookingServices.updateTrainStation(req, res);
+    if (result.response === "Train Station Updated Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else if (result.response === "Train Station not found") {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+        console.error(error);
+        if(error.code === "ER_DUP_ENTRY"){
+          apiErrorres(res, "Train Station Code already exists", ServerStatusCode.SERVER_ERROR, true);
+        }else{  
+          apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+          );
+        }
+      }
+}
 const getTrainRoute = async (req, res) => {
   try {
     const result = await railSearchServices.railRouteView(req, res);
@@ -939,11 +1008,12 @@ module.exports = {
   fetchCancellations,
   handleFetchTDRReasons,
   handleFetchTxnHistory,
-
+  createTrainStation,
   handleTDRRequest,
   getBoardingStation,
   ChangeBoardingStation,
   PnrEnquirry,
   getBillingRailData,
-  updateBillPost
+  updateBillPost,
+  updateTrainStation
 };

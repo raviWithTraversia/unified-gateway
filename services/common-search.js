@@ -19,6 +19,7 @@ async function commonFlightSearch(request) {
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/flight/search";
     console.log({ url });
+    
     const { data: response } = await axios.post(url, requestBody);
     saveLogInFile("response.json", response);
     // fs.writeFileSync(

@@ -1025,8 +1025,6 @@ const payuWalletResponceSuccess = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1, udf2, udf3, amount, PG_TYPE } =
       req.body;
-    console.log(req.body, "req");
-    console.log("jksdsds");
     //productinfo = product udf3= pgcharges;
 
     var successHtmlCode;
@@ -1113,7 +1111,12 @@ const payuWalletResponceSuccess = async (req, res) => {
       // const doerId = req.user._id;
       const loginUser = userData._id;
       // console.log(loginUser, "loginUser");
-      let DIdata = await recieveDI(
+      var DIdata
+      if(PG_TYPE == "CC-PG"){
+       DIdata=0
+      }else{
+
+       DIdata = await recieveDI(
         configData,
         findUser,
         productinfo,
@@ -1121,6 +1124,8 @@ const payuWalletResponceSuccess = async (req, res) => {
         loginUser,
         txnid
       );
+    }
+
       // console.log(DIdata, "DIdata1");
       // return false;
       if (userData) {
@@ -1394,14 +1399,14 @@ const payuWalletRailResponceSuccess = async (req, res) => {
       // const doerId = req.user._id;
       const loginUser = userData._id;
       // console.log(loginUser, "loginUser");
-      let DIdata = await recieveDI(
-        configData,
-        findUser,
-        productinfo,
-        udf2,
-        loginUser,
-        txnid
-      );
+      // let DIdata = await recieveDI(
+      //   configData,
+      //   findUser,
+      //   productinfo,
+      //   udf2,
+      //   loginUser,
+      //   txnid
+      // );
       // console.log(DIdata, "DIdata1");
       // return false;
       if (userData) {
@@ -1426,81 +1431,85 @@ const payuWalletRailResponceSuccess = async (req, res) => {
           fop: "CREDIT",
           transactionType: "CREDIT",
           runningAmount: newBalanceAmount,
-          remarks: "Wallet Amount Credited into Your Account.",
+          remarks:  "Manual Wallet Amount Credited into Your Account.",
           transactionBy: userData._id,
         });
 
-        await Railledger.create({
-          userId: userData._id,
-          companyId: userData.company_ID,
-          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionId: txnid,
-          transactionAmount: udf3,
-          currencyType: "INR",
-          fop: "DEBIT",
-          transactionType: "DEBIT",
-          runningAmount: newBalanceAmount - udf3,
-          remarks: "Wallet debited for PG charges(PayU)",
-          transactionBy: userData._id,
-        });
-        await agentConfig.findOneAndUpdate(
-          { userId: userData._id },
-          { railCashBalance: newBalanceAmount - udf3 },
-          { new: true }
-        );
-        console.log("hjdsdh");
-        if (DIdata !== null || DIdata !== 0) {
-          let tdsAmount = DIdata * (2 / 100);
-          // console.log(tdsAmount, "tdsAmount");
-          if (tdsAmount != 0) {
-            tdsAmount = await priceRoundOffNumberValues(tdsAmount);
-            // console.log(tdsAmount, "tdsAmount2");
-            // console.log("hjdsdh12");
-            const findUser = await User.findById(userData._id);
-            console.log(findUser, "findUser");
-            const configData = await agentConfig.findOne({
-              userId: userData._id,
-            });
-            console.log(configData, "configData");
-            if (!configData) {
-              return {
-                response: "User not found",
-              };
-            }
-            if (productinfo === "Rail") {
-              if (configData?.railCashBalance < amount) {
-                return { response: "Insufficient Balance" };
-              }
-              configData.railCashBalance -= tdsAmount;
-              runningAmount = configData.maxRailCredit;
-            }
-            // if (productinfo === "Flight") {
-            //   if (configData?.maxcreditLimit < amount) {
-            //     return { response: "Insufficient Balance" };
-            //   }
-            //   configData.maxcreditLimit -= tdsAmount;
-            //   runningAmount = configData.maxcreditLimit;
-            // }
-            // console.log(runningAmount, "runningAmount");
-            await configData.save();
-            const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-            console.log(runningAmount, "runningAmount");
-            await Railledger.create({
-              userId: findUser._id,
-              companyId: findUser.company_ID,
-              ledgerId: ledgerId,
-              transactionId: txnid,
-              transactionAmount: tdsAmount,
-              currencyType: "INR",
-              fop: "DEBIT",
-              transactionType: "DEBIT",
-              runningAmount,
-              remarks: `TDS against ${tdsAmount} DI deposit.`,
-              transactionBy: userData._id,
-              productinfo,
-            });
-          }
+        if(Number(udf3)!==0){
+          await Railledger.create({
+            userId: userData._id,
+            companyId: userData.company_ID,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionId: txnid,
+            transactionAmount: udf3,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "DEBIT",
+            runningAmount: newBalanceAmount - udf3,
+            remarks: "Manual Wallet debited for PG charges(PayU)",
+            transactionBy: userData._id,
+          });
+          await agentConfig.findOneAndUpdate(
+            { userId: userData._id },
+            { railCashBalance: newBalanceAmount - udf3 },
+            { new: true }
+          );
+          
         }
+       
+        console.log("hjdsdh");
+        // if (DIdata !== null || DIdata !== 0) {
+        //   let tdsAmount = DIdata * (2 / 100);
+        //   // console.log(tdsAmount, "tdsAmount");
+        //   if (tdsAmount != 0) {
+        //     tdsAmount = await priceRoundOffNumberValues(tdsAmount);
+        //     // console.log(tdsAmount, "tdsAmount2");
+        //     // console.log("hjdsdh12");
+        //     const findUser = await User.findById(userData._id);
+        //     console.log(findUser, "findUser");
+        //     const configData = await agentConfig.findOne({
+        //       userId: userData._id,
+        //     });
+        //     console.log(configData, "configData");
+        //     if (!configData) {
+        //       return {
+        //         response: "User not found",
+        //       };
+        //     }
+        //     if (productinfo === "Rail") {
+        //       if (configData?.railCashBalance < amount) {
+        //         return { response: "Insufficient Balance" };
+        //       }
+        //       configData.railCashBalance -= tdsAmount;
+        //       runningAmount = configData.maxRailCredit;
+        //     }
+        //     // if (productinfo === "Flight") {
+        //     //   if (configData?.maxcreditLimit < amount) {
+        //     //     return { response: "Insufficient Balance" };
+        //     //   }
+        //     //   configData.maxcreditLimit -= tdsAmount;
+        //     //   runningAmount = configData.maxcreditLimit;
+        //     // }
+        //     // console.log(runningAmount, "runningAmount");
+        //     await configData.save();
+        //     // const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+        //     // console.log(runningAmount, "runningAmount");
+        //     // await Railledger.create({
+        //     //   userId: findUser._id,
+        //     //   companyId: findUser.company_ID,
+        //     //   ledgerId: ledgerId,
+        //     //   transactionId: txnid,
+        //     //   transactionAmount: tdsAmount,
+        //     //   currencyType: "INR",
+        //     //   fop: "DEBIT",
+        //     //   transactionType: "DEBIT",
+        //     //   runningAmount,
+        //     //   remarks: `TDS against ${tdsAmount} DI deposit.`,
+        //     //   transactionBy: userData._id,
+        //     //   productinfo,
+        //     // });
+        //   }
+        // }
 
         await transaction.create({
           userId: userData._id,

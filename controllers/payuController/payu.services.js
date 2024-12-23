@@ -6,8 +6,8 @@ const UserModel = require("../../models/User");
 const BookingDetails = require("../../models/booking/BookingDetails");
 const transaction = require("../../models/transaction");
 const ledger = require("../../models/Ledger");
-const Railledger = require('../../models/Irctc/ledgerRail')
-const RailBookingDetail = require('../../models/Irctc/bookingDetailsRail')
+const Railledger = require("../../models/Irctc/ledgerRail");
+const RailBookingDetail = require("../../models/Irctc/bookingDetailsRail");
 const agentConfig = require("../../models/AgentConfig");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
@@ -36,7 +36,7 @@ const payu = async (req, res) => {
       cartId,
       pgCharges,
       normalAmount,
-      agentId
+      agentId,
     } = req.body;
 
     if (
@@ -47,14 +47,12 @@ const payu = async (req, res) => {
         !amount ||
         !productinfo ||
         !phone,
-        !cartId)
+      !cartId)
     ) {
       return {
         response: "All field are required",
       };
     }
-
-
 
     // const key = 'gtKFFx';
     // const txnid = '4c14e4f2-91c6-4e4e-b942-de29e5210f5f';
@@ -74,10 +72,12 @@ const payu = async (req, res) => {
     const firstnameres = firstName;
     const emailres = email;
     const phoneres = phone;
-    const surl = `${Config[Config.MODE].baseURLBackend
-      }/api/paymentGateway/success`;
-    const furl = `${Config[Config.MODE].baseURLBackend
-      }/api/paymentGateway/failed`;
+    const surl = `${
+      Config[Config.MODE].baseURLBackend
+    }/api/paymentGateway/success`;
+    const furl = `${
+      Config[Config.MODE].baseURLBackend
+    }/api/paymentGateway/failed`;
 
     const salt =
       Config.MODE == "TEST"
@@ -190,7 +190,7 @@ const payu2 = async (req, res) => {
         !amount ||
         !productinfo ||
         !phone,
-        !cartId)
+      !cartId)
     ) {
       return {
         response: "All field are required",
@@ -205,7 +205,7 @@ const payu2 = async (req, res) => {
     // const email = 'test@example.com';
     // const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
 
-    const key = "DlSTL0cw"
+    const key = "DlSTL0cw";
 
     const txnid = uuidv4();
     const amountres = amount;
@@ -213,12 +213,14 @@ const payu2 = async (req, res) => {
     const firstnameres = firstName;
     const emailres = email;
     const phoneres = phone;
-    const surl = `${Config[Config.MODE].baseURLBackend
-      }/api/paymentGateway/success`;
-    const furl = `${Config[Config.MODE].baseURLBackend
-      }/api/paymentGateway/failed`;
+    const surl = `${
+      Config[Config.MODE].baseURLBackend
+    }/api/paymentGateway/success`;
+    const furl = `${
+      Config[Config.MODE].baseURLBackend
+    }/api/paymentGateway/failed`;
 
-    const salt = "HYDinl3tea"
+    const salt = "HYDinl3tea";
     const cartIdres = cartId;
 
     // Concatenate the transaction details
@@ -304,7 +306,6 @@ const payu2 = async (req, res) => {
   }
 };
 
-
 const payuSuccess = async (req, res) => {
   try {
     const {
@@ -321,8 +322,10 @@ const payuSuccess = async (req, res) => {
       cardCategory,
     } = req.body;
 
-
-    const CheckAllereadyBooking = await BookingDetails.find({ bookingId: udf1, bookingStatus: { $ne: "INCOMPLETE" } })
+    const CheckAllereadyBooking = await BookingDetails.find({
+      bookingId: udf1,
+      bookingStatus: { $ne: "INCOMPLETE" },
+    });
     if (CheckAllereadyBooking.length) {
       let successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
@@ -379,20 +382,15 @@ const payuSuccess = async (req, res) => {
           <h1 class="success-txt">Payment Successful!</h1>
           <p class="success-txt">Your payment has been successfully processed.</p>
           <p>Thank you for your purchase.</p>
-          <a href="${Config[Config.MODE].baseURL
-        }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+          <a href="${
+            Config[Config.MODE].baseURL
+          }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
         </div>
       </body>
-      </html>`
-      return successHtmlCode
-    }
-
-
-    else if (status === "success") {
-
+      </html>`;
+      return successHtmlCode;
+    } else if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
-
-
 
       if (BookingTempData) {
         const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
@@ -417,7 +415,7 @@ const payuSuccess = async (req, res) => {
           flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FPNR`;
         } else {
           // Test Url here
-          console.log('test url')
+          console.log("test url");
           createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
           flightSearchUrl = `http://stage1.ksofttechnology.com/api/FPNR`;
         }
@@ -480,11 +478,10 @@ const payuSuccess = async (req, res) => {
           totalsAmount.totalBaggagePrice +
           totalsAmount.totalSeatPrice;
 
-        var pgChargesAmount = 0
+        var pgChargesAmount = 0;
         if (udf3 > 0) {
-          totalItemAmount + udf3
-          pgChargesAmount = udf3
-
+          totalItemAmount + udf3;
+          pgChargesAmount = udf3;
         }
 
         const newBalanceCredit = getconfigAmount + totalItemAmount;
@@ -512,7 +509,7 @@ const payuSuccess = async (req, res) => {
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
-        var runningAmountShow = newBalanceCredit + Number(pgChargesAmount)
+        var runningAmountShow = newBalanceCredit + Number(pgChargesAmount);
         await ledger.create({
           userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
@@ -553,10 +550,10 @@ const payuSuccess = async (req, res) => {
         //const hitAPI = await Promise.all(
         var totalRefundAmount = 0;
         var bookingId = "";
-        var FailedbookingIdenty = []
+        var FailedbookingIdenty = [];
         const updatePromises = ItineraryPriceCheckResponses.map(
           async (item) => {
-            bookingId = item.BookingId
+            bookingId = item.BookingId;
             let requestDataFSearch = {
               FareChkRes: {
                 Error: item.Error,
@@ -572,7 +569,11 @@ const payuSuccess = async (req, res) => {
             };
 
             try {
-              let fSearchApiResponse = await axios.post(
+              let fSearchApiResponse = null;
+
+              if (item.Provider === "Kafila") {
+              }
+              fSearchApiResponse = await axios.post(
                 flightSearchUrl,
                 requestDataFSearch,
                 {
@@ -625,7 +626,7 @@ const payuSuccess = async (req, res) => {
                 fSearchApiResponse?.data?.IsError == true ||
                 fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"
               ) {
-                console.log('JDifeieiei')
+                console.log("JDifeieiei");
                 await BookingDetails.updateOne(
                   {
                     bookingId: udf1,
@@ -636,10 +637,9 @@ const payuSuccess = async (req, res) => {
                       bookingStatus: "FAILED",
                       bookingRemarks:
                         fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ==
-                          "FAILED"
+                        "FAILED"
                           ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
-                          : fSearchApiResponse?.data?.ErrorMessage ||
-                          "FAILED",
+                          : fSearchApiResponse?.data?.ErrorMessage || "FAILED",
                     },
                   }
                 );
@@ -652,9 +652,11 @@ const payuSuccess = async (req, res) => {
                   {
                     $set: {
                       bookingStatus: "FAILED",
-                      bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus === "FAILED"
-                        ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
-                        : fSearchApiResponse?.data?.ErrorMessage || "FAILED",
+                      bookingRemarks:
+                        fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
+                        "FAILED"
+                          ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
+                          : fSearchApiResponse?.data?.ErrorMessage || "FAILED",
                     },
                   }
                 );
@@ -663,7 +665,7 @@ const payuSuccess = async (req, res) => {
                 const updatedBooking = await BookingDetails.find(
                   {
                     bookingId: udf1,
-                    bookingStatus: "FAILED"
+                    bookingStatus: "FAILED",
                   },
                   { bookingTotalAmount: 1 }
                 );
@@ -673,15 +675,16 @@ const payuSuccess = async (req, res) => {
                   return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
                 }, 0);
 
-                FailedbookingIdenty.push(false)
+                FailedbookingIdenty.push(false);
 
-                updatedBooking.length > 1 ? totalRefundAmount = totalItemAmount : totalRefundAmount = refundAmount;
-
+                updatedBooking.length > 1
+                  ? (totalRefundAmount = totalItemAmount)
+                  : (totalRefundAmount = refundAmount);
 
                 // Add to the total refund amount
               }
 
-              FailedbookingIdenty.push(true)
+              FailedbookingIdenty.push(true);
 
               const bookingResponce = {
                 CartId: item.BookingId,
@@ -727,7 +730,8 @@ const payuSuccess = async (req, res) => {
                 }
               );
 
-              const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: udf1 });
+              const getpassengersPrefrence =
+                await passengerPreferenceModel.findOne({ bookingId: udf1 });
 
               await Promise.all(
                 getpassengersPrefrence.Passengers.map(async (passenger) => {
@@ -738,14 +742,11 @@ const payuSuccess = async (req, res) => {
                         p.LName === passenger.LName
                     );
                   if (apiPassenger) {
-                    const ticketUpdate =
-                      passenger.Optional.ticketDetails.find(
-                        (p) =>
-                          p.src ===
-                          fSearchApiResponse.data.Param.Sector[0].Src &&
-                          p.des ===
-                          fSearchApiResponse.data.Param.Sector[0].Des
-                      );
+                    const ticketUpdate = passenger.Optional.ticketDetails.find(
+                      (p) =>
+                        p.src === fSearchApiResponse.data.Param.Sector[0].Src &&
+                        p.des === fSearchApiResponse.data.Param.Sector[0].Des
+                    );
                     if (ticketUpdate) {
                       ticketUpdate.ticketNumber =
                         apiPassenger?.Optional?.TicketNumber;
@@ -756,7 +757,6 @@ const payuSuccess = async (req, res) => {
                 })
               );
               await getpassengersPrefrence.save();
-
 
               if (
                 fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
@@ -781,7 +781,6 @@ const payuSuccess = async (req, res) => {
                 //     cardType:cardCategory
                 //   }
                 // );
-
               }
               //return fSearchApiResponse.data;
               const barcodeupdate = await updateBarcode2DByBookingId(
@@ -836,7 +835,6 @@ const payuSuccess = async (req, res) => {
           );
         }
         if (!FailedbookingIdenty.includes(false)) {
-
           await transaction.create({
             userId: Authentication.UserId,
             bookingId: bookingId,
@@ -849,15 +847,14 @@ const payuSuccess = async (req, res) => {
             trnsStatus: "success",
             transactionBy: Authentication.UserId,
             pgCharges: udf3,
-            transactionAmount: Number(udf2) + Number(pgChargesAmount) - totalRefundAmount,
+            transactionAmount:
+              Number(udf2) + Number(pgChargesAmount) - totalRefundAmount,
             statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
             trnsNo: txnid,
             trnsBankRefNo: bank_ref_num,
             cardType: cardCategory,
           });
         }
-
-
 
         let successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
@@ -914,8 +911,9 @@ const payuSuccess = async (req, res) => {
         <h1 class="success-txt">Payment Successful!</h1>
         <p class="success-txt">Your payment has been successfully processed.</p>
         <p>Thank you for your purchase.</p>
-        <a href="${Config[Config.MODE].baseURL
-          }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+        <a href="${
+          Config[Config.MODE].baseURL
+        }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
       </div>
     </body>
     </html>`;
@@ -958,8 +956,8 @@ const payuWalletResponceSuccess = async (req, res) => {
       req.body;
     //productinfo = product udf3= pgcharges;
 
-    var successHtmlCode
-    const findtransaction = await transaction.find({ trnsNo: txnid })
+    var successHtmlCode;
+    const findtransaction = await transaction.find({ trnsNo: txnid });
     if (findtransaction.length > 0) {
       successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
@@ -1021,8 +1019,7 @@ const payuWalletResponceSuccess = async (req, res) => {
       </body>
       </html>`;
       return successHtmlCode;
-    }
-    else if (status === "success") {
+    } else if (status === "success") {
       const userData = await User.findOne({ company_ID: udf1 }).populate({
         path: "roleId",
         match: { name: "Agency" },
@@ -1246,8 +1243,8 @@ const payuWalletRailResponceSuccess = async (req, res) => {
       req.body;
     console.log("shadaab ali");
     //productinfo = product udf3= pgcharges;
-    var successHtmlCode
-    const findtransaction = await transaction.find({ trnsNo: txnid })
+    var successHtmlCode;
+    const findtransaction = await transaction.find({ trnsNo: txnid });
     if (findtransaction.length > 0) {
       successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
@@ -1541,7 +1538,10 @@ const payuRailSuccess = async (req, res) => {
       cardCategory,
     } = req.body;
 
-    const CheckAllereadyBooking = await RailBookingDetail.find({ CartId: udf1, bookingStatus: { $ne: "INCOMPLETE" } })
+    const CheckAllereadyBooking = await RailBookingDetail.find({
+      CartId: udf1,
+      bookingStatus: { $ne: "INCOMPLETE" },
+    });
     if (CheckAllereadyBooking.length) {
       let successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
@@ -1598,21 +1598,14 @@ const payuRailSuccess = async (req, res) => {
           <h1 class="success-txt">Payment Successful!</h1>
           <p class="success-txt">Your payment has been successfully processed.</p>
           <p>Thank you for your purchase.</p>
-          <a href="${Config[Config.MODE].baseURL
-        }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+          <a href="${
+            Config[Config.MODE].baseURL
+          }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
         </div>
       </body>
-      </html>`
-      return successHtmlCode
-    }
-
-
-
-
-
-
-
-    else if (status === "success") {
+      </html>`;
+      return successHtmlCode;
+    } else if (status === "success") {
       const agentData = await RailBookingDetail.aggregate([
         {
           $match: {
@@ -1639,8 +1632,7 @@ const payuRailSuccess = async (req, res) => {
             localField: "AgencyId",
             foreignField: "_id",
             as: "ComapnyData",
-
-          }
+          },
         },
         {
           $unwind: {
@@ -1652,71 +1644,66 @@ const payuRailSuccess = async (req, res) => {
       // console.log("jsoeo",agentData);
 
       if (agentData.length == 0) {
-        throw new Error("Data not found")
+        throw new Error("Data not found");
       }
 
-      let runningAmount = agentData[0].agentData?.railCashBalance || 0
-      const userData = agentData[0]?.agentData || null
-      const CompnayData = agentData[0]?.ComapnyData
+      let runningAmount = agentData[0].agentData?.railCashBalance || 0;
+      const userData = agentData[0]?.agentData || null;
+      const CompnayData = agentData[0]?.ComapnyData;
       const parsedAmount = Number(amount);
       const parsedPgCharges = Number(udf3);
       const initialRunningAmount = Number(runningAmount);
 
-      
-
       runningAmount += parsedAmount;
-    await createLedgerEntry({
-      userId: userData.userId,
-        companyId:CompnayData._id,
-      transactionType: "CREDIT",
-      transactionAmount: parsedAmount,
-      updatedRunningAmount: runningAmount,
-      remarks: "Credit Ticket Amount.",
-      txnid,
-    });
-
-      
+      await createLedgerEntry({
+        userId: userData.userId,
+        companyId: CompnayData._id,
+        transactionType: "CREDIT",
+        transactionAmount: parsedAmount,
+        updatedRunningAmount: runningAmount,
+        remarks: "Credit Ticket Amount.",
+        txnid,
+      });
 
       const debitAmountWithoutPgCharges = parsedAmount - parsedPgCharges;
       runningAmount -= debitAmountWithoutPgCharges;
       await createLedgerEntry({
         userId: userData.userId,
-        companyId:CompnayData._id,
+        companyId: CompnayData._id,
         transactionType: "DEBIT",
         transactionAmount: debitAmountWithoutPgCharges,
         updatedRunningAmount: runningAmount,
         remarks: "Debited Ticket Amount.",
         txnid,
       });
-  
 
       if (parsedPgCharges > 0) {
-
-         runningAmount -= parsedPgCharges;
-      await createLedgerEntry({
-       userId: userData.userId,
-       companyId:CompnayData._id,
-        transactionType: "DEBIT",
-        transactionAmount: parsedPgCharges,
-        updatedRunningAmount: runningAmount,
-        remarks: "Debited for PG charges (PayU).",
-        txnid,
-      });
-
+        runningAmount -= parsedPgCharges;
+        await createLedgerEntry({
+          userId: userData.userId,
+          companyId: CompnayData._id,
+          transactionType: "DEBIT",
+          transactionAmount: parsedPgCharges,
+          updatedRunningAmount: runningAmount,
+          remarks: "Debited for PG charges (PayU).",
+          txnid,
+        });
       }
 
-      const wsLoginUrl = req.headers.host == "localhost:3111" ||
-        req.headers.host == "kafila.traversia.net" ? Config?.TEST?.IRCTC_BASE_URL +
-      "/eticketing/wsapplogin" : Config?.LIVE?.IRCTC_BASE_URL +
-      "/eticketing/wsapplogin";
+      const wsLoginUrl =
+        req.headers.host == "localhost:3111" ||
+        req.headers.host == "kafila.traversia.net"
+          ? Config?.TEST?.IRCTC_BASE_URL + "/eticketing/wsapplogin"
+          : Config?.LIVE?.IRCTC_BASE_URL + "/eticketing/wsapplogin";
       let irctcLoginFormFields = {
         wsTxnId: udf1,
         wsloginId: CompnayData?.railSubAgentId,
-        wsReturnUrl: req.headers.host == "localhost:3111" ||
-          req.headers.host == "kafila.traversia.net" ? Config?.TEST?.baseURLBackend +
-        "/api/rail/bookingSave" : Config?.LIVE?.baseURLBackend +
-        "/api/rail/bookingSave",
-      }
+        wsReturnUrl:
+          req.headers.host == "localhost:3111" ||
+          req.headers.host == "kafila.traversia.net"
+            ? Config?.TEST?.baseURLBackend + "/api/rail/bookingSave"
+            : Config?.LIVE?.baseURLBackend + "/api/rail/bookingSave",
+      };
 
       await transaction.create({
         userId: agentData?.userId,
@@ -1739,9 +1726,11 @@ const payuRailSuccess = async (req, res) => {
 
       // const agentData=await agentConfig.findOne({userId:Authentication.userId})
 
-await RailBookingDetail.findOneAndUpdate({cartId:udf1},{$set:{bookingStatus:"PENDING"}},{new:true})
-
-
+      await RailBookingDetail.findOneAndUpdate(
+        { cartId: udf1 },
+        { $set: { bookingStatus: "PENDING" } },
+        { new: true }
+      );
 
       let successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
@@ -1806,19 +1795,13 @@ await RailBookingDetail.findOneAndUpdate({cartId:udf1},{$set:{bookingStatus:"PEN
     </body>
     </html>`;
 
-
       return successHtmlCode;
-
+    } else {
     }
-    else{
-
-    }
-  }
-  catch (error) {
+  } catch (error) {
     throw error;
   }
 };
-
 
 const createLedgerEntry = async ({
   userId,
@@ -1827,7 +1810,7 @@ const createLedgerEntry = async ({
   transactionAmount,
   updatedRunningAmount,
   remarks,
-  txnid
+  txnid,
 }) => {
   if (isNaN(updatedRunningAmount)) {
     throw new Error("Invalid running amount in ledger creation");
@@ -1941,8 +1924,9 @@ const payuFail = async (req, res) => {
             <h1 class="failed-txt">Payment Failed!</h1>
             <p class="failed-txt">Your payment has failed.</p>
             <p>Please try again later.</p>
-            <a href="${Config[Config.MODE].baseURL
-        }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+            <a href="${
+              Config[Config.MODE].baseURL
+            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
           </div>
         </body>
         </html>
@@ -1959,18 +1943,16 @@ const payuFail = async (req, res) => {
   }
 };
 
-
 const payuRailFail = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1, error_Message } = req.body;
-    const BookingTempData = await RailBookingDetail.findOne({ BookingId: udf1 });
+    const BookingTempData = await RailBookingDetail.findOne({
+      BookingId: udf1,
+    });
 
     if (!BookingTempData) {
       return "Data does not exist";
     }
-
- 
-    
 
     try {
       await RailBookingDetail.updateMany(
@@ -2035,8 +2017,9 @@ const payuRailFail = async (req, res) => {
             <h1 class="failed-txt">Payment Failed!</h1>
             <p class="failed-txt">Your payment has failed.</p>
             <p>Please try again later.</p>
-            <a href="${Config[Config.MODE].baseURL
-        }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+            <a href="${
+              Config[Config.MODE].baseURL
+            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
           </div>
         </body>
         </html>
@@ -2052,7 +2035,6 @@ const payuRailFail = async (req, res) => {
     return "Data does not exist";
   }
 };
-
 
 const payuWalletFail = async (req, res) => {
   try {
@@ -2338,5 +2320,5 @@ module.exports = {
   payuWalletFail,
   payu2,
   payuRailSuccess,
-  payuRailFail
+  payuRailFail,
 };

@@ -82,6 +82,7 @@ const swaggerUiOptions = {
 // Place your cache control middleware here // remove after dev to pro
 app.use((req, res, next) => {
     res.header('Cache-Control', 'no-store');
+    res.header('Content-Type', 'application/json');
     next();
 });
 

@@ -21,7 +21,7 @@ async function commonFlightSearch(request) {
     console.log({ url });
     
     const { data: response } = await axios.post(url, requestBody);
-    saveLogInFile("response.json", response);
+    saveLogInFile("response.jsonhduueueeu", response);
     // fs.writeFileSync(
     //   path.resolve(__dirname, "response.json"),
     //   JSON.stringify(response, null, 2)

@@ -390,14 +390,17 @@ const getAllBooking = async (req, res) => {
   ) {
     let filter = {};
 
-    if (agencyId !== undefined && agencyId !== "") {
+    console.log("dhieieei")
+    if (agencyId !== undefined && agencyId == "") {
       // filter.userId={}
+
       if (checkUserIdExist?.roleId?.type === "Default") {
         // Fetch all companies that have the current user's company ID as the parent
         const companiesData = await Company.find({
           parent: checkUserIdExist.company_ID._id,
         });
 
+        // console.log(companiesData,"companiesData")
         // Extract and map company IDs into an array of ObjectIds
         const companyIds = companiesData.map(
           (element) => new ObjectId(element._id)

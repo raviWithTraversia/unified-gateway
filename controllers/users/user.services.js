@@ -1209,7 +1209,7 @@ const searchForAgency = async (req, res) => {
   try {
     const { companyId, search, userId } = req.query;
 
-    const getUserId = await User.findOne({ _id: userId, roleId: { $exists: true, $ne: null } });
+    const findTmcUser = await User.findOne({ _id: userId, roleId: { $exists: true, $ne: null } }).populate("company_ID");
 
     const searchRegex = new RegExp(search, 'i');
     const searchNumber = new RegExp(userId, 'i');
@@ -1243,6 +1243,34 @@ const searchForAgency = async (req, res) => {
           }
         },
         { $unwind: { path: '$roleId', preserveNullAndEmptyArrays: true } },
+        {
+          $addFields: {
+            matchCondition: {
+              $switch: {
+                branches: [
+                  {
+                    case: { $eq: [findTmcUser.company_ID?.type, "TMC"] }, // First condition
+                    then: { $in: ["$companyData.type", ["TMC", "Agency", "Distributer"]] } // Result if true
+                  },
+                  {
+                    case: { $eq: ["$companyData.parent", new mongoose.Types.ObjectId(findTmcUser.company_ID)] }, // Second condition (else if)
+                    then: true // Result if true
+                  },
+                  {
+                    case: { $eq: ["$companyData._id", new mongoose.Types.ObjectId(findTmcUser.company_ID)] }, // Second condition (else if)
+                    then: true 
+                  }
+                ],
+                default: false // Result if no conditions match
+              }
+            }
+          }
+        },
+        {
+          $match: {
+            matchCondition: true
+          }
+        },
         {
           $match: {
             $and: [

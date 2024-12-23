@@ -6,6 +6,7 @@ const User = require("../../../models/User");
 const config = require("../../../models/AgentConfig");
 const { ObjectId } = require("mongodb");
 const { generateQR } = require("../../../utils/generate-qr");
+const companies=require('../../../models/Company')
 const {commonFunctionsRailLogs ,commonMethodDate,ProivdeIndiaStandardTime}=require('../../../controllers/commonFunctions/common.function')
 
 const ISOTime = async (time) => {
@@ -221,7 +222,7 @@ const StartBookingRail = async (req) => {
           .populate("roleId")
           .populate("company_ID");
       
-    const commonDateItc=await ProivdeIndiaStandardTime(toDate,fromDate)
+    const commonDateItc=await ProivdeIndiaStandardTime(fromDate,toDate);
     
 
         if (
@@ -231,16 +232,22 @@ const StartBookingRail = async (req) => {
           const filter = {};
       
       
-      if(agencyId=="6555f84c991eaa63cb171a9f"&&checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual"){
-        filter.companyId= new ObjectId(agencyId)
-      }
-      
-      else if (agencyId !== undefined && agencyId !== "") {
-        filter.AgencyId = new ObjectId(agencyId);
-      }
-      else{
-        checkUserIdExist.roleId.type == "Manual"?filter.companyId=checkUserIdExist.company_ID._id: filter.userId=new ObjectId(userId)
-      }
+          if (
+            agencyId == "6555f84c991eaa63cb171a9f" &&
+            checkUserIdExist.roleId &&
+            checkUserIdExist.roleId.type == "Manual"
+          ) {
+            filter.companyId = new ObjectId(agencyId);
+          } else if (agencyId !== undefined && agencyId !== "") {
+            console.log("djie");
+            filter.AgencyId = new ObjectId(agencyId);
+          } else {
+            console.log("jdi");
+            checkUserIdExist.roleId.type == "Manual" &&
+            checkUserIdExist.company_ID?.type == "TMC"
+              ? (filter.companyId = checkUserIdExist.company_ID._id)
+              : (filter.AgencyId = new ObjectId(checkUserIdExist?.company_ID?._id));
+          }
       
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.clientTransactionId = bookingId;
@@ -416,12 +423,34 @@ const StartBookingRail = async (req) => {
           checkUserIdExist.roleId &&
           checkUserIdExist.roleId.name === "Distributer"
         ) {
-          let filter = { companyId:new ObjectId(checkUserIdExist.company_ID._id) };
-          if (agencyId !== undefined && agencyId !== "") {
-            filter.userId = {};
-            filter.userId = { $in: agencyId };
-          }
-      
+          let filter = {};
+
+    // console.log("dhieieei")
+    if (agencyId !== undefined && agencyId == "") {
+      // filter.userId={}
+
+      if (checkUserIdExist?.roleId?.type === "Default") {
+        // Fetch all companies that have the current user's company ID as the parent
+        const companiesData = await companies.find({
+          parent: checkUserIdExist.company_ID._id,
+        });
+
+        // console.log(companiesData,"companiesData")
+        // Extract and map company IDs into an array of ObjectIds
+        const companyIds = companiesData.map(
+          (element) => new ObjectId(element._id)
+        );
+
+        // Assign the array of ObjectIds to filter.AgencyId
+        filter.AgencyId = { $in: companyIds };
+      } else {
+        // Assign the specific agencyId as a single ObjectId
+        filter.AgencyId = new ObjectId(agencyId);
+      } // let allagencyId = agencyId.map(id => new ObjectId(id));
+      // filter.AgencyId={$in:allagencyId}
+
+      // console.log(filter.AgencyId)
+    }
           if (bookingId !== undefined && bookingId.trim() !== "") {
             filter.clientTransactionId = bookingId;
           }
@@ -450,6 +479,7 @@ const StartBookingRail = async (req) => {
               $gte: commonDateItc.startDateUTC, // Start of toDate
             };
           }
+          console.log(filter,"filter")
       
           const railBooking = await railBookings.aggregate([
             { $match: filter }, 

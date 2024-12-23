@@ -224,6 +224,7 @@ const getAllRegistrationByCompany = async (req, res) => {
         .populate("saleInChargeId", "name")
         .populate("city", "name")
         .populate("companyId", "companyName")
+        .populate("parent", "companyName")
         .exec();
       if (!aggregationRes) {
         return {

@@ -324,11 +324,9 @@ const payuSuccess = async (req, res) => {
       cardCategory,
     } = req.body;
 
-    const CheckAllereadyBooking = await BookingDetails.find({
-      bookingId: udf1,
-      bookingStatus: { $ne: "INCOMPLETE" },
-    });
-    if (CheckAllereadyBooking.length) {
+    
+    const CheckAllereadyBooking = await BookingDetails.find({bookingId:udf1,bookingStatus:{$ne:"INCOMPLETE"}})
+    if(CheckAllereadyBooking.length){
       let successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -389,24 +387,24 @@ const payuSuccess = async (req, res) => {
           }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
         </div>
       </body>
-      </html>`;
-      return successHtmlCode;
-    } else if (status === "success") {
-      const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
+      </html>`
+      return successHtmlCode
+    }
+
+
+ else if (status === "success") {
+
+     const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
+      
+
 
       if (BookingTempData) {
         const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
         const PassengerPreferences = JSON.parse(
           convertDataBookingTempRes.PassengerPreferences
         );
-        const paxList = JSON.parse(
-          convertDataBookingTempRes.PassengerPreferences
-        );
         const ItineraryPriceCheckResponses = JSON.parse(
           convertDataBookingTempRes.ItineraryPriceCheckResponses
-        );
-        const SearchRequest = JSON.parse(
-          convertDataBookingTempRes.SearchRequest ?? {}
         );
 
         const Authentication = JSON.parse(
@@ -423,7 +421,7 @@ const payuSuccess = async (req, res) => {
           flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FPNR`;
         } else {
           // Test Url here
-          console.log("test url");
+          console.log('test url')
           createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
           flightSearchUrl = `http://stage1.ksofttechnology.com/api/FPNR`;
         }
@@ -486,11 +484,12 @@ const payuSuccess = async (req, res) => {
           totalsAmount.totalBaggagePrice +
           totalsAmount.totalSeatPrice;
 
-        var pgChargesAmount = 0;
-        if (udf3 > 0) {
-          totalItemAmount + udf3;
-          pgChargesAmount = udf3;
-        }
+          var pgChargesAmount=0
+          if(udf3>0){
+            totalItemAmount+udf3
+            pgChargesAmount=udf3
+            
+          }
 
         const newBalanceCredit = getconfigAmount + totalItemAmount;
 
@@ -517,51 +516,50 @@ const payuSuccess = async (req, res) => {
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
-        var runningAmountShow = newBalanceCredit + Number(pgChargesAmount);
+var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
         await ledger.create({
           userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionAmount: totalItemAmount - pgChargesAmount,
+          transactionAmount: totalItemAmount-pgChargesAmount,
           deal: gtTsAdDnt?.ldgrdiscount,
           tds: gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount: runningAmountShow - totalItemAmount,
+          runningAmount:runningAmountShow-totalItemAmount,
           remarks: "Booking Amount Deducted from Your Account(PayU).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
 
-        if (udf3 > 0) {
+        if(udf3>0){
           await ledger.create({
             userId: allIds[0], //getuserDetails._id,
             companyId: getuserDetails.company_ID._id,
             ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-            transactionAmount: pgChargesAmount,
-            currencyType: "INR",
+            transactionAmount:pgChargesAmount,
+           currencyType: "INR",
             fop: "DEBIT",
             transactionType: "DEBIT",
-            runningAmount: newBalanceCredit - totalItemAmount,
+            runningAmount: newBalanceCredit-totalItemAmount,
             remarks: "Manual PG_CHARGE",
             transactionBy: getuserDetails._id,
             cartId: udf1,
           });
         }
-
+        
         // await agentConfig.updateOne(
         //   { userId: allIds[0] },
         //   { maxcreditLimit: newBalanceCredit - totalItemAmount }
         // );
 
         //const hitAPI = await Promise.all(
-        var totalRefundAmount = 0;
-        var bookingId = "";
-        var FailedbookingIdenty = [];
+        var totalRefundAmount=0;
+        var bookingId=""
         const updatePromises = ItineraryPriceCheckResponses.map(
-          async (item, idx) => {
-            bookingId = item.BookingId;
+          async (item) => {
+            bookingId=item.BookingId
             let requestDataFSearch = {
               FareChkRes: {
                 Error: item.Error,
@@ -577,28 +575,15 @@ const payuSuccess = async (req, res) => {
             };
 
             try {
-              let fSearchApiResponse = null;
-
-              if (item.Provider === "Kafila") {
-                fSearchApiResponse = await axios.post(
-                  flightSearchUrl,
-                  requestDataFSearch,
-                  {
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                  }
-                );
-              } else {
-                const reqSegment = SearchRequest?.Segments?.[idx];
-                saveLogInFile("request-segment.json", { reqSegment });
-                fSearchApiResponse = await commonFlightBook(
-                  { SearchRequest, PassengerPreferences },
-                  reqSegment,
-                  item,
-                  paxList
-                );
-              }
+              let fSearchApiResponse = await axios.post(
+                flightSearchUrl,
+                requestDataFSearch,
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                }
+              );
               const logData = {
                 traceId: Authentication.TraceId,
                 companyId: Authentication.CompanyId,
@@ -639,11 +624,11 @@ const payuSuccess = async (req, res) => {
               Logs(logData1);
               Logs(logData2);
               if (
-                fSearchApiResponse?.data?.Status?.toLowerCase?.() == "failed" ||
+                fSearchApiResponse.data.Status == "failed" ||
                 fSearchApiResponse?.data?.IsError == true ||
                 fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"
               ) {
-                console.log("JDifeieiei");
+                console.log('JDifeieiei')
                 await BookingDetails.updateOne(
                   {
                     bookingId: udf1,
@@ -656,7 +641,8 @@ const payuSuccess = async (req, res) => {
                         fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ==
                         "FAILED"
                           ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
-                          : fSearchApiResponse?.data?.ErrorMessage || "FAILED",
+                          : fSearchApiResponse?.data?.ErrorMessage ||
+                            error.message,
                     },
                   }
                 );
@@ -669,39 +655,32 @@ const payuSuccess = async (req, res) => {
                   {
                     $set: {
                       bookingStatus: "FAILED",
-                      bookingRemarks:
-                        fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
-                        "FAILED"
-                          ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
-                          : fSearchApiResponse?.data?.ErrorMessage || "FAILED",
+                      bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus === "FAILED"
+                        ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
+                        : fSearchApiResponse?.data?.ErrorMessage || error.message,
                     },
                   }
                 );
-
+          
                 // Fetch booking details for the failed booking
                 const updatedBooking = await BookingDetails.find(
                   {
                     bookingId: udf1,
-                    bookingStatus: "FAILED",
+                    bookingStatus: "FAILED"
                   },
                   { bookingTotalAmount: 1 }
                 );
-
+          
                 // Accumulate the refund amounts
                 const refundAmount = updatedBooking.reduce((sum, element) => {
                   return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
                 }, 0);
 
-                FailedbookingIdenty.push(false);
+            updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount=refundAmount;
 
-                updatedBooking.length > 1
-                  ? (totalRefundAmount = totalItemAmount)
-                  : (totalRefundAmount = refundAmount);
-
+          
                 // Add to the total refund amount
               }
-
-              FailedbookingIdenty.push(true);
 
               const bookingResponce = {
                 CartId: item.BookingId,
@@ -747,18 +726,10 @@ const payuSuccess = async (req, res) => {
                 }
               );
 
-              const getpassengersPrefrence =
-                await passengerPreferenceModel.findOne({
-                  bookingId: item?.BookingId,
-                });
-              // await passengerPreferenceModel.findOne({ bookingId: udf1 });
+              const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: udf1 });
 
-              if (
-                item.Provider === "Kafila" &&
-                getpassengersPrefrence?.Passengers
-              ) {
-                // await Promise.all(
-                getpassengersPrefrence.Passengers.map((passenger) => {
+              await Promise.all(
+                getpassengersPrefrence.Passengers.map(async (passenger) => {
                   const apiPassenger =
                     fSearchApiResponse.data.PaxInfo.Passengers.find(
                       (p) =>
@@ -766,11 +737,14 @@ const payuSuccess = async (req, res) => {
                         p.LName === passenger.LName
                     );
                   if (apiPassenger) {
-                    const ticketUpdate = passenger.Optional.ticketDetails.find(
-                      (p) =>
-                        p.src === fSearchApiResponse.data.Param.Sector[0].Src &&
-                        p.des === fSearchApiResponse.data.Param.Sector[0].Des
-                    );
+                    const ticketUpdate =
+                      passenger.Optional.ticketDetails.find(
+                        (p) =>
+                          p.src ===
+                            fSearchApiResponse.data.Param.Sector[0].Src &&
+                          p.des ===
+                            fSearchApiResponse.data.Param.Sector[0].Des
+                      );
                     if (ticketUpdate) {
                       ticketUpdate.ticketNumber =
                         apiPassenger?.Optional?.TicketNumber;
@@ -778,56 +752,10 @@ const payuSuccess = async (req, res) => {
 
                     // passenger.Status = "CONFIRMED";
                   }
-                });
-                // );
-                // TODO:
-                // bookingResponce.PassengerPreferences.Passengers =  getpassengersPrefrence.Passengers;
+                })
+              );
+              await getpassengersPrefrence.save();
 
-                await getpassengersPrefrence.save();
-              } else if (
-                fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
-                "CONFIRMED"
-              ) {
-                getpassengersPrefrence.Passengers.map?.(async (passenger) => {
-                  const segmentMap = {};
-                  passenger.Optional.ticketDetails.forEach((ticket, idx) => {
-                    segmentMap[`${ticket.src}-${ticket.des}`] = idx;
-                  });
-                  const selectedPax =
-                    fSearchApiResponse.data.PaxInfo.Passengers.find(
-                      (p) =>
-                        p.FName === passenger.FName &&
-                        p.LName === passenger.LName
-                    );
-                  if (!selectedPax) return passenger;
-                  saveLogInFile("selected-pax.json", selectedPax);
-                  passenger.Optional.EMDDetails = [
-                    ...(passenger.Optional.EMDDetails || []),
-                    ...(selectedPax?.Optional?.EMDDetails || []),
-                  ];
-                  if (selectedPax?.Optional?.ticketDetails?.length) {
-                    selectedPax.Optional?.ticketDetails.forEach((ticket) => {
-                      const segmentIdx =
-                        segmentMap[`${ticket.src}-${ticket.des}`];
-                      if (segmentIdx != null) {
-                        passenger.Optional.ticketDetails[
-                          segmentIdx
-                        ].ticketNumber = ticket.ticketNumber;
-                      } else {
-                        passenger.Optional.ticketDetails.push(ticket);
-                      }
-                    });
-                  }
-                  return passenger;
-                });
-                // bookingResponce.PassengerPreferences.Passengers =
-                //   getpassengersPrefrence.Passengers;
-                saveLogInFile(
-                  "pax-preferences.json",
-                  getpassengersPrefrence._doc
-                );
-                await getpassengersPrefrence.save();
-              }
 
               if (
                 fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
@@ -852,6 +780,7 @@ const payuSuccess = async (req, res) => {
                 //     cardType:cardCategory
                 //   }
                 // );
+                
               }
               //return fSearchApiResponse.data;
               const barcodeupdate = await updateBarcode2DByBookingId(
@@ -884,28 +813,7 @@ const payuSuccess = async (req, res) => {
         );
         //);
         const results = await Promise.all(updatePromises);
-
-        if (totalRefundAmount > 0) {
-          await ledger.create({
-            userId: allIds[0], //getuserDetails._id,
-            companyId: getuserDetails.company_ID._id,
-            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-            transactionAmount: totalRefundAmount,
-            currencyType: "INR",
-            fop: "DEBIT",
-            transactionType: "CREDIT",
-            runningAmount: getconfigAmount + totalRefundAmount,
-            remarks: `Refund Amount for Booking`,
-            transactionBy: getuserDetails._id,
-            cartId: udf1,
-          });
-
-          await agentConfig.updateOne(
-            { userId: allIds[0] },
-            { $inc: { maxcreditLimit: totalRefundAmount } }
-          );
-        }
-        if (!FailedbookingIdenty.includes(false)) {
+        if(results.length>0){
           await transaction.create({
             userId: Authentication.UserId,
             bookingId: bookingId,
@@ -918,14 +826,34 @@ const payuSuccess = async (req, res) => {
             trnsStatus: "success",
             transactionBy: Authentication.UserId,
             pgCharges: udf3,
-            transactionAmount:
-              Number(udf2) + Number(pgChargesAmount) - totalRefundAmount,
+            transactionAmount: Number(udf2)+Number(pgChargesAmount),
             statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
             trnsNo: txnid,
             trnsBankRefNo: bank_ref_num,
             cardType: cardCategory,
           });
         }
+        if(totalRefundAmount>0){
+          await ledger.create({
+            userId: allIds[0], //getuserDetails._id,
+            companyId: getuserDetails.company_ID._id,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount: totalRefundAmount,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "CREDIT",
+            runningAmount: getconfigAmount+totalRefundAmount,
+            remarks: `Refund Amount for Booking`,
+            transactionBy: getuserDetails._id,
+            cartId: udf1,
+          });
+
+          await agentConfig.updateOne(
+            { userId: allIds[0] },
+            { $inc: { maxcreditLimit: totalRefundAmount } }
+          );
+        }
+
 
         let successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
@@ -1020,6 +948,7 @@ const payuSuccess = async (req, res) => {
     throw error;
   }
 };
+
 
 const payuWalletResponceSuccess = async (req, res) => {
   try {

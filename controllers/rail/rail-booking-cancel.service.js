@@ -15,6 +15,9 @@ const chargesBefore48Hours = {
   "3E": 180,
   SL: 120,
   "2S": 60,
+  "RAC":60,
+  "RWL":60,
+  "WL":60,
 };
 
 module.exports.cancelRailBooking = async function (request) {
@@ -85,7 +88,7 @@ module.exports.cancelRailBooking = async function (request) {
     const isFullCancelled =
       passengerToken === "YYYYYY" ||
       tokenList.filter((t) => t === "Y").length === booking.psgnDtlList.length;
-    if (isFullCancelled) booking.bookingStatus = "CANCELLED";
+    if (isFullCancelled) booking.bookingStatus = "PENDING CANCELLED";
     await booking.save();
     return {
       IsSucess: true,
@@ -131,26 +134,31 @@ module.exports.calculateCancellationCharges = ({ passengerToken, booking }) => {
       return {
         error: `Refund Not Allowed For Journey ${journeyClass} Class`,
       };
+  //     if(timeDifference< 1/2){
 
-    // ? chart prepared
-    if (timeDifference < 4)
-      return {
-        error:
-          "Cannot Cancel This Booking, Cause Chart Has Been Prepared For This Booking, Please Follow TDR Instructions For Cancelling This Booking",
-      };
+  //     }
+
+  //   // ? chart prepared
+  //  else if (timeDifference < 4)
+  //     return {
+  //       error:
+  //         "Cannot Cancel This Booking, Cause Chart Has Been Prepared For This Booking, Please Follow TDR Instructions For Cancelling This Booking",
+  //     };
 
     const passengerTokenList = passengerToken.split("");
     const cancelJourneyFor = passengerList.filter(
       (passenger, idx) => passengerTokenList[idx] === "Y"
     );
-    const result = cancelJourneyFor.map(({ passengerNetFare }) =>
+    const result = cancelJourneyFor.map(({ passengerNetFare, currentStatus}) =>
       calculateCharges({
-        journeyClass,
+         journeyClass,
         timeDifference,
         netFare: passengerNetFare,
+        bookingStatus:currentStatus
       })
     );
     console.log({ result });
+    
     return {
       result,
     };
@@ -203,23 +211,55 @@ module.exports.resendOTP = async (request) => {
   }
 };
 
-function calculateCharges({ journeyClass, netFare, timeDifference }) {
-  console.log({ journeyClass, netFare, timeDifference });
+function calculateCharges({ journeyClass, netFare, timeDifference, bookingStatus }) {
+  const chargesBefore48Hours = {
+    "1A": 240,
+    EC: 240,
+    CC: 240,
+    "2A": 200,
+    "3A": 180,
+    "3E": 180,
+    SL: 120,
+    "2S": 60,
+    RAC: 60,
+    RLWL: 60,
+    WL: 60,
+  };
+
+  console.log({ journeyClass, netFare, timeDifference, bookingStatus });
+
+  const gstRate = Config?.CancellationGSTRate || 5;
   const minimumCharges =
     chargesBefore48Hours[journeyClass] +
-    chargesBefore48Hours[journeyClass] *
-      ((Config?.CancellationGSTRate || 5) / 100);
+    chargesBefore48Hours[journeyClass] * (gstRate / 100);
+
   let cancellationCharges = minimumCharges;
-  if (timeDifference > 48) cancellationCharges = minimumCharges;
-  // ? 48 hours - 12 hours of departure
-  else if (timeDifference > 12)
+
+  if (["WL", "RLWL", "RAC"].includes(bookingStatus)&&timeDifference > 1/2) {
+    cancellationCharges =
+      chargesBefore48Hours[bookingStatus] +
+      chargesBefore48Hours[bookingStatus] * (gstRate / 100);
+    // console.log(cancellationCharges, "Cancellation Charges for WL/RAC/RLWL");
+  } 
+  else if (timeDifference > 48) {
+    cancellationCharges = minimumCharges;
+  } else if (timeDifference > 12) {
     cancellationCharges = Math.max(minimumCharges, netFare * 0.25);
-  // ? 12 hours - 4 hours of departure
-  else if (timeDifference > 4)
+  } else if (timeDifference > 4) {
     cancellationCharges = Math.max(minimumCharges, netFare * 0.5);
+  }
+  else if(timeDifference < 4&&!["WL", "RLWL", "RAC"].includes(bookingStatus)) return {
+    error:
+      "Cannot Cancel This Booking, Cause Chart Has Been Prepared For This Booking, Please Follow TDR Instructions For Cancelling This Booking",
+  };
+  else if(timeDifference < 1/2&&["WL", "RLWL", "RAC"].includes(bookingStatus))return{
+    error:"No refund shall be granted for RAC/RLWL/WL or wait-listed tickets within thirty minutes of the scheduled departure"
+  }
+
 
   return { cancellationCharges };
 }
+
 // const now = moment();
 // const boardingDate = moment("07-11-2024 14:05:00.0 IST", "DD-MM-YYYY hh:mm:ss");
 // const timeDifference = boardingDate.diff(now, "h");

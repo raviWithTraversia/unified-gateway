@@ -74,10 +74,8 @@ const payu = async (req, res) => {
     const firstnameres = firstName;
     const emailres = email;
     const phoneres = phone;
-    const surl = `${Config[Config.MODE].baseURLBackend
-      }/api/paymentGateway/success`;
-    const furl = `${Config[Config.MODE].baseURLBackend
-      }/api/paymentGateway/failed`;
+    const surl = `http://localhost:3111/api/paymentGateway/success`;
+    const furl = `http://localhost:3111/api/paymentGateway/failed`;
 
     const salt =
       Config.MODE == "TEST"

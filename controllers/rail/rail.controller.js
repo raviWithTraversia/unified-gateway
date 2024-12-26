@@ -2,6 +2,8 @@ const railSearchServices = require("./railSearch.services");
 const railBookingServices = require("./railBooking.services");
 const { ObjectId } = require("mongodb");
 const railBillingData=require('./rail-reports.controller')
+const {Config}=require('../../configs/config')
+const axios=require('axios')
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
@@ -24,6 +26,7 @@ const moment = require("moment");
 const agentConfig=require('../../models/AgentConfig')
 const Railleadger=require('../../models/Irctc/ledgerRail')
 const { fetchTxnHistory, fileTDR } = require("./tdr.service");
+const { string } = require("joi");
 // const flightSerchLogServices = require("../../controllers/flightSearchLog/flightSearchLog.services");
 
 const railSearch = async (req, res) => {
@@ -425,19 +428,67 @@ const DecodeToken = async (req, res) => {
 
 async function fetchCancellationCharges(req, res) {
   try {
-    const { passengerToken, reservationId } = req.body;
+    const { passengerToken, pnr,Authentication,reservationId } = req.body;
     const { error } = validatePsgnToken(passengerToken);
     if (error) return apiErrorres(res, error, 400, true);
     if (!reservationId)
       return apiErrorres(res, "reservationId Required", 400, true);
-    const booking = await bookingDetailsRail.findOne({ reservationId });
-    if (!booking)
+    const latesPassengerData=await checkPnrStatus(Authentication,pnr)
+    if (typeof latesPassengerData === "string") {
       return apiErrorres(
         res,
-        "No Booking Found With Given Reservationid",
+        latesPassengerData,
         400,
         true
       );
+    }
+// const currentStatus=
+console.log(latesPassengerData)
+const booking = await bookingDetailsRail.findOneAndUpdate(
+  { pnrNumber: pnr }, // Match the document by PNR number
+  [
+    {
+      $set: {
+        psgnDtlList: {
+          $map: {
+            input: { $range: [0, { $size: "$psgnDtlList" }] }, // Create a range of indices
+            as: "index",
+            in: {
+              $mergeObjects: [
+                { $arrayElemAt: ["$psgnDtlList", "$$index"] }, // Keep existing passenger data
+                {
+                  currentStatus: {
+                    $arrayElemAt: [latesPassengerData.map(item => item.currentStatus), "$$index"]
+                  },
+                  bookingCoachId: {
+                    $arrayElemAt: [latesPassengerData.map(item => item.bookingCoachId), "$$index"]
+                  },
+                  bookingBerthNo: {
+                    $arrayElemAt: [latesPassengerData.map(item => item.bookingBerthNo), "$$index"]
+                  }
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+  ],
+  { new: true } // Return the updated document
+);
+;
+
+
+
+    if (!booking)
+      return apiErrorres(
+        res,
+        "No Booking Found With Given pnrNuber",
+        400,
+        true
+      );
+      
+      
     const { error: chargesError, result } = calculateCancellationCharges({
       passengerToken,
       booking,
@@ -659,18 +710,19 @@ if(!agencyConfig)
   });
 
 console.log(agencyConfig,"agencyConfing")
-await bookingDetailsRail.findOneAndUpdate({cartId:txnId},{$set:{IsRefunded:true}})
+ const BookingData=await bookingDetailsRail.findOneAndUpdate({cartId:txnId},{$set:{IsRefunded:true}},{new:true})
 
 await Railleadger.create({
   userId: agencyConfig.userId,
   companyId: agencyConfig.companyId,
   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
   transactionAmount:refundAmount ,
+  cartId:`Manual ${BookingData?.providerbookingId}`,
   currencyType: "INR",
   fop: "CREDIT",
   transactionType: "CREDIT",
   runningAmount:agencyConfig.railCashBalance,
-  remarks: "Cancelation Refund Your account",
+  remarks: "Manual Refund against cancellation",
   transactionBy: req.user._id,
 });
 
@@ -991,7 +1043,44 @@ const updateBillPost = async (req, res) => {
   }
 }
 
+const checkPnrStatus = async (Authentication, pnr) => {
+  try {
+    const url =
+      Authentication.CredentialType === "LIVE"
+        ? `${Config.LIVE.baseURLBackend}/api/rail/Pnr-enquiry`
+        : `${Config.TEST.baseURLBackend}/api/rail/Pnr-enquiry`;
 
+
+
+    const response = await axios.post(
+      url,
+      {
+        Authentication: Authentication, // Request body
+        pnr: pnr,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWNkZmQ1MjAzZTg2N2NmYzQxNTNhYTkiLCJpYXQiOjE3MzMzOTA0MzJ9.cq9Mt9XVFAthTtPAmp3-GfXHn2n5J3_vYATuUdmSp7Q",
+        },
+      }
+    );
+console.log(response?.data?.Result?.passengerList)
+if(!response?.data?.Result?.passengerList){
+  console.log(response?.data?.Result?.errorMessage)
+  return response?.data?.Result?.errorMessage
+}
+const currentStatus=[]
+  for(var data of response?.data?.Result?.passengerList){
+    currentStatus.push({currentStatus:data?.currentStatus,bookingCoachId:data?.bookingCoachId,bookingBerthNo:data?.bookingBerthNo})
+  };
+  return currentStatus
+  } catch (error) {
+    console.error("Error in PNR status check:", error.message);
+    return error.message; // Handle errors as needed
+  }
+};
 module.exports = {
   railSearch,
   railSearchBtwnDate,

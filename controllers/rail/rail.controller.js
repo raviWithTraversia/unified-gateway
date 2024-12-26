@@ -1061,9 +1061,7 @@ const checkPnrStatus = async (Authentication, pnr) => {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWNkZmQ1MjAzZTg2N2NmYzQxNTNhYTkiLCJpYXQiOjE3MzMzOTA0MzJ9.cq9Mt9XVFAthTtPAmp3-GfXHn2n5J3_vYATuUdmSp7Q",
-        },
+         },
       }
     );
 console.log(response?.data?.Result?.passengerList)

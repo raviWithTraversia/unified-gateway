@@ -19,7 +19,7 @@ async function commonFlightSearch(request) {
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/flight/search";
     console.log({ url });
-    
+
     const { data: response } = await axios.post(url, requestBody);
     saveLogInFile("response.jsonhduueueeu", response);
     // fs.writeFileSync(
@@ -46,6 +46,10 @@ async function commonFlightSearch(request) {
     }
     return { data: itineraries || [] };
   } catch (error) {
+    saveLogInFile("search-error.json", {
+      errorStack: error.stack,
+      message: error.message,
+    });
     console.log({ error });
     return { error: error.message };
   }

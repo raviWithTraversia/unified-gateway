@@ -232,6 +232,7 @@ if(pgCharges>0){
         // const hitAPI = await Promise.all(
         var bookingId="";
         var FailedbookingIdenty=[]
+        var errorMessage=""
 
         const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
           bookingId=item.BookingId
@@ -301,18 +302,18 @@ if(pgCharges>0){
             if (fSearchApiResponse.data && typeof fSearchApiResponse.data.Status === 'string' && fSearchApiResponse.data.Status.toUpperCase() === "FAILED" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
           // Update the booking status
 // Update bookings to 'FAILED'
+errorMessage=fSearchApiResponse?.data?.ErrorMessage
 
 await BookingDetails.updateMany(
   {
     bookingId: udf1,
     "itinerary.IndexNumber": item.IndexNumber,
+    bookingStatus:{$ne:"FAILED"}
   },
   {
     $set: {
       bookingStatus: "FAILED",
-      bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus === "FAILED"
-        ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
-        : fSearchApiResponse?.data?.ErrorMessage ||"FAILED" ,
+      bookingRemarks: fSearchApiResponse?.data?.ErrorMessage ||"error acured" ,
     },
   }
 );
@@ -451,17 +452,18 @@ FailedbookingIdenty.push(true)
               {
                 bookingId: item?.BookingId,
                 "itinerary.IndexNumber": item.IndexNumber,
+                bookingStatus:{$ne:"CONFIRMED"},
               },
               {
                 $set: {
                   bookingStatus: "FAILED",
-                  bookingRemarks: error.message,
+                  bookingRemarks: errorMessage,
                 },
               }
             );
 
 
-             return error.message;
+             return errorMessage;
           }
         })
         // );

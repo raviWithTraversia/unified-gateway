@@ -24,6 +24,7 @@ const {
 const AgentConfiguration = require("../../models/AgentConfig");
 const { saveLogInFile } = require("../../utils/save-log");
 const { commonFlightBook } = require("../../services/common-flight-book");
+const { error } = require("console");
 
 const payu = async (req, res) => {
   try {
@@ -77,6 +78,7 @@ const payu = async (req, res) => {
     const surl = `${
       Config[Config.MODE].baseURLBackend
     }/api/paymentGateway/success`;
+    // const surl="http://localhost:3111/api/paymentGateway/success"
     const furl = `${
       Config[Config.MODE].baseURLBackend
     }/api/paymentGateway/failed`;
@@ -392,7 +394,7 @@ const payuSuccess = async (req, res) => {
     }
 
 
- else if (status === "success") {
+   else if (status === "success") {
 
      const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
       
@@ -557,6 +559,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
         //const hitAPI = await Promise.all(
         var totalRefundAmount=0;
         var bookingId=""
+        var errorMessage="";
         const updatePromises = ItineraryPriceCheckResponses.map(
           async (item) => {
             bookingId=item.BookingId
@@ -628,21 +631,20 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                 fSearchApiResponse?.data?.IsError == true ||
                 fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"
               ) {
-                console.log('JDifeieiei')
+                // console.log(fSearchApiResponse?.data,'JDifeieiei')
+              errorMessage=fSearchApiResponse?.data?.ErrorMessage||"error occured"
                 await BookingDetails.updateOne(
                   {
                     bookingId: udf1,
                     "itinerary.IndexNumber": item.IndexNumber,
+                    bookingStatus:{$ne:"CONFIMED"}
+
                   },
                   {
                     $set: {
                       bookingStatus: "FAILED",
                       bookingRemarks:
-                        fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ==
-                        "FAILED"
-                          ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
-                          : fSearchApiResponse?.data?.ErrorMessage ||
-                            error.message,
+                      fSearchApiResponse?.data?.ErrorMessage||"error occured",
                     },
                   }
                 );
@@ -651,13 +653,12 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                   {
                     bookingId: udf1,
                     "itinerary.IndexNumber": item.IndexNumber,
+                    bookingStatus:{$ne:"CONFIMED"}
                   },
                   {
                     $set: {
                       bookingStatus: "FAILED",
-                      bookingRemarks: fSearchApiResponse?.data?.BookingInfo?.CurrentStatus === "FAILED"
-                        ? fSearchApiResponse?.data?.BookingInfo?.BookingRemark
-                        : fSearchApiResponse?.data?.ErrorMessage || error.message,
+                      bookingRemarks: fSearchApiResponse?.data?.ErrorMessage||"error occured",
                     },
                   }
                 );
@@ -681,6 +682,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
           
                 // Add to the total refund amount
               }
+              
 
               const bookingResponce = {
                 CartId: item.BookingId,
@@ -794,16 +796,18 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
               } else {
                 return bookingResponce;
               }
+            
             } catch (error) {
               await BookingDetails.updateOne(
                 {
                   bookingId: item?.BookingId,
                   "itinerary.IndexNumber": item.IndexNumber,
+                  bookingStatus:{$ne:"CONFIRMED"}
                 },
                 {
                   $set: {
                     bookingStatus: "FAILED",
-                    bookingRemarks: error.message,
+                    bookingRemarks: errorMessage,
                   },
                 }
               );

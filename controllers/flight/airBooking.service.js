@@ -939,6 +939,7 @@ const KafilaFun = async (
           });
 
           // Construct PriceBreakup array
+          
           const priceBreakupArray = itineraryItem?.PriceBreakup?.map(
             (price) => {
               return {
@@ -1094,7 +1095,11 @@ const KafilaFun = async (
           await passengerPreference.save();
 
           console.log("before hitting API");
+          var totalRefundAmount = 0;
+
           const hitAPI = await Promise.all(
+          
+
             ItineraryPriceCheckResponses.map(async (item, idx) => {
               if (item.GstData) {
                 let gstD = item.GstData;
@@ -1165,56 +1170,23 @@ const KafilaFun = async (
                     {
                       $set: {
                         bookingStatus: "FAILED",
-                        bookingRemarks:
-                          fSearchApiResponse?.data?.BookingInfo
-                            ?.CurrentStatus == "FAILED"
-                            ? fSearchApiResponse?.data?.BookingInfo
-                                ?.BookingRemark
-                            : fSearchApiResponse?.data?.ErrorMessage,
+                        bookingRemarks:fSearchApiResponse?.data?.ErrorMessage||"error occured",
                       },
-                    }
+                    },{new :true}
                   );
 
+const findFailedBooking=await BookingDetails.find({
+  bookingId: item?.BookingId,
+  bookingStatus:"FAILED"
+  },{bookingTotalAmount:1})
+
+  const refundAmount =await findFailedBooking.reduce((sum, element) => {
+    return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
+  }, 0);
+  totalRefundAmount=findFailedBooking.length>1?totalSSRWithCalculationPrice:refundAmount;
                   // Ledget Create After booking Failed
-                  const getAgentConfigForUpdate = await agentConfig.findOne({
-                    userId: getuserDetails._id,
-                  });
-                  // Check if maxCreditLimit exists, otherwise set it to 0
-                  const maxCreditLimitPrice =
-                    getAgentConfigForUpdate?.maxcreditLimit ?? 0;
-                  // const transactionAmount =
-                  //   item.Provider === "Kafila"
-                  //     ? item?.offeredPrice +
-                  //         item?.totalMealPrice +
-                  //         item?.totalBaggagePrice +
-                  //         item?.totalSeatPrice || item.GrandTotal
-                  //     : item.GrandTotal;
-                  const newBalanceCredit =
-                    maxCreditLimitPrice + totalSSRWithCalculationPrice;
-                  // maxCreditLimitPrice + transactionAmount;
-                  saveLogInFile("transaction-amount.json", {
-                    totalSSRWithCalculationPrice,
-                  });
-                  await agentConfig.updateOne(
-                    { userId: getuserDetails._id },
-                    { maxcreditLimit: newBalanceCredit }
-                  );
-                  await ledger.create({
-                    userId: getuserDetails._id,
-                    companyId: getuserDetails.company_ID._id,
-                    ledgerId:
-                      "LG" + Math.floor(100000 + Math.random() * 900000),
-                    transactionAmount: totalSSRWithCalculationPrice,
-                    currencyType: "INR",
-                    fop: "CREDIT",
-                    transactionType: "CREDIT",
-                    runningAmount: newBalanceCredit,
-                    remarks: "Booking amount added back to your account.",
-                    transactionBy: getuserDetails._id,
-                    cartId: item?.BookingId,
-                  });
-
-                  return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
+                 
+                  // return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
                 }
 
                 const bookingResponce = {
@@ -1377,58 +1349,59 @@ const KafilaFun = async (
                 //   await getpassengersPrefrence.save();
                 // }
 
-                if (
-                  fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ===
-                  "FAILED"
-                ) {
-                  const getAgentConfigForUpdate = await agentConfig.findOne({
-                    userId: getuserDetails._id,
-                  });
-                  // Check if maxCreditLimit exists, otherwise set it to 0
-                  const maxCreditLimitPrice =
-                    getAgentConfigForUpdate?.maxcreditLimit ?? 0;
+                // if (
+                //   fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ===
+                //   "FAILED"
+                // ) {
+                //   const getAgentConfigForUpdate = await agentConfig.findOne({
+                //     userId: getuserDetails._id,
+                //   });
+                //   // Check if maxCreditLimit exists, otherwise set it to 0
+                //   const maxCreditLimitPrice =
+                //     getAgentConfigForUpdate?.maxcreditLimit ?? 0;
 
-                  // const transactionAmount =
-                  // item.Provider === "Kafila"
-                  //   ? item?.offeredPrice +
-                  //       item?.totalMealPrice +
-                  //       item?.totalBaggagePrice +
-                  //       item?.totalSeatPrice || item.GrandTotal
-                  //   : item.GrandTotal;
-                  const newBalanceCredit =
-                    maxCreditLimitPrice + totalSSRWithCalculationPrice;
-                  // maxCreditLimitPrice + transactionAmount;
-                  console.log({
-                    newBalanceCredit,
-                    maxCreditLimitPrice,
-                    totalSSRWithCalculationPrice,
-                    stage: 2,
-                  });
-                  await agentConfig.updateOne(
-                    { userId: getuserDetails._id },
-                    { maxcreditLimit: newBalanceCredit }
-                  );
-                  await ledger.create({
-                    userId: getuserDetails._id,
-                    companyId: getuserDetails.company_ID._id,
-                    ledgerId:
-                      "LG" + Math.floor(100000 + Math.random() * 900000),
-                    transactionAmount: totalSSRWithCalculationPrice,
-                    currencyType: "INR",
-                    fop: "CREDIT",
-                    transactionType: "CREDIT",
-                    runningAmount: newBalanceCredit,
-                    remarks: "Booking amount added back to your account.",
-                    transactionBy: getuserDetails._id,
-                    cartId: item?.BookingId,
-                  });
-                } else {
+                //   // const transactionAmount =
+                //   // item.Provider === "Kafila"
+                //   //   ? item?.offeredPrice +
+                //   //       item?.totalMealPrice +
+                //   //       item?.totalBaggagePrice +
+                //   //       item?.totalSeatPrice || item.GrandTotal
+                //   //   : item.GrandTotal;
+                //   const newBalanceCredit =
+                //     maxCreditLimitPrice + totalSSRWithCalculationPrice;
+                //   // maxCreditLimitPrice + transactionAmount;
+                //   console.log({
+                //     newBalanceCredit,
+                //     maxCreditLimitPrice,
+                //     totalSSRWithCalculationPrice,
+                //     stage: 2,
+                //   });
+                //   await agentConfig.updateOne(
+                //     { userId: getuserDetails._id },
+                //     { maxcreditLimit: newBalanceCredit }
+                //   );
+                //   await ledger.create({
+                //     userId: getuserDetails._id,
+                //     companyId: getuserDetails.company_ID._id,
+                //     ledgerId:
+                //       "LG" + Math.floor(100000 + Math.random() * 900000),
+                //     transactionAmount: totalSSRWithCalculationPrice,
+                //     currencyType: "INR",
+                //     fop: "CREDIT",
+                //     transactionType: "CREDIT",
+                //     runningAmount: newBalanceCredit,
+                //     remarks: "Booking amount added back to your account.",
+                //     transactionBy: getuserDetails._id,
+                //     cartId: item?.BookingId,
+                //   });
+                // } else {
                   // Transtion
+                  
                   await transaction.updateOne(
                     { bookingId: item?.BookingId },
                     { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY" }
                   );
-                }
+                // }
                 //return fSearchApiResponse.data;
                 const barcodeupdate = await updateBarcode2DByBookingId(
                   item?.BookingId,
@@ -1470,13 +1443,23 @@ const KafilaFun = async (
                   }
                 );
 
+                const findFailedBooking=await BookingDetails.find({
+                  bookingId: item?.BookingId,
+                  bookingStatus:"FAILED"
+                  },{bookingTotalAmount:1})
+                
+                  const refundAmount =await findFailedBooking.reduce((sum, element) => {
+                    return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
+                  }, 0);
+                  totalRefundAmount=findFailedBooking.length>1?totalSSRWithCalculationPrice:refundAmount;
+
                 // Ledget Create After booking Failed
-                const getAgentConfigForUpdate = await agentConfig.findOne({
-                  userId: getuserDetails._id,
-                });
-                // Check if maxCreditLimit exists, otherwise set it to 0
-                const maxCreditLimitPrice =
-                  getAgentConfigForUpdate?.maxcreditLimit ?? 0;
+                // const getAgentConfigForUpdate = await agentConfig.findOne({
+                //   userId: getuserDetails._id,
+                // });
+                // // Check if maxCreditLimit exists, otherwise set it to 0
+                // const maxCreditLimitPrice =
+                //   getAgentConfigForUpdate?.maxcreditLimit ?? 0;
 
                 // const transactionAmount =
                 //   item.Provider === "Kafila"
@@ -1486,39 +1469,80 @@ const KafilaFun = async (
                 //         item?.totalSeatPrice || item.GrandTotal
                 //     : item.GrandTotal;
 
-                const newBalanceCredit =
-                  maxCreditLimitPrice + totalSSRWithCalculationPrice;
-                // maxCreditLimitPrice + transactionAmount;
-                console.log({
-                  newBalanceCredit,
-                  maxCreditLimitPrice,
-                  // transactionAmount,
-                  stage: 1,
-                });
-                await agentConfig.updateOne(
-                  { userId: getuserDetails._id },
-                  { maxcreditLimit: newBalanceCredit }
-                );
+                // const newBalanceCredit =
+                //   maxCreditLimitPrice + totalSSRWithCalculationPrice;
+                // // maxCreditLimitPrice + transactionAmount;
+                // console.log({
+                //   newBalanceCredit,
+                //   maxCreditLimitPrice,
+                //   // transactionAmount,
+                //   stage: 1,
+                // });
+                // await agentConfig.updateOne(
+                //   { userId: getuserDetails._id },
+                //   { maxcreditLimit: newBalanceCredit }
+                // );
 
                 // await createLeadger(getuserDetails,item,currencyType="INR",fop="CREDIT",transactionType="DEBIT",runningAmount=newBalanceCredit,remarks="Booking Amount Dedactive Into Your Account.");
-                await ledger.create({
-                  userId: getuserDetails._id,
-                  companyId: getuserDetails.company_ID._id,
-                  ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                  transactionAmount: totalSSRWithCalculationPrice,
-                  currencyType: "INR",
-                  fop: "CREDIT",
-                  transactionType: "CREDIT",
-                  runningAmount: newBalanceCredit,
-                  remarks: "Booking amount added back to your account.",
-                  transactionBy: getuserDetails._id,
-                  cartId: item?.BookingId,
-                });
+                // await ledger.create({
+                //   userId: getuserDetails._id,
+                //   companyId: getuserDetails.company_ID._id,
+                //   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+                //   transactionAmount: totalSSRWithCalculationPrice,
+                //   currencyType: "INR",
+                //   fop: "CREDIT",
+                //   transactionType: "CREDIT",
+                //   runningAmount: newBalanceCredit,
+                //   remarks: "Booking amount added back to your account.",
+                //   transactionBy: getuserDetails._id,
+                //   cartId: item?.BookingId,
+                // });
 
                 return error.message;
               }
             })
           );
+          if(totalRefundAmount > 0){
+            const getAgentConfigForUpdate = await agentConfig.findOne({
+              userId: getuserDetails._id,
+            });
+            // Check if maxCreditLimit exists, otherwise set it to 0
+            const maxCreditLimitPrice =
+              getAgentConfigForUpdate?.maxcreditLimit ?? 0;
+            // const transactionAmount =
+            //   item.Provider === "Kafila"
+            //     ? item?.offeredPrice +
+            //         item?.totalMealPrice +
+            //         item?.totalBaggagePrice +
+            //         item?.totalSeatPrice || item.GrandTotal
+            //     : item.GrandTotal;
+            const newBalanceCredit =
+              maxCreditLimitPrice + totalRefundAmount;
+            // maxCreditLimitPrice + transactionAmount;
+            saveLogInFile("transaction-amount.json", {
+              totalRefundAmount,
+            });
+            await agentConfig.updateOne(
+              { userId: getuserDetails._id },
+              { maxcreditLimit: newBalanceCredit }
+            );
+            await ledger.create({
+              userId: getuserDetails._id,
+              companyId: getuserDetails.company_ID._id,
+              ledgerId:
+                "LG" + Math.floor(100000 + Math.random() * 900000),
+              transactionAmount: totalRefundAmount,
+              currencyType: "INR",
+              fop: "CREDIT",
+              transactionType: "CREDIT",
+              runningAmount: newBalanceCredit,
+              remarks: "amount added back to your account.",
+              transactionBy: getuserDetails._id,
+              cartId: ItineraryPriceCheckResponses[0].BookingId,
+            });
+
+          }
+         
           return hitAPI;
         } else {
           return "Booking already exists";

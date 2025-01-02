@@ -308,7 +308,7 @@ await BookingDetails.updateMany(
   {
     bookingId: udf1,
     "itinerary.IndexNumber": item.IndexNumber,
-    bookingStatus:{$ne:"FAILED"}
+    bookingStatus:{$ne:"CONFIRMED"},
   },
   {
     $set: {

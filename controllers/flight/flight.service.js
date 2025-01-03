@@ -28,6 +28,14 @@ const getSearch = async (req, res) => {
     FareFamily,
     RefundableOnly,
   } = req.body;
+
+  if(ClassOfService=="Premium Economy"){
+ClassOfService="PE"
+  }else if(ClassOfService=="Business Class"){
+    ClassOfService="BU"
+  }else if(ClassOfService=="Economy"){
+    ClassOfService="EC"
+  }
   // const fieldNames = [
   //   "Authentication",
   //   "TypeOfTrip",

@@ -723,7 +723,7 @@ const KafilaFun = async (
         maxCreditLimit,
         totalSSRWithCalculationPrice,
         stage: 5,
-      });
+      },"newBalance");
       await agentConfig.updateOne(
         { userId: allIds[0] },
         { maxcreditLimit: newBalance }
@@ -995,7 +995,9 @@ const KafilaFun = async (
                     itineraryItem.totalMealPrice +
                     itineraryItem.totalBaggagePrice +
                     itineraryItem.totalSeatPrice || itineraryItem.GrandTotal
-                : itineraryItem.GrandTotal,
+                : itineraryItem.offeredPrice+itineraryItem.totalMealPrice +
+                itineraryItem.totalBaggagePrice +
+                itineraryItem.totalSeatPrice,
             totalMealPrice: itineraryItem.totalMealPrice ?? 0,
             totalBaggagePrice: itineraryItem.totalBaggagePrice ?? 0,
             totalSeatPrice: itineraryItem.totalSeatPrice ?? 0,
@@ -1613,7 +1615,6 @@ const kafilaFunOnlinePayment = async (
     return "Error creating booking";
   }
 
-  console.log("making request");
   const newArray = await Promise.all(
     ItineraryPriceCheckResponses?.map(async (itineraryItem) => {
       // if (itineraryItem.Provider === "Kafila") {

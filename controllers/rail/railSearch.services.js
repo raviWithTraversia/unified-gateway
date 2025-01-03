@@ -299,6 +299,7 @@ const railFareEnquiry = async (req, res) => {
     };
 
     console.log(url, "url")
+    console.log(queryParams, "queryParams")
     const response = (
       await axios.post(url, queryParams, { headers: { Authorization: auth } })
     )?.data;

@@ -399,7 +399,8 @@ const userInsert = async (req, res) => {
           agencyGroupId = await agencyGroupModel.findOne({ companyId: parent, isDefault: true });
         } else if (findParentRole.name == "Distributer") {
           // if agencyParent is distributer then find agencyGroup by their distributerparent and assign that agency
-          agencyGroupId = await agencyGroupModel.findOne({ companyId: parent, isDefault: true });
+
+          agencyGroupId = await agencyGroupModel.findOne({ _id: agencyGroupId });
         } else {
           agencyGroupId = await agencyGroupModel.findOne({ _id: agencyGroupId });
         }
@@ -432,7 +433,7 @@ const userInsert = async (req, res) => {
         portalLedgerAllowed: true,
         railCashBalance:RailCashBalance,
         maxCreditLimit:flightCashBalance,
-        fareTypes: ["NDF", "CPNS1", "CPN", "MAIN", "CDF", "SME", "CPNS", "CRCT", "CRCT1", "FD", "FF", "TBF"],
+        fareTypes: [],
       });
       agentConfigsInsert = await agentConfigsInsert.save();
       console.log('User Config Insert Sucessfully');

@@ -460,10 +460,10 @@ const booking = await bookingDetailsRail.findOneAndUpdate(
                   currentStatus: {
                     $arrayElemAt: [latesPassengerData.map(item => item.currentStatus), "$$index"]
                   },
-                  bookingCoachId: {
+                  currentCoachId: {
                     $arrayElemAt: [latesPassengerData.map(item => item.bookingCoachId), "$$index"]
                   },
-                  bookingBerthNo: {
+                  currentBerthCode: {
                     $arrayElemAt: [latesPassengerData.map(item => item.bookingBerthNo), "$$index"]
                   }
                 },

@@ -29,13 +29,6 @@ const getSearch = async (req, res) => {
     RefundableOnly,
   } = req.body;
 
-  if(ClassOfService=="Premium Economy"){
-ClassOfService="PE"
-  }else if(ClassOfService=="Business Class"){
-    ClassOfService="BU"
-  }else if(ClassOfService=="Economy"){
-    ClassOfService="EC"
-  }
   // const fieldNames = [
   //   "Authentication",
   //   "TypeOfTrip",
@@ -405,15 +398,22 @@ const KafilaFun = async (
       response: "Invalid TypeOfTrip",
     };
   }
+  let codeClassOfService = '';
   //Class Of Service Economy, Business, Premium Economy
-  const classOfServiceMap = {
-    Economy: "EC",
-    Business: "BU",
-    "Premium Economy": "PE",
-    First: "",
-  };
+  if(ClassOfService=="Premium Economy"){
+    codeClassOfService="PE"
+      }else if(ClassOfService=="Business Class"){
+        codeClassOfService="BU"
+      }else if(ClassOfService=="Economy"){
+        codeClassOfService="EC"
+      }
+  // const classOfServiceMap = {
+  //   Economy: "EC",
+  //   Business: "BU",
+  //   "Premium Economy": "PE",
+  //   First: "",
+  // };
 
-  let classOfServiceVal = classOfServiceMap[ClassOfService] || "";
 
   // Fare Family Array
   // let fareFamilyMasterGet = [];
@@ -457,7 +457,7 @@ const KafilaFun = async (
       Inf: PaxDetail.Infants,
       Sector: segmentsArray,
       PF: Airlines.length > 0 ? Airlines.join(",") : "",
-      PC: classOfServiceVal,
+      PC: codeClassOfService,
       Routing: "ALL",
       Ver: "1.0.0.0",
       Auth: {

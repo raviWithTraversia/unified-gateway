@@ -199,7 +199,7 @@ console.log(url,"url")
 
 const railFareEnquiry = async (req, res) => {
   try {
-    const {
+    var {
       trainNo,
       journeyDate,
       frmStn,

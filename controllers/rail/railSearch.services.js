@@ -234,6 +234,7 @@ const railFareEnquiry = async (req, res) => {
         response: "Credential Type does not exist",
       };
     }
+
     const checkUser = await agentConfig.findOne({ userId: Authentication.UserId }).populate({
       path: 'userId',      // First, populate the userId field
       populate: {
@@ -241,6 +242,10 @@ const railFareEnquiry = async (req, res) => {
         model: 'Role',     // Specify the model for roleId (optional if correctly referenced)
       },
     }).populate("RailcommercialPlanIds");
+
+    if(jQuota=="SS"&&paymentEnqFlag=="Y"){
+      jQuota="GN"
+    }
 
     const checkCompany = await Company.findById(Authentication.CompanyId);
     if (!checkUser || !checkCompany) {

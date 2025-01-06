@@ -931,6 +931,8 @@ const KafilaFun = async (
               layover: sector.layover,
               Group: sector.Group,
               TravelTime: sector.TravelTime,
+              HandBaggage: sector.HandBaggage,
+              BaggaInfo: sector.BaggageInfo,
               Departure: departure,
               Arrival: arrival,
             };

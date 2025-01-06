@@ -261,6 +261,8 @@ const bookingDetailsSchema = new mongoose.Schema(
           TravelTime: { type: String, default: null },
           layover: { type: String, default: null },
           Group:{ type: String, default: null },
+          BaggageInfo: { type: String, default: null },
+          HandBaggage: { type: String, default: null },
           Departure: {
             Terminal: { type: String, default: null },
             Date: { type: String, default: null },

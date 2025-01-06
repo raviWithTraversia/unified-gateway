@@ -632,7 +632,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                 fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"
               ) {
                 // console.log(fSearchApiResponse?.data,'JDifeieiei')
-              errorMessage=fSearchApiResponse?.data?.ErrorMessage||"error occured"
+              errorMessage=fSearchApiResponse?.data?.ErrorMessage||fSearchApiResponse?.data?.BookingInfo?.BookingRemark||"error occured"
                 await BookingDetails.updateOne(
                   {
                     bookingId: udf1,
@@ -644,7 +644,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                     $set: {
                       bookingStatus: "FAILED",
                       bookingRemarks:
-                      fSearchApiResponse?.data?.ErrorMessage||"error occured",
+                      fSearchApiResponse?.data?.ErrorMessage||fSearchApiResponse?.data?.BookingInfo?.BookingRemark||"error occured",
                     },
                   }
                 );
@@ -658,7 +658,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                   {
                     $set: {
                       bookingStatus: "FAILED",
-                      bookingRemarks: fSearchApiResponse?.data?.ErrorMessage||"error occured",
+                      bookingRemarks: fSearchApiResponse?.data?.ErrorMessage||fSearchApiResponse?.data?.BookingInfo?.BookingRemark||"error occured",
                     },
                   }
                 );

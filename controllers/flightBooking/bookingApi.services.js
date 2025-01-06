@@ -3081,6 +3081,39 @@ const UpdateAdvanceMarkup = async (req, res) => {
     throw error;
   }
 };
+const updateBookingStatus = async (req, res) => {
+const {providerBookingId, bookingId,bookingStatus,pnr,apnr,gpnr} = req.body
+try {
+ var bookingData={}
+if(bookingId) {
+
+   bookingData=await bookingdetails.findOne({bookingId:bookingId})
+}
+else if(providerBookingId){ 
+   bookingData=await bookingdetails.findOne({providerBookingId:providerBookingId})
+
+}
+  if(!bookingData){
+    return {
+      response: "No booking Found for this providerBookingId.",
+    };
+  }
+  const {PNR,Gpnr,Apnr}=bookingData
+  const updatedData=await bookingdetails.findByIdAndUpdate({_id:bookingData._id}, 
+    {$set:{bookingStatus:bookingStatus,PNR:pnr?pnr:PNR,Gpnr:gpnr?gpnr:Gpnr,Apnr:apnr?apnr:Apnr}},{new:true});
+    if(!updatedData){
+      return {
+        response: "No booking Found for this providerBookingId.",
+      };
+    }
+  return {
+    response: "Booking Status Updated Successfully.",
+  };
+  
+  } catch (error) {
+    throw error;
+  }
+}
 module.exports = {
   getAllBooking,
   getBookingByBookingId,
@@ -3096,4 +3129,5 @@ module.exports = {
   UpdateAdvanceMarkup,
   getPendingBooking,
   manuallyUpdateMultipleBookingStatus,
+  updateBookingStatus
 };

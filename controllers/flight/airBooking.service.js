@@ -1172,7 +1172,7 @@ const KafilaFun = async (
                     {
                       $set: {
                         bookingStatus: "FAILED",
-                        bookingRemarks:fSearchApiResponse?.data?.ErrorMessage||"error occured",
+                        bookingRemarks:fSearchApiResponse?.data?.ErrorMessage||fSearchApiResponse?.data?.BookingInfo?.BookingRemark||"error occured",
                       },
                     },{new :true}
                   );

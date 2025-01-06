@@ -22,6 +22,7 @@ flight_booking_route.post('/flightbooking/manuallyUpdateBookingStatus', flight.m
 flight_booking_route.post('/flightbooking/manuallyUpdateMultipleBookingStatus', flight.manuallyUpdateMultipleBookingStatus);
 flight_booking_route.post('/sendCadDeailonMail',flight.SendCardOnMail)
 flight_booking_route.put('/updateAdvanceMarkup',flight.UpdateAdvanceMarkup)
+flight_booking_route.put('/update/bookingStatus',flight.updateBookingStatus);
 
 
 

@@ -28,6 +28,7 @@ const easeBuzz = async (req, res) => {
 const easeBuzzResponce = async (req, res) => {
     try {
         const result = await easeBuzzServices.easeBuzzResponce(req);
+        console.log("djeieieieiei",result)
         if (result.response == "Save Successfully") {
             apiSucessRes(
               res,
@@ -35,7 +36,7 @@ const easeBuzzResponce = async (req, res) => {
               result.data,
               ServerStatusCode.SUCESS_CODE
             );
-          } else if (result.response == "Failed") {
+          } else if (result.response == "No bookings were updated, as all matching records are already confirmed or do not meet the conditions.") {
             apiErrorres(
               res,
               result.response,

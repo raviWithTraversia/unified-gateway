@@ -79,7 +79,6 @@ const easeBuzz = async (req, res) => {
 const easeBuzzResponce = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1, net_amount_debit,card_type,payment_source, bankcode,bank_ref_num,bank_name,name_on_card, error_Message,pgCharges } = req.body;
-    console.log(req.body,"jkssddjsj");
     const refundItinery=[]
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
@@ -227,7 +226,6 @@ if(pgCharges>0){
         //   console.log(newBalanceCredit,"jdii")
         // }
         
-        console.log("jkssddjsj123");
         let totalRefundAmount = 0;
         // const hitAPI = await Promise.all(
         var bookingId="";
@@ -302,7 +300,7 @@ if(pgCharges>0){
             if (fSearchApiResponse.data && typeof fSearchApiResponse.data.Status === 'string' && fSearchApiResponse.data.Status.toUpperCase() === "FAILED" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
           // Update the booking status
 // Update bookings to 'FAILED'
-errorMessage=fSearchApiResponse?.data?.ErrorMessage
+errorMessage=fSearchApiResponse?.data?.ErrorMessage||fSearchApiResponse?.data?.BookingInfo?.BookingRemark
 
 await BookingDetails.updateMany(
   {
@@ -313,7 +311,7 @@ await BookingDetails.updateMany(
   {
     $set: {
       bookingStatus: "FAILED",
-      bookingRemarks: fSearchApiResponse?.data?.ErrorMessage ||"error acured" ,
+      bookingRemarks: fSearchApiResponse?.data?.ErrorMessage ||fSearchApiResponse?.data?.BookingInfo?.BookingRemark||"error acured" ,
     },
   }
 );
@@ -362,7 +360,6 @@ FailedbookingIdenty.push(true)
               PassengerPreferences: PassengerPreferences,
               userDetails: getuserDetails,
             };
-            console.log(fSearchApiResponse.data,'shadaab ali')
             await BookingDetails.updateOne(
               {
                 bookingId: udf1,
@@ -528,21 +525,61 @@ FailedbookingIdenty.push(true)
       }
     } 
     else {
-      await BookingDetails.updateMany(
-        { bookingId: udf1 },
+      // Retrieve all matching documents
+      const bookingDataList = await BookingDetails.find({ bookingId: udf1 });
+    
+      if (!bookingDataList || bookingDataList.length === 0) {
+        return {
+          response: "No bookings found with the provided bookingId.",
+        };
+      }
+    
+      // Iterate through each booking and log data
+      bookingDataList.forEach((bookingData) => {
+        const logData3 = {
+          traceId: bookingData.itinerary?.TraceId || null,
+          companyId: bookingData.companyId,
+          userId: bookingData.userId,
+          source: "Kafila",
+          type: "API Log",
+          BookingId: udf1,
+          product: "Flight",
+          logName: "eazzbuzz failed Payment Booking",
+          request: req.body,
+          responce: "Payment Failed",
+        };
+        Logs(logData3); // Log for each booking
+      });
+    
+      // Update all matching records except those with bookingStatus "CONFIRMED"
+      const updateResult = await BookingDetails.updateMany(
+        {
+          bookingId: udf1,
+          bookingStatus: { $ne: "CONFIRMED" }, // Exclude "CONFIRMED" bookings
+        },
         {
           $set: {
             bookingStatus: "FAILED PAYMENT",
             bookingRemarks: error_Message || "Payment Failed",
           },
-        }
+        },
+        { new: true } // Ensure updated documents are returned (though not used here)
       );
-
+    
+      // Handle response
+      if (updateResult.modifiedCount === 0) {
+        return {
+          response: "No bookings were updated, as all matching records are already confirmed or do not meet the conditions.",
+        };
+      }
+    
       return {
-        response: "Fetch Data Successfully",
+        response: "Save Successfully",
         data: "Payment Failed",
+        updatedCount: updateResult.modifiedCount,
       };
     }
+    
   } catch (error) {
     throw error;
   }

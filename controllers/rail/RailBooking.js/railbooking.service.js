@@ -244,7 +244,7 @@ const StartBookingRail = async (req) => {
                           //   $arrayElemAt: [latesPassengerData.map(item => item.bookingBerthCode), "$$index"]
                           // },
                           currentBerthNo: {
-                            $arrayElemAt: [latesPassengerData.map(item => item.currentBerthNo), "$$index"]
+                            $arrayElemAt: [latesPassengerData.map(item => item.currentBerthNo=="0"?item.bookingBerthNo:item.currentBerthNo), "$$index"]
                           }
                         },
                       ],

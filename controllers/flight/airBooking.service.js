@@ -932,7 +932,7 @@ const KafilaFun = async (
               Group: sector.Group,
               TravelTime: sector.TravelTime,
               HandBaggage: sector.HandBaggage,
-              BaggaInfo: sector.BaggageInfo,
+              BaggageInfo: sector.BaggageInfo,
               Departure: departure,
               Arrival: arrival,
             };

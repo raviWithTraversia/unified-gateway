@@ -1071,7 +1071,7 @@ if(!response?.data?.Result?.passengerList){
 }
 const currentStatus=[]
   for(var data of response?.data?.Result?.passengerList){
-    currentStatus.push({currentStatus:data?.currentStatus,bookingCoachId:data?.bookingCoachId,bookingBerthNo:data?.bookingBerthNo})
+    currentStatus.push({currentStatus:data?.currentStatus,bookingCoachId:data?.bookingCoachId,currentBerthNo:data?.currentBerthNo})
   };
   return currentStatus
   } catch (error) {
@@ -1102,5 +1102,6 @@ module.exports = {
   PnrEnquirry,
   getBillingRailData,
   updateBillPost,
-  updateTrainStation
+  updateTrainStation,
+  checkPnrStatus
 };

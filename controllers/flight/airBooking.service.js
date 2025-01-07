@@ -1256,6 +1256,7 @@ const findFailedBooking=await BookingDetails.find({
                           p.LName === passenger.LName
                       );
                     if (apiPassenger) {
+                      passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"FAILED"
                       const ticketUpdate =
                         passenger?.Optional?.ticketDetails?.find?.(
                           (p) =>

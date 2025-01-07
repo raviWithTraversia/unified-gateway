@@ -1093,7 +1093,12 @@ const updateCompayProfile = async (req, res) => {
             logoDocument_URL: req.files.logoDocument_URL ? req.files.logoDocument_URL[0].path : companyData.logoDocument_URL,
             signature_URL: req.files.signature_URL ? req.files.signature_URL[0].path : companyData.signature_URL,
             aadhar_URL: req.files.aadhar_URL ? req.files.aadhar_URL[0].path : companyData.aadhar_URL,
-            agencyLogo_URL: req.files.agencyLogo_URL ? req.files.agencyLogo_URL[0].path : companyData.agencyLogo_URL
+            agencyLogo_URL: req.files.agencyLogo_URL ? req.files.agencyLogo_URL[0].path : companyData.agencyLogo_URL,
+            companyAddress:req.body.companyAddress?req.body.companyAddress:companyData.companyAddress,
+            companyCity:req.body.companyCity?req.body.companyCity:companyData.companyCity,
+            companyState:req.body.companyState?req.body.companyState:companyData.companyState,
+            companyPinCode:req.body.companyPinCode?req.body.companyPinCode:companyData.companyPinCode,
+
           }
         },
         { new: true }

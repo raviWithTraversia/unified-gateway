@@ -8,6 +8,7 @@ const { ObjectId } = require("mongodb");
 const { generateQR } = require("../../../utils/generate-qr");
 const companies=require('../../../models/Company')
 const {commonFunctionsRailLogs ,commonMethodDate,ProivdeIndiaStandardTime}=require('../../../controllers/commonFunctions/common.function')
+const {checkPnrStatus} = require('../../rail/rail.controller')
 
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
@@ -193,6 +194,7 @@ const StartBookingRail = async (req) => {
           toDate,
           salesInchargeIds,
           BookedBy,
+          Authentication
         } = req.body;
         const fieldNames = [
           "agencyId",
@@ -217,7 +219,46 @@ const StartBookingRail = async (req) => {
             data: `Missing or null fields: ${missingFieldsString}`,
           };
         }
-      
+      if(bookingId){
+        const bookingDataCartId=await railBookings.findOne({cartId:bookingId});
+        const latesPassengerData=await checkPnrStatus(Authentication,bookingDataCartId?.pnrNumber)
+        if (typeof latesPassengerData !== "string") {
+          await railBookings.findByIdAndUpdate(bookingDataCartId,  [
+            {
+              $set: {
+                psgnDtlList: {
+                  $map: {
+                    input: { $range: [0, { $size: "$psgnDtlList" }] }, // Create a range of indices
+                    as: "index",
+                    in: {
+                      $mergeObjects: [
+                        { $arrayElemAt: ["$psgnDtlList", "$$index"] }, // Keep existing passenger data
+                        {
+                          currentStatus: {
+                            $arrayElemAt: [latesPassengerData.map(item => item.currentStatus), "$$index"]
+                          },
+                          // currentCoachId: {
+                          //   $arrayElemAt: [latesPassengerData.map(item => item.bookingCoachId), "$$index"]
+                          // },
+                          // currentBerthCode: {
+                          //   $arrayElemAt: [latesPassengerData.map(item => item.bookingBerthCode), "$$index"]
+                          // },
+                          currentBerthNo: {
+                            $arrayElemAt: [latesPassengerData.map(item => item.currentBerthNo), "$$index"]
+                          }
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          ],{new:true})
+        }
+   
+ 
+
+      }
         const checkUserIdExist = await User.findById(userId)
           .populate("roleId")
           .populate("company_ID");
@@ -242,7 +283,6 @@ const StartBookingRail = async (req) => {
             console.log("djie");
             filter.AgencyId = new ObjectId(agencyId);
           } else {
-            console.log("jdi");
             checkUserIdExist.roleId.type == "Manual" &&
             checkUserIdExist.company_ID?.type == "TMC"
               ? (filter.companyId = checkUserIdExist.company_ID._id)

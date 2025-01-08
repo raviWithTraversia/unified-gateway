@@ -209,7 +209,7 @@ async function handleflight(
 
   return {
     IsSucess: true,
-    response: responsesApi[0],
+    response: responsesApi[1],
   };
 }
 
@@ -238,8 +238,8 @@ const KafilaFun = async (
     flightCancelUrl = `${supplier.supplierLiveUrl}/api/FCancel`;
   } else {
     // Test Url here
-    createTokenUrl = `${supplier.supplierTestUrl}/api/Freport`;
-    flightCancelUrl = `${supplier.supplierTestUrl}/api/FCancel`;
+    createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
+    flightCancelUrl = `http://stage1.ksofttechnology.com/api/FCancel`;
   }
   let tokenData = {
     P_TYPE: "API",
@@ -532,6 +532,7 @@ const KafilaFun = async (
           { new: true } // To return the updated document
         );
 
+        
 
         const cancelationBookingInstance = new CancelationBooking({
           calcelationStatus:ResponseData?.Status == null && ResponseData?.Charges?.IsCanceled == true ? "CANCEL":  ResponseData?.Status,
@@ -703,7 +704,6 @@ const updateBookingStatus = async (req, res) => {
       }
     }))?.data;
 
-    console.log(postData)
     let fSearchApiResponse = await axios.post(
       createTokenUrl,
       postData,

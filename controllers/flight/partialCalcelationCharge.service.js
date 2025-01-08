@@ -11,6 +11,7 @@ const axios = require("axios");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
+const { compareSync } = require("bcrypt");
 const flightCache = new NodeCache();
 
 const partialCancelationCharge = async (req, res) => {
@@ -179,10 +180,16 @@ async function handleflight(
     };
   }
 
-  
   const responsesApi = await Promise.all(
-    supplierCredentials.map(async (supplier) => {
+    supplierCredentials.map(async (supplier, index) => {
       try {
+        if (!supplier?.supplierCodeId?.supplierCode) {
+          throw new Error(`Invalid supplier structure at index ${index}`);
+        }
+
+        console.log(`Processing Supplier: ${supplier.supplierCodeId.supplierCode}`);
+
+        
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
             return await KafilaFun(
@@ -196,7 +203,7 @@ async function handleflight(
               Reason,
               Sector,
               agencyUserId,
-              BookingIdDetails             
+              BookingIdDetails
             );
           default:
             throw new Error(
@@ -204,15 +211,15 @@ async function handleflight(
             );
         }
       } catch (error) {
-        return { error: error.message, supplier: supplier };
+        console.error(`Error for supplier at index ${index}:`, error.message);
       }
     })
   );
-  
 
+  
   return {
     IsSucess: true,
-    response: responsesApi[0],
+    response: responsesApi[1],
   };
 }
 
@@ -285,7 +292,7 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0"
     };    
-    console.log(requestDataForCHarges)
+    // console.log(requestDataForCHarges)
       let fSearchApiResponse = await axios.post(
         flightCancelUrl,
         requestDataForCHarges,
@@ -420,6 +427,8 @@ const KafilaFun = async (
             fSearchApiResponse.data.Charges.AirlineRefund = fSearchApiResponse.data.Charges?.AirlineRefund||0; 
             fSearchApiResponse.data.Charges.AirlineCancellationFee = fSearchApiResponse.data.Charges?.AirlineCancellationFee || 0;
             //fSearchApiResponse.data.Charges.Fare = 0; 
+            fSearchApiResponse.data.provider="Kafila"
+
             return fSearchApiResponse.data;
             
             

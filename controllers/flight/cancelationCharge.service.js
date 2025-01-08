@@ -185,8 +185,14 @@ async function handleflight(
 
   
   const responsesApi = await Promise.all(
-    supplierCredentials.map(async (supplier) => {
+    supplierCredentials.map(async (supplier, index) => {
       try {
+        if (!supplier?.supplierCodeId?.supplierCode) {
+          throw new Error(`Invalid supplier structure at index ${index}`);
+        }
+
+
+        
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
             return await KafilaFun(
@@ -200,7 +206,7 @@ async function handleflight(
               Reason,
               Sector,
               agencyUserId,
-              BookingIdDetails              
+              BookingIdDetails
             );
           default:
             throw new Error(
@@ -208,15 +214,14 @@ async function handleflight(
             );
         }
       } catch (error) {
-        return { error: error.message, supplier: supplier };
+        console.error(`Error for supplier at index ${index}:`, error.message);
       }
     })
   );
   
-
   return {
     IsSucess: true,
-    response: responsesApi[0],
+    response: responsesApi[1],
   };
 }
 
@@ -233,7 +238,6 @@ const KafilaFun = async (
   agencyUserId,
   BookingIdDetails 
 ) => {
-  console.log(Reason,"3rd")
   let createTokenUrl;
   let flightCancelUrl;
 
@@ -245,8 +249,8 @@ const KafilaFun = async (
     flightCancelUrl = `${supplier.supplierLiveUrl}/api/FCancel`;
   } else {
     // Test Url here
-    createTokenUrl = `${supplier.supplierTestUrl}/api/Freport`;
-    flightCancelUrl = `${supplier.supplierTestUrl}/api/FCancel`;
+    createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
+    flightCancelUrl = `http://stage1.ksofttechnology.com/api/FCancel`;
   }   
  
   let tokenData = {
@@ -259,11 +263,13 @@ const KafilaFun = async (
     Version: "1.0.0.0.0.0",
   };
   try {
+    console.log(createTokenUrl,"jei")
     let response = await axios.post(createTokenUrl, tokenData, {
       headers: {
         "Content-Type": "application/json",
       },
     });
+    
     
     if (response.data.Status === "success") {
       let getToken = response.data.Result;
@@ -285,7 +291,6 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0"
     };    
-    console.log(requestDataForCHarges,"jddi")
        
       let fSearchApiResponse = await axios.post(
         flightCancelUrl,

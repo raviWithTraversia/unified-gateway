@@ -8,6 +8,7 @@ const CancelationBooking = require("../../models/booking/CancelationBooking");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const axios = require("axios");
 const uuid = require("uuid");
+const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const NodeCache = require("node-cache");
 const { commonAirBookingCancellation } = require("../../services/common-air-cancellation");
 const flightCache = new NodeCache();
@@ -263,7 +264,6 @@ const KafilaFun = async (
     Version: "1.0.0.0.0.0",
   };
   try {
-    console.log(createTokenUrl,"jei")
     let response = await axios.post(createTokenUrl, tokenData, {
       headers: {
         "Content-Type": "application/json",
@@ -331,6 +331,12 @@ const KafilaFun = async (
             { _id: BookingIdDetails._id },
             { $set: { bookingStatus: "CANCELLATION PENDING" } },
             { new: true } // To return the updated document
+          );
+          await passengerPreferenceModel.updateOne(
+            { bookingId: BookingIdDetails.bookingId },
+            {
+              $set: { "Passengers.$[].Status": "CANCELLATION PENDING" },
+            }
           );
         }  
         return  fSearchApiResponse?.data?.ErrorMessage +' ' + fSearchApiResponse?.data?.WarningMessage

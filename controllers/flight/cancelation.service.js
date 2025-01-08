@@ -377,6 +377,12 @@ const KafilaFun = async (
             { new: true } // To return the updated document
           );
         }
+        await passengerPreferenceModel.updateOne(
+          { bookingId: BookingIdDetails.bookingId },
+          {
+            $set: { "Passengers.$[].Status": "CANCELLATION PENDING" },
+          }
+        );
         return fCancelApiResponse?.data;
       } else if (
         ResponseData?.Status === null &&

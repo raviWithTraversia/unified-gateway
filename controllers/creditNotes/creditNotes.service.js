@@ -605,7 +605,7 @@ const editRefundCancelation = async (req, res) => {
       return res.status(404).json({IsSucess:false, response: "Agent Data Not Found" });
     }
 
-    const findMatchCancelData = refundHistory.filter(element => !element.IsRefunded && element.BookingId === findCancelationData.bookingId);
+    const findMatchCancelData = refundHistory.filter(element => element.IsRefunded && element.BookingId === findCancelationData.bookingId);
 
     if (!findMatchCancelData || findMatchCancelData.length === 0) {
       return res.status(404).json({IsSucess:false,response: "Refund is Pending from API" });
@@ -631,6 +631,9 @@ const editRefundCancelation = async (req, res) => {
       );
     }
 
+    await agentConfig.findByIdAndUpdate(agentConfigData._id, {
+      $set: { maxcreditLimit: agentConfigData.maxcreditLimit + Number(RefundableAmount) }
+    },{new:true});
     const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
     await ledger.create({
       userId: agentConfigData.userId,
@@ -641,14 +644,12 @@ const editRefundCancelation = async (req, res) => {
       currencyType: "INR",
       fop: "CREDIT",
       transactionType: "CREDIT",
-      runningAmount: agentConfigData.RefundableAmount,
+      runningAmount: agentConfigData.maxcreditLimit,
       remarks: `Manual ${remarks}` || "Cancellation Amount Added Into Your Account.",
       transactionBy: agentConfigData.userId
     });
 
-    await agentConfig.findByIdAndUpdate(agentConfigData._id, {
-      $set: { maxcreditLimit: agentConfigData.maxcreditLimit + Number(RefundableAmount) }
-    });
+
 
     await CancelationBooking.findByIdAndUpdate(
       { _id:id},

@@ -552,10 +552,10 @@ const editRefundCancelation = async (req, res) => {
     
     const findCancelationData = await CancelationBooking.findById(id);
     if (!findCancelationData) {
-      return res.status(404).json({IsSucess:false, message: "Cancellation Data not found" });
+      return res.status(404).json({IsSucess:false, Message: "Cancellation Data not found" });
     }
     if(!findCancelationData?.isRefund){
-      return res.status(404).json({IsSucess:false, message: "Allready Provide Refund" })
+      return res.status(404).json({IsSucess:false, Message: "Allready Provide Refund" })
     }
     let date =  moment(findCancelationData?.createdAt).format('YYYY-MM-DD');;
     let apiRequestBody = {};
@@ -573,7 +573,7 @@ const editRefundCancelation = async (req, res) => {
       supplier = await getSupplierData("LIVE", "P");
       Url = "http://fhapip.ksofttechnology.com/api/Freport";
     } else {
-      return res.status(400).json({ response: "URL not found" });
+      return res.status(400).json({ Message: "URL not found" });
     }
 
     apiRequestBody = {
@@ -597,18 +597,18 @@ const editRefundCancelation = async (req, res) => {
     const refundHistoryResponse = await axios.post(Url, apiRequestBody);
     const refundHistory = refundHistoryResponse.data;
     if (!refundHistory) {
-      return res.status(404).json({IsSucess:false, message: "Kafila API Data Not Found" });
+      return res.status(404).json({IsSucess:false, Message: "Kafila API Data Not Found" });
     }
 
     const agentConfigData = await agentConfig.findOne({ userId: findCancelationData.userId });
     if (!agentConfigData) {
-      return res.status(404).json({IsSucess:false, message: "Agent Data Not Found" });
+      return res.status(404).json({IsSucess:false, Message: "Agent Data Not Found" });
     }
 
     const findMatchCancelData = refundHistory.filter(element => !element.IsRefunded && element.BookingId === findCancelationData.bookingId);
 
     if (!findMatchCancelData || findMatchCancelData.length === 0) {
-      return res.status(404).json({IsSucess:false,message: "Refund is Pending from API" });
+      return res.status(404).json({IsSucess:false,Message: "Refund is Pending from API" });
     }
 
     await BookingDetails.findOneAndUpdate({ bookingId: bookingId }, { $set: { isRefund: true } });
@@ -668,11 +668,11 @@ const editRefundCancelation = async (req, res) => {
     );
 
     // Send success response
-    return res.status(200).json({ IsSucess:true,message: "Refund Process Completed Successfully" });
+    return res.status(200).json({ IsSucess:true,Message: "Refund Process Completed Successfully" });
 
   } catch (error) {
     console.error("Error in processing cancellation refund:", error);
-    return res.status(500).json({IsSucess:false, message: "Internal Server Error", message: error.message });
+    return res.status(500).json({IsSucess:false, Message: "Internal Server Error", Message: error.Message });
   }
 };
 

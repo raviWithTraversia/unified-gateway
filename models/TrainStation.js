@@ -7,12 +7,7 @@ const TrainStationSchema=new mongoose.Schema({
     StationName:{
         type:String,
     },
-    Location:{
-        type:String,
-    },
-    CountryCode:{
-        type:String
-    }
+
 })
 const TrainStationName = mongoose.model("TrainStationMaster", TrainStationSchema);
 

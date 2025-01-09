@@ -174,6 +174,7 @@ async function handleflight(
   const responsesApi = await Promise.all(
     supplierCredentials.map(async (supplier) => {
       try {
+        supplier.supplierCodeId.supplierCode="Kafila"
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
             return await KafilaFun(
@@ -203,7 +204,7 @@ async function handleflight(
 
   return {
     IsSucess: true,
-    response: CredentialType=="TEST"? responsesApi[1]:responsesApi[0],
+    response: responsesApi[0],
   };
 }
 
@@ -284,7 +285,7 @@ const KafilaFun = async (
           },
         }
       ); 
-        //console.log(fSearchApiResponse.data, "1API Responce")
+        console.log(supplier, "1API Responce")
       if (fSearchApiResponse.data.Status !==  null) {
         return fSearchApiResponse.data.ErrorMessage + "-" + fSearchApiResponse.data.WarningMessage       
       }

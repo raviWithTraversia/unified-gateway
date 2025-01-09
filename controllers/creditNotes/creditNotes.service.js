@@ -5,7 +5,7 @@ const agentConfig = require("../../models/AgentConfig");
 const bookingDetails = require("../../models/booking/BookingDetails");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
 const creditNotes = require("../../models/CreditNotes");
-const Passengerpreferences=require('../../models/booking/PassengerPreference')
+const PassengerPreference=require('../../models/booking/PassengerPreference')
 const axios = require("axios");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const uuid = require("uuid");
@@ -16,7 +16,9 @@ const { Config } = require("../../configs/config");
 const flightCache = new NodeCache();
 const {RefundedCommonFunction,getTdsAndDsicount}=require('../../controllers/commonFunctions/common.function');
 const InvoicingData = require("../../models/booking/InvoicingData");
-const {ObjectId}=require("mongodb")
+const {ObjectId}=require("mongodb");
+const BookingDetails = require("../../models/booking/BookingDetails");
+const moment=require('moment')
 
 
 
@@ -396,7 +398,7 @@ searchData.push(statusQuery)
   $project:{
     bookingId:"$bookingdetailsData.bookingId",
     companyName:"$companyData.companyName",
-    userData:{title:"$userData.title",fname:"$userData.fname",lastname:"$userData.lastName"},
+    userData:{title:"$userData.title",fname:"$userData.fname",lastname:"$userData.lastName",userId:"$userData.userId"},
     calcelationStatus:1,
     providerBookingId:1,
     fare:1,
@@ -405,7 +407,8 @@ searchData.push(statusQuery)
     ServiceFee:1,
     PNR:1,
     createdAt:1,
-    isRefund:1
+    isRefund:1,
+    bookingDetails:"$bookingdetailsData"
 
 
   }
@@ -493,6 +496,7 @@ var supplier
     const refundHistoryResponse = await axios.post(Url, apiRequestBody);
 
     const refundHistory = refundHistoryResponse.data;
+    
     if(!refundHistory){
       return ({
         response:"Kafila API Data Not Found"
@@ -540,6 +544,135 @@ if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="
   }
 
 }
+
+const editRefundCancelation = async (req, res) => {
+  try {
+    const { id } = req.query;
+    const { AirlineCancellationFee, AirlineRefund, ServiceFee, remarks, bookingId, RefundableAmount } = req.body;
+    
+    const findCancelationData = await CancelationBooking.findById(id);
+    if (!findCancelationData) {
+      return res.status(404).json({ response: "Cancellation Data not found" });
+    }
+    let date =  moment(findCancelationData?.createdAt).format('YYYY-MM-DD');;
+    let apiRequestBody = {};
+    let Url = "";
+    let supplier;
+
+    const getSupplierData = async (credentialsType, environment) => {
+      return await Supplier.find({ $and: [{ credentialsType, companyId: findCancelationData?.companyId }] });
+    };
+
+    if (req.headers.host === "localhost:3111" || req.headers.host === "kafila.traversia.net") {
+      supplier = await getSupplierData("TEST", "D");
+      Url = "http://stage1.ksofttechnology.com/api/Freport";
+    } else if (req.headers.host === "agentapi.kafilaholidays.in") {
+      supplier = await getSupplierData("LIVE", "P");
+      Url = "http://fhapip.ksofttechnology.com/api/Freport";
+    } else {
+      return res.status(400).json({ response: "URL not found" });
+    }
+
+    apiRequestBody = {
+      "P_TYPE": "API",
+      "R_TYPE": "FLIGHT",
+      "R_NAME": "FlightCancelHistory",
+      "R_DATA": {
+        "ACTION": "",
+        "FROM_DATE": new Date(date + 'T00:00:00.000Z'),
+        "TO_DATE": new Date(date + 'T23:59:59.999Z')
+      },
+      "AID": supplier[0]?.supplierWsapSesssion,
+      "MODULE": "B2B",
+      "IP": "182.73.146.154",
+      "TOKEN": supplier[0]?.supplierOfficeId,
+      "ENV": supplier[0]?.credentialsType === "LIVE" ? "P" : "D",
+      "Version": "1.0.0.0.0.0"
+    };
+
+
+    const refundHistoryResponse = await axios.post(Url, apiRequestBody);
+    const refundHistory = refundHistoryResponse.data;
+console.log(refundHistory)
+    if (!refundHistory) {
+      return res.status(404).json({ response: "Kafila API Data Not Found" });
+    }
+
+    const agentConfigData = await agentConfig.findOne({ userId: findCancelationData.userId });
+    if (!agentConfigData) {
+      return res.status(404).json({ response: "Agent Data Not Found" });
+    }
+
+    const findMatchCancelData = refundHistory.filter(element => !element.IsRefunded && element.BookingId === findCancelationData.bookingId);
+
+    if (!findMatchCancelData || findMatchCancelData.length === 0) {
+      return res.status(404).json({ response: "Refund is Pending from API" });
+    }
+
+    await BookingDetails.findOneAndUpdate({ bookingId: bookingId }, { $set: { isRefund: true } });
+
+    if (findMatchCancelData[0].CType === "PARTIAL") {
+      for (let cpassenger of findMatchCancelData[0]?.CSector[0]?.CPax || []) {
+        await PassengerPreference.findOneAndUpdate(
+          {
+            bookingId: bookingId,
+            "Passengers.FName": cpassenger.FName,
+            "Passengers.LName": cpassenger.lName
+          },
+          { $set: { "Passengers.$.Status": "CANCELLED" } }
+        );
+      }
+    } else {
+      await PassengerPreference.updateOne(
+        { bookingId: bookingId },
+        { $set: { "Passengers.$[].Status": "CANCELLED" } }
+      );
+    }
+
+    const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
+    await ledger.create({
+      userId: agentConfigData.userId,
+      companyId: agentConfigData.companyId,
+      ledgerId: ledgerId,
+      cartId: bookingId,
+      transactionAmount: RefundableAmount,
+      currencyType: "INR",
+      fop: "CREDIT",
+      transactionType: "CREDIT",
+      runningAmount: agentConfigData.RefundableAmount,
+      remarks: `Manual ${remarks}` || "Cancellation Amount Added Into Your Account.",
+      transactionBy: agentConfigData.userId
+    });
+
+    await agentConfig.findByIdAndUpdate(agentConfigData._id, {
+      $set: { maxcreditLimit: agentConfigData.maxcreditLimit + RefundableAmount }
+    });
+
+    await CancelationBooking.findByIdAndUpdate(
+      { bookingId: refundHistory.BookingId },
+      {
+        $set: {
+          fare: refundHistory.Fare,
+          AirlineCancellationFee,
+          AirlineRefund,
+          ServiceFee,
+          RefundableAmt: RefundableAmount,
+          isRefund: true,
+          calcelationStatus: "REFUNDED"
+        }
+      },
+      { new: true }
+    );
+
+    // Send success response
+    return res.status(200).json({ response: "Refund Process Completed Successfully" });
+
+  } catch (error) {
+    console.error("Error in processing cancellation refund:", error);
+    return res.status(500).json({ response: "Internal Server Error", error: error.message });
+  }
+};
+
 
 const ManualRefund = async (req, res) => {
   try {
@@ -694,6 +827,6 @@ const ManualRefund = async (req, res) => {
 };
 
 
-module.exports = {flightCreditNotes,cancelationBooking,findCancelationRefund,ManualRefund}
+module.exports = {flightCreditNotes,cancelationBooking,findCancelationRefund,ManualRefund,editRefundCancelation}
 
 

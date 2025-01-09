@@ -193,7 +193,7 @@ async function handleflight(
         }
 
 
-        
+        supplier.supplierCodeId.supplierCode="Kafila"
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
             return await KafilaFun(
@@ -222,7 +222,7 @@ async function handleflight(
   
   return {
     IsSucess: true,
-    response:CredentialType=="TEST"? responsesApi[1]:responsesApi[0],
+    response:responsesApi[0],
   };
 }
 

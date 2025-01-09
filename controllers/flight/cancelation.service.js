@@ -180,6 +180,7 @@ async function handleflight(
     supplierCredentials.map(async (supplier) => {
       // console.log(supplier,"supplier11")
       try {
+        supplier.supplierCodeId.supplierCode="Kafila"
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
             return await KafilaFun(
@@ -209,7 +210,7 @@ async function handleflight(
 
   return {
     IsSucess: true,
-    response: CredentialType=="TEST"? responsesApi[1]:responsesApi[0],
+    response:responsesApi[0],
   };
 }
 
@@ -954,7 +955,6 @@ const updatePendingBookingStatus = async (req, res) => {
       }
     );
 
-
       // const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.bookingId });
       // if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
       //   await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
@@ -999,6 +999,7 @@ const updatePendingBookingStatus = async (req, res) => {
 //       }
 //     });
 const refundHistory = fSearchApiResponse.data;
+
     if(!refundHistory){
       return ({
         response:"Kafila API Data Not Found"

@@ -222,7 +222,7 @@ async function handleflight(
   
   return {
     IsSucess: true,
-    response: responsesApi[1],
+    response:CredentialType=="TEST"? responsesApi[1]:responsesApi[0],
   };
 }
 

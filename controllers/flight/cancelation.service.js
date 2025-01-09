@@ -209,7 +209,7 @@ async function handleflight(
 
   return {
     IsSucess: true,
-    response: responsesApi[1],
+    response: CredentialType=="TEST"? responsesApi[1]:responsesApi[0],
   };
 }
 
@@ -337,7 +337,7 @@ const KafilaFun = async (
       // console.log(ResponseData,"ResponseData data out");
       // console.log(fCancelApiResponse?.data?.R_DATA, "fCancelApiResponse data R_DATA");
       if (
-        (ResponseData?.Status != null || ResponseData?.Status != null) &&
+        ResponseData?.Status == null ||
         ((ResponseData?.Status.toUpperCase() ===
         "PENDING" || ResponseData?.Status.toUpperCase() ===
           "PENDING") ||
@@ -368,7 +368,7 @@ const KafilaFun = async (
 
         await cancelationBookingInstance.save();
 
-        if(ResponseData?.Status != null && ResponseData?.Status.toUpperCase() ===
+        if(ResponseData?.Status == null || ResponseData?.Status.toUpperCase() ===
         "PENDING"||ResponseData?.Status.toUpperCase() ===
         "FAILED"){
           await bookingDetails.findOneAndUpdate(

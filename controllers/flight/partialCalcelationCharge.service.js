@@ -219,7 +219,7 @@ async function handleflight(
   
   return {
     IsSucess: true,
-    response: responsesApi[1],
+    response: CredentialType=="TEST"? responsesApi[1]:responsesApi[0],
   };
 }
 
@@ -307,20 +307,7 @@ const KafilaFun = async (
            
             if(fSearchApiResponse?.data?.Status != null && fSearchApiResponse?.data?.Status==="PENDING"){
 
-              await passengerPreferenceModel.updateMany(
-                {
-                  bid: BookingIdDetails._id,
-                  "Passengers.Status": { $ne: "CANCELLATION PENDING" }  
-                },
-                {
-                  $set: { "Passengers.$[elem].Status": "CONFIRMED" }  
-                },
-                {
-                  arrayFilters: [{ "elem.Status": { $ne: "CANCELLATION PENDING" } }],  
-                  multi: true,  
-                  new: true     
-                }
-              );
+             
               
     
               const cancelationBookingInstance = new CancelationBooking({

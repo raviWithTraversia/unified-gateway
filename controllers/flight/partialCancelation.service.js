@@ -8,7 +8,7 @@ const passengerPreferenceModel = require("../../models/booking/PassengerPreferen
 const agentConfig = require("../../models/AgentConfig");
 const ledger = require("../../models/Ledger");
 const axios = require("axios");
-const Logs = require("../../controllers/logs/PortalApiLogsCommon");
+const Logs = require("../../controllers/logs/protalLog.services");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
@@ -203,7 +203,7 @@ async function handleflight(
 
   return {
     IsSucess: true,
-    response: responsesApi[1],
+    response: CredentialType=="TEST"? responsesApi[1]:responsesApi[0],
   };
 }
 
@@ -324,7 +324,7 @@ const KafilaFun = async (
       }
     ); 
 
-    if(fCancelApiResponse?.data?.R_DATA?.Status != null && (fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "PENDING" || fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "FAILED")){
+    if(fCancelApiResponse?.data?.R_DATA?.Status == null || (fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "PENDING" || fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "FAILED")){
         try {
           const cancelationBookingInstance = new CancelationBooking({
             calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status || null,
@@ -345,14 +345,28 @@ const KafilaFun = async (
 
           await cancelationBookingInstance.save();
 
-          if(fCancelApiResponse?.data?.R_DATA?.Status != null && fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() ===
+          if(fCancelApiResponse?.data?.R_DATA?.Status == null || fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() ===
         "PENDING"){
           await bookingDetails.findOneAndUpdate(
             { _id: BookingIdDetails._id },
             { $set: { bookingStatus: "CANCELLATION PENDING" } },
             { new: true } // To return the updated document
           );
+        
         }
+        for(let passengers of Sector[0]?.PAX){
+          await passengerPreferenceModel.findOneAndUpdate(
+                     {
+                      bid: BookingIdDetails._id,
+                       "Passengers.FName": passengers.FNAME,
+                       "Passengers.LName": passengers.LNAME
+                     },
+                     {
+                       $set: { "Passengers.$.Status": "CANCELLATION PENDING" }
+                     },
+                     {new:true}
+                   );
+       }
           return fCancelApiResponse?.data;
         } catch (error) {
           throw new Error({error:"Error saving cancellation data (Pending)" , responce: fCancelApiResponse?.data});

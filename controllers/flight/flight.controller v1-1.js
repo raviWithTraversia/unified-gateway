@@ -418,7 +418,7 @@ const fullCancelationCharge = async (req, res) => {
       req,
       res
     );
-    if (!result.response && result.isSometingMissing) {
+   if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response === "Trace Id Required" ||

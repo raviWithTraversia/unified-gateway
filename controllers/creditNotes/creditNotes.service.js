@@ -552,7 +552,10 @@ const editRefundCancelation = async (req, res) => {
     
     const findCancelationData = await CancelationBooking.findById(id);
     if (!findCancelationData) {
-      return res.status(404).json({ response: "Cancellation Data not found" });
+      return res.status(404).json({IsSucess:false, response: "Cancellation Data not found" });
+    }
+    if(findCancelationData?.isRefund){
+      return res.status(404).json({IsSucess:false, response: "Allready Provide Refund" })
     }
     let date =  moment(findCancelationData?.createdAt).format('YYYY-MM-DD');;
     let apiRequestBody = {};
@@ -593,20 +596,19 @@ const editRefundCancelation = async (req, res) => {
 
     const refundHistoryResponse = await axios.post(Url, apiRequestBody);
     const refundHistory = refundHistoryResponse.data;
-console.log(refundHistory)
     if (!refundHistory) {
-      return res.status(404).json({ response: "Kafila API Data Not Found" });
+      return res.status(404).json({IsSucess:false, response: "Kafila API Data Not Found" });
     }
 
     const agentConfigData = await agentConfig.findOne({ userId: findCancelationData.userId });
     if (!agentConfigData) {
-      return res.status(404).json({ response: "Agent Data Not Found" });
+      return res.status(404).json({IsSucess:false, response: "Agent Data Not Found" });
     }
 
     const findMatchCancelData = refundHistory.filter(element => !element.IsRefunded && element.BookingId === findCancelationData.bookingId);
 
     if (!findMatchCancelData || findMatchCancelData.length === 0) {
-      return res.status(404).json({ response: "Refund is Pending from API" });
+      return res.status(404).json({IsSucess:false,response: "Refund is Pending from API" });
     }
 
     await BookingDetails.findOneAndUpdate({ bookingId: bookingId }, { $set: { isRefund: true } });
@@ -645,14 +647,14 @@ console.log(refundHistory)
     });
 
     await agentConfig.findByIdAndUpdate(agentConfigData._id, {
-      $set: { maxcreditLimit: agentConfigData.maxcreditLimit + RefundableAmount }
+      $set: { maxcreditLimit: agentConfigData.maxcreditLimit + Number(RefundableAmount) }
     });
 
     await CancelationBooking.findByIdAndUpdate(
-      { bookingId: refundHistory.BookingId },
+      { _id:id},
       {
         $set: {
-          fare: refundHistory.Fare,
+          fare:findCancelationData?.fare,
           AirlineCancellationFee,
           AirlineRefund,
           ServiceFee,
@@ -665,11 +667,11 @@ console.log(refundHistory)
     );
 
     // Send success response
-    return res.status(200).json({ response: "Refund Process Completed Successfully" });
+    return res.status(200).json({ IsSucess:true,response: "Refund Process Completed Successfully" });
 
   } catch (error) {
     console.error("Error in processing cancellation refund:", error);
-    return res.status(500).json({ response: "Internal Server Error", error: error.message });
+    return res.status(500).json({IsSucess:false, response: "Internal Server Error", message: error.message });
   }
 };
 

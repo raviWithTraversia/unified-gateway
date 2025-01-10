@@ -630,9 +630,10 @@ const editRefundCancelation = async (req, res) => {
         { $set: { "Passengers.$[].Status": "CANCELLED" } }
       );
     }
+    const newBalance=agentConfigData.maxcreditLimit + Number(AirlineRefund)
 
     await agentConfig.findByIdAndUpdate(agentConfigData._id, {
-      $set: { maxcreditLimit: agentConfigData.maxcreditLimit + Number(RefundableAmount) }
+      $set: { maxcreditLimit: newBalance}
     },{new:true});
     const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
     await ledger.create({
@@ -640,11 +641,11 @@ const editRefundCancelation = async (req, res) => {
       companyId: agentConfigData.companyId,
       ledgerId: ledgerId,
       cartId: bookingId,
-      transactionAmount: RefundableAmount,
+      transactionAmount: AirlineRefund,
       currencyType: "INR",
       fop: "CREDIT",
       transactionType: "CREDIT",
-      runningAmount: agentConfigData.maxcreditLimit,
+      runningAmount: newBalance,
       remarks: `Manual ${remarks}` || "Cancellation Amount Added Into Your Account.",
       transactionBy: agentConfigData.userId
     });
@@ -659,7 +660,7 @@ const editRefundCancelation = async (req, res) => {
           AirlineCancellationFee,
           AirlineRefund,
           ServiceFee,
-          RefundableAmt: RefundableAmount,
+          RefundableAmt:findCancelationData?.RefundableAmt,
           isRefund: true,
           calcelationStatus: "REFUNDED"
         }

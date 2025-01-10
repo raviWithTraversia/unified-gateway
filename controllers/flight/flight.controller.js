@@ -10,6 +10,7 @@ const genericCart = require("./genericCart.service");
 const amendment = require("./amendment.service");
 const amendmentCart = require("./amendmentCart.service");
 const amadeus = require("./amadeus/searchFlights.service");
+const Config=require('../../configs/config')
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
@@ -56,7 +57,7 @@ const getSearch = async (req, res) => {
         true
       );
 
-    const isTestEnv = req.body.Authentication?.CredentialType === "TEST";
+    const isTestEnv = ["LIVE", "TEST"].some(type => req.body.Authentication?.CredentialType.includes(type));
     const isInternationalRoundTrip =
       req.body.TravelType === "International" &&
       req.body.TypeOfTrip === "ROUNDTRIP";
@@ -111,8 +112,9 @@ const getSearch = async (req, res) => {
 
 const airPricing = async (req, res) => {
   try {
+    const itsCehck= req.body.Authentication?.CredentialType.includes("LIVE","TEST")
     if (
-      req.body.Authentication?.CredentialType === "TEST" &&
+      itsCehck&&
       req.body.Itinerary?.[0]?.Provider !== "Kafila"
     ) {
       console.log("running common api");

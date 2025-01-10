@@ -186,7 +186,11 @@ module.exports.verifyOTP = async (request) => {
       { cancellationId },
       { isRefundOTPVerified: true }
     );
+
+    await bookingDetailsRail.findOneAndUpdate({pnrNumber:pnr},{$set:{bookingStatus:"CANCELLED"}},{new:true})
+
     return { result: response };
+
   } catch (error) {
     console.log({ error });
     return { error: error?.response || error.message };

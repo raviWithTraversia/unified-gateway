@@ -55,7 +55,7 @@ const getSearch = async (req, res) => {
         true
       );
 
-    const isTestEnv = req.body.Authentication?.CredentialType === "TEST";
+      const isTestEnv = ["LIVE", "TEST"].some(type => req.body.Authentication?.CredentialType.includes(type));
     const isInternationalRoundTrip =
       req.body.TravelType === "International" &&
       req.body.TypeOfTrip === "ROUNDTRIP";
@@ -103,8 +103,9 @@ const getSearch = async (req, res) => {
 
 const airPricing = async (req, res) => {
   try {
+    const itsChcek=["LIVE", "TEST"].some(type => req.body.Authentication?.CredentialType.includes(type));
     if (
-      req.body.Authentication?.CredentialType === "TEST" &&
+      itsChcek&&
       req.body.Itinerary?.[0]?.Provider !== "Kafila"
     ) {
       console.log("running common api");

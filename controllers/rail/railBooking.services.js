@@ -45,7 +45,7 @@ response:"Station Code and StationName not found"
 else{
     let orConditions = [];
     if (Station) {
-      orConditions.push({ StationCode: new RegExp(`^${Station}`, 'i') },{stationName:new RegExp(`^${Station}`, 'i')});
+      orConditions.push({ StationCode: new RegExp(`^${Station}`, 'i') },{StationName:new RegExp(`^${Station}`, 'i')});
     }
    
 

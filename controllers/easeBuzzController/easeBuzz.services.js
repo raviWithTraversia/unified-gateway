@@ -392,6 +392,7 @@ FailedbookingIdenty.push(true)
                         p.LName === passenger.LName
                     );
                   if (apiPassenger) {
+                    passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
                     const ticketUpdate =
                       passenger.Optional.ticketDetails.find(
                         (p) =>

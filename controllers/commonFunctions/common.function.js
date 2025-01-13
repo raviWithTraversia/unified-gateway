@@ -1277,7 +1277,7 @@ const RefundedCommonFunction = async (
               for (let cpassenger of refund.CSector[0]?.CPax) {
                 await BookingDetails.findOneAndUpdate(
                   { providerBookingId: matchingBooking?.bookingId },
-                  { $set: { bookingStatus: "PARIALLY CANCELLED" } },
+                  { $set: { bookingStatus: "PARTIALLY CANCELLED" } },
                   { new: true }
                 );
 

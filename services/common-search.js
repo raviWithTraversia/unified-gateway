@@ -9,7 +9,6 @@ const {
 const {
   getApplyAllCommercial,
 } = require("../controllers/flight/flight.commercial");
-const { saveLogInFile } = require("../utils/save-log");
 
 async function commonFlightSearch(request) {
   try {
@@ -19,9 +18,7 @@ async function commonFlightSearch(request) {
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/flight/search";
     console.log({ url });
-
     const { data: response } = await axios.post(url, requestBody);
-    saveLogInFile("response.jsonhduueueeu", response);
     // fs.writeFileSync(
     //   path.resolve(__dirname, "response.json"),
     //   JSON.stringify(response, null, 2)
@@ -35,22 +32,24 @@ async function commonFlightSearch(request) {
         uniqueKey,
       })
     );
-    try {
-      itineraries = await getApplyAllCommercial(
-        request.Authentication,
-        request.TravelType,
-        itineraries
-      );
-    } catch (errorApplyingCommercial) {
-      console.log({ errorApplyingCommercial });
+    if (itineraries?.length) {
+      try {
+        itineraries = itineraries.filter(
+          (itinerary) =>
+            !["h1", "sg"].includes(itinerary.valCarrier.toLowerCase())
+        );
+        itineraries = await getApplyAllCommercial(
+          request.Authentication,
+          request.TravelType,
+          itineraries
+        );
+      } catch (errorApplyingCommercial) {
+        console.log({ errorApplyingCommercial });
+      }
     }
-    return { data: itineraries || [] };
+    console.log({ itineraries });
+    return { data: itineraries };
   } catch (error) {
-    saveLogInFile("search-error.json", {
-      errorStack: error.stack,
-      message: error.message,
-    });
-    console.log({ error });
     return { error: error.message };
   }
 }

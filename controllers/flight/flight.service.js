@@ -357,6 +357,8 @@ const KafilaFun = async (
     flightSearchUrl = `${supplier.supplierTestUrl}/api/FSearch`;
   }
 
+  console.log(createTokenUrl,"jdiei")
+
   let tripTypeValue;
   if (TravelType == "International") {
     switch (TypeOfTrip) {
@@ -475,6 +477,8 @@ const KafilaFun = async (
         TPnr: false,
       },
     };
+
+    console.log(requestDataFSearch,"requestDataFSearch")
     let fSearchApiResponse = await axios.post(
       flightSearchUrl,
       requestDataFSearch,
@@ -497,7 +501,7 @@ const KafilaFun = async (
     };
     Logs(logData);
     //logger.info(fSearchApiResponse.data);
-    //console.log(fSearchApiResponse.data.Schedules, "API Responce")
+    console.log(fSearchApiResponse.data, "API Responce")
     if (fSearchApiResponse.data.Status == "failed") {
       return {
         IsSucess: false,

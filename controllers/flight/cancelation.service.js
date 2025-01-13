@@ -347,27 +347,7 @@ const KafilaFun = async (
           "FAILED"))
       ) {
         // console.log(ResponseData,"fCancelApiResponse In");
-        const cancelationBookingInstance = new CancelationBooking({
-          calcelationStatus: ResponseData?.Status || null ,
-          bookingId:BookingId,
-          providerBookingId:providerBookingId,
-          AirlineCode: requestDataForCancel.R_DATA?.Charges?.FlightCode || null ,
-          companyId: Authentication?.CompanyId || null,
-          userId: Authentication?.UserId || null,
-          PNR: requestDataForCancel.R_DATA?.Charges?.Pnr || null,
-          fare: requestDataForCancel.R_DATA?.Charges?.Fare || null ,
-          AirlineCancellationFee:requestDataForCancel.R_DATA?.Charges
-          ?.AirlineCancellationFee ? requestDataForCancel.R_DATA?.Charges
-          ?.AirlineCancellationFee : 0,
-          AirlineRefund: requestDataForCancel.R_DATA?.Charges?.AirlineRefund ? requestDataForCancel.R_DATA?.Charges?.AirlineRefund : 0,
-          ServiceFee: requestDataForCancel.R_DATA?.Charges?.ServiceFee || null,
-          RefundableAmt: requestDataForCancel.R_DATA?.Charges?.RefundableAmt || null,
-          description:requestDataForCancel.R_DATA?.Charges?.Description || null,
-          modifyBy: Authentication?.UserId || null,
-          modifyAt: new Date(),
-        });
-
-        await cancelationBookingInstance.save();
+        await cancelationDataUpdate(Authentication,fCancelApiResponse,BookingIdDetails)
 
         if(ResponseData?.Status == null || ResponseData?.Status.toUpperCase() ===
         "PENDING"||ResponseData?.Status.toUpperCase() ===
@@ -541,56 +521,11 @@ const KafilaFun = async (
 
         
 
-        const cancelationBookingInstance = new CancelationBooking({
-          calcelationStatus:ResponseData?.Status == null && ResponseData?.Charges?.IsCanceled == true ? "CANCEL":  ResponseData?.Status,
-          bookingId:BookingId,
-          providerBookingId:providerBookingId,
-          AirlineCode:
-          ResponseData?.Charges?.FlightCode || null,
-          companyId: Authentication?.CompanyId || null,
-          userId: Authentication?.UserId || null,
-          PNR: ResponseData?.Charges?.Pnr || null,
-          fare: ResponseData?.Charges?.Fare || null,
-          AirlineCancellationFee:
-          ResponseData?.Charges
-              ?.AirlineCancellationFee || null,
-          AirlineRefund:
-          ResponseData?.Charges?.AirlineRefund || null,
-          ServiceFee:
-          ResponseData?.Charges?.ServiceFee || null,
-          RefundableAmt:
-            pricecheck || null,
-          description:
-          ResponseData?.Charges?.Description || null,
-          modifyBy: Authentication?.UserId || null,
-          modifyAt: new Date(),
-        });
-        await cancelationBookingInstance.save();
+        await cancelationDataUpdate(Authentication,fCancelApiResponse,BookingIdDetails)
         // console.log("jksjskj jdjsjdsjkj ")
         return fCancelApiResponse?.data;
       } else {
-        const cancelationBookingInstance = new CancelationBooking({
-          calcelationStatus:
-          ResponseData?.Error?.Status ? ResponseData?.Error?.Status : requestDataForCancel.R_DATA.Error.Status ?  requestDataForCancel.R_DATA.Error.Status : null ,
-          bookingId:BookingId,
-          providerBookingId:providerBookingId,
-          AirlineCode:
-          ResponseData?.Charges?.FlightCode ? ResponseData?.Charges?.FlightCode : requestDataForCancel.R_DATA?.Charges?.FlightCode ? requestDataForCancel.R_DATA?.Charges?.FlightCode : null ,
-          companyId: Authentication?.CompanyId || null,
-          userId: Authentication?.UserId || null,
-          PNR: ResponseData?.Charges?.Pnr ? ResponseData?.Charges?.Pnr : requestDataForCancel.R_DATA?.Charges?.Pnr ? requestDataForCancel.R_DATA?.Charges?.Pnr : null,
-          fare: ResponseData?.Charges?.Fare ? ResponseData?.Charges?.Fare : requestDataForCancel.R_DATA?.Charges?.Fare ,
-          AirlineCancellationFee:ResponseData?.Charges?.AirlineCancellationFee ? ResponseData?.Charges
-          ?.AirlineCancellationFee: requestDataForCancel.R_DATA?.Charges
-          ?.AirlineCancellationFee,
-          AirlineRefund: ResponseData?.Charges?.AirlineRefund ? ResponseData?.Charges?.AirlineRefund : requestDataForCancel.R_DATA?.Charges?.AirlineRefund,
-          ServiceFee: ResponseData?.Charges?.ServiceFee ? ResponseData?.Charges?.ServiceFee : requestDataForCancel.R_DATA?.Charges?.ServiceFee,
-          RefundableAmt:ResponseData?.Charges?.RefundableAmt ? ResponseData?.Charges?.RefundableAmt : requestDataForCancel.R_DATA?.Charges?.RefundableAmt,
-          description:ResponseData?.Charges?.Description ? ResponseData?.Charges?.Description : requestDataForCancel.R_DATA?.Charges?.Description,
-          modifyBy: Authentication?.UserId || null,
-          modifyAt: new Date(),
-        });
-        await cancelationBookingInstance.save();
+        await cancelationDataUpdate(Authentication,fCancelApiResponse,BookingIdDetails)
         return fCancelApiResponse?.data;
       }
 
@@ -1250,6 +1185,42 @@ const updateConfirmBookingStatus = async (req, res) => {
       response: "Error in updating Status!"
     }
   }
+}
+
+const cancelationDataUpdate=async(Authentication,fCancelApiResponse,BookingIdDetails)=>{
+  const findCancelationBooking = await CancelationBooking.findOne({$or:[{pnr:fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr},{bookingId:BookingIdDetails?.providerBookingId}]
+  })
+
+  if(!findCancelationBooking){
+    const cancelationBookingInstance = new CancelationBooking({
+      calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status || null,
+      AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode || null,
+      companyId: Authentication?.CompanyId || null,
+      bookingId:BookingIdDetails?.providerBookingId,
+      providerBookingId:BookingIdDetails?.providerBookingId,
+      userId: Authentication?.UserId || null,
+      PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr || null,
+      fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare || null,
+      AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee || null,
+      AirlineRefund: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund || null,
+      ServiceFee: fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee || null,
+      RefundableAmt: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt || null,
+      description: fCancelApiResponse?.data?.R_DATA?.Charges?.Description || null,
+      modifyBy: Authentication?.UserId || null,
+      modifyAt: new Date(),
+    });
+
+
+    await cancelationBookingInstance.save();
+
+  }
+  else{
+    await CancelationBooking.findByIdAndUpdate(findCancelationBooking._id,{$set:{
+
+    }},{new:true})
+
+  }
+
 }
  
 module.exports = {

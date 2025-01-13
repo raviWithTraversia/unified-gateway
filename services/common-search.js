@@ -19,25 +19,26 @@ async function commonFlightSearch(request) {
       "/flight/search";
     console.log({ url });
     const { data: response } = await axios.post(url, requestBody);
-    // fs.writeFileSync(
-    //   path.resolve(__dirname, "response.json"),
-    //   JSON.stringify(response, null, 2)
-    // );
     //  ? assumption: only one way flights are considered
-    let itineraries = response.data.journey[0].itinerary.map((itinerary, idx) =>
-      convertItineraryForKafila({
-        itinerary,
-        idx,
-        response: response.data,
-        uniqueKey,
-      })
-    );
+    let itineraries = response?.data?.journey?.[0]?.itinerary
+      ?.filter(
+        (itinerary) =>
+          !["h1", "sg"].includes(itinerary.valCarrier.toLowerCase())
+      )
+      ?.map((itinerary, idx) =>
+        convertItineraryForKafila({
+          itinerary,
+          idx,
+          response: response.data,
+          uniqueKey,
+        })
+      );
     if (itineraries?.length) {
       try {
-        itineraries = itineraries.filter(
-          (itinerary) =>
-            !["h1", "sg"].includes(itinerary.valCarrier.toLowerCase())
-        );
+        // itineraries = itineraries.filter(
+        //   (itinerary) =>
+        //     !["h1", "sg"].includes(itinerary.ValCarrier.toLowerCase())
+        // );
         itineraries = await getApplyAllCommercial(
           request.Authentication,
           request.TravelType,

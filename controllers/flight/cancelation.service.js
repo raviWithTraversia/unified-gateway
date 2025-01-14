@@ -826,7 +826,7 @@ const updatePendingBookingStatus = async (req, res) => {
         req.headers.host == "kafila.traversia.net"
       ) {
       
-        supplier=await Supplier.find({$and:[{credentialsType:"TEST"},{companyId:companyId}]})
+        supplier=await Supplier.find({$and:[{credentialsType:"TEST"},{companyId:companyId},{status:true}]})
         Url = "http://stage1.ksofttechnology.com/api/Freport";
        apiRequestBody = {
           "P_TYPE": "API",
@@ -846,7 +846,7 @@ const updatePendingBookingStatus = async (req, res) => {
         };
       } else if (req.headers.host == "agentapi.kafilaholidays.in") {
   
-        supplier=await Supplier.find({$and:[{credentialsType:"LIVE"},{companyId:companyId}]})
+        supplier=await Supplier.find({$and:[{credentialsType:"LIVE"},{companyId:companyId},{status:true}]})
         Url = "http://fhapip.ksofttechnology.com/api/Freport";
   
         apiRequestBody = {

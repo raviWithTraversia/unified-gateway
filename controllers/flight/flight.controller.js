@@ -113,7 +113,7 @@ const getSearch = async (req, res) => {
 
 const airPricing = async (req, res) => {
   try {
-    const itsCehck= req.body.Authentication?.CredentialType.includes("LIVE","TEST")
+    const itsCehck=  ["LIVE", "TEST"].some(type => req.body.Authentication?.CredentialType.includes(type));
     if (
       itsCehck&&
       req.body.Itinerary?.[0]?.Provider !== "Kafila"

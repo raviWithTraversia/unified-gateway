@@ -563,7 +563,7 @@ const editRefundCancelation = async (req, res) => {
     let supplier;
 
     const getSupplierData = async (credentialsType, environment) => {
-      return await Supplier.find({ $and: [{ credentialsType, companyId: findCancelationData?.companyId }] });
+      return await Supplier.find({ $and: [{ credentialsType, companyId: findCancelationData?.companyId ,status:true}] });
     };
 
     if (req.headers.host === "localhost:3111" || req.headers.host === "kafila.traversia.net") {
@@ -605,6 +605,7 @@ const editRefundCancelation = async (req, res) => {
       return res.status(404).json({IsSucess:false, Message: "Agent Data Not Found" });
     }
 
+    console.log(refundHistory)
     const findMatchCancelData = refundHistory.filter(element => !element.IsRefunded && element.BookingId === findCancelationData.bookingId);
 
     if (!findMatchCancelData || findMatchCancelData.length === 0) {

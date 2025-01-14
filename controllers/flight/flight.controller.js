@@ -65,7 +65,7 @@ const getSearch = async (req, res) => {
     const flightRequests = [];
     if (!isInternationalRoundTrip)
       flightRequests.push(flightSearch.getSearch(req, res));
-    if (isTestEnv) flightRequests.push(commonFlightSearch(req.body));
+    // if (isTestEnv) flightRequests.push(commonFlightSearch(req.body));
     const results = await Promise.allSettled(flightRequests);
     console.log(results, "results");
     let itineraries = [];

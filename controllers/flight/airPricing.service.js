@@ -588,7 +588,7 @@ const KafilaFun = async (
           Ver: "1.0.0.0",
           Auth: {
             AgentId: supplier.supplierWsapSesssion,
-            Token: supplier.supplierOfficeId,
+            Token: getToken,
           },
           Env: credentialType,
           Module: "B2B",

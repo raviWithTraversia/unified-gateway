@@ -73,9 +73,9 @@ else{
 
 const createTrainStation = async (req, res) => {
     try {
-        const { StationCode, StationName, Location, CountryCode } = req.body;
+        const { StationCode, StationName } = req.body;
 
-        if (!StationCode || !StationName || !Location || !CountryCode) {
+        if (!StationCode || !StationName) {
             return {
                 response: "Provide required fields",
             };

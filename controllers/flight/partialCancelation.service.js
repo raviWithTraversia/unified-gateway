@@ -493,10 +493,7 @@ const KafilaFun = async (
 
 
 const cancelationDataUpdate=async(Authentication,fCancelApiResponse,BookingIdDetails)=>{
-  const findCancelationBooking = await CancelationBooking.findOne({$or:[{pnr:fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr},{bookingId:BookingIdDetails?.providerBookingId}]
-  })
-
-  if(!findCancelationBooking){
+ 
     const cancelationBookingInstance = new CancelationBooking({
       calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status || null,
       AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode || null,
@@ -518,14 +515,7 @@ const cancelationDataUpdate=async(Authentication,fCancelApiResponse,BookingIdDet
 
     await cancelationBookingInstance.save();
 
-  }
-  else{
-    await CancelationBooking.findByIdAndUpdate(findCancelationBooking._id,{$set:{
-
-    }},{new:true})
-
-  }
-
+ 
 }
 module.exports = {
     partialCancelation,

@@ -10,7 +10,7 @@ const genericCart = require("./genericCart.service");
 const amendment = require("./amendment.service");
 const amendmentCart = require("./amendmentCart.service");
 const amadeus = require("./amadeus/searchFlights.service");
-const Config=require('../../configs/config')
+const Config = require("../../configs/config");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
@@ -31,6 +31,11 @@ const { commonFlightSearch } = require("../../services/common-search");
 const { saveLogInFile } = require("../../utils/save-log");
 
 const getSearch = async (req, res) => {
+  console.log(
+    `${
+      req?.body?.Authentication?.TraceId ?? ""
+    } search started at: ${Date.now().toString()}`
+  );
   try {
     const validationResult = await validateSearchRequest(req);
     // console.log({ validationResult });
@@ -57,7 +62,9 @@ const getSearch = async (req, res) => {
         true
       );
 
-    const isTestEnv = ["LIVE", "TEST"].some(type => req.body.Authentication?.CredentialType.includes(type));
+    const isTestEnv = ["LIVE", "TEST"].some((type) =>
+      req.body.Authentication?.CredentialType.includes(type)
+    );
     const isInternationalRoundTrip =
       req.body.TravelType === "International" &&
       req.body.TypeOfTrip === "ROUNDTRIP";
@@ -82,7 +89,9 @@ const getSearch = async (req, res) => {
     });
     // "6E", "SG"
     itineraries = itineraries
-      .filter((itinerary) => ["Kafila", "1A","1AN"].includes(itinerary.Provider))
+      .filter((itinerary) =>
+        ["Kafila", "1A", "1AN"].includes(itinerary.Provider)
+      )
       .sort((a, b) => a.TotalPrice - b.TotalPrice);
     if (itineraries.length) {
       apiSucessRes(
@@ -108,16 +117,21 @@ const getSearch = async (req, res) => {
       ServerStatusCode.SERVER_ERROR,
       true
     );
+  } finally {
+    console.log(
+      `${
+        req?.body?.Authentication?.TraceId ?? ""
+      } search finished at ${Date.now().toString()}`
+    );
   }
 };
 
 const airPricing = async (req, res) => {
   try {
-    const itsCehck=  ["LIVE", "TEST"].some(type => req.body.Authentication?.CredentialType.includes(type));
-    if (
-      itsCehck&&
-      req.body.Itinerary?.[0]?.Provider !== "Kafila"
-    ) {
+    const itsCehck = ["LIVE", "TEST"].some((type) =>
+      req.body.Authentication?.CredentialType.includes(type)
+    );
+    if (itsCehck && req.body.Itinerary?.[0]?.Provider !== "Kafila") {
       console.log("running common api");
       const { result, error } = await getCommonAirPricing(req.body);
       if (error)
@@ -500,7 +514,7 @@ const partialCancelationCharge = async (req, res) => {
       req,
       res
     );
-    console.log(result?.data,"response")
+    console.log(result?.data, "response");
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (

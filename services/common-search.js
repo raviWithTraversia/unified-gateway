@@ -18,7 +18,21 @@ async function commonFlightSearch(request) {
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/flight/search";
     console.log({ url });
-    const { data: response } = await axios.post(url, requestBody);
+    console.log(
+      `${
+        request?.Authentication?.TraceId || ""
+      } search sent to gateway at : ${Date.now().toString()}`
+    );
+
+    const { data: response } = await axios.post(url, requestBody, {
+      timeout: Config.apiTimeout || Infinity,
+    });
+    console.log(
+      `${
+        request?.Authentication?.TraceId || ""
+      } search results received from gateway at : ${Date.now().toString()}`
+    );
+
     //  ? assumption: only one way flights are considered
     let itineraries = response?.data?.journey?.[0]?.itinerary
       ?.filter(

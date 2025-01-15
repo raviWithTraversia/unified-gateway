@@ -10,7 +10,7 @@ module.exports.Config = {
     IRCTC_BASE_URL: "https://stagews.irctc.co.in",
     IRCTC_MASTER_ID: "WKAFL00000",
     IRCTC_AUTH: "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==",
-    Mode:"TEST"
+    Mode: "TEST",
   },
   LIVE: {
     baseURL: "https://agent.kafilaholidays.in", // frontend
@@ -20,7 +20,7 @@ module.exports.Config = {
     IRCTC_BASE_URL: "https://www.aps.irctc.co.in",
     IRCTC_MASTER_ID: "WKAFILA00000",
     IRCTC_AUTH: "Basic V0tBRklMQTAwMDAwOjBaZzFDMw==",
-    Mode:"LIVE"
+    Mode: "LIVE",
   },
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",
@@ -77,4 +77,5 @@ module.exports.Config = {
 
   EASEBUZZ_PG_URL: "https://testpay.easebuzz.in/payment/initiateLink",
   CancellationGSTRate: 5,
+  apiTimeout: 40_000, // 40 s,
 };

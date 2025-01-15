@@ -357,7 +357,7 @@ const KafilaFun = async (
     flightSearchUrl = `${supplier.supplierTestUrl}/api/FSearch`;
   }
 
-  console.log(createTokenUrl,"jdiei")
+  console.log(createTokenUrl, "jdiei");
 
   let tripTypeValue;
   if (TravelType == "International") {
@@ -400,22 +400,21 @@ const KafilaFun = async (
       response: "Invalid TypeOfTrip",
     };
   }
-  let codeClassOfService = '';
+  let codeClassOfService = "";
   //Class Of Service Economy, Business, Premium Economy
-  if(ClassOfService=="Premium Economy"){
-    codeClassOfService="PE"
-      }else if(ClassOfService=="Business Class"){
-        codeClassOfService="BU"
-      }else if(ClassOfService=="Economy"){
-        codeClassOfService="EC"
-      }
+  if (ClassOfService == "Premium Economy") {
+    codeClassOfService = "PE";
+  } else if (ClassOfService == "Business Class") {
+    codeClassOfService = "BU";
+  } else if (ClassOfService == "Economy") {
+    codeClassOfService = "EC";
+  }
   // const classOfServiceMap = {
   //   Economy: "EC",
   //   Business: "BU",
   //   "Premium Economy": "PE",
   //   First: "",
   // };
-
 
   // Fare Family Array
   // let fareFamilyMasterGet = [];
@@ -478,7 +477,12 @@ const KafilaFun = async (
       },
     };
 
-    console.log(requestDataFSearch,"requestDataFSearch")
+    console.log(requestDataFSearch, "requestDataFSearch");
+    console.log(
+      `${
+        Authentication?.TraceId || ""
+      } search sent to kafila at : ${Date.now().toString()}`
+    );
     let fSearchApiResponse = await axios.post(
       flightSearchUrl,
       requestDataFSearch,
@@ -487,6 +491,11 @@ const KafilaFun = async (
           "Content-Type": "application/json",
         },
       }
+    );
+    console.log(
+      `${
+        Authentication?.TraceId || ""
+      } search results received from kafila at : ${Date.now().toString()}`
     );
     const logData = {
       traceId: fSearchApiResponse?.data?.Param?.OtherInfo?.TraceId,
@@ -501,7 +510,7 @@ const KafilaFun = async (
     };
     Logs(logData);
     //logger.info(fSearchApiResponse.data);
-    console.log(fSearchApiResponse.data, "API Responce")
+    console.log(fSearchApiResponse.data, "API Responce");
     if (fSearchApiResponse.data.Status == "failed") {
       return {
         IsSucess: false,

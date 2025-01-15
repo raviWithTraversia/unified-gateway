@@ -21,7 +21,7 @@ async function commonFlightSearch(request) {
     console.log(
       `${
         request?.Authentication?.TraceId || ""
-      } search sent to gateway at : ${Date.now().toString()}`
+      } search sent to gateway at : ${new Date()}`
     );
 
     const { data: response } = await axios.post(url, requestBody, {
@@ -30,7 +30,7 @@ async function commonFlightSearch(request) {
     console.log(
       `${
         request?.Authentication?.TraceId || ""
-      } search results received from gateway at : ${Date.now().toString()}`
+      } search results received from gateway at : ${new Date()}`
     );
 
     //  ? assumption: only one way flights are considered

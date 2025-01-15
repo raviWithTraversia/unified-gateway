@@ -481,7 +481,7 @@ const KafilaFun = async (
     console.log(
       `${
         Authentication?.TraceId || ""
-      } search sent to kafila at : ${Date.now().toString()}`
+      } search sent to kafila at : ${new Date()}`
     );
     let fSearchApiResponse = await axios.post(
       flightSearchUrl,
@@ -495,7 +495,7 @@ const KafilaFun = async (
     console.log(
       `${
         Authentication?.TraceId || ""
-      } search results received from kafila at : ${Date.now().toString()}`
+      } search results received from kafila at : ${new Date()}`
     );
     const logData = {
       traceId: fSearchApiResponse?.data?.Param?.OtherInfo?.TraceId,

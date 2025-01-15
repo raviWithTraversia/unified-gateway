@@ -34,7 +34,7 @@ const getSearch = async (req, res) => {
   console.log(
     `${
       req?.body?.Authentication?.TraceId ?? ""
-    } search started at: ${Date.now().toString()}`
+    } search started at: ${new Date()}`
   );
   try {
     const validationResult = await validateSearchRequest(req);
@@ -121,7 +121,7 @@ const getSearch = async (req, res) => {
     console.log(
       `${
         req?.body?.Authentication?.TraceId ?? ""
-      } search finished at ${Date.now().toString()}`
+      } search finished at ${new Date()}`
     );
   }
 };

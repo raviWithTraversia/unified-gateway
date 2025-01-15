@@ -13,6 +13,7 @@ const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const { ObjectId } = require("mongodb");
 const crypto = require('crypto');
+const moment=require('moment')
 const {RefundedCommonFunction}=require('../../controllers/commonFunctions/common.function')
 
 const fullCancelation = async (req, res) => {
@@ -770,6 +771,10 @@ const updatePendingBookingStatus = async (req, res) => {
       response: "Credential Type does not exist",
     };
   }
+  const initialDate = "2025-01-15";
+
+// Increase the date by one day
+const newDate = moment(toDate).add(1, 'days').format('YYYY-MM-DD');
   // const objectIdArray = _BookingId.map(id => new ObjectId(id));
   // const getBookingbyBookingId = await bookingDetails.aggregate([{ $match: { _id: { $in: objectIdArray } } }, {
   //   $lookup: {
@@ -835,12 +840,12 @@ const updatePendingBookingStatus = async (req, res) => {
           "R_DATA": {
             "ACTION": "",
             "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
-            "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
+            "TO_DATE": new Date(newDate + 'T23:59:59.999Z')
           },
-          "AID": supplier[0].supplierWsapSesssion,
+          "AID": "675923",
           "MODULE": "B2B",
           "IP": "182.73.146.154",
-          "TOKEN": supplier[0].supplierOfficeId,
+          "TOKEN": "fd58e3d2b1e517f4ee46063ae176eee1",
           "ENV": "D",
           "Version": "1.0.0.0.0.0"
         };
@@ -856,7 +861,7 @@ const updatePendingBookingStatus = async (req, res) => {
           "R_DATA": {
             "ACTION": "",
             "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
-            "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
+            "TO_DATE": new Date(newDate + 'T23:59:59.999Z')
           },
           "AID": supplier[0].supplierWsapSesssion,
           "MODULE": "B2B",
@@ -958,9 +963,9 @@ if(!cancelationbookignsData){
   })
 }
 let refundProcessed = await RefundedCommonFunction(cancelationbookignsData,refundHistory)
-if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="Cancelation Data Not Found"){
+if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="Cancellation Data Not Found"){
    return({
-      response:refundProcessed.response
+      response:"Cancellation is still Pending"
     })
   
   }else if(refundProcessed.response=="Cancelation Proceed refund"){
@@ -970,7 +975,7 @@ if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="
     })
   }
 
-else if(refundProcessed.response=="Update Status Succefully"){
+else if(refundProcessed.response=="Cancellation status updated successfully."){
   return ({response:"Status updated Successfully!"})
 }
   // if (bulkOps.length) {
@@ -1199,6 +1204,7 @@ const cancelationDataUpdate=async(Authentication,fCancelApiResponse,BookingIdDet
       bookingId:BookingIdDetails?.providerBookingId,
       providerBookingId:BookingIdDetails?.providerBookingId,
       userId: Authentication?.UserId || null,
+      traceId:fCancelApiResponse?.data?.R_DATA?.TRACE_ID,
       PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr || null,
       fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare || null,
       AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee || null,

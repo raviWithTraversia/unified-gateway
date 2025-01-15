@@ -382,7 +382,7 @@ searchData.push(statusQuery)
 {
   $match: {
     "bookingdetailsData.bookingStatus": { 
-      $nin: ["CANCELLATION PENDING", "CONFIRMED"] 
+      $nin: ["CONFIRMED"] 
     }
   }
 },

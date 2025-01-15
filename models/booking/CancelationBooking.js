@@ -54,6 +54,10 @@ const cancelationSchema = new mongoose.Schema(
 type:Boolean,
 default:false
     },
+    traceId:{
+      type:String,
+      default:null
+ },
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -318,6 +318,7 @@ const KafilaFun = async (
                 companyId: Authentication?.CompanyId || null,
                 userId: Authentication?.UserId || null,
                 PNR: BookingIdDetails?.PNR || null,
+                traceId:fSearchApiResponse.data.R_DATA?.TRACE_ID||fSearchApiResponse.data.TRACE_ID||null,
                 fare:BookingIdDetails?.itinerary?.TotalPrice || null ,
                 AirlineCancellationFee: 0,
                 AirlineRefund: 0,

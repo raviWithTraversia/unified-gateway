@@ -554,7 +554,7 @@ const editRefundCancelation = async (req, res) => {
     if (!findCancelationData) {
       return res.status(404).json({IsSucess:false, Message: "Cancellation Data not found" });
     }
-    if(!findCancelationData?.isRefund){
+    if(findCancelationData?.isRefund){
       return res.status(404).json({IsSucess:false, Message: "Allready Provide Refund" })
     }
     let date =  moment(findCancelationData?.createdAt).format('YYYY-MM-DD');;

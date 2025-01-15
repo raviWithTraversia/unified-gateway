@@ -9,7 +9,6 @@ const {
 const {
   getApplyAllCommercial,
 } = require("../controllers/flight/flight.commercial");
-const { saveLogInFile } = require("../utils/save-log");
 
 async function commonFlightSearch(request) {
   try {
@@ -19,38 +18,53 @@ async function commonFlightSearch(request) {
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/flight/search";
     console.log({ url });
-
-    const { data: response } = await axios.post(url, requestBody);
-    saveLogInFile("response.jsonhduueueeu", response);
-    // fs.writeFileSync(
-    //   path.resolve(__dirname, "response.json"),
-    //   JSON.stringify(response, null, 2)
-    // );
-    //  ? assumption: only one way flights are considered
-    let itineraries = response.data.journey[0].itinerary.map((itinerary, idx) =>
-      convertItineraryForKafila({
-        itinerary,
-        idx,
-        response: response.data,
-        uniqueKey,
-      })
+    console.log(
+      `${
+        request?.Authentication?.TraceId || ""
+      } search sent to gateway at : ${new Date()}`
     );
-    try {
-      itineraries = await getApplyAllCommercial(
-        request.Authentication,
-        request.TravelType,
-        itineraries
-      );
-    } catch (errorApplyingCommercial) {
-      console.log({ errorApplyingCommercial });
-    }
-    return { data: itineraries || [] };
-  } catch (error) {
-    saveLogInFile("search-error.json", {
-      errorStack: error.stack,
-      message: error.message,
+
+    const { data: response } = await axios.post(url, requestBody, {
+      timeout: Config.apiTimeout || Infinity,
     });
-    console.log({ error });
+    console.log(
+      `${
+        request?.Authentication?.TraceId || ""
+      } search results received from gateway at : ${new Date()}`
+    );
+
+    //  ? assumption: only one way flights are considered
+    let itineraries = response?.data?.journey?.[0]?.itinerary
+      ?.filter(
+        (itinerary) =>
+          !["h1", "sg"].includes(itinerary.valCarrier.toLowerCase())
+      )
+      ?.map((itinerary, idx) =>
+        convertItineraryForKafila({
+          itinerary,
+          idx,
+          response: response.data,
+          uniqueKey,
+        })
+      );
+    if (itineraries?.length) {
+      try {
+        // itineraries = itineraries.filter(
+        //   (itinerary) =>
+        //     !["h1", "sg"].includes(itinerary.ValCarrier.toLowerCase())
+        // );
+        itineraries = await getApplyAllCommercial(
+          request.Authentication,
+          request.TravelType,
+          itineraries
+        );
+      } catch (errorApplyingCommercial) {
+        console.log({ errorApplyingCommercial });
+      }
+    }
+    // console.log({ itineraries });
+    return { data: itineraries };
+  } catch (error) {
     return { error: error.message };
   }
 }

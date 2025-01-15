@@ -718,7 +718,7 @@ const updatePendingBookingStatus = async (req, res) => {
         "_BookingId or companyId or credentialsType does not exist" ||
       result.response === "Credential Type does not exist" ||
       result.response === "Supplier credentials does not exist" ||
-      result.response === "Cancellation Data Not Found" ||
+      result.response === "Cancellation is still Pending" ||
       result.response === "Kafila API Data Not Found" ||
       result.response === "Cancelation Data Not Found" ||
       result.response === "TMC companyID Not Found"

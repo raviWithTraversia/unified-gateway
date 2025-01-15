@@ -1181,163 +1181,187 @@ const priceRoundOffNumberValues = async (numberValue) => {
   return Number(result.toFixed(2));
 };
 
-const RefundedCommonFunction = async (
-  cancelationbookignsData,
-  refundHistory
-) => {
+const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) => {
   try {
-    let responseMessage = "Cancelation Data Not Found";
+    let responseMessage = "Cancellation Data Not Found";
 
-    for (let refund of refundHistory) {
-      for (let matchingBooking of cancelationbookignsData) {
-        if (refund.BookingId === matchingBooking.bookingId) {
-          if (!matchingBooking.isRefund && refund.IsRefunded) {
-            const bookingDetails = await BookingDetails.findOne({
-              providerBookingId: matchingBooking?.bookingId,
-            });
-            await BookingDetails.findByIdAndUpdate(bookingDetails._id, {
-              $set: {
-                isRefund: true,
-              },
-            });
-            if (refund.CType === "PARTIAL") {
-              console.log("shdaaab");
-              for (let cpassenger of refund.CSector[0]?.CPax) {
-                await PassengerPreference.findOneAndUpdate(
-                  {
-                    bookingId: bookingDetails.bookingId,
-                    "Passengers.FName": cpassenger.FName,
-                    "Passengers.LName": cpassenger.lName,
-                  },
-                  {
-                    $set: { "Passengers.$.Status": "CANCELLED" },
-                  }
-                );
-              }
-            } else {
-              await PassengerPreference.updateOne(
-                { bookingId: bookingDetails.bookingId },
-                {
-                  $set: { "Passengers.$[].Status": "CANCELLED" },
-                }
-              );
-            }
+    for (const refund of refundHistory) {
+      const matchingBooking = cancelationBookingsData.find(
+        (booking) => booking.bookingId === refund.BookingId
+      );
 
-            const agentConfigData = await agentConfig.findOne({
-              userId: matchingBooking.userId,
-            });
+      if (!matchingBooking) continue;
 
-            const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
-            await ledger.create({
-              userId: agentConfigData.userId,
-              companyId: agentConfigData.companyId,
-              ledgerId: ledgerId,
-              cartId: matchingBooking.bookingId,
-              transactionAmount: refund.RefundableAmount,
-              currencyType: "INR",
-              fop: "CREDIT",
-              transactionType: "CREDIT",
-              runningAmount:
-                agentConfigData.maxcreditLimit + refund.RefundableAmount,
-              remarks: "Cancellation Amount Added Into Your Account.",
-              transactionBy: matchingBooking.userId,
-            });
+      const bookingDetails = await BookingDetails.findOne({
+        providerBookingId: matchingBooking.bookingId,
+      });
 
-            await agentConfig.findByIdAndUpdate(agentConfigData._id, {
-              $set: {
-                maxcreditLimit:
-                  agentConfigData.maxcreditLimit + refund.RefundableAmount,
-              },
-            });
+      if (!bookingDetails) continue;
 
-            await CancelationBooking.findOneAndUpdate(
-              { bookingId: refund.BookingId },
+      // Handle Refund and Update Booking
+      // if (!matchingBooking.isRefund && refund.IsRefunded) {
+      //   await BookingDetails.findByIdAndUpdate(bookingDetails._id, {
+      //     $set: { isRefund: true },
+      //   });
+
+      //   if (refund.CType === "PARTIAL") {
+      //     for (const cpassenger of refund.CSector[0]?.CPax || []) {
+      //       await PassengerPreference.findOneAndUpdate(
+      //         {
+      //           bookingId: bookingDetails.bookingId,
+      //           "Passengers.FName": cpassenger.FName,
+      //           "Passengers.LName": cpassenger.lName,
+      //         },
+      //         { $set: { "Passengers.$.Status": "CANCELLED" } }
+      //       );
+      //     }
+      //   } else {
+      //     await PassengerPreference.updateOne(
+      //       { bookingId: bookingDetails.bookingId },
+      //       { $set: { "Passengers.$[].Status": "CANCELLED" } }
+      //     );
+      //   }
+
+      //   const agentConfigData = await agentConfig.findOne({
+      //     userId: matchingBooking.userId,
+      //   });
+
+      //   const ledgerId = `LG${Math.floor(100000 + Math.random() * 900000)}`;
+      //   const updatedMaxCredit =
+      //     agentConfigData.maxcreditLimit + refund.RefundableAmount;
+
+      //   await ledger.create({
+      //     userId: agentConfigData.userId,
+      //     companyId: agentConfigData.companyId,
+      //     ledgerId,
+      //     cartId: matchingBooking.bookingId,
+      //     transactionAmount: refund.RefundableAmount,
+      //     currencyType: "INR",
+      //     fop: "CREDIT",
+      //     transactionType: "CREDIT",
+      //     runningAmount: updatedMaxCredit,
+      //     remarks: "Cancellation Amount Added Into Your Account.",
+      //     transactionBy: matchingBooking.userId,
+      //   });
+
+      //   await agentConfig.findByIdAndUpdate(agentConfigData._id, {
+      //     $set: { maxcreditLimit: updatedMaxCredit },
+      //   });
+
+      //   await CancelationBooking.findOneAndUpdate(
+      //     { bookingId: refund.BookingId },
+      //     {
+      //       $set: {
+      //         fare: refund.Fare,
+      //         AirlineCancellationFee: refund.AirlineCancelFee,
+      //         AirlineRefund: refund.RefundableAmount,
+      //         ServiceFee: refund.CancelServiceCharge,
+      //         RefundableAmt: refund.RefundableAmount,
+      //         isRefund: true,
+      //         calcelationStatus: "REFUNDED",
+      //       },
+      //     },
+      //     { new: true }
+      //   );
+
+      //   responseMessage = "Cancellation processed and refund issued.";
+      // } 
+       if (refund?.IsCancelled && !refund.IsRefunded) {
+        const isPartialCancellation = refund.CType === "PARTIAL";
+
+        if (isPartialCancellation) {
+          
+          for (const cpassenger of refund.CSector[0]?.CPax || []) {
+            await PassengerPreference.findOneAndUpdate(
               {
-                $set: {
-                  fare: refund.Fare,
-                  AirlineCancellationFee: refund.AirlineCancelFee,
-                  AirlineRefund: refund.RefundableAmount,
-                  ServiceFee: refund.CancelServiceCharge,
-                  RefundableAmt: refund.RefundableAmount,
-                  isRefund: true,
-                  calcelationStatus: "REFUNDED",
-                },
+                bookingId: bookingDetails.bookingId,
+                "Passengers.FName": cpassenger.FName,
+                "Passengers.LName": cpassenger.lName,
               },
-              { new: true }
+              { $set: { "Passengers.$.Status": "CANCELLED" } },
+              {new:true}
             );
-
-            responseMessage = "Cancelation Proceed refund";
-          } else if (refund?.IsCancelled && !refund.IsRefunded) {
-            console.log("djie");
-            console.log(matchingBooking?.bookingId);
-            const bookingDetails = await BookingDetails.findOne({
-              providerBookingId: matchingBooking?.bookingId,
-            });
-            if (refund.CType === "PARTIAL") {
-              for (let cpassenger of refund.CSector[0]?.CPax) {
-                await BookingDetails.findOneAndUpdate(
-                  { providerBookingId: matchingBooking?.bookingId },
-                  { $set: { bookingStatus: "PARTIALLY CANCELLED" } },
-                  { new: true }
-                );
-
-                await PassengerPreference.findOneAndUpdate(
-                  {
-                    bookingId: bookingDetails.bookingId,
-                    "Passengers.FName": cpassenger.FName,
-                    "Passengers.LName": cpassenger.lName,
-                  },
-                  {
-                    $set: { "Passengers.$.Status": "CANCELLED" },
-                  }
-                );
-              }
-            } else {
-              await BookingDetails.findOneAndUpdate(
-                { providerBookingId: matchingBooking?.bookingId },
-                { $set: { bookingStatus: "CANCELLED" } },
-                { new: true }
-              );
-
-              await PassengerPreference.updateOne(
-                { bookingId: bookingDetails.bookingId },
-                {
-                  $set: { "Passengers.$[].Status": "CANCELLED" },
-                }
-              );
-            }
-
-            await CancelationBooking.findOneAndUpdate(
-              { bookingId: refund.BookingId },
-              {
-                $set: {
-                  fare: refund.Fare,
-                  AirlineCancellationFee: refund.AirlineCancelFee,
-                  AirlineRefund: refund.RefundableAmount,
-                  ServiceFee: refund.CancelServiceCharge,
-                  RefundableAmt: refund.RefundableAmount,
-                  isRefund: false,
-                  calcelationStatus: "CANCEL",
-                },
-              },
-              { new: true }
-            );
-
-            responseMessage = "Update Status Succefully";
-          } else {
-            responseMessage = "Cancelation Data Not Found";
           }
+
+          const allCancelled = await PassengerPreference.findOne({
+            bookingId: bookingDetails.bookingId,
+             "Passengers.Status": "CANCELLATION PENDING"    }
+          );
+          
+          const newStatus = allCancelled ? "CANCELLATION PENDING" : "PARTIALLY CONFIRMED";
+          console.log(newStatus,"newStatus")
+          await BookingDetails.findOneAndUpdate(
+            { providerBookingId: matchingBooking.bookingId },
+            { $set: { bookingStatus: newStatus } },
+            { new: true }
+          );
+          
+
+          await CancelationBooking.findOneAndUpdate(
+            {
+              traceId: refund.TransId,
+              calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
+            },
+            {
+              $set: {
+                fare: refund.Fare,
+                AirlineCancellationFee: refund.AirlineCancelFee,
+                AirlineRefund: refund.RefundableAmount,
+                ServiceFee: refund.CancelServiceCharge,
+                RefundableAmt: refund.RefundableAmount,
+                isRefund: false,
+                calcelationStatus: "CANCEL",
+              },
+            },
+            { new: true } // Returns the updated document
+          );
+          
         } else {
-          responseMessage = "Cancelation Data Not Found";
+          await BookingDetails.findOneAndUpdate(
+            { providerBookingId: matchingBooking.bookingId },
+            { $set: { bookingStatus: "CANCELLED" } },
+            { new: true }
+          );
+
+          await PassengerPreference.updateOne(
+            { bookingId: bookingDetails.bookingId },
+            { $set: { "Passengers.$[].Status": "CANCELLED" } }
+          );
+
+          await CancelationBooking.findOneAndUpdate(
+            {
+              traceId: refund.TransId,
+              calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
+            },
+            {
+              $set: {
+                fare: refund.Fare,
+                AirlineCancellationFee: refund.AirlineCancelFee,
+                AirlineRefund: refund.RefundableAmount,
+                ServiceFee: refund.CancelServiceCharge,
+                RefundableAmt: refund.RefundableAmount,
+                isRefund: false,
+                calcelationStatus: "CANCEL",
+              },
+            },
+            { new: true } // Returns the updated document
+          );
+          
+  
         }
+
+        
+        responseMessage = "Cancellation status updated successfully.";
       }
     }
-    console.log("dji");
+
     return { response: responseMessage };
   } catch (error) {
+    console.error("Error in RefundedCommonFunction:", error);
     throw error;
   }
 };
+
 
 const RailBookingCommonMethod = async (
   userId,

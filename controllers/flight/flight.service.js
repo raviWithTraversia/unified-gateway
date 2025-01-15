@@ -13,6 +13,7 @@ const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
 const moment = require("moment");
 const { saveLogInFile } = require("../../utils/save-log");
+const { Config } = require("../../configs/config");
 
 const getSearch = async (req, res) => {
   const {
@@ -490,6 +491,7 @@ const KafilaFun = async (
         headers: {
           "Content-Type": "application/json",
         },
+        timeout: Config.apiTimeout,
       }
     );
     console.log(

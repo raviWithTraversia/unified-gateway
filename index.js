@@ -6,7 +6,7 @@ const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
 const basicAuth = require("express-basic-auth");
 const cors = require("cors");
-
+const { enableGZipCompression } = require("./utils/compression");
 let MongoUrl = Config.MONGODB_URL;
 if (Config.MODE === "LIVE") {
   MongoUrl = Config.MONGODB_URL_2;
@@ -14,6 +14,7 @@ if (Config.MODE === "LIVE") {
 connectionMongoDb(MongoUrl);
 
 const app = ExpressLoader.init();
+enableGZipCompression(app);
 
 const runSeeders = require("./seeders");
 
@@ -87,7 +88,6 @@ app.use(
     origin: "*",
   })
 );
-
 app.use((req, res, next) => {
   res.header("Cache-Control", "no-store");
   res.header("Content-Type", "application/json");

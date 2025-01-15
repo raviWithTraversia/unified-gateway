@@ -62,7 +62,7 @@ async function commonFlightSearch(request) {
         console.log({ errorApplyingCommercial });
       }
     }
-    console.log({ itineraries });
+    // console.log({ itineraries });
     return { data: itineraries };
   } catch (error) {
     return { error: error.message };

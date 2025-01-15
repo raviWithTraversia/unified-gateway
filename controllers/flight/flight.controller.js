@@ -74,7 +74,7 @@ const getSearch = async (req, res) => {
       flightRequests.push(flightSearch.getSearch(req, res));
     if (isTestEnv) flightRequests.push(commonFlightSearch(req.body));
     const results = await Promise.allSettled(flightRequests);
-    console.log(results, "results");
+    // console.log(results, "results");
     let itineraries = [];
     results.forEach((result) => {
       saveLogInFile("result.json", result);

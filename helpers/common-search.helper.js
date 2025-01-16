@@ -2,7 +2,7 @@ const moment = require("moment");
 const uuid = require("uuid");
 const { saveLogInFile } = require("../utils/save-log");
 function createSearchRequestBodyForCommonAPI(request) {
-  const uniqueKey = uuid.v4();
+  const uniqueKey = request?.Authentication?.TraceId || uuid.v4();
   const requestBody = {
     typeOfTrip: request.TypeOfTrip,
     credentialType: request.Authentication.CredentialType,

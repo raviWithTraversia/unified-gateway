@@ -14,9 +14,10 @@ module.exports.getCommonRBD = async (request) => {
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/rbd/getrbd";
     const { data: response } = await axios.post(rbdURL, requestBody);
-    if (!response.data?.journey?.[0]) throw new Error("No Data Available");
-    return { result: createRBDResponse(response.data?.journey?.[0]) };
-  } catch (err) {
+    if (!response.data["1A"]?.journey[0]) throw new Error("No Data Available");
+    return { result: createRBDResponse(response.data["1A"]?.journey[0]) };
+  } 
+  catch (err) {
     console.dir({ err }, { depth: null });
     return { error: err.message };
   }

@@ -57,7 +57,7 @@ default:false
     traceId:{
       type:String,
       default:null
- },
+    },
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

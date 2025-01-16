@@ -5062,8 +5062,8 @@ const checkPLBFilter = async (
 
       if (checkairlineCode) {
         if (
-          commList.incentiveMasterId.airlineCode.airlineCode ===
-          singleFlightDetails.ValCarrier
+          commList?.incentiveMasterId?.airlineCode?.airlineCode ===
+          singleFlightDetails?.ValCarrier
         ) {
           bestMatch = true;
         } else {

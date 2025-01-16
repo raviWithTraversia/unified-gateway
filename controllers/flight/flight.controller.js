@@ -78,6 +78,7 @@ const getSearch = async (req, res) => {
     let itineraries = [];
     results.forEach((result) => {
       saveLogInFile("result.json", result);
+      console.log({ result });
       if (
         result.status === "fulfilled" &&
         (result?.value?.data?.response?.length || result.value?.data?.length)

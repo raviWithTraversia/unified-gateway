@@ -13,6 +13,7 @@ function createAirBookingRequestBodyForCommonAPI(
   reqItinerary
 ) {
   try {
+    saveLogInFile("booking-request.json", request);
     const { SearchRequest, PassengerPreferences } = request;
     // const reqSegment = SearchRequest.Segments?.[0];
     // const reqItinerary = request.ItineraryPriceCheckResponses?.[0];
@@ -22,8 +23,7 @@ function createAirBookingRequestBodyForCommonAPI(
       );
     const segmentMap = {};
     reqItinerary?.Sectors?.forEach((sector) => {
-      segmentMap[`${sector.Departure.CityCode}-${sector.Arrival.CityCode}`] =
-        sector;
+      segmentMap[`${sector.Departure.Code}-${sector.Arrival.Code}`] = sector;
     });
     saveLogInFile("segment-map.json", segmentMap);
     const travelType = convertTravelTypeForCommonAPI(SearchRequest.TravelType);

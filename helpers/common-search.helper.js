@@ -267,7 +267,9 @@ function convertSegmentForKafila(segment) {
     LinkAvailability: false,
     PolledAvailabilityOption: "",
     FareBasisCode: segment.fareBasisCode ?? "",
-    HostTokenRef: "",
+    HostTokenRef: segment.offerDetails
+      ? JSON.stringify(segment.offerDetails)
+      : "",
     APISRequirementsRef: "",
     Departure: convertFlightDetailsForKafila(segment.departure),
     Arrival: convertFlightDetailsForKafila(segment.arrival),
@@ -309,7 +311,7 @@ function passengerPriceBreakupForKafila(type, priceBreakup) {
       Basic: 0,
       Tax: 0,
     },
-    key: priceBreakup.key ?? "",
+    key: breakup.key ?? "",
     OI: [],
   };
 }

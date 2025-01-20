@@ -146,6 +146,18 @@ function createAirBookingRequestBodyForCommonAPI(
       isHoldBooking: false,
       fareMasking: false,
     };
+    // card info for live bookings
+    if (request.credentialType === "LIVE") {
+      request.journey[0].cardInfo = {
+        // FP CCVI4780080140169608/D0827
+        cardInfo: {
+          cardNumber: "4780080140169608",
+          code: "VI",
+          expiryYear: "08",
+          expiryMonth: "27",
+        },
+      };
+    }
     saveLogInFile("request-body.json", requestBody);
     return { requestBody };
   } catch (error) {

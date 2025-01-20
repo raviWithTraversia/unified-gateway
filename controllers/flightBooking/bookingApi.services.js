@@ -3002,7 +3002,7 @@ const manuallyUpdateMultipleBookingStatus = async (req, res) => {
 
 const SendCardOnMail = async (req, res) => {
   try {
-    const { companyId, htmlData, email, subject, cartId, status,productInfo } = req.body;
+    const { companyId, htmlData, email, subject, cartId, status,productType } = req.body;
     if (!companyId || !htmlData || !email || !subject || !cartId || !status) {
       return {
         response: "cartId subject companyId  email productInfo not found",
@@ -3021,7 +3021,7 @@ const SendCardOnMail = async (req, res) => {
         subject,
         cartId,
         status,
-        productInfo
+        productType
       );
 
       return {

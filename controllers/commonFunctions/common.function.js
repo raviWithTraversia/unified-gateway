@@ -1611,7 +1611,7 @@ const RailBookingCommonMethod = async (
    
 
     // Calculate ticket amount
-    const ticketAmount = Math.round(amount - total);
+    const ticketAmount = Math.ceil(amount - total);
     if (currentBalance < ticketAmount) {
       return { response: "Your Balance is not sufficient." };
     }

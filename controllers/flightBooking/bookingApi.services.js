@@ -3002,14 +3002,12 @@ const manuallyUpdateMultipleBookingStatus = async (req, res) => {
 
 const SendCardOnMail = async (req, res) => {
   try {
-    const { companyId, htmlData, email, subject, cartId, status } = req.body;
+    const { companyId, htmlData, email, subject, cartId, status,productType } = req.body;
     if (!companyId || !htmlData || !email || !subject || !cartId || !status) {
       return {
-        response: "cartId subject companyId  email not found ",
+        response: "cartId subject companyId  email productInfo not found",
       };
     }
-    console.log(companyId, "sdji");
-    console.log(email);
     const mailConfig = await SmtpConfig.find({ companyId: companyId }).populate(
       "companyId",
       "companyName"
@@ -3022,7 +3020,8 @@ const SendCardOnMail = async (req, res) => {
         email,
         subject,
         cartId,
-        status
+        status,
+        productType
       );
 
       return {

@@ -653,20 +653,167 @@ const sendCardDetailOnMail = async (
   email,
   subject,
   cartId,
-  status
+  status,
+  prdouctInfo
 ) => {
   const axios = require("axios"); // You need axios to fetch the external CSS
   const pdf = require("html-pdf");
-  console.log(mailConfig);
-  try {
-    // Fetch the Bootstrap CSS
+  var style=prdouctInfo=="Rail"?` <style>
+  /* General Resets */
+  * {
+    box-sizing: border-box;
+  }
 
-    // Create the HTML content with inline Bootstrap CSS
-    const html = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  /* Table Styling */
+  .rail-cart-common-table {
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+  }
+
+  .rail-cart-common-table td,
+  .rail-cart-common-table th {
+    padding: 5px;
+    text-align: left;
+    border: 1px solid #dee2e6;
+    color: #222;
+  }
+
+  /* Typography */
+  .font-size-10Pixel {
+    font-size: 10px;
+  }
+
+  .font-size-12Pixel {
+    font-size: 12px;
+  }
+
+  .fw-semibold {
+    font-weight: 600;
+  }
+
+  /* Spacing */
+  .mb-1 {
+    margin-bottom: 0.25rem;
+  }
+
+  .mb-2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .pl-0 {
+    padding-left: 0 !important;
+  }
+
+  .pr-0 {
+    padding-right: 0 !important;
+  }
+
+  /* Layout */
+  .d-flex {
+    display: flex;
+  }
+
+  .justify-content-end {
+    justify-content: flex-end;
+  }
+
+  /* Custom Cards */
+  .customized-card-header {
+    background-color: #f8f9fa;
+    padding: 10px;
+    font-weight: bold;
+    color: #6c757d;
+  }
+
+  /* Responsive Adjustments */
+  @media screen and (max-width: 768px) {
+    .rail-cart-common-table td,
+    .rail-cart-common-table th {
+      font-size: 10px;
+    }
+
+    .font-size-12Pixel {
+      font-size: 10px;
+    }
+  }
+    .row {
+    display: flex;
+    flex-wrap: wrap; /* Ensure content wraps if needed */
+    align-items: center;
+    justify-content: space-between; /* Distribute space evenly */
+    width: 100%;
+  }
+
+  .col-lg-5,
+  .col-lg-2 {
+    flex: 1; /* Allow each column to take equal space */
+    max-width: 33%; /* Ensure no column exceeds 33% width */
+    text-align: center; /* Center align content */
+  }
+
+  .d-flex {
+    display: flex;
+    align-items: center;
+  }
+
+  .justify-content-end {
+    justify-content: flex-end;
+  }
+
+  .fw-semibold {
+    font-weight: 600;
+  }
+
+  .text-decoration-underline {
+    text-decoration: underline;
+  }
+
+  .my-auto {
+    margin: auto 0;
+  }
+
+  .pl-2 {
+    padding-left: 0.5rem;
+  }
+
+  .mr-3 {
+    margin-right: 1rem;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Adjust for smaller screens */
+  @media (max-width: 768px) {
+    .col-lg-5,
+    .col-lg-2 {
+      flex: 1 0 100%; /* Each column takes full width */
+      max-width: 100%; /* Ensure no column exceeds 100% width */
+      text-align: left; /* Align text to the left for smaller screens */
+    }
+
+    .row {
+      flex-direction: column; /* Stack elements on smaller screens */
+    }
+
+    .justify-content-end {
+      justify-content: center; /* Center align for smaller screens */
+    }
+
+    .text-center {
+      text-align: center;
+    }
+  }
+</style>
+`:` <style>
         #export-cart-pdf .px-0 {
             padding-left: 0;
             padding-right: 0
@@ -811,7 +958,17 @@ const sendCardDetailOnMail = async (
 }
 
 
-    </style>
+    </style>`
+  try {
+    // Fetch the Bootstrap CSS
+
+    // Create the HTML content with inline Bootstrap CSS
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+${style}
          </head>
 <body>
   <div class="container">
@@ -866,7 +1023,6 @@ const sendCardDetailOnMail = async (
       data: true,
     };
   } catch (error) {
-    console.error("Error Sending Notification Email: ", error.message);
     return {
       response: "Error Sending Notification Email",
       data: error.message,
@@ -1049,7 +1205,6 @@ const createLeadger = async (
 const getTdsAndDsicount = async (ItineraryPriceCheckResponses) => {
   let ldgrtds = 0;
   let ldgrdiscount = 0;
-  console.log(ItineraryPriceCheckResponses, "interieri");
   for (let ipb of ItineraryPriceCheckResponses) {
     let pricebrkup = ipb.PriceBreakup;
     if (pricebrkup) {
@@ -1295,16 +1450,31 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
             { $set: { bookingStatus: newStatus } },
             { new: true }
           );
+
+          const cancelationbookignsData=await CancelationBooking.findOne({providerBookingId: matchingBooking.bookingId})
+          let filter={}
+          if(cancelationbookignsData.traceId !==null){
+             filter={
+              traceId: refund.TransId,
+              calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
+            };
+          }
+          else{
+            filter={
+              bookingId: matchingBooking.bookingId,
+              calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
+            };
+
+          }
+
           
 
           await CancelationBooking.findOneAndUpdate(
-            {
-              traceId: refund.TransId,
-              calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
-            },
+            filter,
             {
               $set: {
                 fare: refund.Fare,
+                traceId: refund.TransId,
                 AirlineCancellationFee: refund.AirlineCancelFee,
                 AirlineRefund: refund.RefundableAmount,
                 ServiceFee: refund.CancelServiceCharge,
@@ -1327,15 +1497,30 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
             { bookingId: bookingDetails.bookingId },
             { $set: { "Passengers.$[].Status": "CANCELLED" } }
           );
+          const cancelationbookignsData=await CancelationBooking.findOne({providerBookingId: matchingBooking.bookingId})
 
-          await CancelationBooking.findOneAndUpdate(
-            {
+          let filter={}
+          if(cancelationbookignsData.traceId !==null){
+             filter={
               traceId: refund.TransId,
               calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
-            },
+            };
+          }
+          else{
+            filter={
+              bookingId: matchingBooking.bookingId,
+              calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
+            };
+
+          }
+
+
+          await CancelationBooking.findOneAndUpdate(
+            filter,
             {
               $set: {
                 fare: refund.Fare,
+                traceId: refund.TransId,
                 AirlineCancellationFee: refund.AirlineCancelFee,
                 AirlineRefund: refund.RefundableAmount,
                 ServiceFee: refund.CancelServiceCharge,
@@ -1361,6 +1546,8 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
     throw error;
   }
 };
+
+
 
 
 const RailBookingCommonMethod = async (

@@ -442,9 +442,10 @@ const SendCardOnMail = async (req, res) => {
   try {
     
     const result = await getAllBookingServices.SendCardOnMail(req,res);
+    console.log(result)
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "bookingData Not Found" || result.response === "Your Smtp data not found" /*|| result.response === "Error in Updating Booking"*/) {
+    } else if (result.response === "bookingData Not Found" || result.response === "Your Smtp data not found" || result.response === "cartId subject companyId  email productInfo not found") {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "SMTP Email sent successfully") {
       apiSucessRes(
@@ -462,7 +463,6 @@ const SendCardOnMail = async (req, res) => {
       );
     }
   } catch (error) {
-    console.log(error)
     apiErrorres(
       res,
       errorResponse.SOMETHING_WRONG,

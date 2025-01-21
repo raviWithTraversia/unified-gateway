@@ -3,7 +3,9 @@ const {
   convertTravelTypeForCommonAPI,
   convertItineraryForKafila,
 } = require("./common-search.helper");
-const { convertFlightDetailsForCommonAPI } = require("./common-air-pricing.helper");
+const {
+  convertFlightDetailsForCommonAPI,
+} = require("./common-air-pricing.helper");
 
 function createAirCancellationRequestBodyForCommonAPI(request) {
   try {
@@ -17,7 +19,7 @@ function createAirCancellationRequestBodyForCommonAPI(request) {
     const requestBody = {
       typeOfTrip: request?.TypeOfTrip,
       credentialType: request?.Authentication?.CredentialType,
-      travelType: convertTravelTypeForCommonAPI(request?.TravelType), 
+      travelType: convertTravelTypeForCommonAPI(request?.TravelType),
       systemEntity: "TCIL",
       systemName: "Astra2.0",
       corpCode: "000000",
@@ -33,23 +35,36 @@ function createAirCancellationRequestBodyForCommonAPI(request) {
           itinerary: [
             {
               recordLocator: request?.PNR,
-              cancelRemarks: request?.Reason?.Reason||"",
-              cancelType: request?.CancelType||"",
-              airSegments: request.Segments.map((sector) => ({
-                airlineCode: sector?.AirlineCode,
-                departure: convertFlightDetailsForCommonAPI(sector?.Departure),
-                arrival: convertFlightDetailsForCommonAPI(sector?.Arrival),
-                operatingCarrier: reqItinerary?.ValCarrier
-                  ? { code: reqItinerary?.ValCarrier }
-                  : null,
-                fltNum: sector?.FltNum,
-              })),
-              travellerDetails:request?.passengarList||null
-            }, 
+              cancelRemarks: request?.Reason?.Reason || "",
+              cancelType: request?.CancelType || "",
+              airSegments: null,
+              travellerDetails: null,
+            },
           ],
         },
       ],
     };
+    if (request.CancelType !== "ALL") {
+      request.journey[0].itinerary[0].airSegments = request.Segments.map(
+        (sector) => ({
+          airlineCode: sector?.AirlineCode,
+          departure: convertFlightDetailsForCommonAPI(sector?.Departure),
+          arrival: convertFlightDetailsForCommonAPI(sector?.Arrival),
+          operatingCarrier: reqItinerary?.ValCarrier
+            ? { code: reqItinerary?.ValCarrier }
+            : null,
+          fltNum: sector?.FltNum,
+        })
+      );
+      request.journey[0].itinerary[0].travellerDetails =
+        request?.passengarList?.map((traveller, idx) => ({
+          travellerId: idx + 1,
+          title: traveller.TTL,
+          firstName: traveller.FNAME,
+          lastName: traveller.LNAME,
+          type: travller.PAX_TYPE,
+        }));
+    }
     return { requestBody };
   } catch (error) {
     return { error: error.message };

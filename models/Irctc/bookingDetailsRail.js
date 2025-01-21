@@ -221,7 +221,8 @@ const ReservationSchema = new mongoose.Schema({
   IsRefunded:{type:Boolean,default:false},
   traceId:{type:String,default:false},
   providerbookingId:{type:String,default:""},
-  isEmailSend:{type:Boolean,default:true}
+  isEmailSend:{type:Boolean,default:true},
+  cancelTime:{type:Date,default:null}
  
 },{timestamps:true});
 

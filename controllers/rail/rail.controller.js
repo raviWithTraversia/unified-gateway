@@ -4,6 +4,7 @@ const { ObjectId } = require("mongodb");
 const railBillingData=require('./rail-reports.controller')
 const {Config}=require('../../configs/config')
 const axios=require('axios')
+
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
@@ -567,11 +568,17 @@ async function cancelBooking(req, res) {
 }
 async function verifyCancellationOTP(req, res) {
   try {
-    const { Authentication, pnr, cancellationId, otp } = req.body;
-    if (!Authentication || !pnr || !cancellationId || !otp)
+    const { Authentication, pnr, cancellationId, otp,reservationId } = req.body;
+    const cancelRailBookings=await RailCancellation.findOne({reservationId:reservationId})
+
+    if(!cancellationId){
+      req.body.cancellationId=cancelRailBookings.cancellationId
+
+    }
+    if (!Authentication || !pnr || !otp)
       return apiErrorres(
         res,
-        "Required Fields Missing, Authenticaion, pnr, cancellationId, otp",
+        "Required Fields Missing, Authenticaion, pnr, otp",
         400,
         true
       );

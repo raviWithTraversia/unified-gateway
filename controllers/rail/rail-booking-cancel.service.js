@@ -88,7 +88,7 @@ module.exports.cancelRailBooking = async function (request) {
     const isFullCancelled =
       passengerToken === "YYYYYY" ||
       tokenList.filter((t) => t === "Y").length === booking.psgnDtlList.length;
-    if (isFullCancelled) booking.bookingStatus = "PENDING CANCELLED";
+    if (isFullCancelled) booking.cancelTime = new Date();
     await booking.save();
     return {
       IsSucess: true,

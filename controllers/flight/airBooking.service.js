@@ -1294,6 +1294,8 @@ const findFailedBooking=await BookingDetails.find({
                           p.LName === passenger.LName
                       );
                     if (!selectedPax) return passenger;
+                    passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+
                     saveLogInFile("selected-pax.json", selectedPax);
                     passenger.Optional.EMDDetails = [
                       ...(passenger.Optional.EMDDetails || []),

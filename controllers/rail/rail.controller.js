@@ -569,9 +569,10 @@ async function cancelBooking(req, res) {
 async function verifyCancellationOTP(req, res) {
   try {
     const { Authentication, pnr, cancellationId, otp,reservationId } = req.body;
-    if(cancellationId==" "){
-      const cancelRailBooking=await RailCancellation.findOne({reservationId:reservationId})
-      req.body.cancellationId=cancelRailBooking.cancellationId
+    const cancelRailBookings=await RailCancellation.findOne({reservationId:reservationId})
+
+    if(!cancellationId){
+      req.body.cancellationId=cancelRailBookings.cancellationId
 
     }
     if (!Authentication || !pnr || !otp)

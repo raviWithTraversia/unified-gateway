@@ -63,4 +63,5 @@ flight_route.get(
   flight.deleteAmendmentDetail
 );
 flight_route.post("/flight/amadeusTest", flight.amadeusTest);
+flight_route.post("/flight/import-pnr", flight.importPNR);
 module.exports = flight_route;

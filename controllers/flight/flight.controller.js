@@ -29,6 +29,7 @@ const {
 } = require("../../validation/air-booking.validation");
 const { commonFlightSearch } = require("../../services/common-search");
 const { saveLogInFile } = require("../../utils/save-log");
+const { importPNRHelper } = require("../../helpers/common-import-pnr.helper");
 
 const getSearch = async (req, res) => {
   console.log(
@@ -943,6 +944,33 @@ async function getFairRules(req, res) {
   }
 }
 
+async function importPNR(req, res) {
+  try {
+    const { result, error } = await importPNRHelper(req.body);
+    if (error)
+      return res.status(500).json({
+        IsSucess: false,
+        Message: error.message,
+        ResponseStatusCode: 500,
+        Error: error.message,
+      });
+    return res.status(200).json({
+      IsSucess: true,
+      ResponseStatusCode: 200,
+      Message: "PNR imported successfully",
+      Result: result,
+    });
+  } catch (error) {
+    console.log({ errorImportingPNR: error });
+    return res.status(500).json({
+      IsSucess: false,
+      Message: error.message,
+      ResponseStatusCode: 500,
+      Error: error.message,
+    });
+  }
+}
+
 module.exports = {
   getSearch,
   airPricing,
@@ -964,4 +992,5 @@ module.exports = {
   amadeusTest,
   updatePendingBookingStatus,
   updateConfirmBookingStatus,
+  importPNR,
 };

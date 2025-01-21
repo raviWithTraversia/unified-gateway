@@ -34,5 +34,5 @@ const smtpConfigSchema = new mongoose.Schema({
         required : true
     }
 });
-const SmtpConfig = mongoose.model("SmtpConfig", smtpConfigSchema);
+const SmtpConfig =mongoose.models.SmtpConfig || mongoose.model("SmtpConfig", smtpConfigSchema);
 module.exports = SmtpConfig;

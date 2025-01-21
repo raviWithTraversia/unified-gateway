@@ -223,7 +223,7 @@ const StartBookingRail = async (req) => {
         const bookingDataCartId=await railBookings.findOne({cartId:bookingId});
         const latesPassengerData=await checkPnrStatus(Authentication,bookingDataCartId?.pnrNumber)
         if (typeof latesPassengerData !== "string") {
-          await railBookings.findByIdAndUpdate(bookingDataCartId,  [
+          await railBookings.findByIdAndUpdate(bookingDataCartId._id,  [
             {
               $set: {
                 psgnDtlList: {
@@ -250,7 +250,7 @@ const StartBookingRail = async (req) => {
                       ],
                     },
                   },
-                },
+                }
               },
             },
           ],{new:true})
@@ -412,7 +412,10 @@ const StartBookingRail = async (req) => {
       ]);
       
       
+      if(filter.clientTransactionId!==""){
+      await railBookings.findOneAndUpdate({clientTransactionId:filter.clientTransactionId},{$set:{isEmailSend:false}})
       
+      }
           console.log("1st");
           if (!railBooking || railBooking.length === 0) {
             return {
@@ -616,6 +619,10 @@ const StartBookingRail = async (req) => {
             },
           ]);
          
+          if(filter.clientTransactionId!==""){
+            await railBookings.findOneAndUpdate({clientTransactionId:filter.clientTransactionId},{$set:{isEmailSend:false}})
+            
+            }
       
           console.log("2nd");
       
@@ -712,7 +719,7 @@ const StartBookingRail = async (req) => {
               $gte: commonDateItc.startDateUTC, // Start of toDate
             };
           }
-          console.log(filter,"j;die")
+          
           const railBooking = await railBookings.aggregate([
             { $match: filter }, 
           
@@ -808,7 +815,11 @@ const StartBookingRail = async (req) => {
             },
           ]);
            
-          
+          if(filter.clientTransactionId!==""){
+            console.log('sjeieieei')
+          await railBookings.findOneAndUpdate({clientTransactionId:filter.clientTransactionId},{$set:{isEmailSend:false}})
+          }
+
             // .find(filter)
             // .populate({
             //   path: "userId",

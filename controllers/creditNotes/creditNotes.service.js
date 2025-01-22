@@ -656,7 +656,7 @@ const editRefundCancelation = async (req, res) => {
     }
 
     console.log(refundHistory)
-    const findMatchCancelData = refundHistory.filter(element => !element.IsRefunded && element.BookingId === findCancelationData.bookingId&&element.TransId==findCancelationData.traceId);
+    const findMatchCancelData = refundHistory.filter(element => element.IsRefunded && element.BookingId === findCancelationData.bookingId&&element.TransId==findCancelationData.traceId);
 
     if (!findMatchCancelData || findMatchCancelData.length === 0) {
       return res.status(404).json({IsSucess:false,Message: "Refund is Pending from API" });

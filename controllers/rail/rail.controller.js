@@ -573,8 +573,7 @@ async function verifyCancellationOTP(req, res) {
 
     if(!cancellationId){
       req.body.cancellationId=cancelRailBookings.cancellationId
-
-    }
+}
     if (!Authentication || !pnr || !otp)
       return apiErrorres(
         res,

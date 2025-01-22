@@ -812,8 +812,7 @@ const sendCardDetailOnMail = async (
       text-align: center;
     }
   }
-</style>
-`:` <style>
+</style>`:` <style>
         #export-cart-pdf .px-0 {
             padding-left: 0;
             padding-right: 0
@@ -1420,9 +1419,12 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
       //   );
 
       //   responseMessage = "Cancellation processed and refund issued.";
+
       // } 
+      // console.log(refund)
        if (refund?.IsCancelled && !refund.IsRefunded) {
         const isPartialCancellation = refund.CType === "PARTIAL";
+        // console.log(isPartialCancellation)
 
         if (isPartialCancellation) {
           
@@ -1453,7 +1455,7 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
 
           const cancelationbookignsData=await CancelationBooking.findOne({providerBookingId: matchingBooking.bookingId})
           let filter={}
-          if(cancelationbookignsData.traceId !==null){
+          if(cancelationbookignsData.traceId !=null){
              filter={
               traceId: refund.TransId,
               calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
@@ -1487,6 +1489,8 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
           );
           
         } else {
+
+          // console.log("djdieieie")
           await BookingDetails.findOneAndUpdate(
             { providerBookingId: matchingBooking.bookingId },
             { $set: { bookingStatus: "CANCELLED" } },
@@ -1500,7 +1504,7 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
           const cancelationbookignsData=await CancelationBooking.findOne({providerBookingId: matchingBooking.bookingId})
 
           let filter={}
-          if(cancelationbookignsData.traceId !==null){
+          if(cancelationbookignsData.traceId !=null){
              filter={
               traceId: refund.TransId,
               calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin

@@ -397,8 +397,6 @@ const payuSuccess = async (req, res) => {
    else if (status === "success") {
 
      const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
-      
-
 
       if (BookingTempData) {
         const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
@@ -412,6 +410,18 @@ const payuSuccess = async (req, res) => {
         const Authentication = JSON.parse(
           convertDataBookingTempRes.Authentication
         );
+
+        const Segments = convertDataBookingTempRes.Segments
+      
+
+        const TravelType=convertDataBookingTempRes.TravelType
+
+        const TypeOfTrip=convertDataBookingTempRes.TravelType
+
+        const body={SearchRequest:{Authentication,PassengerPreferences,ItineraryPriceCheckResponses,TravelType,TypeOfTrip,Segments}}
+
+        // console.log(PassengerPreferences)
+
         let credentialType = "D";
         let createTokenUrl;
         let flightSearchUrl;
@@ -423,7 +433,6 @@ const payuSuccess = async (req, res) => {
           flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FPNR`;
         } else {
           // Test Url here
-          console.log('test url')
           createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
           flightSearchUrl = `http://stage1.ksofttechnology.com/api/FPNR`;
         }
@@ -502,7 +511,6 @@ const payuSuccess = async (req, res) => {
         // );
 
         let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
-        console.log(gtTsAdDnt, "payu123");
         await ledger.create({
           userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
@@ -561,7 +569,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
         var bookingId=""
         var errorMessage="";
         const updatePromises = ItineraryPriceCheckResponses.map(
-          async (item) => {
+          async (item,idx) => {
             bookingId=item.BookingId
             let requestDataFSearch = {
               FareChkRes: {
@@ -578,15 +586,29 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
             };
 
             try {
-              let fSearchApiResponse = await axios.post(
-                flightSearchUrl,
-                requestDataFSearch,
-                {
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                }
-              );
+              let fSearchApiResponse=null;
+              if (item.Provider === "Kafila") {
+                fSearchApiResponse = await axios.post(
+                  flightSearchUrl,
+                  requestDataFSearch,
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+              } else {
+                // console.log(body?.SearchRequest?.Segments)
+                const reqSegment =await body?.SearchRequest?.Segments?.[idx];
+                // saveLogInFile("request-segment.json", { reqSegment });
+                fSearchApiResponse = await commonFlightBook(
+                  body,
+                  reqSegment,
+                  item,
+                  PassengerPreferences
+                );
+
+              }
               const logData = {
                 traceId: Authentication.TraceId,
                 companyId: Authentication.CompanyId,
@@ -626,6 +648,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
               Logs(logData);
               Logs(logData1);
               Logs(logData2);
+              console.log(fSearchApiResponse,"jdieeieieiei")
               if (
                 fSearchApiResponse.data.Status == "failed" ||
                 fSearchApiResponse?.data?.IsError == true ||
@@ -722,16 +745,20 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                     APnr: fSearchApiResponse.data.BookingInfo.APnr,
                     GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
                     SalePurchase:
-                      fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails
-                        .Account,
+                      fSearchApiResponse?.data?.BookingInfo?.SalePurchase?.ATDetails
+                        ?.Account,
                   },
                 }
               );
 
               const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: udf1 });
 
-              await Promise.all(
-                getpassengersPrefrence.Passengers.map(async (passenger) => {
+              if (
+                item.Provider === "Kafila" &&
+                getpassengersPrefrence?.Passengers
+              ) {
+                // await Promise.all(
+                getpassengersPrefrence.Passengers.map((passenger) => {
                   const apiPassenger =
                     fSearchApiResponse.data.PaxInfo.Passengers.find(
                       (p) =>
@@ -741,12 +768,13 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                   if (apiPassenger) {
                     passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
                     const ticketUpdate =
-                      passenger.Optional.ticketDetails.find(
+                      passenger?.Optional?.ticketDetails?.find?.(
                         (p) =>
-                          p.src ===
-                            fSearchApiResponse.data.Param.Sector[0].Src &&
-                          p.des ===
-                            fSearchApiResponse.data.Param.Sector[0].Des
+                          p?.src ===
+                            fSearchApiResponse?.data?.Param?.Sector?.[0]
+                              ?.Src &&
+                          p?.des ===
+                            fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                       );
                     if (ticketUpdate) {
                       ticketUpdate.ticketNumber =
@@ -755,10 +783,55 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
 
                     // passenger.Status = "CONFIRMED";
                   }
-                })
-              );
-              await getpassengersPrefrence.save();
-
+                });
+                // );
+                bookingResponce.PassengerPreferences.Passengers =
+                  getpassengersPrefrence.Passengers;
+                await getpassengersPrefrence.save();
+              } else if (
+                fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
+                "CONFIRMED"
+              ) {
+                getpassengersPrefrence.Passengers.map?.(async (passenger) => {
+                  const segmentMap = {};
+                  passenger.Optional.ticketDetails.forEach((ticket, idx) => {
+                    segmentMap[`${ticket.src}-${ticket.des}`] = idx;
+                  });
+                  const selectedPax =
+                    fSearchApiResponse.data.PaxInfo.Passengers.find(
+                      (p) =>
+                        p.FName === passenger.FName &&
+                        p.LName === passenger.LName
+                    );
+                  if (!selectedPax) return passenger;
+                  // saveLogInFile("selected-pax.json", selectedPax);
+                  passenger.Optional.EMDDetails = [
+                    ...(passenger.Optional.EMDDetails || []),
+                    ...(selectedPax?.Optional?.EMDDetails || []),
+                  ];
+                  if (selectedPax?.Optional?.ticketDetails?.length) {
+                    selectedPax.Optional?.ticketDetails.forEach((ticket) => {
+                      const segmentIdx =
+                        segmentMap[`${ticket.src}-${ticket.des}`];
+                      if (segmentIdx != null) {
+                        passenger.Optional.ticketDetails[
+                          segmentIdx
+                        ].ticketNumber = ticket.ticketNumber;
+                      } else {
+                        passenger.Optional.ticketDetails.push(ticket);
+                      }
+                    });
+                  }
+                  return passenger;
+                });
+                bookingResponce.PassengerPreferences.Passengers =
+                  getpassengersPrefrence.Passengers;
+                // saveLogInFile(
+                //   "pax-preferences.json",
+                //   getpassengersPrefrence._doc
+                // );
+                await getpassengersPrefrence.save();
+              }
 
               if (
                 fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
@@ -799,6 +872,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
               }
             
             } catch (error) {
+              console.log(error)
               await BookingDetails.updateOne(
                 {
                   bookingId: item?.BookingId,
@@ -1106,7 +1180,6 @@ const payuWalletResponceSuccess = async (req, res) => {
           { maxcreditLimit: newBalanceAmount - udf3 },
           { new: true }
         );
-        console.log("hjdsdh");
         if (DIdata !== null || DIdata !== 0) {
           let tdsAmount = DIdata * (2 / 100);
           // console.log(tdsAmount, "tdsAmount");

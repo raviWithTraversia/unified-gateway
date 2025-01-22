@@ -14,8 +14,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
       throw new Error(
         "Invalid request data 'Itinerary[]' or 'Segment[]' missing"
       );
- 
-    
+
     const requestBody = {
       typeOfTrip: request.TypeOfTrip,
       credentialType: request.Authentication.CredentialType,
@@ -53,7 +52,15 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                 group: sector.Group,
                 baggageInfo: sector.BaggageInfo,
                 handBaggage: sector.HandBaggage,
-                offerDetails: null,
+                offerDetails: sector?.HostTokenRef?.length
+                  ? (() => {
+                      try {
+                        return JSON.parse(sector?.HostTokenRef);
+                      } catch (error) {
+                        return "";
+                      }
+                    })()
+                  : "",
                 classofService: sector.Class,
                 cabinClass: sector.CabinClass,
                 productClass: sector.ProductClass,

@@ -13,6 +13,7 @@ function createAirBookingRequestBodyForCommonAPI(
   reqItinerary
 ) {
   try {
+    saveLogInFile("booking-request.json", request);
     const { SearchRequest, PassengerPreferences } = request;
     // const reqSegment = SearchRequest.Segments?.[0];
     // const reqItinerary = request.ItineraryPriceCheckResponses?.[0];
@@ -22,8 +23,7 @@ function createAirBookingRequestBodyForCommonAPI(
       );
     const segmentMap = {};
     reqItinerary?.Sectors?.forEach((sector) => {
-      segmentMap[`${sector.Departure.CityCode}-${sector.Arrival.CityCode}`] =
-        sector;
+      segmentMap[`${sector.Departure.Code}-${sector.Arrival.Code}`] = sector;
     });
     saveLogInFile("segment-map.json", segmentMap);
     const travelType = convertTravelTypeForCommonAPI(SearchRequest.TravelType);
@@ -112,33 +112,32 @@ function createAirBookingRequestBodyForCommonAPI(
         },
       ],
       gstDetails: {
-        fullName: PassengerPreferences?.GstData?.gstName || "TEST",
-        emailAddress:
-          PassengerPreferences?.GstData?.gstEmail || "TEST@test.com",
-        homePhone: PassengerPreferences?.GstData?.gstmobile || "0114238888",
-        workPhone: PassengerPreferences?.GstData?.gstmobile || "0114238888",
-        gstNumber: PassengerPreferences?.GstData?.gstNumber || "TEST",
+        fullName: PassengerPreferences?.GstData?.gstName || "",
+        emailAddress: PassengerPreferences?.GstData?.gstEmail || "",
+        homePhone: PassengerPreferences?.GstData?.gstmobile || "",
+        workPhone: PassengerPreferences?.GstData?.gstmobile || "",
+        gstNumber: PassengerPreferences?.GstData?.gstNumber || "",
         companyName: "TEST",
-        addressLine1: PassengerPreferences?.GstData?.gstAddress || "TEST",
-        addressLine2: PassengerPreferences?.GstData?.gstAddressLine2 || "TEST",
-        city: PassengerPreferences?.GstData?.gstCity || "DEL",
-        provinceState: PassengerPreferences?.GstData?.gstCity || "DL",
-        postalCode: PassengerPreferences?.GstData?.gstPostalCode || "110055",
-        countryCode: PassengerPreferences?.GstData?.gstCountryCode || "IN",
+        addressLine1: PassengerPreferences?.GstData?.gstAddress || "",
+        addressLine2: PassengerPreferences?.GstData?.gstAddressLine2 || "",
+        city: PassengerPreferences?.GstData?.gstCity || "",
+        provinceState: PassengerPreferences?.GstData?.gstCity || "",
+        postalCode: PassengerPreferences?.GstData?.gstPostalCode || "",
+        countryCode: PassengerPreferences?.GstData?.gstCountryCode || "",
       },
       agencyInfo: {
-        companyName: "SKH GLOBAL TRAVELS PVT LTD",
-        addressLine1: "2ND FLOOR  PLOT N 10  COMMUNITY CENTRE  EAST ",
-        addressLine2: "OF KAILASH",
-        city: "DEL",
-        provinceState: "DL",
-        postalCode: "110065",
-        countryCode: "IN",
-        emailAddress: "invoice@skhglobal.com",
+        companyName: "",
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        provinceState: "",
+        postalCode: "",
+        countryCode: "",
+        emailAddress: "",
         homePhone: "",
-        workPhone: "0114238888",
+        workPhone: "",
         agencyCardId: null,
-        agentEmailAddress: "tkt4@skhglobal.com",
+        agentEmailAddress: "",
         isBtaTACard: false,
       },
       rmFields: [],
@@ -146,6 +145,21 @@ function createAirBookingRequestBodyForCommonAPI(
       isHoldBooking: false,
       fareMasking: false,
     };
+    // card info for live bookings
+    if (
+      request.credentialType === "LIVE" &&
+      request.journey[0]?.itinerary?.[0]?.provider == "1A"
+    ) {
+      request.journey[0].cardInfo = {
+        // FP CCVI4780080140169608/D0827
+        cardInfo: {
+          cardNumber: "4780080140169608",
+          code: "VI",
+          expiryYear: "08",
+          expiryMonth: "27",
+        },
+      };
+    }
     saveLogInFile("request-body.json", requestBody);
     return { requestBody };
   } catch (error) {
@@ -265,7 +279,7 @@ function convertBookingResponse(request, response, reqSegment) {
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
     PNR = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
-    APnr = pnrs.find((pnr) => pnr.type === "AirReservation")?.pnr ?? null;
+    APnr = pnrs.find((pnr) => pnr.type === "UAPI")?.pnr ?? null;
     GPnr = pnrs.find((pnr) => pnr.type === "GDS")?.pnr ?? null;
   }
   // if (tickets.length) {

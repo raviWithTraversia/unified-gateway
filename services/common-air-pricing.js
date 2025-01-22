@@ -41,6 +41,7 @@ async function getCommonAirPricing(request) {
     return { result };
   } catch (error) {
     console.log({ error });
+    console.dir({ errResponse: error?.response?.data }, { depth: null });
     return { error: "something went wrong while searching flights" };
   }
 }

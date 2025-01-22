@@ -85,10 +85,11 @@ module.exports.cancelRailBooking = async function (request) {
       ...(tokenList[idx] === "Y" && { currentStatus: "CAN" }),
     }));
 
+    booking.cancelTime = new Date();
     const isFullCancelled =
       passengerToken === "YYYYYY" ||
       tokenList.filter((t) => t === "Y").length === booking.psgnDtlList.length;
-    if (isFullCancelled) booking.cancelTime = new Date();
+    if (isFullCancelled) 
     await booking.save();
     return {
       IsSucess: true,
@@ -187,7 +188,7 @@ module.exports.verifyOTP = async (request) => {
       { isRefundOTPVerified: true }
     );
 
-    await bookingDetailsRail.findOneAndUpdate({pnrNumber:pnr},{$set:{bookingStatus:"CANCELLED"}},{new:true})
+    await bookingDetailsRail.findOneAndUpdate({pnrNumber:pnr},{$set:{bookingStatus:"CANCELLED",cancelTime:null}},{new:true})
 
     return { result: response };
 

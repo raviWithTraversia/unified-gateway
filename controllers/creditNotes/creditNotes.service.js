@@ -545,6 +545,56 @@ if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="
 
 }
 
+const calculateDealAmount=async(data,type)=>{
+  const commercial = data.itinerary.PriceBreakup.flatMap((element) =>{if(element.PassengerType==type){
+    return    element.CommercialBreakup 
+     }else {
+         return {}
+     }
+});
+
+
+
+const calculateDealAmount = commercial.reduce((sum, element) => {
+  if (element?.CommercialType === "Discount") {
+    return sum + (element?.Amount || 0); 
+  }
+  return sum;
+}, 0);
+return calculateDealAmount
+}
+
+const calculateDealAmountFull= async(data)=>{
+  const commercial = data.itinerary.PriceBreakup.flatMap((element) =>{
+    if(element.PassengerType=="ADT"){
+       element.CommercialBreakup.map((element1)=>
+       element1.Amount=element1.Amount*element?.NoOfPassenger)
+       return element.CommercialBreakup
+    }
+    if(element.PassengerType=="CHD"){
+   element.CommercialBreakup.map((element1)=>
+       element1.Amount=element1.Amount*element?.NoOfPassenger)
+       return element.CommercialBreakup 
+    }
+    if(element.PassengerType=="INF"){
+   element.CommercialBreakup.map((element1)=>
+       element1.Amount=element1.Amount*element?.NoOfPassenger)
+       return element.CommercialBreakup 
+    }
+    
+    
+    });
+
+// Calculate the total deal amount for items with CommercialType === "Discount"
+const calculateDealAmount = commercial.reduce((sum, element) => {
+  if (element?.CommercialType === "Discount") {
+    return sum + (element?.Amount || 0); // Add Amount if it exists, else add 0
+  }
+  return sum;
+}, 0); // Initialize sum to 0
+
+return calculateDealAmount
+}
 const editRefundCancelation = async (req, res) => {
   try {
     const { id } = req.query;
@@ -612,7 +662,8 @@ const editRefundCancelation = async (req, res) => {
       return res.status(404).json({IsSucess:false,Message: "Refund is Pending from API" });
     }
 
-    await BookingDetails.findOneAndUpdate({ bookingId: bookingId }, { $set: { isRefund: true } });
+ const bookingData= await BookingDetails.findOneAndUpdate({ bookingId: bookingId }, { $set: { isRefund: true } });
+var calculateDealAmountMinus=0
 
     if (findMatchCancelData[0].CType === "PARTIAL") {
       for (let cpassenger of findMatchCancelData[0]?.CSector[0]?.CPax || []) {
@@ -624,14 +675,18 @@ const editRefundCancelation = async (req, res) => {
           },
           { $set: { "Passengers.$.Status": "CANCELLED" } }
         );
+  calculateDealAmountMinus+=await calculateDealAmount(bookingData,passgengerType?.PType)
+
       }
     } else {
       await PassengerPreference.updateOne(
         { bookingId: bookingId },
         { $set: { "Passengers.$[].Status": "CANCELLED" } }
       );
+      calculateDealAmountMinus= await calculateDealAmountFull(bookingData)
     }
-    const newBalance=agentConfigData.maxcreditLimit + Number(AirlineRefund)
+    const refundAmount=AirlineRefund-calculateDealAmountMinus
+    const newBalance=agentConfigData.maxcreditLimit + Number(refundAmount)
 
     await agentConfig.findByIdAndUpdate(agentConfigData._id, {
       $set: { maxcreditLimit: newBalance}
@@ -642,7 +697,7 @@ const editRefundCancelation = async (req, res) => {
       companyId: agentConfigData.companyId,
       ledgerId: ledgerId,
       cartId: bookingId,
-      transactionAmount: AirlineRefund,
+      transactionAmount: refundAmount,
       currencyType: "INR",
       fop: "CREDIT",
       transactionType: "CREDIT",
@@ -659,7 +714,7 @@ const editRefundCancelation = async (req, res) => {
         $set: {
           fare:findCancelationData?.fare,
           AirlineCancellationFee,
-          AirlineRefund,
+          refundAmount,
           ServiceFee,
           RefundableAmt:findCancelationData?.RefundableAmt,
           isRefund: true,

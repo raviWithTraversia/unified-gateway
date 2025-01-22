@@ -4,9 +4,8 @@ const bookingdetails = require("../../models/booking/BookingDetails");
 const config = require("../../models/AgentConfig");
 const passengerPreferenceSchema = require("../../models/booking/PassengerPreference");
 const Email = require("../commonFunctions/common.function");
-const SmtpConfig = require("../../models/smtp");
+const SmtpConfig = require("../../models/Smtp");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
-const railBookingDetail=require('../../models/Irctc/bookingDetailsRail')
 const { ObjectId } = require("mongodb");
 const moment = require("moment");
 const { Config } = require("../../configs/config");
@@ -3003,8 +3002,8 @@ const manuallyUpdateMultipleBookingStatus = async (req, res) => {
 
 const SendCardOnMail = async (req, res) => {
   try {
-    const { companyId, htmlData, email, subject, cartId, status,porductType } = req.body;
-    if (!companyId  || !email || !subject || !cartId || !status) {
+    const { companyId, htmlData, email, subject, cartId, status,productType } = req.body;
+    if (!companyId || !htmlData || !email || !subject || !cartId || !status) {
       return {
         response: "cartId subject companyId  email productInfo not found",
       };
@@ -3013,27 +3012,9 @@ const SendCardOnMail = async (req, res) => {
       "companyId",
       "companyName"
     );
+    console.log(mailConfig,"jdie")
 
     if (mailConfig) {
-
-      if(porductType==="Rail"){
-
-const railBookingData=await railBookingDetail.findOne({cartId:cartId})
-const ssl ="https://"
-        await Email.sendRailCardMail(mailConfig,
-          railBookingData,
-          email,
-          subject,
-          cartId,
-          status,
-        req,
-      ssl)
-
-      }
-      else{
-
-
-
       await Email.sendCardDetailOnMail(
         mailConfig,
         htmlData,
@@ -3043,7 +3024,6 @@ const ssl ="https://"
         status,
         productType
       );
-    }
 
       return {
         response: "SMTP Email sent successfully",

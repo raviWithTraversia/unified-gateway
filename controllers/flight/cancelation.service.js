@@ -365,6 +365,7 @@ const KafilaFun = async (
             $set: { "Passengers.$[].Status": "CANCELLATION PENDING" },
           }
         );
+        await cancelationDataUpdate(Authentication,fCancelApiResponse,BookingIdDetails)
         return fCancelApiResponse?.data;
       } else if (
         ResponseData?.Status === null &&
@@ -957,7 +958,6 @@ const refundHistory = fSearchApiResponse.data;
 
 const cancelationbookignsData=await CancelationBooking.find({bookingId:_BookingId})
 if(!cancelationbookignsData){
-  console.log('sji')
   return ({
     response:"Cancellation Data Not Found"
   })

@@ -15,6 +15,7 @@ const axios = require("axios");
 const { Config } = require('../../configs/config');
 const { v4: uuidv4 } = require("uuid");
 const { createLeadger,getTdsAndDsicount } = require("../commonFunctions/common.function");
+const{commonFlightBook}=require("../../services/common-flight-book");
 
 const easeBuzz = async (req, res) => {
   try {
@@ -94,6 +95,16 @@ const easeBuzzResponce = async (req, res) => {
         const Authentication = JSON.parse(
           convertDataBookingTempRes.Authentication
         );
+
+        const Segments = convertDataBookingTempRes.Segments
+      
+
+        const TravelType=convertDataBookingTempRes.TravelType
+
+        const TypeOfTrip=convertDataBookingTempRes.TravelType
+
+        const body={SearchRequest:{Authentication,PassengerPreferences,ItineraryPriceCheckResponses,TravelType,TypeOfTrip,Segments}}
+
         let credentialType = "D";
         let createTokenUrl;
         let flightSearchUrl;
@@ -232,7 +243,7 @@ if(pgCharges>0){
         var FailedbookingIdenty=[]
         var errorMessage=""
 
-        const updatePromises = ItineraryPriceCheckResponses.map(async (item) => {
+        const updatePromises = ItineraryPriceCheckResponses.map(async (item,idx) => {
           bookingId=item.BookingId
           let requestDataFSearch = {
             FareChkRes: {
@@ -249,15 +260,29 @@ if(pgCharges>0){
           };
 
           try {
-            let fSearchApiResponse = await axios.post(
-              flightSearchUrl,
-              requestDataFSearch,
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            );
+            let fSearchApiResponse = null;
+             if (item.Provider === "Kafila") {
+                                         fSearchApiResponse = await axios.post(
+                                           flightSearchUrl,
+                                           requestDataFSearch,
+                                           {
+                                             headers: {
+                                               "Content-Type": "application/json",
+                                             },
+                                           }
+                                         );
+                                       } else {
+                                         // console.log(body?.SearchRequest?.Segments)
+                                         const reqSegment =await body?.SearchRequest?.Segments?.[idx];
+                                         // saveLogInFile("request-segment.json", { reqSegment });
+                                         fSearchApiResponse = await commonFlightBook(
+                                           body,
+                                           reqSegment,
+                                           item,
+                                           PassengerPreferences
+                                         );
+                         
+                                       }
             const logData = {
               traceId: Authentication.TraceId,
               companyId: Authentication.CompanyId,
@@ -370,47 +395,100 @@ FailedbookingIdenty.push(true)
                   bookingStatus:
                     fSearchApiResponse.data.BookingInfo.CurrentStatus,
                   bookingRemarks:
-                    fSearchApiResponse.data.BookingInfo.BookingRemark,
+                    fSearchApiResponse.data.BookingInfo?.BookingRemark,
                   providerBookingId:
-                    fSearchApiResponse.data.BookingInfo.BookingId,
+                    fSearchApiResponse.data.BookingInfo?.BookingId,
                   PNR: fSearchApiResponse.data.BookingInfo.APnr,
                   APnr: fSearchApiResponse.data.BookingInfo.APnr,
                   GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
-                  SalePurchase: fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails.Account?fSearchApiResponse.data.BookingInfo.SalePurchase.ATDetails.Account:"",
+                  SalePurchase: fSearchApiResponse.data.BookingInfo?.SalePurchase?.ATDetails?.Account?fSearchApiResponse.data.BookingInfo?.SalePurchase?.ATDetails?.Account:"",
                 },
               }
             );
 
             const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: udf1 });
 
-              await Promise.all(
-                getpassengersPrefrence.Passengers.map(async (passenger) => {
-                  const apiPassenger =
-                    fSearchApiResponse.data.PaxInfo.Passengers.find(
+            if (
+              item.Provider === "Kafila" &&
+              getpassengersPrefrence?.Passengers
+            ) {
+              // await Promise.all(
+              getpassengersPrefrence.Passengers.map((passenger) => {
+                const apiPassenger =
+                  fSearchApiResponse.data.PaxInfo.Passengers.find(
+                    (p) =>
+                      p.FName === passenger.FName &&
+                      p.LName === passenger.LName
+                  );
+                if (apiPassenger) {
+                  passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+                  const ticketUpdate =
+                    passenger?.Optional?.ticketDetails?.find?.(
                       (p) =>
-                        p.FName === passenger.FName &&
-                        p.LName === passenger.LName
+                        p?.src ===
+                          fSearchApiResponse?.data?.Param?.Sector?.[0]
+                            ?.Src &&
+                        p?.des ===
+                          fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                     );
-                  if (apiPassenger) {
-                    passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
-                    const ticketUpdate =
-                      passenger.Optional.ticketDetails.find(
-                        (p) =>
-                          p.src ===
-                            fSearchApiResponse.data.Param.Sector[0].Src &&
-                          p.des ===
-                            fSearchApiResponse.data.Param.Sector[0].Des
-                      );
-                    if (ticketUpdate) {
-                      ticketUpdate.ticketNumber =
-                        apiPassenger?.Optional?.TicketNumber;
-                    }
-
-                    // passenger.Status = "CONFIRMED";
+                  if (ticketUpdate) {
+                    ticketUpdate.ticketNumber =
+                      apiPassenger?.Optional?.TicketNumber;
                   }
-                })
-              );
+
+                  // passenger.Status = "CONFIRMED";
+                }
+              });
+              // );
+              bookingResponce.PassengerPreferences.Passengers =
+                getpassengersPrefrence.Passengers;
               await getpassengersPrefrence.save();
+            } else if (
+              fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
+              "CONFIRMED"
+            ) {
+              getpassengersPrefrence.Passengers.map?.(async (passenger) => {
+                const segmentMap = {};
+                passenger.Optional.ticketDetails.forEach((ticket, idx) => {
+                  segmentMap[`${ticket.src}-${ticket.des}`] = idx;
+                });
+                const selectedPax =
+                  fSearchApiResponse.data.PaxInfo.Passengers.find(
+                    (p) =>
+                      p.FName === passenger.FName &&
+                      p.LName === passenger.LName
+                  );
+                if (!selectedPax) return passenger;
+                // saveLogInFile("selected-pax.json", selectedPax);
+                passenger.Optional.EMDDetails = [
+                  ...(passenger.Optional.EMDDetails || []),
+                  ...(selectedPax?.Optional?.EMDDetails || []),
+                ];
+                if (selectedPax?.Optional?.ticketDetails?.length) {
+                  selectedPax.Optional?.ticketDetails.forEach((ticket) => {
+                    const segmentIdx =
+                      segmentMap[`${ticket.src}-${ticket.des}`];
+                    if (segmentIdx != null) {
+                      passenger.Optional.ticketDetails[
+                        segmentIdx
+                      ].ticketNumber = ticket.ticketNumber;
+                    } else {
+                      passenger.Optional.ticketDetails.push(ticket);
+                    }
+                  });
+                }
+                return passenger;
+              });
+              bookingResponce.PassengerPreferences.Passengers =
+                getpassengersPrefrence.Passengers;
+              // saveLogInFile(
+              //   "pax-preferences.json",
+              //   getpassengersPrefrence._doc
+              // );
+              await getpassengersPrefrence.save();
+            }
+
+
 
             if (
               fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
@@ -460,7 +538,7 @@ FailedbookingIdenty.push(true)
               }
             );
 
-
+console.log(error,"error");
              return errorMessage;
           }
         })

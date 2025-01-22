@@ -55,7 +55,12 @@ function createAirBookingRequestBodyForCommonAPI(
           rbdChanged: false, // ! TODO:
           travellerDetails: PassengerPreferences?.Passengers?.map(
             (passenger, idx) =>
-              convertTravelerDetailsForCommonAPI(passenger, idx, segmentMap)
+              convertTravelerDetailsForCommonAPI(
+                passenger,
+                idx,
+                segmentMap,
+                PassengerPreferences
+              )
           ),
           itinerary: [
             {
@@ -112,34 +117,34 @@ function createAirBookingRequestBodyForCommonAPI(
         },
       ],
       gstDetails: {
-        fullName: PassengerPreferences?.GstData?.gstName || "",
-        emailAddress: PassengerPreferences?.GstData?.gstEmail || "",
-        homePhone: PassengerPreferences?.GstData?.gstmobile || "",
-        workPhone: PassengerPreferences?.GstData?.gstmobile || "",
-        gstNumber: PassengerPreferences?.GstData?.gstNumber || "",
-        companyName: "TEST",
-        addressLine1: PassengerPreferences?.GstData?.gstAddress || "",
-        addressLine2: PassengerPreferences?.GstData?.gstAddressLine2 || "",
-        city: PassengerPreferences?.GstData?.gstCity || "",
-        provinceState: PassengerPreferences?.GstData?.gstCity || "",
-        postalCode: PassengerPreferences?.GstData?.gstPostalCode || "",
-        countryCode: PassengerPreferences?.GstData?.gstCountryCode || "",
+        fullName: PassengerPreferences?.GstData?.gstName || null,
+        emailAddress: PassengerPreferences?.GstData?.gstEmail || null,
+        homePhone: PassengerPreferences?.GstData?.gstmobile || null,
+        workPhone: PassengerPreferences?.GstData?.gstmobile || null,
+        gstNumber: PassengerPreferences?.GstData?.gstNumber || null,
+        companyName: null,
+        addressLine1: PassengerPreferences?.GstData?.gstAddress || null,
+        addressLine2: PassengerPreferences?.GstData?.gstAddressLine2 || null,
+        city: PassengerPreferences?.GstData?.gstCity || null,
+        provinceState: PassengerPreferences?.GstData?.gstCity || null,
+        postalCode: PassengerPreferences?.GstData?.gstPostalCode || null,
+        countryCode: PassengerPreferences?.GstData?.gstCountryCode || null,
       },
-      agencyInfo: {
-        companyName: "",
-        addressLine1: "",
-        addressLine2: "",
-        city: "",
-        provinceState: "",
-        postalCode: "",
-        countryCode: "",
-        emailAddress: "",
-        homePhone: "",
-        workPhone: "",
-        agencyCardId: null,
-        agentEmailAddress: "",
-        isBtaTACard: false,
-      },
+      // agencyInfo: {
+      //   companyName: "",
+      //   addressLine1: "",
+      //   addressLine2: "",
+      //   city: "",
+      //   provinceState: "",
+      //   postalCode: "",
+      //   countryCode: "",
+      //   emailAddress: "",
+      //   homePhone: "",
+      //   workPhone: "",
+      //   agencyCardId: null,
+      //   agentEmailAddress: "",
+      //   isBtaTACard: false,
+      // },
       rmFields: [],
       tourCode: null,
       isHoldBooking: false,
@@ -172,7 +177,12 @@ function createAirBookingRequestBodyForCommonAPI(
   }
 }
 
-function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
+function convertTravelerDetailsForCommonAPI(
+  traveler,
+  idx,
+  segmentMap,
+  PassengerPreferences
+) {
   saveLogInFile("traveler.json", traveler);
   return {
     travellerId: "",
@@ -247,25 +257,38 @@ function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
           ),
         }
       : null,
-    contactDetails: {
-      address1:
-        traveler.AddressLine1 ??
-        "2ND FLOOR  PLOT N 10  COMMUNITY CENTRE  EAST ",
-      address2: traveler.AddressLine2 ?? "F KAILASH",
-      city: traveler.City ?? "DEL",
-      state: traveler.State ?? "DL",
-      country: traveler.Country ?? null,
-      countryCode: traveler.CountryCode ?? "IN",
-      email: traveler.Email ?? "invoice@skhglobal.com",
-      phone: traveler.Phone ?? "1244768200",
-      mobile: traveler.Mobile ?? "9811096122",
-      postalCode: traveler.PostalCode ?? "110065",
-      isdCode: traveler.IsdCode ?? null,
-    },
+    contactDetails:
+      idx === 0
+        ? {
+            // address1: traveler.AddressLine1 ?? null,
+            // address2: traveler.AddressLine2 ?? null,
+            // city: traveler.City ?? null,
+            // state: traveler.State ?? null,
+            // country: traveler.Country ?? null,
+            // countryCode: traveler.CountryCode ?? null,
+            email: PassengerPreferences.PaxEmail ?? null,
+            phone: PassengerPreferences.PaxMobile ?? null,
+            mobile: PassengerPreferences.PaxMobile ?? null,
+            // postalCode: traveler.PostalCode ?? null,
+            // isdCode: traveler.IsdCode ?? null,
+          }
+        : {
+            address1: traveler.AddressLine1 ?? null,
+            address2: traveler.AddressLine2 ?? null,
+            city: traveler.City ?? null,
+            state: traveler.State ?? null,
+            country: traveler.Country ?? null,
+            countryCode: traveler.CountryCode ?? null,
+            email: traveler.PaxEmail ?? null,
+            phone: traveler.PaxMobile ?? null,
+            mobile: traveler.PaxMobile ?? null,
+            postalCode: traveler.PostalCode ?? null,
+            isdCode: traveler.IsdCode ?? null,
+          },
     frequentFlyer: traveler.FrequentFlyer ?? null,
-    nationality: traveler.Nationality ?? "IN",
-    department: traveler.Department ?? "",
-    designation: traveler.Designation ?? "",
+    nationality: traveler.Nationality ?? null,
+    department: traveler.Department ?? null,
+    designation: traveler.Designation ?? null,
   };
 }
 

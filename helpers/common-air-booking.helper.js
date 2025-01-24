@@ -147,7 +147,7 @@ function createAirBookingRequestBodyForCommonAPI(
       // },
       rmFields: [],
       tourCode: null,
-      isHoldBooking: false,
+      isHoldBooking: request.isHoldBooking || false,
       fareMasking: false,
     };
     // card info for live bookings

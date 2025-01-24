@@ -18,6 +18,7 @@ const chargesBefore48Hours = {
   "RAC":60,
   "RWL":60,
   "WL":60,
+  PQWL:62,
 };
 
 module.exports.cancelRailBooking = async function (request) {
@@ -229,6 +230,7 @@ function calculateCharges({ journeyClass, netFare, timeDifference, bookingStatus
     RAC: 60,
     RLWL: 60,
     WL: 60,
+    PQWL:62,
   };
 
   console.log({ journeyClass, netFare, timeDifference, bookingStatus });
@@ -240,7 +242,7 @@ function calculateCharges({ journeyClass, netFare, timeDifference, bookingStatus
 
   let cancellationCharges = minimumCharges;
 
-  if (["WL", "RLWL", "RAC"].includes(bookingStatus)&&timeDifference > 1/2) {
+  if (["WL", "RLWL", "RAC","PQWL"].includes(bookingStatus)&&timeDifference > 1/2) {
     cancellationCharges =
       chargesBefore48Hours[bookingStatus] +
       chargesBefore48Hours[bookingStatus] * (gstRate / 100);
@@ -253,7 +255,7 @@ function calculateCharges({ journeyClass, netFare, timeDifference, bookingStatus
   } else if (timeDifference > 4) {
     cancellationCharges = Math.max(minimumCharges, netFare * 0.5);
   }
-  else if(timeDifference < 4&&!["WL", "RLWL", "RAC"].includes(bookingStatus)) return {
+  else if(timeDifference < 4&&!["WL", "RLWL", "RAC","PQWL"].includes(bookingStatus)) return {
     error:
       "Cannot Cancel This Booking, Cause Chart Has Been Prepared For This Booking, Please Follow TDR Instructions For Cancelling This Booking",
   };

@@ -119,8 +119,7 @@ const StartBookingRail = async (req) => {
           RailBooking?.response == "Amount transferred successfully." ||
           RailBooking?.response === "Cart Created Succefully."
       ) {
-          console.log(CommonDateBooking)
-
+ 
           const newBooking = {
               cartId,
               clientTransactionId,
@@ -129,9 +128,9 @@ const StartBookingRail = async (req) => {
               AgencyId: agencyId,
               paymentMethod: paymentmethod,
               trainNumber: railFareBreakupRes?.trainNo,
-              journeyDate: `${journeyDate} 00:00:00.0 IST`,
-              fromStn: railFareBreakupRes?.frmStn,
-              destStn: railFareBreakupRes?.toStn,
+              journeyDate: `${railFareBreakupRes?.avlDayList[0]?.availablityDate} 00:00:00.0 IST`,
+              fromStn: railFareBreakupRes?.from,
+              destStn: railFareBreakupRes?.to,
               jClass: railFareBreakupRes?.enqClass,
               reservationMode,
               mobileNumber: contactDetails?.mobileNumber || null,
@@ -143,8 +142,21 @@ const StartBookingRail = async (req) => {
               psgnDtlList: passengerList,
               traceId,
               providerbookingId: CommonDateBooking?.bookingId,
-          };
+              journeyClass: railFareBreakupRes?.journeyClass,
+            journeyQuota: railFareBreakupRes?.jQuota,
+            insuranceCharge:parseInt(railFareBreakupRes?.travelInsuranceCharge+railFareBreakupRes?.travelInsuranceServiceTax),
+            totalCollectibleAmount: railFareBreakupRes?.totalCollectibleAmount,
+            RailCommercial:railFareBreakupRes?.RailCommercial,
+            trainName: railFareBreakupRes?.trainName,
+            distance: railFareBreakupRes?.distance,
+            boardingDate: railFareBreakupRes?.avlDayList[0]?.availablityDate+" 00:00:00.0 IST",
+            reservationCharge: railFareBreakupRes?.reservationCharge,
+            totalFare: railFareBreakupRes?.totalFare,
+            wpServiceCharge: railFareBreakupRes?.wpServiceCharge,
+            totalItemAmount:RailBooking.amount
+               };
 
+        
           // Save booking to database
           const createdBooking = await railBookings.create(newBooking);
 

@@ -1666,7 +1666,9 @@ const RailBookingCommonMethod = async (
       bookingId,
     });
 
-    return { response: "Amount transferred successfully." };
+    return { response: "Amount transferred successfully." ,
+      amount:ticketAmount,
+    };
   } catch (error) {
     console.error("Error in RailBookingCommonMethod:", error.message);
     return {

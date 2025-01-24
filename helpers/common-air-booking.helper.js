@@ -240,12 +240,12 @@ function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
     gender: traveler.Gender?.at?.(0)?.toUpperCase?.() || "M",
     passportDetails: traveler?.Optional?.PassportNo
       ? {
-          number: traveler?.Optional?.PassportNo ?? "",
-          issuingCountry: traveler?.Optional?.ResidentCountry,
-          expiryDate: moment(traveler?.Optional?.PassportExpiryDate).format(
-            "YYYY-MM-DD"
-          ),
-        }
+        number: traveler?.Optional?.PassportNo ?? "",
+        issuingCountry: traveler?.Optional?.ResidentCountry,
+        expiryDate: moment(traveler?.Optional?.PassportExpiryDate).format(
+          "YYYY-MM-DD"
+        ),
+      }
       : null,
     contactDetails: {
       address1:
@@ -272,10 +272,13 @@ function convertTravelerDetailsForCommonAPI(traveler, idx, segmentMap) {
 function convertBookingResponse(request, response, reqSegment) {
   // const tickets = response?.data?.journey?.[0]?.travellerDetails[0]?.eTicket;
   // const src = request.SearchRequest.Segments[0].Origin; // TODO: needs to be dynamic
+  console.log(response)
+  
   const src = reqSegment.Origin;
   const des = reqSegment.Destination;
   // const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
   const pnrs = response?.data?.journey?.[0]?.recLocInfo;
+  const bookingStatus = response?.data?.journey?.[0]?.status?.pnrStatus;
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
     PNR = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
@@ -287,7 +290,7 @@ function convertBookingResponse(request, response, reqSegment) {
   const travelerDetails = response?.data?.journey?.[0]?.travellerDetails;
   try {
     const data = {
-      Status: PNR ? "Success" : "Failed",
+      Status: bookingStatus=="Confirm" ? "Success" : bookingStatus,
       BookingInfo: {
         BookingId: "",
         BookingRemark: "",
@@ -303,20 +306,19 @@ function convertBookingResponse(request, response, reqSegment) {
         des
       ),
     };
-    data.BookingInfo.IsError = data.Status !== "Success";
-    data.BookingInfo.CurrentStatus =
-      data.Status !== "Success" ? "Failed" : "PENDING";
+    data.BookingInfo.IsError = data.Status == "Failed";
+    data.BookingInfo.CurrentStatus =data.Status;
     if (travelerDetails?.[0]?.eTicket?.length)
       data.BookingInfo.CurrentStatus = "CONFIRMED";
     data.ErrorMessage =
-      data.Status !== "Success" ? response?.message ?? "" : "";
+      data.Status == "Failed" ? response?.message ?? "" : "";
     data.WarningMessage = data.ErrorMessage;
     return { data };
   } catch (error) {
     saveLogInFile("error.json", { stack: error.stack, message: error.message });
     return {
       data: {
-        Status: PNR ? "Success" : "Failed",
+        Status: bookingStatus=="Confirm" ? "Success" : bookingStatus,
         BookingInfo: {
           BookingId: "",
           BookingRemark: "",

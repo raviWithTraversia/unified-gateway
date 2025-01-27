@@ -157,12 +157,12 @@ function createAirBookingRequestBodyForCommonAPI(
     ) {
       request.journey[0].cardInfo = {
         // FP CCVI4780080140169608/D0827
-        cardInfo: {
-          cardNumber: "4780080140169608",
-          code: "VI",
-          expiryYear: "08",
-          expiryMonth: "27",
-        },
+        // cardInfo: {
+        cardNumber: "4780080140169608",
+        code: "VI",
+        expiryYear: "08",
+        expiryMonth: "27",
+        // },
       };
     }
     saveLogInFile("request-body.json", requestBody);

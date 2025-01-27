@@ -9,7 +9,7 @@ const {
   prepareRailBookingQRDataString,
   generateQR,
 } = require("../../utils/generate-qr");
-
+const moment=require('moment')
 const { commonAgentPGCharges, commonFunctionsRailLogs } = require('../../controllers/commonFunctions/common.function')
 const getRailSearch = async (req, res) => {
   try {
@@ -212,7 +212,7 @@ function predictConfirmation(wlNumber, quota, trainDemand, historicalRate, journ
   }
 
   // Date Impact (Weekend vs. Weekday)
-  const day = new Date(journeyDate).getDay();
+  const day =  moment(journeyDate, "DD-MM-YYYY").day();
   if (day === 0 || day === 6) {
       confirmationChance -= 15; // Weekends generally have high travel demand
   } else if (day === 1 || day === 5) {

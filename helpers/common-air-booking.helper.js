@@ -160,8 +160,8 @@ function createAirBookingRequestBodyForCommonAPI(
         // cardInfo: {
         cardNumber: "4780080140169608",
         code: "VI",
-        expiryYear: "08",
-        expiryMonth: "27",
+        expiryYear: "27",
+        expiryMonth: "08",
         // },
       };
     }

@@ -62,6 +62,7 @@ async function importPNRHelper(request) {
       },
     };
   } catch (error) {
+    console.dir({ errRes: error.response?.data }, { depth: null });
     console.log({ errorInImportPNRHelper: error });
     return { error: { message: error.message } };
   }

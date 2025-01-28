@@ -301,8 +301,8 @@ const KafilaFun = async (
           },
         }
       ); 
-      if (fSearchApiResponse?.data?.Status !==null&&fSearchApiResponse?.data?.Status ===  "PENDING"||fSearchApiResponse?.data?.Status ===
-      "Failed") {
+      if (fSearchApiResponse?.data?.Status !==null&&fSearchApiResponse?.data?.Status ===  "PENDING"||fSearchApiResponse?.data?.Status.toUpperCase() ===
+      "FAILED"||fSearchApiResponse?.data?.Status.toUpperCase() === "ERROR") {
        
         if(fSearchApiResponse?.data?.Status != null && fSearchApiResponse?.data?.Status===
         "PENDING"){

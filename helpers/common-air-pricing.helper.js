@@ -520,6 +520,40 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
   return seatMapRowColumnList;
 }
 
+async function getPnrTicketCommonAPIBody(request) {
+  const reqItinerary = request.Itinerary?.[0];
+    const reqSegment = request.Segments?.[0];
+
+    if (!reqItinerary || !reqSegment)
+      throw new Error(
+        "Invalid request data 'Itinerary[]' or 'Segment[]' missing"
+      );
+  return{
+    typeOfTrip: request.TypeOfTrip,
+      credentialType: request.Authentication.CredentialType,
+      travelType: convertTravelTypeForCommonAPI(request.TravelType),
+      systemEntity: "TCIL",
+      systemName: "Astra2.0",
+      corpCode: "000000",
+      requestorCode: "000000",
+      empCode: "000000",
+      uniqueKey: reqItinerary.UniqueKey,
+      traceId: reqItinerary.TraceId,
+    journey: [
+        {
+          journeyKey: reqItinerary.SearchID,
+          origin: reqSegment.Origin,
+          destination: reqSegment.Destination,
+            itinerary: [
+                {
+                    recordLocator: request.PNR
+                }
+            ]
+        }
+    ],
+    "version": "1"
+}
+}
 module.exports = {
   createAirPricingRequestBodyForCommonAPI,
   convertDurationForCommonAPI,
@@ -528,4 +562,5 @@ module.exports = {
   formatDateForCommonAPI,
   convertAirPricingItineraryForCommonAPI,
   convertSSRItineraryForCommonAPI,
+  getPnrTicketCommonAPIBody
 };

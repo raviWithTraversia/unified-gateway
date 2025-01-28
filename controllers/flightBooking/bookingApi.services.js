@@ -174,7 +174,7 @@ const getAllBooking = async (req, res) => {
     //   };
     // }
 
-    if (fromDate || toDate) {
+    if (fromDate || toDate) { 
       filter.createdAt = {};
       if (fromDate) {
         if (!moment(fromDate, "YYYY-MM-DD", true).isValid())

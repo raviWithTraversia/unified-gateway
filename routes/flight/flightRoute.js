@@ -18,6 +18,7 @@ flight_route.post("/Flight/startBooking", auth, flight.startBooking);
 flight_route.post("/flight/ssr", auth, flight.specialServiceReq);
 flight_route.post("/flight/generic-cart", auth, flight.genericcart);
 flight_route.post("/flight/fullCancelation", auth, flight.fullCancelation);
+flight_route.post("/flight/pnr/ticket", auth, flight.getPnrTicket);
 flight_route.post(
   "/flight/partialCancelation",
   auth,

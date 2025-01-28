@@ -21,6 +21,7 @@ const flightSerchLogServices = require("../../controllers/flightSearchLog/flight
 const { getCommonAirPricing } = require("../../services/common-air-pricing");
 const { validateSearchRequest } = require("../../validation/search.validation");
 const { getCommonRBD } = require("../../services/common-rbd.service");
+const { getCommonPnrTicket } = require("../../services/common-pnrTicket-service");
 const {
   getCommonFairRules,
 } = require("../../services/common-fair-rules.service");
@@ -220,6 +221,35 @@ const getRBD = async (req, res) => {
   }
 };
 
+const getPnrTicket=async(req,res)=>{
+  try {
+    const { result, error } = await getCommonPnrTicket(req.body);
+    if (error)
+      return apiErrorres(
+        res,
+        errorResponse.SOMETHING_WRONG,
+        ServerStatusCode.SERVER_ERROR,
+        true
+      );
+
+    return apiSucessRes(
+      res,
+      "Fetch RBD Result",
+      result,
+      ServerStatusCode.SUCESS_CODE
+    );
+  }
+catch (error) {
+  console.log({ error });
+    return apiErrorres(
+      res,
+    error.message || errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+}
+
+}
 const startBooking = async (req, res) => {
   try {
     const validationResult = await validateAirBooking(req);
@@ -993,4 +1023,5 @@ module.exports = {
   updatePendingBookingStatus,
   updateConfirmBookingStatus,
   importPNR,
+  getPnrTicket
 };

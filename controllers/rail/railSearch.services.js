@@ -9,7 +9,7 @@ const {
   prepareRailBookingQRDataString,
   generateQR,
 } = require("../../utils/generate-qr");
-
+const moment=require('moment')
 const { commonAgentPGCharges, commonFunctionsRailLogs } = require('../../controllers/commonFunctions/common.function')
 const getRailSearch = async (req, res) => {
   try {
@@ -122,6 +122,21 @@ const railSearchBtwnDate = async (req, res) => {
         response: "No Response from Irctc",
       };
     } else {
+
+      for (const [index, item] of response.avlDayList.entries()) {
+        const status = item?.availablityStatus;
+        if (status?.includes("WL")) {
+          const wlNumber = extractWLNumber(status); // Extract the WL number
+          item.WltoConfirmPrediction = await predictConfirmation(
+            Number(wlNumber),
+            response.quota + "WL",
+            "Moderate",
+            50+index*2,
+            item.availablityDate
+          );
+        }
+      }
+
       commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "Rail Search between Date", url, req.body, response)
 
       return {
@@ -139,6 +154,83 @@ const railSearchBtwnDate = async (req, res) => {
     );
   }
 };
+
+function extractWLNumber(status) {
+  const wlIndex = status.indexOf("WL");
+  if (wlIndex !== -1) {
+      return parseInt(status.substring(wlIndex + 2), 10); // Get number after 'WL'
+  }
+  return null; // Return null if 'WL' is not found
+}
+function predictConfirmation(wlNumber, quota, trainDemand, historicalRate, journeyDate) {
+  let confirmationChance = historicalRate;
+
+  // WL Number Impact
+  if (wlNumber <= 10) {
+      confirmationChance += 25; // Very high chances for WL 1-10
+  } else if (wlNumber > 10 && wlNumber <= 30) {
+      confirmationChance += 15; // Medium chances for WL 11-30
+  } else if (wlNumber > 30 && wlNumber <= 50) {
+      confirmationChance -= 10; // Low chances for WL 31-50
+  } else if (wlNumber > 50 && wlNumber <= 100) {
+      confirmationChance -= 20; // Very low chances for WL 51-100
+  } else {
+      confirmationChance -= 30; // WL > 100 almost no chances
+  }
+
+  // Quota Impact
+  switch (quota) {
+      case "GNWL": // General Waiting List
+          confirmationChance += 15;
+          break;
+      case "TQWL": // Tatkal Quota
+          confirmationChance -= 20;
+          break;
+      case "LDWL": // Ladies Quota
+          confirmationChance += 10;
+          break;
+      case "PQWL": // Pooled Quota
+          confirmationChance -= 5;
+          break;
+      default:
+          confirmationChance -= 10; // Unknown or less reliable quota
+  }
+
+  // Train Demand Impact
+  switch (trainDemand) {
+      case "High":
+          confirmationChance -= 20; // High demand significantly reduces chances
+          break;
+      case "Moderate":
+          confirmationChance -= 5; // Moderate demand slightly reduces chances
+          break;
+      case "Low":
+          confirmationChance += 15; // Low demand significantly increases chances
+          break;
+      default:
+          confirmationChance -= 10; // Default assumption of high demand
+  }
+
+  // Date Impact (Weekend vs. Weekday)
+  const day =  moment(journeyDate, "DD-MM-YYYY").day();
+  if (day === 0 || day === 6) {
+      confirmationChance -= 15; // Weekends generally have high travel demand
+  } else if (day === 1 || day === 5) {
+      confirmationChance += 10; // Mondays and Fridays have higher chances
+  } else {
+      confirmationChance += 5; // Mid-week days (Tuesday-Thursday) have moderate chances
+  }
+
+  // Dynamic Adjustment for Special Conditions
+  if (wlNumber > 50 && day === 0 && quota === "TQWL") {
+      confirmationChance = Math.max(0, confirmationChance - 30); // Very low chance for high WL, TQWL, and weekend
+  }
+
+  // Ensure percentage is between 0-100
+  confirmationChance = Math.max(0, Math.min(confirmationChance, 100));
+
+  return confirmationChance;
+}
 
 const railRouteView = async (req, res) => {
  try {

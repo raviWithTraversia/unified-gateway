@@ -18,6 +18,6 @@ module.exports.getCommonRBD = async (request) => {
     return { result: createRBDResponse(response.data.journey[0].itinerary[0]) };
   } catch (err) {
     console.dir({ err }, { depth: null });
-    return { error: err.message };
+    return { error: err?.response?.data?.message || err.message };
   }
 };

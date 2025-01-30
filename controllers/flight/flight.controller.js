@@ -196,12 +196,7 @@ const getRBD = async (req, res) => {
   try {
     const { result, error } = await getCommonRBD(req.body);
     if (error)
-      return apiErrorres(
-        res,
-        errorResponse.SOMETHING_WRONG,
-        ServerStatusCode.SERVER_ERROR,
-        true
-      );
+      return apiErrorres(res, error, ServerStatusCode.SERVER_ERROR, true);
 
     return apiSucessRes(
       res,

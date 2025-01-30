@@ -165,7 +165,7 @@ function createAirBookingRequestBodyForCommonAPI(
         // },
       };
     }
-    saveLogInFile("request-body.json", requestBody);
+    saveLogInFile("book-request-body.json", requestBody);
     return { requestBody };
   } catch (error) {
     saveLogInFile("error-creating-common-booking-request.json", {
@@ -250,12 +250,12 @@ function convertTravelerDetailsForCommonAPI(
     gender: traveler.Gender?.at?.(0)?.toUpperCase?.() || "M",
     passportDetails: traveler?.Optional?.PassportNo
       ? {
-        number: traveler?.Optional?.PassportNo ?? "",
-        issuingCountry: traveler?.Optional?.ResidentCountry,
-        expiryDate: moment(traveler?.Optional?.PassportExpiryDate).format(
-          "YYYY-MM-DD"
-        ),
-      }
+          number: traveler?.Optional?.PassportNo ?? "",
+          issuingCountry: traveler?.Optional?.ResidentCountry,
+          expiryDate: moment(traveler?.Optional?.PassportExpiryDate).format(
+            "YYYY-MM-DD"
+          ),
+        }
       : null,
     contactDetails:
       idx === 0
@@ -295,8 +295,8 @@ function convertTravelerDetailsForCommonAPI(
 function convertBookingResponse(request, response, reqSegment) {
   // const tickets = response?.data?.journey?.[0]?.travellerDetails[0]?.eTicket;
   // const src = request.SearchRequest.Segments[0].Origin; // TODO: needs to be dynamic
-  console.log(response)
-  
+  console.log(response);
+
   const src = reqSegment.Origin;
   const des = reqSegment.Destination;
   // const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
@@ -313,7 +313,7 @@ function convertBookingResponse(request, response, reqSegment) {
   const travelerDetails = response?.data?.journey?.[0]?.travellerDetails;
   try {
     const data = {
-      Status: bookingStatus=="Confirm" ? "Success" : bookingStatus,
+      Status: bookingStatus == "Confirm" ? "Success" : bookingStatus,
       BookingInfo: {
         BookingId: "",
         BookingRemark: "",
@@ -330,18 +330,17 @@ function convertBookingResponse(request, response, reqSegment) {
       ),
     };
     data.BookingInfo.IsError = data.Status == "Failed";
-    data.BookingInfo.CurrentStatus =data.Status;
+    data.BookingInfo.CurrentStatus = data.Status;
     if (travelerDetails?.[0]?.eTicket?.length)
       data.BookingInfo.CurrentStatus = "CONFIRMED";
-    data.ErrorMessage =
-      data.Status == "Failed" ? response?.message ?? "" : "";
+    data.ErrorMessage = data.Status == "Failed" ? response?.message ?? "" : "";
     data.WarningMessage = data.ErrorMessage;
     return { data };
   } catch (error) {
     saveLogInFile("error.json", { stack: error.stack, message: error.message });
     return {
       data: {
-        Status: bookingStatus=="Confirm" ? "Success" : bookingStatus,
+        Status: bookingStatus == "Confirm" ? "Success" : bookingStatus,
         BookingInfo: {
           BookingId: "",
           BookingRemark: "",

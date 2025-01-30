@@ -193,40 +193,32 @@ function predictConfirmation(wlNumber, quota, trainDemand, historicalRate, journ
           confirmationChance -= 5;
           break;
       default:
-          confirmationChance -= 10; // Unknown or less reliable quota
+          confirmationChance -= 10; 
   }
 
-  // Train Demand Impact
   switch (trainDemand) {
       case "High":
-          confirmationChance -= 20; // High demand significantly reduces chances
+          confirmationChance -= 20; 
           break;
       case "Moderate":
-          confirmationChance -= 5; // Moderate demand slightly reduces chances
+          confirmationChance -= 5; 
           break;
       case "Low":
-          confirmationChance += 15; // Low demand significantly increases chances
+          confirmationChance += 15; 
           break;
       default:
-          confirmationChance -= 10; // Default assumption of high demand
+          confirmationChance -= 10; 
   }
 
-  // Date Impact (Weekend vs. Weekday)
   const day =  moment(journeyDate, "DD-MM-YYYY").day();
   if (day === 0 || day === 6) {
-      confirmationChance -= 15; // Weekends generally have high travel demand
-  } else if (day === 1 || day === 5) {
-      confirmationChance += 10; // Mondays and Fridays have higher chances
-  } else {
-      confirmationChance += 5; // Mid-week days (Tuesday-Thursday) have moderate chances
+      confirmationChance -= 10; 
   }
 
-  // Dynamic Adjustment for Special Conditions
   if (wlNumber > 50 && day === 0 && quota === "TQWL") {
-      confirmationChance = Math.max(0, confirmationChance - 30); // Very low chance for high WL, TQWL, and weekend
+      confirmationChance = Math.max(0, confirmationChance - 30); 
   }
 
-  // Ensure percentage is between 0-100
   confirmationChance = Math.max(0, Math.min(confirmationChance, 100));
 
   return confirmationChance;

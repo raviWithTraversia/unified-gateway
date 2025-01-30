@@ -15,6 +15,18 @@ const apiSucessRes = (res, message, result, code, apiReq, error, token, refreshT
 
 };
 
+const apiSucessResforAgency = (res, message, result, count ,code) =>  {
+    
+    return res.status(code).json({
+        IsSucess: true,
+        ResponseStatusCode: code,
+        Message: message,
+        Result: result,
+        totalCount : count
+
+    })
+
+};
 const apiErrorres = (res,message,code, error) => {
     return res.status(code).json({
         IsSucess : false,
@@ -33,5 +45,6 @@ const status = {
 module.exports = {
     apiSucessRes,
     apiErrorres,
-    status
+    status,
+    apiSucessResforAgency
 }

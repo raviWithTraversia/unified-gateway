@@ -301,8 +301,9 @@ const KafilaFun = async (
           },
         }
       ); 
+      console.log(fSearchApiResponse, "fSearchApiResponse");
       if (fSearchApiResponse?.data?.Status !==null&&fSearchApiResponse?.data?.Status ===  "PENDING"||fSearchApiResponse?.data?.Status ===
-      "Failed") {
+      "Failed"||fSearchApiResponse?.data?.Status === "ERROR"||fSearchApiResponse?.data?.Status === "failed") {
        
         if(fSearchApiResponse?.data?.Status != null && fSearchApiResponse?.data?.Status===
         "PENDING"){

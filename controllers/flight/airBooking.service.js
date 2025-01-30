@@ -45,7 +45,7 @@ const startBooking = async (req, res) => {
     PassengerPreferences,
     ItineraryPriceCheckResponses,
     paymentMethodType,
-    paymentGateway,
+    paymentGateway,isHoldBooking
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -130,7 +130,8 @@ const startBooking = async (req, res) => {
       ItineraryPriceCheckResponses,
       paymentMethodType,
       paymentGateway,
-      req
+      req,isHoldBooking
+
     );
   }
   const logData = {
@@ -173,7 +174,9 @@ async function handleflight(
   ItineraryPriceCheckResponses,
   paymentMethodType,
   paymentGateway,
-  req
+  req,
+  isHoldBooking
+
 ) {
   // International
   // Check LIVE and TEST
@@ -301,7 +304,7 @@ async function handleflight(
     ItineraryPriceCheckResponses,
     paymentMethodType,
     paymentGateway,
-    req
+    req,isHoldBooking
   );
   // console.dir({ responsesApi }, { depth: null });
   // delete this one
@@ -330,7 +333,7 @@ const KafilaFun = async (
   ItineraryPriceCheckResponses,
   paymentMethodType,
   paymentGateway,
-  req
+  req,isHoldBooking
 ) => {
   const paxList = JSON.parse(JSON.stringify(req.body.PassengerPreferences));
   let tripTypeValue;
@@ -707,61 +710,64 @@ const KafilaFun = async (
         creditTotal = 0;
       }
       // Check if maxCreditLimit exists, otherwise set it to 0
-      const checkCreditLimit =
-        getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
-      const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
+  if(!isHoldBooking){
+    const checkCreditLimit =
+    getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
+  const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
 
-      // Check if balance is sufficient
-      if (checkCreditLimit < totalSSRWithCalculationPrice) {
-        console.log({ checkCreditLimit, totalSSRWithCalculationPrice });
-        return "Your Balance is not sufficient";
-      }
-      // Deduct balance from user configuration and update in DB
-      const newBalance = maxCreditLimit - totalSSRWithCalculationPrice;
-      console.log({
-        newBalance,
-        maxCreditLimit,
-        totalSSRWithCalculationPrice,
-        stage: 5,
-      },"newBalance");
-      await agentConfig.updateOne(
-        { userId: allIds[0] },
-        { maxcreditLimit: newBalance }
-      );
+  // Check if balance is sufficient
+  if (checkCreditLimit < totalSSRWithCalculationPrice) {
+    console.log({ checkCreditLimit, totalSSRWithCalculationPrice });
+    return "Your Balance is not sufficient";
+  }
+  // Deduct balance from user configuration and update in DB
+  const newBalance = maxCreditLimit - totalSSRWithCalculationPrice;
+  console.log({
+    newBalance,
+    maxCreditLimit,
+    totalSSRWithCalculationPrice,
+    stage: 5,
+  },"newBalance");
+  await agentConfig.updateOne(
+    { userId: allIds[0] },
+    { maxcreditLimit: newBalance }
+  );
 
-      // Generate random ledger ID
-      var ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-      let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
+  // Generate random ledger ID
+  var ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+  let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
 
-      // Create ledger entry
-      await ledger.create({
-        userId: allIds[0],
-        companyId: getuserDetails.company_ID._id,
-        ledgerId: ledgerId,
-        transactionAmount: totalSSRWithCalculationPrice,
-        currencyType: "INR",
-        fop: "CREDIT",
-        deal: gtTsAdDnt?.ldgrdiscount,
-        tds: gtTsAdDnt?.ldgrtds,
-        transactionType: "DEBIT",
-        runningAmount: newBalance,
-        remarks: "Booking amount deducted from your account.",
-        transactionBy: getuserDetails._id,
-        cartId: ItineraryPriceCheckResponses[0].BookingId,
-      });
+  // Create ledger entry
+  await ledger.create({
+    userId: allIds[0],
+    companyId: getuserDetails.company_ID._id,
+    ledgerId: ledgerId,
+    transactionAmount: totalSSRWithCalculationPrice,
+    currencyType: "INR",
+    fop: "CREDIT",
+    deal: gtTsAdDnt?.ldgrdiscount,
+    tds: gtTsAdDnt?.ldgrtds,
+    transactionType: "DEBIT",
+    runningAmount: newBalance,
+    remarks: "Booking amount deducted from your account.",
+    transactionBy: getuserDetails._id,
+    cartId: ItineraryPriceCheckResponses[0].BookingId,
+  });
 
-      // Create transaction Entry
-      await transaction.create({
-        userId: getuserDetails._id,
-        companyId: getuserDetails.company_ID._id,
-        trnsNo: Math.floor(100000 + Math.random() * 900000),
-        trnsType: "DEBIT",
-        paymentMode: "CL",
-        trnsStatus: "success",
-        transactionBy: getuserDetails._id,
-        bookingId: ItineraryPriceCheckResponses[0].BookingId,
-      });
+  // Create transaction Entry
+  await transaction.create({
+    userId: getuserDetails._id,
+    companyId: getuserDetails.company_ID._id,
+    trnsNo: Math.floor(100000 + Math.random() * 900000),
+    trnsType: "DEBIT",
+    paymentMode: "CL",
+    trnsStatus: "success",
+    transactionBy: getuserDetails._id,
+    bookingId: ItineraryPriceCheckResponses[0].BookingId,
+  });
 
+  }
+     
       //return addToLedger;
     } catch (error) {
       // Handle errors
@@ -1145,6 +1151,52 @@ const KafilaFun = async (
                     paxList
                   );
                 }
+                if ((typeof fSearchApiResponse?.data === "string"||typeof fSearchApiResponse === "string")&&item.Provider === "Kafila") {
+                  const requestBodyForResponseFetch={
+
+                      "P_TYPE": "API",
+                  
+                      "R_TYPE": "FLIGHT",
+                  
+                      "R_NAME": "FlightBookingResponse",
+                  
+                      "R_DATA": {
+                  
+                          "TYPE": "PNRRES",
+                  
+                          "BOOKING_ID": "",
+                  
+                          "TRACE_ID": Authentication?.TraceId
+                  
+                      },
+                  
+                      "AID":supplier.supplierWsapSesssion,
+                  
+                      "MODULE": "B2B",
+                  
+                      "IP": "182.73.146.154",
+                  
+                      "TOKEN":supplier.supplierOfficeId,
+                  
+                      "ENV": credentialType,
+                  
+                      "Version": "1.0.0.0.0.0"
+                  
+                  }
+
+                  fSearchApiResponse = await axios.post(
+                    flightSearchUrl,
+                    requestBodyForResponseFetch,
+                    {
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                    }
+                  );
+                  
+              
+              }
+
                 const logData = {
                   traceId: Authentication?.TraceId,
                   companyId: Authentication?.CompanyId,

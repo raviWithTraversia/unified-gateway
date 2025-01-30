@@ -44,6 +44,7 @@ const getAllBooking = async (req, res) => {
     salesInchargeIds,
     ArilineFilter,
     BookedBy,
+    cancelationPending
   } = req.body;
   const fieldNames = [
     "agencyId",
@@ -114,7 +115,6 @@ const getAllBooking = async (req, res) => {
     const filter = {};
 
     // Filter by AgencyId
-    console.log("djei");
 
     if (
       agencyId == "6555f84c991eaa63cb171a9f" &&
@@ -174,7 +174,7 @@ const getAllBooking = async (req, res) => {
     //   };
     // }
 
-    if (fromDate || toDate) {
+    if (fromDate || toDate) { 
       filter.createdAt = {};
       if (fromDate) {
         if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
@@ -218,8 +218,14 @@ const getAllBooking = async (req, res) => {
         );
       }
     }
-    console.log(filter);
     // Use the filter in the aggregation pipeline
+    if(cancelationPending&&filter.bookingStatus=="CANCELLATION PENDING"){
+      filter.updatedAt= filter.createdAt
+      delete filter.createdAt; // Removes the 'age' key from obj
+
+      
+          }
+
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter }, // Apply the filter here
 
@@ -495,7 +501,13 @@ const getAllBooking = async (req, res) => {
         );
       }
     }
-    console.log(filter);
+    if(cancelationPending&&filter.bookingStatus=="CANCELLATION PENDING"){
+filter.updatedAt= filter.createdAt;
+delete filter.createdAt; // Removes the 'age' key from obj
+
+
+    }
+
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter },
 
@@ -757,6 +769,12 @@ const getAllBooking = async (req, res) => {
         );
       }
     }
+    if(cancelationPending&&filter.bookingStatus=="CANCELLATION PENDING"){
+      filter.updatedAt= filter.createdAt;
+      delete filter.createdAt; // Removes the 'age' key from obj
+
+      
+          }
     console.log(filter, "j;die");
     const bookingDetails = await bookingdetails.aggregate([
       { $match: filter },
@@ -1396,7 +1414,6 @@ const getAllBooking = async (req, res) => {
         );
         let filteredBookingData = allBookingData; // Copy the original data
 
-        console.log("sdhei");
         if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
           filteredBookingData = allBookingData.filter(
             (bookingData) => bookingData.salesInchargeIds === salesInchargeIds
@@ -1431,7 +1448,6 @@ const getPendingBooking = async (req, res) => {
     "fromDate",
     "toDate",
   ];
-  console.log(agencyId);
   const missingFields = fieldNames.filter(
     (fieldName) =>
       req.body[fieldName] === null || req.body[fieldName] === undefined
@@ -1586,7 +1602,6 @@ const getPendingBooking = async (req, res) => {
       filter.userId = {};
       filter.userId = { $in: agencyId };
 
-      console.log(filter.userId);
     }
 
     if (bookingId !== undefined && bookingId.trim() !== "") {
@@ -1938,7 +1953,6 @@ const getDeparturesList = async (req, res) => {
     },
   };
   
-  console.log(filter)
   const getDepartureList = await bookingdetails.find(filter)
 .populate("BookedBy");
 console.log(getDepartureList)

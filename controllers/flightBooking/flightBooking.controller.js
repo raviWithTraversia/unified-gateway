@@ -442,7 +442,6 @@ const SendCardOnMail = async (req, res) => {
   try {
     
     const result = await getAllBookingServices.SendCardOnMail(req,res);
-    console.log(result)
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (result.response === "bookingData Not Found" || result.response === "Your Smtp data not found" || result.response === "cartId subject companyId  email productInfo not found") {

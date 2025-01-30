@@ -21,7 +21,9 @@ const flightSerchLogServices = require("../../controllers/flightSearchLog/flight
 const { getCommonAirPricing } = require("../../services/common-air-pricing");
 const { validateSearchRequest } = require("../../validation/search.validation");
 const { getCommonRBD } = require("../../services/common-rbd.service");
-const { getCommonPnrTicket } = require("../../services/common-pnrTicket-service");
+const {
+  getCommonPnrTicket,
+} = require("../../services/common-pnrTicket-service");
 const {
   getCommonFairRules,
 } = require("../../services/common-fair-rules.service");
@@ -96,21 +98,21 @@ const getSearch = async (req, res) => {
         ["Kafila", "1A", "1AN"].includes(itinerary.Provider)
       )
       .sort((a, b) => a.TotalPrice - b.TotalPrice);
-    if (itineraries.length) {
-      apiSucessRes(
-        res,
-        "Fetch Data Successfully",
-        itineraries,
-        ServerStatusCode.SUCESS_CODE
-      );
-    } else {
-      apiErrorres(
-        res,
-        errorResponse.SOME_UNOWN,
-        ServerStatusCode.UNPROCESSABLE,
-        true
-      );
-    }
+    // if (itineraries.length) {
+    apiSucessRes(
+      res,
+      "Fetch Data Successfully",
+      itineraries?.length ? itineraries : [],
+      ServerStatusCode.SUCESS_CODE
+    );
+    // } else {
+    //   apiErrorres(
+    //     res,
+    //     errorResponse.SOME_UNOWN,
+    //     ServerStatusCode.UNPROCESSABLE,
+    //     true
+    //   );
+    // }
     await flightSerchLogServices.addFlightSerchReport(req);
   } catch (error) {
     console.error(error);
@@ -216,7 +218,7 @@ const getRBD = async (req, res) => {
   }
 };
 
-const getPnrTicket=async(req,res)=>{
+const getPnrTicket = async (req, res) => {
   try {
     const { result, error } = await getCommonPnrTicket(req.body);
     if (error)
@@ -233,18 +235,16 @@ const getPnrTicket=async(req,res)=>{
       result,
       ServerStatusCode.SUCESS_CODE
     );
-  }
-catch (error) {
-  console.log({ error });
+  } catch (error) {
+    console.log({ error });
     return apiErrorres(
       res,
-    error.message || errorResponse.SOMETHING_WRONG,
+      error.message || errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );
-}
-
-}
+  }
+};
 const startBooking = async (req, res) => {
   try {
     const validationResult = await validateAirBooking(req);
@@ -1018,5 +1018,5 @@ module.exports = {
   updatePendingBookingStatus,
   updateConfirmBookingStatus,
   importPNR,
-  getPnrTicket
+  getPnrTicket,
 };

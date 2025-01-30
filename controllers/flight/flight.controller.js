@@ -98,21 +98,16 @@ const getSearch = async (req, res) => {
         ["Kafila", "1A", "1AN"].includes(itinerary.Provider)
       )
       .sort((a, b) => a.TotalPrice - b.TotalPrice);
-    // if (itineraries.length) {
-    apiSucessRes(
-      res,
-      "Fetch Data Successfully",
-      itineraries?.length ? itineraries : [],
-      ServerStatusCode.SUCESS_CODE
-    );
-    // } else {
-    //   apiErrorres(
-    //     res,
-    //     errorResponse.SOME_UNOWN,
-    //     ServerStatusCode.UNPROCESSABLE,
-    //     true
-    //   );
-    // }
+    if (itineraries.length) {
+      apiSucessRes(
+        res,
+        "Fetch Data Successfully",
+        itineraries,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(res, "No Data Found", 400, true);
+    }
     await flightSerchLogServices.addFlightSerchReport(req);
   } catch (error) {
     console.error(error);

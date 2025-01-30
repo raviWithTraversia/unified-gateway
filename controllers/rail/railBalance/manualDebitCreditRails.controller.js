@@ -38,11 +38,12 @@ const manualDebitCredit = async (req, res) => {
 const agentPerformanceReport = async (req, res) => {
   try {
     const result = await balanceService.agentPerformanceReport(req, res);
+    // console.log(result)
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "User id does not exist" || result.response === "data not found" || result.response === "Insufficient Balance"||result.response==='DIdata not found') {
+    } else if (result.response === "No Agency with this TMC" || result.response === "ID not found" || result.response === "Insufficient Balance"||result.response==='DIdata not found') {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
-    } else if (result.response === "agent Data Found Successfully") {
+    } else if (result.response === "Agent Data Found Successfully") {
       apiSucessRes(
         res,
         result.response,

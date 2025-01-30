@@ -1,5 +1,5 @@
 const userServices = require("./user.services");
-const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
+const { apiSucessRes, apiErrorres ,apiSucessResforAgency} = require("../../utils/commonResponce");
 const {
   ServerStatusCode,
   errorResponse,
@@ -318,13 +318,14 @@ const getUser = async (req, res) => {
 const getAllAgencyAndDistributer = async (req, res) => {
   try {
     let result = await userServices.getAllAgencyAndDistributer(req, res);
-    console.log(result)
     if (result.response === "Agency Data fetch Sucessfully") {
       apiSucessRes(
         res,
         result.response,
         result.data,
-        ServerStatusCode.SUCESS_CODE
+        ServerStatusCode.SUCESS_CODE,
+        result.totalCount
+
       );
     } else if (result.response === "No Agency with this TMC") {
       apiErrorres(res, result.response, ServerStatusCode.RECORD_NOTEXIST, true);

@@ -64,12 +64,12 @@ const StartBookingRail = async (req) => {
       }
 
       // Check if booking already exists
-      const existingBooking = await railBookings.findOne({ cartId });
-      if (existingBooking) {
-          return {
-              response: "Your Booking already exists",
-          };
-      }
+      // const existingBooking = await railBookings.findOne({ cartId });
+      // if (existingBooking) {
+      //     return {
+      //         response: "Your Booking already exists",
+      //     };
+      // }
 
       // Process Rail Booking
       const RailBooking = await RailBookingCommonMethod(
@@ -144,9 +144,7 @@ const StartBookingRail = async (req) => {
               providerbookingId: CommonDateBooking?.bookingId,
               journeyClass: railFareBreakupRes?.journeyClass,
             journeyQuota: railFareBreakupRes?.jQuota,
-            insuranceCharge:parseInt(railFareBreakupRes?.travelInsuranceCharge+railFareBreakupRes?.travelInsuranceServiceTax),
-            totalCollectibleAmount: railFareBreakupRes?.totalCollectibleAmount,
-            RailCommercial:railFareBreakupRes?.RailCommercial,
+            RailCommercial:CommercialCharges,
             trainName: railFareBreakupRes?.trainName,
             distance: railFareBreakupRes?.distance,
             boardingDate: railFareBreakupRes?.avlDayList[0]?.availablityDate+" 00:00:00.0 IST",

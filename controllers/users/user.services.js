@@ -772,7 +772,8 @@ const getAllAgencyAndDistributer = async (req, res) => {
     let parentId = req.query.id;
     const searchQuery = req.query.search || ''; 
     const page = parseInt(req.query.page) || 1; 
-    const limit = parseInt(req.query.limit) || 4000;
+    const limit = parseInt(req.query.limit) || 10;
+    var status=req.query.status||"All";
 
 
     const findTmcUser=await Company.findById(parentId)
@@ -781,10 +782,12 @@ const getAllAgencyAndDistributer = async (req, res) => {
       ? { $or: [
           { fname: { $regex: searchQuery, $options: 'i' } }, // Search by first name
           { lastName: { $regex: searchQuery, $options: 'i' } }, // Search by last name
-          { "company_ID.companyName": { $regex: searchQuery, $options: 'i' } } // Search by company name
+          { "company_ID.companyName": { $regex: searchQuery, $options: 'i' } }, // Search by company name
+          {"company_ID.companyStatus":{ $regex: searchQuery, $options: 'i' }}
         ] }
       : {};
-
+     findStatus=  status=="All"?{}: {"company_ID.companyStatus":{ $eq:status}}
+      
 
     const users = await User.aggregate([
       { 
@@ -843,6 +846,7 @@ const getAllAgencyAndDistributer = async (req, res) => {
           preserveNullAndEmptyArrays: true
         }
       },
+      {$match:{"roleId.type":{$ne:"Manual"}}},
       { 
         $lookup: {
           from: 'cities', // Name of the cities collection
@@ -871,6 +875,7 @@ const getAllAgencyAndDistributer = async (req, res) => {
           preserveNullAndEmptyArrays: true
         }
       },
+      {$match:findStatus},
 
       {$match:searchCondition},
       {
@@ -907,6 +912,12 @@ const getAllAgencyAndDistributer = async (req, res) => {
         }
       },
       {$unwind:{path:"$agentconfigurations" ,preserveNullAndEmptyArrays: true}},
+
+      {$facet:{
+
+        totalCount: [{ $count: "count" }],
+        paginatorData:[
+
       
       {
         $group: {
@@ -979,25 +990,26 @@ const getAllAgencyAndDistributer = async (req, res) => {
       
       { $skip: skip }, 
       { $limit: limit },
-      
-      
+    ]
+    },}
     ])
     
-    console.log(users)
     //console.log("=======>>>", users);
-   
-    let data = [];
-    for (let i = 0; i < users.length; i++) {
-      if (users[i].roleId.type == 'Manual') {
-        continue;
-      } else {
-        data.push(users[i])
-      }
-    }
-    if (users.length != 0) {
+   const usersData=users[0].paginatorData
+    // let data = [];
+    // for (let i = 0; i < usersData.length; i++) {
+    //   if (usersData[i].roleId.type == 'Manual') {
+    //     continue;
+    //   } else {
+    //     data.push(usersData[i])
+    //   }
+    // }
+    // console.log(usersData,"")
+    if (usersData.length != 0) {
       return {
         response: 'Agency Data fetch Sucessfully',
-        data: data
+        data: usersData,
+        totalCount: users[0].totalCount[0].count
       }
     } else {
       return {

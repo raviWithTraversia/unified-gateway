@@ -212,11 +212,7 @@ function predictConfirmation(wlNumber, quota, trainDemand, historicalRate, journ
 
   const day =  moment(journeyDate, "DD-MM-YYYY").day();
   if (day === 0 || day === 6) {
-      confirmationChance -= 15; 
-  } else if (day === 1 || day === 4) {
-      confirmationChance += 7; 
-  } else {
-      confirmationChance += 5; 
+      confirmationChance -= 10; 
   }
 
   if (wlNumber > 50 && day === 0 && quota === "TQWL") {

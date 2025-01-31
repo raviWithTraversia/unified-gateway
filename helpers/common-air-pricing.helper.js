@@ -521,14 +521,16 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
 }
 
 async function getPnrTicketCommonAPIBody(request) {
-  const reqItinerary = request.Itinerary?.[0];
+  // const reqItinerary = request.Itinerary?.[0];
     const reqSegment = request.Segments?.[0];
 
-    if (!reqItinerary || !reqSegment)
+    if (!reqSegment)
       throw new Error(
         "Invalid request data 'Itinerary[]' or 'Segment[]' missing"
       );
-  return{
+      const data=[]
+      for(var reqItinerary of request.Itinerary){
+      data.push({
     typeOfTrip: request.TypeOfTrip,
       credentialType: request.Authentication.CredentialType,
       travelType: convertTravelTypeForCommonAPI(request.TravelType),
@@ -546,13 +548,16 @@ async function getPnrTicketCommonAPIBody(request) {
           destination: reqSegment.Destination,
             itinerary: [
                 {
-                    recordLocator: request.PNR
+                    recordLocator: reqItinerary.PNR||"OS9OOQ"
                 }
             ]
         }
     ],
     "version": "1"
+})
 }
+
+return data
 }
 module.exports = {
   createAirPricingRequestBodyForCommonAPI,

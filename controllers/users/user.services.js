@@ -771,9 +771,9 @@ const getAllAgencyAndDistributer = async (req, res) => {
   try {
     let parentId = req.query.id;
     const searchQuery = req.query.search || ''; 
-    const page = parseInt(req.query.page) || 1; 
-    const limit = parseInt(req.query.limit) || 10;
-    var status=req.query.status||"All";
+    let page = parseInt(req.query.page) || 1; 
+    let limit = parseInt(req.query.limit) || 10;
+    var status=req.query.status;
 
 
     const findTmcUser=await Company.findById(parentId)
@@ -783,9 +783,9 @@ const getAllAgencyAndDistributer = async (req, res) => {
           { fname: { $regex: searchQuery, $options: 'i' } }, // Search by first name
           { lastName: { $regex: searchQuery, $options: 'i' } }, // Search by last name
           { "company_ID.companyName": { $regex: searchQuery, $options: 'i' } }, // Search by company name
-          {"company_ID.companyStatus":{ $regex: searchQuery, $options: 'i' }}
         ] }
       : {};
+    
      findStatus=  status=="All"?{}: {"company_ID.companyStatus":{ $eq:status}}
       
 
@@ -875,9 +875,10 @@ const getAllAgencyAndDistributer = async (req, res) => {
           preserveNullAndEmptyArrays: true
         }
       },
-      {$match:findStatus},
 
       {$match:searchCondition},
+      {$match:findStatus},
+
       {
         $lookup:{
           from:'agentconfigurations',
@@ -1004,7 +1005,6 @@ const getAllAgencyAndDistributer = async (req, res) => {
     //     data.push(usersData[i])
     //   }
     // }
-    // console.log(usersData,"")
     if (usersData.length != 0) {
       return {
         response: 'Agency Data fetch Sucessfully',

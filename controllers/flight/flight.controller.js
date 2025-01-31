@@ -219,7 +219,8 @@ const getRBD = async (req, res) => {
 const getPnrTicket=async(req,res)=>{
   try {
     const { result, error } = await getCommonPnrTicket(req.body);
-    if (error)
+    console.log(result, error)
+    if (error||result.length===0)
       return apiErrorres(
         res,
         errorResponse.SOMETHING_WRONG,
@@ -229,13 +230,12 @@ const getPnrTicket=async(req,res)=>{
 
     return apiSucessRes(
       res,
-      "Fetch RBD Result",
+      "Fetch Process Result",
       result,
       ServerStatusCode.SUCESS_CODE
     );
   }
 catch (error) {
-  console.log({ error });
     return apiErrorres(
       res,
     error.message || errorResponse.SOMETHING_WRONG,

@@ -54,8 +54,8 @@ module.exports.Config = {
       key: "WgPtB8",
     },
     TEST: {
-      salt: "4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW",
-      key: "gtKFFx",
+      salt: "osaj8q3wAIIeY3TZEAXQCkf94bqgOhyV",
+      key: "tEd2mk",
     },
     Live: {
       salt: "DlSTL0cw",

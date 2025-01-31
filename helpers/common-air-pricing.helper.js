@@ -548,7 +548,7 @@ async function getPnrTicketCommonAPIBody(request) {
           destination: reqSegment.Destination,
             itinerary: [
                 {
-                    recordLocator: reqItinerary.PNR||"OS9OOQ"
+                    recordLocator: reqItinerary.PNR
                 }
             ]
         }

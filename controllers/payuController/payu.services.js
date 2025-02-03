@@ -15,6 +15,7 @@ const BookingTemp = require("../../models/booking/BookingTemp");
 const { Config } = require("../../configs/config");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
+const { ObjectId } = require("mongodb");
 const {
   createLeadger,
   getTdsAndDsicount,
@@ -57,6 +58,15 @@ const payu = async (req, res) => {
       };
     }
 
+    const companyData=await User.aggregate([{$match:{company_ID:new ObjectId(companyId)}},{$lookup:{from:"roles",localField:"roleId",foreignField:"_id",as:"roleData"}},{$unwind:"$roleData"},
+{$match:{"roleData.type":"Default"}},{$project:{userId:1}}
+    ]);
+
+    if(companyData.length==0){
+      return {
+        response: "All field are required",
+      };
+    }
     // const key = 'gtKFFx';
     // const txnid = '4c14e4f2-91c6-4e4e-b942-de29e5210f5f';
     // const amount = 500;
@@ -64,6 +74,9 @@ const payu = async (req, res) => {
     // const firstname = 'Test';
     // const email = 'test@example.com';
     // const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
+    // console.log(companyData);
+
+
 
     const key =
       Config.MODE == "TEST"
@@ -90,7 +103,7 @@ const payu = async (req, res) => {
     const cartIdres = cartId;
 
     // Concatenate the transaction details
-    const hashString = `${key}|${txnid}|${amountres}|${productinfores}|${firstnameres}|${emailres}|${cartIdres}|${normalAmount}|${pgCharges}|0|${agentId}||||||${salt}`;
+    const hashString = `${key}|${txnid}|${amountres}|${productinfores}|${firstnameres}|${emailres}|${cartIdres}|${normalAmount}|${pgCharges}|0|${companyData[0].userId}||||||${salt}`;
 
     // Calculate the SHA-512 hash
     const hash = crypto.createHash("sha512").update(hashString).digest("hex");
@@ -110,7 +123,7 @@ const payu = async (req, res) => {
       udf2: normalAmount,
       udf3: pgCharges,
       udf4:0,
-      udf5:agentId
+      udf5:companyData[0].userId
     };
 
     // Add the hash to payment details
@@ -170,6 +183,7 @@ const payu = async (req, res) => {
     //   response: "Data does not exist",
     //   data: error,
     // };
+    console.log(error)
     throw error;
   }
 };

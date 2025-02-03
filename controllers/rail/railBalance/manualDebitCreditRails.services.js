@@ -344,54 +344,134 @@ const manualDebitCredit = async (req, res) => {
         const { parentId } = req.params;
         if (!parentId) return { response: "ID not found" };
 
-        const userId = new mongoose.Types.ObjectId(req.user._id);
-        const userData = await User.findById(userId).populate("roleId");
-        const findTmcUser = await Company.findById(parentId);
-        
-        let agencyQuery = (findTmcUser.type === "TMC") ? {} : { $or: [{ parent: parentId }, { _id: parentId }] };
-        if (findTmcUser.type === "TMC" && userData.roleId.type === "Manual") {
-            agencyQuery["agentconfigurations.salesInchargeIds"] = userId;
-        }
-        
-        const agency = await Company.find(agencyQuery);
-        if (!agency.length) return { response: "No Agency with this TMC" };
-
-        const ids = agency.map(item => item._id);
-        
-        const users = await User.aggregate([
-            { $match: { company_ID: { $in: ids } } },
-            { $lookup: { from: "companies", localField: "company_ID", foreignField: "_id", as: "company_ID" } },
-            { $unwind: { path: "$company_ID", preserveNullAndEmptyArrays: true } },
-            { $match: { "company_ID.type": { $ne: "TMC" } } },
-            { $lookup: { from: "roles", localField: "roleId", foreignField: "_id", as: "roleId" } },
-            { $unwind: { path: "$roleId", preserveNullAndEmptyArrays: true } },
-            { $match: { "roleId.type": "Default" } },
-            { $lookup: { from: "transactiondetails", localField: "_id", foreignField: "userId", as: "TransactionDate" } },
-            { $lookup: { from: "leadgers", localField: "_id", foreignField: "userId", as: "Deposite" } },
-            { $lookup: { from: "agentconfigurations", localField: "_id", foreignField: "userId", as: "agentconfigurations" } },
-            { $unwind: { path: "$agentconfigurations", preserveNullAndEmptyArrays: true } },
-            { $unwind: { path: "$TransactionDate", preserveNullAndEmptyArrays: true } },
-            { $unwind: { path: "$Deposite", preserveNullAndEmptyArrays: true } },
-            { $sort: { "TransactionDate.updatedAt": -1 } },
-            {
-                $group: {
-                    _id: "$_id",
-                    company_ID: { $first: { _id: "$company_ID._id", companyName: "$company_ID.companyName" } },
-                    phoneNumber: { $first: "$phoneNumber" },
-                    email: { $first: "$email" },
-                    title: { $first: "$title" },
-                    fname: { $first: "$fname" },
-                    lastName: { $first: "$lastName" },
-                    lastModifiedDate: { $first: "$lastModifiedDate" },
-                    last_LoginDate: { $first: "$last_LoginDate" },
-                    userId: { $first: "$userId" },
-                    salesInchargeId: { $first: "$agentconfigurations.salesInchargeIds" },
-                    DepositeDate: { $first: "$Deposite.updatedAt" },
-                    TransactionDate: { $first: "$TransactionDate.updatedAt" }
-                }
+       
+        let agency;
+  
+      const userId = new mongoose.Types.ObjectId(req.user._id);
+      const userData = await User.findById(userId).populate("roleId");
+  
+      const findTmcUser = await Company.findById(parentId);
+      let matchingData = {};
+      if (findTmcUser.type == "TMC" && userData.roleId.type == "Default") {
+        agency = await Company.find();
+        matchingData = { $sort: { "userId": -1 } };
+      } else if (findTmcUser.type == "TMC" && userData.roleId.type == "Manual") {
+        agency = await Company.find();
+        matchingData = {
+          $match: {
+            $and: [
+              { "agentconfigurations.salesInchargeIds": userId }  // Apply salesInchargeIds condition
+            ]
+          }
+        };
+      } else {
+        agency = await Company.find({
+          $or: [
+            { parent: parentId },
+            { _id: parentId }
+          ]
+        });
+        matchingData = { $sort: { "userId": -1 } };
+      }
+  
+      if (agency.length == 0) {
+        return {
+          response: 'No Agency with this TMC'
+        };
+      }
+  
+      const ids = agency.map(item => new mongoose.Types.ObjectId(item._id));
+  
+      const users = await User.aggregate([
+        { $match: { company_ID: { $in: ids } } },
+        {
+          $lookup: {
+            from: 'companies',
+            localField: 'company_ID',
+            foreignField: '_id',
+            as: 'company_ID'
+          }
+        },
+        { $unwind: { path: '$company_ID', preserveNullAndEmptyArrays: true } },
+        {
+          $match: { "company_ID.type": { $ne: "TMC" } }
+        },
+        {
+          $lookup: {
+            from: 'roles',
+            localField: 'roleId',
+            foreignField: '_id',
+            as: 'roleId'
+          }
+        },
+        {
+          $unwind: {
+            path: '$roleId',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        { $match: { "roleId.type": { $eq: "Default" } } },
+        {
+          $lookup: {
+            from: "transactiondetails",
+            localField: "_id",
+            foreignField: "userId",
+            as: "TransactionDate"
+          }
+        },
+        {
+          $lookup: {
+            from: "leadgers",
+            localField: "_id",
+            foreignField: "userId",
+            as: "Deposite"
+          }
+        },
+        {
+          $lookup: {
+            from: "agentconfigurations",
+            localField: "_id",
+            foreignField: "userId",
+            as: "agentconfigurations"
+          }
+        },
+        { $unwind: { path: "$agentconfigurations", preserveNullAndEmptyArrays: true } },
+        matchingData,
+        { $unwind: { path: "$TransactionDate", preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: "$Deposite", preserveNullAndEmptyArrays: true } },
+        {
+          $sort: {
+            'TransactionDate': -1,
+          }
+        },
+        {
+          $group: {
+            _id: "$_id",
+            company_ID: {
+              $first: {
+                _id: "$company_ID._id",
+                companyName: "$company_ID.companyName",
+              }
             },
-            {$sort:{userId:1}},
-        ], { allowDiskUse: true });
+            phoneNumber: { $first: "$phoneNumber" },
+            email: { $first: "$email" },
+            title: { $first: "$title" },
+            fname: { $first: "$fname" },
+            lastName: { $first: "$lastName" },
+            lastModifiedDate: { $first: "$lastModifiedDate" },
+            last_LoginDate: { $first: "$last_LoginDate" },
+            userId: { $first: "$userId" },
+            salesInchargeId: { $first: "$agentconfigurations.salesInchargeIds" },
+            DepositeDate: { $first: "$Deposite.updatedAt" },
+            TransactionDate: { $first: "$TransactionDate.updatedAt" }
+          }
+        },
+        {$sort:{userId:1}},
+      ], { allowDiskUse: true });
+  
+      
+        
+       
         
         await Promise.all(users.map(async (element) => {
             const depositData = await getLatestCreditTransaction(element._id);

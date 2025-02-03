@@ -770,11 +770,13 @@ const getUser = async (req, res) => {
 const getAllAgencyAndDistributer = async (req, res) => {
   try {
     let parentId = req.query.id;
+    let sales_In_ChargeId=req.query.sales_In_ChargeId
     const searchQuery = req.query.search || ''; 
     let page = parseInt(req.query.page) || 1; 
     let limit = parseInt(req.query.limit) || 10;
     var status=req.query.status;
-
+const findSalesIncharge=await User.findOne({_id:sales_In_ChargeId,sales_In_Charge:true})
+const findSalesInchargeData=findSalesIncharge?{"agentconfigurationsData.salesInchargeIds":new mongoose.Types.ObjectId(sales_In_ChargeId)}:{}
 
     const findTmcUser=await Company.findById(parentId)
     const skip = (page - 1) * limit;
@@ -805,6 +807,20 @@ const getAllAgencyAndDistributer = async (req, res) => {
         }
       },
       {
+      $lookup:{
+        from:"agentconfigurations",
+        localField:"_id",
+        foreignField:"userId",
+        as:"agentconfigurationsData"
+      }
+      },
+      {
+        $unwind: {
+          path: '$agentconfigurationsData',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
         $addFields: {
           matchCondition: {
             $switch: {
@@ -820,7 +836,8 @@ const getAllAgencyAndDistributer = async (req, res) => {
                 {
                   case: { $eq: ["$company_ID._id", new mongoose.Types.ObjectId(parentId)] }, // Second condition (else if)
                   then: true 
-                }
+                },
+                
               ],
               default: false // Result if no conditions match
             }
@@ -832,7 +849,11 @@ const getAllAgencyAndDistributer = async (req, res) => {
           matchCondition: true
         }
       },
-      { 
+
+      {
+      $match:findSalesInchargeData
+       },
+       {
         $lookup: {
           from: 'roles', // Name of the roles collection
           localField: 'roleId',
@@ -858,6 +879,12 @@ const getAllAgencyAndDistributer = async (req, res) => {
       { 
         $unwind: {
           path: '$cityId',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+    { 
+        $unwind: {
+          path: '$company_ID.parent',
           preserveNullAndEmptyArrays: true
         }
       },

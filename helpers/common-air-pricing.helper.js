@@ -473,40 +473,41 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
           characteristics,
           paid,
         } = seatFacilities;
-
-        let DDate = "",
-          ssrProperty = [];
-        if (segmentsList?.origin?.date) {
-          DDate = moment(segmentsList?.origin?.date, "DD/MM/YYYY").format(
-            "YYYY-MM-DD"
-          );
-          DDate = DDate + "T00:00:00.000Z";
-        }
-        if (characteristics?.length && characteristics.includes("Aisle seat"))
-          ssrProperty.push({
-            SKey: "AISLE",
-            SValue: "True",
-          });
-        facilitiesArrayList.push({
-          Compartemnt: compartment,
-          Type: type || "Seat",
-          Seatcode: seatCode,
-          Availability: availability == "Available" ? true : false,
-          Paid: paid,
-          Currency: currency,
-          Characteristics: characteristics,
-          TotalPrice: amount,
-          Key: key,
-          FCode: segmentsList?.airlineCode || "",
-          FNo: segmentsList?.flightNumber || "",
-          FType: "",
-          Src: segmentsList?.origin?.code || "",
-          Des: segmentsList?.destination?.code || "",
-          Group: "",
-          DDate: DDate,
-          Deck: deck,
-          SsrProperty: ssrProperty,
-        });
+if (seatCode) {
+  let DDate = "",
+    ssrProperty = [];
+  if (segmentsList?.origin?.date) {
+    DDate = moment(segmentsList?.origin?.date, "DD/MM/YYYY").format(
+      "YYYY-MM-DD"
+    );
+    DDate = DDate + "T00:00:00.000Z";
+  }
+  if (characteristics?.length && characteristics.includes("Aisle seat"))
+    ssrProperty.push({
+      SKey: "AISLE",
+      SValue: "True",
+    });
+  facilitiesArrayList.push({
+    Compartemnt: compartment,
+    Type: type || "Seat",
+    Seatcode: seatCode,
+    Availability: availability == "Available" ? true : false,
+    Paid: paid,
+    Currency: currency,
+    Characteristics: characteristics,
+    TotalPrice: amount,
+    Key: key,
+    FCode: segmentsList?.airlineCode || "",
+    FNo: segmentsList?.flightNumber || "",
+    FType: "",
+    Src: segmentsList?.origin?.code || "",
+    Des: segmentsList?.destination?.code || "",
+    Group: "",
+    DDate: DDate,
+    Deck: deck,
+    SsrProperty: ssrProperty,
+  });
+}
       });
       if (facilitiesArrayList?.length) {
         seatMapRowColumnList.push({

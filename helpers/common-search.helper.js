@@ -188,6 +188,12 @@ const defaultFareRuleForKafila = {
 };
 
 function sumDurationForKafila(airSegments = [], type = "travelTime") {
+  if (type === "travelTime") {
+    const travelTime = airSegments?.[0]?.travelTime?.split?.(":") ?? [];
+    if (travelTime?.length === 3)
+      return `${travelTime[0]}d:${travelTime[1]}h:${travelTime[2]}m`;
+    else return `0d:${travelTime[0]}h:${travelTime[1]}m`;
+  }
   const duration = airSegments.reduce(
     (acc, segment) => {
       if (!segment[type]) return acc;

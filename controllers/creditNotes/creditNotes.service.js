@@ -599,6 +599,10 @@ const editRefundCancelation = async (req, res) => {
   try {
     const { id } = req.query;
     const { AirlineCancellationFee, AirlineRefund, ServiceFee, remarks, bookingId, RefundableAmount } = req.body;
+
+    if(RefundableAmount){
+       
+    }
     
     const findCancelationData = await CancelationBooking.findById(id);
     if (!findCancelationData) {

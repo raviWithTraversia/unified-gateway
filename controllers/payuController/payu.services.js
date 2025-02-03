@@ -90,7 +90,7 @@ const payu = async (req, res) => {
     const cartIdres = cartId;
 
     // Concatenate the transaction details
-    const hashString = `${key}|${txnid}|${amountres}|${productinfores}|${firstnameres}|${emailres}|${cartIdres}|${normalAmount}|${pgCharges}||||||||${salt}`;
+    const hashString = `${key}|${txnid}|${amountres}|${productinfores}|${firstnameres}|${emailres}|${cartIdres}|${normalAmount}|${pgCharges}|0|${agentId}||||||${salt}`;
 
     // Calculate the SHA-512 hash
     const hash = crypto.createHash("sha512").update(hashString).digest("hex");
@@ -109,6 +109,8 @@ const payu = async (req, res) => {
       udf1: cartIdres,
       udf2: normalAmount,
       udf3: pgCharges,
+      udf4:0,
+      udf5:agentId
     };
 
     // Add the hash to payment details

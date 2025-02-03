@@ -15,7 +15,7 @@ const { saveLogInFile } = require("../utils/save-log");
 const {convertItineraryForKafila} = require("../helpers/common-search.helper");
 const {convertPaxDetailsForKafila}=require("../helpers/common-import-pnr.helper");
 
-module.exports.getCommonPnrTicket = async (request) => {
+module.exports.getCommonPnrTicket = async (request,res) => {
   var errorMessage=""
   try {
     const requestBody = await createPnrTicketRequestBody(request);
@@ -65,7 +65,6 @@ module.exports.getCommonPnrTicket = async (request) => {
     });
 
     const results = await Promise.allSettled(promises);
-    console.log(results)
 
     const successfulResults = await Promise.all(
       results
@@ -73,7 +72,7 @@ module.exports.getCommonPnrTicket = async (request) => {
         .map(({ value }) => holdBookingProcessPayment(value.result))
     );
 
-    return { result: successfulResults };
+    return { result: [...successfulResults]};
   } catch (err) {
     console.error("Error:", err);
     return { error:errorMessage || err.message };
@@ -92,299 +91,11 @@ module.exports.getCommonPnrTicket = async (request) => {
   }
 
 
-  async function holdBookingProcessPayment(items) {
-    const item={
-      "Status": "Confirm",
-      "PNR": "OS9OOQ",
-      "Itinerary": {
-          "UniqueKey": "852920308",
-          "FreeSeat": false,
-          "FreeMeal": true,
-          "SessionKey": "",
-          "CarbonEmission": "165.670168KG CO2",
-          "InPolicy": false,
-          "IsRecommended": true,
-          "UID": "9029c8c1-eb88-4585-904d-e51939d637d5",
-          "BaseFare": 0,
-          "Taxes": 0,
-          "TotalPrice": 0,
-          "OfferedPrice": 0,
-          "GrandTotal": 0,
-          "Currency": "INR",
-          "FareType": "RP",
-          "Stop": 1,
-          "IsVia": true,
-          "TourCode": "",
-          "PricingMethod": "",
-          "FareFamily": "Regular Fare",
-          "PromotionalFare": false,
-          "FareFamilyDN": null,
-          "PromotionalCode": "",
-          "PromoCodeType": "",
-          "RefundableFare": false,
-          "IndexNumber": 1,
-          "Provider": "1A",
-          "ValCarrier": "SV",
-          "LastTicketingDate": "",
-          "TravelTime": "",
-          "PriceBreakup": [
-              {},
-              {},
-              {}
-          ],
-          "Sectors": [
-              {
-                  "IsConnect": false,
-                  "AirlineCode": "SV",
-                  "AirlineName": "",
-                  "Class": "",
-                  "CabinClass": "",
-                  "BookingCounts": "",
-                  "NoSeats": "",
-                  "FltNum": "761",
-                  "EquipType": "773",
-                  "FlyingTime": "",
-                  "TravelTime": "",
-                  "TechStopOver": null,
-                  "layover": "",
-                  "Status": "",
-                  "OperatingCarrier": null,
-                  "MarketingCarrier": null,
-                  "BaggageInfo": "",
-                  "HandBaggage": "",
-                  "TransitTime": null,
-                  "MealCode": null,
-                  "key": "1",
-                  "Distance": "",
-                  "ETicket": "No",
-                  "ChangeOfPlane": "",
-                  "ParticipantLevel": "",
-                  "OptionalServicesIndicator": false,
-                  "AvailabilitySource": "",
-                  "Group": "0",
-                  "LinkAvailability": false,
-                  "PolledAvailabilityOption": "",
-                  "FareBasisCode": "",
-                  "HostTokenRef": "{\"status\":\"HK\"}",
-                  "APISRequirementsRef": "",
-                  "Departure": {
-                      "Terminal": "3",
-                      "Date": "2025-02-22",
-                      "Time": "18:30",
-                      "Day": "Saturday",
-                      "DateTimeStamp": "2025-02-22T18:30:00",
-                      "Code": "DEL",
-                      "Name": "Indira Gandhi International Airport",
-                      "CityCode": "DEL",
-                      "CityName": "Delhi",
-                      "CountryCode": "IN",
-                      "CountryName": "India"
-                  },
-                  "Arrival": {
-                      "Terminal": "4",
-                      "Date": "2025-02-22",
-                      "Time": "21:05",
-                      "Day": "Saturday",
-                      "DateTimeStamp": "2025-02-22T21:05:00",
-                      "Code": "RUH",
-                      "Name": "King Khalid International Airport",
-                      "CityCode": "RUH",
-                      "CityName": "Riyadh",
-                      "CountryCode": "SA",
-                      "CountryName": "Saudi Arabia"
-                  },
-                  "OI": [],
-                  "ProductClass": ""
-              },
-              {
-                  "IsConnect": false,
-                  "AirlineCode": "SV",
-                  "AirlineName": "",
-                  "Class": "",
-                  "CabinClass": "",
-                  "BookingCounts": "",
-                  "NoSeats": "",
-                  "FltNum": "592",
-                  "EquipType": "320",
-                  "FlyingTime": "",
-                  "TravelTime": "",
-                  "TechStopOver": null,
-                  "layover": "",
-                  "Status": "",
-                  "OperatingCarrier": null,
-                  "MarketingCarrier": null,
-                  "BaggageInfo": "",
-                  "HandBaggage": "",
-                  "TransitTime": null,
-                  "MealCode": null,
-                  "key": "2",
-                  "Distance": "",
-                  "ETicket": "No",
-                  "ChangeOfPlane": "",
-                  "ParticipantLevel": "",
-                  "OptionalServicesIndicator": false,
-                  "AvailabilitySource": "",
-                  "Group": "0",
-                  "LinkAvailability": false,
-                  "PolledAvailabilityOption": "",
-                  "FareBasisCode": "",
-                  "HostTokenRef": "{\"status\":\"HK\"}",
-                  "APISRequirementsRef": "",
-                  "Departure": {
-                      "Terminal": "4",
-                      "Date": "2025-02-23",
-                      "Time": "00:05",
-                      "Day": "Sunday",
-                      "DateTimeStamp": "2025-02-23T00:05:00",
-                      "Code": "RUH",
-                      "Name": "King Khalid International Airport",
-                      "CityCode": "RUH",
-                      "CityName": "Riyadh",
-                      "CountryCode": "SA",
-                      "CountryName": "Saudi Arabia"
-                  },
-                  "Arrival": {
-                      "Terminal": "1",
-                      "Date": "2025-02-23",
-                      "Time": "03:00",
-                      "Day": "Sunday",
-                      "DateTimeStamp": "2025-02-23T03:00:00",
-                      "Code": "DXB",
-                      "Name": "Dubai International Airport",
-                      "CityCode": "DXB",
-                      "CityName": "Dubai",
-                      "CountryCode": "AE",
-                      "CountryName": "United Arab Emirates"
-                  },
-                  "OI": [],
-                  "ProductClass": ""
-              }
-          ],
-          "FareRule": null,
-          "HostTokens": null,
-          "Key": "",
-          "SearchID": "ee6051da-22f0-4b54-b668-ad83abc05989",
-          "TRCNumber": null,
-          "TraceId": "8e75c80b-b87c-4b1c-b2aa-e20aca8af367",
-          "OI": null,
-          "apiItinerary": {
-              "PId": 1,
-              "Id": 1,
-              "TId": 1,
-              "FCode": "SV",
-              "FNo": "761",
-              "DDate": "2025-02-22T18:30:00",
-              "ADate": "2025-02-23T03:00:00",
-              "Dur": "",
-              "Stop": 1,
-              "Sector": "DEL,DXB",
-              "Itinerary": [
-                  {
-                      "Id": 0,
-                      "Src": "DEL",
-                      "SrcName": "Delhi",
-                      "Des": "RUH",
-                      "DesName": "Riyadh",
-                      "FLogo": "",
-                      "FCode": "SV",
-                      "FNo": "761",
-                      "DDate": "2025-02-22T18:30:00",
-                      "ADate": "2025-02-22T21:05:00",
-                      "DTrmnl": "3",
-                      "ATrmnl": "4",
-                      "DArpt": "Indira Gandhi International Airport",
-                      "AArpt": "King Khalid International Airport",
-                      "Dur": "",
-                      "layover": "",
-                      "FBasis": "",
-                      "FlightType": "",
-                      "OI": null
-                  },
-                  {
-                      "Id": 1,
-                      "Src": "RUH",
-                      "SrcName": "Riyadh",
-                      "Des": "DXB",
-                      "DesName": "Dubai",
-                      "FLogo": "",
-                      "FCode": "SV",
-                      "FNo": "592",
-                      "DDate": "2025-02-23T00:05:00",
-                      "ADate": "2025-02-23T03:00:00",
-                      "DTrmnl": "4",
-                      "ATrmnl": "1",
-                      "DArpt": "King Khalid International Airport",
-                      "AArpt": "Dubai International Airport",
-                      "Dur": "",
-                      "layover": "",
-                      "FBasis": "",
-                      "FlightType": "",
-                      "OI": null
-                  }
-              ],
-              "Fare": {
-                  "GrandTotal": 0,
-                  "BasicTotal": 0,
-                  "YqTotal": 0,
-                  "TaxesTotal": 0,
-                  "Adt": null,
-                  "Chd": null,
-                  "Inf": null,
-                  "OI": null
-              },
-              "FareRule": null,
-              "Alias": "Regular Fare",
-              "FareType": null,
-              "PFClass": null,
-              "OI": null,
-              "Offer": null,
-              "Deal": {
-                  "NETFARE": 0,
-                  "TDISC": 0,
-                  "TDS": 0,
-                  "GST": 0,
-                  "DISCOUNT": {
-                      "DIS": 0,
-                      "SF": 0,
-                      "PDIS": 0,
-                      "CB": 0
-                  }
-              }
-          }
-      },
-      "Passengers": [
-          {
-              "PaxType": "ADT",
-              "passengarSerialNo": 1,
-              "Title": "",
-              "FName": "SUDEEP MR",
-              "LName": "SINGH",
-              "Gender": "",
-              "Dob": "01/01/1996",
-              "Meal": [],
-              "Baggage": [],
-              "Seat": [],
-              "Optional": {
-                  "TicketDetails": [
-                      {
-                          "TicketNumber": "0655904341323",
-                          "SRC": "DEL",
-                          "DES": "DXB"
-                      }
-                  ],
-                  "EMD": [],
-                  "PassportNo": "TR12345678",
-                  "PassportExpiryDate": "2025-00-28",
-                  "FrequentFlyerNo": "",
-                  "Nationality": "IN",
-                  "ResidentCountry": "IN"
-              }
-          }
-      ]
-  }
+  async function holdBookingProcessPayment(item) {
+    
     // Check if booking is confirmed
     if (item.Status !== "Confirm") {
-      return {};
+      return "Hold From Api Side";
     }
   
     // Fetch booking details
@@ -392,6 +103,7 @@ module.exports.getCommonPnrTicket = async (request) => {
     if (!bookingData) return "Booking data not found";
   
     // Fetch agent configuration
+
     const getAgentConfig = await agentConfig.findOne({ userId: bookingData?.userId });
     if (!getAgentConfig) return "Agent configuration not found";
   
@@ -403,6 +115,7 @@ module.exports.getCommonPnrTicket = async (request) => {
       return "Your Balance is not sufficient";
     }
   
+    let titles = ["Mr", "MR", "mr", "Mrs", "Miss", "Dr", "Ms"];
     // Update booking status
     await BookingDetails.findByIdAndUpdate(
       bookingData._id,
@@ -419,7 +132,8 @@ module.exports.getCommonPnrTicket = async (request) => {
   
     // Generate ledger and transaction entries
     const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
-    const gtTsAdDnt = await getTdsAndDsicount(bookingData.itinerary);
+    
+    const gtTsAdDnt = await getTdsAndDsicount([bookingData.itinerary]); 
   
     await Promise.all([
       ledger.create({
@@ -434,7 +148,7 @@ module.exports.getCommonPnrTicket = async (request) => {
         transactionType: "DEBIT",
         runningAmount: newBalance,
         remarks: "Booking amount deducted from your account.",
-        transactionBy: getuserDetails._id,
+        transactionBy: getAgentConfig.userId,
         cartId: bookingData.bookingId,
       }),
       transaction.create({
@@ -450,11 +164,12 @@ module.exports.getCommonPnrTicket = async (request) => {
     ]);
   
     // Fetch and update passenger preferences
-    const getPassengersPreference = await passengerPreferenceModel.findOne({ bid: bookingData._id });
-    if (!getPassengersPreference) return { message: "Passenger preferences not found" };
+    const getPassengersPreference = await passengerPreferenceModel.findOne({ bookingId: bookingData.bookingId });
+    console.log(getPassengersPreference,"getPassengersPreference");
+    if (!getPassengersPreference) return  "Passenger preferences not found"
   
     const { Passengers } = getPassengersPreference;
-    if (!Passengers || !Passengers.length) return { message: "No passengers found" };
+    if (!Passengers || !Passengers.length) return  "No passengers found" 
   
     const segmentMap = {};
     Passengers.forEach((passenger) => {
@@ -466,10 +181,11 @@ module.exports.getCommonPnrTicket = async (request) => {
     await Promise.all(
       Passengers.map(async (passenger) => {
         const selectedPax = item.Passengers.find(
-          (p) => p.FName === passenger.FName && p.LName === passenger.LName
-        );
-  
+          (p) => p.FName.split(" ").filter(word => !titles.includes(word)).join(" ") == passenger.FName.toUpperCase() && p.LName == passenger.LName.toUpperCase()
+      );
+        
         if (!selectedPax) return passenger;
+
   
         passenger.Status = "CONFIRMED";
         passenger.Optional.EMDDetails = [

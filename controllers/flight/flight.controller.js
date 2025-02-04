@@ -215,8 +215,18 @@ const getRBD = async (req, res) => {
 
 const getPnrTicket = async (req, res) => {
   try {
-    const { result, error } = await getCommonPnrTicket(req.body);
-    if (error)
+    const { result, error } = await getCommonPnrTicket(req.body,res);
+    const errorMessage=["Your Balance is not sufficient","Booking data not found","Agent configuration not found","Passenger preferences not found","No passengers found","Hold From Api Side"];
+    if(typeof result[0] === "string" && errorMessage.includes(result[0])){
+      return apiErrorres(
+        res,
+       result[0]|| errorResponse.SOMETHING_WRONG,
+        ServerStatusCode.SERVER_ERROR,
+        true
+      );
+    }
+
+    if (error||result.length===0)
       return apiErrorres(
         res,
         errorResponse.SOMETHING_WRONG,
@@ -226,7 +236,7 @@ const getPnrTicket = async (req, res) => {
 
     return apiSucessRes(
       res,
-      "Fetch RBD Result",
+      "Fetch Process Result",
       result,
       ServerStatusCode.SUCESS_CODE
     );

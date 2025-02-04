@@ -345,34 +345,81 @@ const manualDebitCredit = async (req, res) => {
         if (!parentId) return { response: "ID not found" };
 
         const userId = new mongoose.Types.ObjectId(req.user._id);
-        const userData = await User.findById(userId).populate("roleId");
+        const userData = await User.findOne({_id:userId,sales_In_Charge:true}).populate("roleId");
         const findTmcUser = await Company.findById(parentId);
-        
-        let agencyQuery = (findTmcUser.type === "TMC") ? {} : { $or: [{ parent: parentId }, { _id: parentId }] };
-        if (findTmcUser.type === "TMC" && userData.roleId.type === "Manual") {
-            agencyQuery["agentconfigurations.salesInchargeIds"] = userId;
-        }
-        
-        const agency = await Company.find(agencyQuery);
-        if (!agency.length) return { response: "No Agency with this TMC" };
-
-        const ids = agency.map(item => item._id);
+        const findSalesInchargeData=userData?{"agentconfigurationsData.salesInchargeIds":new mongoose.Types.ObjectId(userId)}:{}
+      
         
         const users = await User.aggregate([
-            { $match: { company_ID: { $in: ids } } },
-            { $lookup: { from: "companies", localField: "company_ID", foreignField: "_id", as: "company_ID" } },
-            { $unwind: { path: "$company_ID", preserveNullAndEmptyArrays: true } },
+             { 
+                    $lookup: {
+                      from: 'companies', // Name of the companies collection
+                      localField: 'company_ID',
+                      foreignField: '_id',
+                      as: 'company_ID'
+                    }
+                  },
+                  { 
+                    $unwind: {
+                      path: '$company_ID',
+                      preserveNullAndEmptyArrays: true
+                    }
+                  },
+                  {
+                  $lookup:{
+                    from:"agentconfigurations",
+                    localField:"_id",
+                    foreignField:"userId",
+                    as:"agentconfigurationsData"
+                  }
+                  },
+                  {
+                    $unwind: {
+                      path: '$agentconfigurationsData',
+                      preserveNullAndEmptyArrays: true
+                    }
+                  },
+                  {
+                    $addFields: {
+                      matchCondition: {
+                        $switch: {
+                          branches: [
+                            {
+                              case: { $eq: [findTmcUser.type, "TMC"] }, // First condition
+                              then: { $in: ["$company_ID.type", ["TMC", "Agency", "Distributer"]] } // Result if true
+                            },
+                            {
+                              case: { $eq: ["$company_ID.parent", new mongoose.Types.ObjectId(parentId)] }, // Second condition (else if)
+                              then: true // Result if true
+                            },
+                            {
+                              case: { $eq: ["$company_ID._id", new mongoose.Types.ObjectId(parentId)] }, // Second condition (else if)
+                              then: true 
+                            },
+                            
+                          ],
+                          default: false // Result if no conditions match
+                        }
+                      }
+                    }
+                  },
+                  {
+                    $match: {
+                      matchCondition: true
+                    }
+                  },
             { $match: { "company_ID.type": { $ne: "TMC" } } },
             { $lookup: { from: "roles", localField: "roleId", foreignField: "_id", as: "roleId" } },
             { $unwind: { path: "$roleId", preserveNullAndEmptyArrays: true } },
             { $match: { "roleId.type": "Default" } },
+            { $match: findSalesInchargeData},
+
             { $lookup: { from: "transactiondetails", localField: "_id", foreignField: "userId", as: "TransactionDate" } },
             { $lookup: { from: "leadgers", localField: "_id", foreignField: "userId", as: "Deposite" } },
-            { $lookup: { from: "agentconfigurations", localField: "_id", foreignField: "userId", as: "agentconfigurations" } },
-            { $unwind: { path: "$agentconfigurations", preserveNullAndEmptyArrays: true } },
-            { $unwind: { path: "$TransactionDate", preserveNullAndEmptyArrays: true } },
+           { $unwind: { path: "$TransactionDate", preserveNullAndEmptyArrays: true } },
             { $unwind: { path: "$Deposite", preserveNullAndEmptyArrays: true } },
             { $sort: { "TransactionDate.updatedAt": -1 } },
+
             {
                 $group: {
                     _id: "$_id",

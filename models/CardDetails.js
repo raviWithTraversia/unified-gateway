@@ -1,3 +1,4 @@
+const { ref } = require('joi');
 const mongoose = require('mongoose');
 
 const CardDetailsSchema = new mongoose.Schema({
@@ -58,8 +59,8 @@ const CardDetailsSchema = new mongoose.Schema({
         required : true
     },
     ApplicableOnBookingSupplier : {
-        type : String,
-        required : true
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'SupplierCode',
     },
     cvv : {
         type : String,

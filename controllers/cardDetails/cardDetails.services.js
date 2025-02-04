@@ -129,7 +129,7 @@ const getCardDetails = async (req,res) => {
     try{
         // const {cardId} = req.query;
         
-      let cardDetails = await cardDetailModel.find().populate('stateId').populate('cityId');
+      let cardDetails = await cardDetailModel.find().populate('stateId').populate('cityId').populate('ApplicableOnBookingSupplier');
       if(cardDetails){
         return {
             response : "Card Details Fetch Sucessfully",

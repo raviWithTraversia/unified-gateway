@@ -2,6 +2,9 @@ const { default: axios } = require("axios");
 const { v4: uuidv4 } = require("uuid");
 const { Config } = require("../configs/config");
 const { convertItineraryForKafila } = require("./common-search.helper");
+const {
+  getApplyAllCommercial,
+} = require("../controllers/flight/flight.commercial");
 
 async function importPNRHelper(request) {
   try {
@@ -34,17 +37,38 @@ async function importPNRHelper(request) {
     };
     const url = `${Config.TEST.additionalFlightsBaseURL}/pnr/importPNR`;
     console.log({ importURL: url });
+
     const pnrResponse = await axios.post(url, importPNRRequest);
     const result = pnrResponse.data;
-    const journey = result.data.journey[0];
-    const itinerary = journey.itinerary[0];
-    console.log({ itinerary });
-    const convertedItinerary = convertItineraryForKafila({
+    const journey = result.data?.journey?.[0];
+    const itinerary = journey?.itinerary?.[0];
+
+    const isInternationalTrip = itinerary.airSegments.some(
+      (segment) =>
+        segment.arrival?.countryCode != segment.departure?.countryCode
+    );
+
+    let convertedItinerary = convertItineraryForKafila({
       itinerary,
       idx: 1,
       response: result.data,
       uniqueKey: result.data.uniqueKey,
     });
+
+    try {
+      convertedItinerary = await getApplyAllCommercial(
+        request.Authentication,
+        isInternationalTrip ? "International" : "Domestic",
+        [convertedItinerary]
+      );
+      if (convertedItinerary?.length)
+        convertedItinerary = convertedItinerary[0];
+    } catch (error) {
+      console.log({ errorApplyingCommercial: error });
+      return {
+        error: `Error Applying Commercials: ${error.message}`,
+      };
+    }
     const segmentGroup = groupSegments(itinerary.airSegments);
     const Passengers = convertPaxDetailsForKafila(
       journey.travellerDetails,
@@ -64,7 +88,14 @@ async function importPNRHelper(request) {
   } catch (error) {
     console.dir({ errRes: error.response?.data }, { depth: null });
     console.log({ errorInImportPNRHelper: error });
-    return { error: { message: error.message } };
+    return {
+      error: {
+        message:
+          error.response?.data?.reason ||
+          error.response?.data?.message ||
+          error.message,
+      },
+    };
   }
 }
 

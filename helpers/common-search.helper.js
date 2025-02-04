@@ -46,7 +46,6 @@ function convertItineraryForKafila({
   uniqueKey,
   apiItinerary = true,
 }) {
-  console.log({ itinerary });
   const convertedItinerary = {
     UniqueKey: uniqueKey,
     FreeSeat: itinerary.freeSeat,

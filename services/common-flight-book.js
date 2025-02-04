@@ -17,11 +17,12 @@ module.exports.commonFlightBook = async function (
   saveLogInFile("request-itinerary.json", reqItinerary);
   saveLogInFile("request.json", request);
   try {
-    const { requestBody, error } = createAirBookingRequestBodyForCommonAPI(
-      request,
-      reqSegment,
-      reqItinerary
-    );
+    const { requestBody, error } =
+      await createAirBookingRequestBodyForCommonAPI(
+        request,
+        reqSegment,
+        reqItinerary
+      );
     if (error) return { error };
     const url =
       Config[request?.SearchRequest?.Authentication?.CredentialType ?? "TEST"]

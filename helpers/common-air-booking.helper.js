@@ -6,8 +6,11 @@ const {
   convertPriceBreakupForCommonAPI,
 } = require("./common-air-pricing.helper");
 const { convertTravelTypeForCommonAPI } = require("./common-search.helper");
+const SupplierCode = require("../models/supplierCode");
+const CardDetailsModel = require("../models/CardDetails");
+const { monthMap } = require("../utils/month-map");
 
-function createAirBookingRequestBodyForCommonAPI(
+async function createAirBookingRequestBodyForCommonAPI(
   request,
   reqSegment,
   reqItinerary
@@ -150,21 +153,26 @@ function createAirBookingRequestBodyForCommonAPI(
       isHoldBooking: request.isHoldBooking || false,
       fareMasking: false,
     };
+    const { cardDetails, error: cardDetailsError } = await getCardDetails({
+      supplierCode: requestBody.journey?.[0]?.itinerary?.[0]?.provider,
+      credentialType: requestBody.credentialType,
+    });
+    saveLogInFile("card-info.json", { cardDetails, cardDetailsError });
+    if (cardDetails) requestBody.journey[0].cardInfo = cardDetails;
+
     // card info for live bookings
-    if (
-      request.credentialType === "LIVE" &&
-      request.journey[0]?.itinerary?.[0]?.provider == "1A"
-    ) {
-      request.journey[0].cardInfo = {
-        // FP CCVI4780080140169608/D0827
-        // cardInfo: {
-        cardNumber: "4780080140169608",
-        code: "VI",
-        expiryYear: "27",
-        expiryMonth: "08",
-        // },
-      };
-    }
+    // if (
+    //   request.credentialType === "LIVE" &&
+    //   request.journey[0]?.itinerary?.[0]?.provider == "1A"
+    // ) {
+    //   request.journey[0].cardInfo = {
+    //     // FP CCVI4780080140169608/D0827
+    //     cardNumber: "4780080140169608",
+    //     code: "VI",
+    //     expiryYear: "27",
+    //     expiryMonth: "08",
+    //   };
+    // }
     saveLogInFile("book-request-body.json", requestBody);
     return { requestBody };
   } catch (error) {
@@ -330,7 +338,8 @@ function convertBookingResponse(request, response, reqSegment) {
       ),
     };
     data.BookingInfo.IsError = data.Status == "Failed";
-    data.BookingInfo.CurrentStatus =data.Status=="Hold"?"HOLD":data.Status;
+    data.BookingInfo.CurrentStatus =
+      data.Status == "Hold" ? "HOLD" : data.Status;
     if (travelerDetails?.[0]?.eTicket?.length)
       data.BookingInfo.CurrentStatus = "CONFIRMED";
     data.ErrorMessage = data.Status == "Failed" ? response?.message ?? "" : "";
@@ -415,6 +424,50 @@ function updatePassengerDetails(
   };
   return updatedPassengerPreferences;
 }
+
+async function getCardDetails({ supplierCode, credentialType }) {
+  try {
+    if (!supplierCode || !credentialType)
+      throw new Error("Invalid Supplier Code OR Credential Type");
+
+    const supplier = await SupplierCode.findOne({ supplierCode });
+    if (!supplier) throw new Error("Supplier Not Found");
+
+    const cardDetails = await CardDetailsModel.findOne({
+      ApplicableOnBookingSupplier: supplier._id,
+      credentialType,
+      isEnabled: true,
+    });
+    if (!cardDetails)
+      throw new Error(
+        `${supplierCode} ${credentialType} Card Details Not Found`
+      );
+    let { cardNumber, expiryMonth, expiryYear } = cardDetails;
+    if (!cardNumber || !expiryMonth || !expiryYear)
+      throw new Error(
+        `${supplierCode} ${credentialType} Card Details Are Invalid`
+      );
+    expiryMonth = monthMap[expiryMonth.toLowerCase?.()];
+    if (!expiryMonth) throw new Error("Invalid Expiry Month");
+
+    return {
+      cardDetails: {
+        cardNumber,
+        code: "VI",
+        expiryYear: expiryYear.slice(-2),
+        expiryMonth,
+      },
+    };
+  } catch (error) {
+    saveLogInFile("card-error.json", {
+      message: error.message,
+      stack: error.stack,
+    });
+    console.error({ errorFetchingCardDetails: error });
+    return { error: error.message };
+  }
+}
+
 module.exports = {
   createAirBookingRequestBodyForCommonAPI,
   convertTravelerDetailsForCommonAPI,

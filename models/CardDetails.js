@@ -1,99 +1,103 @@
-const { ref } = require('joi');
-const mongoose = require('mongoose');
+const { ref } = require("joi");
+const mongoose = require("mongoose");
 
-const CardDetailsSchema = new mongoose.Schema({
-    bankName : {
-        type : String,
-        required : true
+const CardDetailsSchema = new mongoose.Schema(
+  {
+    bankName: {
+      type: String,
+      required: true,
     },
-    cardNumber : {
-        type : String,
-        required : true
+    cardNumber: {
+      type: String,
+      required: true,
     },
-    cardHolderName : {
-        type : String,
-        required : true
+    cardHolderName: {
+      type: String,
+      required: true,
     },
-    expiryMonth : {
-        type : String,
-        required : true
+    expiryMonth: {
+      type: String,
+      required: true,
     },
-    expiryYear : {
-        type : String,
-        required : true
+    expiryYear: {
+      type: String,
+      required: true,
     },
-    Address1 : {
-      type : String,
-      
+    Address1: {
+      type: String,
     },
-    Address2 : {
-        type : String,
-      
+    Address2: {
+      type: String,
     },
-    stateId : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'State'
+    stateId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "State",
     },
-    cityId : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'City'
+    cityId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "City",
     },
-    Pincode : {
-        type : String,
-        required : true 
+    Pincode: {
+      type: String,
+      required: true,
     },
-    DisplayName : {
-        type : String,
-        required : true
+    DisplayName: {
+      type: String,
+      required: true,
     },
-    billingCycleDayFrom : {
-        type : Number,
-        required : true
+    billingCycleDayFrom: {
+      type: Number,
+      required: true,
     },
-    billingCycleDayTo : {
-        type : Number,
-        required : true
+    billingCycleDayTo: {
+      type: Number,
+      required: true,
     },
-    cardType : {
-        type : String,
-        required : true
+    cardType: {
+      type: String,
+      required: true,
     },
-    ApplicableOnBookingSupplier : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'SupplierCode',
+    ApplicableOnBookingSupplier: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SupplierCode",
     },
-    cvv : {
-        type : String,
-        required : true 
+    cvv: {
+      type: String,
+      required: true,
     },
-    isEnabled : {
-        type : Boolean,
-        default : false
-        
+    isEnabled: {
+      type: Boolean,
+      default: false,
     },
-    IsShowLast4Digit : {
-        type : Boolean,
-        default : false
+    IsShowLast4Digit: {
+      type: Boolean,
+      default: false,
     },
-    createdBy : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'User'
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    modifyBy : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'User'
+    modifyBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    createdAt : {
-        type : Date,
-        default : new Date()
-       },
-   modifyAt : {
-        type : Date,
-        default : new Date()
-       },
- 
-},{
-    timestamps : true 
-});
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    modifyAt: {
+      type: Date,
+      default: Date.now,
+    },
+    credentialType: {
+      type: String,
+      enum: ["TEST", "LIVE"],
+      default: "TEST",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 const CardDetailsModel = mongoose.model("CardDetailsModel", CardDetailsSchema);
 module.exports = CardDetailsModel;

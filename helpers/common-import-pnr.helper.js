@@ -8,7 +8,12 @@ const {
 
 async function importPNRHelper(request) {
   try {
-    const { pnr, provider } = request;
+    const { pnr, provider, Authentication } = request;
+    if (!pnr || !provider || !Authentication) {
+      throw new Error(
+        "Invalid Request: pnr, provider and Authentication are required"
+      );
+    }
 
     const importPNRRequest = {
       typeOfTrip: "ONEWAY",
@@ -57,7 +62,7 @@ async function importPNRHelper(request) {
 
     try {
       convertedItinerary = await getApplyAllCommercial(
-        request.Authentication,
+        Authentication,
         isInternationalTrip ? "International" : "Domestic",
         [convertedItinerary]
       );

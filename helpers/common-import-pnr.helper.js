@@ -41,7 +41,7 @@ async function importPNRHelper(request) {
       ],
     };
     const url = `${Config.TEST.additionalFlightsBaseURL}/pnr/importPNR`;
-    console.log({ importURL: url });
+    // console.log({ importURL: url });
 
     const pnrResponse = await axios.post(url, importPNRRequest);
     const result = pnrResponse.data;
@@ -85,7 +85,7 @@ async function importPNRHelper(request) {
         PNR:
           journey?.recLocInfo?.find?.((details) => details?.type === "GDS")
             ?.pnr ?? null,
-        Itinerary: convertedItinerary,
+        Itinerary:convertedItinerary?.response[0]|| convertedItinerary,
         Passengers,
         // data: result.data,
       },

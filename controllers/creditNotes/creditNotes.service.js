@@ -666,14 +666,14 @@ const editRefundCancelation = async (req, res) => {
       return res.status(404).json({IsSucess:false,Message: "Refund is Pending from API" });
     }
 
- const bookingData= await BookingDetails.findOneAndUpdate({ bookingId: bookingId }, { $set: { isRefund: true } });
+ const bookingData= await BookingDetails.findOneAndUpdate({ bookingId: cartId }, { $set: { isRefund: true } });
 var calculateDealAmountMinus=0
 
     if (findMatchCancelData[0].CType === "PARTIAL") {
       for (let cpassenger of findMatchCancelData[0]?.CSector[0]?.CPax || []) {
         await PassengerPreference.findOneAndUpdate(
           {
-            bookingId: bookingId,
+            bookingId: cartId,
             "Passengers.FName": cpassenger.FName,
             "Passengers.LName": cpassenger.lName
           },
@@ -684,7 +684,7 @@ var calculateDealAmountMinus=0
       }
     } else {
       await PassengerPreference.updateOne(
-        { bookingId: bookingId },
+        { bookingId: cartId },
         { $set: { "Passengers.$[].Status": "CANCELLED" } }
       );
       editRefund==true?calculateDealAmountMinus= await calculateDealAmountFull(bookingData):calculateDealAmountMinus

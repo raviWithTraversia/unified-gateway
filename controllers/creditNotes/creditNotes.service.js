@@ -733,7 +733,7 @@ var calculateDealAmountMinus=0
 
   } catch (error) {
     console.error("Error in processing cancellation refund:", error);
-    return res.status(500).json({IsSucess:false, Message: "Internal Server Error", Message: error.Message });
+    return res.status(500).json({IsSucess:false,Message: error.Message });
   }
 };
 

@@ -718,9 +718,9 @@ var calculateDealAmountMinus=0
         $set: {
           fare:findCancelationData?.fare,
           AirlineCancellationFee,
-          refundAmount,
           ServiceFee,
-          RefundableAmt:findCancelationData?.RefundableAmt,
+          RefundableAmt:refundAmount,
+          AirlineRefund:AirlineRefund,
           isRefund: true,
           calcelationStatus: "REFUNDED"
         }

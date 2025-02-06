@@ -85,7 +85,7 @@ async function importPNRHelper(request) {
         PNR:
           journey?.recLocInfo?.find?.((details) => details?.type === "GDS")
             ?.pnr ?? null,
-        Itinerary:convertedItinerary?.response[0]|| convertedItinerary,
+        Itinerary: convertedItinerary,
         Passengers,
         // data: result.data,
       },

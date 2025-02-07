@@ -3339,7 +3339,7 @@ const getAgentConfig=await agentConfig.findOne({userId:getuserDetails?._id})
             },
             PriceBreakup: priceBreakupArray,
             Sectors: sectorsArray,
-            TraceId: Authentication?.TraceId,
+            TraceId: itineraryItem?.TraceId,
           },
         };
 

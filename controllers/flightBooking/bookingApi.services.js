@@ -3152,14 +3152,7 @@ if (missingFields.length > 0) {
     
 const getuserDetails=await User.findById(Authentication.UserId).populate('company_ID')
 
-const bookingData = await BookingDetails.find({
-  "itinerary.TraceId": Authentication.TraceId,
-});
-if (bookingData.length > 0) {
-  return {
-    response: "allready created booking",
-  };
-}
+
 if(!getuserDetails){
   return{
     response:"user not found"
@@ -3217,6 +3210,15 @@ const getAgentConfig=await agentConfig.findOne({userId:getuserDetails?._id})
 
     const newArray = await Promise.all(
       ItineraryPriceCheckResponses?.map(async (itineraryItem) => {
+
+        const bookingData = await BookingDetails.find({
+          "itinerary.TraceId": itineraryItem.TraceId,
+        });
+        if (bookingData.length > 0) {
+          return {
+            response: "allready created booking",
+          };
+        }
         const sectorsArray = itineraryItem?.Sectors?.map((sector) => ({
           AirlineCode: sector.AirlineCode,
           AirlineName: sector.AirlineName,

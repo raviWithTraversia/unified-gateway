@@ -1820,8 +1820,127 @@ const ProivdeIndiaStandardTime = (toDate, fromDate) => {
   };
 };
 
+const calculateOfferedPrice = async (fareFamiliyElement) => {
+  let returnCalculatedOfferedPrice = 0;
 
+  fareFamiliyElement.PriceBreakup?.forEach((priceBreakupElement) => {
+    let {
+      PassengerType,
+      NoOfPassenger,
+      CommercialBreakup,
+      BaseFare,
+      Tax,
+      TaxBreakup,
+    } = priceBreakupElement;
 
+    if (PassengerType) {
+      returnCalculatedOfferedPrice += Number(BaseFare) * NoOfPassenger;
+      returnCalculatedOfferedPrice += Number(Tax) * NoOfPassenger;
+
+      // TaxBreakup?.forEach((taxBreakup) => {
+      //   let { TaxType, Amount } = taxBreakup;
+      //   if (TaxType)
+      //     returnCalculatedOfferedPrice += Number(Amount) * NoOfPassenger;
+      // });
+
+      CommercialBreakup?.forEach((commercialBreakup) => {
+        let { CommercialType, Amount } = commercialBreakup;
+        if (offerPricePlusInAmount(CommercialType) && CommercialType != "TDS")
+          returnCalculatedOfferedPrice +=
+            roundOffNumberValues(Amount) * NoOfPassenger;
+        if (offerPriceMinusInAmount(CommercialType))
+          returnCalculatedOfferedPrice -=
+            roundOffNumberValues(Amount) * NoOfPassenger;
+        if (
+          CommercialType == "Discount" ||
+          CommercialType == "SegmentKickback"
+        ) {
+          // console.log(PassengerType, "PassengerType");
+          const discountOrSegmentValue = roundOffNumberValues(Amount);
+          // console.log(CommercialType + "=" + discountOrSegmentValue, "before adding");
+          returnCalculatedOfferedPrice +=
+            discountOrSegmentValue * 0.02 * NoOfPassenger;
+          // console.log(returnCalculatedOfferedPrice, "tdsAmount");
+        }
+      });
+    }
+  });
+  console.log(returnCalculatedOfferedPrice, "before round off");
+
+  returnCalculatedOfferedPrice = Number(
+    roundOffNumberValues(returnCalculatedOfferedPrice)
+  );
+
+  console.log(returnCalculatedOfferedPrice, "before round up");
+
+  return returnCalculatedOfferedPrice;
+};
+
+function roundOffNumberValues(numberValue) {
+  if (isNaN(numberValue)) numberValue = 0;
+  const integerPart = Math.floor(numberValue);
+  const fractionalPart = numberValue - integerPart;
+  const result =
+    fractionalPart >= 0.5 ? Math.ceil(numberValue) : Math.floor(numberValue);
+  return result.toFixed(2);
+}
+
+function offerPricePlusInAmount(plusKeyName) {
+  let returnBoolean = false;
+  switch (plusKeyName) {
+    case "TDS":
+      returnBoolean = true;
+      break;
+    case "BookingFees":
+      returnBoolean = true;
+      break;
+    case "ServiceFees":
+      returnBoolean = true;
+      break;
+    case "GST":
+      returnBoolean = true;
+      break;
+    case "Markup":
+      returnBoolean = true;
+      break;
+    case "otherTax":
+      returnBoolean = true;
+      break;
+    case "FixedBookingFees":
+      returnBoolean = true;
+      break;
+    case "FixedServiceFees":
+      returnBoolean = true;
+      break;
+    default:
+      returnBoolean = false;
+      break;
+  }
+  return returnBoolean;
+}
+
+function offerPriceMinusInAmount(plusKeyName) {
+  let returnBoolean = false;
+  switch (plusKeyName) {
+    case "Discount":
+      returnBoolean = true;
+      break;
+    case "SegmentKickback":
+      returnBoolean = true;
+      break;
+    case "Incentive":
+      returnBoolean = true;
+      break;
+    case "PLB":
+      returnBoolean = true;
+      break;
+
+    default:
+      returnBoolean = false;
+      break;
+  }
+  return returnBoolean;
+}
 
 module.exports = {
   createToken,
@@ -1858,5 +1977,6 @@ module.exports = {
   commonFunctionsRailLogs,
   commonMethodDate,
   convertTimeISTtoUTC,
-  ProivdeIndiaStandardTime 
+  ProivdeIndiaStandardTime,
+  calculateOfferedPrice 
 };

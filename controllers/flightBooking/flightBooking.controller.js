@@ -471,6 +471,44 @@ const SendCardOnMail = async (req, res) => {
   }
 }
 
+const importPnrService = async (req, res) => {
+  try {
+    
+    const result = await getAllBookingServices.importPnrService(req,res);
+    console.log(result)
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "Error creating booking:" || result.response === "user not found" || result.response === "Your Balance is not sufficient"||result.response==="allready created booking") {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    }else if (result.response === "missing Field") {
+      apiErrorres(res, result.data, ServerStatusCode.BAD_REQUEST, true);
+    }
+     else if (result.response === "booking created successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.log(error)
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
 const UpdateAdvanceMarkup=async(req,res)=>{
   try{
 
@@ -558,5 +596,6 @@ module.exports = {
   UpdateAdvanceMarkup,
   PendingBooking,
   manuallyUpdateMultipleBookingStatus,
-  updateBookingStatus
+  updateBookingStatus,
+  importPnrService
 };

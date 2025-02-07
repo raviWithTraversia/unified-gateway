@@ -2,6 +2,7 @@ const { default: axios } = require("axios");
 const { v4: uuidv4 } = require("uuid");
 const { Config } = require("../configs/config");
 const { convertItineraryForKafila } = require("./common-search.helper");
+const user =require('../models/User')
 const {
   getApplyAllCommercial,
 } = require("../controllers/flight/flight.commercial");
@@ -47,7 +48,6 @@ async function importPNRHelper(request) {
     const result = pnrResponse.data;
     const journey = result.data?.journey?.[0];
     const itinerary = journey?.itinerary?.[0];
-
     const isInternationalTrip = itinerary.airSegments.some(
       (segment) =>
         segment.arrival?.countryCode != segment.departure?.countryCode
@@ -66,6 +66,7 @@ async function importPNRHelper(request) {
         isInternationalTrip ? "International" : "Domestic",
         [convertedItinerary]
       );
+
       if (convertedItinerary?.length)
         convertedItinerary = convertedItinerary[0];
     } catch (error) {
@@ -79,13 +80,17 @@ async function importPNRHelper(request) {
       journey.travellerDetails,
       segmentGroup
     );
+    let iternaryObj=null
+    const userFindTmc=await user.findById(Authentication.UserId).populate("company_ID")
+    userFindTmc?.company_ID?.type=="TMC"?iternaryObj=convertedItinerary?.response[0]:iternaryObj=convertedItinerary
+    
     return {
       result: {
         Status: journey?.status?.pnrStatus || "failed",
         PNR:
           journey?.recLocInfo?.find?.((details) => details?.type === "GDS")
             ?.pnr ?? null,
-        Itinerary: convertedItinerary,
+        Itinerary: iternaryObj,
         Passengers,
         // data: result.data,
       },

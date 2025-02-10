@@ -957,7 +957,7 @@ const refundHistory = fSearchApiResponse.data;
 // console.log(matchIds,"jiejiei")
 
 const cancelationbookignsData=await CancelationBooking.find({bookingId:_BookingId})
-if(!cancelationbookignsData){
+if(!cancelationbookignsData.length>0){
   return ({
     response:"Cancellation Data Not Found"
   })

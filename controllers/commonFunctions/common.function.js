@@ -1343,7 +1343,6 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
       const matchingBooking = cancelationBookingsData.find(
         (booking) => booking.bookingId === refund.BookingId
       );
-
       if (!matchingBooking) continue;
 
       const bookingDetails = await BookingDetails.findOne({
@@ -1422,7 +1421,7 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
 
       // } 
       // console.log(refund)
-       if (refund?.IsCancelled && !refund.IsRefunded) {
+       if (!refund?.IsCancelled && !refund.IsRefunded) {
         const isPartialCancellation = refund.CType === "PARTIAL";
         // console.log(isPartialCancellation)
 

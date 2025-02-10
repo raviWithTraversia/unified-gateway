@@ -598,7 +598,7 @@ return calculateDealAmount
 const editRefundCancelation = async (req, res) => {
   try {
     const { id } = req.query;
-    const { AirlineCancellationFee, AirlineRefund, ServiceFee, remarks, bookingId, RefundableAmount,cartId } = req.body;
+    const { AirlineCancellationFee, AirlineRefund, ServiceFee, remarks, bookingId, RefundableAmount,cartId ,DealAmount} = req.body;
 
     let editRefund=false;
     const findCancelationData = await CancelationBooking.findById(id);
@@ -661,7 +661,6 @@ const editRefundCancelation = async (req, res) => {
     }
 
     const findMatchCancelData = refundHistory.filter(element => (editRefund||element.IsRefunded) && element.BookingId === findCancelationData.bookingId&&element.TransId==findCancelationData.traceId);
-
     if (!findMatchCancelData || findMatchCancelData.length === 0) {
       return res.status(404).json({IsSucess:false,Message: "Refund is Pending from API" });
     }
@@ -679,7 +678,7 @@ var calculateDealAmountMinus=0
           },
           { $set: { "Passengers.$.Status": "CANCELLED" } }
         );
- editRefund==true?calculateDealAmountMinus+=await calculateDealAmount(bookingData,cpassenger?.PType):calculateDealAmountMinus
+ editRefund==true&&DealAmount?calculateDealAmountMinus+=await calculateDealAmount(bookingData,cpassenger?.PType):calculateDealAmountMinus
 
       }
     } else {
@@ -687,7 +686,7 @@ var calculateDealAmountMinus=0
         { bookingId: cartId },
         { $set: { "Passengers.$[].Status": "CANCELLED" } }
       );
-      editRefund==true?calculateDealAmountMinus= await calculateDealAmountFull(bookingData):calculateDealAmountMinus
+      editRefund==true&&DealAmount?calculateDealAmountMinus= await calculateDealAmountFull(bookingData):calculateDealAmountMinus
     }
     const refundAmount=AirlineRefund-calculateDealAmountMinus
     const newBalance=agentConfigData.maxcreditLimit + Number(refundAmount)

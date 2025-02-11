@@ -1,3 +1,23 @@
 {
-  "cSpell.words": ["Kafila"]
+  "cSpell.words": ["Kafila"],
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#084076",
+    "activityBar.background": "#084076",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#d10e71",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#084076",
+    "statusBar.background": "#052646",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#084076",
+    "statusBarItem.remoteBackground": "#052646",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#052646",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#05264699",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "peacock.color": "rgb(5, 38, 70)"
 }

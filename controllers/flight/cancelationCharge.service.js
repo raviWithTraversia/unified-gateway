@@ -10,7 +10,11 @@ const axios = require("axios");
 const uuid = require("uuid");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const NodeCache = require("node-cache");
-const { commonAirBookingCancellation } = require("../../services/common-air-cancellation");
+const {
+  commonAirBookingCancellation,
+} = require("../../services/common-air-cancellation");
+const BookingDetails = require("../../models/booking/BookingDetails");
+const PassengerPreference = require("../../models/booking/PassengerPreference");
 const flightCache = new NodeCache();
 
 const fullCancelationCharge = async (req, res) => {
@@ -22,7 +26,7 @@ const fullCancelationCharge = async (req, res) => {
     BookingId,
     CancelType,
     Reason,
-    Sector    
+    Sector,
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -31,8 +35,8 @@ const fullCancelationCharge = async (req, res) => {
     "TravelType",
     "BookingId",
     "CancelType",
-    "Reason",    
-    "Sector"    
+    "Reason",
+    "Sector",
   ];
   const missingFields = fieldNames.filter(
     (fieldName) =>
@@ -64,26 +68,26 @@ const fullCancelationCharge = async (req, res) => {
     };
   }
 
-   // check user and its role
-   let agencyUserId;
-   const checkUserRole = await Users.findById(UserId)
-     .populate("company_ID")
-     .populate("roleId");
-   if (checkUserRole?.roleId.name === "Agency") {
-     agencyUserId = checkUserRole._id;
-   } else {
-     const checkAgencyByCompany = await Users.find({
-       company_ID: checkUserRole.company_ID,
-     })
-       .populate("company_ID")
-       .populate("roleId");
-     const agencyUser = checkAgencyByCompany.find(
-       (user) => user.roleId.name === "Agency"
-     );
-     if (agencyUser) {
-       agencyUserId = agencyUser._id;
-     }
-   }
+  // check user and its role
+  let agencyUserId;
+  const checkUserRole = await Users.findById(UserId)
+    .populate("company_ID")
+    .populate("roleId");
+  if (checkUserRole?.roleId.name === "Agency") {
+    agencyUserId = checkUserRole._id;
+  } else {
+    const checkAgencyByCompany = await Users.find({
+      company_ID: checkUserRole.company_ID,
+    })
+      .populate("company_ID")
+      .populate("roleId");
+    const agencyUser = checkAgencyByCompany.find(
+      (user) => user.roleId.name === "Agency"
+    );
+    if (agencyUser) {
+      agencyUserId = agencyUser._id;
+    }
+  }
   if (Provider == "Kafila") {
     let result;
     if (TravelType !== "International" && TravelType !== "Domestic") {
@@ -116,10 +120,51 @@ const fullCancelationCharge = async (req, res) => {
         apiReq: result.apiReq,
       };
     }
-  }else {
+  } else {
     try {
       const { result, error } = await commonAirBookingCancellation(req.body);
-      return { response: "Fetch Data Successfully", data: result };
+      if (error)
+        return {
+          response: "Cancellation Failed",
+          data: {
+            Status: "CANCELLATION FAILED",
+            Error:
+              typeof error === "string"
+                ? error
+                : error?.message || "Internal Server Error",
+          },
+        };
+
+      const status = result?.journey?.[0]?.status || "CANCELLATION FAILED";
+      if (status === "CANCELLED") {
+        const booking = await BookingDetails.updateOne(
+          {
+            bookingId: req.body.BookingId,
+          },
+          { bookingStatus: "CANCELLED" }
+        );
+        const paxPreferences = await PassengerPreference.findOne({
+          bookingId: req.body.BookingId,
+        });
+
+        if (paxPreferences?.Passengers?.length) {
+          paxPreferences.Passengers = paxPreferences.Passengers.map((pax) => {
+            pax.Status = "CANCELLED";
+            return pax;
+          });
+          await paxPreferences.save();
+        }
+      }
+      return {
+        response: "Fetch Data Successfully",
+        data: {
+          BookingId: req.body.BookingId,
+          CancelType: req.body.CancelType,
+          PNR: req.body.PNR,
+          Provider: req.body.Provider,
+          Status: status,
+        },
+      };
     } catch (commonCancellationError) {
       return {
         response: commonCancellationError?.message || "Error in Cancellations",
@@ -135,10 +180,10 @@ async function handleflight(
   PNR,
   TravelType,
   BookingId,
-  CancelType, 
+  CancelType,
   Sector,
-   Reason, 
-  agencyUserId  
+  Reason,
+  agencyUserId
 ) {
   // International
   // Check LIVE and TEST
@@ -184,7 +229,6 @@ async function handleflight(
     };
   }
 
-  
   const responsesApi = await Promise.all(
     supplierCredentials.map(async (supplier, index) => {
       try {
@@ -192,8 +236,7 @@ async function handleflight(
           throw new Error(`Invalid supplier structure at index ${index}`);
         }
 
-
-        supplier.supplierCodeId.supplierCode="Kafila"
+        supplier.supplierCodeId.supplierCode = "Kafila";
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
             return await KafilaFun(
@@ -219,10 +262,10 @@ async function handleflight(
       }
     })
   );
-  
+
   return {
     IsSucess: true,
-    response:responsesApi[0],
+    response: responsesApi[0],
   };
 }
 
@@ -233,11 +276,11 @@ const KafilaFun = async (
   PNR,
   TravelType,
   BookingId,
-  CancelType, 
-  Reason, 
-  Sector ,
+  CancelType,
+  Reason,
+  Sector,
   agencyUserId,
-  BookingIdDetails 
+  BookingIdDetails
 ) => {
   let createTokenUrl;
   let flightCancelUrl;
@@ -252,8 +295,8 @@ const KafilaFun = async (
     // Test Url here
     createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
     flightCancelUrl = `http://stage1.ksofttechnology.com/api/FCancel`;
-  }   
- 
+  }
+
   let tokenData = {
     P_TYPE: "API",
     R_TYPE: "FLIGHT",
@@ -269,8 +312,7 @@ const KafilaFun = async (
         "Content-Type": "application/json",
       },
     });
-    
-    
+
     if (response.data.Status === "success") {
       let getToken = response.data.Result;
       let requestDataForCHarges = {
@@ -278,20 +320,20 @@ const KafilaFun = async (
         R_TYPE: "FLIGHT",
         R_NAME: "CANCEL",
         R_DATA: {
-            ACTION: "CANCEL_CHARGE",
-            BOOKING_ID: BookingId,
-            CANCEL_TYPE: "FULL_CANCELLATION",
-            REASON: Reason,
-            TRACE_ID:""
+          ACTION: "CANCEL_CHARGE",
+          BOOKING_ID: BookingId,
+          CANCEL_TYPE: "FULL_CANCELLATION",
+          REASON: Reason,
+          TRACE_ID: "",
         },
         AID: supplier.supplierWsapSesssion,
         MODULE: "B2B",
         IP: "182.73.146.154",
         TOKEN: getToken,
         ENV: credentialType,
-        Version: "1.0.0.0.0.0"
-    };    
-       
+        Version: "1.0.0.0.0.0",
+      };
+
       let fSearchApiResponse = await axios.post(
         flightCancelUrl,
         requestDataForCHarges,
@@ -300,35 +342,43 @@ const KafilaFun = async (
             "Content-Type": "application/json",
           },
         }
-      ); 
+      );
       console.log(fSearchApiResponse, "fSearchApiResponse");
-      if (fSearchApiResponse?.data?.Status !==null&&fSearchApiResponse?.data?.Status ===  "PENDING"||fSearchApiResponse?.data?.Status ===
-      "Failed"||fSearchApiResponse?.data?.Status === "ERROR"||fSearchApiResponse?.data?.Status === "failed") {
-       
-        if(fSearchApiResponse?.data?.Status != null && fSearchApiResponse?.data?.Status===
-        "PENDING"){
-
+      if (
+        (fSearchApiResponse?.data?.Status !== null &&
+          fSearchApiResponse?.data?.Status === "PENDING") ||
+        fSearchApiResponse?.data?.Status === "Failed" ||
+        fSearchApiResponse?.data?.Status === "ERROR" ||
+        fSearchApiResponse?.data?.Status === "failed"
+      ) {
+        if (
+          fSearchApiResponse?.data?.Status != null &&
+          fSearchApiResponse?.data?.Status === "PENDING"
+        ) {
           const cancelationBookingInstance = new CancelationBooking({
-            calcelationStatus: fSearchApiResponse.data.Status || null ,
-            bookingId:BookingId,
-            providerBookingId:BookingId,
-            AirlineCode: BookingIdDetails?.itinerary?.Sectors[0]?.AirlineCode || null ,
+            calcelationStatus: fSearchApiResponse.data.Status || null,
+            bookingId: BookingId,
+            providerBookingId: BookingId,
+            AirlineCode:
+              BookingIdDetails?.itinerary?.Sectors[0]?.AirlineCode || null,
             companyId: Authentication?.CompanyId || null,
             userId: Authentication?.UserId || null,
-            traceId:fSearchApiResponse.data.R_DATA?.TRACE_ID||fSearchApiResponse.data.TRACE_ID||null,
+            traceId:
+              fSearchApiResponse.data.R_DATA?.TRACE_ID ||
+              fSearchApiResponse.data.TRACE_ID ||
+              null,
             PNR: BookingIdDetails?.PNR || null,
-            fare:BookingIdDetails?.itinerary?.TotalPrice || null ,
+            fare: BookingIdDetails?.itinerary?.TotalPrice || null,
             AirlineCancellationFee: 0,
             AirlineRefund: 0,
             ServiceFee: 0 || 0,
             RefundableAmt: 0 || 0,
-            description:fSearchApiResponse.data.WarningMessage || null,
+            description: fSearchApiResponse.data.WarningMessage || null,
             modifyBy: Authentication?.UserId || null,
             modifyAt: new Date(),
           });
-      
-  
-          await cancelationBookingInstance.save();  
+
+          await cancelationBookingInstance.save();
           await bookingDetails.findOneAndUpdate(
             { _id: BookingIdDetails._id },
             { $set: { bookingStatus: "CANCELLATION PENDING" } },
@@ -340,102 +390,133 @@ const KafilaFun = async (
               $set: { "Passengers.$[].Status": "CANCELLATION PENDING" },
             }
           );
-        }  
-        return  fSearchApiResponse?.data?.ErrorMessage +' ' + fSearchApiResponse?.data?.WarningMessage
+        }
+        return (
+          fSearchApiResponse?.data?.ErrorMessage +
+          " " +
+          fSearchApiResponse?.data?.WarningMessage
+        );
       }
 
       const getAgentConfig = await agentConfig.findOne({
         userId: agencyUserId,
-      });  
-        
+      });
+
       const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
       let newBalance = 0;
       let pricecheck = 0;
-      if(BookingIdDetails && BookingIdDetails?.fareRules  && BookingIdDetails?.fareRules != null) {
-        
+      if (
+        BookingIdDetails &&
+        BookingIdDetails?.fareRules &&
+        BookingIdDetails?.fareRules != null
+      ) {
         if (BookingIdDetails?.itinerary?.Sectors[0]?.Departure?.Date) {
-
           // Convert createdAt to milliseconds
-          const createdAtTime = new Date(BookingIdDetails?.itinerary?.Sectors[0]?.Departure?.Date).getTime();
+          const createdAtTime = new Date(
+            BookingIdDetails?.itinerary?.Sectors[0]?.Departure?.Date
+          ).getTime();
           // Current time in milliseconds
           const currentTime = new Date().getTime();
           // Difference in milliseconds between current time and createdAt time
           const timeDifference = currentTime - createdAtTime;
           // Convert 62 hours to milliseconds
           const sixtyTwoHoursInMilliseconds = 96 * 60 * 60 * 1000;
-          
+
           // Checking if the difference is less than 62 hours
           if (timeDifference <= sixtyTwoHoursInMilliseconds) {
             let tdsAmount = 0;
-            BookingIdDetails.itinerary.PriceBreakup.forEach(item => {
-                if (item) {
-                    const tdsItems = item.CommercialBreakup.filter(commercial => commercial.CommercialType === "TDS");
-                    tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
-                }
+            BookingIdDetails.itinerary.PriceBreakup.forEach((item) => {
+              if (item) {
+                const tdsItems = item.CommercialBreakup.filter(
+                  (commercial) => commercial.CommercialType === "TDS"
+                );
+                tdsAmount += tdsItems.reduce(
+                  (total, commercial) => total + commercial.Amount,
+                  0
+                );
+              }
             });
-             //pricecheck = BookingIdDetails?.fareRules?.CWBHA === 0 ?
+            //pricecheck = BookingIdDetails?.fareRules?.CWBHA === 0 ?
             // fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CWBHA + BookingIdDetails?.fareRules?.SF) ;
             //  newBalance = maxCreditLimit + pricecheck;\
-            fSearchApiResponse.data = fSearchApiResponse.data || {};            
-            fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
+            fSearchApiResponse.data = fSearchApiResponse.data || {};
+            fSearchApiResponse.data.Charges =
+              fSearchApiResponse.data.Charges || {};
 
-            fSearchApiResponse.data.Charges.RefundableAmt = (fSearchApiResponse.data.Charges?.RefundableAmt || 0 );
-            fSearchApiResponse.data.Charges.ServiceFee = fSearchApiResponse.data.Charges?.ServiceFee || 0;
-            fSearchApiResponse.data.Charges.AirlineRefund = fSearchApiResponse.data.Charges?.AirlineRefund || 0; 
-            fSearchApiResponse.data.Charges.AirlineCancellationFee = fSearchApiResponse.data.Charges?.AirlineCancellationFee || 0;
-            //fSearchApiResponse.data.Charges.Fare = 0; 
-             return fSearchApiResponse.data;
-          }else{
-            let tdsAmount = 0;
-            BookingIdDetails.itinerary.PriceBreakup.forEach(item => {
-                if (item) {
-                    const tdsItems = item.CommercialBreakup.filter(commercial => commercial.CommercialType === "TDS");
-                    tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
-                }
-            });
-            fSearchApiResponse.data = fSearchApiResponse.data || {};            
-            fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
-            
-            fSearchApiResponse.data.Charges.RefundableAmt = (fSearchApiResponse.data.Charges?.RefundableAmt || 0 );
-            fSearchApiResponse.data.Charges.ServiceFee = fSearchApiResponse.data.Charges?.ServiceFee || 0;
-            fSearchApiResponse.data.Charges.AirlineRefund = fSearchApiResponse.data.Charges?.AirlineRefund || 0; 
-            fSearchApiResponse.data.Charges.AirlineCancellationFee = fSearchApiResponse.data.Charges?.AirlineCancellationFee || 0;
-            //fSearchApiResponse.data.Charges.Fare = 0; 
+            fSearchApiResponse.data.Charges.RefundableAmt =
+              fSearchApiResponse.data.Charges?.RefundableAmt || 0;
+            fSearchApiResponse.data.Charges.ServiceFee =
+              fSearchApiResponse.data.Charges?.ServiceFee || 0;
+            fSearchApiResponse.data.Charges.AirlineRefund =
+              fSearchApiResponse.data.Charges?.AirlineRefund || 0;
+            fSearchApiResponse.data.Charges.AirlineCancellationFee =
+              fSearchApiResponse.data.Charges?.AirlineCancellationFee || 0;
+            //fSearchApiResponse.data.Charges.Fare = 0;
             return fSearchApiResponse.data;
-            
+          } else {
+            let tdsAmount = 0;
+            BookingIdDetails.itinerary.PriceBreakup.forEach((item) => {
+              if (item) {
+                const tdsItems = item.CommercialBreakup.filter(
+                  (commercial) => commercial.CommercialType === "TDS"
+                );
+                tdsAmount += tdsItems.reduce(
+                  (total, commercial) => total + commercial.Amount,
+                  0
+                );
+              }
+            });
+            fSearchApiResponse.data = fSearchApiResponse.data || {};
+            fSearchApiResponse.data.Charges =
+              fSearchApiResponse.data.Charges || {};
+
+            fSearchApiResponse.data.Charges.RefundableAmt =
+              fSearchApiResponse.data.Charges?.RefundableAmt || 0;
+            fSearchApiResponse.data.Charges.ServiceFee =
+              fSearchApiResponse.data.Charges?.ServiceFee || 0;
+            fSearchApiResponse.data.Charges.AirlineRefund =
+              fSearchApiResponse.data.Charges?.AirlineRefund || 0;
+            fSearchApiResponse.data.Charges.AirlineCancellationFee =
+              fSearchApiResponse.data.Charges?.AirlineCancellationFee || 0;
+            //fSearchApiResponse.data.Charges.Fare = 0;
+            return fSearchApiResponse.data;
+
             //  pricecheck = BookingIdDetails?.fareRules?.CBHA === 0 ?
             // fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt : (BookingIdDetails?.fareRules?.CBHA +  BookingIdDetails?.fareRules?.SF);
-            // newBalance = maxCreditLimit + pricecheck; 
+            // newBalance = maxCreditLimit + pricecheck;
           }
         }
-      }else{
-            let tdsAmount = 0;
-            BookingIdDetails.itinerary.PriceBreakup.forEach(item => {
-                if (item) {
-                    const tdsItems = item.CommercialBreakup.filter(commercial => commercial.CommercialType === "TDS");
-                    tdsAmount += tdsItems.reduce((total, commercial) => total + commercial.Amount, 0);
-                }
-            });
-           
-            fSearchApiResponse.data = fSearchApiResponse.data || {};            
-            fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
-            fSearchApiResponse.data.Charges.RefundableAmt = (fSearchApiResponse.data.Charges.RefundableAmt || 0) - tdsAmount;
+      } else {
+        let tdsAmount = 0;
+        BookingIdDetails.itinerary.PriceBreakup.forEach((item) => {
+          if (item) {
+            const tdsItems = item.CommercialBreakup.filter(
+              (commercial) => commercial.CommercialType === "TDS"
+            );
+            tdsAmount += tdsItems.reduce(
+              (total, commercial) => total + commercial.Amount,
+              0
+            );
+          }
+        });
+
+        fSearchApiResponse.data = fSearchApiResponse.data || {};
+        fSearchApiResponse.data.Charges = fSearchApiResponse.data.Charges || {};
+        fSearchApiResponse.data.Charges.RefundableAmt =
+          (fSearchApiResponse.data.Charges.RefundableAmt || 0) - tdsAmount;
         return fSearchApiResponse.data;
         // newBalance =
         // maxCreditLimit +
         // fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
         // pricecheck = fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt;
       }
-
-             
-      
     } else {
-      return  response.data.ErrorMessage
+      return response.data.ErrorMessage;
     }
   } catch (error) {
-    return error.message    
+    return error.message;
   }
 };
 module.exports = {
-    fullCancelationCharge,
+  fullCancelationCharge,
 };

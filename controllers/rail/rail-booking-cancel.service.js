@@ -19,6 +19,8 @@ const chargesBefore48Hours = {
   "RWL":60,
   "WL":60,
   PQWL:62,
+  "EV":240,
+  "FC":200
 };
 
 module.exports.cancelRailBooking = async function (request) {
@@ -231,6 +233,8 @@ function calculateCharges({ journeyClass, netFare, timeDifference, bookingStatus
     RLWL: 60,
     WL: 60,
     PQWL:62,
+    EV:240,
+    FC:200
   };
 
   console.log({ journeyClass, netFare, timeDifference, bookingStatus });

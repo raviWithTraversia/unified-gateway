@@ -51,7 +51,8 @@ const getAllBooking = async (req, res) => {
     salesInchargeIds,
     ArilineFilter,
     BookedBy,
-    cancelationPending
+    cancelationPending,
+    provider
   } = req.body;
   const fieldNames = [
     "agencyId",
@@ -154,7 +155,9 @@ const getAllBooking = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
-
+    if (provider !== undefined && provider.trim() !== "") {
+      filter.provider = provider;
+    }
     let orConditions = []
     if(ArilineFilter !== undefined && ArilineFilter !== ""){
       orConditions.push({ "itinerary.Sectors.AirlineCode": new RegExp(`^${ArilineFilter}`, 'i') },{"itinerary.Sectors.AirlineName":new RegExp(`^${ArilineFilter}`, 'i')})
@@ -445,6 +448,9 @@ const getAllBooking = async (req, res) => {
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
     }
+    if (provider !== undefined && provider.trim() !== "") {
+      filter.provider = provider;
+    }
     // if (
     //   fromDate !== undefined &&
     //   fromDate.trim() !== "" &&
@@ -712,6 +718,9 @@ delete filter.createdAt; // Removes the 'age' key from obj
     }
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
+    }
+if (provider !== undefined && provider.trim() !== "") {
+      filter.provider = provider;
     }
     // if (
     //   fromDate !== undefined &&

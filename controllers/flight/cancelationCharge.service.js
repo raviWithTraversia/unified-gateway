@@ -165,7 +165,7 @@ const fullCancelationCharge = async (req, res) => {
             userId: Authentication?.UserId || null,
             traceId:null,
             PNR: booking?.PNR || null,
-            fare: booking?.itinerary?.TotalPrice || 0,
+            fare: booking?.bookingTotalAmount || 0,
             AirlineCancellationFee: 0,
             AirlineRefund: 0,
             ServiceFee: 0 || 0,

@@ -665,7 +665,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
               Logs(logData1);
               Logs(logData2);
               // console.log(fSearchApiResponse,"jdieeieieiei")
-              if (SearchApiResponse.data.Status == "Failed"||
+              if (fSearchApiResponse.data.Status == "Failed"||
                 fSearchApiResponse.data.Status == "failed" ||
                 fSearchApiResponse?.data?.IsError == true ||
                 fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"

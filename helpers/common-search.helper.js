@@ -224,6 +224,7 @@ function formatDateForKafila(dateString) {
 function convertFlightDetailsForKafila(flight) {
   if (!flight) return {};
   const date = formatDateForKafila(flight.date);
+  console.log({ fDate: flight.date, date });
 
   return {
     Terminal: flight.terminal,

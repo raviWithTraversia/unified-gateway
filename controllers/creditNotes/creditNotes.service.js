@@ -598,7 +598,7 @@ return calculateDealAmount
 const editRefundCancelation = async (req, res) => {
   try {
     const { id } = req.query;
-    const { AirlineCancellationFee, AirlineRefund, ServiceFee, remarks, bookingId, RefundableAmount,cartId ,DealAmount} = req.body;
+    const { AirlineCancellationFee, AirlineRefund, ServiceFee, remarks, bookingId, RefundableAmount,cartId ,DealAmount,provider} = req.body;
 
     let editRefund=false;
     const findCancelationData = await CancelationBooking.findById(id);
@@ -647,7 +647,11 @@ const editRefundCancelation = async (req, res) => {
       "ENV": supplier[0]?.credentialsType === "LIVE" ? "P" : "D",
       "Version": "1.0.0.0.0.0"
     };
+    let findMatchCancelData=null;
 
+    if(provider==="kafila"){
+
+    
 
     const refundHistoryResponse = await axios.post(Url, apiRequestBody);
     const refundHistory = refundHistoryResponse.data;
@@ -655,20 +659,22 @@ const editRefundCancelation = async (req, res) => {
       return res.status(404).json({IsSucess:false, Message: "Kafila API Data Not Found" });
     }
 
+   findMatchCancelData = refundHistory.filter(element => (editRefund||element.IsRefunded) && element.BookingId === findCancelationData.bookingId&&element.TransId==findCancelationData.traceId);
+    if (!findMatchCancelData || findMatchCancelData.length === 0) {
+      return res.status(404).json({IsSucess:false,Message: "Refund is Pending from API" });
+    }
+  }
     const agentConfigData = await agentConfig.findOne({ userId: findCancelationData.userId });
     if (!agentConfigData) {
       return res.status(404).json({IsSucess:false, Message: "Agent Data Not Found" });
     }
 
-    const findMatchCancelData = refundHistory.filter(element => (editRefund||element.IsRefunded) && element.BookingId === findCancelationData.bookingId&&element.TransId==findCancelationData.traceId);
-    if (!findMatchCancelData || findMatchCancelData.length === 0) {
-      return res.status(404).json({IsSucess:false,Message: "Refund is Pending from API" });
-    }
+    
 
  const bookingData= await BookingDetails.findOneAndUpdate({ bookingId: cartId }, { $set: { isRefund: true } });
 var calculateDealAmountMinus=0
 
-    if (findMatchCancelData[0].CType === "PARTIAL") {
+    if (findMatchCancelData&&findMatchCancelData[0].CType === "PARTIAL") {
       for (let cpassenger of findMatchCancelData[0]?.CSector[0]?.CPax || []) {
         await PassengerPreference.findOneAndUpdate(
           {

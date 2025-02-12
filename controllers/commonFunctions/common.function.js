@@ -1769,7 +1769,7 @@ const commonProviderMethodDate = (bookingDate = new Date()) => {
     .toString(36)
     .substring(2, 2 + 5);
   // Concatenate to desired format
-  return  `B2B${day}${month}${year}${hour}${minute}${timetype}${randomNumber}`;
+  return  `B2BKFL${day}${month}${year}${hour}${minute}${timetype}${randomNumber}`;
   }
 
 const convertTimeISTtoUTC = (Isodate) => {

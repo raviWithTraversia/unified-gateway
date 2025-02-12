@@ -21,6 +21,7 @@ const flightCache = new NodeCache();
 const {
   createLeadger,
   getTdsAndDsicount,
+commonProviderMethodDate
 } = require("../../controllers/commonFunctions/common.function");
 const SupplierCode = require("../../models/supplierCode");
 const { getSupplierCredentials } = require("../../utils/get-supplier-creds");
@@ -1278,7 +1279,7 @@ const findFailedBooking=await BookingDetails.find({
                       bookingRemarks:
                         fSearchApiResponse.data.BookingInfo.BookingRemark,
                       providerBookingId:
-                        fSearchApiResponse.data.BookingInfo?.BookingId,
+                        fSearchApiResponse.data.BookingInfo?.BookingId?fSearchApiResponse.data.BookingInfo?.BookingId:fSearchApiResponse.data.BookingInfo.CurrentStatus==="CONFIRMED"? await commonProviderMethodDate():fSearchApiResponse.data.BookingInfo.BookingId,
                       PNR: fSearchApiResponse.data.BookingInfo.APnr,
                       APnr: fSearchApiResponse.data.BookingInfo.APnr,
                       GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
@@ -1875,6 +1876,8 @@ const kafilaFunOnlinePayment = async (
           PassengerPreferences: passengerPreferencesString,
           ItineraryPriceCheckResponses: itineraryPriceCheckResponsesString,
           Authentication: authData,
+          Segments: Segments,
+          TravelType: TypeOfTrip,
         });
 
         const bookingTemp = await BookingTemp.create({

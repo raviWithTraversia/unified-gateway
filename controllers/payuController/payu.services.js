@@ -21,6 +21,7 @@ const {
   getTdsAndDsicount,
   priceRoundOffNumberValues,
   recieveDI,
+  commonProviderMethodDate
 } = require("../commonFunctions/common.function");
 const AgentConfiguration = require("../../models/AgentConfig");
 const { saveLogInFile } = require("../../utils/save-log");
@@ -88,10 +89,10 @@ const payu = async (req, res) => {
     const firstnameres = firstName;
     const emailres = email;
     const phoneres = phone;
-    const surl = `${
-      Config[Config.MODE].baseURLBackend
-    }/api/paymentGateway/success`;
-    // const surl="http://localhost:3111/api/paymentGateway/success"
+    // const surl = `${
+    //   Config[Config.MODE].baseURLBackend
+    // }/api/paymentGateway/success`;
+    const surl="http://localhost:3111/api/paymentGateway/success"
     const furl = `${
       Config[Config.MODE].baseURLBackend
     }/api/paymentGateway/failed`;
@@ -429,7 +430,6 @@ const payuSuccess = async (req, res) => {
 
         const Segments = convertDataBookingTempRes.Segments
       
-
         const TravelType=convertDataBookingTempRes.TravelType
 
         const TypeOfTrip=convertDataBookingTempRes.TravelType
@@ -614,7 +614,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                   }
                 );
               } else {
-                // console.log(body?.SearchRequest?.Segments)
+                // console.log(body?.SearchRequest?.Segments,"segmaents")
                 const reqSegment =await body?.SearchRequest?.Segments?.[idx];
                 // saveLogInFile("request-segment.json", { reqSegment });
                 fSearchApiResponse = await commonFlightBook(
@@ -664,8 +664,8 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
               Logs(logData);
               Logs(logData1);
               Logs(logData2);
-              console.log(fSearchApiResponse,"jdieeieieiei")
-              if (
+              // console.log(fSearchApiResponse,"jdieeieieiei")
+              if (SearchApiResponse.data.Status == "Failed"||
                 fSearchApiResponse.data.Status == "failed" ||
                 fSearchApiResponse?.data?.IsError == true ||
                 fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"
@@ -755,8 +755,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                       fSearchApiResponse.data.BookingInfo.CurrentStatus,
                     bookingRemarks:
                       fSearchApiResponse.data.BookingInfo.BookingRemark,
-                    providerBookingId:
-                      fSearchApiResponse.data.BookingInfo.BookingId,
+                    providerBookingId:  fSearchApiResponse.data.BookingInfo?.BookingId?fSearchApiResponse.data.BookingInfo?.BookingId:fSearchApiResponse.data.BookingInfo.CurrentStatus==="CONFIRMED"? await commonProviderMethodDate():fSearchApiResponse.data.BookingInfo.BookingId,
                     PNR: fSearchApiResponse.data.BookingInfo.APnr,
                     APnr: fSearchApiResponse.data.BookingInfo.APnr,
                     GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
@@ -820,6 +819,8 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                         p.LName === passenger.LName
                     );
                   if (!selectedPax) return passenger;
+                  passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+
                   // saveLogInFile("selected-pax.json", selectedPax);
                   passenger.Optional.EMDDetails = [
                     ...(passenger.Optional.EMDDetails || []),

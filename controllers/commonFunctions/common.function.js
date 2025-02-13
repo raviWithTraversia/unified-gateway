@@ -1747,7 +1747,30 @@ const commonMethodDate = (bookingDate = new Date()) => {
   };
 };
 
+const commonProviderMethodDate = (bookingDate = new Date()) => {
+  const date = new Date(bookingDate);
 
+  // Extract components
+  const day = String(date.getDate()).padStart(2, "0"); // Ensures 2 digits
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+  const year = String(date.getFullYear()).slice(2); // Get last 2 digits of the year
+  const hour = String(date.getHours()).padStart(2, "0"); // Ensures 2 digits
+  const minute = String(date.getMinutes()).padStart(2, "0"); // Ensures 2 digits
+
+  // Determine AM/PM
+  let timetype = "";
+  if (Number(hour + minute) > 1159) {
+    timetype = "PM";
+  } else {
+    timetype = "AM";
+  }
+
+  const randomNumber = Math.random()
+    .toString(36)
+    .substring(2, 2 + 5);
+  // Concatenate to desired format
+  return  `B2BKFL${day}${month}${year}${hour}${minute}${timetype}${randomNumber}`;
+  }
 
 const convertTimeISTtoUTC = (Isodate) => {
   let inputDate = Isodate;
@@ -1977,5 +2000,6 @@ module.exports = {
   commonMethodDate,
   convertTimeISTtoUTC,
   ProivdeIndiaStandardTime,
-  calculateOfferedPrice 
+  calculateOfferedPrice,
+  commonProviderMethodDate
 };

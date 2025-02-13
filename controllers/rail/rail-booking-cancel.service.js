@@ -191,7 +191,11 @@ module.exports.verifyOTP = async (request) => {
       { isRefundOTPVerified: true }
     );
 
-    await bookingDetailsRail.findOneAndUpdate({pnrNumber:pnr},{$set:{bookingStatus:"CANCELLED",cancelTime:null}},{new:true})
+   const bookingData= await bookingDetailsRail.findOne({pnrNumber:pnr,"psgnDtlList.currentStatus":{$in:["WL","CNF","RLWL","PQWL","RAC","2S","2A","3A","3E","CC","EC","SL","1A","FC","EV"]}})
+   let status=""
+   bookingData?status="PARTIALY CONFIRMED":status="CANCELLED"
+
+    await bookingDetailsRail.findOneAndUpdate({pnrNumber:pnr},{$set:{bookingStatus:status,cancelTime:null}},{new:true})
 
     return { result: response };
 

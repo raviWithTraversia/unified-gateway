@@ -137,11 +137,14 @@ const fullCancelationCharge = async (req, res) => {
 
       const status = result?.journey?.[0]?.status || "CANCELLATION FAILED";
       if (status === "CANCELLED") {
-        const booking = await BookingDetails.updateOne(
+        
+        
+        const booking = await BookingDetails.findOneAndUpdate(
           {
             bookingId: req.body.BookingId,
           },
-          { bookingStatus: "CANCELLED" }
+          { $set:{bookingStatus: "CANCELLED" }},
+          {new:true}
         );
         const paxPreferences = await PassengerPreference.findOne({
           bookingId: req.body.BookingId,
@@ -152,6 +155,27 @@ const fullCancelationCharge = async (req, res) => {
             pax.Status = "CANCELLED";
             return pax;
           });
+          const cancelationBookingInstance = new CancelationBooking({
+            calcelationStatus: "CANCEL",
+            bookingId: booking?.providerBookingId,
+            providerBookingId: booking?.providerBookingId,
+            AirlineCode:
+              booking?.itinerary?.Sectors[0]?.AirlineCode || null,
+            companyId: Authentication?.CompanyId || null,
+            userId: Authentication?.UserId || null,
+            traceId:null,
+            PNR: booking?.PNR || null,
+            fare: booking?.bookingTotalAmount || 0,
+            AirlineCancellationFee: 0,
+            AirlineRefund: 0,
+            ServiceFee: 0 || 0,
+            RefundableAmt: 0 || 0,
+            description: null,
+            modifyBy: Authentication?.UserId || null,
+            modifyAt: new Date(),
+          });
+  
+          await cancelationBookingInstance.save();
           await paxPreferences.save();
         }
       }

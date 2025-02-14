@@ -1489,7 +1489,25 @@ const findFailedBooking=await BookingDetails.find({
                   responce: error,
                 };
                 Logs(logDataCatch);
-                console.log("skdjdskjds1323");
+
+                if (error.message?.toLowerCase().includes("socket hang up")) {
+                  await BookingDetails.updateOne(
+                    {
+                      bookingId: item?.BookingId,
+                      "itinerary.IndexNumber": item.IndexNumber,
+                      bookingStatus:{$ne:"CONFIRMED"},
+                    },
+                    {
+                      $set: {
+                        bookingStatus: "PENDING",
+                      },
+                    }
+                  );
+
+                  return error.message;
+  
+              } else {
+              
                 await BookingDetails.updateOne(
                   {
                     bookingId: item?.BookingId,
@@ -1560,6 +1578,7 @@ const findFailedBooking=await BookingDetails.find({
                 // });
 
                 return error.message;
+              }
               }
             })
           );

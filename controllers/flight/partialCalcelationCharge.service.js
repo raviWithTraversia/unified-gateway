@@ -153,7 +153,9 @@ const partialCancelationCharge = async (req, res) => {
           { $set:{bookingStatus: "PARTIALLY CANCELLED" }},
           {new:true}
         );
+      let calculateFareAmount=0
         for(let passengers of req.body.passengarList){
+          calculateFareAmount+=calculateDealAmount(booking,passengers.PAX_TYPE)
           await passengerPreferenceModel.findOneAndUpdate(
                      {
                       bid:booking?._id,
@@ -176,7 +178,7 @@ const partialCancelationCharge = async (req, res) => {
             userId: Authentication?.UserId || null,
             traceId:null,
             PNR: booking?.PNR || null,
-            fare: booking?.bookingTotalAmount || 0,
+            fare: calculateFareAmount || 0,
             AirlineCancellationFee: 0,
             AirlineRefund: 0,
             ServiceFee: 0 || 0,
@@ -564,6 +566,18 @@ const KafilaFun = async (
     return error.message
   }
 };
+
+
+const calculateDealAmount = (data, type) => {
+  let sum = 0;
+  data.itinerary.PriceBreakup.forEach((element) => {
+      if (element.PassengerType === type) {
+          sum += element.Tax + element.BaseFare;
+      }
+  });
+  return sum;  // ✅ Sum return karna zaroori hai
+};
+  
 module.exports = {
     partialCancelationCharge,
 };

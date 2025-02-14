@@ -482,7 +482,7 @@ const fullCancelationCharge = async (req, res) => {
     } else {
       apiErrorres(
         res,
-        result.response || errorResponse.SOME_UNOWN,
+        result?.data?.Error||result.response|| errorResponse.SOME_UNOWN,
         ServerStatusCode.UNPROCESSABLE,
         true
       );

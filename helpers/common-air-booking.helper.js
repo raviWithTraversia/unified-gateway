@@ -303,7 +303,7 @@ function convertTravelerDetailsForCommonAPI(
 function convertBookingResponse(request, response, reqSegment) {
   // const tickets = response?.data?.journey?.[0]?.travellerDetails[0]?.eTicket;
   // const src = request.SearchRequest.Segments[0].Origin; // TODO: needs to be dynamic
-  console.log(response);
+  // console.log(response);
 
   const src = reqSegment.Origin;
   const des = reqSegment.Destination;
@@ -339,7 +339,7 @@ function convertBookingResponse(request, response, reqSegment) {
     };
     data.BookingInfo.IsError = data.Status == "Failed";
     data.BookingInfo.CurrentStatus =
-      data.Status == "Hold" ? "HOLD" : data.Status;
+      data.Status == "Hold" ? "HOLD" : data.Status.toUpperCase()||data.Status;
     if (travelerDetails?.[0]?.eTicket?.length)
       data.BookingInfo.CurrentStatus = "CONFIRMED";
     data.ErrorMessage = data.Status == "Failed" ? response?.message ?? "" : "";

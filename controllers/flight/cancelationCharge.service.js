@@ -147,7 +147,7 @@ const fullCancelationCharge = async (req, res) => {
           {new:true}
         );
         const paxPreferences = await PassengerPreference.findOne({
-          providerBookingId: req.body.BookingId,
+          bookingId: booking?.bookingId,
         });
 
         if (paxPreferences?.Passengers?.length) {

@@ -6,7 +6,9 @@ const agentConfig = require("../../models/AgentConfig");
 const bookingDetails = require("../../models/booking/BookingDetails");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
-
+const {
+  commonAirBookingCancellation,
+} = require("../../services/common-air-cancellation");
 const axios = require("axios");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const uuid = require("uuid");
@@ -91,6 +93,9 @@ const partialCancelationCharge = async (req, res) => {
 
 // 
   let result;
+  if(Provider === "kafila"){
+
+  
   if (TravelType !== "International" && TravelType !== "Domestic") {
     return {
       response: "Travel Type Not Valid",
@@ -120,7 +125,90 @@ const partialCancelationCharge = async (req, res) => {
       apiReq: result.apiReq,
     };
   }
-};
+}
+  else{
+    try {
+      req.body.CancelType="JOURNEY"
+      const { result, error } = await commonAirBookingCancellation(req.body);
+      if (error)
+        return {
+          response: "Cancellation Failed",
+          data: {
+            Status: "CANCELLATION FAILED",
+            Error:
+              typeof error === "string"
+                ? error
+                : error?.message || "Internal Server Error",
+          },
+        };
+
+      const status = result?.journey?.[0]?.status || "CANCELLATION FAILED";
+      if (status === "CANCELLED") {
+        
+        
+        const booking = await bookingDetails.findOneAndUpdate(
+          {
+            bookingId: req.body.BookingId,
+          },
+          { $set:{bookingStatus: "PARTIALLY CANCELLED" }},
+          {new:true}
+        );
+        for(let passengers of req.body.passengarList){
+          await passengerPreferenceModel.findOneAndUpdate(
+                     {
+                      bid:booking?._id,
+                       "Passengers.FName": passengers.FNAME,
+                       "Passengers.LName": passengers.LNAME
+                     },
+                     {
+                       $set: { "Passengers.$.Status": "CANCELLED" }
+                     },
+                     {new:true}
+                   );
+       }
+          const cancelationBookingInstance = new CancelationBooking({
+            calcelationStatus: "CANCEL",
+            bookingId: booking?.providerBookingId,
+            providerBookingId: booking?.providerBookingId,
+            AirlineCode:
+              booking?.itinerary?.Sectors[0]?.AirlineCode || null,
+            companyId: Authentication?.CompanyId || null,
+            userId: Authentication?.UserId || null,
+            traceId:null,
+            PNR: booking?.PNR || null,
+            fare: booking?.bookingTotalAmount || 0,
+            AirlineCancellationFee: 0,
+            AirlineRefund: 0,
+            ServiceFee: 0 || 0,
+            RefundableAmt: 0 || 0,
+            description: null,
+            modifyBy: Authentication?.UserId || null,
+            modifyAt: new Date(),
+          });
+  
+          await cancelationBookingInstance.save();
+          // await paxPreferences.save();
+        }
+      
+      return {
+        response: "Fetch Data Successfully",
+        data: {
+          BookingId: req.body.BookingId,
+          CancelType: req.body.CancelType,
+          PNR: req.body.PNR,
+          Provider: req.body.Provider,
+          Status: status,
+        },
+      };
+    } catch (commonCancellationError) {
+      return {
+        response: commonCancellationError?.message || "Error in Cancellations",
+        data: commonCancellationError,
+      };
+    }
+  }
+  }
+
 
 async function handleflight(
   Authentication,

@@ -98,18 +98,18 @@ function convertItineraryForKafila({
     TId: idx,
     Src: response.origin,
     Des: response.destination,
-    FCode: itinerary.airSegments[0].airlineCode,
-    FName: itinerary.airSegments[0].airlineName,
-    FNo: itinerary.airSegments[0].fltNum,
-    DDate: `${formatDateForKafila(itinerary.airSegments[0].departure.date)}T${
-      itinerary.airSegments[0].departure.time
+    FCode: itinerary?.airSegments[0]?.airlineCode,
+    FName: itinerary?.airSegments[0]?.airlineName,
+    FNo: itinerary?.airSegments[0]?.fltNum,
+    DDate: `${formatDateForKafila(itinerary?.airSegments[0]?.departure?.date)}T${
+      itinerary?.airSegments[0]?.departure?.time
     }:00`,
-    ADate: `${formatDateForKafila(itinerary.airSegments.at(-1).arrival.date)}T${
-      itinerary.airSegments.at(-1).arrival.time
+    ADate: `${formatDateForKafila(itinerary?.airSegments.at(-1)?.arrival?.date)}T${
+      itinerary?.airSegments?.at(-1)?.arrival?.time
     }:00`,
     Dur: sumDurationForKafila(itinerary.airSegments),
     Stop: itinerary.airSegments.length - 1,
-    Seats: itinerary.airSegments[0].noSeats,
+    Seats: itinerary?.airSegments[0]?.noSeats,
     Sector: `${response?.journey?.[0]?.origin},${response?.journey?.[0]?.destination}`,
     Itinerary: itinerary.airSegments.map((segment, idx) => ({
       Id: idx,

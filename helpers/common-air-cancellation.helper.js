@@ -7,7 +7,7 @@ const {
   convertFlightDetailsForCommonAPI,
 } = require("./common-air-pricing.helper");
 
-function createAirCancellationRequestBodyForCommonAPI(request) {
+ function createAirCancellationRequestBodyForCommonAPI(request) {
   try {
     const reqItinerary = request.Itinerary?.[0];
     const reqSegment = request.Segments?.[0];
@@ -38,38 +38,49 @@ function createAirCancellationRequestBodyForCommonAPI(request) {
               cancelRemarks: request?.Reason?.Reason || "",
               cancelType: request?.CancelType || "",
               airSegments: null,
-              travellerDetails: null,
+              travellerDetails: request?.passengarList ? travellerDetailsForCancellation(request.passengarList) : null,
             },
           ],
         },
       ],
     };
-    if (request.CancelType !== "ALL") {
-      request.journey[0].itinerary[0].airSegments = request.Segments.map(
-        (sector) => ({
-          airlineCode: sector?.AirlineCode,
-          departure: convertFlightDetailsForCommonAPI(sector?.Departure),
-          arrival: convertFlightDetailsForCommonAPI(sector?.Arrival),
-          operatingCarrier: reqItinerary?.ValCarrier
-            ? { code: reqItinerary?.ValCarrier }
-            : null,
-          fltNum: sector?.FltNum,
-        })
-      );
-      request.journey[0].itinerary[0].travellerDetails =
-        request?.passengarList?.map((traveller, idx) => ({
-          travellerId: idx + 1,
-          title: traveller.TTL,
-          firstName: traveller.FNAME,
-          lastName: traveller.LNAME,
-          type: travller.PAX_TYPE,
-        }));
-    }
+    // if (request.CancelType !== "ALL") {
+    //   request.journey[0].itinerary[0].airSegments = request.Segments.map(
+    //     (sector) => ({
+    //       airlineCode: sector?.AirlineCode,
+    //       departure: convertFlightDetailsForCommonAPI(sector?.Departure),
+    //       arrival: convertFlightDetailsForCommonAPI(sector?.Arrival),
+    //       operatingCarrier: reqItinerary?.ValCarrier
+    //         ? { code: reqItinerary?.ValCarrier }
+    //         : null,
+    //       fltNum: sector?.FltNum,
+    //     })
+    //   );
+    //   request.journey[0].itinerary[0].travellerDetails =
+    //     request?.passengarList?.map((traveller, idx) => ({
+    //       travellerId: idx + 1,
+    //       title: traveller.TTL,
+    //       firstName: traveller.FNAME,
+    //       lastName: traveller.LNAME,
+    //       type: travller.PAX_TYPE,
+    //     }));
+    // }
     return { requestBody };
   } catch (error) {
     return { error: error.message };
   }
 }
+
+function travellerDetailsForCancellation(travellerData) {
+  if (!travellerData || !Array.isArray(travellerData)) return null; 
+
+  return travellerData.map(({ PAX_TYPE, FNAME, TTL, LNAME }) => ({
+    type: PAX_TYPE,
+    firstName: `${FNAME} ${TTL}`,
+    lastName: LNAME
+  }));
+}
+
 
 function convertAirCancellationItineraryForCommonAPI({
   response,

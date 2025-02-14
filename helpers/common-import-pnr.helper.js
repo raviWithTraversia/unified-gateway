@@ -41,7 +41,7 @@ async function importPNRHelper(request) {
         },
       ],
     };
-    const url = `${Config.TEST.additionalFlightsBaseURL}/pnr/importPNR`;
+    const url = Config[Authentication.CredentialType ?? "TEST"].additionalFlightsBaseURL+`/pnr/importPNR`;
     // console.log({ importURL: url });
 
     const pnrResponse = await axios.post(url, importPNRRequest);

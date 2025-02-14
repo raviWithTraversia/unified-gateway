@@ -1216,7 +1216,8 @@ const KafilaFun = async (
                   fSearchApiResponseStatus?.toLowerCase() == "failed" ||
                   fSearchApiResponse?.data?.IsError == true ||
                   fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ==
-                    "FAILED"
+                    "FAILED"||fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ==
+                    "HOLD"
                 ) {
                   await BookingDetails.updateOne(
                     {

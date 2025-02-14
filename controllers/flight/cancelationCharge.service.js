@@ -141,13 +141,13 @@ const fullCancelationCharge = async (req, res) => {
         
         const booking = await BookingDetails.findOneAndUpdate(
           {
-            bookingId: req.body.BookingId,
+            providerBookingId: req.body.BookingId,
           },
           { $set:{bookingStatus: "CANCELLED" }},
           {new:true}
         );
         const paxPreferences = await PassengerPreference.findOne({
-          bookingId: req.body.BookingId,
+          providerBookingId: req.body.BookingId,
         });
 
         if (paxPreferences?.Passengers?.length) {

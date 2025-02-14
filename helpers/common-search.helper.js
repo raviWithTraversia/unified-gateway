@@ -92,6 +92,7 @@ function convertItineraryForKafila({
     TraceId: response.traceId,
     OI: null,
   };
+
   convertedItinerary[apiItinerary ? "apiItinerary" : "SelectedFlight"] = {
     PId: idx,
     Id: idx,
@@ -101,14 +102,14 @@ function convertItineraryForKafila({
     FCode: itinerary?.airSegments[0]?.airlineCode,
     FName: itinerary?.airSegments[0]?.airlineName,
     FNo: itinerary?.airSegments[0]?.fltNum,
-    DDate: `${formatDateForKafila(itinerary?.airSegments[0]?.departure?.date)}T${
-      itinerary?.airSegments[0]?.departure?.time
-    }:00`,
-    ADate: `${formatDateForKafila(itinerary?.airSegments.at(-1)?.arrival?.date)}T${
-      itinerary?.airSegments?.at(-1)?.arrival?.time
-    }:00`,
+    DDate: `${formatDateForKafila(
+      itinerary?.airSegments[0]?.departure?.date
+    )}T${itinerary?.airSegments[0]?.departure?.time}:00`,
+    ADate: `${formatDateForKafila(
+      itinerary?.airSegments.at(-1)?.arrival?.date
+    )}T${itinerary?.airSegments?.at(-1)?.arrival?.time}:00`,
     Dur: sumDurationForKafila(itinerary.airSegments),
-    Stop: itinerary.airSegments.length - 1,
+    Stop: convertedItinerary.Stop,
     Seats: itinerary?.airSegments[0]?.noSeats,
     Sector: `${response?.journey?.[0]?.origin},${response?.journey?.[0]?.destination}`,
     Itinerary: itinerary.airSegments.map((segment, idx) => ({
@@ -132,7 +133,7 @@ function convertItineraryForKafila({
       DArpt: segment.departure.name,
       AArpt: segment.arrival.name,
       Dur: sumDurationForKafila([segment]),
-      layover: "",
+      layover: convertedItinerary?.Sectors?.[idx]?.layover ?? "",
       Seat: segment.noSeats,
       FClass: segment.classofService,
       PClass: segment.productClass,
@@ -169,6 +170,11 @@ function convertItineraryForKafila({
       },
     },
   };
+  const technicalStops = itinerary?.airSegments?.reduce?.(
+    (acc, segment) => acc + (segment?.technicalStops?.length || 0),
+    0
+  );
+  convertedItinerary.Stop += technicalStops || 0;
   return convertedItinerary;
 }
 
@@ -193,6 +199,7 @@ function sumDurationForKafila(airSegments = [], type = "travelTime") {
       return `${travelTime[0]}d:${travelTime[1]}h:${travelTime[2]}m`;
     else return `0d:${travelTime[0]}h:${travelTime[1]}m`;
   }
+
   const duration = airSegments.reduce(
     (acc, segment) => {
       if (!segment[type]) return acc;
@@ -217,6 +224,54 @@ function sumDurationForKafila(airSegments = [], type = "travelTime") {
 
   return `${duration.days}d:${duration.hours}h:${duration.minutes}m`;
 }
+
+function getTechStopTimeDifference(stop) {
+  const startDate = moment(stop.arrival.date, "DD/MM/YYYY");
+  const endDate = moment(stop.departure.date, "DD/MM/YYYY");
+
+  const [startHours, startMinutes] = stop.arrival.time.split(":").map(Number);
+  const [endHours, endMinutes] = stop.departure.time.split(":").map(Number);
+
+  const startDateTime = startDate
+    .set("hour", startHours)
+    .set("minute", startMinutes);
+  const endDateTime = endDate.set("hour", endHours).set("minute", endMinutes);
+
+  let minutes = endDateTime.diff(startDateTime, "minutes");
+  // let hours = 0;
+  // let days = 0;
+
+  // if (minutes > minutesInADay) {
+  //   days = parseInt(minutes / minutesInADay);
+  //   minutes -= days * minutesInADay;
+  // }
+  // if (minutes > 60) {
+  //   hours = parseInt(minutes / 60);
+  //   minutes -= hours * 60;
+  // }
+
+  // return `${days}d:${hours}h:${minutes}m`;
+  return minutes;
+}
+
+function convertMinutesInDuration(minutes = 0) {
+  const minutesInADay = 60 * 24;
+
+  let hours = 0;
+  let days = 0;
+
+  if (minutes > minutesInADay) {
+    days = parseInt(minutes / minutesInADay);
+    minutes -= days * minutesInADay;
+  }
+  if (minutes > 60) {
+    hours = parseInt(minutes / 60);
+    minutes -= hours * 60;
+  }
+
+  return `${days}d:${hours}h:${minutes}m`;
+}
+
 function formatDateForKafila(dateString) {
   return moment(dateString, "DD/MM/YYYY").format("YYYY-MM-DD");
 }
@@ -224,7 +279,6 @@ function formatDateForKafila(dateString) {
 function convertFlightDetailsForKafila(flight) {
   if (!flight) return {};
   const date = formatDateForKafila(flight.date);
-  console.log({ fDate: flight.date, date });
 
   return {
     Terminal: flight.terminal,
@@ -254,8 +308,8 @@ function convertSegmentForKafila(segment) {
     EquipType: segment.equipType ?? "",
     FlyingTime: sumDurationForKafila([segment], "flyingTime"),
     TravelTime: sumDurationForKafila([segment]),
-    TechStopOver: null, // missing
-    layover: "", // missing
+    TechStopOver: segment.technicalStops?.length ?? 0, // missing
+    layover: getTechnicalStopRemark(segment.technicalStops), // missing
     Status: "", // missing
     OperatingCarrier: segment.operatingCarrier?.code ?? null,
     MarketingCarrier: null,
@@ -321,6 +375,23 @@ function passengerPriceBreakupForKafila(type, priceBreakup) {
     key: breakup.key ?? "",
     OI: [],
   };
+}
+function getTechnicalStopRemark(technicalStops = []) {
+  saveLogInFile({ technicalStops });
+  if (!technicalStops?.length) return "";
+  let remark = "";
+
+  try {
+    for (let stop of technicalStops) {
+      const code = stop?.arrival?.code;
+      const diffInMinutes = getTechStopTimeDifference(stop);
+      const duration = convertMinutesInDuration(diffInMinutes);
+      remark += `${remark ? ", " : ""}${code} (Layover for ${duration})`;
+    }
+  } catch (error) {
+    console.log({ errorConstructingTechnicalStopRemark: error });
+  }
+  return remark;
 }
 function priceBreakupForKafilaAPI(type, priceBreakup) {
   const breakup = priceBreakup.find(

@@ -16,6 +16,7 @@ const {
 const BookingDetails = require("../../models/booking/BookingDetails");
 const PassengerPreference = require("../../models/booking/PassengerPreference");
 const flightCache = new NodeCache();
+const {calculateDealAmount}=require("./partialCalcelationCharge.service")
 
 const fullCancelationCharge = async (req, res) => {
   const {
@@ -88,7 +89,7 @@ const fullCancelationCharge = async (req, res) => {
       agencyUserId = agencyUser._id;
     }
   }
-  if (Provider == "Kafila") {
+  if(Provider.toLowerCase() === "kafila"){
     let result;
     if (TravelType !== "International" && TravelType !== "Domestic") {
       return {
@@ -146,15 +147,21 @@ const fullCancelationCharge = async (req, res) => {
           { $set:{bookingStatus: "CANCELLED" }},
           {new:true}
         );
-        const paxPreferences = await PassengerPreference.findOne({
-          bookingId: booking?.bookingId,
-        });
-
-        if (paxPreferences?.Passengers?.length) {
-          paxPreferences.Passengers = paxPreferences.Passengers.map((pax) => {
-            pax.Status = "CANCELLED";
-            return pax;
-          });
+        let calculateFareAmount=0
+        for(let passengers of req.body.passengarList){
+          calculateFareAmount+=calculateDealAmount(booking,passengers.PAX_TYPE)
+          await passengerPreferenceModel.findOneAndUpdate(
+                     {
+                      bid:booking?._id,
+                       "Passengers.FName": passengers.FNAME,
+                       "Passengers.LName": passengers.LNAME
+                     },
+                     {
+                       $set: { "Passengers.$.Status": "CANCELLED" }
+                     },
+                     {new:true}
+                   );
+       }
           const cancelationBookingInstance = new CancelationBooking({
             calcelationStatus: "CANCEL",
             bookingId: booking?.providerBookingId,
@@ -165,7 +172,7 @@ const fullCancelationCharge = async (req, res) => {
             userId: Authentication?.UserId || null,
             traceId:null,
             PNR: booking?.PNR || null,
-            fare: booking?.bookingTotalAmount || 0,
+            fare: calculateFareAmount || 0,
             AirlineCancellationFee: 0,
             AirlineRefund: 0,
             ServiceFee: 0 || 0,
@@ -176,9 +183,8 @@ const fullCancelationCharge = async (req, res) => {
           });
   
           await cancelationBookingInstance.save();
-          await paxPreferences.save();
         }
-      }
+      
       return {
         response: "Fetch Data Successfully",
         data: {
@@ -543,4 +549,5 @@ const KafilaFun = async (
 };
 module.exports = {
   fullCancelationCharge,
+
 };

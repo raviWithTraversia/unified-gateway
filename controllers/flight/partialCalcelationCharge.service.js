@@ -93,7 +93,7 @@ const partialCancelationCharge = async (req, res) => {
 
 // 
   let result;
-  if(Provider === "kafila"){
+  if(Provider.toLowerCase() === "kafila"){
 
   
   if (TravelType !== "International" && TravelType !== "Domestic") {
@@ -580,4 +580,5 @@ const calculateDealAmount = (data, type) => {
   
 module.exports = {
     partialCancelationCharge,
+    calculateDealAmount
 };

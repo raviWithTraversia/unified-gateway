@@ -1212,13 +1212,13 @@ const KafilaFun = async (
                 };
                 Logs(logData);
                 let fSearchApiResponseStatus = fSearchApiResponse?.data?.Status;
-                if (
-                  fSearchApiResponseStatus?.toLowerCase() == "failed" ||
+                if ((!isHoldBooking)&&
+                  (fSearchApiResponseStatus?.toLowerCase() == "failed" ||
                   fSearchApiResponse?.data?.IsError == true ||
                   fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ==
                     "FAILED"||fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ==
                     "HOLD"
-                ) {
+                )) {
                   await BookingDetails.updateOne(
                     {
                       bookingId: item?.BookingId,
@@ -1522,7 +1522,13 @@ const findFailedBooking=await BookingDetails.find({
                   }
                 );
 
-                const findFailedBooking=await BookingDetails.find({
+                if(isHoldBooking){
+                  totalRefundAmount=0
+
+                }
+           else{
+
+  const findFailedBooking=await BookingDetails.find({
                   bookingId: item?.BookingId,
                   bookingStatus:"FAILED"
                   },{bookingTotalAmount:1})
@@ -1531,7 +1537,7 @@ const findFailedBooking=await BookingDetails.find({
                     return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
                   }, 0);
                   totalRefundAmount=findFailedBooking.length>1?totalSSRWithCalculationPrice:refundAmount;
-
+                }
                 // Ledget Create After booking Failed
                 // const getAgentConfigForUpdate = await agentConfig.findOne({
                 //   userId: getuserDetails._id,

@@ -15,7 +15,7 @@ const { saveLogInFile } = require("../utils/save-log");
 const {convertItineraryForKafila} = require("../helpers/common-search.helper");
 const {convertPaxDetailsForKafila}=require("../helpers/common-import-pnr.helper");
 
-module.exports.getCommonPnrTicket = async (request,res) => {
+const getCommonPnrTicket = async (request,res) => {
   var errorMessage=""
   try {
     const requestBody = await createPnrTicketRequestBody(request);
@@ -91,7 +91,7 @@ module.exports.getCommonPnrTicket = async (request,res) => {
   }
 
 
-  module.exports.holdBookingProcessPayment= async(item, pending = false)=>{
+  const holdBookingProcessPayment=async(item, pending = false)=>{
     // 1. Booking confirmation check
     if (item.Status !== "Confirm") {
       return "Hold From Api Side";
@@ -219,4 +219,7 @@ module.exports.getCommonPnrTicket = async (request,res) => {
     return item;
   } 
   
-  
+  module.exports={
+    holdBookingProcessPayment,
+    getCommonPnrTicket
+  }

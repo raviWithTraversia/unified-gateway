@@ -27,6 +27,8 @@ const transaction = require("../../models/transaction");
 const railLogs = require("../../models/Irctc/railLogs");
 const { ObjectId } = require("mongodb");
 const { totalmem } = require("os");
+const axios = require('axios');
+
 
 const createToken = async (id) => {
   try {
@@ -1964,6 +1966,71 @@ function offerPriceMinusInAmount(plusKeyName) {
   return returnBoolean;
 }
 
+async function getPnr1APnedingStatus(traceId,credentialsType) {
+  try {
+    // POST request bhejne ke liye fetch ka use
+    // console.log(`${Config[credentialsType]?.additionalFlightsBaseURL}/log/airlog`)
+    const response = await fetch(`${Config[credentialsType]?.additionalFlightsBaseURL}/log/airlog`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        traceId: traceId,
+        logType: "vendor",  // vendor ya travelOne
+        serviceName: "",    // airBooking ke liye agar zaroori ho
+        download: true
+      })
+    });
+    
+    const responseText = await response.text();
+
+    const controlNumberRegex = /<controlNumber>(.*?)<\/controlNumber>/g;
+    let match;
+    const pnrList = [];
+
+    while ((match = controlNumberRegex.exec(responseText)) !== null) {
+      if (!pnrList.includes(match[1])) {
+        pnrList.push(match[1]);
+      }
+    }
+    
+    return pnrList[0]
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
+
+
+const getPnrDataCommonMethod=async(Authentication,pnr,provider)=>{
+
+  const url = `${Config[Authentication?.CredentialType]?.baseURLBackend}/api/flight/import-pnr`;
+  
+  const data = {
+    pnr:pnr,
+    provider: provider,
+    Authentication:Authentication
+  };
+  
+  const config = {
+    headers: {
+      'Accept': 'application/json, text/plain, */*',
+    }
+  };
+  try{
+    const response=await axios.post(url, data, config)
+    return response.data
+  }
+  catch(error){
+    console.log("Error:",error.message)
+  }
+  
+  
+    
+  
+}
+// Function call
+
 module.exports = {
   createToken,
   securePassword,
@@ -2001,5 +2068,7 @@ module.exports = {
   convertTimeISTtoUTC,
   ProivdeIndiaStandardTime,
   calculateOfferedPrice,
-  commonProviderMethodDate
+  commonProviderMethodDate,
+  getPnr1APnedingStatus,
+  getPnrDataCommonMethod
 };

@@ -14,7 +14,9 @@ const NodeCache = require("node-cache");
 const { ObjectId } = require("mongodb");
 const crypto = require('crypto');
 const moment=require('moment')
-const {RefundedCommonFunction}=require('../../controllers/commonFunctions/common.function')
+const {holdBookingProcessPayment}=require('../../services/common-pnrTicket-service')
+const {RefundedCommonFunction,getPnr1APnedingStatus,getPnrDataCommonMethod,commonProviderMethodDate}=require('../../controllers/commonFunctions/common.function')
+const {updateBarcode2DByBookingId}=require('./airBooking.service')
 
 const fullCancelation = async (req, res) => {
   const {
@@ -540,222 +542,235 @@ const KafilaFun = async (
 };
 
 const updateBookingStatus = async (req, res) => {
-  const { _BookingId, credentialsType } = req.body;
-  if (!_BookingId.length) {
-    return { response: "_BookingId or companyId or credentialsType does not exist" }
-  }
-  if (!["LIVE", "TEST"].includes(credentialsType)) {
-    return {
-      IsSucess: false,
-      response: "Credential Type does not exist",
-    };
-  }
-  const objectIdArray = _BookingId.map(id => new ObjectId(id));
-  const getBookingbyBookingId = await bookingDetails.aggregate([{ $match: { _id: { $in: objectIdArray } } }, {
-    $lookup: {
-      from: "suppliercodes",
-      localField: "provider",
-      foreignField: "supplierCode",
-      as: "supplierData",
-    },
-  }, { $unwind: "$supplierData" }, {
-    $lookup: {
-      from: "suppliers",
-      localField: "supplierData._id",
-      foreignField: "supplierCodeId",
-      as: "supplyData",
-    },
-  }, {
-    $project: {
-      providerBookingId: 1,
-      bookingId: 1,
-      "itinerary.TraceId": 1,
-      credentialsTypeData: {
-        $filter: {
-          input: "$supplyData",
-          as: "item",
-          cond: {
-            $and: [
-              { $eq: ["$$item.credentialsType", credentialsType] },
-              { $eq: ["$$item.status", true] }
-            ]
-          }
-        }
-      }
+  try {
+    const { _BookingId, credentialsType, Authentication } = req.body;
+    
+    // Validation: _BookingId aur credentialsType check karna
+    if (!_BookingId || !_BookingId.length) {
+      return { response: "_BookingId or companyId or credentialsType does not exist" };
     }
-  }, { $unwind: "$credentialsTypeData" }, {
-    $project: {
-      providerBookingId: 1,
-      bookingId:1,
-      traceId: "$itinerary.TraceId",
-      supplierUserId: "$credentialsTypeData.supplierUserId",
-      supplierPassword: "$credentialsTypeData.supplierPassword",
-      supplierWsapSesssion: "$credentialsTypeData.supplierWsapSesssion",
-      credentialsTypeData:1
+    if (!["LIVE", "TEST"].includes(credentialsType)) {
+      return { IsSuccess: false, response: "Credential Type does not exist" };
     }
-  }]);
-
-  // console.log(getBookingbyBookingId,"djieei")
-
-  if (!getBookingbyBookingId.length) {
-    return {
-      response: "No booking Found!"
-    }
-  }
-  let supplier = getBookingbyBookingId[0].credentialsTypeData;
-  let supplierLiveUrl =  "";
-  let supplierTestUrl = "";
-  if(supplier){
-    supplierLiveUrl = supplier.supplierLiveUrl;
-    supplierTestUrl = supplier.supplierTestUrl;
-  }else{
-    supplierLiveUrl = "http://fhapip.ksofttechnology.com";
-    supplierTestUrl = "http://stage1.ksofttechnology.com";
-  }
-  let createTokenUrl;
-  let credentialEnv = "D";
-  if (credentialsType === "LIVE") {
-    credentialEnv = "P";
-    createTokenUrl = `${supplierLiveUrl}/api/Freport`; // Live Url here
-  } else {
-    createTokenUrl = `${supplierTestUrl}/api/Freport`; // Test Url here
-  }
-
-  const bulkOps = [];
-
-  for (const item of getBookingbyBookingId) {
-    const concatenatedString = ((`${item.supplierUserId}|${item.supplierPassword}`).toUpperCase());
-    let postData = {
-      P_TYPE: "API",
-      R_TYPE: "FLIGHT",
-      R_NAME: "FlightBookingResponse",
-      R_DATA: {
-        TYPE: "PNRRES",
-        BOOKING_ID: "",
-        TRACE_ID: item.traceId
-      },
-      AID: item.supplierWsapSesssion,
-      MODULE: "B2B",
-      IP: "182.73.146.154",
-      TOKEN: crypto.createHash('md5').update(concatenatedString).digest('hex'),
-      ENV: credentialEnv,
-      Version: "1.0.0.0.0.0"
-    };
-
-    const response = (await axios.post(createTokenUrl, postData, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }))?.data;
-
-    let fSearchApiResponse = await axios.post(
-      createTokenUrl,
-      postData,
-      
+    
+    // Convert _BookingId array ke sabhi id ko ObjectId me convert karo
+    const objectIdArray = _BookingId.map(id => new ObjectId(id));
+    
+    // Aggregate query se booking details fetch karna with supplier details
+    const getBookingbyBookingId = await bookingDetails.aggregate([
+      { $match: { _id: { $in: objectIdArray } } },
       {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    // if(response.ErrorMessage=="Data not found."||!response.IsError){
-    //   return {
-    //     response:response?.WarningMessage
-    //   }
-
-    // }
-    // console.log(item?.bookingId,"jdiei")
-      const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.bookingId });
-      if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
-        // console.log('shadab')
-        await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
-          
-          const apiPassenger = response.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
-          if (apiPassenger) {
-          //  console.log(passenger,"apiPassenger");
-            if(passenger?.Optional?.ticketDetails?.length > 0){
-              const ticketUpdate = passenger.Optional.ticketDetails.find(p => p.src === fSearchApiResponse.data.Param.Sector[0].Src && p.des === fSearchApiResponse.data.Param.Sector[0].Des);
-          //    console.log(ticketUpdate,"ticketUpdate");
-              if(ticketUpdate){
-                console.log(apiPassenger?.Optional?.TicketNumber,"jdsdsjkdj")
-                ticketUpdate.ticketNumber = apiPassenger?.Optional?.TicketNumber;
+        $lookup: {
+          from: "suppliercodes",
+          localField: "provider",
+          foreignField: "supplierCode",
+          as: "supplierData"
+        }
+      },
+      { $unwind: "$supplierData" },
+      {
+        $lookup: {
+          from: "suppliers",
+          localField: "supplierData._id",
+          foreignField: "supplierCodeId",
+          as: "supplyData"
+        }
+      },
+      {
+        $project: {
+          providerBookingId: 1,
+          bookingId: 1,
+          provider:1,
+          itinerary:1,
+          // "itinerary.TraceId": 1,
+          credentialsTypeData: {
+            $filter: {
+              input: "$supplyData",
+              as: "item",
+              cond: {
+                $and: [
+                  { $eq: ["$$item.credentialsType", credentialsType] },
+                  { $eq: ["$$item.status", true] }
+                ]
               }
             }
-            
-            passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
-            passenger.Status = "CONFIRMED";
           }
-        }));
-
-        await getpassengersPrefrence.save();
+        }
+      },
+      { $unwind: "$credentialsTypeData" },
+      {
+        $project: {
+          providerBookingId: 1,
+          bookingId: 1,
+          traceId: "$itinerary.TraceId",
+          supplierUserId: "$credentialsTypeData.supplierUserId",
+          supplierPassword: "$credentialsTypeData.supplierPassword",
+          supplierWsapSesssion: "$credentialsTypeData.supplierWsapSesssion",
+          supplierOfficeId:"$credentialsTypeData.supplierOfficeId",
+          itinerary:1,
+          credentialsTypeData: 1,
+          provider: 1,       // Yeh assume kiya gaya hai ki bookingDetails me yeh field hai
+          createdAt: 1
+        }
       }
-
-
-
-    // return {
-    //   response: "Status updated Successfully!",
-    //   data:response
-    // }
-    // console.log(response);
-
-
-    bulkOps.push({
-      updateOne: {
-        filter: { _id: item._id },
-        update: { $set: { 
-          bookingStatus: response?.BookingInfo?.CurrentStatus,
-          APnr: response?.BookingInfo?.APnr,
-          GPnr:  response?.BookingInfo?.GPnr,
-          PNR: response?.BookingInfo?.APnr,
-         } }
-      }
-    });
-
-  }
-  bulkOps.forEach(async(element)=>{
-    if (element.updateOne.update.$set.bookingStatus.toUpperCase() === "FAILED") {
-      const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
-      
-      // Fetch the booking data
-      const bookingsData = await bookingDetails.findById(element.updateOne.filter._id);
-      
-      // Update maxcreditLimit for the agent by incrementing it with bookingTotalAmount
-      const agentData = await agentConfig.findOneAndUpdate(
-          { userId: bookingsData.userId },
-          { $inc: { maxcreditLimit: bookingsData.bookingTotalAmount } },  // Use $inc directly
-          { new: true }
-      );
-  
-      // Create a new ledger entry
-      await ledger.create({
-          userId: bookingsData.userId,
-          companyId: bookingsData.AgencyId,
-          ledgerId: ledgerId,
-          cartId: bookingsData?.bookingId,
-          transactionAmount: bookingsData.bookingTotalAmount,
-          currencyType: "INR",
-          fop: "DEBIT",
-          transactionType: "CREDIT",
-          runningAmount: agentData.maxcreditLimit,
-          remarks: "Refund amount failed booking",
-          transactionBy: bookingsData.userId,
-      });
-  }
-  
-  })
-
-  if (bulkOps.length) {
-    await bookingDetails.bulkWrite(bulkOps);
+    ]);
     
-    return {
-      response: "Status updated Successfully!"
+    if (!getBookingbyBookingId || !getBookingbyBookingId.length) {
+      return { response: "No booking Found!" };
     }
-  } else {
-    return {
-      response: "Error in updating Status!"
+    
+    // Supplier URLs determine karna
+    let supplier = getBookingbyBookingId[0].credentialsTypeData;
+    let supplierLiveUrl = supplier ? supplier.supplierLiveUrl : "http://fhapip.ksofttechnology.com";
+    let supplierTestUrl = supplier ? supplier.supplierTestUrl : "http://stage1.ksofttechnology.com";
+    let createTokenUrl;
+    let credentialEnv = "D";
+    if (credentialsType === "LIVE") {
+      credentialEnv = "P";
+      createTokenUrl = `${supplierLiveUrl}/api/Freport`; // Live URL
+    } else {
+      createTokenUrl = `${supplierTestUrl}/api/Freport`; // Test URL
     }
+    
+    const bulkOps = [];
+    
+    // Loop har ek booking item par
+    for (const item of getBookingbyBookingId) {
+      let apiResponse; // response jo common provider se milegi
+      if(item.provider.toUpperCase()==="KAFILA") {
+        // Common provider flow
+        const concatenatedString = (`${item.supplierUserId}|${item.supplierPassword}`).toUpperCase();
+        const postData = {
+          P_TYPE: "API",
+          R_TYPE: "FLIGHT",
+          R_NAME: "FlightBookingResponse",
+          R_DATA: {
+            TYPE: "PNRRES",
+            BOOKING_ID: "",
+            TRACE_ID: item.traceId
+          },
+          AID: item.supplierWsapSesssion,
+          MODULE: "B2B",
+          IP: "182.73.146.154",
+          TOKEN:item?.supplierOfficeId,
+          ENV: credentialEnv,
+          Version: "1.0.0.0.0.0"
+        };
+        
+        // Axios POST call to createTokenUrl (single call)
+        const axiosResp = await axios.post(createTokenUrl, postData, {
+          headers: { "Content-Type": "application/json" }
+        });
+        apiResponse = axiosResp.data;
+        
+        // Update passenger preferences using API response
+        const getPassengersPreference = await passengerPreferenceModel.findOne({ bookingId: item.bookingId });
+        if (getPassengersPreference && getPassengersPreference.Passengers) {
+          await Promise.all(
+            getPassengersPreference.Passengers.map(async (passenger) => {
+              // Matching passenger based on FName and LName
+              const apiPassenger = apiResponse.PaxInfo.Passengers.find(
+                p => p.FName === passenger.FName && p.LName === passenger.LName
+              );
+              if (apiPassenger) {
+                // Update ticket details agar available
+                if (passenger?.Optional?.ticketDetails?.length > 0 && apiResponse.Param?.Sector) {
+                  const sector = apiResponse.Param.Sector[0];
+                  const ticketUpdate = passenger.Optional.ticketDetails.find(p => p.src === sector.Src && p.des === sector.Des);
+                  if (ticketUpdate) {
+                    ticketUpdate.ticketNumber = apiPassenger?.Optional?.TicketNumber;
+                  }
+                }
+                passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
+                passenger.Status = "CONFIRMED";
+              }
+            })
+          );
+          await getPassengersPreference.save();
+        }
+      }
+      else{
+        // Provider 1A ke liye alag flow
+        const PNR = await getPnr1APnedingStatus(item.traceId, credentialsType);
+        if (!PNR || !PNR.length) {
+          return { IsSuccess: false, response: "Failed Booking" };
+        }
+        // Typo fix: item.Provider (na ki item.Proivder)
+        const pnrImportData = await getPnrDataCommonMethod(Authentication, PNR, item?.provider);
+        if (!pnrImportData) {
+          return { IsSuccess: false, response: "Failed Booking" };
+        }
+        // Update booking object with new PNR and providerBookingId
+      await bookingDetails.findOneAndUpdate({bookingId:item?.bookingId},{$set:{GPnr:PNR,providerBookingId:await commonProviderMethodDate(item.createdAt)}},{new:true})
+        // Call holdBookingProcessPayment (pending true)
+        await holdBookingProcessPayment(pnrImportData?.Result, true);
+        await updateBarcode2DByBookingId(item?.bookingId,null,item?.itinerary,PNR)
+      }
+      
+      // Prepare bulk update data
+      const updateData = {};
+      if (apiResponse && apiResponse.BookingInfo) {
+        updateData.bookingStatus = apiResponse.BookingInfo.CurrentStatus;
+        updateData.APnr = apiResponse.BookingInfo.APnr;
+        updateData.GPnr = apiResponse.BookingInfo.GPnr;
+        updateData.PNR = apiResponse.BookingInfo.APnr;
+      } else if (item.Provider === "1A") {
+        updateData.bookingStatus = "CONFIRMED";
+      }
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: item._id },
+          update: { $set: updateData }
+        }
+      });
+    } // End for loop
+    
+    // Bulk write update in bookingDetails
+    if (bulkOps.length) {
+      await bookingDetails.bulkWrite(bulkOps);
+    } else {
+      return { response: "Error in updating Status!" };
+    }
+    
+    // Process failed bookings: agar bookingStatus FAILED ho toh refund agent credit
+    await Promise.all(
+      bulkOps.map(async (element) => {
+        const bookingStatus = element.updateOne.update.$set.bookingStatus;
+        if (bookingStatus && bookingStatus.toUpperCase() === "FAILED") {
+          const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
+          // Fetch booking data
+          const bookingsData = await bookingDetails.findById(element.updateOne.filter._id);
+          // Refund agent credit using $inc operator
+          const agentData = await agentConfig.findOneAndUpdate(
+            { userId: bookingsData.userId },
+            { $inc: { maxcreditLimit: bookingsData.bookingTotalAmount } },
+            { new: true }
+          );
+          // Create ledger entry for refund
+          await ledger.create({
+            userId: bookingsData.userId,
+            companyId: bookingsData.AgencyId,
+            ledgerId: ledgerId,
+            cartId: bookingsData.bookingId,
+            transactionAmount: bookingsData.bookingTotalAmount,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "CREDIT",
+            runningAmount: agentData.maxcreditLimit,
+            remarks: "Refund amount failed booking",
+            transactionBy: bookingsData.userId,
+          });
+        }
+      })
+    );
+    
+    return { response: "Status updated Successfully!" };
+  } catch (error) {
+    console.error("Error in updateBookingStatus:", error);
+    return { response: "Internal Server Error", error: error.message };
   }
-}
+};
+
 const updatePendingBookingStatus = async (req, res) => {
   const { _BookingId, credentialsType,companyId,fromDate,toDate } = req.body;
   if (!_BookingId.length) {

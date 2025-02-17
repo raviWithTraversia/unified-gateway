@@ -91,86 +91,86 @@ module.exports.getCommonPnrTicket = async (request,res) => {
   }
 
 
-  async function holdBookingProcessPayment(item) {
-    
-    // Check if booking is confirmed
+  module.exports.holdBookingProcessPayment= async(item, pending = false)=>{
+    // 1. Booking confirmation check
     if (item.Status !== "Confirm") {
       return "Hold From Api Side";
     }
   
-    // Fetch booking details
+    const titles = ["Mr", "MR", "mr", "Mrs", "Miss", "Dr", "MS",'Ms',"MISS","MRS"];
     const bookingData = await BookingDetails.findOne({ GPnr: item?.PNR });
     if (!bookingData) return "Booking data not found";
   
-    // Fetch agent configuration
-
-    const getAgentConfig = await agentConfig.findOne({ userId: bookingData?.userId });
-    if (!getAgentConfig) return "Agent configuration not found";
-  
-    // Calculate credit limit and check balance
-    const maxCreditLimit = getAgentConfig.maxcreditLimit ?? 0;
-    // const checkCreditLimit = maxCreditLimit + creditTotal;
-  
-    if (maxCreditLimit < bookingData.bookingTotalAmount) {
-      return "Your Balance is not sufficient";
-    }
-  
-    let titles = ["Mr", "MR", "mr", "Mrs", "Miss", "Dr", "Ms"];
-    // Update booking status
+    // 2. Update booking status and APnr
     await BookingDetails.findByIdAndUpdate(
       bookingData._id,
       { $set: { bookingStatus: "CONFIRMED", APnr: item?.PNR } },
       { new: true }
     );
   
-    // Deduct balance from agent's credit limit
-    const newBalance = maxCreditLimit - bookingData.bookingTotalAmount;
-    await agentConfig.updateOne(
-      { userId: getAgentConfig.userId },
-      { maxcreditLimit: newBalance }
-    );
+    // Variables for agent payment process
+    let getAgentConfig, newBalance, ledgerId, gtTsAdDnt;
   
-    // Generate ledger and transaction entries
-    const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
-    
-    const gtTsAdDnt = await getTdsAndDsicount([bookingData.itinerary]); 
+    // 3. Agent payment process (only if pending is false)
+    if (!pending) {
+      getAgentConfig = await agentConfig.findOne({ userId: bookingData?.userId });
+      if (!getAgentConfig) return "Agent configuration not found";
   
-    await Promise.all([
-      ledger.create({
-        userId: getAgentConfig.userId,
-        companyId: getAgentConfig.companyId,
-        ledgerId: ledgerId,
-        transactionAmount: bookingData.bookingTotalAmount,
-        currencyType: "INR",
-        fop: "CREDIT",
-        deal: gtTsAdDnt.ldgrdiscount,
-        tds: gtTsAdDnt.ldgrtds,
-        transactionType: "DEBIT",
-        runningAmount: newBalance,
-        remarks: "Booking amount deducted from your account.",
-        transactionBy: getAgentConfig.userId,
-        cartId: bookingData.bookingId,
-      }),
-      transaction.create({
-        userId: getAgentConfig.userId,
-        companyId: getAgentConfig.companyId,
-        trnsNo: Math.floor(100000 + Math.random() * 900000),
-        trnsType: "DEBIT",
-        paymentMode: "CL",
-        trnsStatus: "success",
-        transactionBy: getAgentConfig.userId,
-        bookingId: bookingData.bookingId,
-      }),
-    ]);
+      const maxCreditLimit = getAgentConfig.maxcreditLimit ?? 0;
+      if (maxCreditLimit < bookingData.bookingTotalAmount) {
+        return "Your Balance is not sufficient";
+      }
   
-    // Fetch and update passenger preferences
+      // Deduct balance from agent's credit limit
+      newBalance = maxCreditLimit - bookingData.bookingTotalAmount;
+      await agentConfig.updateOne(
+        { userId: getAgentConfig.userId },
+        { maxcreditLimit: newBalance }
+      );
+  
+      // Generate ledger ID and fetch discount details
+      ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
+      gtTsAdDnt = await getTdsAndDsicount([bookingData.itinerary]);
+  
+      // Create ledger and transaction entries concurrently
+      await Promise.all([
+        ledger.create({
+          userId: getAgentConfig.userId,
+          companyId: getAgentConfig.companyId,
+          ledgerId: ledgerId,
+          transactionAmount: bookingData.bookingTotalAmount,
+          currencyType: "INR",
+          fop: "CREDIT",
+          deal: gtTsAdDnt.ldgrdiscount,
+          tds: gtTsAdDnt.ldgrtds,
+          transactionType: "DEBIT",
+          runningAmount: newBalance,
+          remarks: "Booking amount deducted from your account.",
+          transactionBy: getAgentConfig.userId,
+          cartId: bookingData.bookingId,
+        }),
+        transaction.create({
+          userId: getAgentConfig.userId,
+          companyId: getAgentConfig.companyId,
+          trnsNo: Math.floor(100000 + Math.random() * 900000),
+          trnsType: "DEBIT",
+          paymentMode: "CL",
+          trnsStatus: "success",
+          transactionBy: getAgentConfig.userId,
+          bookingId: bookingData.bookingId,
+        })
+      ]);
+    }
+  
+    // 4. Passenger Preferences Update (common for both pending and non-pending)
     const getPassengersPreference = await passengerPreferenceModel.findOne({ bookingId: bookingData.bookingId });
-    console.log(getPassengersPreference,"getPassengersPreference");
-    if (!getPassengersPreference) return  "Passenger preferences not found"
+    console.log(getPassengersPreference, "getPassengersPreference");
+    if (!getPassengersPreference) return "Passenger preferences not found";
   
     const { Passengers } = getPassengersPreference;
-    if (!Passengers || !Passengers.length) return  "No passengers found" 
+    if (!Passengers || !Passengers.length) return "No passengers found";
   
+    // Create a map for segment indices based on ticket src-des
     const segmentMap = {};
     Passengers.forEach((passenger) => {
       passenger.Optional.ticketDetails.forEach((ticket, idx) => {
@@ -178,21 +178,27 @@ module.exports.getCommonPnrTicket = async (request,res) => {
       });
     });
   
+    // Update each passenger's status and ticket details based on matching from item.Passengers
     await Promise.all(
-      Passengers.map(async (passenger) => {
-        const selectedPax = item.Passengers.find(
-          (p) => p.FName.split(" ").filter(word => !titles.includes(word)).join(" ") == passenger.FName.toUpperCase() && p.LName == passenger.LName.toUpperCase()
-      );
-        
-        if (!selectedPax) return passenger;
 
-  
+      Passengers.map(async (passenger) => {
+        const selectedPax = item.Passengers.find((p) => {
+          // FName se title words remove kar ke compare karo
+          const filteredFName = p.FName.split(" ").filter(word => !titles.includes(word)).join(" ");
+          return filteredFName === passenger.FName.toUpperCase() && p.LName === passenger.LName.toUpperCase();
+        });
+    
+        if (!selectedPax) {
+          return passenger;
+        }
+    
+        // Passenger update karo
         passenger.Status = "CONFIRMED";
         passenger.Optional.EMDDetails = [
           ...(passenger.Optional.EMDDetails || []),
           ...(selectedPax.Optional?.EMDDetails || []),
         ];
-  
+    
         if (selectedPax?.Optional?.TicketDetails?.length) {
           selectedPax.Optional.TicketDetails.forEach((ticket) => {
             const segmentIdx = segmentMap[`${ticket.SRC}-${ticket.DES}`];
@@ -203,11 +209,14 @@ module.exports.getCommonPnrTicket = async (request,res) => {
             }
           });
         }
+    
         return passenger;
       })
     );
+    
   
     await getPassengersPreference.save();
     return item;
-  }
+  } 
+  
   

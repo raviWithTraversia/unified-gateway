@@ -265,7 +265,7 @@ const StartBookingRail = async (req) => {
             },
           ],{new:true})
         }
-   
+   await railBookings.findOneAndUpdate({_id:bookingDataCartId._id,"psgnDtlList.currentStatus":{$nin:["WL","CNF","RLWL","PQWL","RAC","2S","2A","3A","3E","CC","EC","SL","1A","FC","EV"]}},{$set:{bookingStatus:"CANCELLED"}},{new:true})
  
 
       }
@@ -290,7 +290,6 @@ const StartBookingRail = async (req) => {
           ) {
             filter.companyId = new ObjectId(agencyId);
           } else if (agencyId !== undefined && agencyId !== "") {
-            console.log("djie");
             filter.AgencyId = new ObjectId(agencyId);
           } else {
             checkUserIdExist.roleId.type == "Manual" &&
@@ -826,7 +825,6 @@ const StartBookingRail = async (req) => {
           ]);
            
           if(filter.clientTransactionId!==""){
-            console.log('sjeieieei')
           await railBookings.findOneAndUpdate({clientTransactionId:filter.clientTransactionId},{$set:{isEmailSend:false}})
           }
 
@@ -1145,7 +1143,6 @@ const StartBookingRail = async (req) => {
 
         let filteredBookingData = railBooking; // Copy the original data
 
-        console.log("sdhei");
         if (salesInchargeIds !== undefined && salesInchargeIds.trim() !== "") {
           filteredBookingData = allBookingData.filter(
             (bookingData) => bookingData.salesInchargeIds === salesInchargeIds

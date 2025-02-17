@@ -2261,4 +2261,5 @@ async function updateBarcode2DByBookingId(
 
 module.exports = {
   startBooking,
+  updateBarcode2DByBookingId
 };

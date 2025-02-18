@@ -589,7 +589,7 @@ const updateBookingStatus = async (req, res) => {
               as: "item",
               cond: {
                 $and: [
-                  { $eq: ["$$item.credentialsType", "TEST"] },
+                  { $eq: ["$$item.credentialsType", credentialsType] },
                   { $eq: ["$$item.status", true] }
                 ]
               }

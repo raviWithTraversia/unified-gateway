@@ -18,7 +18,7 @@ async function importPNRHelper(request) {
 
     const importPNRRequest = {
       typeOfTrip: "ONEWAY",
-      credentialType: "TEST",
+      credentialType: Authentication?.CredentialType,
       travelType: "DOM",
       systemEntity: "x",
       systemName: "x",

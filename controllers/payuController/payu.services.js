@@ -889,7 +889,25 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
               }
             
             } catch (error) {
-              console.log(error)
+              if (error.message?.toLowerCase().includes("socket hang up")) {
+                await BookingDetails.updateOne(
+                  {
+                    bookingId: item?.BookingId,
+                    "itinerary.IndexNumber": item.IndexNumber,
+                    bookingStatus:{$ne:"CONFIRMED"},
+                  },
+                  {
+                    $set: {
+                      bookingStatus: "PENDING",
+                    },
+                  }
+                );
+
+                return error.message;
+
+            }
+            else{
+
               await BookingDetails.updateOne(
                 {
                   bookingId: item?.BookingId,
@@ -904,6 +922,8 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                 }
               );
               return error.message;
+            }
+
             }
           }
         );

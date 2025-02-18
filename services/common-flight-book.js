@@ -29,9 +29,8 @@ module.exports.commonFlightBook = async function (
         .additionalFlightsBaseURL + "/booking/airbooking";
 
     const { data: response } = await axios.post(url, requestBody, {
-      timeout: 10000,
+      timeout: 50000,
     });
-    console.log(response, "responseresponse");
     saveLogInFile("common-book-response.json", response);
     const bookingResponse = convertBookingResponse(
       request,

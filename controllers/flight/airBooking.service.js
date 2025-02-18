@@ -1111,7 +1111,7 @@ const KafilaFun = async (
           const hitAPI = await Promise.all(
           
 
-            ItineraryPriceCheckResponses.map(async (item, idx) => {
+            ItineraryPriceCheckResponses.map(async (item, idx) => { 
               if (item.GstData) {
                 let gstD = item.GstData;
                 delete gstD.GstDetails.isAgentGst;

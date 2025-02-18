@@ -596,7 +596,8 @@ const updateBookingStatus = async (req, res) => {
       result.response === "Credential Type does not exist" ||
       result.response === "Supplier credentials does not exist" ||
       result.response === "Error in updating Status!" ||
-      result.response === "No booking Found!"
+      result.response === "No booking Found!"||result.response==="PNR Import api Not Working.."||
+      result.response=== "Log api is not working..."
     ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Status updated Successfully!") {

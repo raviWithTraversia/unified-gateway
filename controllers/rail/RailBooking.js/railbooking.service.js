@@ -265,7 +265,7 @@ const StartBookingRail = async (req) => {
             },
           ],{new:true})
         }
-   await railBookings.findOneAndUpdate({_id:bookingDataCartId._id,"psgnDtlList.currentStatus":{$nin:["WL","CNF","RLWL","PQWL","RAC","2S","2A","3A","3E","CC","EC","SL","1A","FC","EV"]}},{$set:{bookingStatus:"CANCELLED"}},{new:true})
+   await railBookings.findOneAndUpdate({_id:bookingDataCartId._id,"psgnDtlList.currentStatus":{$nin:["WL","CNF","RLWL","PQWL","RAC","2S","2A","3A","3E","CC","EC","SL","1A","FC","EV","TQWL" ]}},{$set:{bookingStatus:"CANCELLED"}},{new:true})
  
 
       }

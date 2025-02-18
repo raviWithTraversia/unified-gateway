@@ -589,7 +589,7 @@ const updateBookingStatus = async (req, res) => {
               as: "item",
               cond: {
                 $and: [
-                  { $eq: ["$$item.credentialsType", credentialsType] },
+                  { $eq: ["$$item.credentialsType", "TEST"] },
                   { $eq: ["$$item.status", true] }
                 ]
               }
@@ -693,12 +693,12 @@ const updateBookingStatus = async (req, res) => {
         // Provider 1A ke liye alag flow
         const PNR = await getPnr1APnedingStatus(item.traceId, credentialsType);
         if (!PNR || !PNR.length) {
-          return { IsSuccess: false, response: "Failed Booking" };
+          return { IsSuccess: false, response: "Log api is not working..." };
         }
         // Typo fix: item.Provider (na ki item.Proivder)
         const pnrImportData = await getPnrDataCommonMethod(Authentication, PNR, item?.provider);
         if (!pnrImportData) {
-          return { IsSuccess: false, response: "Failed Booking" };
+          return { IsSuccess: false, response: "PNR Import api Not Working.." };
         }
         // Update booking object with new PNR and providerBookingId
       await bookingDetails.findOneAndUpdate({bookingId:item?.bookingId},{$set:{GPnr:PNR,providerBookingId:await commonProviderMethodDate(item.createdAt)}},{new:true})

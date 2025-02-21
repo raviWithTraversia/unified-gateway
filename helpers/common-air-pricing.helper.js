@@ -68,6 +68,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                 fareBasisCode: sector.FareBasisCode,
                 availabilitySource: sector.AvailabilitySource,
                 isConnect: sector.IsConnect,
+                key: sector.key,
               })),
               priceBreakup: convertPriceBreakupForCommonAPI(
                 reqItinerary.PriceBreakup
@@ -78,6 +79,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
               baseFare: reqItinerary.BaseFare,
               taxes: reqItinerary.Taxes,
               totalPrice: reqItinerary.TotalPrice,
+              currency: reqItinerary.Currency ?? "INR",
               valCarrier: reqItinerary.ValCarrier,
               refundableFare: reqItinerary.RefundableFare,
               sessionKey: reqItinerary.SessionKey,
@@ -391,6 +393,7 @@ function convertFlightDetailsForCommonAPI(flight) {
     cityCode: flight.CityCode,
     cityName: flight.CityName,
     countrycode: flight.CountryCode,
+    countryCode: flight.CountryCode,
     countryName: flight.CountryName,
     time: flight.Time,
   };

@@ -7,16 +7,19 @@ const { Config } = require("../configs/config");
 const {
   getApplyAllCommercial,
 } = require("../controllers/flight/flight.commercial");
+const { saveLogInFile } = require("../utils/save-log");
 async function getCommonAirPricing(request) {
   console.dir({ request }, { depth: null });
   try {
     const { requestBody, error: requestError } =
       createAirPricingRequestBodyForCommonAPI(request);
+    saveLogInFile("pricing-req.json", requestBody);
     if (requestError) throw new Error(requestError);
     const airPricingURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/pricing/airpricing";
     const { data: response } = await axios.post(airPricingURL, requestBody);
+    saveLogInFile("pricing-res.json", response);
     // console.dir({ response }, { depth: null });
     let convertedItinerary = convertAirPricingItineraryForCommonAPI({
       response: response.data,

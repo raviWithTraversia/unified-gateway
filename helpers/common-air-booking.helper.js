@@ -339,7 +339,7 @@ function convertBookingResponse(request, response, reqSegment) {
     };
     data.BookingInfo.IsError = data.Status == "Failed";
     data.BookingInfo.CurrentStatus =
-      data.Status == "Hold" ? "HOLD" : data.Status.toUpperCase()||data.Status;
+      data.Status == "Hold" ? "HOLD" : data.Status.toUpperCase() || data.Status;
     if (travelerDetails?.[0]?.eTicket?.length)
       data.BookingInfo.CurrentStatus = "CONFIRMED";
     data.ErrorMessage = data.Status == "Failed" ? response?.message ?? "" : "";

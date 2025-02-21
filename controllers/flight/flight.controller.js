@@ -95,7 +95,7 @@ const getSearch = async (req, res) => {
     // "6E", "SG"
     itineraries = itineraries
       .filter((itinerary) =>
-        ["Kafila", "1A", "1AN"].includes(itinerary.Provider)
+        ["Kafila", "1A", "1AN", "6E"].includes(itinerary.Provider)
       )
       .sort((a, b) => a.TotalPrice - b.TotalPrice);
     if (itineraries.length) {
@@ -215,18 +215,25 @@ const getRBD = async (req, res) => {
 
 const getPnrTicket = async (req, res) => {
   try {
-    const { result, error } = await getCommonPnrTicket(req.body,res);
-    const errorMessage=["Your Balance is not sufficient","Booking data not found","Agent configuration not found","Passenger preferences not found","No passengers found","Hold From Api Side"];
-    if(typeof result[0] === "string" && errorMessage.includes(result[0])){
+    const { result, error } = await getCommonPnrTicket(req.body, res);
+    const errorMessage = [
+      "Your Balance is not sufficient",
+      "Booking data not found",
+      "Agent configuration not found",
+      "Passenger preferences not found",
+      "No passengers found",
+      "Hold From Api Side",
+    ];
+    if (typeof result[0] === "string" && errorMessage.includes(result[0])) {
       return apiErrorres(
         res,
-       result[0]|| errorResponse.SOMETHING_WRONG,
+        result[0] || errorResponse.SOMETHING_WRONG,
         ServerStatusCode.SERVER_ERROR,
         true
       );
     }
 
-    if (error||result.length===0)
+    if (error || result.length === 0)
       return apiErrorres(
         res,
         errorResponse.SOMETHING_WRONG,
@@ -482,7 +489,7 @@ const fullCancelationCharge = async (req, res) => {
     } else {
       apiErrorres(
         res,
-        result?.data?.Error||result.response|| errorResponse.SOME_UNOWN,
+        result?.data?.Error || result.response || errorResponse.SOME_UNOWN,
         ServerStatusCode.UNPROCESSABLE,
         true
       );
@@ -578,7 +585,7 @@ const partialCancelationCharge = async (req, res) => {
     console.error(error);
     apiErrorres(
       res,
-      error?.message||errorResponse.SOMETHING_WRONG,
+      error?.message || errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );
@@ -596,8 +603,9 @@ const updateBookingStatus = async (req, res) => {
       result.response === "Credential Type does not exist" ||
       result.response === "Supplier credentials does not exist" ||
       result.response === "Error in updating Status!" ||
-      result.response === "No booking Found!"||result.response==="PNR Import api Not Working.."||
-      result.response=== "Log api is not working..."
+      result.response === "No booking Found!" ||
+      result.response === "PNR Import api Not Working.." ||
+      result.response === "Log api is not working..."
     ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Status updated Successfully!") {

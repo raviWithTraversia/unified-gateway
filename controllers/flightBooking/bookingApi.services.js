@@ -2123,13 +2123,13 @@ const getBookingBill = async (req, res) => {
               $concat: [
                 { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
                 {
-                  $cond: {
-                    if: { $eq: ["$bookingData.provider", "kafila"] },
-                    then: "$bookingData.SalePurchase",
-                    else: "1APCC"
+                  "$cond": {
+                    "if": { "$ifNull": ["$bookingData.SalePurchase", false] },
+                    "then": "$bookingData.SalePurchase",
+                    "else": "1APCC"
                   }
                 },
-                `${MODEENV}~`,
+ `${MODEENV}~`,
                 "$bookingData.itinerary.FareFamily"
               ]
             }

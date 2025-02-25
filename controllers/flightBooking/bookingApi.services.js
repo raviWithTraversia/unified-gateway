@@ -2205,7 +2205,7 @@ const getBookingBill = async (req, res) => {
         element.sector
       );
     }
-   element.bookingId1= element.bookingId1.replace(/\s+/g, '');
+   element.bookingId1= element.bookingId1?element.bookingId1.replace(/\s+/g, ''):null;
     element.ticketNo =
       ticketNumber.length != 0 &&
       ticketNumber[0] != null &&
@@ -2816,12 +2816,22 @@ const getBillingData = async (req, res) => {
           $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
         },
         bookingId1: {
-          $concat: [
-            { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
-            "$bookingData.SalePurchase",
-            `${MODEENV}~`,
-            "$bookingData.itinerary.FareFamily",
-          ],
+          $trim: {
+            input: {
+              $concat: [
+                { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
+                {
+                  "$cond": {
+                    "if": { "$ifNull": ["$bookingData.SalePurchase", false] },
+                    "then": "$bookingData.SalePurchase",
+                    "else": "1APCC",
+                  }
+                },
+ `${MODEENV}~`,
+                "$bookingData.itinerary.FareFamily"
+              ]
+            }
+          }
         },
         getCommercialArray: "$bookingData.itinerary.PriceBreakup",
         itinerary: "$bookingData.itinerary",
@@ -2863,6 +2873,7 @@ const getBillingData = async (req, res) => {
     }
   
     // Calculate itemAmount as the sum of baseFare, totalBaggagePrice, totalMealPrice, and totalSeatPrice
+    element.bookingId1= element.bookingId1?element.bookingId1.replace(/\s+/g, ''):null;
     element.totalBaggagePrice = element.totalBaggagePrice || 0;
     element.totalMealPrice = element.totalMealPrice || 0;
     element.totalSeatPrice = element.totalSeatPrice || 0;

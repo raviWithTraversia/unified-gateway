@@ -2760,6 +2760,7 @@ const getBillingData = async (req, res) => {
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
         agentId: { $arrayElemAt: ["$userdata.userId", 0] },
         pnr: "$bookingData.PNR",
+        gdsPnr: "$bookingData.GPnr",
         sector: {
           $concat: [
             {

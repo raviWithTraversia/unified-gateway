@@ -2126,7 +2126,7 @@ const getBookingBill = async (req, res) => {
                   "$cond": {
                     "if": { "$ifNull": ["$bookingData.SalePurchase", false] },
                     "then": "$bookingData.SalePurchase",
-                    "else": "1APCC"
+                    "else": "1APCC",
                   }
                 },
  `${MODEENV}~`,

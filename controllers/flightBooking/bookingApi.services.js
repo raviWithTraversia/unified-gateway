@@ -2119,13 +2119,24 @@ const getBookingBill = async (req, res) => {
           $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
         },
         bookingId1: {
-          $concat: [
-            { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
-            "$bookingData.SalePurchase",
-            `${MODEENV}~`,
-            "$bookingData.itinerary.FareFamily",
-          ],
-        },
+          $trim: {
+            input: {
+              $concat: [
+                { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
+                {
+                  "$cond": {
+                    "if": { "$ifNull": ["$bookingData.SalePurchase", false] },
+                    "then": "$bookingData.SalePurchase",
+                    "else": "1APCC"
+                  }
+                },
+ `${MODEENV}~`,
+                "$bookingData.itinerary.FareFamily"
+              ]
+            }
+          }
+        }
+        ,
         createdAt: "$bookingData.createdAt",
         getCommercialArray: "$bookingData.itinerary.PriceBreakup",
       },
@@ -2195,6 +2206,7 @@ const getBookingBill = async (req, res) => {
         element.sector
       );
     }
+   element.bookingId1= element.bookingId1.replace(/\s+/g, '');
     element.ticketNo =
       ticketNumber.length != 0 &&
       ticketNumber[0] != null &&

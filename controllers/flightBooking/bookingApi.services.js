@@ -2064,6 +2064,7 @@ const getBookingBill = async (req, res) => {
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
         agentId: { $arrayElemAt: ["$userdata.userId", 0] },
         pnr: "$bookingData.PNR",
+        gdsPnr: "$bookingData.GPnr",
         cartId: "$bookingData.bookingId",
         paxTotal: "$Passengers.totalBaggagePrice",
         itinerary: "$bookingData.itinerary",
@@ -2187,7 +2188,7 @@ const getBookingBill = async (req, res) => {
   }
 
   bookingBill.forEach(async (element, index) => {
-    let ticketNumber = [element.pnr];
+    let ticketNumber = [element?.pnr||element?.gdsPnr];
     if (element.ticketNo?.ticketDetails) {
       ticketNumber = await getTicketNumberBySector(
         element.ticketNo?.ticketDetails,

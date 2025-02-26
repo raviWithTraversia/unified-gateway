@@ -1157,7 +1157,7 @@ const payuWalletResponceSuccess = async (req, res) => {
       const loginUser = userData._id;
       // console.log(loginUser, "loginUser");
       var DIdata
-      if(PG_TYPE == "CC-PG"){
+      if(PG_TYPE == "CC-PG"||PG_TYPE=="UPI-PG"){
        DIdata=0
       }else{
 

@@ -153,12 +153,14 @@ async function createAirBookingRequestBodyForCommonAPI(
       isHoldBooking: request.isHoldBooking || false,
       fareMasking: false,
     };
-    const { cardDetails, error: cardDetailsError } = await getCardDetails({
-      supplierCode: requestBody.journey?.[0]?.itinerary?.[0]?.provider,
-      credentialType: requestBody.credentialType,
-    });
-    saveLogInFile("card-info.json", { cardDetails, cardDetailsError });
-    if (cardDetails) requestBody.journey[0].cardInfo = cardDetails;
+    if (reqItinerary.ValCarrier === "AI") {
+      const { cardDetails, error: cardDetailsError } = await getCardDetails({
+        supplierCode: reqItinerary.Provider,
+        credentialType: requestBody.credentialType,
+      });
+      saveLogInFile("card-info.json", { cardDetails, cardDetailsError });
+      if (cardDetails) requestBody.journey[0].cardInfo = cardDetails;
+    }
 
     // card info for live bookings
     // if (

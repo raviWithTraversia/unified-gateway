@@ -2770,7 +2770,13 @@ const getBillingData = async (req, res) => {
         paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
         agentId: { $arrayElemAt: ["$userdata.userId", 0] },
-        pnr: "$bookingData.PNR",
+        pnr:  {
+          "$cond": {
+            "if": { "$ifNull": ["$bookingData.PNR", false] },
+            "then": "$bookingData.PNR",
+            "else": "$bookingData.GPnr",
+          }
+        },
         sector: {
           $concat: [
             {

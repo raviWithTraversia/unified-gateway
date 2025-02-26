@@ -2064,6 +2064,7 @@ const getBookingBill = async (req, res) => {
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
         agentId: { $arrayElemAt: ["$userdata.userId", 0] },
         pnr: "$bookingData.PNR",
+        gdsPnr: "$bookingData.GPnr",
         cartId: "$bookingData.bookingId",
         paxTotal: "$Passengers.totalBaggagePrice",
         itinerary: "$bookingData.itinerary",
@@ -2118,13 +2119,24 @@ const getBookingBill = async (req, res) => {
           $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
         },
         bookingId1: {
-          $concat: [
-            { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
-            "$bookingData.SalePurchase",
-            `${MODEENV}~`,
-            "$bookingData.itinerary.FareFamily",
-          ],
-        },
+          $trim: {
+            input: {
+              $concat: [
+                { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
+                {
+                  "$cond": {
+                    "if": { "$ifNull": ["$bookingData.SalePurchase", false] },
+                    "then": "$bookingData.SalePurchase",
+                    "else": "1APCC",
+                  }
+                },
+ `${MODEENV}~`,
+                "$bookingData.itinerary.FareFamily"
+              ]
+            }
+          }
+        }
+        ,
         createdAt: "$bookingData.createdAt",
         getCommercialArray: "$bookingData.itinerary.PriceBreakup",
       },
@@ -2187,13 +2199,14 @@ const getBookingBill = async (req, res) => {
   }
 
   bookingBill.forEach(async (element, index) => {
-    let ticketNumber = [element.pnr];
+    let ticketNumber = [element?.pnr||element?.gdsPnr];
     if (element.ticketNo?.ticketDetails) {
       ticketNumber = await getTicketNumberBySector(
         element.ticketNo?.ticketDetails,
         element.sector
       );
     }
+   element.bookingId1= element.bookingId1?element.bookingId1.replace(/\s+/g, ''):null;
     element.ticketNo =
       ticketNumber.length != 0 &&
       ticketNumber[0] != null &&
@@ -2758,7 +2771,13 @@ const getBillingData = async (req, res) => {
         paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
         agentId: { $arrayElemAt: ["$userdata.userId", 0] },
-        pnr: "$bookingData.PNR",
+        pnr:  {
+          "$cond": {
+            "if": { "$ifNull": ["$bookingData.PNR", false] },
+            "then": "$bookingData.PNR",
+            "else": "$bookingData.GPnr",
+          }
+        },
         sector: {
           $concat: [
             {
@@ -2804,12 +2823,22 @@ const getBillingData = async (req, res) => {
           $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
         },
         bookingId1: {
-          $concat: [
-            { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
-            "$bookingData.SalePurchase",
-            `${MODEENV}~`,
-            "$bookingData.itinerary.FareFamily",
-          ],
+          $trim: {
+            input: {
+              $concat: [
+                { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
+                {
+                  "$cond": {
+                    "if": { "$ifNull": ["$bookingData.SalePurchase", false] },
+                    "then": "$bookingData.SalePurchase",
+                    "else": "1APCC",
+                  }
+                },
+ `${MODEENV}~`,
+                "$bookingData.itinerary.FareFamily"
+              ]
+            }
+          }
         },
         getCommercialArray: "$bookingData.itinerary.PriceBreakup",
         itinerary: "$bookingData.itinerary",
@@ -2851,6 +2880,7 @@ const getBillingData = async (req, res) => {
     }
   
     // Calculate itemAmount as the sum of baseFare, totalBaggagePrice, totalMealPrice, and totalSeatPrice
+    element.bookingId1= element.bookingId1?element.bookingId1.replace(/\s+/g, ''):null;
     element.totalBaggagePrice = element.totalBaggagePrice || 0;
     element.totalMealPrice = element.totalMealPrice || 0;
     element.totalSeatPrice = element.totalSeatPrice || 0;

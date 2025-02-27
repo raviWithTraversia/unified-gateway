@@ -307,7 +307,7 @@ const startBooking = async (req, res) => {
     //   if (error) return apiErrorres(res, error, 500, true);
     //   return apiSucessRes(
     //     res,
-    //     "Fetch Data Successfully",
+    //     "Fetch Data Successfully",Open
     //     result,
     //     ServerStatusCode.SUCESS_CODE
     //   );

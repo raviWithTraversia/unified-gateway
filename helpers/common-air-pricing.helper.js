@@ -4,6 +4,7 @@ const {
   convertItineraryForKafila,
   convertSegmentForKafila,
 } = require("./common-search.helper");
+const { Config } = require("../configs/config");
 
 function createAirPricingRequestBodyForCommonAPI(request) {
   try {
@@ -225,10 +226,28 @@ async function convertSSRItineraryForCommonAPI({
   originalRequest,
 }) {
   const reqItinerary = requestBody.journey[0].itinerary[0];
+
   const journey = responseMealOrBaggage.journey[0];
   const itinerary = journey.itinerary[0];
-  let allSegmentsOfSeatMap = [],
-    allSeatsList;
+
+  const isDOM_AI =
+    (reqItinerary?.valCarrier === "AI" ||
+      reqItinerary?.airSegments?.[0]?.airlineCode === "AI") &&
+    requestBody.travelType === "DOM";
+  if (isDOM_AI) {
+    itinerary.ssrInfo.meal = itinerary.airSegments.flatMap((segment) =>
+      Config.AI_MEALS.map((meal) => {
+        meal.flightNumber = segment.fltNum;
+        meal.origin = segment.departure.code;
+        meal.destination = segment.arrival.code;
+        return meal;
+      })
+    );
+  }
+
+  let allSegmentsOfSeatMap = [];
+  let allSeatsList = [];
+
   if (responseSeat?.journey[0]?.itinerary?.length) {
     allSegmentsOfSeatMap = responseSeat?.journey[0]?.itinerary[0]?.airSegments;
   }

@@ -1,6 +1,29 @@
 const moment = require("moment");
 const uuid = require("uuid");
 const { saveLogInFile } = require("../utils/save-log");
+
+const commonCabinClassMap = {
+  Economy: "Economy",
+  "Business Class": "Business",
+  "First Class": "First",
+  "Premium Economy": "PremiumEconomy",
+};
+
+const kafilaCabinClassMap = {
+  Economy: "Economy",
+  Business: "Business Class",
+  First: "First Class",
+  PremiumEconomy: "Premium Economy",
+};
+
+function getCommonCabinClass(kafilaCabinClass) {
+  return commonCabinClassMap[kafilaCabinClass] ?? kafilaCabinClass;
+}
+
+function getKafilaCabinClass(commonCabinClass) {
+  return kafilaCabinClassMap[commonCabinClass] ?? commonCabinClass;
+}
+
 function createSearchRequestBodyForCommonAPI(request) {
   const uniqueKey = request?.Authentication?.TraceId || uuid.v4();
   const requestBody = {
@@ -19,7 +42,7 @@ function createSearchRequestBodyForCommonAPI(request) {
       departureDate: moment(segment.DepartureDate).format("DD-MM-YYYY"),
       departureTimeFrom: segment.DepartureTime,
       departureTimeTo: segment.DepartureTimeTo,
-      cabinClass: segment.ClassOfService.replace(" ", ""),
+      cabinClass: getCommonCabinClass(segment.ClassOfService),
     })),
     paxDetail: {
       adults: request.PaxDetail.Adults,
@@ -301,7 +324,7 @@ function convertSegmentForKafila(segment) {
     AirlineCode: segment.airlineCode ?? "",
     AirlineName: segment.airlineName ?? "",
     Class: segment.classofService ?? "",
-    CabinClass: segment.cabinClass ?? "",
+    CabinClass: getKafilaCabinClass(segment.cabinClass) ?? "",
     BookingCounts: segment.bookingCounts ?? "", // missing
     NoSeats: segment.noSeats ?? "",
     FltNum: segment.fltNum ?? "",
@@ -417,4 +440,6 @@ module.exports = {
   convertFlightDetailsForKafila,
   convertTravelTypeForCommonAPI,
   convertSegmentForKafila,
+  getCommonCabinClass,
+  getKafilaCabinClass,
 };

@@ -3,6 +3,7 @@ const {
   convertTravelTypeForCommonAPI,
   convertItineraryForKafila,
   convertSegmentForKafila,
+  getCommonCabinClass,
 } = require("./common-search.helper");
 const { Config } = require("../configs/config");
 
@@ -63,7 +64,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                     })()
                   : "",
                 classofService: sector.Class,
-                cabinClass: sector.CabinClass,
+                cabinClass: getCommonCabinClass(sector.CabinClass),
                 productClass: sector.ProductClass,
                 noSeats: sector.NoSeats,
                 fareBasisCode: sector.FareBasisCode,

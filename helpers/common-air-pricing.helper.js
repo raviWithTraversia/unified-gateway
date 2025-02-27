@@ -463,7 +463,7 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
   await allSegmentsList.forEach((segmentsList) => {
     segmentsList?.seatRows?.forEach?.((seatRows) => {
       facilitiesArrayList = [];
-      seatRows?.facilities?.forEach?.((seatFacilities) => {
+      seatRows?.facilities?.forEach?.((seatFacilities, seatIdx) => {
         const {
           type,
           seatCode,
@@ -485,11 +485,21 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
             );
             DDate = DDate + "T00:00:00.000Z";
           }
-          if (characteristics?.length && characteristics.includes("Aisle seat"))
+          if (
+            seatRows?.facilities?.[seatIdx - 1]?.type === "Aisle" ||
+            seatRows?.facilities?.[seatIdx + 1]?.type === "Aisle" ||
+            (characteristics?.length && characteristics.includes("Aisle seat"))
+          ) {
             ssrProperty.push({
               SKey: "AISLE",
               SValue: "True",
             });
+          }
+          // if (characteristics?.length && characteristics.includes("Aisle seat"))
+          //   ssrProperty.push({
+          //     SKey: "AISLE",
+          //     SValue: "True",
+          //   });
           facilitiesArrayList.push({
             Compartemnt: compartment,
             Type: type || "Seat",

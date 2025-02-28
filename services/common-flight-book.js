@@ -43,7 +43,9 @@ module.exports.commonFlightBook = async function (
       Config[request?.SearchRequest?.Authentication?.CredentialType ?? "TEST"]
         .additionalFlightsBaseURL + "/booking/airbooking";
 
-    const { data: response } = await axios.post(url, requestBody);
+    const { data: response } = await axios.post(url, requestBody, {
+      timeout: 120_000,
+    });
     logData.responce = response;
 
     saveLogInFile("common-book-response.json", response);

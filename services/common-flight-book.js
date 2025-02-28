@@ -64,7 +64,7 @@ module.exports.commonFlightBook = async function (
       response: logData.responce,
       message: error.message,
       stack: error.stack,
-      errorResponse: error?.response.data,
+      errorResponse: error?.response?.data,
     };
     Logs(logData);
     saveLogInFile("common-flight-book-error.json", {

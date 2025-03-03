@@ -18,7 +18,8 @@ module.exports.commonFlightBook = async function (
   saveLogInFile("request-itinerary.json", reqItinerary);
   saveLogInFile("request.json", request);
   const logData = {
-    traceId: request?.SearchRequest?.Authentication?.TraceId ?? "blank",
+    traceId: reqItinerary?.TraceId ?? "blank",
+    // traceId: request?.SearchRequest?.Authentication?.TraceId ?? "blank",
     companyId: request?.SearchRequest?.Authentication?.CompanyId ?? "blank",
     userId: request?.SearchRequest?.Authentication?.UserId ?? "blank",
     source: "APIGateway",

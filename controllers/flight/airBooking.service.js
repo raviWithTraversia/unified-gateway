@@ -1201,7 +1201,8 @@ const KafilaFun = async (
                 }
 
                 const logData = {
-                  traceId: Authentication?.TraceId,
+                  traceId: item?.TraceId,
+                  // traceId: Authentication?.TraceId,
                   companyId: Authentication?.CompanyId,
                   userId: Authentication?.UserId,
                   source: "Kafila",

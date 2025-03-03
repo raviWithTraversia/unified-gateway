@@ -1870,7 +1870,8 @@ const kafilaFunOnlinePayment = async (
           },
           PriceBreakup: priceBreakupArray,
           Sectors: sectorsArray,
-          TraceId: Authentication?.TraceId,
+          TraceId: itineraryItem?.TraceId,
+          // TraceId: Authentication?.TraceId,
         },
       };
       console.log({ newItem });

@@ -161,20 +161,6 @@ async function createAirBookingRequestBodyForCommonAPI(
       saveLogInFile("card-info.json", { cardDetails, cardDetailsError });
       if (cardDetails) requestBody.journey[0].cardInfo = cardDetails;
     }
-
-    // card info for live bookings
-    // if (
-    //   request.credentialType === "LIVE" &&
-    //   request.journey[0]?.itinerary?.[0]?.provider == "1A"
-    // ) {
-    //   request.journey[0].cardInfo = {
-    //     // FP CCVI4780080140169608/D0827
-    //     cardNumber: "4780080140169608",
-    //     code: "VI",
-    //     expiryYear: "27",
-    //     expiryMonth: "08",
-    //   };
-    // }
     saveLogInFile("book-request-body.json", requestBody);
     return { requestBody };
   } catch (error) {
@@ -344,7 +330,10 @@ function convertBookingResponse(request, response, reqSegment) {
       data.Status == "Hold" ? "HOLD" : data.Status.toUpperCase() || data.Status;
     if (travelerDetails?.[0]?.eTicket?.length)
       data.BookingInfo.CurrentStatus = "CONFIRMED";
-    data.ErrorMessage = data.Status == "Failed" ? response?.message ?? "" : "";
+    data.ErrorMessage =
+      data.Status == "Failed"
+        ? response?.journey?.[0]?.message || response.message || ""
+        : "";
     data.WarningMessage = data.ErrorMessage;
     return { data };
   } catch (error) {

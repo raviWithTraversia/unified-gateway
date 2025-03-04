@@ -302,8 +302,8 @@ function convertBookingResponse(request, response, reqSegment) {
   const errorMessage =
     response?.data?.journey?.[0]?.message ||
     response?.data?.journey?.[0]?.messages ||
-    response?.message ||
     "";
+
   console.log({ errorMessage });
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
@@ -341,7 +341,7 @@ function convertBookingResponse(request, response, reqSegment) {
         : data?.Status?.toUpperCase?.() || data.Status || "Pending";
     if (travelerDetails?.[0]?.eTicket?.length)
       data.BookingInfo.CurrentStatus = "CONFIRMED";
-    data.ErrorMessage = errorMessage || response?.message || "";
+    data.ErrorMessage = errorMessage || "";
     data.WarningMessage = data.ErrorMessage;
     return { data };
   } catch (error) {

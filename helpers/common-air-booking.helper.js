@@ -298,6 +298,10 @@ function convertBookingResponse(request, response, reqSegment) {
   // const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
   const pnrs = response?.data?.journey?.[0]?.recLocInfo;
   const bookingStatus = response?.data?.journey?.[0]?.status?.pnrStatus;
+  const errorMessage =
+    bookingStatus?.toLowerCase?.() === "failed"
+      ? response?.data?.journey?.[0]?.message
+      : "";
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
     PNR = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
@@ -337,7 +341,10 @@ function convertBookingResponse(request, response, reqSegment) {
     data.WarningMessage = data.ErrorMessage;
     return { data };
   } catch (error) {
-    saveLogInFile("error.json", { stack: error.stack, message: error.message });
+    saveLogInFile("error-converting-booking-response.json", {
+      stack: error.stack,
+      message: error.message,
+    });
     return {
       data: {
         Status: bookingStatus == "Confirm" ? "Success" : bookingStatus,
@@ -349,9 +356,9 @@ function convertBookingResponse(request, response, reqSegment) {
           GPnr,
           SalePurchase: "",
           IsError: true,
-          CurrentStatus: "Failed",
-          ErrorMessage: error.message,
-          WarningMessage: error.message,
+          CurrentStatus: "Pending",
+          ErrorMessage: errorMessage || error.message,
+          WarningMessage: errorMessage || error.message,
         },
         PaxInfo: updatePassengerDetails(
           passengerPreferences,

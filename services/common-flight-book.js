@@ -41,7 +41,7 @@ module.exports.commonFlightBook = async function (
 
     if (error) return { error };
     const url =
-      Config[request?.SearchRequest?.Authentication?.CredentialType ?? "TEST"]
+      Config[request?.SearchRequest?.Authentication?.CredentialType]
         .additionalFlightsBaseURL + "/booking/airbooking";
 
     const { data: response } = await axios.post(url, requestBody, {

@@ -300,6 +300,7 @@ function convertBookingResponse(request, response, reqSegment) {
   const bookingStatus =
     response?.data?.journey?.[0]?.status?.pnrStatus ?? "Pending";
   const errorMessage =
+  response?.data?.journey?.[0]?.message ||
     response?.data?.journey?.[0]?.message ||
     response?.data?.journey?.[0]?.messages ||
     "";

@@ -297,11 +297,14 @@ function convertBookingResponse(request, response, reqSegment) {
   const des = reqSegment.Destination;
   // const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
   const pnrs = response?.data?.journey?.[0]?.recLocInfo;
-  const bookingStatus = response?.data?.journey?.[0]?.status?.pnrStatus;
+  const bookingStatus =
+    response?.data?.journey?.[0]?.status?.pnrStatus ?? "Failed";
   const errorMessage =
     bookingStatus?.toLowerCase?.() === "failed"
-      ? response?.data?.journey?.[0]?.message
+      ? response?.data?.journey?.[0]?.message ||
+        response?.data?.journey?.[0]?.messages
       : "";
+  console.log({ errorMessage });
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
     PNR = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
@@ -316,7 +319,7 @@ function convertBookingResponse(request, response, reqSegment) {
       Status: bookingStatus == "Confirm" ? "Success" : bookingStatus,
       BookingInfo: {
         BookingId: "",
-        BookingRemark: "",
+        BookingRemark: errorMessage || "",
         PNR,
         APnr,
         GPnr,
@@ -334,7 +337,7 @@ function convertBookingResponse(request, response, reqSegment) {
       data.Status == "Hold" ? "HOLD" : data.Status.toUpperCase() || data.Status;
     if (travelerDetails?.[0]?.eTicket?.length)
       data.BookingInfo.CurrentStatus = "CONFIRMED";
-    data.ErrorMessage = errorMessage ? response.message || "" : "";
+    data.ErrorMessage = errorMessage ? errorMessage || response.message : "";
     data.WarningMessage = data.ErrorMessage;
     return { data };
   } catch (error) {
@@ -347,7 +350,7 @@ function convertBookingResponse(request, response, reqSegment) {
         Status: bookingStatus == "Confirm" ? "Success" : bookingStatus,
         BookingInfo: {
           BookingId: "",
-          BookingRemark: "",
+          BookingRemark: errorMessage || "",
           PNR,
           APnr,
           GPnr,
@@ -358,7 +361,7 @@ function convertBookingResponse(request, response, reqSegment) {
           WarningMessage: errorMessage || error.message,
         },
         PaxInfo: updatePassengerDetails(
-          passengerPreferences,
+          request.PassengerPreferences,
           travelerDetails,
           src,
           des

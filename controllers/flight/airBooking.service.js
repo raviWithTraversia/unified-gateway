@@ -1055,7 +1055,8 @@ const KafilaFun = async (
               },
               PriceBreakup: priceBreakupArray,
               Sectors: sectorsArray,
-              TraceId: Authentication?.TraceId,
+              TraceId: itineraryItem?.TraceId,
+              // TraceId: Authentication?.TraceId,
             },
           };
           console.log({ newItem });
@@ -1200,7 +1201,8 @@ const KafilaFun = async (
                 }
 
                 const logData = {
-                  traceId: Authentication?.TraceId,
+                  traceId: item?.TraceId,
+                  // traceId: Authentication?.TraceId,
                   companyId: Authentication?.CompanyId,
                   userId: Authentication?.UserId,
                   source: "Kafila",
@@ -1869,7 +1871,8 @@ const kafilaFunOnlinePayment = async (
           },
           PriceBreakup: priceBreakupArray,
           Sectors: sectorsArray,
-          TraceId: Authentication?.TraceId,
+          TraceId: itineraryItem?.TraceId,
+          // TraceId: Authentication?.TraceId,
         },
       };
       console.log({ newItem });

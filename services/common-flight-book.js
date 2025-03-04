@@ -1,5 +1,7 @@
 const { default: axios } = require("axios");
 const { Config } = require("../configs/config");
+const http = require("http");
+
 const {
   createAirBookingRequestBodyForCommonAPI,
   convertBookingResponse,
@@ -46,6 +48,7 @@ module.exports.commonFlightBook = async function (
 
     const { data: response } = await axios.post(url, requestBody, {
       timeout: 120_000,
+      httpAgent: new http.Agent({ keepAlive: true }),
     });
     logData.responce = response;
 

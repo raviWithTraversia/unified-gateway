@@ -298,12 +298,12 @@ function convertBookingResponse(request, response, reqSegment) {
   // const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
   const pnrs = response?.data?.journey?.[0]?.recLocInfo;
   const bookingStatus =
-    response?.data?.journey?.[0]?.status?.pnrStatus ?? "Failed";
+    response?.data?.journey?.[0]?.status?.pnrStatus ?? "Pending";
   const errorMessage =
-    bookingStatus?.toLowerCase?.() === "failed"
-      ? response?.data?.journey?.[0]?.message ||
-        response?.data?.journey?.[0]?.messages
-      : "";
+    response?.data?.journey?.[0]?.message ||
+    response?.data?.journey?.[0]?.messages ||
+    response?.message ||
+    "";
   console.log({ errorMessage });
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
@@ -332,12 +332,16 @@ function convertBookingResponse(request, response, reqSegment) {
         des
       ),
     };
-    data.BookingInfo.IsError = data.Status == "Failed";
+    data.BookingInfo.IsError =
+      data.Status == "Failed" || data.Status === "Pending";
+
     data.BookingInfo.CurrentStatus =
-      data.Status == "Hold" ? "HOLD" : data.Status.toUpperCase() || data.Status;
+      data.Status == "Hold"
+        ? "HOLD"
+        : data?.Status?.toUpperCase?.() || data.Status || "Pending";
     if (travelerDetails?.[0]?.eTicket?.length)
       data.BookingInfo.CurrentStatus = "CONFIRMED";
-    data.ErrorMessage = errorMessage ? errorMessage || response.message : "";
+    data.ErrorMessage = errorMessage || response?.message || "";
     data.WarningMessage = data.ErrorMessage;
     return { data };
   } catch (error) {

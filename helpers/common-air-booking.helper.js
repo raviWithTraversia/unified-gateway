@@ -334,10 +334,7 @@ function convertBookingResponse(request, response, reqSegment) {
       data.Status == "Hold" ? "HOLD" : data.Status.toUpperCase() || data.Status;
     if (travelerDetails?.[0]?.eTicket?.length)
       data.BookingInfo.CurrentStatus = "CONFIRMED";
-    data.ErrorMessage =
-      data.Status == "Failed"
-        ? response?.journey?.[0]?.message || response.message || ""
-        : "";
+    data.ErrorMessage = errorMessage ? response.message || "" : "";
     data.WarningMessage = data.ErrorMessage;
     return { data };
   } catch (error) {

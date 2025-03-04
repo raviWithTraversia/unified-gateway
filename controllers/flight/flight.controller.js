@@ -69,17 +69,19 @@ const getSearch = async (req, res) => {
     const isTestEnv = ["LIVE", "TEST"].some((type) =>
       req.body.Authentication?.CredentialType.includes(type)
     );
-    let isAirlineFilterEligible = true;
-    if (req.body.Airlines?.length)
-      isAirlineFilterEligible = req.body.Airlines.some((type) =>
-        ["SG", "6E", "IX", "QP", "FF"].includes(type)
-      );
+    let isAirlineFilterEligible=true,isClassAvlInKafila=false;
+    if(req.body.Airlines?.length)
+     isAirlineFilterEligible = req.body.Airlines.some((type) =>
+      ["SG", "6E", "IX", "QP", "FF"].includes(type)
+    );  
+    if(["Economy","Business Class"].includes(req?.body?.ClassOfService))
+      isClassAvlInKafila=true
     const isInternationalRoundTrip =
       req.body.TravelType === "International" &&
       req.body.TypeOfTrip === "ROUNDTRIP";
 
     const flightRequests = [];
-    if (!isInternationalRoundTrip && isAirlineFilterEligible)
+    if (!isInternationalRoundTrip&&isAirlineFilterEligible&&isClassAvlInKafila)
       flightRequests.push(flightSearch.getSearch(req, res));
     if (isTestEnv) flightRequests.push(commonFlightSearch(req.body));
     const results = await Promise.allSettled(flightRequests);
@@ -307,7 +309,7 @@ const startBooking = async (req, res) => {
     //   if (error) return apiErrorres(res, error, 500, true);
     //   return apiSucessRes(
     //     res,
-    //     "Fetch Data Successfully",Open
+    //     "Fetch Data Successfully",
     //     result,
     //     ServerStatusCode.SUCESS_CODE
     //   );

@@ -232,7 +232,7 @@ async function handleflight(
       response: "Credential Type does not exist",
     };
   }
-  const supplierCredentials = await Supplier.find({
+  const supplierData = await Supplier.find({
     companyId: CompanyId,
     credentialsType: CredentialType,
     status: true,
@@ -240,8 +240,11 @@ async function handleflight(
     .populate({
       path: "supplierCodeId",
       select: "supplierCode",
-    })
-    .exec();
+    });
+  
+  const supplierCredentials = supplierData.filter(
+    (supplier) => supplier.supplierCodeId?.supplierCode === Provider
+  );
   if (!supplierCredentials || !supplierCredentials.length) {
     return {
       IsSucess: false,
@@ -378,7 +381,7 @@ const KafilaFun = async (
         AID: supplier.supplierWsapSesssion,
         MODULE: "B2B",
         IP: "182.73.146.154",
-        TOKEN: getToken,
+        TOKEN: supplier.supplierOfficeId,
         ENV: credentialType,
         Version: "1.0.0.0.0.0"
     };    

@@ -1,6 +1,5 @@
 const { default: axios } = require("axios");
 const { Config } = require("../configs/config");
-const http = require("http");
 
 const {
   createAirBookingRequestBodyForCommonAPI,
@@ -8,6 +7,8 @@ const {
 } = require("../helpers/common-air-booking.helper");
 const { saveLogInFile } = require("../utils/save-log");
 const Logs = require("../controllers/logs/PortalApiLogsCommon");
+const http = require("http");
+const https = require("https");
 
 module.exports.commonFlightBook = async function (
   request,
@@ -49,6 +50,7 @@ module.exports.commonFlightBook = async function (
     const { data: response } = await axios.post(url, requestBody, {
       timeout: 120_000,
       httpAgent: new http.Agent({ keepAlive: true }),
+      httpsAgent: new https.Agent({ keepAlive: true }),
     });
     logData.responce = response;
 

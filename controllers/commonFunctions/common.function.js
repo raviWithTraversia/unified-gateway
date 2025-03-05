@@ -1963,23 +1963,33 @@ async function getPnr1APnedingStatus(traceId, credentialsType) {
   try {
     // POST request bhejne ke liye fetch ka use
     // console.log(`${Config[credentialsType]?.additionalFlightsBaseURL}/log/airlog`)
-    const response = await fetch(
+    // const response = await fetch(
+    //   `${Config[credentialsType]?.additionalFlightsBaseURL}/log/airlog`,
+    //   {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       traceId: traceId,
+    //       logType: "vendor", // vendor ya travelOne
+    //       serviceName: "", // airBooking ke liye agar zaroori ho
+    //       download: true,
+    //     }),
+    //   }
+    // );
+
+    const response = await axios.post(
       `${Config[credentialsType]?.additionalFlightsBaseURL}/log/airlog`,
       {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          traceId: traceId,
-          logType: "vendor", // vendor ya travelOne
-          serviceName: "", // airBooking ke liye agar zaroori ho
-          download: true,
-        }),
+        traceId: traceId,
+        logType: "vendor", // vendor ya travelOne
+        serviceName: "airBooking", // airBooking ke liye agar zaroori ho
+        download: true,
       }
     );
 
-    const responseText = await response.text();
+    const responseText = response.data;
 
     const pnrSet = new Set();
     // 1A
@@ -1999,7 +2009,6 @@ async function getPnr1APnedingStatus(traceId, credentialsType) {
     }
 
     const pnrList = [...pnrSet];
-
     return pnrList?.[0];
   } catch (error) {
     console.error("Error fetching data:", error);

@@ -63,7 +63,6 @@ module.exports.commonFlightBook = async function (
       response: logData.responce,
       bookingResponse,
     };
-    Logs(logData);
     return bookingResponse;
   } catch (error) {
     logData.responce = {
@@ -72,14 +71,12 @@ module.exports.commonFlightBook = async function (
       stack: error.stack,
       errorResponse: error?.response?.data,
     };
-    Logs(logData);
     saveLogInFile("common-flight-book-error.json", {
       stack: error.stack,
       error: error.message,
     });
-    // console.log({ error });
     throw new Error(error.message);
-    // console.dir({ response: error?.response?.data }, { depth: null });
-    // return { error: error.message };
+  } finally {
+    Logs(logData);
   }
 };

@@ -1985,16 +1985,15 @@ async function getPnr1APnedingStatus(traceId, credentialsType) {
     // 1A
     const controlNumberRegex = /<controlNumber>(.*?)<\/controlNumber>/g;
 
-    let match = controlNumberRegex.exec(responseText);
-    while (match != null) {
+    let match;
+    while ((match = controlNumberRegex.exec(responseText)) != null) {
       if (match?.[1]) pnrSet.add(match[1]);
     }
 
     if (!pnrSet.size) {
       // 1AN
       const orderIDRegEx = /<OrderID>(.*?)<\/OrderID>/g;
-      match = orderIDRegEx.exec(responseText);
-      while (match != null) {
+      while ((match = orderIDRegEx.exec(responseText)) != null) {
         if (match?.[1]) pnrSet.add(match[1]);
       }
     }

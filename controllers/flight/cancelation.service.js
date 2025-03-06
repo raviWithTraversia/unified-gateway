@@ -704,7 +704,7 @@ const updateBookingStatus = async (req, res) => {
           return { IsSuccess: false, response: "PNR Import api Not Working.." };
         }
         // Update booking object with new PNR and providerBookingId
-      await bookingDetails.findOneAndUpdate({bookingId:item?.bookingId},{$set:{GPnr:PNR,providerBookingId:await commonProviderMethodDate(item.createdAt)}},{new:true})
+      await bookingDetails.findByIdAndUpdate(item._id,{$set:{GPnr:PNR,providerBookingId:await commonProviderMethodDate(item.createdAt)}},{new:true})
         // Call holdBookingProcessPayment (pending true)
         await holdBookingProcessPayment(pnrImportData?.Result, true);
         await updateBarcode2DByBookingId(item?.bookingId,null,item?.itinerary,PNR)

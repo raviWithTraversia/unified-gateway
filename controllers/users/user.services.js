@@ -22,7 +22,8 @@ const { Config } = require("../../configs/config");
 const agencyGroupServices = require("../../controllers/agencyGroup/agencyGroup.services");
 const { status } = require("../../utils/commonResponce");
 const bcrypt = require('bcryptjs');
-const mongoose=require('mongoose')
+const mongoose=require('mongoose');
+const { nonVisualElements } = require("juice");
 
 const registerUser = async (req, res) => {
   try {
@@ -355,6 +356,345 @@ const userInsert = async (req, res) => {
       baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'https://agent.kafilaholidays.in';
     }
     if (userCreated) {
+      // let resetTempPassword = await commonFunction.sendPasswordResetEmailLink(
+      //   email,
+      //   resetToken,
+      //   mailConfig,
+      //   newUser,
+      //   password,
+      //   baseUrl
+      // );
+      // if (resetTempPassword.response == "Password reset email sent" || resetTempPassword.data == true) {
+      //   console.log("Password reset email sent");
+      // }
+      // else if (resetTempPassword.response === "forgetPassWordMail") {
+      //   console.log("Error sending password reset email");
+      // }
+      let privilegePlansIds = await privilagePlanModel.findOne({ companyId: parent, IsDefault: true });
+      let commercialPlanIds = await commercialPlanModel.findOne({ companyId: parent, IsDefault: true });
+      let fareRuleGroupIds = await fareRuleGroupModel.findOne({ companyId: parent, IsDefault: true });
+      let plbGroupIds = await plbGroupModel.findOne({ companyId: parent, IsDefault: true });
+      let incentiveGroupIds = await incentiveGroupModel.findOne({ companyId: parent, IsDefault: true });
+      let airlinePromocodeIds = await airlinePromocodeModel.findOne({ companyId: parent, IsDefault: true });
+      let paymentGatewayIds = await paymentGatewayModel.findOne({ companyId: parent, IsDefault: true });
+      let ssrCommercialGroupId = await ssrCommercialGroupModel.findOne({ companyId: parent, IsDefault: true });
+
+      if (!agencyGroupId) {
+        // check agency parent is distributer or TMC
+        let findParentRoleId = await User.findOne({ company_ID: parent });
+        let findParentRole = await Role.findOne({ _id: findParentRoleId.roleId });
+        if (findParentRole.name == "TMC") {
+          // if agencyParent is tmc then find agencyGroup by their parentCompany id and isdefault true and assign that agent
+          agencyGroupId = await agencyGroupModel.findOne({ companyId: parent, isDefault: true });
+        } else if (findParentRole.name == "Distributer") {
+          // if agencyParent is distributer then find agencyGroup by their distributerparent and assign that agency
+          agencyGroupId = await agencyGroupModel.findOne({ companyId: parent, isDefault: true });
+        } else {
+          agencyGroupId = await agencyGroupModel.findOne({ isDefault: true });
+        }
+      } else {
+        let findParentRoleId = await User.findOne({ company_ID: parent });
+        let findParentRole = await Role.findOne({ _id: findParentRoleId.roleId });
+        if (findParentRole.name == "TMC") {
+          // if agencyParent is tmc then find agencyGroup by their parentCompany id and isdefault true and assign that agent
+          agencyGroupId = await agencyGroupModel.findOne({ companyId: parent, isDefault: true });
+        } else if (findParentRole.name == "Distributer") {
+          // if agencyParent is distributer then find agencyGroup by their distributerparent and assign that agency
+
+          agencyGroupId = await agencyGroupModel.findOne({ _id: agencyGroupId });
+        } else {
+          agencyGroupId = await agencyGroupModel.findOne({ _id: agencyGroupId });
+        }
+      };
+
+      //  console.log(privilegePlansIds ,commercialPlanIds ,fareRuleGroupIds,agencyGroupId)
+      let agentConfigsInsert = await agentConfigModel.create({
+        userId: userCreated._id,
+        companyId: savedCompany._id,
+        salesInchargeIds: saleInChargeId || null,
+        maxcreditLimit: maxCreditLimit,
+        holdPNRAllowed: holdPnrAllowed,
+        commercialPlanIds: agencyGroupId?.commercialPlanId || null,
+        privilegePlansIds: agencyGroupId?.privilagePlanId || null,
+        fareRuleGroupIds: agencyGroupId?.fareRuleGroupId || null,
+        RailcommercialPlanIds:agencyGroupId?.RailcommercialPlanId||null,
+        plbGroupIds: agencyGroupId?.plbGroupId || null,
+        incentiveGroupIds: agencyGroupId?.incentiveGroupId || null,
+        airlinePromocodeIds: agencyGroupId?.airlinePromoCodeGroupId || null,
+        paymentGatewayIds: agencyGroupId?.pgChargesGroupId || null,
+        ssrCommercialGroupId: agencyGroupId?.ssrCommercialGroupId || null,
+        diSetupIds: agencyGroupId?.diSetupGroupId || null,
+        modifyAt: new Date(),
+        modifiedBy: req?.user?.id || null,
+        agencyGroupId: agencyGroupId,
+        initiallyLoad: "Fight Search",
+        acencyLogoOnTicketCopy: true,
+        addressOnTicketCopy: true,
+        holdPNRAllowed: true,
+        portalLedgerAllowed: true,
+        railCashBalance:RailCashBalance,
+        maxCreditLimit:flightCashBalance,
+        fareTypes: [],
+      });
+      agentConfigsInsert = await agentConfigsInsert.save();
+      console.log('User Config Insert Sucessfully');
+      await Registration.deleteOne({ email: email });
+      //console.log("Registration details deleted");
+    }
+    return {
+      response: "User and Company Inserted successfully",
+      data: { newUser, newCompany },
+    };
+  } catch (error) {
+    if (savedCompany == null || newUser == null) {
+      console.log(error);
+      throw error;
+    } else {
+      await Company.deleteOne(savedCompany._id);
+      await User.deleteOne(newUser._id);
+      console.log(error);
+      throw error;
+    }
+
+  }
+};
+
+const satteUserInsert = async (req, res) => {
+  let savedCompany = null;
+  let newUser = null;
+  try {
+    // const requiredFields = [
+    //   "companyName",
+    //   "parent",
+    //   "companyStatus",
+    //   "pan_Number",
+    //   "login_Id",
+    //   "email",
+    //   "fname",
+    //   "lastName",
+    //   "phoneNumber",
+    //   "userStatus",
+    //   // "userPanName",
+    //   // "userPanNumber",
+    //   "nationality",
+    //   "sales_In_Charge",
+    //   "roleId",
+    // ];
+
+    // const missingFields = requiredFields.filter(
+    //   (fieldName) =>
+    //     req.body[fieldName] === null || req.body[fieldName] === undefined
+    // );
+    // if (missingFields.length > 0) {
+    //   const missingFieldsString = missingFields.join(", ");
+    //   return {
+    //     response: null,
+    //     isSometingMissing: true,
+    //     data: `Missing or null fields: ${missingFieldsString}`,
+    //   };
+    // };
+    let {
+      companyName,
+      parent,
+      type,
+      companyStatus,
+      logo_URL,
+      office_Type,
+      isAutoInvoicing,
+      invoicingPackageName,
+      planType,
+      creditPlanType,
+      booking_Prefix,
+      invoicing_Prefix,
+      invoicingTemplate,
+      cin_number,
+      signature,
+      pan_Number,
+      HSN_SAC_Code,
+      hierarchy_Level,
+      pan_upload,
+      userType,
+      login_Id,
+      email,
+      title,
+      fname,
+      lastName,
+      password,
+      securityStamp,
+      phoneNumber,
+      twoFactorEnabled,
+      lockoutEnabled,
+      emailConfirmed,
+      phoneNumberConfirmed,
+      userStatus,
+      userPanName,
+      userPanNumber,
+      sex,
+      dob,
+      nationality,
+      deviceToken,
+      deviceID,
+      user_planType,
+      sales_In_Charge,
+      personalPanCardUpload,
+      roleId,
+      gstState,
+      gstPinCode,
+      gstCity,
+      gstNumber,
+      gstName,
+      address,
+      gstAddress_1,
+      gstAddress_2,
+      isIATA,
+      holdPnrAllowed,
+      saleInChargeId,
+      cityId,
+      city,
+      creditBalance,
+      maxCreditLimit,
+      agencyGroupId,
+      adhar_Detail,
+      adhar_Number,
+      agentId,
+      RailCashBalance,
+      flightCashBalance,
+      pincode
+    } = req.body;
+
+    // const existingUser = await User.findOne({ email });
+    // if (existingUser) {
+    //   return {
+    //     response: "User with this email already exists",
+    //     data: null
+    //   };
+    // }
+
+    
+    
+    let findRole = await Role.findOne({ _id: roleId })
+    if (!type) {
+      type = findRole?.name || null
+    }
+    type="Agency";
+    parent="6555f84c991eaa63cb171a9f"
+    const newCompany = new Company({
+      companyName,
+      parent,
+      type,
+      companyStatus,
+      modifiedBy: req?.user?.id || null,
+      logo_URL,
+      office_Type,
+      isAutoInvoicing,
+      invoicingPackageName,
+      planType,
+      creditPlanType,
+      booking_Prefix,
+      invoicing_Prefix,
+      invoicingTemplate,
+      cin_number,
+      signature,
+      pan_Number,
+      HSN_SAC_Code,
+      hierarchy_Level,
+      pan_upload,
+      gstState: gstState || null,
+      gstPinCode: gstPinCode || null,
+      gstCity: gstCity || null,
+      gstNumber: gstNumber || null,
+      gstName: gstName || null,
+      gstAddress_1: address || null,
+      gstAddress_2: address || null,
+      companyAddress:address,
+      companyPinCode:pincode,
+      isIATA: isIATA || false,
+      holdPnrAllowed: holdPnrAllowed || false,
+    });
+    let createdComapanyId = newCompany._id;
+    savedCompany = await newCompany.save();
+    // console.log(createdComapanyId, "=====================");
+    if (findRole?.name === HOST_ROLE.TMC) {
+      const rolesToInsert = [
+        { name: TMC_ROLE.Agency, companyId: newCompany._id, type: 'Default' },
+        { name: TMC_ROLE.Distrbuter, companyId: newCompany._id, type: 'Default' },
+        { name: TMC_ROLE.Supplier, companyId: newCompany._id, type: 'Default' }
+      ];
+      const insertedRoles = await Role.insertMany(rolesToInsert);
+      console.log("Default Role Created Sucessfully")
+    }
+    if (findRole?.name === HOST_ROLE.DISTRIBUTER) {
+      let createDefaultDistributerGroup = await agencyGroupServices.createDefaultDistributerGroup(savedCompany._id, true, savedCompany.companyName);
+      const rolesToInsert = [
+        { name: DISTRIBUTER_ROLE.Agency, companyId: newCompany._id, type: 'Default' },
+        { name: DISTRIBUTER_ROLE.Staff, companyId: newCompany._id, type: 'Manual' },
+      ];
+      const insertedRoles = await Role.insertMany(rolesToInsert);
+      console.log("Default Role Created Sucessfully");
+    }
+    if (password == null || password == undefined) {
+      password = commonFunction.generateRandomPassword(10)
+    }
+    ///const securePassword = await commonFunction.securePassword(password);
+    const resetToken = Math.random().toString(36).slice(2);
+    newUser = new User({
+      userType,
+      login_Id,
+      email,
+      title,
+      fname,
+      lastName,
+      password,
+      securityStamp,
+      phoneNumber,
+      twoFactorEnabled,
+      lockoutEnabled,
+      emailConfirmed,
+      phoneNumberConfirmed,
+      userStatus,
+      userPanName,
+      userPanNumber,
+      sex,
+      dob,
+      nationality,
+      deviceToken,
+      deviceID,
+      user_planType,
+      sales_In_Charge,
+      personalPanCardUpload,
+      roleId,
+      company_ID: savedCompany._id,
+      modifiedBy: req?.user?.id || null,
+      city:cityId?cityId:city,
+      adhar_Detail,
+      adhar_Number,
+      userId:agentId,
+      resetToken: resetToken
+    });
+
+
+    let userCreated = await newUser.save();
+    let mailConfig = await Smtp.find({ companyId: parent });
+    // if (!mailConfig) {
+    //   let id = Config.MAIL_CONFIG_ID;
+    //   mailConfig = await Smtp.findById(id);
+    // };
+    // let baseUrl = await webMaster.findOne({ companyId: savedCompany._id });
+    // if (!baseUrl) {
+    //   // let cId = '6555f84c991eaa63cb171a9f'
+    //   baseUrl = await webMaster.find({ companyId: savedCompany._id });
+    //   baseUrl = baseUrl.length > 0 ? baseUrl[0]?.websiteURL : 'https://agent.kafilaholidays.in';
+    // }
+    var baseUrl="https://agent.kafilaholidays.in"
+    var resetUrl=`${baseUrl}/auth/verifyToken?token=${resetToken}&userId=${userCreated._id}`
+
+    if (userCreated) {
+
+      await commonFunction.sendEmailForSatte(mailConfig,
+        email,
+        `${fname} ${lastName}`,
+        baseUrl,resetUrl)
+
       // let resetTempPassword = await commonFunction.sendPasswordResetEmailLink(
       //   email,
       //   resetToken,
@@ -1464,5 +1804,6 @@ module.exports = {
   updateCompayProfile,
   agencyChangePassword,
   userFindEncrypted,
-  searchForAgency
+  searchForAgency,
+  satteUserInsert
 };

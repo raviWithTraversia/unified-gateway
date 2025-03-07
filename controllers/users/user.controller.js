@@ -98,6 +98,38 @@ const userInsert = async (req, res) => {
   }
 };
 
+const satteUserInsert = async (req, res) => {
+  try {
+    const result = await userServices.satteUserInsert(req, res);
+    if (!result.response || result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.BAD_REQUEST, true);
+    } else if (
+      result.response === "User with this email already exists" ||
+      result.response === "Company with this companyName already exists"
+    ) {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else {
+      if (result.response === "User and Company Inserted successfully") {
+        apiSucessRes(
+          res,
+          result.response,
+          result.data,
+          ServerStatusCode.SUCESS_CODE
+        );
+      } else {
+        apiErrorres(res, result.response, ServerStatusCode.SERVER_ERROR, true);
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    // apiErrorres(
+    //   res,
+    //   errorResponse.SOMETHING_WRONG,
+    //   ServerStatusCode.SERVER_ERROR,
+    //   true
+    // );
+  }
+}
 const forgotPassword = async (req, res) => {
   try {
     const result = await userServices.forgotPassword(req);
@@ -597,5 +629,6 @@ module.exports = {
   agencyChangePassword,
   userFindEncrypted,
   addMissingEncryptedUserId,
-  SearchAgencyFilter
+  SearchAgencyFilter,
+  satteUserInsert
 };

@@ -230,6 +230,12 @@ user_route.post(
  */
 
 user_route.post(
+  '/user/satteuserInsert',
+  // userValidatior.userInsert,
+  //auth,
+  userController.satteUserInsert
+);
+user_route.post(
   '/user/reset-password',
   //userValidatior.userResetPassword,
   userController.resetPassword

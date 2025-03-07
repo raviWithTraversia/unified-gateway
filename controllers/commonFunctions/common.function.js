@@ -2031,6 +2031,131 @@ const getPnrDataCommonMethod=async(Authentication,pnr,provider)=>{
 }
 // Function call
 
+const sendEmailForSatte = async (
+  mailConfig,
+  email,
+  name,
+  loginUrl,
+  resetUrl
+) => {
+  try{
+
+    const html=`
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .contact-table { 
+            width: 100%; 
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .contact-table td, .contact-table th {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .footer {
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <p>Dear ${name},</p>
+    
+    <p>Greetings from Kafila Hospitality and Travels Pvt. Ltd.!</p>
+
+    <p>We had the pleasure of meeting you at SATTE 2025 at Yashobhoomi, New Delhi, and we have your visiting card.</p>
+
+    <p>As per your request, we have registered you on our B2B portal:<br>
+    <a href="${loginUrl}">${loginUrl}</a></p>
+
+    <p>Please find below your login details for accessing your account:</p>
+    
+    <p><strong>Email:</strong> ${email}</p>
+    
+    <p>For security reasons, we recommend that you reset your password immediately. You can reset your password using the following link:</p>
+    
+    <p><a href="${resetUrl}" style="font-weight: bold; color: blue;">Reset Password</a></p>
+
+    <p>If you have any questions or need further assistance, please contact our team:</p>
+
+    <table class="contact-table">
+        <tr>
+            <th><strong>Best regards,</strong></th>
+            <th><strong>Contact Numbers</strong></th>
+        </tr>
+        <tr>
+            <td>Biresh Kumar<br>Refund/Support</td>
+            <td>011 450 22285 / +919560012813</td>
+        </tr>
+        <tr>
+            <td>Ajay Mishra<br>Package/API</td>
+            <td>011 450 22225 / +919873669995</td>
+        </tr>
+        <tr>
+            <td>Aditya<br>Login/API/Distributor Sales</td>
+            <td>+919311964030</td>
+        </tr>
+        <tr>
+            <td>Ravi Shankar<br>Ticketing</td>
+            <td>011 450 22233 / +919873633888</td>
+        </tr>
+        <tr>
+            <td>Manish<br>Ticketing/Support Head</td>
+            <td>011 450 22268 / +919910388355</td>
+        </tr>
+        <tr>
+            <td>Rajat<br>Operation Head</td>
+            <td>011 450 22257 / +918587811173</td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        <p>Kafila Hospitality and Travels Pvt. Ltd.<br>
+    </div>
+</body>
+</html>
+`
+
+    const transporter = nodemailer.createTransport({
+      host: mailConfig[0].host,
+      port: mailConfig[0].port,
+      secure: false,
+      auth: {
+        user: mailConfig[0].userName,
+        pass: mailConfig[0].password,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+      logger: true, // Enable logger
+      debug: true, // Enable debug
+    });
+
+    const mailOptions = {
+      from: mailConfig[0].emailFrom,
+      to: email,
+      subject: `Your B2B Portal Registration Details`,
+      cc: "", // Add CC recipient
+      bcc: "",
+      html: html,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully");
+    
+  } catch (error) {
+    return {
+      response: "Error Sending Notification Email",
+      data: error.message,
+    };
+  }
+};
+
+
 module.exports = {
   createToken,
   securePassword,
@@ -2070,5 +2195,6 @@ module.exports = {
   calculateOfferedPrice,
   commonProviderMethodDate,
   getPnr1APnedingStatus,
-  getPnrDataCommonMethod
+  getPnrDataCommonMethod,
+  sendEmailForSatte
 };

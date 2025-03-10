@@ -41,6 +41,9 @@ module.exports.commonFlightBook = async function (
         reqItinerary
       );
     logData.request = error || requestBody;
+    const isINTRoundtrip =
+      requestBody?.typeOfTrip === "ROUNDTRIP" &&
+      requestBody?.travelType === "INT";
 
     if (error) return { error };
     const url =
@@ -58,7 +61,8 @@ module.exports.commonFlightBook = async function (
     const bookingResponse = convertBookingResponse(
       request,
       response,
-      reqSegment
+      reqSegment,
+      isINTRoundtrip
     );
     saveLogInFile("booking-response.json", bookingResponse);
     logData.responce = {

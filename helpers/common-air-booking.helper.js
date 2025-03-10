@@ -43,8 +43,8 @@ async function createAirBookingRequestBodyForCommonAPI(
       typeOfTrip: SearchRequest.TypeOfTrip,
       credentialType: SearchRequest?.Authentication?.CredentialType ?? "TEST",
       travelType,
-      systemEntity: "TCIL",
-      systemName: "Astra2.0",
+      systemEntity: "KAFILA",
+      systemName: "KAFILA",
       corpCode: "000000",
       requestorCode: "000000",
       empCode: "000000",
@@ -288,7 +288,7 @@ function convertTravelerDetailsForCommonAPI(
   };
 }
 
-function convertBookingResponse(request, response, reqSegment) {F
+function convertBookingResponse(request, response, reqSegment, isINTRoundtrip) {
   // const tickets = response?.data?.journey?.[0]?.travellerDetails[0]?.eTicket;
   // const src = request.SearchRequest.Segments[0].Origin; // TODO: needs to be dynamic
   // console.log(response);
@@ -300,7 +300,7 @@ function convertBookingResponse(request, response, reqSegment) {F
   const bookingStatus =
     response?.data?.journey?.[0]?.status?.pnrStatus ?? "Pending";
   const errorMessage =
-  response?.data?.journey?.[0]?.reason ||
+    response?.data?.journey?.[0]?.reason ||
     response?.data?.journey?.[0]?.message ||
     response?.data?.journey?.[0]?.messages ||
     "";
@@ -330,7 +330,8 @@ function convertBookingResponse(request, response, reqSegment) {F
         request.PassengerPreferences,
         travelerDetails,
         src,
-        des
+        des,
+        isINTRoundtrip
       ),
     };
     data.BookingInfo.IsError =
@@ -380,7 +381,8 @@ function updatePassengerDetails(
   passengerPreferences,
   travelerDetails,
   src,
-  des
+  des,
+  isINTRoundtrip
 ) {
   if (!travelerDetails?.length) return passengerPreferences;
   const updatedPassengerPreferences = {
@@ -393,6 +395,19 @@ function updatePassengerDetails(
           src,
           des,
         })) || [];
+
+      // ? save same ticket number for international tickets
+      if (
+        isINTRoundtrip &&
+        ticketDetails?.length === 1 &&
+        ticketDetails?.[0]?.ticketNumber
+      ) {
+        ticketDetails.push({
+          ticketNumber: ticketDetails[0].ticketNumber,
+          src: des,
+          des: src,
+        });
+      }
       const EMDDetails = travelerDetails[idx]?.emd || [];
       // if (
       //   ticketDetails?.length &&

@@ -562,12 +562,16 @@ const satteUserInsert = async (req, res) => {
       pincode
     } = req.body;
 
-    if(!email){
+    if(!email||!phoneNumber){
       return{
         response:"Missing or null fields: email",
       }
     }
-
+    if(!phoneNumber){
+      return{
+        response:"Missing or null fields: phoneNumber",
+      }
+    }
     fname?fname:fname=" ";
     lastName?lastName:lastName=" ";
 

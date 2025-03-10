@@ -562,13 +562,24 @@ const satteUserInsert = async (req, res) => {
       pincode
     } = req.body;
 
-    // const existingUser = await User.findOne({ email });
-    // if (existingUser) {
-    //   return {
-    //     response: "User with this email already exists",
-    //     data: null
-    //   };
-    // }
+    if(!email){
+      return{
+        response:"Missing or null fields: email",
+      }
+    }
+
+    fname?fname:fname=" ";
+    lastName?lastName:lastName=" ";
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return {
+        response: "User with this email already exists",
+        data: null
+      };
+    }
+
+    
 
     
     

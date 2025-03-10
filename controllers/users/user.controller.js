@@ -105,7 +105,7 @@ const satteUserInsert = async (req, res) => {
       apiErrorres(res, result.data, ServerStatusCode.BAD_REQUEST, true);
     } else if (
       result.response === "User with this email already exists" ||
-      result.response === "Company with this companyName already exists"
+      result.response === "Missing or null fields: email,fname,lastName"
     ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else {

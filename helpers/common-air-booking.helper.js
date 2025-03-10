@@ -288,7 +288,7 @@ function convertTravelerDetailsForCommonAPI(
   };
 }
 
-function convertBookingResponse(request, response, reqSegment) {
+function convertBookingResponse(request, response, reqSegment) {F
   // const tickets = response?.data?.journey?.[0]?.travellerDetails[0]?.eTicket;
   // const src = request.SearchRequest.Segments[0].Origin; // TODO: needs to be dynamic
   // console.log(response);
@@ -300,7 +300,7 @@ function convertBookingResponse(request, response, reqSegment) {
   const bookingStatus =
     response?.data?.journey?.[0]?.status?.pnrStatus ?? "Pending";
   const errorMessage =
-  response?.data?.journey?.[0]?.message ||
+  response?.data?.journey?.[0]?.reason ||
     response?.data?.journey?.[0]?.message ||
     response?.data?.journey?.[0]?.messages ||
     "";

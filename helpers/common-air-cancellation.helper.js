@@ -7,7 +7,7 @@ const {
   convertFlightDetailsForCommonAPI,
 } = require("./common-air-pricing.helper");
 
- function createAirCancellationRequestBodyForCommonAPI(request) {
+function createAirCancellationRequestBodyForCommonAPI(request) {
   try {
     const reqItinerary = request.Itinerary?.[0];
     const reqSegment = request.Segments?.[0];
@@ -35,10 +35,16 @@ const {
           itinerary: [
             {
               recordLocator: request?.PNR,
-              cancelRemarks: request?.Reason?.Reason || "",
+              cancelRemarks: request?.Reason?.Reason
+                ? `${request?.Reason?.Reason} ${request.Reason.Scenarios ?? ""}`
+                    .replace(/[^a-zA-Z0-9 ]/g, "")
+                    .slice(0, 65) // ? 1A supports only 65 characters cancellation remark with no special characters
+                : "",
               cancelType: request?.CancelType || "",
               airSegments: null,
-              travellerDetails: request?.passengarList ? travellerDetailsForCancellation(request.passengarList) : null,
+              travellerDetails: request?.passengarList
+                ? travellerDetailsForCancellation(request.passengarList)
+                : null,
             },
           ],
         },
@@ -72,15 +78,14 @@ const {
 }
 
 function travellerDetailsForCancellation(travellerData) {
-  if (!travellerData || !Array.isArray(travellerData)) return null; 
+  if (!travellerData || !Array.isArray(travellerData)) return null;
 
   return travellerData.map(({ PAX_TYPE, FNAME, TTL, LNAME }) => ({
     type: PAX_TYPE,
     firstName: `${FNAME} ${TTL}`,
-    lastName: LNAME
+    lastName: LNAME,
   }));
 }
-
 
 function convertAirCancellationItineraryForCommonAPI({
   response,

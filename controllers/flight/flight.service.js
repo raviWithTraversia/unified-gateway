@@ -452,13 +452,14 @@ const KafilaFun = async (
     // if (response.
     // data.Status === "success") {
     // let getToken = response.data.Result;
+    let updatedAirlinesList = Airlines?.length ? Airlines : ["SG", "6E", "IX", "QP", "FF"];
     let requestDataFSearch = {
       Trip: tripTypeValue,
       Adt: PaxDetail.Adults,
       Chd: PaxDetail.Child,
       Inf: PaxDetail.Infants,
       Sector: segmentsArray,
-      PF: Airlines.length > 0 ? Airlines.join(",") : "",
+      PF: updatedAirlinesList.join(","),
       PC: codeClassOfService,
       Routing: "ALL",
       Ver: "1.0.0.0",
@@ -477,6 +478,7 @@ const KafilaFun = async (
         TPnr: false,
       },
     };
+    
 
     console.log(requestDataFSearch, "requestDataFSearch");
     console.log(

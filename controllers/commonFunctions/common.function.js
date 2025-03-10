@@ -16,7 +16,7 @@ const PassengerPreference = require("../../models/booking/PassengerPreference");
 const BookingDetails = require("../../models/booking/BookingDetails");
 const Railledger = require("../../models/Irctc/ledgerRail");
 const RailBookingSchema = require("../../models/Irctc/bookingDetailsRail");
-const moment=require('moment')
+const moment = require("moment");
 const {
   UserBindingInstance,
 } = require("twilio/lib/rest/chat/v2/service/user/userBinding");
@@ -27,8 +27,7 @@ const transaction = require("../../models/transaction");
 const railLogs = require("../../models/Irctc/railLogs");
 const { ObjectId } = require("mongodb");
 const { totalmem } = require("os");
-const axios = require('axios');
-
+const axios = require("axios");
 
 const createToken = async (id) => {
   try {
@@ -660,7 +659,9 @@ const sendCardDetailOnMail = async (
 ) => {
   const axios = require("axios"); // You need axios to fetch the external CSS
   const pdf = require("html-pdf");
-  var style=prdouctInfo=="Rail"?` <style>
+  var style =
+    prdouctInfo == "Rail"
+      ? ` <style>
   /* General Resets */
   * {
     box-sizing: border-box;
@@ -814,7 +815,8 @@ const sendCardDetailOnMail = async (
       text-align: center;
     }
   }
-</style>`:` <style>
+</style>`
+      : ` <style>
         #export-cart-pdf .px-0 {
             padding-left: 0;
             padding-right: 0
@@ -959,7 +961,7 @@ const sendCardDetailOnMail = async (
 }
 
 
-    </style>`
+    </style>`;
   try {
     // Fetch the Bootstrap CSS
 
@@ -1337,7 +1339,10 @@ const priceRoundOffNumberValues = async (numberValue) => {
   return Number(result.toFixed(2));
 };
 
-const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) => {
+const RefundedCommonFunction = async (
+  cancelationBookingsData,
+  refundHistory
+) => {
   try {
     let responseMessage = "Cancellation Data Not Found";
 
@@ -1421,14 +1426,13 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
 
       //   responseMessage = "Cancellation processed and refund issued.";
 
-      // } 
+      // }
       // console.log(refund)
-       if (!refund?.IsCancelled && !refund.IsRefunded) {
+      if (!refund?.IsCancelled && !refund.IsRefunded) {
         const isPartialCancellation = refund.CType === "PARTIAL";
         // console.log(isPartialCancellation)
 
         if (isPartialCancellation) {
-          
           for (const cpassenger of refund.CSector[0]?.CPax || []) {
             await PassengerPreference.findOneAndUpdate(
               {
@@ -1437,40 +1441,40 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
                 "Passengers.LName": cpassenger.lName,
               },
               { $set: { "Passengers.$.Status": "CANCELLED" } },
-              {new:true}
+              { new: true }
             );
           }
 
           const allCancelled = await PassengerPreference.findOne({
             bookingId: bookingDetails.bookingId,
-             "Passengers.Status": "CANCELLATION PENDING"    }
-          );
-          
-          const newStatus = allCancelled ? "CANCELLATION PENDING" : "PARTIALLY CONFIRMED";
-          console.log(newStatus,"newStatus")
+            "Passengers.Status": "CANCELLATION PENDING",
+          });
+
+          const newStatus = allCancelled
+            ? "CANCELLATION PENDING"
+            : "PARTIALLY CONFIRMED";
+          console.log(newStatus, "newStatus");
           await BookingDetails.findOneAndUpdate(
             { providerBookingId: matchingBooking.bookingId },
             { $set: { bookingStatus: newStatus } },
             { new: true }
           );
 
-          const cancelationbookignsData=await CancelationBooking.findOne({providerBookingId: matchingBooking.bookingId})
-          let filter={}
-          if(cancelationbookignsData.traceId !=null){
-             filter={
+          const cancelationbookignsData = await CancelationBooking.findOne({
+            providerBookingId: matchingBooking.bookingId,
+          });
+          let filter = {};
+          if (cancelationbookignsData.traceId != null) {
+            filter = {
               traceId: refund.TransId,
               calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
             };
-          }
-          else{
-            filter={
+          } else {
+            filter = {
               bookingId: matchingBooking.bookingId,
               calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
             };
-
           }
-
-          
 
           await CancelationBooking.findOneAndUpdate(
             filter,
@@ -1488,9 +1492,7 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
             },
             { new: true } // Returns the updated document
           );
-          
         } else {
-
           // console.log("djdieieie")
           await BookingDetails.findOneAndUpdate(
             { providerBookingId: matchingBooking.bookingId },
@@ -1502,23 +1504,22 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
             { bookingId: bookingDetails.bookingId },
             { $set: { "Passengers.$[].Status": "CANCELLED" } }
           );
-          const cancelationbookignsData=await CancelationBooking.findOne({providerBookingId: matchingBooking.bookingId})
+          const cancelationbookignsData = await CancelationBooking.findOne({
+            providerBookingId: matchingBooking.bookingId,
+          });
 
-          let filter={}
-          if(cancelationbookignsData.traceId !=null){
-             filter={
+          let filter = {};
+          if (cancelationbookignsData.traceId != null) {
+            filter = {
               traceId: refund.TransId,
               calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
             };
-          }
-          else{
-            filter={
+          } else {
+            filter = {
               bookingId: matchingBooking.bookingId,
               calcelationStatus: { $nin: ["CANCEL", "REFUNDED"] }, // Corrected $in to $nin
             };
-
           }
-
 
           await CancelationBooking.findOneAndUpdate(
             filter,
@@ -1536,11 +1537,8 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
             },
             { new: true } // Returns the updated document
           );
-          
-  
         }
 
-        
         responseMessage = "Cancellation status updated successfully.";
       }
     }
@@ -1551,9 +1549,6 @@ const RefundedCommonFunction = async (cancelationBookingsData, refundHistory) =>
     throw error;
   }
 };
-
-
-
 
 const RailBookingCommonMethod = async (
   userId,
@@ -1586,7 +1581,7 @@ const RailBookingCommonMethod = async (
     }
 
     let agentCommercialMinus = {};
-    if (jClass === "SL"||jClass==="2S") {
+    if (jClass === "SL" || jClass === "2S") {
       agentCommercialMinus = {
         Agent_service_charge:
           getAgentConfig.RailcommercialPlanIds?.Agent_service_charge?.sleepar ||
@@ -1612,8 +1607,6 @@ const RailBookingCommonMethod = async (
     // Check credit limit
     const currentBalance = getAgentConfig?.railCashBalance || 0;
     const checkCreditLimit = currentBalance - amount;
-
-   
 
     // Calculate ticket amount
     const ticketAmount = Math.ceil(amount - total);
@@ -1667,8 +1660,9 @@ const RailBookingCommonMethod = async (
       bookingId,
     });
 
-    return { response: "Amount transferred successfully." ,
-      amount:ticketAmount,
+    return {
+      response: "Amount transferred successfully.",
+      amount: ticketAmount,
     };
   } catch (error) {
     console.error("Error in RailBookingCommonMethod:", error.message);
@@ -1771,42 +1765,41 @@ const commonProviderMethodDate = (bookingDate = new Date()) => {
     .toString(36)
     .substring(2, 2 + 5);
   // Concatenate to desired format
-  return  `B2BKFL${day}${month}${year}${hour}${minute}${timetype}${randomNumber}`;
-  }
+  return `B2BKFL${day}${month}${year}${hour}${minute}${timetype}${randomNumber}`;
+};
 
 const convertTimeISTtoUTC = (Isodate) => {
   let inputDate = Isodate;
-  if (!inputDate.includes("IST")) { 
+  if (!inputDate.includes("IST")) {
     inputDate = formatDate(inputDate);
   }
   // Step 1: Parse the date
-  const [day, month, yearAndTime] = inputDate.split('-');
-  console.log({ day, month, yearAndTime })
-  const [year, time] = yearAndTime.split(' ');
-  const dateString = `${year}-${month}-${day}T${time.replace('.0', '')}`;
+  const [day, month, yearAndTime] = inputDate.split("-");
+  console.log({ day, month, yearAndTime });
+  const [year, time] = yearAndTime.split(" ");
+  const dateString = `${year}-${month}-${day}T${time.replace(".0", "")}`;
 
   // Step 2: Convert to ISO format
   // India Standard Time (IST) is UTC+5:30
   const localDate = new Date(dateString + "+05:30"); // Add IST offset
   const isoDate = localDate.toISOString();
 
-  return isoDate
-
-}
+  return isoDate;
+};
 
 function formatDate(inputDate) {
   // Parse the input date
   const date = new Date(inputDate);
 
   // Extract date components
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
   const year = date.getFullYear();
 
   // Extract time components
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
   const milliseconds = Math.floor(date.getMilliseconds() / 100); // Take only the first digit
 
   // Format the date and time
@@ -1822,16 +1815,16 @@ const ISTtoUTC = (time) => {
 const ProivdeIndiaStandardTime = (toDate, fromDate) => {
   // Start of the day in IST
   const startOfDayIST = moment(toDate)
-    .set('hour', 0)
-    .set('minute', 0)
-    .set('second', 0)
+    .set("hour", 0)
+    .set("minute", 0)
+    .set("second", 0)
     .toDate();
-  
+
   // End of the day in IST
   const endOfDayIST = moment(fromDate)
-    .set('hour', 23)
-    .set('minute', 59)
-    .set('second', 59)
+    .set("hour", 23)
+    .set("minute", 59)
+    .set("second", 59)
     .toDate();
 
   // Convert the IST dates to UTC for querying
@@ -1839,8 +1832,8 @@ const ProivdeIndiaStandardTime = (toDate, fromDate) => {
   const endDateUTC = endOfDayIST;
 
   return {
-    startDateUTC,  // This will be the UTC start date
-    endDateUTC,    // This will be the UTC end date
+    startDateUTC, // This will be the UTC start date
+    endDateUTC, // This will be the UTC end date
   };
 };
 
@@ -1966,69 +1959,85 @@ function offerPriceMinusInAmount(plusKeyName) {
   return returnBoolean;
 }
 
-async function getPnr1APnedingStatus(traceId,credentialsType) {
+async function getPnr1APnedingStatus(traceId, credentialsType) {
   try {
     // POST request bhejne ke liye fetch ka use
     // console.log(`${Config[credentialsType]?.additionalFlightsBaseURL}/log/airlog`)
-    const response = await fetch(`${Config[credentialsType]?.additionalFlightsBaseURL}/log/airlog`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    // const response = await fetch(
+    //   `${Config[credentialsType]?.additionalFlightsBaseURL}/log/airlog`,
+    //   {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       traceId: traceId,
+    //       logType: "vendor", // vendor ya travelOne
+    //       serviceName: "", // airBooking ke liye agar zaroori ho
+    //       download: true,
+    //     }),
+    //   }
+    // );
+
+    const response = await axios.post(
+      `${Config[credentialsType]?.additionalFlightsBaseURL}/log/airlog`,
+      {
         traceId: traceId,
-        logType: "vendor",  // vendor ya travelOne
-        serviceName: "",    // airBooking ke liye agar zaroori ho
-        download: true
-      })
-    });
-    
-    const responseText = await response.text();
+        logType: "vendor", // vendor ya travelOne
+        serviceName: "airBooking", // airBooking ke liye agar zaroori ho
+        download: true,
+      }
+    );
 
+    const responseText = response.data;
+
+    const pnrSet = new Set();
+    // 1A
     const controlNumberRegex = /<controlNumber>(.*?)<\/controlNumber>/g;
-    let match;
-    const pnrList = [];
 
-    while ((match = controlNumberRegex.exec(responseText)) !== null) {
-      if (!pnrList.includes(match[1])) {
-        pnrList.push(match[1]);
+    let match;
+    while ((match = controlNumberRegex.exec(responseText)) != null) {
+      if (match?.[1]) pnrSet.add(match[1]);
+    }
+
+    if (!pnrSet.size) {
+      // 1AN
+      const orderIDRegEx = /<OrderID>(.*?)<\/OrderID>/g;
+      while ((match = orderIDRegEx.exec(responseText)) != null) {
+        if (match?.[1]) pnrSet.add(match[1]);
       }
     }
-    
-    return pnrList[0]
+
+    const pnrList = [...pnrSet];
+    return pnrList?.[0];
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 }
 
+const getPnrDataCommonMethod = async (Authentication, pnr, provider) => {
+  const url = `${
+    Config[Authentication?.CredentialType]?.baseURLBackend
+  }/api/flight/import-pnr`;
 
-const getPnrDataCommonMethod=async(Authentication,pnr,provider)=>{
-
-  const url = `${Config[Authentication?.CredentialType]?.baseURLBackend}/api/flight/import-pnr`;
-  
   const data = {
-    pnr:pnr,
+    pnr: pnr,
     provider: provider,
-    Authentication:Authentication
+    Authentication: Authentication,
   };
-  
+
   const config = {
     headers: {
-      'Accept': 'application/json, text/plain, */*',
-    }
+      Accept: "application/json, text/plain, */*",
+    },
   };
-  try{
-    const response=await axios.post(url, data, config)
-    return response.data
+  try {
+    const response = await axios.post(url, data, config);
+    return response.data;
+  } catch (error) {
+    console.log("Error:", error.message);
   }
-  catch(error){
-    console.log("Error:",error.message)
-  }
-  
-  
-    
-  
-}
+};
 // Function call
 
 const sendEmailForSatte = async (

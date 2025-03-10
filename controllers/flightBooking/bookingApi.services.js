@@ -634,6 +634,7 @@ delete filter.createdAt; // Removes the 'age' key from obj
         HOLD: 0,
         HOLDRELEASED: 0,
         "FAILED PAYMENT": 0,
+        "CANCELLATION PENDING": 0,
       };
 
       // Iterate over the bookingDetails array
@@ -911,6 +912,7 @@ if (provider !== undefined && provider.trim() !== "") {
         HOLD: 0,
         HOLDRELEASED: 0,
         "FAILED PAYMENT": 0,
+        "CANCELLATION PENDING": 0,
       };
       var bookingIds = [];
 
@@ -1080,6 +1082,7 @@ if (provider !== undefined && provider.trim() !== "") {
           HOLD: 0,
           HOLDRELEASED: 0,
           "FAILED PAYMENT": 0,
+          "CANCELLATION PENDING": 0,
         };
 
         // Iterate over the bookingDetails array

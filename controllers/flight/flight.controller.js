@@ -69,17 +69,19 @@ const getSearch = async (req, res) => {
     const isTestEnv = ["LIVE", "TEST"].some((type) =>
       req.body.Authentication?.CredentialType.includes(type)
     );
-    let isAirlineFilterEligible=true
+    let isAirlineFilterEligible=true,isClassAvlInKafila=false;
     if(req.body.Airlines?.length)
      isAirlineFilterEligible = req.body.Airlines.some((type) =>
       ["SG", "6E", "IX", "QP", "FF"].includes(type)
-    );    
+    );  
+    if(["Economy","Business Class"].includes(req?.body?.ClassOfService))
+      isClassAvlInKafila=true
     const isInternationalRoundTrip =
       req.body.TravelType === "International" &&
       req.body.TypeOfTrip === "ROUNDTRIP";
 
     const flightRequests = [];
-    if (!isInternationalRoundTrip&&isAirlineFilterEligible)
+    if (!isInternationalRoundTrip&&isAirlineFilterEligible&&isClassAvlInKafila)
       flightRequests.push(flightSearch.getSearch(req, res));
     if (isTestEnv) flightRequests.push(commonFlightSearch(req.body));
     const results = await Promise.allSettled(flightRequests);
@@ -313,6 +315,7 @@ const startBooking = async (req, res) => {
     //   );
     // }
     const result = await airBooking.startBooking(req, res);
+    console.log({ bookResponse: result.response });
     if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
         res,

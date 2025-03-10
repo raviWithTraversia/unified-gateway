@@ -3,7 +3,9 @@ const {
   convertTravelTypeForCommonAPI,
   convertItineraryForKafila,
   convertSegmentForKafila,
+  getCommonCabinClass,
 } = require("./common-search.helper");
+const { Config } = require("../configs/config");
 
 function createAirPricingRequestBodyForCommonAPI(request) {
   try {
@@ -62,7 +64,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                     })()
                   : "",
                 classofService: sector.Class,
-                cabinClass: sector.CabinClass,
+                cabinClass: getCommonCabinClass(sector.CabinClass),
                 productClass: sector.ProductClass,
                 noSeats: sector.NoSeats,
                 fareBasisCode: sector.FareBasisCode,
@@ -225,10 +227,28 @@ async function convertSSRItineraryForCommonAPI({
   originalRequest,
 }) {
   const reqItinerary = requestBody.journey[0].itinerary[0];
+
   const journey = responseMealOrBaggage.journey[0];
   const itinerary = journey.itinerary[0];
-  let allSegmentsOfSeatMap = [],
-    allSeatsList;
+
+  const isDOM_AI =
+    (reqItinerary?.valCarrier === "AI" ||
+      reqItinerary?.airSegments?.[0]?.airlineCode === "AI") &&
+    requestBody.travelType === "DOM";
+  if (isDOM_AI) {
+    itinerary.ssrInfo.meal = itinerary.airSegments.flatMap((segment) =>
+      Config.AI_MEALS.map((meal) => {
+        meal.flightNumber = segment.fltNum;
+        meal.origin = segment.departure.code;
+        meal.destination = segment.arrival.code;
+        return meal;
+      })
+    );
+  }
+
+  let allSegmentsOfSeatMap = [];
+  let allSeatsList = [];
+
   if (responseSeat?.journey[0]?.itinerary?.length) {
     allSegmentsOfSeatMap = responseSeat?.journey[0]?.itinerary[0]?.airSegments;
   }
@@ -463,7 +483,7 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
   await allSegmentsList.forEach((segmentsList) => {
     segmentsList?.seatRows?.forEach?.((seatRows) => {
       facilitiesArrayList = [];
-      seatRows?.facilities?.forEach?.((seatFacilities) => {
+      seatRows?.facilities?.forEach?.((seatFacilities, seatIdx) => {
         const {
           type,
           seatCode,
@@ -485,16 +505,27 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
             );
             DDate = DDate + "T00:00:00.000Z";
           }
-          if (characteristics?.length && characteristics.includes("Aisle seat"))
+          if (
+            seatRows?.facilities?.[seatIdx - 1]?.type === "Aisle" ||
+            seatRows?.facilities?.[seatIdx + 1]?.type === "Aisle" ||
+            (characteristics?.length && characteristics.includes("Aisle seat"))
+          ) {
             ssrProperty.push({
               SKey: "AISLE",
               SValue: "True",
             });
+          }
+          // if (characteristics?.length && characteristics.includes("Aisle seat"))
+          //   ssrProperty.push({
+          //     SKey: "AISLE",
+          //     SValue: "True",
+          //   });
           facilitiesArrayList.push({
             Compartemnt: compartment,
             Type: type || "Seat",
             Seatcode: seatCode,
-            Availability: availability == "Available" ? true : false,
+            Availability: availability == "Open" ? true : false,
+            // Availability: availability == "Available" ? true : false,
             Paid: paid,
             Currency: currency,
             Characteristics: characteristics,

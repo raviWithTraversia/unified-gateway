@@ -153,26 +153,14 @@ async function createAirBookingRequestBodyForCommonAPI(
       isHoldBooking: request.isHoldBooking || false,
       fareMasking: false,
     };
-    const { cardDetails, error: cardDetailsError } = await getCardDetails({
-      supplierCode: requestBody.journey?.[0]?.itinerary?.[0]?.provider,
-      credentialType: requestBody.credentialType,
-    });
-    saveLogInFile("card-info.json", { cardDetails, cardDetailsError });
-    if (cardDetails) requestBody.journey[0].cardInfo = cardDetails;
-
-    // card info for live bookings
-    // if (
-    //   request.credentialType === "LIVE" &&
-    //   request.journey[0]?.itinerary?.[0]?.provider == "1A"
-    // ) {
-    //   request.journey[0].cardInfo = {
-    //     // FP CCVI4780080140169608/D0827
-    //     cardNumber: "4780080140169608",
-    //     code: "VI",
-    //     expiryYear: "27",
-    //     expiryMonth: "08",
-    //   };
-    // }
+    if (reqItinerary.ValCarrier === "AI") {
+      const { cardDetails, error: cardDetailsError } = await getCardDetails({
+        supplierCode: reqItinerary.Provider,
+        credentialType: requestBody.credentialType,
+      });
+      saveLogInFile("card-info.json", { cardDetails, cardDetailsError });
+      if (cardDetails) requestBody.journey[0].cardInfo = cardDetails;
+    }
     saveLogInFile("book-request-body.json", requestBody);
     return { requestBody };
   } catch (error) {
@@ -309,7 +297,15 @@ function convertBookingResponse(request, response, reqSegment) {
   const des = reqSegment.Destination;
   // const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
   const pnrs = response?.data?.journey?.[0]?.recLocInfo;
-  const bookingStatus = response?.data?.journey?.[0]?.status?.pnrStatus;
+  const bookingStatus =
+    response?.data?.journey?.[0]?.status?.pnrStatus ?? "Pending";
+  const errorMessage =
+  response?.data?.journey?.[0]?.message ||
+    response?.data?.journey?.[0]?.message ||
+    response?.data?.journey?.[0]?.messages ||
+    "";
+
+  console.log({ errorMessage });
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
     PNR = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
@@ -324,7 +320,7 @@ function convertBookingResponse(request, response, reqSegment) {
       Status: bookingStatus == "Confirm" ? "Success" : bookingStatus,
       BookingInfo: {
         BookingId: "",
-        BookingRemark: "",
+        BookingRemark: errorMessage || "",
         PNR,
         APnr,
         GPnr,
@@ -337,33 +333,40 @@ function convertBookingResponse(request, response, reqSegment) {
         des
       ),
     };
-    data.BookingInfo.IsError = data.Status == "Failed";
+    data.BookingInfo.IsError =
+      data.Status == "Failed" || data.Status === "Pending";
+
     data.BookingInfo.CurrentStatus =
-      data.Status == "Hold" ? "HOLD" : data.Status.toUpperCase() || data.Status;
+      data.Status == "Hold"
+        ? "HOLD"
+        : data?.Status?.toUpperCase?.() || data.Status || "Pending";
     if (travelerDetails?.[0]?.eTicket?.length)
       data.BookingInfo.CurrentStatus = "CONFIRMED";
-    data.ErrorMessage = data.Status == "Failed" ? response?.message ?? "" : "";
+    data.ErrorMessage = errorMessage || "";
     data.WarningMessage = data.ErrorMessage;
     return { data };
   } catch (error) {
-    saveLogInFile("error.json", { stack: error.stack, message: error.message });
+    saveLogInFile("error-converting-booking-response.json", {
+      stack: error.stack,
+      message: error.message,
+    });
     return {
       data: {
         Status: bookingStatus == "Confirm" ? "Success" : bookingStatus,
         BookingInfo: {
           BookingId: "",
-          BookingRemark: "",
+          BookingRemark: errorMessage || "",
           PNR,
           APnr,
           GPnr,
           SalePurchase: "",
           IsError: true,
-          CurrentStatus: "Failed",
-          ErrorMessage: error.message,
-          WarningMessage: error.message,
+          CurrentStatus: "Pending",
+          ErrorMessage: errorMessage || error.message,
+          WarningMessage: errorMessage || error.message,
         },
         PaxInfo: updatePassengerDetails(
-          passengerPreferences,
+          request.PassengerPreferences,
           travelerDetails,
           src,
           des

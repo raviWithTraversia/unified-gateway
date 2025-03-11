@@ -32,7 +32,7 @@ const { error } = require("console");
 
 const lyraRedirectLink=async(req,res)=>{
     try{
-const {Authentication,bookingId,amount,pgCharges}=req.body
+const {Authentication,bookingId,amount,pgCharges,normalAmount,paymentFor}=req.body
 
 console.log(req.body)
 
@@ -44,15 +44,24 @@ const userDetail=await User.findById({_id:req.user?._id})
 
 // console.log(Config.TEST)
         const authHeader = "Basic " + Buffer.from(`${Config[Authentication?.CredentialType ?? "TEST"].lyraShopId}:${Config[Authentication?.CredentialType ?? "TEST"]?.lyraPassword}`).toString("base64");
+        var url=""
+        if(paymentFor.toLowerCase()=="wallet"){
+          url="lyra/wallet/success"
+
+
+        }else{
+          url="lyra/success"
+
+        }
         // console.log(authHeader)
-        let totalAmount=Number(amount+pgCharges)
+        let totalAmount=Number(normalAmount+pgCharges)
         const response = await axios.post(
             "https://api.in.lyra.com/pg/rest/v1/charge",
             {
                 orderId: bookingId,
                 orderInfo: "FLight Booking",
                 currency: "INR",
-                udf:[amount,pgCharges],
+                udf:[normalAmount,pgCharges],
                 amount: totalAmount*100,
                 customer: {
                     name: userDetail?.fname+" "+userDetail?.lastName,
@@ -61,7 +70,7 @@ const userDetail=await User.findById({_id:req.user?._id})
                 },
                 return: {
                     method: "POST",
-                    url: "http://localhost:3111/api/lyra/success",
+                    url: `http://localhost:3111/api/${url}`,
                     timeout: 100
                 }
             },
@@ -111,7 +120,7 @@ const fetchChargeDetails = async (vads_charge_uuid) => {
       const { data: response } = await axios.get(apiUrl, {
           headers: {
               "Accept": "application/json",
-              "Authorization": `Basic Basic OTkyMTA3NjM6dGVzdHBhc3N3b3JkX0UzQmhhb09QeTNqdjJMY2RxS1ozbjVUWTBTaHdpRDFta0w3Ymw2Vm1oSmcxbA==`, // Replace with actual credentials
+              "Authorization": `Basic OTkyMTA3NjM6dGVzdHBhc3N3b3JkX0UzQmhhb09QeTNqdjJMY2RxS1ozbjVUWTBTaHdpRDFta0w3Ymw2Vm1oSmcxbA==`, // Replace with actual credentials
           },
       });
 
@@ -123,7 +132,7 @@ const fetchChargeDetails = async (vads_charge_uuid) => {
       }
 
       // Destructuring response
-      const { orderId, status, udf = [], transaction = [] } = response;
+      const { orderId, status, udf = [], transactions  = [] } = response;
 
       return {
           success: true,
@@ -131,10 +140,10 @@ const fetchChargeDetails = async (vads_charge_uuid) => {
           status,
           udf2: udf[0] || null,
           udf3: udf[1] || null,
-          bank_ref_num: transaction[0]?.authRefNo || null,
-          PG_TYPE: transaction[0]?.cardType || null,
-          cardCategory: transaction[0]?.cardVariant || null,
-          txnid: transaction[0]?.uuid || null,
+          bank_ref_num: transactions[0]?.authRefNo || null,
+          PG_TYPE: transactions[0]?.cardType || null,
+          cardCategory: transactions[0]?.cardVariant || null,
+          txnid: transactions[0]?.uuid || null,
       };
   } catch (error) {
       console.error("Error fetching data:", error.message);
@@ -872,6 +881,69 @@ const lyraSuccess = async (req, res) => {
           }
         }
       }
+
+      else {
+      const failedHtml=`  <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Payment Failed</title>
+          <style>
+            .failed-txt {
+              color: #bd362f;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background-color: #f2f2f2;
+            }
+            .failed-container {
+              max-width: 400px;
+              width: 100%;
+              padding: 20px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+              background-color: #fff;
+              text-align: center;
+            }
+            .failed-container p {
+              margin-top: 10px;
+            }
+            .failed-container a {
+              display: inline-block;
+              margin-top: 20px;
+              padding: 10px 20px;
+              background-color: #007bff;
+              color: #fff;
+              text-decoration: none;
+              border-radius: 5px;
+            }
+            .failed-container a:hover {
+              background-color: #0056b3;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="failed-container">
+            <h1 class="failed-txt">Payment Failed!</h1>
+            <p class="failed-txt">Your payment has failed.</p>
+            <p>Please try again later.</p>
+            <a href="${
+              Config[Config.MODE].baseURL
+            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+          </div>
+        </body>
+        </html>
+      `;
+      return failedHtml;
+          }
+      
     } catch (error) {
       throw error;
     }

@@ -1,39 +1,74 @@
 
 const axios=require('axios')
 const {Config}=require('../../configs/config')
+// const userModel=require('../../models/User')
+const pgCharges = require("../../models/pgCharges");
+const Role = require("../../models/Role");
+const User = require("../../models/User");
+const crypto = require("crypto");
+const UserModel = require("../../models/User");
+const BookingDetails = require("../../models/booking/BookingDetails");
+const transaction = require("../../models/transaction");
+const ledger = require("../../models/Ledger");
+const Railledger = require("../../models/Irctc/ledgerRail");
+const RailBookingDetail = require("../../models/Irctc/bookingDetailsRail");
+const agentConfig = require("../../models/AgentConfig");
+const Logs = require("../../controllers/logs/PortalApiLogsCommon");
+const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
+const BookingTemp = require("../../models/booking/BookingTemp");
+const { v4: uuidv4 } = require("uuid");
+const { ObjectId } = require("mongodb");
+const {
+  createLeadger,
+  getTdsAndDsicount,
+  priceRoundOffNumberValues,
+  recieveDI,
+  commonProviderMethodDate
+} = require("../commonFunctions/common.function");
+const AgentConfiguration = require("../../models/AgentConfig");
+const { saveLogInFile } = require("../../utils/save-log");
+const { commonFlightBook } = require("../../services/common-flight-book");
+const { error } = require("console");
+
 const lyraRedirectLink=async(req,res)=>{
     try{
-const {Authentication}=req.body
+const {Authentication,bookingId,amount,pgCharges}=req.body
+
+console.log(req.body)
+
+const userDetail=await User.findById({_id:req.user?._id})
 // Config.MODE == "TEST"
 //         ? Config.PAYMENT_CREDENTIALS_PAYU.TEST.key
 
 //         : Config.PAYMENT_CREDENTIALS_PAYU.LIVE.key
 
 // console.log(Config.TEST)
-        const authHeader = "Basic " + Buffer.from(`${Config[Authentication?.CredentialType ?? "TEST"].lyraShopId}${Config[Authentication?.CredentialType ?? "TEST"]?.lyraPassword}`).toString("base64");
-        console.log(authHeader)
+        const authHeader = "Basic " + Buffer.from(`${Config[Authentication?.CredentialType ?? "TEST"].lyraShopId}:${Config[Authentication?.CredentialType ?? "TEST"]?.lyraPassword}`).toString("base64");
+        // console.log(authHeader)
+        let totalAmount=Number(amount+pgCharges)
         const response = await axios.post(
             "https://api.in.lyra.com/pg/rest/v1/charge",
             {
-                orderId: "2457778896222",
-                orderInfo: "Testing payment",
+                orderId: bookingId,
+                orderInfo: "FLight Booking",
                 currency: "INR",
-                amount: 100,
+                udf:[amount,pgCharges],
+                amount: totalAmount*100,
                 customer: {
-                    name: "test",
-                    emailId: "test@gmail.com",
-                    phone: "+919811683801"
+                    name: userDetail?.fname+" "+userDetail?.lastName,
+                    emailId: userDetail?.email,
+                    phone: userDetail?.phoneNumber
                 },
                 return: {
                     method: "POST",
                     url: "http://localhost:3111",
-                    timeout: 600
+                    timeout: 100
                 }
             },
             {
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": authHeader, // Replace with actual Base64-encoded credentials
+                    "Authorization": `Basic OTkyMTA3NjM6dGVzdHBhc3N3b3JkX0UzQmhhb09QeTNqdjJMY2RxS1ozbjVUWTBTaHdpRDFta0w3Ymw2Vm1oSmcxbA==`, // Replace with actual Base64-encoded credentials
                 }
             }
         );
@@ -45,35 +80,62 @@ const {Authentication}=req.body
             return
         }
 
-        return res.status(200).json({
+         res.status(200).json({
             success:true,
-            data:response
+            Message:"response found",
+            data:response?.data
         })
 
     }
     catch(err){
+      console.log(err)
         res.status(500).json({error:err.message})
         return
     }
 }
 const lyraSuccess = async (req, res) => {
+  const {
+    vads_charge_uuid,
+  } = req.body;
+
+let response=null
+  try {
+    const apiUrl = `https://api.in.lyra.com/pg/rest/v1/charge/${vads_charge_uuid}`;
+
+    const options = {
+        uri: apiUrl,
+        headers: {
+            "Accept": "application/json",
+            "Authorization": `Basic OTkyMTA3NjM6dGVzdHBhc3N3`,
+        },
+        json: true,
+    };
+
+     response = await axios.get(options).data;
+    // console.log("API Response:", response);
+    if(!response){
+return {
+  sucess:false,
+  Message:"response not found",
+}
+    }
+} catch (error) {
+    console.error("Error fetching data:", error.message);
+}
     try {
-      const {
-        status,
-        txnid,
-        productinfo,
-        udf1,
-        udf2,
-        udf3,
-        amount,
-        payment_source,
-        bank_ref_num,
-        PG_TYPE,
-        cardCategory,
-      } = req.body;
-  
+
+let {orderId,status,udf,transaction}=response
+
+
+let udf2=udf[0]
+let udf3=udf[1]
+let bank_ref_num=transaction[0]?.authRefNo;
+let  PG_TYPE=transaction[0]?.cardType;
+let cardCategory=transaction[0]?.cardVariant
+let txnid=transaction[0]?.uuid
+     
       
-      const CheckAllereadyBooking = await BookingDetails.find({bookingId:udf1,bookingStatus:{$ne:"INCOMPLETE"}})
+      const CheckAllereadyBooking = await BookingDetails.find({bookingId:orderId,bookingStatus:{$ne:"INCOMPLETE"}})
       if(CheckAllereadyBooking.length){
         let successHtmlCode = `<!DOCTYPE html>
         <html lang="en">
@@ -140,9 +202,9 @@ const lyraSuccess = async (req, res) => {
       }
   
   
-     else if (status === "success") {
+     else if (status === "PAID") {
   
-       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
+       const BookingTempData = await BookingTemp.findOne({ BookingId: orderId });
   
         if (BookingTempData) {
           const convertDataBookingTempRes = JSON.parse(BookingTempData.request);

@@ -726,6 +726,7 @@ const satteUserInsert = async (req, res) => {
       // }
       let privilegePlansIds = await privilagePlanModel.findOne({ companyId: parent, IsDefault: true });
       let commercialPlanIds = await commercialPlanModel.findOne({ companyId: parent, IsDefault: true });
+      
       let fareRuleGroupIds = await fareRuleGroupModel.findOne({ companyId: parent, IsDefault: true });
       let plbGroupIds = await plbGroupModel.findOne({ companyId: parent, IsDefault: true });
       let incentiveGroupIds = await incentiveGroupModel.findOne({ companyId: parent, IsDefault: true });

@@ -50,7 +50,7 @@ payu_route.post(
     payuController.payu2
 );
 
-payu_route.post('/lyra/redirect',lyraService.lyraRedirectLink)
+payu_route.post('/lyra/redirect',auth,lyraService.lyraRedirectLink)
 payu_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

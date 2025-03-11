@@ -6,6 +6,7 @@ payu_route.use(bodyParser.urlencoded({extended:true}));
 const auth = require("../middleware/auth");
 const payuController = require('./../controllers/payuController/payu.controller');
 const lyraService=require('../controllers/lyraPg/lyraService')
+const lyraController=require('../controllers/lyraPg/lyraController')
 
 payu_route.post(
     '/paymentGateway/payu',
@@ -51,6 +52,7 @@ payu_route.post(
 );
 
 payu_route.post('/lyra/redirect',auth,lyraService.lyraRedirectLink)
+payu_route.post('/lyra/success',lyraController.lyraSuccess )
 payu_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

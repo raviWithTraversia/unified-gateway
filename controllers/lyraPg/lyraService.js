@@ -49,7 +49,7 @@ const userDetail=await User.findById({_id:req.user?._id})
         const response = await axios.post(
             "https://api.in.lyra.com/pg/rest/v1/charge",
             {
-                orderId: bookingId,
+                udf1: bookingId,
                 orderInfo: "FLight Booking",
                 currency: "INR",
                 udf:[amount,pgCharges],
@@ -61,7 +61,7 @@ const userDetail=await User.findById({_id:req.user?._id})
                 },
                 return: {
                     method: "POST",
-                    url: "http://localhost:3111",
+                    url: "http://localhost:3111/api/lyra/success",
                     timeout: 100
                 }
             },
@@ -93,49 +93,70 @@ const userDetail=await User.findById({_id:req.user?._id})
         return
     }
 }
+
+const fetchChargeDetails = async (vads_charge_uuid) => {
+  try {
+
+      if (!vads_charge_uuid) {
+          return {
+              success: false,
+              message: "vads_charge_uuid is required",
+          };
+      }
+
+      // API URL
+      const apiUrl = `https://api.in.lyra.com/pg/rest/v1/charge/${vads_charge_uuid}`;
+
+      // API Call
+      const { data: response } = await axios.get(apiUrl, {
+          headers: {
+              "Accept": "application/json",
+              "Authorization": `Basic Basic OTkyMTA3NjM6dGVzdHBhc3N3b3JkX0UzQmhhb09QeTNqdjJMY2RxS1ozbjVUWTBTaHdpRDFta0w3Ymw2Vm1oSmcxbA==`, // Replace with actual credentials
+          },
+      });
+
+      if (!response) {
+          return {
+              success: false,
+              message: "Response not found",
+          };
+      }
+
+      // Destructuring response
+      const { orderId, status, udf = [], transaction = [] } = response;
+
+      return {
+          success: true,
+         udf1: orderId||null,
+          status,
+          udf2: udf[0] || null,
+          udf3: udf[1] || null,
+          bank_ref_num: transaction[0]?.authRefNo || null,
+          PG_TYPE: transaction[0]?.cardType || null,
+          cardCategory: transaction[0]?.cardVariant || null,
+          txnid: transaction[0]?.uuid || null,
+      };
+  } catch (error) {
+      console.error("Error fetching data:", error.message);
+      return {
+          success: false,
+          message: error.message,
+      };
+  }
+};
 const lyraSuccess = async (req, res) => {
   const {
     vads_charge_uuid,
   } = req.body;
 
-let response=null
-  try {
-    const apiUrl = `https://api.in.lyra.com/pg/rest/v1/charge/${vads_charge_uuid}`;
-
-    const options = {
-        uri: apiUrl,
-        headers: {
-            "Accept": "application/json",
-            "Authorization": `Basic OTkyMTA3NjM6dGVzdHBhc3N3`,
-        },
-        json: true,
-    };
-
-     response = await axios.get(options).data;
-    // console.log("API Response:", response);
-    if(!response){
-return {
-  sucess:false,
-  Message:"response not found",
-}
-    }
-} catch (error) {
-    console.error("Error fetching data:", error.message);
-}
-    try {
-
-let {orderId,status,udf,transaction}=response
+   try {
 
 
-let udf2=udf[0]
-let udf3=udf[1]
-let bank_ref_num=transaction[0]?.authRefNo;
-let  PG_TYPE=transaction[0]?.cardType;
-let cardCategory=transaction[0]?.cardVariant
-let txnid=transaction[0]?.uuid
-     
+      const {udf1,udf2,udf3,status,bank_ref_num,PG_TYPE,cardCategory,txnid}=await fetchChargeDetails(vads_charge_uuid)
+
+  
       
-      const CheckAllereadyBooking = await BookingDetails.find({bookingId:orderId,bookingStatus:{$ne:"INCOMPLETE"}})
+      const CheckAllereadyBooking = await BookingDetails.find({bookingId:udf1,bookingStatus:{$ne:"INCOMPLETE"}})
       if(CheckAllereadyBooking.length){
         let successHtmlCode = `<!DOCTYPE html>
         <html lang="en">
@@ -204,7 +225,7 @@ let txnid=transaction[0]?.uuid
   
      else if (status === "PAID") {
   
-       const BookingTempData = await BookingTemp.findOne({ BookingId: orderId });
+       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
   
         if (BookingTempData) {
           const convertDataBookingTempRes = JSON.parse(BookingTempData.request);

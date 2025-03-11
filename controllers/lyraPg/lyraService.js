@@ -49,7 +49,7 @@ const userDetail=await User.findById({_id:req.user?._id})
         const response = await axios.post(
             "https://api.in.lyra.com/pg/rest/v1/charge",
             {
-                udf1: bookingId,
+                orderId: bookingId,
                 orderInfo: "FLight Booking",
                 currency: "INR",
                 udf:[amount,pgCharges],
@@ -880,9 +880,12 @@ const lyraSuccess = async (req, res) => {
   
   const lyraWalletResponceSuccess = async (req, res) => {
     try {
-      const { status, txnid, productinfo, udf1, udf2, udf3, amount, PG_TYPE } =
-        req.body;
+
+      const {vads_charge_uuid,productinfo}=req.body
+      let { status, txnid,  udf1, udf2, udf3, amount, PG_TYPE } =
+      await fetchChargeDetails(vads_charge_uuid);
       //productinfo = product udf3= pgcharges;
+
   
       var successHtmlCode;
       const findtransaction = await transaction.find({ trnsNo: txnid });

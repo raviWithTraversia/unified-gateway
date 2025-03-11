@@ -204,18 +204,8 @@ function convertAirPricingItineraryForCommonAPI({
     },
   };
   convertedItinerary.GstData = {
-    IsGst: false,
-    GstDetails: {
-      Name: "",
-      Address: "",
-      Email: "",
-      Mobile: "",
-      Pin: "",
-      State: "",
-      Type: "",
-      Gstn: "",
-      isAgentGst: false,
-    },
+    IsGst: !!originalRequest.GstDetails,
+    GstDetails: originalRequest.GstDetails,
   };
   return convertedItinerary;
 }

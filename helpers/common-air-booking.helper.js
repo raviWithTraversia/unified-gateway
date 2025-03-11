@@ -125,12 +125,15 @@ async function createAirBookingRequestBodyForCommonAPI(
         homePhone: PassengerPreferences?.GstData?.gstmobile || null,
         workPhone: PassengerPreferences?.GstData?.gstmobile || null,
         gstNumber: PassengerPreferences?.GstData?.gstNumber || null,
-        companyName: null,
+        companyName: PassengerPreferences?.GstData?.gstName || null,
         addressLine1: PassengerPreferences?.GstData?.gstAddress || null,
         addressLine2: PassengerPreferences?.GstData?.gstAddressLine2 || null,
-        city: PassengerPreferences?.GstData?.gstCity || null,
-        provinceState: PassengerPreferences?.GstData?.gstCity || null,
-        postalCode: PassengerPreferences?.GstData?.gstPostalCode || null,
+        city:
+          PassengerPreferences?.GstData?.gstCity ||
+          PassengerPreferences?.GstData?.GSTState ||
+          null,
+        provinceState: PassengerPreferences?.GstData?.GSTState || null,
+        postalCode: PassengerPreferences?.GstData?.GSTPinCode || null,
         countryCode: PassengerPreferences?.GstData?.gstCountryCode || null,
       },
       // agencyInfo: {

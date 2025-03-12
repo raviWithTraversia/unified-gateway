@@ -109,7 +109,8 @@ url="rail/lyra/wallet/success"
 }
 
 const fetchChargeDetails = async (vads_charge_uuid,Mode) => {
-  const authHeader = "Basic " + Buffer.from(`${Config[Mode??"TEST"].lyraShopId}:${Config[Mode??"TEST"]?.lyraPassword}`).toString("base64");
+  const Status=Mode=="TEST"?"TEST":"LIVE"
+  const authHeader = "Basic " + Buffer.from(`${Config[Status??"TEST"].lyraShopId}:${Config[Status??"TEST"]?.lyraPassword}`).toString("base64");
   try {
 
       if (!vads_charge_uuid) {

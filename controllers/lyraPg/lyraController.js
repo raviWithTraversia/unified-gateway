@@ -1,5 +1,11 @@
 const lyraService=require('./lyraService')
-
+const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
+const {
+    ServerStatusCode,
+    errorResponse,
+    CrudMessage,
+  } = require("../../utils/constants");
+  
 const lyraSuccess = async (req, res) => 
     {
       try {
@@ -43,7 +49,7 @@ const lyraSuccess = async (req, res) =>
     const railPayuSuccess = async (req, res) => 
       {
         try {
-          const result = await payuServices.payuRailSuccess(req, res);      
+          const result = await lyraService.lyraWalletRailResponceSuccess(req, res);      
           res.send(result);
           // if (result.response == "Success") {
           //   apiSucessRes(
@@ -82,7 +88,7 @@ const lyraSuccess = async (req, res) =>
     const lyraWalletResponceSuccess = async (req, res) => 
       {
         try {
-          const result = await payuServices.lyraWalletResponceSuccess(req, res);      
+          const result = await lyraService.lyraWalletResponceSuccess(req, res);      
           res.send(result);        
         } catch (error) {
           apiErrorres(
@@ -95,4 +101,4 @@ const lyraSuccess = async (req, res) =>
         
       }
 
-      module.exports ={lyraWalletResponceSuccess,lyraSuccess}
+      module.exports ={lyraWalletResponceSuccess,lyraSuccess,railPayuSuccess}

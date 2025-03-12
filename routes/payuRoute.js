@@ -53,7 +53,8 @@ payu_route.post(
 
 payu_route.post('/lyra/redirect',auth,lyraService.lyraRedirectLink)
 payu_route.post('/lyra/success',lyraController.lyraSuccess )
-payu_route.post('/lyra/wallet/success',lyraController.lyraSuccess )
+payu_route.post('/flight/lyra/wallet/success',lyraController.lyraWalletResponceSuccess )
+payu_route.post('/rail/lyra/wallet/success',lyraController.railPayuSuccess )
 
 payu_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

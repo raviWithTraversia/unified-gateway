@@ -18,6 +18,7 @@ const passengerPreferenceModel = require("../../models/booking/PassengerPreferen
 const BookingTemp = require("../../models/booking/BookingTemp");
 const { v4: uuidv4 } = require("uuid");
 const { ObjectId } = require("mongodb");
+const {updateBarcode2DByBookingId}=require('../flight/airBooking.service')
 const {
   createLeadger,
   getTdsAndDsicount,
@@ -32,7 +33,7 @@ const { error } = require("console");
 
 const lyraRedirectLink=async(req,res)=>{
     try{
-const {Authentication,bookingId,amount,pgCharges,normalAmount,paymentFor}=req.body
+const {Authentication,bookingId,amount,pgCharges,normalAmount,paymentFor,productinfo}=req.body
 
 console.log(req.body)
 
@@ -45,16 +46,19 @@ const userDetail=await User.findById({_id:req.user?._id})
 // console.log(Config.TEST)
         const authHeader = "Basic " + Buffer.from(`${Config[Authentication?.CredentialType ?? "TEST"].lyraShopId}:${Config[Authentication?.CredentialType ?? "TEST"]?.lyraPassword}`).toString("base64");
         var url=""
-        if(paymentFor.toLowerCase()=="wallet"){
-          url="lyra/wallet/success"
+        if(paymentFor.toLowerCase()=="wallet"&&productinfo.toLowerCase()=="flight"){
+          url="flight/lyra/wallet/success"
 
 
-        }else{
+        }else if(productinfo.toLowerCase()=="flight"&&paymentFor.toLowerCase()=="booking"){
           url="lyra/success"
 
         }
+        else if(productinfo.toLowerCase()=="rail"&&paymentFor.toLowerCase()=="wallet"){
+url="rail/lyra/wallet/success"
+        }
         // console.log(authHeader)
-        let totalAmount=Number(normalAmount+pgCharges)
+        let totalAmount=Number(normalAmount)+Number(pgCharges)
         const response = await axios.post(
             "https://api.in.lyra.com/pg/rest/v1/charge",
             {
@@ -70,14 +74,14 @@ const userDetail=await User.findById({_id:req.user?._id})
                 },
                 return: {
                     method: "POST",
-                    url: `http://localhost:3111/api/${url}`,
+                    url: `${Config[Authentication?.CredentialType ??"TEST"].baseURLBackend}/api/${url}`,
                     timeout: 100
                 }
             },
             {
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Basic OTkyMTA3NjM6dGVzdHBhc3N3b3JkX0UzQmhhb09QeTNqdjJMY2RxS1ozbjVUWTBTaHdpRDFta0w3Ymw2Vm1oSmcxbA==`, // Replace with actual Base64-encoded credentials
+                    "Authorization": authHeader, // Replace with actual Base64-encoded credentials
                 }
             }
         );
@@ -103,7 +107,8 @@ const userDetail=await User.findById({_id:req.user?._id})
     }
 }
 
-const fetchChargeDetails = async (vads_charge_uuid) => {
+const fetchChargeDetails = async (vads_charge_uuid,Mode) => {
+  const authHeader = "Basic " + Buffer.from(`${Config[Mode??"TEST"].lyraShopId}:${Config[Mode??"TEST"]?.lyraPassword}`).toString("base64");
   try {
 
       if (!vads_charge_uuid) {
@@ -120,7 +125,7 @@ const fetchChargeDetails = async (vads_charge_uuid) => {
       const { data: response } = await axios.get(apiUrl, {
           headers: {
               "Accept": "application/json",
-              "Authorization": `Basic OTkyMTA3NjM6dGVzdHBhc3N3b3JkX0UzQmhhb09QeTNqdjJMY2RxS1ozbjVUWTBTaHdpRDFta0w3Ymw2Vm1oSmcxbA==`, // Replace with actual credentials
+              "Authorization": authHeader, // Replace with actual credentials
           },
       });
 
@@ -953,10 +958,11 @@ const lyraSuccess = async (req, res) => {
   const lyraWalletResponceSuccess = async (req, res) => {
     try {
 
-      const {vads_charge_uuid,productinfo}=req.body
+      const {vads_charge_uuid,vads_order_info,vads_ctx_mode}=req.body
       let { status, txnid,  udf1, udf2, udf3, amount, PG_TYPE } =
-      await fetchChargeDetails(vads_charge_uuid);
-      //productinfo = product udf3= pgcharges;
+      await fetchChargeDetails(vads_charge_uuid,vads_ctx_mode);
+   let   productinfo = "Flight";
+   amount=Number(udf2)+Number(udf3)
 
   
       var successHtmlCode;
@@ -1022,7 +1028,7 @@ const lyraSuccess = async (req, res) => {
         </body>
         </html>`;
         return successHtmlCode;
-      } else if (status === "success") {
+      } else if (status === "PAID") {
         const userData = await User.findOne({ company_ID: udf1 }).populate({
           path: "roleId",
           match: { name: "Agency" },
@@ -1234,6 +1240,67 @@ const lyraSuccess = async (req, res) => {
           return "Data does not exist";
         }
       }
+      else{
+        const failedHtml=`  <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Payment Failed</title>
+          <style>
+            .failed-txt {
+              color: #bd362f;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background-color: #f2f2f2;
+            }
+            .failed-container {
+              max-width: 400px;
+              width: 100%;
+              padding: 20px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+              background-color: #fff;
+              text-align: center;
+            }
+            .failed-container p {
+              margin-top: 10px;
+            }
+            .failed-container a {
+              display: inline-block;
+              margin-top: 20px;
+              padding: 10px 20px;
+              background-color: #007bff;
+              color: #fff;
+              text-decoration: none;
+              border-radius: 5px;
+            }
+            .failed-container a:hover {
+              background-color: #0056b3;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="failed-container">
+            <h1 class="failed-txt">Payment Failed!</h1>
+            <p class="failed-txt">Your payment has failed.</p>
+            <p>Please try again later.</p>
+            <a href="${
+              Config[Config.MODE].baseURL
+            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+          </div>
+        </body>
+        </html>
+      `;
+      return failedHtml;
+      }
     } catch (error) {
       throw error;
     }
@@ -1241,9 +1308,12 @@ const lyraSuccess = async (req, res) => {
   
   const lyraWalletRailResponceSuccess = async (req, res) => {
     try {
-      const { status, txnid, productinfo, udf1, udf2, udf3, amount, PG_TYPE } =
-        req.body;
-      console.log("shadaab ali");
+      const {vads_charge_uuid,vads_order_info}=req.body
+      let { status, txnid,  udf1, udf2, udf3, amount, PG_TYPE } =
+      await fetchChargeDetails(vads_charge_uuid);
+   let   productinfo = "Rail";
+   amount=Number(udf2)+Number(udf3)
+      // console.log("shadaab ali");
       //productinfo = product udf3= pgcharges;
       var successHtmlCode;
       const findtransaction = await transaction.find({ trnsNo: txnid });
@@ -1309,7 +1379,7 @@ const lyraSuccess = async (req, res) => {
         </html>`;
         return successHtmlCode;
       }
-      if (status === "success") {
+      if (status === "PAID") {
         const userData = await User.findOne({ company_ID: udf1 }).populate({
           path: "roleId",
           match: { name: "Agency" },
@@ -1518,6 +1588,68 @@ const lyraSuccess = async (req, res) => {
         } else {
           return "Data does not exist";
         }
+      }
+      else{
+        const failedHtml=`  <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Payment Failed</title>
+          <style>
+            .failed-txt {
+              color: #bd362f;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background-color: #f2f2f2;
+            }
+            .failed-container {
+              max-width: 400px;
+              width: 100%;
+              padding: 20px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+              background-color: #fff;
+              text-align: center;
+            }
+            .failed-container p {
+              margin-top: 10px;
+            }
+            .failed-container a {
+              display: inline-block;
+              margin-top: 20px;
+              padding: 10px 20px;
+              background-color: #007bff;
+              color: #fff;
+              text-decoration: none;
+              border-radius: 5px;
+            }
+            .failed-container a:hover {
+              background-color: #0056b3;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="failed-container">
+            <h1 class="failed-txt">Payment Failed!</h1>
+            <p class="failed-txt">Your payment has failed.</p>
+            <p>Please try again later.</p>
+            <a href="${
+              Config[Config.MODE].baseURL
+            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+          </div>
+        </body>
+        </html>
+      `;
+      return failedHtml;
+
       }
     } catch (error) {
       throw error;

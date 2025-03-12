@@ -365,7 +365,7 @@ const lyraSuccess = async (req, res) => {
             fop: "DEBIT",
             transactionType: "CREDIT",
             runningAmount: newBalanceCredit,
-            remarks: "Booking Amount Deducted from Your Account(PayU).",
+            remarks: "Booking Amount Deducted from Your Account(Lyra).",
             transactionBy: getuserDetails._id,
             cartId: udf1,
           });
@@ -381,7 +381,7 @@ const lyraSuccess = async (req, res) => {
             fop: "DEBIT",
             transactionType: "DEBIT",
             runningAmount:runningAmountShow-totalItemAmount,
-            remarks: "Booking Amount Deducted from Your Account(PayU).",
+            remarks: "Booking Amount Deducted from Your Account(Lyra).",
             transactionBy: getuserDetails._id,
             cartId: udf1,
           });
@@ -484,7 +484,7 @@ const lyraSuccess = async (req, res) => {
                   type: "Portal log",
                   BookingId: udf1,
                   product: "Flight",
-                  logName: "EazeBuzz Response",
+                  logName: "Lyra Response",
                   request: "Request captured from portal",
                   responce: req.body,
                 };
@@ -883,15 +883,16 @@ const lyraSuccess = async (req, res) => {
         if(PG_TYPE == "CC-PG"||PG_TYPE=="UPI-PG"){
          DIdata=0
         }else{
+          DIdata=0
   
-         DIdata = await recieveDI(
-          configData,
-          findUser,
-          productinfo,
-          udf2,
-          loginUser,
-          txnid
-        );
+        //  DIdata = await recieveDI(
+        //   configData,
+        //   findUser,
+        //   productinfo,
+        //   udf2,
+        //   loginUser,
+        //   txnid
+        // );
       }
   
         // console.log(DIdata, "DIdata1");
@@ -932,7 +933,7 @@ const lyraSuccess = async (req, res) => {
             fop: "DEBIT",
             transactionType: "DEBIT",
             runningAmount: newBalanceAmount - udf3,
-            remarks: "Manual AUTO_PGcharges(PayU)",
+            remarks: "Manual AUTO_PGcharges(Lyra)",
             transactionBy: userData._id,
           });
           await agentConfig.findOneAndUpdate(
@@ -1104,7 +1105,7 @@ const lyraSuccess = async (req, res) => {
               fop: "DEBIT",
               transactionType: "DEBIT",
               runningAmount: newBalanceAmount - udf3,
-              remarks: "Manual Wallet debited for PG charges(PayU)",
+              remarks: "Manual Wallet debited for PG charges(Lyra)",
               transactionBy: userData._id,
             });
             await agentConfig.findOneAndUpdate(

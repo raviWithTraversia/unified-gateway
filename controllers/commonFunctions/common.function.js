@@ -2217,12 +2217,12 @@ const sendSuccessHtml=(URL)=>{
       <h1 class="success-txt">Payment Successful!</h1>
       <p class="success-txt">Your payment has been successfully processed.</p>
       <p>Thank you for your purchase.</p>
-      <p id="timer-text">Don't Refresh Redirecting in <span id="countdown">15</span> seconds...</p>
+      <p id="timer-text">Don't Refresh Redirecting in <span id="countdown">10</span> seconds...</p>
       <a id="redirect-btn" class="redirect-btn" href="${URL}">Go to Merchant...</a>
     </div>
   
     <script>
-      let countdown = 15; // Timer in seconds
+      let countdown = 10; // Timer in seconds
       const countdownElement = document.getElementById("countdown");
       const redirectBtn = document.getElementById("redirect-btn");
   

@@ -2165,6 +2165,148 @@ const sendEmailForSatte = async (
 };
 
 
+const sendSuccessHtml=(URL)=>{
+  const successHtmlCode = `<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success</title>
+    <style>
+      .success-txt {
+        color: #51a351;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f2f2f2;
+      }
+      .success-container {
+        max-width: 400px;
+        width: 100%;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+        text-align: center;
+      }
+      .success-container p {
+        margin-top: 10px;
+      }
+      .redirect-btn {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      .redirect-btn:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="success-container">
+      <h1 class="success-txt">Payment Successful!</h1>
+      <p class="success-txt">Your payment has been successfully processed.</p>
+      <p>Thank you for your purchase.</p>
+      <p id="timer-text">Don't Refresh Redirecting in <span id="countdown">15</span> seconds...</p>
+      <a id="redirect-btn" class="redirect-btn" href="${URL}">Go to Merchant...</a>
+    </div>
+  
+    <script>
+      let countdown = 15; // Timer in seconds
+      const countdownElement = document.getElementById("countdown");
+      const redirectBtn = document.getElementById("redirect-btn");
+  
+      const timerInterval = setInterval(() => {
+        countdown--;
+        countdownElement.textContent = countdown;
+  
+        if (countdown <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById("timer-text").style.display = "none"; // Hide timer text
+          redirectBtn.style.display = "inline-block"; // Show button
+          redirectBtn.href = "${URL}"; // Set the redirect URL
+          window.location.href = "${URL}"; // Auto redirect
+        }
+      }, 1000);
+    </script>
+  </body>
+  </html>
+  `;
+            return successHtmlCode;
+}
+
+const sendFailedHtml=(URL)=>{
+  const successHtmlCode = ` <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Payment Failed</title>
+          <style>
+            .failed-txt {
+              color: #bd362f;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background-color: #f2f2f2;
+            }
+            .failed-container {
+              max-width: 400px;
+              width: 100%;
+              padding: 20px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+              background-color: #fff;
+              text-align: center;
+            }
+            .failed-container p {
+              margin-top: 10px;
+            }
+            .failed-container a {
+              display: inline-block;
+              margin-top: 20px;
+              padding: 10px 20px;
+              background-color: #007bff;
+              color: #fff;
+              text-decoration: none;
+              border-radius: 5px;
+            }
+            .failed-container a:hover {
+              background-color: #0056b3;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="failed-container">
+            <h1 class="failed-txt">Payment Failed!</h1>
+            <p class="failed-txt">Your payment has failed.</p>
+            <p>Please try again later.</p>
+            <a href="${
+              URL
+            }">Go to Merchant...</a>
+          </div>
+        </body>
+        </html>
+      `;
+            return successHtmlCode;
+}
+
 module.exports = {
   createToken,
   securePassword,
@@ -2205,5 +2347,7 @@ module.exports = {
   commonProviderMethodDate,
   getPnr1APnedingStatus,
   getPnrDataCommonMethod,
-  sendEmailForSatte
+  sendEmailForSatte,
+  sendSuccessHtml,
+  sendFailedHtml
 };

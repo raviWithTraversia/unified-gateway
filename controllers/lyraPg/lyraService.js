@@ -24,7 +24,9 @@ const {
   getTdsAndDsicount,
   priceRoundOffNumberValues,
   recieveDI,
-  commonProviderMethodDate
+  commonProviderMethodDate,
+  sendSuccessHtml,
+sendFailedHtml
 } = require("../commonFunctions/common.function");
 const AgentConfiguration = require("../../models/AgentConfig");
 const { saveLogInFile } = require("../../utils/save-log");
@@ -35,7 +37,6 @@ const lyraRedirectLink=async(req,res)=>{
     try{
 const {Authentication,bookingId,amount,pgCharges,normalAmount,paymentFor,productinfo}=req.body
 
-console.log(req.body)
 
 const userDetail=await User.findById({_id:req.user?._id})
 // Config.MODE == "TEST"
@@ -74,7 +75,7 @@ url="rail/lyra/wallet/success"
                 },
                 return: {
                     method: "POST",
-                    url: `${Config[Authentication?.CredentialType ??"TEST"].baseURLBackend}/api/${url}`,
+                    url: `${Config[Authentication?.CredentialType ?? "TEST"].baseURLBackend}/api/${url}`,
                     timeout: 100
                 }
             },
@@ -797,67 +798,9 @@ const lyraSuccess = async (req, res) => {
           }
   
   
-          let successHtmlCode = `<!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Payment Success</title>
-        <style>
-        .success-txt{
-          color: #51a351;
-        }
-        body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          background-color: #f2f2f2;
-        }
-        
-        .success-container {
-          max-width: 400px;
-          width: 100%;
-          padding: 20px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          background-color: #fff;
-          text-align: center;
-        }
-        .success-container p {
-          margin-top: 10px;
-        }
-        
-        .success-container a {
-          display: inline-block;
-          margin-top: 20px;
-          padding: 10px 20px;
-          background-color: #007bff;
-          color: #fff;
-          text-decoration: none;
-          border-radius: 5px;
-        }
-        
-        .success-container a:hover {
-          background-color: #0056b3;
-        }
-      </style>
-  
-      </head>
-      <body>
-        <div class="success-container">
-          <h1 class="success-txt">Payment Successful!</h1>
-          <p class="success-txt">Your payment has been successfully processed.</p>
-          <p>Thank you for your purchase.</p>
-          <a href="${
+          let successHtmlCode = sendSuccessHtml(`${
             Config[Config.MODE].baseURL
-          }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
-        </div>
-      </body>
-      </html>`;
+          }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}`);
   
           if (results.length > 0) {
             if (itemAmount !== 0) {
@@ -888,64 +831,9 @@ const lyraSuccess = async (req, res) => {
       }
 
       else {
-      const failedHtml=`  <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Payment Failed</title>
-          <style>
-            .failed-txt {
-              color: #bd362f;
-            }
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0;
-              padding: 0;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-              background-color: #f2f2f2;
-            }
-            .failed-container {
-              max-width: 400px;
-              width: 100%;
-              padding: 20px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              background-color: #fff;
-              text-align: center;
-            }
-            .failed-container p {
-              margin-top: 10px;
-            }
-            .failed-container a {
-              display: inline-block;
-              margin-top: 20px;
-              padding: 10px 20px;
-              background-color: #007bff;
-              color: #fff;
-              text-decoration: none;
-              border-radius: 5px;
-            }
-            .failed-container a:hover {
-              background-color: #0056b3;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="failed-container">
-            <h1 class="failed-txt">Payment Failed!</h1>
-            <p class="failed-txt">Your payment has failed.</p>
-            <p>Please try again later.</p>
-            <a href="${
-              Config[Config.MODE].baseURL
-            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
-          </div>
-        </body>
-        </html>
-      `;
+      const failedHtml=sendFailedHtml(`${
+            Config[Config.MODE].baseURL
+          }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}`);
       return failedHtml;
           }
       
@@ -968,65 +856,7 @@ const lyraSuccess = async (req, res) => {
       var successHtmlCode;
       const findtransaction = await transaction.find({ trnsNo: txnid });
       if (findtransaction.length > 0) {
-        successHtmlCode = `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Payment Success</title>
-          <style>
-          .success-txt{
-            color: #51a351;
-          }
-          body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f2f2f2;
-          }
-          
-          .success-container {
-            max-width: 400px;
-            width: 100%;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #fff;
-            text-align: center;
-          }
-          .success-container p {
-            margin-top: 10px;
-          }
-          
-          .success-container a {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-          }
-          
-          .success-container a:hover {
-            background-color: #0056b3;
-          }
-        </style>
-    
-        </head>
-        <body>
-          <div class="success-container">
-            <h1 class="success-txt">Payment Successful!</h1>
-            <p class="success-txt">Your payment has been successfully processed.</p>
-            <p>Thank you for your purchase.</p>
-            <a href="${Config[Config.MODE].baseURL}">Go to Merchant...</a>
-          </div>
-        </body>
-        </html>`;
+        successHtmlCode = sendSuccessHtml(Config[Config.MODE].baseURL);
         return successHtmlCode;
       } else if (status === "PAID") {
         const userData = await User.findOne({ company_ID: udf1 }).populate({
@@ -1176,129 +1006,14 @@ const lyraSuccess = async (req, res) => {
             pgCharges: udf3,
           });
   
-          successHtmlCode = `<!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Payment Success</title>
-        <style>
-        .success-txt{
-          color: #51a351;
-        }
-        body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          background-color: #f2f2f2;
-        }
-        
-        .success-container {
-          max-width: 400px;
-          width: 100%;
-          padding: 20px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          background-color: #fff;
-          text-align: center;
-        }
-        .success-container p {
-          margin-top: 10px;
-        }
-        
-        .success-container a {
-          display: inline-block;
-          margin-top: 20px;
-          padding: 10px 20px;
-          background-color: #007bff;
-          color: #fff;
-          text-decoration: none;
-          border-radius: 5px;
-        }
-        
-        .success-container a:hover {
-          background-color: #0056b3;
-        }
-      </style>
-  
-      </head>
-      <body>
-        <div class="success-container">
-          <h1 class="success-txt">Payment Successful!</h1>
-          <p class="success-txt">Your payment has been successfully processed.</p>
-          <p>Thank you for your purchase.</p>
-          <a href="${Config[Config.MODE].baseURL}">Go to Merchant...</a>
-        </div>
-      </body>
-      </html>`;
+          successHtmlCode =await sendSuccessHtml(Config[Config.MODE].baseURL)
           return successHtmlCode;
         } else {
           return "Data does not exist";
         }
       }
       else{
-        const failedHtml=`  <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Payment Failed</title>
-          <style>
-            .failed-txt {
-              color: #bd362f;
-            }
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0;
-              padding: 0;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-              background-color: #f2f2f2;
-            }
-            .failed-container {
-              max-width: 400px;
-              width: 100%;
-              padding: 20px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              background-color: #fff;
-              text-align: center;
-            }
-            .failed-container p {
-              margin-top: 10px;
-            }
-            .failed-container a {
-              display: inline-block;
-              margin-top: 20px;
-              padding: 10px 20px;
-              background-color: #007bff;
-              color: #fff;
-              text-decoration: none;
-              border-radius: 5px;
-            }
-            .failed-container a:hover {
-              background-color: #0056b3;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="failed-container">
-            <h1 class="failed-txt">Payment Failed!</h1>
-            <p class="failed-txt">Your payment has failed.</p>
-            <p>Please try again later.</p>
-            <a href="${
-              Config[Config.MODE].baseURL
-            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
-          </div>
-        </body>
-        </html>
-      `;
+        const failedHtml=await sendFailedHtml(Config[Config.MODE].baseURL);
       return failedHtml;
       }
     } catch (error) {
@@ -1318,65 +1033,7 @@ const lyraSuccess = async (req, res) => {
       var successHtmlCode;
       const findtransaction = await transaction.find({ trnsNo: txnid });
       if (findtransaction.length > 0) {
-        successHtmlCode = `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Payment Success</title>
-          <style>
-          .success-txt{
-            color: #51a351;
-          }
-          body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f2f2f2;
-          }
-          
-          .success-container {
-            max-width: 400px;
-            width: 100%;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #fff;
-            text-align: center;
-          }
-          .success-container p {
-            margin-top: 10px;
-          }
-          
-          .success-container a {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-          }
-          
-          .success-container a:hover {
-            background-color: #0056b3;
-          }
-        </style>
-    
-        </head>
-        <body>
-          <div class="success-container">
-            <h1 class="success-txt">Payment Successful!</h1>
-            <p class="success-txt">Your payment has been successfully processed.</p>
-            <p>Thank you for your purchase.</p>
-            <a href="${Config[Config.MODE].baseURL}">Go to Merchant...</a>
-          </div>
-        </body>
-        </html>`;
+        successHtmlCode = sendSuccessHtml(Config[Config.MODE].baseURL)
         return successHtmlCode;
       }
       if (status === "PAID") {
@@ -1525,129 +1182,14 @@ const lyraSuccess = async (req, res) => {
             pgCharges: udf3,
           });
   
-          successHtmlCode = `<!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Payment Success</title>
-        <style>
-        .success-txt{
-          color: #51a351;
-        }
-        body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          background-color: #f2f2f2;
-        }
-        
-        .success-container {
-          max-width: 400px;
-          width: 100%;
-          padding: 20px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          background-color: #fff;
-          text-align: center;
-        }
-        .success-container p {
-          margin-top: 10px;
-        }
-        
-        .success-container a {
-          display: inline-block;
-          margin-top: 20px;
-          padding: 10px 20px;
-          background-color: #007bff;
-          color: #fff;
-          text-decoration: none;
-          border-radius: 5px;
-        }
-        
-        .success-container a:hover {
-          background-color: #0056b3;
-        }
-      </style>
-  
-      </head>
-      <body>
-        <div class="success-container">
-          <h1 class="success-txt">Payment Successful!</h1>
-          <p class="success-txt">Your payment has been successfully processed.</p>
-          <p>Thank you for your purchase.</p>
-          <a href="${Config[Config.MODE].baseURL}">Go to Merchant...</a>
-        </div>
-      </body>
-      </html>`;
+          successHtmlCode = sendSuccessHtml(Config[Config.MODE].baseURL);
           return successHtmlCode;
         } else {
           return "Data does not exist";
         }
       }
       else{
-        const failedHtml=`  <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Payment Failed</title>
-          <style>
-            .failed-txt {
-              color: #bd362f;
-            }
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0;
-              padding: 0;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-              background-color: #f2f2f2;
-            }
-            .failed-container {
-              max-width: 400px;
-              width: 100%;
-              padding: 20px;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              background-color: #fff;
-              text-align: center;
-            }
-            .failed-container p {
-              margin-top: 10px;
-            }
-            .failed-container a {
-              display: inline-block;
-              margin-top: 20px;
-              padding: 10px 20px;
-              background-color: #007bff;
-              color: #fff;
-              text-decoration: none;
-              border-radius: 5px;
-            }
-            .failed-container a:hover {
-              background-color: #0056b3;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="failed-container">
-            <h1 class="failed-txt">Payment Failed!</h1>
-            <p class="failed-txt">Your payment has failed.</p>
-            <p>Please try again later.</p>
-            <a href="${
-              Config[Config.MODE].baseURL
-            }/home/manageBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
-          </div>
-        </body>
-        </html>
-      `;
+        const failedHtml=sendFailedHtml(Config[Config.MODE].baseURL);
       return failedHtml;
 
       }

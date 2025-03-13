@@ -382,6 +382,9 @@ const transactionList = async (req, res) => {
                     pGateway = 'PAYU';
                 } else if (gateway === 'easebuzz') {
                     pGateway = 'EZB';
+                }else if (gateway==='lyra'){
+                    pGateway="LYRA"
+
                 }
                 console.log(pGateway)
                 let obj1 = {

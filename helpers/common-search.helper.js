@@ -99,7 +99,7 @@ function convertItineraryForKafila({
     Provider: itinerary.provider,
     ValCarrier: itinerary.valCarrier,
     LastTicketingDate: "",
-    TravelTime: sumDurationForKafila(itinerary.airSegments),
+    TravelTime: sumDurationForKafila([itinerary.airSegments[0]]),
     PriceBreakup: [
       passengerPriceBreakupForKafila("ADT", itinerary.priceBreakup),
       //   passengerPriceBreakupForKafila("YTH", itinerary.priceBreakup),
@@ -330,7 +330,7 @@ function convertSegmentForKafila(segment) {
     FltNum: segment.fltNum ?? "",
     EquipType: segment.equipType ?? "",
     FlyingTime: sumDurationForKafila([segment], "flyingTime"),
-    TravelTime: sumDurationForKafila([segment]),
+    TravelTime: sumDurationForKafila([segment], "flyingTime"),
     TechStopOver: segment.technicalStops?.length ?? 0, // missing
     layover: getTechnicalStopRemark(segment.technicalStops), // missing
     Status: "", // missing

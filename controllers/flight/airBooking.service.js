@@ -991,7 +991,7 @@ const KafilaFun = async (
             prodBookingId: itineraryItem?.IndexNumber,
             provider: itineraryItem?.Provider,
             bookingType: "Automated",
-            bookingStatus: "PENDING",
+            bookingStatus: "INCOMPLETE",
             paymentMethodType: paymentMethodType,
             paymentGateway: paymentGateway,
             bookingTotalAmount: itineraryItem?.GrandTotal, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal

@@ -65,4 +65,6 @@ flight_route.get(
 );
 flight_route.post("/flight/amadeusTest", flight.amadeusTest);
 flight_route.post("/flight/import-pnr", flight.importPNR);
+flight_route.post("/flight/getAllTravellers", auth, flight.getAllTravellers);
+flight_route.post("/flight/addTravellers", auth, flight.addTravellers);
 module.exports = flight_route;

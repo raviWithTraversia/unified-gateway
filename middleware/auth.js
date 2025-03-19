@@ -5,13 +5,13 @@ const verifyToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader) {
-      return res.status(401).json({ success: false, msg: "A token is required for authorization" });
+      return res.status(401).json({ IsSucess: false, Message: "A token is required for authorization" });
     }
 
     const tokenParts = authHeader.split(' ');
 
     if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
-      return res.status(401).json({ success: false, msg: "Invalid token format" });
+      return res.status(401).json({ IsSucess: false, Message: "Invalid token format" });
     }
   
     const token = tokenParts[1];
@@ -21,7 +21,7 @@ const verifyToken = (req, res, next) => {
     req.user = decoded;
     next(); 
   } catch (error) {
-    return res.status(401).json({ success: false, msg: "Token is invalid or expired" });
+    return res.status(401).json({ IsSucess: false, Message: "Token is invalid or expired" });
   }
 };
 

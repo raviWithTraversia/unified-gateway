@@ -16,7 +16,6 @@ const travellersDetailsSchema = new mongoose.Schema(
     TravellersDetails: [
       {
         PaxType: { type: String, default: null, required: true },
-        passengarSerialNo: { type: Number, default: null },
         Title: { type: String, default: null, required: true },
         FName: { type: String, default: null, required: true },
         LName: { type: String, default: null, required: true },

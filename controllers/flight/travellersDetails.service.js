@@ -83,7 +83,6 @@ const addTravellers = async (req, res) => {
       companyId: companyId,
       TravellersDetails: TravellersDetailsList?.map((travellers) => ({
         PaxType: travellers?.PaxType,
-        passengarSerialNo: travellers?.passengarSerialNo,
         Title: travellers?.Title,
         FName: travellers?.FName.toLowerCase(),
         LName: travellers?.LName.toLowerCase(),

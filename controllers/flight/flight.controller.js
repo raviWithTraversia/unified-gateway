@@ -1052,7 +1052,7 @@ async function addTravellers(req, res) {
     const result = await travellersDetailsService.addTravellers(req, res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "Created travellers successfully") {
+    } else if (result.response === "Travellers details saved successfully.") {
       apiSucessRes(
         res,
         result.response,

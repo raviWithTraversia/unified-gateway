@@ -21,6 +21,12 @@ const getAllTravellers = async (req, res) => {
     const allTravellers = await travellersDetailsModel.find({
       companyId: companyId,
     });
+    if (!allTravellers?.length) {
+      return {
+        response: "Data not found",
+        data: allTravellers,
+      };
+    }
     return {
       response: "Fetch Data Successfully",
       data: allTravellers,
@@ -58,54 +64,98 @@ const addTravellers = async (req, res) => {
       };
     }
     let TravellersDetailsList = [];
+    const existingTravellers = await travellersDetailsModel.findOne({
+      companyId: companyId,
+      emailId: emailId.toLowerCase(),
+      phoneNumber: phoneNumber,
+    });
+    const existingTravellerNames = existingTravellers
+      ? existingTravellers.TravellersDetails.map((traveller) => ({
+          fName: traveller.FName.toLowerCase(),
+          lName: traveller.LName.toLowerCase(),
+        }))
+      : [];
+
     for (let traveller of TravellersDetails) {
       const fNameLowerCase = traveller.FName.toLowerCase();
       const lNameLowerCase = traveller.LName.toLowerCase();
-      const existingTraveller = await travellersDetailsModel.findOne({
-        companyId: companyId,
-        emailId: emailId,
-        phoneNumber: phoneNumber,
-        "TravellersDetails.FName": fNameLowerCase,
-        "TravellersDetails.LName": lNameLowerCase,
-      });
 
-      if (existingTraveller) continue;
+      const exists = existingTravellerNames.some(
+        (existing) =>
+          existing.fName === fNameLowerCase && existing.lName === lNameLowerCase
+      );
+      if (exists) continue;
       TravellersDetailsList.push(traveller);
     }
-    if (TravellersDetailsList?.length == 0) {
+    if (TravellersDetailsList.length === 0) {
       return {
         response: "Travellers details already exist..!",
         data: TravellersDetailsList,
       };
     }
-    const newTravellers = new travellersDetailsModel({
-      userId: userId,
-      companyId: companyId,
-      TravellersDetails: TravellersDetailsList?.map((travellers) => ({
-        PaxType: travellers?.PaxType,
-        Title: travellers?.Title,
-        FName: travellers?.FName.toLowerCase(),
-        LName: travellers?.LName.toLowerCase(),
-        Gender: travellers?.Gender,
-        Dob: travellers?.Dob,
-        Optional: {
-          PassportNo: travellers?.Optional.PassportNo,
-          PassportExpiryDate: travellers?.Optional?.PassportExpiryDate,
-          PassportIssuedDate: travellers?.Optional?.PassportIssuedDate,
-          FrequentFlyerNo: travellers?.Optional?.FrequentFlyerNo,
-          Nationality: travellers?.Optional?.Nationality,
-          ResidentCountry: travellers?.Optional?.ResidentCountry,
+
+    if (existingTravellers) {
+      await travellersDetailsModel.updateOne(
+        {
+          companyId: companyId,
+          emailId: emailId.toLowerCase(),
+          phoneNumber: phoneNumber,
         },
-      })),
-      emailId: emailId.toLowerCase(),
-      phoneNumber: phoneNumber,
-      modifyBy: userId,
-      createdBy: userId,
-    });
-    await newTravellers.save();
+        {
+          $push: {
+            TravellersDetails: {
+              $each: TravellersDetailsList.map((traveller) => ({
+                PaxType: traveller?.PaxType,
+                Title: traveller?.Title,
+                FName: traveller?.FName,
+                LName: traveller?.LName,
+                Gender: traveller?.Gender,
+                Dob: traveller?.Dob,
+                Optional: {
+                  PassportNo: traveller?.Optional.PassportNo,
+                  PassportExpiryDate: traveller?.Optional?.PassportExpiryDate,
+                  PassportIssuedDate: traveller?.Optional?.PassportIssuedDate,
+                  FrequentFlyerNo: traveller?.Optional?.FrequentFlyerNo,
+                  Nationality: traveller?.Optional?.Nationality,
+                  ResidentCountry: traveller?.Optional?.ResidentCountry,
+                },
+              })),
+            },
+          },
+        }
+      );
+    } else {
+      const newTravellers = new travellersDetailsModel({
+        userId: userId,
+        companyId: companyId,
+        TravellersDetails: TravellersDetailsList.map((traveller) => ({
+          PaxType: traveller?.PaxType,
+          Title: traveller?.Title,
+          FName: traveller?.FName,
+          LName: traveller?.LName,
+          Gender: traveller?.Gender,
+          Dob: traveller?.Dob,
+          Optional: {
+            PassportNo: traveller?.Optional.PassportNo,
+            PassportExpiryDate: traveller?.Optional?.PassportExpiryDate,
+            PassportIssuedDate: traveller?.Optional?.PassportIssuedDate,
+            FrequentFlyerNo: traveller?.Optional?.FrequentFlyerNo,
+            Nationality: traveller?.Optional?.Nationality,
+            ResidentCountry: traveller?.Optional?.ResidentCountry,
+          },
+        })),
+        emailId: emailId.toLowerCase(),
+        phoneNumber: phoneNumber,
+        modifyBy: userId,
+        createdBy: userId,
+      });
+
+      await newTravellers.save();
+    }
+
     return {
-      response: "Created travellers successfully",
-      data: newTravellers,
+      response: "Travellers details saved successfully.",
+      data: TravellersDetailsList,
     };
   } catch (error) {
     return {

@@ -13,6 +13,7 @@ const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const BookingDetails = require("../../models/booking/BookingDetails");
 const flightCache = new NodeCache();
+const {updatePassengerStatus}=require("../commonFunctions/common.function")
 
 const partialCancelation = async (req, res) => {
   const {
@@ -332,28 +333,20 @@ const KafilaFun = async (
     if(fCancelApiResponse?.data?.R_DATA?.Status == null || (fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "PENDING" || fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "FAILED")){
         try {
          await cancelationDataUpdate(Authentication,fCancelApiResponse,BookingIdDetails)
-         
+         let booking=null
           if(fCancelApiResponse?.data?.R_DATA?.Status == null || fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() ===
         "PENDING"){
-          await bookingDetails.findOneAndUpdate(
+          booking=    await bookingDetails.findOneAndUpdate(
             { _id: BookingIdDetails._id },
-            { $set: { bookingStatus: "CANCELLATION PENDING" } },
+            { $set: { bookingStatus: "CANCELLATION PENDING" ,
+              cancelationDate: new Date()
+            } },
             { new: true } // To return the updated document
           );
         
         }
         for(let passengers of Sector[0]?.PAX){
-          await passengerPreferenceModel.findOneAndUpdate(
-                     {
-                      bid: BookingIdDetails._id,
-                       "Passengers.FName": passengers.FNAME,
-                       "Passengers.LName": passengers.LNAME
-                     },
-                     {
-                       $set: { "Passengers.$.Status": "CANCELLATION PENDING" }
-                     },
-                     {new:true}
-                   );
+          await updatePassengerStatus(booking, passengers,"CANCELLATION PENDING");;
        }
           return fCancelApiResponse?.data;
         } catch (error) {

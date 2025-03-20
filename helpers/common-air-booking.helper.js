@@ -232,16 +232,7 @@ function convertTravelerDetailsForCommonAPI(
         wayType: baggage?.Trip,
       })),
     ffwdPreferences: (traveler.FastForward || [])
-      .filter((pref) => {
-        const segments = Object.values(segmentMap);
-        let isSrc = false;
-        let isDes = false;
-        for (let segment of segments) {
-          if (segment.Departure?.Code === pref.Src) isSrc = true;
-          if (segment.Arrival?.Code === pref.Des) isDes = true;
-        }
-        return isSrc && isDes;
-      })
+      .filter((pref) => segmentMap[`${pref.Src}-${pref.Des}`])
       .map((ffwd) => ({
         name: ffwd?.SsrDesc,
         code: ffwd?.SsrCode,

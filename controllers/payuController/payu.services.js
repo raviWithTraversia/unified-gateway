@@ -781,7 +781,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                         p.LName === passenger.LName
                     );
                   if (apiPassenger) {
-                    passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+                    // passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
                     const ticketUpdate =
                       passenger?.Optional?.ticketDetails?.find?.(
                         (p) =>
@@ -792,6 +792,10 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                             fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                       );
                     if (ticketUpdate) {
+                      ticketUpdate.status = fSearchApiResponse.data.BookingInfo
+                        .CurrentStatus
+                        ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+                        : "CONFIRMED";
                       ticketUpdate.ticketNumber =
                         apiPassenger?.Optional?.TicketNumber;
                     }
@@ -819,7 +823,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                         p.LName === passenger.LName
                     );
                   if (!selectedPax) return passenger;
-                  passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+                  // passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
 
                   // saveLogInFile("selected-pax.json", selectedPax);
                   passenger.Optional.EMDDetails = [
@@ -834,6 +838,9 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                         passenger.Optional.ticketDetails[
                           segmentIdx
                         ].ticketNumber = ticket.ticketNumber;
+                        passenger.Optional.ticketDetails[
+                          segmentIdx
+                        ].status = fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED";
                       } else {
                         passenger.Optional.ticketDetails.push(ticket);
                       }

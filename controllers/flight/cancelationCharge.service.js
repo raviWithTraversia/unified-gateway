@@ -17,7 +17,7 @@ const BookingDetails = require("../../models/booking/BookingDetails");
 const PassengerPreference = require("../../models/booking/PassengerPreference");
 const flightCache = new NodeCache();
 const {calculateDealAmount}=require("./partialCalcelationCharge.service")
-
+const {updateStatus,updatePassengerStatus}=require("../commonFunctions/common.function")
 const fullCancelationCharge = async (req, res) => {
   const {
     Authentication,
@@ -144,24 +144,17 @@ const fullCancelationCharge = async (req, res) => {
           {
             providerBookingId: req.body.BookingId,
           },
-          { $set:{bookingStatus: "CANCELLED" }},
-          {new:true}
+          { $set: { bookingStatus: "CANCELLED" } },
+          { new: true }
         );
-        let calculateFareAmount=0
-        for(let passengers of req.body.passengarList){
-          calculateFareAmount+=calculateDealAmount(booking,passengers.PAX_TYPE)
-          await passengerPreferenceModel.findOneAndUpdate(
-                     {
-                      bid:booking?._id,
-                       "Passengers.FName": passengers.FNAME,
-                       "Passengers.LName": passengers.LNAME
-                     },
-                     {
-                       $set: { "Passengers.$.Status": "CANCELLED" }
-                     },
-                     {new:true}
-                   );
-       }
+        
+        let calculateFareAmount = 0;
+        
+        for (let passenger of req.body.passengarList) {
+          calculateFareAmount += calculateDealAmount(booking, passenger.PAX_TYPE);
+          await updatePassengerStatus(booking, passenger,"CANCELLED");
+          
+        }
           const cancelationBookingInstance = new CancelationBooking({
             calcelationStatus: "CANCEL",
             bookingId: booking?.providerBookingId,
@@ -412,17 +405,24 @@ const KafilaFun = async (
           });
 
           await cancelationBookingInstance.save();
-          await bookingDetails.findOneAndUpdate(
+   const bookingDeatails=   await bookingDetails.findOneAndUpdate(
             { _id: BookingIdDetails._id },
-            { $set: { bookingStatus: "CANCELLATION PENDING" } },
+            { $set: { bookingStatus: "CANCELLATION PENDING" ,
+              cancelationDate: new Date(),
+            } },
             { new: true } // To return the updated document
           );
-          await passengerPreferenceModel.updateOne(
-            { bookingId: BookingIdDetails.bookingId },
-            {
-              $set: { "Passengers.$[].Status": "CANCELLATION PENDING" },
-            }
-          );
+          // const passengerData=await passengerPreferenceModel.findOne({bookingId:BookingIdDetails.bookingId})
+
+       await updateStatus(bookingDeatails,"CANCELATION PENDING")
+      
+
+          // await passengerPreferenceModel.updateOne(
+          //   { bookingId: BookingIdDetails.bookingId },
+          //   {
+          //     $set: { "Passengers.$[].Status": "CANCELLATION PENDING" },
+          //   }
+          // );
         }
         return (
           fSearchApiResponse?.data?.ErrorMessage +

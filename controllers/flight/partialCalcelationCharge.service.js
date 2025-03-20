@@ -15,6 +15,7 @@ const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const { compareSync } = require("bcrypt");
 const flightCache = new NodeCache();
+const {updatePassengerStatus}=require("../commonFunctions/common.function")
 
 const partialCancelationCharge = async (req, res) => {
   const {
@@ -397,7 +398,7 @@ const KafilaFun = async (
       ); 
         if (fSearchApiResponse?.data?.Status !==null&&fSearchApiResponse?.data?.Status ===  "PENDING"||fSearchApiResponse?.data?.Status ===
           "Failed") {
-           
+           let booking=null
             if(fSearchApiResponse?.data?.Status != null && fSearchApiResponse?.data?.Status==="PENDING"){
 
              
@@ -424,25 +425,16 @@ const KafilaFun = async (
           
       
               await cancelationBookingInstance.save();  
-              await bookingDetails.findOneAndUpdate(
+  booking=  await bookingDetails.findOneAndUpdate(
                 { _id: BookingIdDetails._id },
-                { $set: { bookingStatus: "CANCELLATION PENDING" } },
+                { $set: { bookingStatus: "CANCELLATION PENDING",
+                  cancelationDate: new Date()
+                 } },
                 { new: true } // To return the updated document
               );
             }  
             for(let passengers of Sector[0]?.PAX){
-              await passengerPreferenceModel.findOneAndUpdate(
-                         {
-                          bid: BookingIdDetails._id,
-                           "Passengers.FName": passengers.FNAME,
-                           "Passengers.LName": passengers.LNAME
-                         },
-                         {
-                           $set: { "Passengers.$.Status": "CANCELLATION PENDING" }
-                         },
-                         {new:true}
-                       );
-           }
+              await updatePassengerStatus(booking, passengers,"CANCELLATION PENDING");           }
          
 
             return  fSearchApiResponse?.data?.ErrorMessage +' ' + fSearchApiResponse?.data?.WarningMessage

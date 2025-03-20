@@ -57,6 +57,10 @@ const passengerPreferenceSchema = new mongoose.Schema(
                 type: String,
                 default: null,
               },
+              status:{
+                type:String,
+                default:""
+              },
               src: {
                 type: String,
                 default: null,

@@ -307,6 +307,10 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    cancelationDate: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

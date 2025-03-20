@@ -93,9 +93,7 @@ const getCommonPnrTicket = async (request,res) => {
 
   const holdBookingProcessPayment=async(item, pending = false)=>{
     // 1. Booking confirmation check
-    if (item.Status !== "Confirm") {
-      return "Hold From Api Side";
-    }
+    
   
     const titles = ["Mr", "MR", "mr", "Mrs", "Miss", "Dr", "MS",'Ms',"MISS","MRS"];
     const bookingData = await BookingDetails.findOne({ GPnr: item?.PNR });

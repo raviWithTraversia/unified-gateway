@@ -322,6 +322,7 @@ const lyraSuccess = async (req, res) => {
               acc.totalMealPrice += curr.totalMealPrice;
               acc.totalBaggagePrice += curr.totalBaggagePrice;
               acc.totalSeatPrice += curr.totalSeatPrice;
+              acc.totalFastForwardPrice += curr.totalFastForwardPrice;
   
               return acc; // Return accumulator
             },
@@ -330,6 +331,7 @@ const lyraSuccess = async (req, res) => {
               totalMealPrice: 0,
               totalBaggagePrice: 0,
               totalSeatPrice: 0,
+              totalFastForwardPrice: 0,
             }
           );
           // Calculate totalItemAmount by summing up all prices
@@ -337,7 +339,8 @@ const lyraSuccess = async (req, res) => {
             totalsAmount.offeredPrice +
             totalsAmount.totalMealPrice +
             totalsAmount.totalBaggagePrice +
-            totalsAmount.totalSeatPrice;
+            totalsAmount.totalSeatPrice+
+            totalsAmount.totalFastForwardPrice;
   
             var pgChargesAmount=0
             if(udf3>0){
@@ -609,7 +612,7 @@ const lyraSuccess = async (req, res) => {
                           p.LName === passenger.LName
                       );
                     if (apiPassenger) {
-                      passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+                      // passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
                       const ticketUpdate =
                         passenger?.Optional?.ticketDetails?.find?.(
                           (p) =>
@@ -620,6 +623,10 @@ const lyraSuccess = async (req, res) => {
                               fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                         );
                       if (ticketUpdate) {
+                        ticketUpdate.status = fSearchApiResponse.data.BookingInfo
+                          .CurrentStatus
+                          ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+                          : "CONFIRMED";
                         ticketUpdate.ticketNumber =
                           apiPassenger?.Optional?.TicketNumber;
                       }
@@ -647,7 +654,7 @@ const lyraSuccess = async (req, res) => {
                           p.LName === passenger.LName
                       );
                     if (!selectedPax) return passenger;
-                    passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+                    // passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
   
                     // saveLogInFile("selected-pax.json", selectedPax);
                     passenger.Optional.EMDDetails = [
@@ -662,6 +669,9 @@ const lyraSuccess = async (req, res) => {
                           passenger.Optional.ticketDetails[
                             segmentIdx
                           ].ticketNumber = ticket.ticketNumber;
+                          passenger.Optional.ticketDetails[
+                            segmentIdx
+                          ].status = fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED";
                         } else {
                           passenger.Optional.ticketDetails.push(ticket);
                         }
@@ -687,7 +697,8 @@ const lyraSuccess = async (req, res) => {
                     item?.offeredPrice +
                     item?.totalMealPrice +
                     item?.totalBaggagePrice +
-                    item?.totalSeatPrice;
+                    item?.totalSeatPrice+
+                    item?.totalFastForwardPrice;
   
                   // Transtion
                   // await transaction.updateOne(

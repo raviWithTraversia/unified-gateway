@@ -98,6 +98,7 @@ const bookingDetailsSchema = new mongoose.Schema(
     totalMealPrice: { type: Number, default: 0 },
     totalBaggagePrice: { type: Number, default: 0 },
     totalSeatPrice: { type: Number, default: 0 },
+    totalFastForwardPrice: { type: Number, default: 0 },
     sourceMedia: {
       type: String,
       default: null,
@@ -306,6 +307,10 @@ const bookingDetailsSchema = new mongoose.Schema(
     isRefund: {
       type: Boolean,
       default: false,
+    },
+    cancelationDate: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

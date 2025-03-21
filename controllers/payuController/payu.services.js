@@ -494,6 +494,7 @@ const payuSuccess = async (req, res) => {
             acc.totalMealPrice += curr.totalMealPrice;
             acc.totalBaggagePrice += curr.totalBaggagePrice;
             acc.totalSeatPrice += curr.totalSeatPrice;
+            acc.totalFastForwardPrice += curr.totalFastForwardPrice;
 
             return acc; // Return accumulator
           },
@@ -502,6 +503,7 @@ const payuSuccess = async (req, res) => {
             totalMealPrice: 0,
             totalBaggagePrice: 0,
             totalSeatPrice: 0,
+            totalFastForwardPrice: 0,
           }
         );
         // Calculate totalItemAmount by summing up all prices
@@ -509,6 +511,7 @@ const payuSuccess = async (req, res) => {
           totalsAmount.offeredPrice +
           totalsAmount.totalMealPrice +
           totalsAmount.totalBaggagePrice +
+          totalsAmount.totalFastForwardPrice +
           totalsAmount.totalSeatPrice;
 
           var pgChargesAmount=0
@@ -781,7 +784,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                         p.LName === passenger.LName
                     );
                   if (apiPassenger) {
-                    passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+                    // passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
                     const ticketUpdate =
                       passenger?.Optional?.ticketDetails?.find?.(
                         (p) =>
@@ -792,6 +795,10 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                             fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                       );
                     if (ticketUpdate) {
+                      ticketUpdate.status = fSearchApiResponse.data.BookingInfo
+                        .CurrentStatus
+                        ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+                        : "CONFIRMED";
                       ticketUpdate.ticketNumber =
                         apiPassenger?.Optional?.TicketNumber;
                     }
@@ -819,7 +826,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                         p.LName === passenger.LName
                     );
                   if (!selectedPax) return passenger;
-                  passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+                  // passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
 
                   // saveLogInFile("selected-pax.json", selectedPax);
                   passenger.Optional.EMDDetails = [
@@ -834,6 +841,9 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                         passenger.Optional.ticketDetails[
                           segmentIdx
                         ].ticketNumber = ticket.ticketNumber;
+                        passenger.Optional.ticketDetails[
+                          segmentIdx
+                        ].status = fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED";
                       } else {
                         passenger.Optional.ticketDetails.push(ticket);
                       }
@@ -859,6 +869,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                   item?.offeredPrice +
                   item?.totalMealPrice +
                   item?.totalBaggagePrice +
+                  item?.totalFastForwardPrice +
                   item?.totalSeatPrice;
 
                 // Transtion

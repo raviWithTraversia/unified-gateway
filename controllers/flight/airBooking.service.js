@@ -22,6 +22,7 @@ const {
   createLeadger,
   getTdsAndDsicount,
   commonProviderMethodDate,
+  updateStatus,
 } = require("../../controllers/commonFunctions/common.function");
 const SupplierCode = require("../../models/supplierCode");
 const { getSupplierCredentials } = require("../../utils/get-supplier-creds");
@@ -1248,8 +1249,10 @@ const KafilaFun = async (
                       bookingId: item?.BookingId,
                       bookingStatus: "FAILED",
                     },
-                    { bookingTotalAmount: 1 }
+                    { bookingTotalAmount: 1 ,}
                   );
+
+                  // await updateStatus(item?.BookingId, "FAILED");
 
                   const refundAmount = await findFailedBooking.reduce(
                     (sum, element) => {
@@ -1334,10 +1337,10 @@ const KafilaFun = async (
                           p.LName === passenger.LName
                       );
                     if (apiPassenger) {
-                      passenger.Status = fSearchApiResponse.data.BookingInfo
-                        .CurrentStatus
-                        ? fSearchApiResponse.data.BookingInfo.CurrentStatus
-                        : "CONFIRMED";
+                      // passenger.Status = fSearchApiResponse.data.BookingInfo
+                      //   .CurrentStatus
+                      //   ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+                      //   : "CONFIRMED";
                       const ticketUpdate =
                         passenger?.Optional?.ticketDetails?.find?.(
                           (p) =>
@@ -1348,6 +1351,10 @@ const KafilaFun = async (
                               fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                         );
                       if (ticketUpdate) {
+                        ticketUpdate.status = fSearchApiResponse.data.BookingInfo
+                        .CurrentStatus
+                        ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+                        : "CONFIRMED";
                         ticketUpdate.ticketNumber =
                           apiPassenger?.Optional?.TicketNumber;
                       }
@@ -1375,10 +1382,10 @@ const KafilaFun = async (
                           p.LName === passenger.LName
                       );
                     if (!selectedPax) return passenger;
-                    passenger.Status = fSearchApiResponse.data.BookingInfo
-                      .CurrentStatus
-                      ? fSearchApiResponse.data.BookingInfo.CurrentStatus
-                      : "CONFIRMED";
+                    // passenger.Status = fSearchApiResponse.data.BookingInfo
+                    //   .CurrentStatus
+                    //   ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+                    //   : "CONFIRMED";
 
                     saveLogInFile("selected-pax.json", selectedPax);
                     passenger.Optional.EMDDetails = [
@@ -1393,6 +1400,12 @@ const KafilaFun = async (
                           passenger.Optional.ticketDetails[
                             segmentIdx
                           ].ticketNumber = ticket.ticketNumber;
+                          passenger.Optional.ticketDetails[
+                            segmentIdx
+                          ].status = fSearchApiResponse.data.BookingInfo
+                            .CurrentStatus
+                            ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+                            : "CONFIRMED";
                         } else {
                           passenger.Optional.ticketDetails.push(ticket);
                         }
@@ -2208,6 +2221,7 @@ const kafilaFunOnlinePayment = async (
     return "Some Technical Issue";
   }
 };
+
 
 async function updateBarcode2DByBookingId(
   bookingId,

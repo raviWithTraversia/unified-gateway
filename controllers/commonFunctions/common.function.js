@@ -1435,20 +1435,21 @@ const RefundedCommonFunction = async (
 
         if (isPartialCancellation) {
           for (const cpassenger of refund.CSector[0]?.CPax || []) {
-            await PassengerPreference.findOneAndUpdate(
-              {
-                bookingId: bookingDetails.bookingId,
-                "Passengers.FName": cpassenger.FName,
-                "Passengers.LName": cpassenger.lName,
-              },
-              { $set: { "Passengers.$.Status": "CANCELLED" } },
-              { new: true }
-            );
+            await updatePassengerStatus(bookingDetails, cpassenger,"CANCELLED");
+            // await PassengerPreference.findOneAndUpdate(
+            //   {
+            //     bookingId: bookingDetails.bookingId,
+            //     "Passengers.FName": cpassenger.FName,
+            //     "Passengers.LName": cpassenger.lName,
+            //   },
+            //   { $set: { "Passengers.$.Status": "CANCELLED" } },
+            //   { new: true }
+            // );
           }
 
           const allCancelled = await PassengerPreference.findOne({
             bookingId: bookingDetails.bookingId,
-            "Passengers.Status": "CANCELLATION PENDING",
+            "Passengers.Optional.ticketDetails.status": "CANCELLATION PENDING",
           });
 
           const newStatus = allCancelled
@@ -1495,16 +1496,13 @@ const RefundedCommonFunction = async (
           );
         } else {
           // console.log("djdieieie")
-          await BookingDetails.findOneAndUpdate(
+        const booking =  await BookingDetails.findOneAndUpdate(
             { providerBookingId: matchingBooking.bookingId },
             { $set: { bookingStatus: "CANCELLED" } },
             { new: true }
           );
 
-          await PassengerPreference.updateOne(
-            { bookingId: bookingDetails.bookingId },
-            { $set: { "Passengers.$[].Status": "CANCELLED" } }
-          );
+        await  updateStatus(booking,"CANCELLED");
           const cancelationbookignsData = await CancelationBooking.findOne({
             providerBookingId: matchingBooking.bookingId,
           });
@@ -2308,6 +2306,55 @@ const sendFailedHtml=(URL)=>{
             return successHtmlCode;
 }
 
+async function updatePassengerStatus(booking,passenger,status){
+  const src=booking.itinerary.Sectors[0]?.Departure?.Code
+    const reverse=booking.itinerary.Sectors.reverse()
+    const des=reverse[0]?.Arrival.Code
+  await PassengerPreference.findOneAndUpdate(
+              {
+                bookingId: booking.bookingId,
+                "Passengers.FName": passenger.FNAME||passenger.FName ,
+                "Passengers.LName": passenger.LNAME||passenger.lName ,
+              },
+              {
+                $set: {
+                  "Passengers.$[p].Optional.ticketDetails.$[t].status": status,
+                },
+              },
+              {
+                arrayFilters: [
+                  { "p.FName": passenger.FNAME||passenger.FName, "p.LName": passenger.LNAME||passenger.lName  },
+                  { "t.src": src, "t.des": des },
+                ],
+                new: true,
+              }
+            );
+}
+async function updateStatus(booking,status) {
+  // Loop over each passenger in the data
+  const src=booking.itinerary.Sectors[0]?.Departure?.Code
+    const reverse=booking.itinerary.Sectors.reverse()
+    const des=reverse[0]?.Arrival.Code
+  await PassengerPreference.findOneAndUpdate(
+              {
+                bookingId: booking.bookingId,
+               
+              },
+              {
+                $set: {
+                  "Passengers.$[p].Optional.ticketDetails.$[t].status": status,
+                },
+              },
+              {
+                arrayFilters: [
+                  // { "p.FName": passenger.FNAME, "p.LName": passenger.LNAME },
+                  { "t.src": src, "t.des": des },
+                ],
+                new: true,
+              }
+            );
+}
+
 module.exports = {
   createToken,
   securePassword,
@@ -2350,5 +2397,7 @@ module.exports = {
   getPnrDataCommonMethod,
   sendEmailForSatte,
   sendSuccessHtml,
-  sendFailedHtml
+  sendFailedHtml,
+  updateStatus,
+  updatePassengerStatus
 };

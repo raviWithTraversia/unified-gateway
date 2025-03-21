@@ -15,7 +15,7 @@ const { ObjectId } = require("mongodb");
 const crypto = require('crypto');
 const moment=require('moment')
 const {holdBookingProcessPayment}=require('../../services/common-pnrTicket-service')
-const {RefundedCommonFunction,getPnr1APnedingStatus,getPnrDataCommonMethod,commonProviderMethodDate}=require('../../controllers/commonFunctions/common.function')
+const {RefundedCommonFunction,getPnr1APnedingStatus,getPnrDataCommonMethod,commonProviderMethodDate,updateStatus}=require('../../controllers/commonFunctions/common.function')
 const {updateBarcode2DByBookingId}=require('./airBooking.service')
 
 const fullCancelation = async (req, res) => {
@@ -354,22 +354,19 @@ const KafilaFun = async (
       ) {
         // console.log(ResponseData,"fCancelApiResponse In");
         await cancelationDataUpdate(Authentication,fCancelApiResponse,BookingIdDetails)
-
+let booking=null
         if(ResponseData?.Status == null || ResponseData?.Status.toUpperCase() ===
         "PENDING"||ResponseData?.Status.toUpperCase() ===
         "FAILED"){
-          await bookingDetails.findOneAndUpdate(
+       booking =   await bookingDetails.findOneAndUpdate(
             { _id: BookingIdDetails._id },
-            { $set: { bookingStatus: "CANCELLATION PENDING" } },
+            { $set: { bookingStatus: "CANCELLATION PENDING",
+              cancelationDate: Date.now(),
+             } },
             { new: true } // To return the updated document
           );
         }
-        await passengerPreferenceModel.updateOne(
-          { bookingId: BookingIdDetails.bookingId },
-          {
-            $set: { "Passengers.$[].Status": "CANCELLATION PENDING" },
-          }
-        );
+        await updateStatus(booking,"CANCELATION PENDING")
         await cancelationDataUpdate(Authentication,fCancelApiResponse,BookingIdDetails)
         return fCancelApiResponse?.data;
       } else if (
@@ -487,6 +484,11 @@ const KafilaFun = async (
         //   remarks: "Cancelation amount added into your account.",
         //   transactionBy: Authentication?.UserId,
         // });
+      let booking = await bookingDetails.findOneAndUpdate(
+          { _id: BookingIdDetails._id },
+          { $set: { bookingStatus: "CANCELLED" } },
+          { new: true } // To return the updated document
+        );
 
         const passengerPreference = await passengerPreferenceModel.findOne({
           bookingId: BookingIdDetails.bookingId,
@@ -499,7 +501,7 @@ const KafilaFun = async (
           }
 
           if(passenger){
-            passenger.Status="CANCELLED"
+            await updateStatus(booking,"CANCELLED")
           }
           const existingTicketStatusIndex =
             passenger?.ticketStatus?.findIndex(
@@ -520,11 +522,7 @@ const KafilaFun = async (
         }
         await passengerPreference.save();
 
-        await bookingDetails.findOneAndUpdate(
-          { _id: BookingIdDetails._id },
-          { $set: { bookingStatus: "CANCELLED" } },
-          { new: true } // To return the updated document
-        );
+        
 
         
 

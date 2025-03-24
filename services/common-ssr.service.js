@@ -1,9 +1,10 @@
 const { default: axios } = require("axios");
 const {
   createAirPricingRequestBodyForCommonAPI,
-  convertSSRItineraryForCommonAPI
+  convertSSRItineraryForCommonAPI,
 } = require("../helpers/common-air-pricing.helper");
 const { Config } = require("../configs/config");
+const { saveLogInFile } = require("../utils/save-log");
 
 module.exports.getCommonSSR = async (request) => {
   try {

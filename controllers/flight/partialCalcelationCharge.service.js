@@ -157,17 +157,7 @@ const partialCancelationCharge = async (req, res) => {
       let calculateFareAmount=0
         for(let passengers of req.body.passengarList){
           calculateFareAmount+=calculateDealAmount(booking,passengers.PAX_TYPE)
-          await passengerPreferenceModel.findOneAndUpdate(
-                     {
-                      bid:booking?._id,
-                       "Passengers.FName": passengers.FNAME,
-                       "Passengers.LName": passengers.LNAME
-                     },
-                     {
-                       $set: { "Passengers.$.Status": "CANCELLED" }
-                     },
-                     {new:true}
-                   );
+          await updatePassengerStatus(booking, passengers,"CANCELLED");
        }
           const cancelationBookingInstance = new CancelationBooking({
             calcelationStatus: "CANCEL",

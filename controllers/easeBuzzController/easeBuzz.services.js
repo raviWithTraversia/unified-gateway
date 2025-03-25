@@ -159,11 +159,12 @@ const easeBuzzResponce = async (req, res) => {
           acc.totalMealPrice += curr.totalMealPrice;
           acc.totalBaggagePrice += curr.totalBaggagePrice;
           acc.totalSeatPrice += curr.totalSeatPrice;
+          acc.totalFastForwardPrice += curr.totalFastForwardPrice;
 
           return acc; // Return accumulator
-        }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0 });
+        }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0, totalFastForwardPrice: 0 });
         // Calculate totalItemAmount by summing up all prices
-        totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice;
+        totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice+ totalsAmount.totalFastForwardPrice;
         // console.log(net_amount_debit, totalItemAmount,"jddsjk");
         var pgChargesAmount=0
         if(pgCharges>0){
@@ -499,7 +500,8 @@ FailedbookingIdenty.push(true)
               itemAmount += item?.offeredPrice +
                 item?.totalMealPrice +
                 item?.totalBaggagePrice +
-                item?.totalSeatPrice;
+                item?.totalSeatPrice+
+                item?.totalFastForwardPrice;
 
 
               // Transtion

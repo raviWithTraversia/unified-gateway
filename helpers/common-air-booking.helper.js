@@ -190,61 +190,79 @@ function convertTravelerDetailsForCommonAPI(
     firstName: traveler.FName,
     middleName: "",
     lastName: traveler.LName,
-    seatPreferences: traveler.Seat.filter(
-      (pref) => segmentMap[`${pref.Src}-${pref.Des}`]
-    ).map((seat) => ({
-      code: seat?.SeatCode,
-      amount: seat?.TotalPrice,
-      currency: seat?.Currency || "INR",
-      paid: seat?.Paid,
-      desc: seat?.SsrDesc,
-      key: seat?.OI,
-      origin: seat?.Src,
-      destination: seat?.Des,
-      airlineCode: seat?.FCode,
-      flightNumber: seat?.FNo,
-      wayType: seat?.Trip,
-    })),
-    baggagePreferences: traveler.Baggage.filter((pref) => {
-      const segments = Object.values(segmentMap);
-      let isSrc = false;
-      let isDes = false;
-      for (let segment of segments) {
-        if (segment.Departure?.Code === pref.Src) isSrc = true;
-        if (segment.Arrival?.Code === pref.Des) isDes = true;
-      }
-      return isSrc && isDes;
-      // segmentMap[`${pref.Src}-${pref.Des}`]
-    }).map((baggage) => ({
-      name: baggage?.SsrDesc,
-      code: baggage?.SsrCode,
-      amount: baggage?.Price,
-      currency: baggage?.Currency || "INR",
-      paid: baggage?.Paid,
-      desc: baggage?.SsrDesc,
-      key: baggage?.key || "",
-      origin: baggage?.Src,
-      destination: baggage?.Des,
-      airlineCode: baggage?.FCode,
-      flightNumber: baggage?.FNo,
-      wayType: baggage?.Trip,
-    })),
-    mealPreferences: traveler.Meal.filter(
-      (pref) => segmentMap[`${pref.Src}-${pref.Des}`]
-    ).map((meal) => ({
-      name: meal?.SsrDesc,
-      code: meal?.SsrCode,
-      amount: meal?.Price,
-      currency: meal?.Currency || "INR",
-      paid: meal?.Paid,
-      desc: meal?.SsrDesc,
-      key: meal?.key || "",
-      origin: meal?.Src,
-      destination: meal?.Des,
-      airlineCode: meal?.FCode,
-      flightNumber: meal?.FNo,
-      wayType: meal?.Trip,
-    })),
+    seatPreferences: (traveler.Seat || [])
+      .filter((pref) => segmentMap[`${pref.Src}-${pref.Des}`])
+      .map((seat) => ({
+        code: seat?.SeatCode,
+        amount: seat?.TotalPrice,
+        currency: seat?.Currency || "INR",
+        paid: seat?.Paid,
+        desc: seat?.SsrDesc,
+        key: seat?.OI,
+        origin: seat?.Src,
+        destination: seat?.Des,
+        airlineCode: seat?.FCode,
+        flightNumber: seat?.FNo,
+        wayType: seat?.Trip,
+      })),
+    baggagePreferences: (traveler.Baggage || [])
+      .filter((pref) => {
+        const segments = Object.values(segmentMap);
+        let isSrc = false;
+        let isDes = false;
+        for (let segment of segments) {
+          if (segment.Departure?.Code === pref.Src) isSrc = true;
+          if (segment.Arrival?.Code === pref.Des) isDes = true;
+        }
+        return isSrc && isDes;
+        // segmentMap[`${pref.Src}-${pref.Des}`]
+      })
+      .map((baggage) => ({
+        name: baggage?.SsrDesc,
+        code: baggage?.SsrCode,
+        amount: baggage?.Price,
+        currency: baggage?.Currency || "INR",
+        paid: baggage?.Paid,
+        desc: baggage?.SsrDesc,
+        key: baggage?.key || "",
+        origin: baggage?.Src,
+        destination: baggage?.Des,
+        airlineCode: baggage?.FCode,
+        flightNumber: baggage?.FNo,
+        wayType: baggage?.Trip,
+      })),
+    ffwdPreferences: (traveler.FastForward || [])
+      .filter((pref) => segmentMap[`${pref.Src}-${pref.Des}`])
+      .map((ffwd) => ({
+        name: ffwd?.SsrDesc,
+        code: ffwd?.SsrCode,
+        amount: ffwd?.Price,
+        currency: ffwd?.Currency || "INR",
+        paid: ffwd?.Paid,
+        desc: ffwd?.SsrDesc,
+        key: ffwd?.key || "",
+        origin: ffwd?.Src,
+        destination: ffwd?.Des,
+        airlineCode: ffwd?.FCode,
+        flightNumber: ffwd?.FNo,
+        wayType: ffwd?.Trip,
+      })),
+    mealPreferences: (traveler.Meal || [])
+      .filter((pref) => segmentMap[`${pref.Src}-${pref.Des}`])
+      .map((meal) => ({
+        name: meal?.SsrDesc,
+        code: meal?.SsrCode,
+        amount: meal?.Price,
+        currency: meal?.Currency || "INR",
+        paid: meal?.Paid,
+        desc: meal?.SsrDesc,
+        key: meal?.key || "",
+        origin: meal?.Src,
+        destination: meal?.Des,
+        airlineCode: meal?.FCode,
+        flightNumber: meal?.FNo,
+        wayType: meal?.Trip,
+      })),
     dob: traveler.Dob ?? "",
     gender: traveler.Gender?.at?.(0)?.toUpperCase?.() || "M",
     passportDetails: traveler?.Optional?.PassportNo

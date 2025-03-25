@@ -494,6 +494,7 @@ const payuSuccess = async (req, res) => {
             acc.totalMealPrice += curr.totalMealPrice;
             acc.totalBaggagePrice += curr.totalBaggagePrice;
             acc.totalSeatPrice += curr.totalSeatPrice;
+            acc.totalFastForwardPrice += curr.totalFastForwardPrice;
 
             return acc; // Return accumulator
           },
@@ -502,6 +503,7 @@ const payuSuccess = async (req, res) => {
             totalMealPrice: 0,
             totalBaggagePrice: 0,
             totalSeatPrice: 0,
+            totalFastForwardPrice: 0,
           }
         );
         // Calculate totalItemAmount by summing up all prices
@@ -509,6 +511,7 @@ const payuSuccess = async (req, res) => {
           totalsAmount.offeredPrice +
           totalsAmount.totalMealPrice +
           totalsAmount.totalBaggagePrice +
+          totalsAmount.totalFastForwardPrice +
           totalsAmount.totalSeatPrice;
 
           var pgChargesAmount=0
@@ -866,6 +869,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                   item?.offeredPrice +
                   item?.totalMealPrice +
                   item?.totalBaggagePrice +
+                  item?.totalFastForwardPrice +
                   item?.totalSeatPrice;
 
                 // Transtion

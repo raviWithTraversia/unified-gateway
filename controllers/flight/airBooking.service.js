@@ -487,7 +487,8 @@ const KafilaFun = async (
     totalssrPrice +=
       (passenger.totalMealPrice || 0) +
       (passenger.totalSeatPrice || 0) +
-      (passenger.totalBaggagePrice || 0);
+      (passenger.totalBaggagePrice || 0) +
+      (passenger.totalFastForwardPrice || 0);
   }
 
   function offerPricePlusInAmount(plusKeyName) {
@@ -1004,18 +1005,15 @@ const KafilaFun = async (
                 ? itineraryItem?.fareRules
                 : null,
             bookingTotalAmount:
-              itineraryItem.Provider === "Kafila"
-                ? itineraryItem.offeredPrice +
-                    itineraryItem.totalMealPrice +
-                    itineraryItem.totalBaggagePrice +
-                    itineraryItem.totalSeatPrice || itineraryItem.GrandTotal
-                : itineraryItem.offeredPrice +
-                  itineraryItem.totalMealPrice +
-                  itineraryItem.totalBaggagePrice +
-                  itineraryItem.totalSeatPrice,
+              (itineraryItem.offeredPrice || 0) +
+              (itineraryItem.totalMealPrice || 0) +
+              (itineraryItem.totalBaggagePrice || 0) +
+              (itineraryItem.totalSeatPrice || 0) +
+              (itineraryItem.totalFastForwardPrice || 0),
             totalMealPrice: itineraryItem.totalMealPrice ?? 0,
             totalBaggagePrice: itineraryItem.totalBaggagePrice ?? 0,
             totalSeatPrice: itineraryItem.totalSeatPrice ?? 0,
+            totalFastForwardPrice: itineraryItem.totalFastForwardPrice ?? 0,
             itinerary: {
               UID: itineraryItem.UID,
               UniqueKey: itineraryItem?.UniqueKey || "",
@@ -1103,7 +1101,9 @@ const KafilaFun = async (
                 Meal: passenger?.Meal,
                 Baggage: passenger?.Baggage,
                 Seat: passenger?.Seat,
+                FastForward: passenger?.FastForward,
                 totalBaggagePrice: passenger?.totalBaggagePrice,
+                totalFastForwardPrice: passenger?.totalFastForwardPrice,
                 totalMealPrice: passenger?.totalMealPrice,
                 totalSeatPrice: passenger?.totalSeatPrice,
               })
@@ -1216,6 +1216,7 @@ const KafilaFun = async (
                 };
                 Logs(logData);
                 let fSearchApiResponseStatus = fSearchApiResponse?.data?.Status;
+                const providerBookingId = await commonProviderMethodDate();
                 if (
                   !isHoldBooking &&
                   (fSearchApiResponseStatus?.toLowerCase() == "failed" ||
@@ -1249,7 +1250,7 @@ const KafilaFun = async (
                       bookingId: item?.BookingId,
                       bookingStatus: "FAILED",
                     },
-                    { bookingTotalAmount: 1 ,}
+                    { bookingTotalAmount: 1 }
                   );
 
                   // await updateStatus(item?.BookingId, "FAILED");
@@ -1304,10 +1305,11 @@ const KafilaFun = async (
                       providerBookingId: fSearchApiResponse.data.BookingInfo
                         ?.BookingId
                         ? fSearchApiResponse.data.BookingInfo?.BookingId
-                        : fSearchApiResponse.data.BookingInfo.CurrentStatus ===
-                          "CONFIRMED"
-                        ? await commonProviderMethodDate()
-                        : fSearchApiResponse.data.BookingInfo.BookingId,
+                        : providerBookingId,
+                      // : fSearchApiResponse.data.BookingInfo.CurrentStatus ===
+                      //   "CONFIRMED"
+                      // ? await commonProviderMethodDate()
+                      // : fSearchApiResponse.data.BookingInfo.BookingId,
                       PNR: fSearchApiResponse.data.BookingInfo.APnr,
                       APnr: fSearchApiResponse.data.BookingInfo.APnr,
                       GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
@@ -1351,10 +1353,10 @@ const KafilaFun = async (
                               fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                         );
                       if (ticketUpdate) {
-                        ticketUpdate.status = fSearchApiResponse.data.BookingInfo
-                        .CurrentStatus
-                        ? fSearchApiResponse.data.BookingInfo.CurrentStatus
-                        : "CONFIRMED";
+                        ticketUpdate.status = fSearchApiResponse.data
+                          .BookingInfo.CurrentStatus
+                          ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+                          : "CONFIRMED";
                         ticketUpdate.ticketNumber =
                           apiPassenger?.Optional?.TicketNumber;
                       }
@@ -1400,12 +1402,11 @@ const KafilaFun = async (
                           passenger.Optional.ticketDetails[
                             segmentIdx
                           ].ticketNumber = ticket.ticketNumber;
-                          passenger.Optional.ticketDetails[
-                            segmentIdx
-                          ].status = fSearchApiResponse.data.BookingInfo
-                            .CurrentStatus
-                            ? fSearchApiResponse.data.BookingInfo.CurrentStatus
-                            : "CONFIRMED";
+                          passenger.Optional.ticketDetails[segmentIdx].status =
+                            fSearchApiResponse.data.BookingInfo.CurrentStatus
+                              ? fSearchApiResponse.data.BookingInfo
+                                  .CurrentStatus
+                              : "CONFIRMED";
                         } else {
                           passenger.Optional.ticketDetails.push(ticket);
                         }
@@ -1845,10 +1846,12 @@ const kafilaFunOnlinePayment = async (
           itineraryItem.offeredPrice +
           itineraryItem.totalMealPrice +
           itineraryItem.totalBaggagePrice +
-          itineraryItem.totalSeatPrice,
+          itineraryItem.totalSeatPrice +
+          itineraryItem.totalFastForwardPrice,
         totalMealPrice: itineraryItem.totalMealPrice,
         totalBaggagePrice: itineraryItem.totalBaggagePrice,
         totalSeatPrice: itineraryItem.totalSeatPrice,
+        totalFastForwardPrice: itineraryItem.totalFastForwardPrice,
         itinerary: {
           UID: itineraryItem.UID,
           UniqueKey: itineraryItem?.UniqueKey || "",
@@ -1930,7 +1933,9 @@ const kafilaFunOnlinePayment = async (
           Meal: passenger?.Meal,
           Baggage: passenger?.Baggage,
           Seat: passenger?.Seat,
+          FastForward: passenger?.FastForward,
           totalBaggagePrice: passenger?.totalBaggagePrice,
+          totalFastForwardPrice: passenger?.totalFastForwardPrice,
           totalMealPrice: passenger?.totalMealPrice,
           totalSeatPrice: passenger?.totalSeatPrice,
         })),
@@ -2217,7 +2222,6 @@ const kafilaFunOnlinePayment = async (
     return "Some Technical Issue";
   }
 };
-
 
 async function updateBarcode2DByBookingId(
   bookingId,

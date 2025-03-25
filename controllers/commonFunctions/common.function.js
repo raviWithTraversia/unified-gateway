@@ -1187,7 +1187,8 @@ const createLeadger = async (
         item?.offeredPrice +
         item?.totalMealPrice +
         item?.totalBaggagePrice +
-        item?.totalSeatPrice,
+        item?.totalSeatPrice+
+        item?.totalFastForwardPrice,
       currencyType: currencyType,
       fop: fop,
       transactionType: transactionType,

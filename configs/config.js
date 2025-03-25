@@ -11,8 +11,8 @@ module.exports.Config = {
     IRCTC_MASTER_ID: "WKAFL00000",
     IRCTC_AUTH: "Basic V0tBRkwwMDAwMDpUZXN0aW5nMQ==",
     Mode: "TEST",
-    lyraShopId:99210763,
-    lyraPassword:"testpassword_E3BhaoOPy3jv2LcdqKZ3n5TY0ShwiD1mkL7bl6VmhJg1l"
+    lyraShopId: 99210763,
+    lyraPassword: "testpassword_E3BhaoOPy3jv2LcdqKZ3n5TY0ShwiD1mkL7bl6VmhJg1l",
   },
   LIVE: {
     baseURL: "https://agent.kafilaholidays.in", // frontend
@@ -24,8 +24,8 @@ module.exports.Config = {
     IRCTC_MASTER_ID: "WKAFILA00000",
     IRCTC_AUTH: "Basic V0tBRklMQTAwMDAwOjBaZzFDMw==",
     Mode: "LIVE",
-    lyraShopId:99210763,
-    lyraPassword:"prodpassword_5HDCe87tE0aGD7ZA7VrvfBdeXIXGKP7L6FKyhGYjh4Plz"
+    lyraShopId: 99210763,
+    lyraPassword: "prodpassword_5HDCe87tE0aGD7ZA7VrvfBdeXIXGKP7L6FKyhGYjh4Plz",
   },
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",

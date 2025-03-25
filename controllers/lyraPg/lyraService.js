@@ -325,6 +325,7 @@ const lyraSuccess = async (req, res) => {
               acc.totalMealPrice += curr.totalMealPrice;
               acc.totalBaggagePrice += curr.totalBaggagePrice;
               acc.totalSeatPrice += curr.totalSeatPrice;
+              acc.totalFastForwardPrice += curr.totalFastForwardPrice;
   
               return acc; // Return accumulator
             },
@@ -333,6 +334,7 @@ const lyraSuccess = async (req, res) => {
               totalMealPrice: 0,
               totalBaggagePrice: 0,
               totalSeatPrice: 0,
+              totalFastForwardPrice: 0,
             }
           );
           // Calculate totalItemAmount by summing up all prices
@@ -340,7 +342,8 @@ const lyraSuccess = async (req, res) => {
             totalsAmount.offeredPrice +
             totalsAmount.totalMealPrice +
             totalsAmount.totalBaggagePrice +
-            totalsAmount.totalSeatPrice;
+            totalsAmount.totalSeatPrice+
+            totalsAmount.totalFastForwardPrice;
   
             var pgChargesAmount=0
             if(udf3>0){
@@ -690,7 +693,8 @@ const lyraSuccess = async (req, res) => {
                     item?.offeredPrice +
                     item?.totalMealPrice +
                     item?.totalBaggagePrice +
-                    item?.totalSeatPrice;
+                    item?.totalSeatPrice+
+                    item?.totalFastForwardPrice;
   
                   // Transtion
                   // await transaction.updateOne(

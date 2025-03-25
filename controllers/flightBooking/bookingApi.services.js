@@ -2866,20 +2866,20 @@ const getBillingData = async (req, res) => {
     // Initialize baseFare and airlineTax based on PaxType (ADT, CHD, INF)
     switch (element.paxType) {
       case "ADT": // Adult
-        element.baseFare = element.itinerary.PriceBreakup[0]?.BaseFare || 0;
-        element.airlineTax = element.itinerary.PriceBreakup[0]?.Tax || 0;
+        element.itemAmount = element.itinerary.PriceBreakup[0]?.BaseFare || 0;
+        element.Tax = element.itinerary.PriceBreakup[0]?.Tax || 0;
         break;
       case "CHD": // Child
-        element.baseFare = element.itinerary.PriceBreakup[1]?.BaseFare || 0;
-        element.airlineTax = element.itinerary.PriceBreakup[1]?.Tax || 0;
+        element.itemAmount = element.itinerary.PriceBreakup[1]?.BaseFare || 0;
+        element.Tax = element.itinerary.PriceBreakup[1]?.Tax || 0;
         break;
       case "INF": // Infant
-        element.baseFare = element.itinerary.PriceBreakup[2]?.BaseFare || 0;
-        element.airlineTax = element.itinerary.PriceBreakup[2]?.Tax || 0;
+        element.itemAmount = element.itinerary.PriceBreakup[2]?.BaseFare || 0;
+        element.Tax = element.itinerary.PriceBreakup[2]?.Tax || 0;
         break;
       default:
-        element.baseFare = 0;
-        element.airlineTax = 0;
+        element.itemAmount = 0;
+        element.Tax = 0;
     }
   
     // Calculate itemAmount as the sum of baseFare, totalBaggagePrice, totalMealPrice, and totalSeatPrice
@@ -2888,13 +2888,13 @@ const getBillingData = async (req, res) => {
     element.totalMealPrice = element.totalMealPrice || 0;
     element.totalSeatPrice = element.totalSeatPrice || 0;
   
-    element.itemAmount = element.baseFare + element.totalBaggagePrice + element.totalMealPrice + element.totalSeatPrice;
+    element.airlineTax = element.Tax + element.totalBaggagePrice + element.totalMealPrice + element.totalSeatPrice;
   
     // Map through getCommercialArray and calculate commission and TDS
     element.getCommercialArray?.map((items) => {
       if (element.paxType === items.PassengerType) {
         element.baseFare = items?.BaseFare || element.baseFare;
-        element.airlineTax = items?.Tax || element.airlineTax;
+        element.airlineTax = items?.airlineTax || element.airlineTax;
         items.CommercialBreakup.map((item) => {
           if (item.CommercialType === "Discount") {
             element.commission = parseFloat(

@@ -26,34 +26,36 @@ const {
   recieveDI,
   commonProviderMethodDate,
   sendSuccessHtml,
-sendFailedHtml
+sendFailedHtml,
+commonFunctionsRailLogs
 } = require("../commonFunctions/common.function");
 const AgentConfiguration = require("../../models/AgentConfig");
 const { saveLogInFile } = require("../../utils/save-log");
 const { commonFlightBook } = require("../../services/common-flight-book");
 const { error } = require("console");
-
+ 
 const lyraRedirectLink=async(req,res)=>{
+const {Authentication,bookingId,amount,pgCharges,normalAmount,paymentFor,productinfo,agentId}=req.body
+const traceId=agentId+"_"+new Date().getTime()
     try{
-const {Authentication,bookingId,amount,pgCharges,normalAmount,paymentFor,productinfo}=req.body
-
-
+ 
+ 
 const userDetail=await User.findById({_id:req.user?._id})
 // Config.MODE == "TEST"
 //         ? Config.PAYMENT_CREDENTIALS_PAYU.TEST.key
-
+ 
 //         : Config.PAYMENT_CREDENTIALS_PAYU.LIVE.key
-
+ 
 // console.log(Config.TEST)
         const authHeader = "Basic " + Buffer.from(`${Config[Authentication?.CredentialType ?? "TEST"].lyraShopId}:${Config[Authentication?.CredentialType ?? "TEST"]?.lyraPassword}`).toString("base64");
         var url=""
         if(paymentFor.toLowerCase()=="wallet"&&productinfo.toLowerCase()=="flight"){
           url="flight/lyra/wallet/success"
-
-
+ 
+ 
         }else if(productinfo.toLowerCase()=="flight"&&paymentFor.toLowerCase()=="booking"){
           url="lyra/success"
-
+ 
         }
         else if(productinfo.toLowerCase()=="rail"&&paymentFor.toLowerCase()=="wallet"){
 url="rail/lyra/wallet/success"
@@ -63,7 +65,7 @@ url="rail/lyra/wallet/success"
         const response = await axios.post(
             "https://api.in.lyra.com/pg/rest/v1/charge",
             {
-                orderId: bookingId,
+                orderId: `${bookingId}-${new Date().getTime()}`,
                 orderInfo: "FLight Booking",
                 currency: "INR",
                 udf:[normalAmount,pgCharges],
@@ -93,17 +95,18 @@ url="rail/lyra/wallet/success"
             })
             return
         }
-
+        commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "LYRA LOG", url, req.body, response.data)
          res.status(200).json({
             success:true,
             Message:"response found",
             data:response?.data
         })
-
+ 
     }
     catch(err){
-      console.log(err)
-        res.status(500).json({error:err.message})
+      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "LYRA LOG", url, req.body, err)
+ 
+        res.status(500).json({success:false,Message:err.message})
         return
     }
 }
@@ -143,7 +146,7 @@ const fetchChargeDetails = async (vads_charge_uuid,Mode) => {
 
       return {
           success: true,
-         udf1: orderId||null,
+         udf1: orderId.split("-")[0]||null,
           status,
           udf2: udf[0] || null,
           udf3: udf[1] || null,
@@ -612,7 +615,7 @@ const lyraSuccess = async (req, res) => {
                           p.LName === passenger.LName
                       );
                     if (apiPassenger) {
-                      // passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+                      passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
                       const ticketUpdate =
                         passenger?.Optional?.ticketDetails?.find?.(
                           (p) =>
@@ -623,10 +626,6 @@ const lyraSuccess = async (req, res) => {
                               fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                         );
                       if (ticketUpdate) {
-                        ticketUpdate.status = fSearchApiResponse.data.BookingInfo
-                          .CurrentStatus
-                          ? fSearchApiResponse.data.BookingInfo.CurrentStatus
-                          : "CONFIRMED";
                         ticketUpdate.ticketNumber =
                           apiPassenger?.Optional?.TicketNumber;
                       }
@@ -654,7 +653,7 @@ const lyraSuccess = async (req, res) => {
                           p.LName === passenger.LName
                       );
                     if (!selectedPax) return passenger;
-                    // passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+                    passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
   
                     // saveLogInFile("selected-pax.json", selectedPax);
                     passenger.Optional.EMDDetails = [
@@ -669,9 +668,6 @@ const lyraSuccess = async (req, res) => {
                           passenger.Optional.ticketDetails[
                             segmentIdx
                           ].ticketNumber = ticket.ticketNumber;
-                          passenger.Optional.ticketDetails[
-                            segmentIdx
-                          ].status = fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED";
                         } else {
                           passenger.Optional.ticketDetails.push(ticket);
                         }

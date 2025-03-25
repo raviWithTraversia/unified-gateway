@@ -1429,7 +1429,7 @@ const RefundedCommonFunction = async (
 
       // }
       // console.log(refund)
-      if (!refund?.IsCancelled && !refund.IsRefunded) {
+      if (refund?.IsCancelled && !refund.IsRefunded) {
         const isPartialCancellation = refund.CType === "PARTIAL";
         // console.log(isPartialCancellation)
 
@@ -2335,24 +2335,21 @@ async function updateStatus(booking,status) {
   const src=booking.itinerary.Sectors[0]?.Departure?.Code
     const reverse=booking.itinerary.Sectors.reverse()
     const des=reverse[0]?.Arrival.Code
-  await PassengerPreference.findOneAndUpdate(
-              {
-                bookingId: booking.bookingId,
-               
-              },
-              {
-                $set: {
-                  "Passengers.$[p].Optional.ticketDetails.$[t].status": status,
-                },
-              },
-              {
-                arrayFilters: [
-                  // { "p.FName": passenger.FNAME, "p.LName": passenger.LNAME },
-                  { "t.src": src, "t.des": des },
-                ],
-                new: true,
-              }
-            );
+    await PassengerPreference.findOneAndUpdate(
+      { bookingId: booking.bookingId },
+      {
+        $set: {
+          "Passengers.$[].Optional.ticketDetails.$[t].status": status,
+        },
+      },
+      {
+        arrayFilters: [
+          { "t.src": src, "t.des": des }
+        ],
+        new: true,
+      }
+    );
+    ;
 }
 
 module.exports = {

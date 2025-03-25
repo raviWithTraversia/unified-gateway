@@ -16,8 +16,11 @@ const {
 const BookingDetails = require("../../models/booking/BookingDetails");
 const PassengerPreference = require("../../models/booking/PassengerPreference");
 const flightCache = new NodeCache();
-const {calculateDealAmount}=require("./partialCalcelationCharge.service")
-const {updateStatus,updatePassengerStatus}=require("../commonFunctions/common.function")
+const { calculateDealAmount } = require("./partialCalcelationCharge.service");
+const {
+  updateStatus,
+  updatePassengerStatus,
+} = require("../commonFunctions/common.function");
 const fullCancelationCharge = async (req, res) => {
   const {
     Authentication,
@@ -89,7 +92,7 @@ const fullCancelationCharge = async (req, res) => {
       agencyUserId = agencyUser._id;
     }
   }
-  if(Provider.toLowerCase() === "kafila"){
+  if (Provider.toLowerCase() === "kafila") {
     let result;
     if (TravelType !== "International" && TravelType !== "Domestic") {
       return {
@@ -138,8 +141,6 @@ const fullCancelationCharge = async (req, res) => {
 
       const status = result?.journey?.[0]?.status || "CANCELLATION FAILED";
       if (status === "CANCELLED") {
-        
-        
         const booking = await BookingDetails.findOneAndUpdate(
           {
             providerBookingId: req.body.BookingId,
@@ -147,37 +148,38 @@ const fullCancelationCharge = async (req, res) => {
           { $set: { bookingStatus: "CANCELLED" } },
           { new: true }
         );
-        
+
         let calculateFareAmount = 0;
-        
+
         for (let passenger of req.body.passengarList) {
-          calculateFareAmount += calculateDealAmount(booking, passenger.PAX_TYPE);
-          await updatePassengerStatus(booking, passenger,"CANCELLED");
-          
+          calculateFareAmount += calculateDealAmount(
+            booking,
+            passenger.PAX_TYPE
+          );
+          await updatePassengerStatus(booking, passenger, "CANCELLED");
         }
-          const cancelationBookingInstance = new CancelationBooking({
-            calcelationStatus: "CANCEL",
-            bookingId: booking?.providerBookingId,
-            providerBookingId: booking?.providerBookingId,
-            AirlineCode:
-              booking?.itinerary?.Sectors[0]?.AirlineCode || null,
-            companyId: Authentication?.CompanyId || null,
-            userId: Authentication?.UserId || null,
-            traceId:null,
-            PNR: booking?.PNR || null,
-            fare: calculateFareAmount || 0,
-            AirlineCancellationFee: 0,
-            AirlineRefund: 0,
-            ServiceFee: 0 || 0,
-            RefundableAmt: 0 || 0,
-            description: null,
-            modifyBy: Authentication?.UserId || null,
-            modifyAt: new Date(),
-          });
-  
-          await cancelationBookingInstance.save();
-        }
-      
+        const cancelationBookingInstance = new CancelationBooking({
+          calcelationStatus: "CANCEL",
+          bookingId: booking?.providerBookingId,
+          providerBookingId: booking?.providerBookingId,
+          AirlineCode: booking?.itinerary?.Sectors[0]?.AirlineCode || null,
+          companyId: Authentication?.CompanyId || null,
+          userId: Authentication?.UserId || null,
+          traceId: null,
+          PNR: booking?.PNR || null,
+          fare: calculateFareAmount || 0,
+          AirlineCancellationFee: 0,
+          AirlineRefund: 0,
+          ServiceFee: 0 || 0,
+          RefundableAmt: 0 || 0,
+          description: null,
+          modifyBy: Authentication?.UserId || null,
+          modifyAt: new Date(),
+        });
+
+        await cancelationBookingInstance.save();
+      }
+
       return {
         response: "Fetch Data Successfully",
         data: {
@@ -221,12 +223,11 @@ async function handleflight(
     companyId: CompanyId,
     credentialsType: CredentialType,
     status: true,
-  })
-    .populate({
-      path: "supplierCodeId",
-      select: "supplierCode",
-    });
-  
+  }).populate({
+    path: "supplierCodeId",
+    select: "supplierCode",
+  });
+
   const supplierCredentials = supplierData.filter(
     (supplier) => supplier.supplierCodeId?.supplierCode === Provider
   );
@@ -405,17 +406,19 @@ const KafilaFun = async (
           });
 
           await cancelationBookingInstance.save();
-   const bookingDeatails=   await bookingDetails.findOneAndUpdate(
+          const bookingDeatails = await bookingDetails.findOneAndUpdate(
             { _id: BookingIdDetails._id },
-            { $set: { bookingStatus: "CANCELLATION PENDING" ,
-              cancelationDate: new Date(),
-            } },
+            {
+              $set: {
+                bookingStatus: "CANCELLATION PENDING",
+                cancelationDate: new Date(),
+              },
+            },
             { new: true } // To return the updated document
           );
           // const passengerData=await passengerPreferenceModel.findOne({bookingId:BookingIdDetails.bookingId})
 
-       await updateStatus(bookingDeatails,"CANCELLATION PENDING")
-      
+          await updateStatus(bookingDeatails, "CANCELLATION PENDING");
 
           // await passengerPreferenceModel.updateOne(
           //   { bookingId: BookingIdDetails.bookingId },
@@ -552,5 +555,4 @@ const KafilaFun = async (
 };
 module.exports = {
   fullCancelationCharge,
-
 };

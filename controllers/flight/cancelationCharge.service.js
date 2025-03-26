@@ -418,7 +418,7 @@ const KafilaFun = async (
           );
           // const passengerData=await passengerPreferenceModel.findOne({bookingId:BookingIdDetails.bookingId})
 
-          await updateStatus(bookingDeatails, "CANCELATION PENDING");
+          await updateStatus(bookingDeatails, "CANCELLATION PENDING");
 
           // await passengerPreferenceModel.updateOne(
           //   { bookingId: BookingIdDetails.bookingId },

@@ -366,7 +366,7 @@ let booking=null
             { new: true } // To return the updated document
           );
         }
-        await updateStatus(booking,"CANCELATION PENDING")
+        await updateStatus(booking,"CANCELLATION PENDING")
         await cancelationDataUpdate(Authentication,fCancelApiResponse,BookingIdDetails)
         return fCancelApiResponse?.data;
       } else if (

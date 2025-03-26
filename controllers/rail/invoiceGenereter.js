@@ -114,7 +114,6 @@ const RailInoviceGerneter = async (req, res) => {
         if(bookingDetail.length>0){
             
             bookingDetail = bookingDetail[0];
-            console.log(bookingDetail?.CompanyDetail?.agentconfigurations?.companyId,'shadaab')
             const companyData=await Comapny.findById(bookingDetail?.CompanyDetail?.agentconfigurations?.companyId)
             if(!companyData.length>0&&!companyData.type=="TMC"){
 

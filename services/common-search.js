@@ -37,7 +37,7 @@ async function commonFlightSearch(request) {
     let itineraries = response?.data?.journey?.[0]?.itinerary
       ?.filter(
         (itinerary) =>
-          !["h1", "sg"].includes(itinerary.valCarrier.toLowerCase())
+          !["h1","x1", "sg"].includes(itinerary.valCarrier.toLowerCase())
       )
       ?.map((itinerary, idx) =>
         convertItineraryForKafila({

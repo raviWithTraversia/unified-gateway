@@ -1241,7 +1241,7 @@ if (provider !== undefined && provider.trim() !== "") {
           CANCELLED: 0,
           INCOMPLETE: 0,
           HOLD: 0,
-          "HOLD RELEASED": 0, 
+          "HOLD RELEASED": 0,
           "FAILED PAYMENT": 0,
         };
 

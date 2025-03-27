@@ -348,7 +348,7 @@ const getAllBooking = async (req, res) => {
         CANCELLED: 0,
         INCOMPLETE: 0,
         HOLD: 0,
-        "HOLD RELEASED": 0,
+        "HOLD RELEASED": 0, 
         "FAILED PAYMENT": 0,
       };
 
@@ -632,7 +632,7 @@ delete filter.createdAt; // Removes the 'age' key from obj
         CANCELLED: 0,
         INCOMPLETE: 0,
         HOLD: 0,
-        "HOLD RELEASED": 0,
+        "HOLD RELEASED": 0, 
         "FAILED PAYMENT": 0,
         "CANCELLATION PENDING": 0,
       };
@@ -910,7 +910,7 @@ if (provider !== undefined && provider.trim() !== "") {
         CANCELLED: 0,
         INCOMPLETE: 0,
         HOLD: 0,
-        "HOLD RELEASED": 0,
+        "HOLD RELEASED": 0, 
         "FAILED PAYMENT": 0,
         "CANCELLATION PENDING": 0,
       };
@@ -1080,7 +1080,7 @@ if (provider !== undefined && provider.trim() !== "") {
           CANCELLED: 0,
           INCOMPLETE: 0,
           HOLD: 0,
-          "HOLD RELEASED": 0,
+          "HOLD RELEASED": 0, 
           "FAILED PAYMENT": 0,
           "CANCELLATION PENDING": 0,
         };
@@ -1241,7 +1241,7 @@ if (provider !== undefined && provider.trim() !== "") {
           CANCELLED: 0,
           INCOMPLETE: 0,
           HOLD: 0,
-          "HOLD RELEASED": 0,
+          "HOLD RELEASED": 0,  
           "FAILED PAYMENT": 0,
         };
 
@@ -1398,7 +1398,7 @@ if (provider !== undefined && provider.trim() !== "") {
           CANCELLED: 0,
           INCOMPLETE: 0,
           HOLD: 0,
-          "HOLD RELEASED": 0,
+          "HOLD RELEASED": 0, 
           "FAILED PAYMENT": 0,
         };
 

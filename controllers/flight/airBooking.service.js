@@ -1226,6 +1226,7 @@ const KafilaFun = async (
                     fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ==
                       "HOLD")
                 ) {
+                  
                   await BookingDetails.updateOne(
                     {
                       bookingId: item?.BookingId,

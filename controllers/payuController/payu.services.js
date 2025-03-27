@@ -776,6 +776,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                 getpassengersPrefrence?.Passengers
               ) {
                 // await Promise.all(
+                
                 getpassengersPrefrence.Passengers.map((passenger) => {
                   const apiPassenger =
                     fSearchApiResponse.data.PaxInfo.Passengers.find(

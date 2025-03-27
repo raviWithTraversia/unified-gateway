@@ -208,4 +208,5 @@ const PassengerPreference = mongoose.model(
   "PassengerPreference",
   passengerPreferenceSchema
 );
+
 module.exports = PassengerPreference;

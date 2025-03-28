@@ -347,13 +347,13 @@ const railFareEnquiry = async (req, res) => {
     if (jClass == "SL"||jClass == "2S") {
       agentCharges.Conveniencefee = 17.7
       agentCharges.Agent_service_charge = 20
-      agentCharges.PG_charges = paymentEnqFlag === "Y" ? await commonAgentPGCharges(amount,10) : 0
+      agentCharges.PG_charges = paymentEnqFlag === "Y" ? await commonAgentPGCharges(amount,20) : 0
 
     }
     else {
       agentCharges.Conveniencefee = 35.40
       agentCharges.Agent_service_charge = 40
-      agentCharges.PG_charges = paymentEnqFlag === "Y" ? await commonAgentPGCharges(amount,20) : 0
+      agentCharges.PG_charges = paymentEnqFlag === "Y" ? await commonAgentPGCharges(amount,40) : 0
 
     }
     // console.log(agentCharges)

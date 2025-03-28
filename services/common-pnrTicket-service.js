@@ -5,7 +5,7 @@ const BookingDetails=require('../models/booking/BookingDetails')
 const transaction=require('../models/transaction')
 const ledger=require('../models/Ledger')
 const agentConfig=require('../models/AgentConfig')
-const {getTdsAndDsicount} = require("../controllers/commonFunctions/common.function");
+const {getTdsAndDsicount,commonProviderMethodDate} = require("../controllers/commonFunctions/common.function");
 const {
   createPnrTicketRequestBody,
   createRBDResponse,
@@ -102,7 +102,7 @@ const getCommonPnrTicket = async (request,res) => {
     // 2. Update booking status and APnr
     await BookingDetails.findByIdAndUpdate(
       bookingData._id,
-      { $set: { bookingStatus: "CONFIRMED", APnr: item?.PNR } },
+      { $set: { bookingStatus: "CONFIRMED", APnr: item?.PNR ,providerBookingId:commonProviderMethodDate(bookingData.createdAt)} },
       { new: true }
     );
   

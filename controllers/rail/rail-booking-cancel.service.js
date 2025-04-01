@@ -89,6 +89,7 @@ module.exports.cancelRailBooking = async function (request) {
     }));
 
     booking.cancelTime = new Date();
+    booking.cancellationId = response?.cancellationId||"";
     const isFullCancelled =
       passengerToken === "YYYYYY" ||
       tokenList.filter((t) => t === "Y").length === booking.psgnDtlList.length;

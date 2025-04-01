@@ -2,7 +2,7 @@ const { default: axios } = require("axios");
 const { v4: uuidv4 } = require("uuid");
 const { Config } = require("../configs/config");
 const { convertItineraryForKafila } = require("./common-search.helper");
-const user =require('../models/User')
+const user = require("../models/User");
 const {
   getApplyAllCommercial,
 } = require("../controllers/flight/flight.commercial");
@@ -41,7 +41,9 @@ async function importPNRHelper(request) {
         },
       ],
     };
-    const url = Config[Authentication.CredentialType ?? "TEST"].additionalFlightsBaseURL+`/pnr/importPNR`;
+    const url =
+      Config[Authentication.CredentialType ?? "TEST"].additionalFlightsBaseURL +
+      `/pnr/importPNR`;
     // console.log({ importURL: url });
 
     const pnrResponse = await axios.post(url, importPNRRequest);
@@ -80,10 +82,14 @@ async function importPNRHelper(request) {
       journey.travellerDetails,
       segmentGroup
     );
-    let iternaryObj=null
-    const userFindTmc=await user.findById(Authentication.UserId).populate("company_ID")
-    userFindTmc?.company_ID?.type=="TMC"?iternaryObj=convertedItinerary?.response[0]:iternaryObj=convertedItinerary
-    
+    let iternaryObj = null;
+    const userFindTmc = await user
+      .findById(Authentication.UserId)
+      .populate("company_ID");
+    userFindTmc?.company_ID?.type == "TMC"
+      ? (iternaryObj = convertedItinerary?.response[0])
+      : (iternaryObj = convertedItinerary);
+
     return {
       result: {
         Status: journey?.status?.pnrStatus || "failed",
@@ -155,6 +161,20 @@ function convertPaxDetailsForKafila(paxList, segmentGroup) {
         FCode: baggage?.airlineCode || "",
         FNo: baggage?.flightNumber || "",
         Trip: baggage?.wayType || 0,
+      })),
+      FastForward: (pax.ffwdPreferences ?? []).map((fastForward) => ({
+        SsrDesc: fastForward?.name || "",
+        SsrCode: fastForward?.code || "",
+        Price: fastForward?.amount || 0,
+        Currency: fastForward?.currency || "",
+        Paid: fastForward?.paid || false,
+        SsrDesc: fastForward?.desc || "",
+        key: fastForward?.key || "" || "",
+        Src: fastForward?.origin || "",
+        Des: fastForward?.destination || "",
+        FCode: fastForward?.airlineCode || "",
+        FNo: fastForward?.flightNumber || "",
+        Trip: fastForward?.wayType || 0,
       })),
       Seat: (pax?.seatPreferences ?? []).map((seat) => ({
         SeatCode: seat.code,

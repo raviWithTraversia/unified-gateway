@@ -10,11 +10,13 @@ const amendmentDetailsSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    amendmentType: {  // Reschedule, Cancellation , Misc
+    amendmentType: {
+      // Reschedule, Cancellation , Misc
       type: String,
       default: null,
     },
-    amendmentStatus: {  // OPEN, COMPLETED , Under process, ABORTED, PENDING
+    amendmentStatus: {
+      // OPEN, COMPLETED , Under process, ABORTED, PENDING
       type: String,
       default: "OPEN",
     },
@@ -23,9 +25,11 @@ const amendmentDetailsSchema = new mongoose.Schema(
       ref: "User",
     },
     newCartId: {
-      type: String, default: ""
+      type: String,
+      default: "",
     },
-    paymentStatus: {  // NOT PROCESSED, COMPLETED , Under process, ABORTED,PENDING
+    paymentStatus: {
+      // NOT PROCESSED, COMPLETED , Under process, ABORTED,PENDING
       type: String,
       default: "Under process",
     },
@@ -124,6 +128,7 @@ const amendmentDetailsSchema = new mongoose.Schema(
     },
     totalMealPrice: { type: Number, default: 0 },
     totalBaggagePrice: { type: Number, default: 0 },
+    totalFastForwardPrice: { type: Number, default: 0 },
     totalSeatPrice: { type: Number, default: 0 },
     sourceMedia: {
       type: String,

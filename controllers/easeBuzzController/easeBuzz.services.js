@@ -1,4 +1,3 @@
-
 const pgCharges = require("../../models/pgCharges");
 const Role = require("../../models/Role");
 const User = require("../../models/User");
@@ -12,75 +11,176 @@ const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const BookingTemp = require("../../models/booking/BookingTemp");
 const axios = require("axios");
-const { Config } = require('../../configs/config');
+const { Config } = require("../../configs/config");
 const { v4: uuidv4 } = require("uuid");
-const { createLeadger,getTdsAndDsicount } = require("../commonFunctions/common.function");
-const{commonFlightBook}=require("../../services/common-flight-book");
+const {
+  createLeadger,
+  getTdsAndDsicount,
+} = require("../commonFunctions/common.function");
+const { commonFlightBook } = require("../../services/common-flight-book");
 
 const easeBuzz = async (req, res) => {
   try {
-    const { key, txnid, amount, productinfo, firstname, phone, email, surl, furl, hash,
-      udf1, udf2, udf3, udf4, udf5, udf6, udf7, address1, address2, city, state, country,
-      zipcode, show_payment_mode, request_flow, sub_merchant_id, payment_category,
-      account_no, ifsc } = req.body;
+    const {
+      key,
+      txnid,
+      amount,
+      productinfo,
+      firstname,
+      phone,
+      email,
+      surl,
+      furl,
+      hash,
+      udf1,
+      udf2,
+      udf3,
+      udf4,
+      udf5,
+      udf6,
+      udf7,
+      address1,
+      address2,
+      city,
+      state,
+      country,
+      zipcode,
+      show_payment_mode,
+      request_flow,
+      sub_merchant_id,
+      payment_category,
+      account_no,
+      ifsc,
+    } = req.body;
     const data = new URLSearchParams();
-    if (key) { data.append('key', key); }
-    if (txnid) { data.append('txnid', txnid); }
-    if (amount) { data.append('amount', amount); }
-    if (productinfo) { data.append('productinfo', productinfo); }
-    if (firstname) { data.append('firstname', firstname); }
-    if (phone) { data.append('phone', phone); }
-    if (email) { data.append('email', email); }
-    if (surl) { data.append('surl', surl); }
-    if (furl) { data.append('furl', furl); }
-    if (hash) { data.append('hash', hash); }
-    if (udf1) { data.append('udf1', udf1); }
-    if (udf2) { data.append('udf2', udf2); }
-    if (udf3) { data.append('udf3', udf3); }
-    if (udf4) { data.append('udf4', udf4); }
-    if (udf5) { data.append('udf5', udf5); }
-    if (udf6) { data.append('udf6', udf6); }
-    if (udf7) { data.append('udf7', udf7); }
-    if (address1) { data.append('address1', address1); }
-    if (address2) { data.append('address2', address2); }
-    if (city) { data.append('city', city); }
-    if (state) { data.append('state', state); }
-    if (country) { data.append('country', country); }
-    if (zipcode) { data.append('zipcode', zipcode); }
-    if (show_payment_mode) { data.append('show_payment_mode', show_payment_mode); }
-    if (request_flow) { data.append('request_flow', request_flow); }
-    if (sub_merchant_id) { data.append('sub_merchant_id', sub_merchant_id); }
-    if (payment_category) { data.append('payment_category', payment_category); }
-    if (account_no) { data.append('account_no', account_no); }
-    if (ifsc) { data.append('ifsc', ifsc); }
+    if (key) {
+      data.append("key", key);
+    }
+    if (txnid) {
+      data.append("txnid", txnid);
+    }
+    if (amount) {
+      data.append("amount", amount);
+    }
+    if (productinfo) {
+      data.append("productinfo", productinfo);
+    }
+    if (firstname) {
+      data.append("firstname", firstname);
+    }
+    if (phone) {
+      data.append("phone", phone);
+    }
+    if (email) {
+      data.append("email", email);
+    }
+    if (surl) {
+      data.append("surl", surl);
+    }
+    if (furl) {
+      data.append("furl", furl);
+    }
+    if (hash) {
+      data.append("hash", hash);
+    }
+    if (udf1) {
+      data.append("udf1", udf1);
+    }
+    if (udf2) {
+      data.append("udf2", udf2);
+    }
+    if (udf3) {
+      data.append("udf3", udf3);
+    }
+    if (udf4) {
+      data.append("udf4", udf4);
+    }
+    if (udf5) {
+      data.append("udf5", udf5);
+    }
+    if (udf6) {
+      data.append("udf6", udf6);
+    }
+    if (udf7) {
+      data.append("udf7", udf7);
+    }
+    if (address1) {
+      data.append("address1", address1);
+    }
+    if (address2) {
+      data.append("address2", address2);
+    }
+    if (city) {
+      data.append("city", city);
+    }
+    if (state) {
+      data.append("state", state);
+    }
+    if (country) {
+      data.append("country", country);
+    }
+    if (zipcode) {
+      data.append("zipcode", zipcode);
+    }
+    if (show_payment_mode) {
+      data.append("show_payment_mode", show_payment_mode);
+    }
+    if (request_flow) {
+      data.append("request_flow", request_flow);
+    }
+    if (sub_merchant_id) {
+      data.append("sub_merchant_id", sub_merchant_id);
+    }
+    if (payment_category) {
+      data.append("payment_category", payment_category);
+    }
+    if (account_no) {
+      data.append("account_no", account_no);
+    }
+    if (ifsc) {
+      data.append("ifsc", ifsc);
+    }
 
-    let PgUrl = Config.EASEBUZZ_PG_URL
+    let PgUrl = Config.EASEBUZZ_PG_URL;
     if (Config.MODE === "LIVE") {
-      PgUrl = "https://pay.easebuzz.in/payment/initiateLink"
+      PgUrl = "https://pay.easebuzz.in/payment/initiateLink";
     }
     const response = await axios.post(PgUrl, data, {
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Cookie': 'Path=/'
-      }
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+        Cookie: "Path=/",
+      },
     });
-    console.log(productinfo)
-    console.log(response.data)
+    console.log(productinfo);
+    console.log(response.data);
     return {
       response: "Fetch Data Successfully",
       data: response.data,
     };
-
   } catch (error) {
     throw error;
   }
-}
+};
 
 const easeBuzzResponce = async (req, res) => {
   try {
-    const { status, txnid, productinfo, udf1, net_amount_debit,card_type,payment_source, bankcode,bank_ref_num,bank_name,name_on_card, error_Message,pgCharges } = req.body;
-    const refundItinery=[]
+    const {
+      status,
+      txnid,
+      productinfo,
+      udf1,
+      net_amount_debit,
+      card_type,
+      payment_source,
+      bankcode,
+      bank_ref_num,
+      bank_name,
+      name_on_card,
+      error_Message,
+      pgCharges,
+    } = req.body;
+    const refundItinery = [];
     if (status === "success") {
       const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
       if (BookingTempData) {
@@ -96,14 +196,22 @@ const easeBuzzResponce = async (req, res) => {
           convertDataBookingTempRes.Authentication
         );
 
-        const Segments = convertDataBookingTempRes.Segments
-      
+        const Segments = convertDataBookingTempRes.Segments;
 
-        const TravelType=convertDataBookingTempRes.TravelType
+        const TravelType = convertDataBookingTempRes.TravelType;
 
-        const TypeOfTrip=convertDataBookingTempRes.TravelType
+        const TypeOfTrip = convertDataBookingTempRes.TravelType;
 
-        const body={SearchRequest:{Authentication,PassengerPreferences,ItineraryPriceCheckResponses,TravelType,TypeOfTrip,Segments}}
+        const body = {
+          SearchRequest: {
+            Authentication,
+            PassengerPreferences,
+            ItineraryPriceCheckResponses,
+            TravelType,
+            TypeOfTrip,
+            Segments,
+          },
+        };
 
         let credentialType = "D";
         let createTokenUrl;
@@ -134,10 +242,12 @@ const easeBuzzResponce = async (req, res) => {
         let getconfigAmount; // Declare getconfigAmount outside of the if block
         const companieIds = await UserModel.findById(getuserDetails._id);
 
-        const getAllComapnies = await UserModel.find({company_ID:companieIds.company_ID}).populate("roleId");
+        const getAllComapnies = await UserModel.find({
+          company_ID: companieIds.company_ID,
+        }).populate("roleId");
         let allIds = getAllComapnies
-          .filter(item => item.roleId.name === "Agency")
-          .map(item => item._id);
+          .filter((item) => item.roleId.name === "Agency")
+          .map((item) => item._id);
 
         const getAgentConfigForUpdateagain = await agentConfig.findOne({
           userId: allIds[0],
@@ -150,41 +260,52 @@ const easeBuzzResponce = async (req, res) => {
         }
         //return getconfigAmount;
 
-
         var totalItemAmount = 0; // Initialize totalItemAmount outside the reduce function
 
-        const totalsAmount = ItineraryPriceCheckResponses.reduce((acc, curr) => {
-          // Add current item prices to the accumulator
-          acc.offeredPrice += curr.offeredPrice;
-          acc.totalMealPrice += curr.totalMealPrice;
-          acc.totalBaggagePrice += curr.totalBaggagePrice;
-          acc.totalSeatPrice += curr.totalSeatPrice;
-          acc.totalFastForwardPrice += curr.totalFastForwardPrice;
+        const totalsAmount = ItineraryPriceCheckResponses.reduce(
+          (acc, curr) => {
+            // Add current item prices to the accumulator
+            acc.offeredPrice += curr.offeredPrice;
+            acc.totalMealPrice += curr.totalMealPrice;
+            acc.totalBaggagePrice += curr.totalBaggagePrice;
+            acc.totalSeatPrice += curr.totalSeatPrice;
+            acc.totalFastForwardPrice += curr.totalFastForwardPrice;
 
-          return acc; // Return accumulator
-        }, { offeredPrice: 0, totalMealPrice: 0, totalBaggagePrice: 0, totalSeatPrice: 0, totalFastForwardPrice: 0 });
+            return acc; // Return accumulator
+          },
+          {
+            offeredPrice: 0,
+            totalMealPrice: 0,
+            totalBaggagePrice: 0,
+            totalSeatPrice: 0,
+            totalFastForwardPrice: 0,
+          }
+        );
         // Calculate totalItemAmount by summing up all prices
-        totalItemAmount = totalsAmount.offeredPrice + totalsAmount.totalMealPrice + totalsAmount.totalBaggagePrice + totalsAmount.totalSeatPrice+ totalsAmount.totalFastForwardPrice;
+        totalItemAmount =
+          totalsAmount.offeredPrice +
+          totalsAmount.totalMealPrice +
+          totalsAmount.totalBaggagePrice +
+          totalsAmount.totalSeatPrice +
+          totalsAmount.totalFastForwardPrice;
         // console.log(net_amount_debit, totalItemAmount,"jddsjk");
-        var pgChargesAmount=0
-        if(pgCharges>0){
-          totalItemAmount+Number(pgCharges)
-          pgChargesAmount=Number(pgCharges)
-          
+        var pgChargesAmount = 0;
+        if (pgCharges > 0) {
+          totalItemAmount + Number(pgCharges);
+          pgChargesAmount = Number(pgCharges);
         }
-        const newBalanceCredit =
-          getconfigAmount + totalItemAmount;
+        const newBalanceCredit = getconfigAmount + totalItemAmount;
         // console.log(newBalanceCredit,"newBalanceCreditnewBalanceCredit");
         let itemAmount = 0;
         let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
         console.log("jkss2");
         await ledger.create({
-          userId: allIds[0],//getuserDetails._id,
+          userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
           transactionAmount: totalItemAmount,
-          deal:gtTsAdDnt?.ldgrdiscount,
-          tds:gtTsAdDnt?.ldgrtds,
+          deal: gtTsAdDnt?.ldgrdiscount,
+          tds: gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "CREDIT",
@@ -197,33 +318,33 @@ const easeBuzzResponce = async (req, res) => {
           userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionAmount: totalItemAmount-pgChargesAmount,
-          deal:gtTsAdDnt?.ldgrdiscount,
-          tds:gtTsAdDnt?.ldgrtds,
+          transactionAmount: totalItemAmount - pgChargesAmount,
+          deal: gtTsAdDnt?.ldgrdiscount,
+          tds: gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount: newBalanceCredit+pgChargesAmount-totalItemAmount,
+          runningAmount: newBalanceCredit + pgChargesAmount - totalItemAmount,
           remarks: "Booking Amount Deducted from Your Account(Easebuzz).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
-if(pgCharges>0){
-  await ledger.create({
-    userId: allIds[0], //getuserDetails._id,
-    companyId: getuserDetails.company_ID._id,
-    ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-    transactionAmount:pgChargesAmount,
-   currencyType: "INR",
-    fop: "DEBIT",
-    transactionType: "DEBIT",
-    runningAmount: newBalanceCredit-totalItemAmount,
-    remarks: "Manual PG_CHARGE",
-    transactionBy: getuserDetails._id,
-    cartId: udf1,
-  });
-}
-        
+        if (pgCharges > 0) {
+          await ledger.create({
+            userId: allIds[0], //getuserDetails._id,
+            companyId: getuserDetails.company_ID._id,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount: pgChargesAmount,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "DEBIT",
+            runningAmount: newBalanceCredit - totalItemAmount,
+            remarks: "Manual PG_CHARGE",
+            transactionBy: getuserDetails._id,
+            cartId: udf1,
+          });
+        }
+
         console.log("jkss1");
         // if(pgCharges){
         //   // await agentConfig.updateOne(
@@ -237,361 +358,376 @@ if(pgCharges>0){
         //   // );
         //   console.log(newBalanceCredit,"jdii")
         // }
-        
+
         let totalRefundAmount = 0;
         // const hitAPI = await Promise.all(
-        var bookingId="";
-        var FailedbookingIdenty=[]
-        var errorMessage=""
+        var bookingId = "";
+        var FailedbookingIdenty = [];
+        var errorMessage = "";
 
-        const updatePromises = ItineraryPriceCheckResponses.map(async (item,idx) => {
-          bookingId=item.BookingId
-          let requestDataFSearch = {
-            FareChkRes: {
-              Error: item.Error,
-              IsFareUpdate: item.IsFareUpdate,
-              IsAncl: item.IsAncl,
-              Param: item.Param,
-              SelectedFlight: [item.SelectedFlight],
-              FareBreakup: item.FareDifference,
-              GstData: item.GstData,
-              Ancl: null,
-            },
-            PaxInfo: PassengerPreferences,
-          };
-
-          try {
-            let fSearchApiResponse = null;
-             if (item.Provider === "Kafila") {
-                                         fSearchApiResponse = await axios.post(
-                                           flightSearchUrl,
-                                           requestDataFSearch,
-                                           {
-                                             headers: {
-                                               "Content-Type": "application/json",
-                                             },
-                                           }
-                                         );
-                                       } else {
-                                         // console.log(body?.SearchRequest?.Segments)
-                                         const reqSegment =await body?.SearchRequest?.Segments?.[idx];
-                                         // saveLogInFile("request-segment.json", { reqSegment });
-                                         fSearchApiResponse = await commonFlightBook(
-                                           body,
-                                           reqSegment,
-                                           item,
-                                           PassengerPreferences
-                                         );
-                         
-                                       }
-            const logData = {
-              traceId: Authentication.TraceId,
-              companyId: Authentication.CompanyId,
-              userId: Authentication.UserId,
-              source: "Kafila",
-              type: "API Log",
-              BookingId: udf1,
-              product: "Flight",
-              logName: "Air Booking",
-              request: requestDataFSearch,
-              responce: fSearchApiResponse?.data,
-            };
-            const logData1 = {
-              traceId: Authentication.TraceId,
-              companyId: Authentication.CompanyId,
-              userId: Authentication.UserId,
-              source: "Kafila",
-              type: "Portal log",
-              BookingId: udf1,
-              product: "Flight",
-              logName: "Air Booking",
-              request: requestDataFSearch,
-              responce: fSearchApiResponse?.data,
-            };
-            const logData2 = {
-              traceId: Authentication.TraceId,
-              companyId: Authentication.CompanyId,
-              userId: Authentication.UserId,
-              source: "Kafila",
-              type: "Portal log",
-              BookingId: udf1,
-              product: "Flight",
-              logName: "EazeBuzz Response",
-              request: "Request captured from portal",
-              responce: req.body,
-            };
-            Logs(logData);
-            Logs(logData1);
-            Logs(logData2);
-            if (fSearchApiResponse.data && typeof fSearchApiResponse.data.Status === 'string' && fSearchApiResponse.data.Status.toUpperCase() === "FAILED" || fSearchApiResponse?.data?.IsError == true || fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED") {
-          // Update the booking status
-// Update bookings to 'FAILED'
-errorMessage=fSearchApiResponse?.data?.ErrorMessage||fSearchApiResponse?.data?.BookingInfo?.BookingRemark
-
-await BookingDetails.updateMany(
-  {
-    bookingId: udf1,
-    "itinerary.IndexNumber": item.IndexNumber,
-    bookingStatus:{$ne:"CONFIRMED"},
-  },
-  {
-    $set: {
-      bookingStatus: "FAILED",
-      bookingRemarks: fSearchApiResponse?.data?.ErrorMessage ||fSearchApiResponse?.data?.BookingInfo?.BookingRemark||"error acured" ,
-    },
-  }
-);
-
-// Fetch booking details for the failed booking
-const updatedBooking = await BookingDetails.find(
-  {
-    bookingId: udf1,
-    bookingStatus: "FAILED"
-  },
-  { bookingTotalAmount: 1 }
-);
-
-// Accumulate the refund amounts
-var refundAmount = updatedBooking.reduce((sum, element) => {
-  return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
-}, 0);
-
-// Add to the total refund amount
-
-FailedbookingIdenty.push(false)
-updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount = refundAmount
-
-}     
-
-FailedbookingIdenty.push(true)
-
-  const bookingResponce = {
-              CartId: item.BookingId,
-              bookingResponce: {
-                CurrentStatus:
-                  fSearchApiResponse.data.BookingInfo.CurrentStatus,
-                BookingStatus:
-                  fSearchApiResponse.data.BookingInfo.BookingStatus,
-                BookingRemark:
-                  fSearchApiResponse.data.BookingInfo.BookingRemark,
-                BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
-                providerBookingId:
-                  fSearchApiResponse.data.BookingInfo.BookingId,
-                PNR: fSearchApiResponse.data.BookingInfo.APnr,
-                Type: fSearchApiResponse.data.BookingInfo.GPnr,
-                APnr: fSearchApiResponse.data.BookingInfo.APnr,
-                GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+        const updatePromises = ItineraryPriceCheckResponses.map(
+          async (item, idx) => {
+            bookingId = item.BookingId;
+            let requestDataFSearch = {
+              FareChkRes: {
+                Error: item.Error,
+                IsFareUpdate: item.IsFareUpdate,
+                IsAncl: item.IsAncl,
+                Param: item.Param,
+                SelectedFlight: [item.SelectedFlight],
+                FareBreakup: item.FareDifference,
+                GstData: item.GstData,
+                Ancl: null,
               },
-              itinerary: item,
-              PassengerPreferences: PassengerPreferences,
-              userDetails: getuserDetails,
+              PaxInfo: PassengerPreferences,
             };
-            await BookingDetails.updateOne(
-              {
-                bookingId: udf1,
-                "itinerary.IndexNumber": item.IndexNumber,
-              },
-              {
-                $set: {
-                  bookingStatus:
+
+            try {
+              let fSearchApiResponse = null;
+              if (item.Provider === "Kafila") {
+                fSearchApiResponse = await axios.post(
+                  flightSearchUrl,
+                  requestDataFSearch,
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+              } else {
+                // console.log(body?.SearchRequest?.Segments)
+                const reqSegment = await body?.SearchRequest?.Segments?.[idx];
+                // saveLogInFile("request-segment.json", { reqSegment });
+                fSearchApiResponse = await commonFlightBook(
+                  body,
+                  reqSegment,
+                  item,
+                  PassengerPreferences
+                );
+              }
+              const logData = {
+                traceId: Authentication.TraceId,
+                companyId: Authentication.CompanyId,
+                userId: Authentication.UserId,
+                source: "Kafila",
+                type: "API Log",
+                BookingId: udf1,
+                product: "Flight",
+                logName: "Air Booking",
+                request: requestDataFSearch,
+                responce: fSearchApiResponse?.data,
+              };
+              const logData1 = {
+                traceId: Authentication.TraceId,
+                companyId: Authentication.CompanyId,
+                userId: Authentication.UserId,
+                source: "Kafila",
+                type: "Portal log",
+                BookingId: udf1,
+                product: "Flight",
+                logName: "Air Booking",
+                request: requestDataFSearch,
+                responce: fSearchApiResponse?.data,
+              };
+              const logData2 = {
+                traceId: Authentication.TraceId,
+                companyId: Authentication.CompanyId,
+                userId: Authentication.UserId,
+                source: "Kafila",
+                type: "Portal log",
+                BookingId: udf1,
+                product: "Flight",
+                logName: "EazeBuzz Response",
+                request: "Request captured from portal",
+                responce: req.body,
+              };
+              Logs(logData);
+              Logs(logData1);
+              Logs(logData2);
+              if (
+                (fSearchApiResponse.data &&
+                  typeof fSearchApiResponse.data.Status === "string" &&
+                  fSearchApiResponse.data.Status.toUpperCase() === "FAILED") ||
+                fSearchApiResponse?.data?.IsError == true ||
+                fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"
+              ) {
+                // Update the booking status
+                // Update bookings to 'FAILED'
+                errorMessage =
+                  fSearchApiResponse?.data?.ErrorMessage ||
+                  fSearchApiResponse?.data?.BookingInfo?.BookingRemark;
+
+                await BookingDetails.updateMany(
+                  {
+                    bookingId: udf1,
+                    "itinerary.IndexNumber": item.IndexNumber,
+                    bookingStatus: { $ne: "CONFIRMED" },
+                  },
+                  {
+                    $set: {
+                      bookingStatus: "FAILED",
+                      bookingRemarks:
+                        fSearchApiResponse?.data?.ErrorMessage ||
+                        fSearchApiResponse?.data?.BookingInfo?.BookingRemark ||
+                        "error acured",
+                    },
+                  }
+                );
+
+                // Fetch booking details for the failed booking
+                const updatedBooking = await BookingDetails.find(
+                  {
+                    bookingId: udf1,
+                    bookingStatus: "FAILED",
+                  },
+                  { bookingTotalAmount: 1 }
+                );
+
+                // Accumulate the refund amounts
+                var refundAmount = updatedBooking.reduce((sum, element) => {
+                  return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
+                }, 0);
+
+                // Add to the total refund amount
+
+                FailedbookingIdenty.push(false);
+                updatedBooking.length > 1
+                  ? (totalRefundAmount = totalItemAmount)
+                  : (totalRefundAmount = refundAmount);
+              }
+
+              FailedbookingIdenty.push(true);
+
+              const bookingResponce = {
+                CartId: item.BookingId,
+                bookingResponce: {
+                  CurrentStatus:
                     fSearchApiResponse.data.BookingInfo.CurrentStatus,
-                  bookingRemarks:
-                    fSearchApiResponse.data.BookingInfo?.BookingRemark,
+                  BookingStatus:
+                    fSearchApiResponse.data.BookingInfo.BookingStatus,
+                  BookingRemark:
+                    fSearchApiResponse.data.BookingInfo.BookingRemark,
+                  BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
                   providerBookingId:
-                    fSearchApiResponse.data.BookingInfo?.BookingId,
+                    fSearchApiResponse.data.BookingInfo.BookingId,
                   PNR: fSearchApiResponse.data.BookingInfo.APnr,
+                  Type: fSearchApiResponse.data.BookingInfo.GPnr,
                   APnr: fSearchApiResponse.data.BookingInfo.APnr,
                   GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
-                  SalePurchase: fSearchApiResponse.data.BookingInfo?.SalePurchase?.ATDetails?.Account?fSearchApiResponse.data.BookingInfo?.SalePurchase?.ATDetails?.Account:"",
                 },
-              }
-            );
+                itinerary: item,
+                PassengerPreferences: PassengerPreferences,
+                userDetails: getuserDetails,
+              };
+              await BookingDetails.updateOne(
+                {
+                  bookingId: udf1,
+                  "itinerary.IndexNumber": item.IndexNumber,
+                },
+                {
+                  $set: {
+                    bookingStatus:
+                      fSearchApiResponse.data.BookingInfo.CurrentStatus,
+                    bookingRemarks:
+                      fSearchApiResponse.data.BookingInfo?.BookingRemark,
+                    providerBookingId:
+                      fSearchApiResponse.data.BookingInfo?.BookingId,
+                    PNR: fSearchApiResponse.data.BookingInfo.APnr,
+                    APnr: fSearchApiResponse.data.BookingInfo.APnr,
+                    GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+                    SalePurchase: fSearchApiResponse.data.BookingInfo
+                      ?.SalePurchase?.ATDetails?.Account
+                      ? fSearchApiResponse.data.BookingInfo?.SalePurchase
+                          ?.ATDetails?.Account
+                      : "",
+                  },
+                }
+              );
 
-            const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: udf1 });
+              const getpassengersPrefrence =
+                await passengerPreferenceModel.findOne({ bookingId: udf1 });
 
-            if (
-              item.Provider === "Kafila" &&
-              getpassengersPrefrence?.Passengers
-            ) {
-              // await Promise.all(
-              getpassengersPrefrence.Passengers.map((passenger) => {
-                const apiPassenger =
-                  fSearchApiResponse.data.PaxInfo.Passengers.find(
-                    (p) =>
-                      p.FName === passenger.FName &&
-                      p.LName === passenger.LName
-                  );
-                if (apiPassenger) {
-                  passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
-                  const ticketUpdate =
-                    passenger?.Optional?.ticketDetails?.find?.(
+              if (
+                item.Provider === "Kafila" &&
+                getpassengersPrefrence?.Passengers
+              ) {
+                // await Promise.all(
+                getpassengersPrefrence.Passengers.map((passenger) => {
+                  const apiPassenger =
+                    fSearchApiResponse.data.PaxInfo.Passengers.find(
                       (p) =>
-                        p?.src ===
-                          fSearchApiResponse?.data?.Param?.Sector?.[0]
-                            ?.Src &&
-                        p?.des ===
-                          fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
+                        p.FName === passenger.FName &&
+                        p.LName === passenger.LName
                     );
-                  if (ticketUpdate) {
-                    ticketUpdate.ticketNumber =
-                      apiPassenger?.Optional?.TicketNumber;
-                  }
-
-                  // passenger.Status = "CONFIRMED";
-                }
-              });
-              // );
-              bookingResponce.PassengerPreferences.Passengers =
-                getpassengersPrefrence.Passengers;
-              await getpassengersPrefrence.save();
-            } else if (
-              fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
-              "CONFIRMED"
-            ) {
-              getpassengersPrefrence.Passengers.map?.(async (passenger) => {
-                const segmentMap = {};
-                passenger.Optional.ticketDetails.forEach((ticket, idx) => {
-                  segmentMap[`${ticket.src}-${ticket.des}`] = idx;
-                });
-                const selectedPax =
-                  fSearchApiResponse.data.PaxInfo.Passengers.find(
-                    (p) =>
-                      p.FName === passenger.FName &&
-                      p.LName === passenger.LName
-                  );
-                if (!selectedPax) return passenger;
-                // saveLogInFile("selected-pax.json", selectedPax);
-                passenger.Optional.EMDDetails = [
-                  ...(passenger.Optional.EMDDetails || []),
-                  ...(selectedPax?.Optional?.EMDDetails || []),
-                ];
-                if (selectedPax?.Optional?.ticketDetails?.length) {
-                  selectedPax.Optional?.ticketDetails.forEach((ticket) => {
-                    const segmentIdx =
-                      segmentMap[`${ticket.src}-${ticket.des}`];
-                    if (segmentIdx != null) {
-                      passenger.Optional.ticketDetails[
-                        segmentIdx
-                      ].ticketNumber = ticket.ticketNumber;
-                    } else {
-                      passenger.Optional.ticketDetails.push(ticket);
+                  if (apiPassenger) {
+                    passenger.Status = fSearchApiResponse.data.BookingInfo
+                      .CurrentStatus
+                      ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+                      : "CONFIRMED";
+                    const ticketUpdate =
+                      passenger?.Optional?.ticketDetails?.find?.(
+                        (p) =>
+                          p?.src ===
+                            fSearchApiResponse?.data?.Param?.Sector?.[0]?.Src &&
+                          p?.des ===
+                            fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
+                      );
+                    if (ticketUpdate) {
+                      ticketUpdate.ticketNumber =
+                        apiPassenger?.Optional?.TicketNumber;
                     }
+
+                    // passenger.Status = "CONFIRMED";
+                  }
+                });
+                // );
+                bookingResponce.PassengerPreferences.Passengers =
+                  getpassengersPrefrence.Passengers;
+                await getpassengersPrefrence.save();
+              } else if (
+                fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
+                "CONFIRMED"
+              ) {
+                getpassengersPrefrence.Passengers.map?.(async (passenger) => {
+                  const segmentMap = {};
+                  passenger.Optional.ticketDetails.forEach((ticket, idx) => {
+                    segmentMap[`${ticket.src}-${ticket.des}`] = idx;
                   });
-                }
-                return passenger;
-              });
-              bookingResponce.PassengerPreferences.Passengers =
-                getpassengersPrefrence.Passengers;
-              // saveLogInFile(
-              //   "pax-preferences.json",
-              //   getpassengersPrefrence._doc
-              // );
-              await getpassengersPrefrence.save();
-            }
-
-
-
-            if (
-              fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
-            ) {
-              return `${fSearchApiResponse.data}-${fSearchApiResponse.data}`;
-            } else {
-
-              itemAmount += item?.offeredPrice +
-                item?.totalMealPrice +
-                item?.totalBaggagePrice +
-                item?.totalSeatPrice+
-                item?.totalFastForwardPrice;
-
-
-              // Transtion
-              // await transaction.updateOne(
-              //   { bookingId: item?.BookingId },
-              //   { statusDetail: status, trnsNo:txnid,paymentMode:card_type,bankName:bank_name,holderName:name_on_card, }
-              // );
-              //console.log("jkssddjsj");
-             
-
-            }
-            //return fSearchApiResponse.data;
-            const barcodeupdate = await updateBarcode2DByBookingId(
-              item?.BookingId,
-              PassengerPreferences,
-              item,
-              fSearchApiResponse.data.BookingInfo.APnr
-            );
-            if (barcodeupdate) {
-              return bookingResponce;
-            } else {
-              return bookingResponce;
-            }
-          } catch (error) {
-            await BookingDetails.updateOne(
-              {
-                bookingId: item?.BookingId,
-                "itinerary.IndexNumber": item.IndexNumber,
-                bookingStatus:{$ne:"CONFIRMED"},
-              },
-              {
-                $set: {
-                  bookingStatus: "FAILED",
-                  bookingRemarks: errorMessage,
-                },
+                  const selectedPax =
+                    fSearchApiResponse.data.PaxInfo.Passengers.find(
+                      (p) =>
+                        p.FName === passenger.FName &&
+                        p.LName === passenger.LName
+                    );
+                  if (!selectedPax) return passenger;
+                  // saveLogInFile("selected-pax.json", selectedPax);
+                  passenger.Optional.EMDDetails = [
+                    ...(passenger.Optional.EMDDetails || []),
+                    ...(selectedPax?.Optional?.EMDDetails || []),
+                  ];
+                  if (selectedPax?.Optional?.ticketDetails?.length) {
+                    selectedPax.Optional?.ticketDetails.forEach((ticket) => {
+                      const segmentIdx =
+                        segmentMap[`${ticket.src}-${ticket.des}`];
+                      if (segmentIdx != null) {
+                        passenger.Optional.ticketDetails[
+                          segmentIdx
+                        ].ticketNumber = ticket.ticketNumber;
+                      } else {
+                        passenger.Optional.ticketDetails.push(ticket);
+                      }
+                    });
+                  }
+                  return passenger;
+                });
+                bookingResponce.PassengerPreferences.Passengers =
+                  getpassengersPrefrence.Passengers;
+                // saveLogInFile(
+                //   "pax-preferences.json",
+                //   getpassengersPrefrence._doc
+                // );
+                await getpassengersPrefrence.save();
               }
-            );
 
-console.log(error,"error");
-             return errorMessage;
+              if (
+                fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
+              ) {
+                return `${fSearchApiResponse.data}-${fSearchApiResponse.data}`;
+              } else {
+                itemAmount +=
+                  item?.offeredPrice +
+                  item?.totalMealPrice +
+                  item?.totalBaggagePrice +
+                  item?.totalSeatPrice +
+                  item?.totalFastForwardPrice;
+
+                // Transtion
+                // await transaction.updateOne(
+                //   { bookingId: item?.BookingId },
+                //   { statusDetail: status, trnsNo:txnid,paymentMode:card_type,bankName:bank_name,holderName:name_on_card, }
+                // );
+                //console.log("jkssddjsj");
+              }
+              //return fSearchApiResponse.data;
+              const barcodeupdate = await updateBarcode2DByBookingId(
+                item?.BookingId,
+                PassengerPreferences,
+                item,
+                fSearchApiResponse.data.BookingInfo.APnr
+              );
+              if (barcodeupdate) {
+                return bookingResponce;
+              } else {
+                return bookingResponce;
+              }
+            } catch (error) {
+              await BookingDetails.updateOne(
+                {
+                  bookingId: item?.BookingId,
+                  "itinerary.IndexNumber": item.IndexNumber,
+                  bookingStatus: { $ne: "CONFIRMED" },
+                },
+                {
+                  $set: {
+                    bookingStatus: "FAILED",
+                    bookingRemarks: errorMessage,
+                  },
+                }
+              );
+
+              console.log(error, "error");
+              return errorMessage;
+            }
           }
-        })
+        );
         // );
         const results = await Promise.all(updatePromises);
         console.log("jkssddjsj456");
         if (results.length > 0) {
+          if (totalRefundAmount > 0) {
+            await ledger.create({
+              userId: allIds[0],
+              companyId: getuserDetails.company_ID._id,
+              ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+              transactionAmount: totalRefundAmount, // Use the total refund amount
+              currencyType: "INR",
+              fop: "DEBIT",
+              transactionType: "CREDIT",
+              runningAmount: getconfigAmount + totalRefundAmount, // Add to the running balance
+              remarks: `Refund Amount for Booking`,
+              transactionBy: getuserDetails._id,
+              cartId: udf1,
+            });
 
-            if (totalRefundAmount > 0) {
-              await ledger.create({
-                userId: allIds[0],
-                companyId: getuserDetails.company_ID._id,
-                ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-                transactionAmount: totalRefundAmount, // Use the total refund amount
-                currencyType: "INR",
-                fop: "DEBIT",
-                transactionType: "CREDIT",
-                runningAmount: getconfigAmount + totalRefundAmount, // Add to the running balance
-                remarks: `Refund Amount for Booking`,
-                transactionBy: getuserDetails._id,
-                cartId: udf1,
-              });
-            
-              // Update agent config once with the total refund amount
-              await agentConfig.updateOne(
-                { userId: allIds[0] },
-                { $inc: { maxcreditLimit: totalRefundAmount } }, { new: true } // Update max credit limit
-              );
-            }
-            if(!FailedbookingIdenty.includes(false)){
-
-             await transaction.create({
-                userId: Authentication.UserId,
-                bookingId:bookingId,
-                companyId:getAgentConfigForUpdateagain.companyId,
-                trnsNo: txnid,
-                trnsType: "DEBIT",
-                paymentMode: card_type,
-                paymentGateway:"EaseBuzz",
-                trnsStatus: "success",
-                // transactionBy: getuserDetails._id,
-                pgCharges:pgCharges,
-                transactionAmount:totalItemAmount+pgChargesAmount-totalRefundAmount,
-                statusDetail: status, 
-                trnsNo:txnid,
-                trnsBankRefNo:bank_ref_num,
-                // cardType:cardCategory,
-                bankName:bank_name,
-                holderName:name_on_card
-              });
-            }
+            // Update agent config once with the total refund amount
+            await agentConfig.updateOne(
+              { userId: allIds[0] },
+              { $inc: { maxcreditLimit: totalRefundAmount } },
+              { new: true } // Update max credit limit
+            );
+          }
+          if (!FailedbookingIdenty.includes(false)) {
+            await transaction.create({
+              userId: Authentication.UserId,
+              bookingId: bookingId,
+              companyId: getAgentConfigForUpdateagain.companyId,
+              trnsNo: txnid,
+              trnsType: "DEBIT",
+              paymentMode: card_type,
+              paymentGateway: "EaseBuzz",
+              trnsStatus: "success",
+              // transactionBy: getuserDetails._id,
+              pgCharges: pgCharges,
+              transactionAmount:
+                totalItemAmount + pgChargesAmount - totalRefundAmount,
+              statusDetail: status,
+              trnsNo: txnid,
+              trnsBankRefNo: bank_ref_num,
+              // cardType:cardCategory,
+              bankName: bank_name,
+              holderName: name_on_card,
+            });
+          }
 
           return {
             response: "Fetch Data Successfully",
@@ -604,17 +740,16 @@ console.log(error,"error");
           };
         }
       }
-    } 
-    else {
+    } else {
       // Retrieve all matching documents
       const bookingDataList = await BookingDetails.find({ bookingId: udf1 });
-    
+
       if (!bookingDataList || bookingDataList.length === 0) {
         return {
           response: "No bookings found with the provided bookingId.",
         };
       }
-    
+
       // Iterate through each booking and log data
       bookingDataList.forEach((bookingData) => {
         const logData3 = {
@@ -631,7 +766,7 @@ console.log(error,"error");
         };
         Logs(logData3); // Log for each booking
       });
-    
+
       // Update all matching records except those with bookingStatus "CONFIRMED"
       const updateResult = await BookingDetails.updateMany(
         {
@@ -646,25 +781,25 @@ console.log(error,"error");
         },
         { new: true } // Ensure updated documents are returned (though not used here)
       );
-    
+
       // Handle response
       if (updateResult.modifiedCount === 0) {
         return {
-          response: "No bookings were updated, as all matching records are already confirmed or do not meet the conditions.",
+          response:
+            "No bookings were updated, as all matching records are already confirmed or do not meet the conditions.",
         };
       }
-    
+
       return {
         response: "Save Successfully",
         data: "Payment Failed",
         updatedCount: updateResult.modifiedCount,
       };
     }
-    
   } catch (error) {
     throw error;
   }
-}
+};
 
 async function updateBarcode2DByBookingId(
   bookingId,
@@ -758,8 +893,7 @@ async function updateBarcode2DByBookingId(
   }
 }
 
-
 module.exports = {
   easeBuzz,
-  easeBuzzResponce
-}
+  easeBuzzResponce,
+};

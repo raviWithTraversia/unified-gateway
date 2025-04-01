@@ -414,7 +414,8 @@ const KafilaFun = async (
     totalssrPrice +=
       (passenger.totalMealPrice || 0) +
       (passenger.totalSeatPrice || 0) +
-      (passenger.totalBaggagePrice || 0);
+      (passenger.totalBaggagePrice || 0) +
+      (passenger.totalFastForwardPrice || 0);
   }
 
   function offerPricePlusInAmount(plusKeyName) {
@@ -571,78 +572,78 @@ const KafilaFun = async (
       msg: "Booking already exists",
       bookingId: ItineraryPriceCheckResponses[0].BookingId,
     };
-  }  
- // try {
-    // Retrieve agent configuration
-    // const getAgentConfig = await agentConfig.findOne({
-    //   userId: getuserDetails._id,
-    // });
-    // const getcreditRequest = await creditRequest.find({
-    //   agencyId: getuserDetails.company_ID,
-    //   expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
-    //   status: "approved",
-    //   product: "Flight",
-    // });
-    // let creditTotal = 0;
-    // if (getcreditRequest && getcreditRequest.length > 0) {
-    //   getcreditRequest.forEach((request) => {
-    //     creditTotal += request.amount;
-    //   });
-    // } else {
-    //   creditTotal = 0;
-    // }
-    // Check if maxCreditLimit exists, otherwise set it to 0
-    //const checkCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
-    //const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
+  }
+  // try {
+  // Retrieve agent configuration
+  // const getAgentConfig = await agentConfig.findOne({
+  //   userId: getuserDetails._id,
+  // });
+  // const getcreditRequest = await creditRequest.find({
+  //   agencyId: getuserDetails.company_ID,
+  //   expireDate: { $gte: new Date() }, // Assuming "expireDate" is a date field and you want to find requests that haven't expired yet
+  //   status: "approved",
+  //   product: "Flight",
+  // });
+  // let creditTotal = 0;
+  // if (getcreditRequest && getcreditRequest.length > 0) {
+  //   getcreditRequest.forEach((request) => {
+  //     creditTotal += request.amount;
+  //   });
+  // } else {
+  //   creditTotal = 0;
+  // }
+  // Check if maxCreditLimit exists, otherwise set it to 0
+  //const checkCreditLimit = getAgentConfig?.maxcreditLimit ?? 0 + creditTotal;
+  //const maxCreditLimit = getAgentConfig?.maxcreditLimit ?? 0;
 
-    // Check if balance is sufficient
-    // if (checkCreditLimit < totalSSRWithCalculationPrice) {
-    //   return "Your Balance is not sufficient";
-    // }
+  // Check if balance is sufficient
+  // if (checkCreditLimit < totalSSRWithCalculationPrice) {
+  //   return "Your Balance is not sufficient";
+  // }
 
-    // Deduct balance from user configuration and update in DB
-    // const newBalance = maxCreditLimit - totalSSRWithCalculationPrice;
-    // await agentConfig.updateOne(
-    //   { userId: getuserDetails._id },
-    //   { maxcreditLimit: newBalance }
-    // );
+  // Deduct balance from user configuration and update in DB
+  // const newBalance = maxCreditLimit - totalSSRWithCalculationPrice;
+  // await agentConfig.updateOne(
+  //   { userId: getuserDetails._id },
+  //   { maxcreditLimit: newBalance }
+  // );
 
-    // Generate random ledger ID
-    // const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+  // Generate random ledger ID
+  // const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
 
-    // Create ledger entry
-    // await ledger.create({
-    //   userId: getuserDetails._id,
-    //   companyId: getuserDetails.company_ID._id,
-    //   ledgerId: ledgerId,
-    //   transactionAmount: totalSSRWithCalculationPrice,
-    //   currencyType: "INR",
-    //   fop: "CREDIT",
-    //   transactionType: "CREDIT",
-    //   runningAmount: newBalance,
-    //   remarks: "Generic Cart Amount Added Into Your Account.",
-    //   transactionBy: getuserDetails._id,
-    //   cartId: ItineraryPriceCheckResponses[0].BookingId,
-    // });
+  // Create ledger entry
+  // await ledger.create({
+  //   userId: getuserDetails._id,
+  //   companyId: getuserDetails.company_ID._id,
+  //   ledgerId: ledgerId,
+  //   transactionAmount: totalSSRWithCalculationPrice,
+  //   currencyType: "INR",
+  //   fop: "CREDIT",
+  //   transactionType: "CREDIT",
+  //   runningAmount: newBalance,
+  //   remarks: "Generic Cart Amount Added Into Your Account.",
+  //   transactionBy: getuserDetails._id,
+  //   cartId: ItineraryPriceCheckResponses[0].BookingId,
+  // });
 
-    // Create transaction Entry
-    // await transaction.create({
-    //   userId: getuserDetails._id,
-    //   companyId: getuserDetails.company_ID._id,
-    //   trnsNo: Math.floor(100000 + Math.random() * 900000),
-    //   trnsType: "DEBIT",
-    //   paymentMode: "CL",
-    //   trnsStatus: "success",
-    //   transactionBy: getuserDetails._id,
-    //   bookingId: ItineraryPriceCheckResponses[0].BookingId,
-    // });
+  // Create transaction Entry
+  // await transaction.create({
+  //   userId: getuserDetails._id,
+  //   companyId: getuserDetails.company_ID._id,
+  //   trnsNo: Math.floor(100000 + Math.random() * 900000),
+  //   trnsType: "DEBIT",
+  //   paymentMode: "CL",
+  //   trnsStatus: "success",
+  //   transactionBy: getuserDetails._id,
+  //   bookingId: ItineraryPriceCheckResponses[0].BookingId,
+  // });
 
-    //return addToLedger;
-//   } catch (error) {
-//     // Handle errors
-//     console.error("Error:", error.message);
-//     return "An error occurred. Please try again later.";
-//   }
+  //return addToLedger;
+  //   } catch (error) {
+  //     // Handle errors
+  //     console.error("Error:", error.message);
+  //     return "An error occurred. Please try again later.";
+  //   }
 
   const createBooking = async (newItem) => {
     try {
@@ -749,7 +750,7 @@ const KafilaFun = async (
           provider: itineraryItem?.Provider,
           bookingType: "Manual",
           bookingStatus: "CONFIRMED",
-          paymentMethodType:"Wallet",
+          paymentMethodType: "Wallet",
           //paymentGateway:paymentGateway,
           bookingTotalAmount: itineraryItem?.GrandTotal || 0, // Changed from item?.GrandTotal to itineraryItem?.GrandTotal
           Supplier: itineraryItem?.ValCarrier, // Changed from item?.ValCarrier to itineraryItem?.ValCarrier
@@ -760,13 +761,16 @@ const KafilaFun = async (
               ? itineraryItem?.fareRules
               : null,
           bookingTotalAmount:
-            itineraryItem.offeredPrice || 0 +
-            itineraryItem.totalMealPrice || 0 +
-            itineraryItem.totalBaggagePrice || 0 +
-            itineraryItem.totalSeatPrice || 0,
+            itineraryItem.offeredPrice ||
+            0 + itineraryItem.totalMealPrice ||
+            0 + itineraryItem.totalBaggagePrice ||
+            0 + itineraryItem.totalSeatPrice ||
+            0 + itineraryItem.totalFastForwardPrice ||
+            0,
           totalMealPrice: itineraryItem.totalMealPrice,
           totalBaggagePrice: itineraryItem.totalBaggagePrice,
           totalSeatPrice: itineraryItem.totalSeatPrice,
+          totalFastForwardPrice: itineraryItem.totalFastForwardPrice,
           itinerary: {
             UID: itineraryItem.UID,
             BaseFare: itineraryItem.BaseFare,
@@ -774,10 +778,10 @@ const KafilaFun = async (
             TotalPrice: itineraryItem.TotalPrice,
             GrandTotal: itineraryItem.GrandTotal,
             FareFamily: itineraryItem.FareFamily,
-            offeredPrice:itineraryItem.offeredPrice,
-            PNR:itineraryItem.PNR,
-            APnr:itineraryItem.APnr,
-            GPnr:itineraryItem.GPnr,
+            offeredPrice: itineraryItem.offeredPrice,
+            PNR: itineraryItem.PNR,
+            APnr: itineraryItem.APnr,
+            GPnr: itineraryItem.GPnr,
             IndexNumber: itineraryItem.IndexNumber,
             Provider: itineraryItem.Provider,
             ValCarrier: itineraryItem.ValCarrier,
@@ -815,7 +819,7 @@ const KafilaFun = async (
   );
 
   // return newArray;
-  
+
   if (Array.isArray(newArray) && newArray.length > 0) {
     const response = newArray[0];
     console.log(response);
@@ -848,9 +852,11 @@ const KafilaFun = async (
           Meal: passenger?.Meal,
           Baggage: passenger?.Baggage,
           Seat: passenger?.Seat,
+          FastForward: passenger?.FastForward,
           totalBaggagePrice: passenger?.totalBaggagePrice,
           totalMealPrice: passenger?.totalMealPrice,
           totalSeatPrice: passenger?.totalSeatPrice,
+          totalFastForwardPrice: passenger?.totalFastForwardPrice,
         })),
         modifyBy: Authentication?.UserId,
       });
@@ -969,6 +975,6 @@ async function updateBarcode2DByBookingId(
   }
 }
 
-module.exports = {  
-  amendmentCartCreate
+module.exports = {
+  amendmentCartCreate,
 };

@@ -118,7 +118,7 @@ const ReservationSchema = new mongoose.Schema({
   bookingStatus: {
     type: String,
     default: "INCOMPLETE",
-    enum: ["CONFIRMED", "PENDING", "FAILED", "CANCELLED", "INCOMPLETE"],
+    enum: ["CONFIRMED", "PENDING", "FAILED", "CANCELLED", "INCOMPLETE","PARTIALLY CANCELLED"],
   },
 
   lapNumber: { type: Number, default: null },

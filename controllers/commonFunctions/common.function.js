@@ -210,8 +210,8 @@ const sendOtpOnEmail = async (recipientEmail, otp, smtpDetails) => {
   const mailOptions = {
     from: smtpDetails.emailFrom,
     to: recipientEmail,
-    subject: "OTP for New User Registration",
-    text: `Your OTP for New Registartion: ${otp}`,
+    subject: "OTP for User Login/Registration",
+    text: `Your OTP for Login/Registration: ${otp}`,
   };
 
   // Send the email

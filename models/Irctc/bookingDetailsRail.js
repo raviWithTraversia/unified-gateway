@@ -67,7 +67,10 @@ passengerGender: { type: String, default: null },
   insuranceIssued: { type: String, default: null },
   psgnwlType: { type: Number, default: null },
   dropWaitlistFlag: { type: Boolean, default: false },
-  accountPost:{type:Number,default:0}
+  accountPost:{type:Number,default:0},
+  cancellationId: { type: String, default: null },
+  cancelTime: { type: String, default: null },
+  isRefundOTPVerified:{ type: Boolean, default: false }
 });
 const GstChargeSchema = new mongoose.Schema({
   totalPRSGst: { type: Number, default: null },
@@ -115,7 +118,7 @@ const ReservationSchema = new mongoose.Schema({
   bookingStatus: {
     type: String,
     default: "INCOMPLETE",
-    enum: ["CONFIRMED", "PENDING", "FAILED", "CANCELLED", "INCOMPLETE"],
+    enum: ["CONFIRMED", "PENDING", "FAILED", "CANCELLED", "INCOMPLETE","PARTIALLY CANCELLED"],
   },
 
   lapNumber: { type: Number, default: null },
@@ -222,9 +225,7 @@ const ReservationSchema = new mongoose.Schema({
   traceId:{type:String,default:false},
   providerbookingId:{type:String,default:""},
   isEmailSend:{type:Boolean,default:true},
-  cancelTime:{type:Date,default:null},
   TotalItemAmount:{type:Number,default:null},
-  cancellationId: {type:String,default:""},
  
 },{timestamps:true});
 

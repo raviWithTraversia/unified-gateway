@@ -82,18 +82,25 @@ module.exports.cancelRailBooking = async function (request) {
       staff: staff ?? "",
     });
 
-    const tokenList = passengerToken.split("");
-    booking.psgnDtlList = booking.psgnDtlList.map((passenger, idx) => ({
-      ...passenger,
-      ...(tokenList[idx] === "Y" && { currentStatus: "CAN" }),
-    }));
+    const tokenList = passengerToken.split(""); 
+    booking.psgnDtlList = booking.psgnDtlList.map((passenger, idx) => {
+      if (tokenList[idx] == "Y") {
+        return {
+          ...passenger,
+          currentStatus: "CAN",
+          cancellationId: response?.cancellationId,
+          cancelTime: new Date().toISOString(),
+          isRefundOTPVerified: false,
+        };
+      }
+      return passenger;
+    });
+    
 
-    booking.cancelTime = new Date();
-    booking.cancellationId = response?.cancellationId||"";
-    const isFullCancelled =
-      passengerToken === "YYYYYY" ||
-      tokenList.filter((t) => t === "Y").length === booking.psgnDtlList.length;
-    if (isFullCancelled) 
+    // const isFullCancelled =
+    //   passengerToken === "YYYYYY" ||
+    //   tokenList.filter((t) => t === "Y").length === booking.psgnDtlList.length;
+    // if (isFullCancelled) 
     await booking.save();
     return {
       IsSucess: true,
@@ -193,10 +200,19 @@ module.exports.verifyOTP = async (request) => {
     );
 
    const bookingData= await bookingDetailsRail.findOne({pnrNumber:pnr,"psgnDtlList.currentStatus":{$in:["WL","CNF","RLWL","PQWL","RAC","2S","2A","3A","3E","CC","EC","SL","1A","FC","EV"]}})
-   let status=""
-   bookingData?status="PARTIALY CONFIRMED":status="CANCELLED"
+   let status = bookingData ? "PARTIALLY CANCELLED" : "CANCELLED";
 
-    await bookingDetailsRail.findOneAndUpdate({pnrNumber:pnr},{$set:{bookingStatus:status,cancelTime:null}},{new:true})
+   await bookingDetailsRail.findOneAndUpdate(
+    { pnrNumber: pnr, "psgnDtlList.cancellationId":cancellationId  }, 
+    { 
+      $set: {
+        "psgnDtlList.$.isRefundOTPVerified": true,  
+        bookingStatus: status, 
+      }
+    }, 
+    { new: true }
+  );
+  
 
     return { result: response };
 

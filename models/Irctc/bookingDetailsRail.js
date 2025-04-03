@@ -225,9 +225,7 @@ const ReservationSchema = new mongoose.Schema({
   traceId:{type:String,default:false},
   providerbookingId:{type:String,default:""},
   isEmailSend:{type:Boolean,default:true},
-  cancelTime:{type:Date,default:null},
   TotalItemAmount:{type:Number,default:null},
-  cancellationId: {type:String,default:""},
  
 },{timestamps:true});
 

@@ -55,7 +55,9 @@ const getSearch = async (req, res) => {
         true
       );
 
-      const isTestEnv = ["LIVE", "TEST"].some(type => req.body.Authentication?.CredentialType.includes(type));
+    const isTestEnv = ["LIVE", "TEST"].some((type) =>
+      req.body.Authentication?.CredentialType.includes(type)
+    );
     const isInternationalRoundTrip =
       req.body.TravelType === "International" &&
       req.body.TypeOfTrip === "ROUNDTRIP";
@@ -103,11 +105,10 @@ const getSearch = async (req, res) => {
 
 const airPricing = async (req, res) => {
   try {
-    const itsChcek=["LIVE", "TEST"].some(type => req.body.Authentication?.CredentialType.includes(type));
-    if (
-      itsChcek&&
-      req.body.Itinerary?.[0]?.Provider !== "Kafila"
-    ) {
+    const itsChcek = ["LIVE", "TEST"].some((type) =>
+      req.body.Authentication?.CredentialType.includes(type)
+    );
+    if (itsChcek && req.body.Itinerary?.[0]?.Provider !== "Kafila") {
       console.log("running common api");
       const { result, error } = await getCommonAirPricing(req.body);
       if (error)
@@ -419,7 +420,7 @@ const fullCancelationCharge = async (req, res) => {
       req,
       res
     );
-   if (!result.response && result.isSometingMissing) {
+    if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response === "Trace Id Required" ||

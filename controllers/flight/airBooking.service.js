@@ -1226,7 +1226,6 @@ const KafilaFun = async (
                     fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ==
                       "HOLD")
                 ) {
-                  
                   await BookingDetails.updateOne(
                     {
                       bookingId: item?.BookingId,
@@ -1274,6 +1273,7 @@ const KafilaFun = async (
                 const bookingResponce = {
                   CartId: item.BookingId,
                   bookingResponce: {
+                    ...fSearchApiResponse.data.BookingInfo,
                     CurrentStatus:
                       fSearchApiResponse.data.BookingInfo.CurrentStatus,
                     BookingStatus:
@@ -1299,6 +1299,9 @@ const KafilaFun = async (
                   },
                   {
                     $set: {
+                      "itinerary.LastTicketingDate":
+                        fSearchApiResponse?.data?.BookingInfo
+                          ?.LastTicketingTime || "",
                       bookingStatus:
                         fSearchApiResponse.data.BookingInfo.CurrentStatus,
                       bookingRemarks:

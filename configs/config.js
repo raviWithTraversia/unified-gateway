@@ -4,8 +4,8 @@ module.exports.Config = {
   TEST: {
     baseURL: "https://kafilaui.traversia.net", // frontend
     baseURLBackend: "https://kafila.traversia.net",
-    // additionalFlightsBaseURL: "http://localhost:31101/api",
-    additionalFlightsBaseURL: "http://kafilaapi.traversia.net:61102/api",
+    additionalFlightsBaseURL: "http://localhost:31101/api",
+    // additionalFlightsBaseURL: "http://kafilaapi.traversia.net:61102/api",
     baseURLBackend: "https://kafila.traversia.net",
     IRCTC_BASE_URL: "https://stagews.irctc.co.in",
     IRCTC_MASTER_ID: "WKAFL00000",
@@ -17,8 +17,8 @@ module.exports.Config = {
   LIVE: {
     baseURL: "https://agent.kafilaholidays.in", // frontend
     baseURLBackend: "https://agentapi.kafilaholidays.in",
-    // additionalFlightsBaseURL: "http://localhost:31101/api",
-    additionalFlightsBaseURL: "http://kflapi.kafilaholidays.in:61101/api",
+    additionalFlightsBaseURL: "http://localhost:31101/api",
+    // additionalFlightsBaseURL: "http://kflapi.kafilaholidays.in:61101/api",
     baseURLBackend: "https://agentapi.kafilaholidays.in",
     IRCTC_BASE_URL: "https://www.aps.irctc.co.in",
     IRCTC_MASTER_ID: "WKAFILA00000",

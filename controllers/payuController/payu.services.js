@@ -21,7 +21,7 @@ const {
   getTdsAndDsicount,
   priceRoundOffNumberValues,
   recieveDI,
-  commonProviderMethodDate
+  commonProviderMethodDate,
 } = require("../commonFunctions/common.function");
 const AgentConfiguration = require("../../models/AgentConfig");
 const { saveLogInFile } = require("../../utils/save-log");
@@ -59,11 +59,22 @@ const payu = async (req, res) => {
       };
     }
 
-    const companyData=await User.aggregate([{$match:{company_ID:new ObjectId(companyId)}},{$lookup:{from:"roles",localField:"roleId",foreignField:"_id",as:"roleData"}},{$unwind:"$roleData"},
-{$match:{"roleData.type":"Default"}},{$project:{userId:1}}
+    const companyData = await User.aggregate([
+      { $match: { company_ID: new ObjectId(companyId) } },
+      {
+        $lookup: {
+          from: "roles",
+          localField: "roleId",
+          foreignField: "_id",
+          as: "roleData",
+        },
+      },
+      { $unwind: "$roleData" },
+      { $match: { "roleData.type": "Default" } },
+      { $project: { userId: 1 } },
     ]);
 
-    if(companyData.length==0){
+    if (companyData.length == 0) {
       return {
         response: "All field are required",
       };
@@ -76,8 +87,6 @@ const payu = async (req, res) => {
     // const email = 'test@example.com';
     // const salt = '4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW';
     // console.log(companyData);
-
-
 
     const key =
       Config.MODE == "TEST"
@@ -123,8 +132,8 @@ const payu = async (req, res) => {
       udf1: cartIdres,
       udf2: normalAmount,
       udf3: pgCharges,
-      udf4:0,
-      udf5:companyData[0].userId
+      udf4: 0,
+      udf5: companyData[0].userId,
     };
 
     // Add the hash to payment details
@@ -184,7 +193,7 @@ const payu = async (req, res) => {
     //   response: "Data does not exist",
     //   data: error,
     // };
-    console.log(error)
+    console.log(error);
     throw error;
   }
 };
@@ -343,9 +352,11 @@ const payuSuccess = async (req, res) => {
       cardCategory,
     } = req.body;
 
-    
-    const CheckAllereadyBooking = await BookingDetails.find({bookingId:udf1,bookingStatus:{$ne:"INCOMPLETE"}})
-    if(CheckAllereadyBooking.length){
+    const CheckAllereadyBooking = await BookingDetails.find({
+      bookingId: udf1,
+      bookingStatus: { $ne: "INCOMPLETE" },
+    });
+    if (CheckAllereadyBooking.length) {
       let successHtmlCode = `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -406,14 +417,10 @@ const payuSuccess = async (req, res) => {
           }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
         </div>
       </body>
-      </html>`
-      return successHtmlCode
-    }
-
-
-   else if (status === "success") {
-
-     const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
+      </html>`;
+      return successHtmlCode;
+    } else if (status === "success") {
+      const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
 
       if (BookingTempData) {
         const convertDataBookingTempRes = JSON.parse(BookingTempData.request);
@@ -428,13 +435,22 @@ const payuSuccess = async (req, res) => {
           convertDataBookingTempRes.Authentication
         );
 
-        const Segments = convertDataBookingTempRes.Segments
-      
-        const TravelType=convertDataBookingTempRes.TravelType
+        const Segments = convertDataBookingTempRes.Segments;
 
-        const TypeOfTrip=convertDataBookingTempRes.TravelType
+        const TravelType = convertDataBookingTempRes.TravelType;
 
-        const body={SearchRequest:{Authentication,PassengerPreferences,ItineraryPriceCheckResponses,TravelType,TypeOfTrip,Segments}}
+        const TypeOfTrip = convertDataBookingTempRes.TravelType;
+
+        const body = {
+          SearchRequest: {
+            Authentication,
+            PassengerPreferences,
+            ItineraryPriceCheckResponses,
+            TravelType,
+            TypeOfTrip,
+            Segments,
+          },
+        };
 
         // console.log(PassengerPreferences)
 
@@ -514,12 +530,11 @@ const payuSuccess = async (req, res) => {
           totalsAmount.totalFastForwardPrice +
           totalsAmount.totalSeatPrice;
 
-          var pgChargesAmount=0
-          if(udf3>0){
-            totalItemAmount+udf3
-            pgChargesAmount=udf3
-            
-          }
+        var pgChargesAmount = 0;
+        if (udf3 > 0) {
+          totalItemAmount + udf3;
+          pgChargesAmount = udf3;
+        }
 
         const newBalanceCredit = getconfigAmount + totalItemAmount;
 
@@ -545,51 +560,51 @@ const payuSuccess = async (req, res) => {
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
-var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
+        var runningAmountShow = newBalanceCredit + Number(pgChargesAmount);
         await ledger.create({
           userId: allIds[0], //getuserDetails._id,
           companyId: getuserDetails.company_ID._id,
           ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionAmount: totalItemAmount-pgChargesAmount,
+          transactionAmount: totalItemAmount - pgChargesAmount,
           deal: gtTsAdDnt?.ldgrdiscount,
           tds: gtTsAdDnt?.ldgrtds,
           currencyType: "INR",
           fop: "DEBIT",
           transactionType: "DEBIT",
-          runningAmount:runningAmountShow-totalItemAmount,
+          runningAmount: runningAmountShow - totalItemAmount,
           remarks: "Booking Amount Deducted from Your Account(PayU).",
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
 
-        if(udf3>0){
+        if (udf3 > 0) {
           await ledger.create({
             userId: allIds[0], //getuserDetails._id,
             companyId: getuserDetails.company_ID._id,
             ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-            transactionAmount:pgChargesAmount,
-           currencyType: "INR",
+            transactionAmount: pgChargesAmount,
+            currencyType: "INR",
             fop: "DEBIT",
             transactionType: "DEBIT",
-            runningAmount: newBalanceCredit-totalItemAmount,
+            runningAmount: newBalanceCredit - totalItemAmount,
             remarks: "Manual PG_CHARGE",
             transactionBy: getuserDetails._id,
             cartId: udf1,
           });
         }
-        
+
         // await agentConfig.updateOne(
         //   { userId: allIds[0] },
         //   { maxcreditLimit: newBalanceCredit - totalItemAmount }
         // );
 
         //const hitAPI = await Promise.all(
-        var totalRefundAmount=0;
-        var bookingId=""
-        var errorMessage="";
+        var totalRefundAmount = 0;
+        var bookingId = "";
+        var errorMessage = "";
         const updatePromises = ItineraryPriceCheckResponses.map(
-          async (item,idx) => {
-            bookingId=item.BookingId
+          async (item, idx) => {
+            bookingId = item.BookingId;
             let requestDataFSearch = {
               FareChkRes: {
                 Error: item.Error,
@@ -605,7 +620,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
             };
 
             try {
-              let fSearchApiResponse=null;
+              let fSearchApiResponse = null;
               if (item.Provider === "Kafila") {
                 fSearchApiResponse = await axios.post(
                   flightSearchUrl,
@@ -618,7 +633,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                 );
               } else {
                 // console.log(body?.SearchRequest?.Segments,"segmaents")
-                const reqSegment =await body?.SearchRequest?.Segments?.[idx];
+                const reqSegment = await body?.SearchRequest?.Segments?.[idx];
                 // saveLogInFile("request-segment.json", { reqSegment });
                 fSearchApiResponse = await commonFlightBook(
                   body,
@@ -626,7 +641,6 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                   item,
                   PassengerPreferences
                 );
-
               }
               const logData = {
                 traceId: Authentication.TraceId,
@@ -668,25 +682,30 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
               Logs(logData1);
               Logs(logData2);
               // console.log(fSearchApiResponse,"jdieeieieiei")
-              if (fSearchApiResponse.data.Status == "Failed"||
+              if (
+                fSearchApiResponse.data.Status == "Failed" ||
                 fSearchApiResponse.data.Status == "failed" ||
                 fSearchApiResponse?.data?.IsError == true ||
                 fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"
               ) {
                 // console.log(fSearchApiResponse?.data,'JDifeieiei')
-              errorMessage=fSearchApiResponse?.data?.ErrorMessage||fSearchApiResponse?.data?.BookingInfo?.BookingRemark||"error occured"
+                errorMessage =
+                  fSearchApiResponse?.data?.ErrorMessage ||
+                  fSearchApiResponse?.data?.BookingInfo?.BookingRemark ||
+                  "error occured";
                 await BookingDetails.updateOne(
                   {
                     bookingId: udf1,
                     "itinerary.IndexNumber": item.IndexNumber,
-                    bookingStatus:{$ne:"CONFIMED"}
-
+                    bookingStatus: { $ne: "CONFIMED" },
                   },
                   {
                     $set: {
                       bookingStatus: "FAILED",
                       bookingRemarks:
-                      fSearchApiResponse?.data?.ErrorMessage||fSearchApiResponse?.data?.BookingInfo?.BookingRemark||"error occured",
+                        fSearchApiResponse?.data?.ErrorMessage ||
+                        fSearchApiResponse?.data?.BookingInfo?.BookingRemark ||
+                        "error occured",
                     },
                   }
                 );
@@ -695,40 +714,44 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                   {
                     bookingId: udf1,
                     "itinerary.IndexNumber": item.IndexNumber,
-                    bookingStatus:{$ne:"CONFIMED"}
+                    bookingStatus: { $ne: "CONFIMED" },
                   },
                   {
                     $set: {
                       bookingStatus: "FAILED",
-                      bookingRemarks: fSearchApiResponse?.data?.ErrorMessage||fSearchApiResponse?.data?.BookingInfo?.BookingRemark||"error occured",
+                      bookingRemarks:
+                        fSearchApiResponse?.data?.ErrorMessage ||
+                        fSearchApiResponse?.data?.BookingInfo?.BookingRemark ||
+                        "error occured",
                     },
                   }
                 );
-          
+
                 // Fetch booking details for the failed booking
                 const updatedBooking = await BookingDetails.find(
                   {
                     bookingId: udf1,
-                    bookingStatus: "FAILED"
+                    bookingStatus: "FAILED",
                   },
                   { bookingTotalAmount: 1 }
                 );
-          
+
                 // Accumulate the refund amounts
                 const refundAmount = updatedBooking.reduce((sum, element) => {
                   return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
                 }, 0);
 
-            updatedBooking.length>1?totalRefundAmount=totalItemAmount:totalRefundAmount=refundAmount;
+                updatedBooking.length > 1
+                  ? (totalRefundAmount = totalItemAmount)
+                  : (totalRefundAmount = refundAmount);
 
-          
                 // Add to the total refund amount
               }
-              
 
               const bookingResponce = {
                 CartId: item.BookingId,
                 bookingResponce: {
+                  ...fSearchApiResponse.data.BookingInfo,
                   CurrentStatus:
                     fSearchApiResponse.data.BookingInfo.CurrentStatus,
                   BookingStatus:
@@ -754,29 +777,39 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                 },
                 {
                   $set: {
+                    "itinerary.LastTicketingDate":
+                      fSearchApiResponse?.data?.BookingInfo
+                        ?.LastTicketingTime || "",
                     bookingStatus:
                       fSearchApiResponse.data.BookingInfo.CurrentStatus,
                     bookingRemarks:
                       fSearchApiResponse.data.BookingInfo.BookingRemark,
-                    providerBookingId:  fSearchApiResponse.data.BookingInfo?.BookingId?fSearchApiResponse.data.BookingInfo?.BookingId:fSearchApiResponse.data.BookingInfo.CurrentStatus==="CONFIRMED"? await commonProviderMethodDate():fSearchApiResponse.data.BookingInfo.BookingId,
+                    providerBookingId: fSearchApiResponse.data.BookingInfo
+                      ?.BookingId
+                      ? fSearchApiResponse.data.BookingInfo?.BookingId
+                      : fSearchApiResponse.data.BookingInfo.CurrentStatus ===
+                        "CONFIRMED"
+                      ? await commonProviderMethodDate()
+                      : fSearchApiResponse.data.BookingInfo.BookingId,
                     PNR: fSearchApiResponse.data.BookingInfo.APnr,
                     APnr: fSearchApiResponse.data.BookingInfo.APnr,
                     GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
                     SalePurchase:
-                      fSearchApiResponse?.data?.BookingInfo?.SalePurchase?.ATDetails
-                        ?.Account,
+                      fSearchApiResponse?.data?.BookingInfo?.SalePurchase
+                        ?.ATDetails?.Account,
                   },
                 }
               );
 
-              const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: udf1 });
+              const getpassengersPrefrence =
+                await passengerPreferenceModel.findOne({ bookingId: udf1 });
 
               if (
                 item.Provider === "Kafila" &&
                 getpassengersPrefrence?.Passengers
               ) {
                 // await Promise.all(
-                
+
                 getpassengersPrefrence.Passengers.map((passenger) => {
                   const apiPassenger =
                     fSearchApiResponse.data.PaxInfo.Passengers.find(
@@ -790,8 +823,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                       passenger?.Optional?.ticketDetails?.find?.(
                         (p) =>
                           p?.src ===
-                            fSearchApiResponse?.data?.Param?.Sector?.[0]
-                              ?.Src &&
+                            fSearchApiResponse?.data?.Param?.Sector?.[0]?.Src &&
                           p?.des ===
                             fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                       );
@@ -842,9 +874,10 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                         passenger.Optional.ticketDetails[
                           segmentIdx
                         ].ticketNumber = ticket.ticketNumber;
-                        passenger.Optional.ticketDetails[
-                          segmentIdx
-                        ].status = fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED";
+                        passenger.Optional.ticketDetails[segmentIdx].status =
+                          fSearchApiResponse.data.BookingInfo.CurrentStatus
+                            ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+                            : "CONFIRMED";
                       } else {
                         passenger.Optional.ticketDetails.push(ticket);
                       }
@@ -885,7 +918,6 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                 //     cardType:cardCategory
                 //   }
                 // );
-                
               }
               //return fSearchApiResponse.data;
               const barcodeupdate = await updateBarcode2DByBookingId(
@@ -899,14 +931,13 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
               } else {
                 return bookingResponce;
               }
-            
             } catch (error) {
               if (error.message?.toLowerCase().includes("socket hang up")) {
                 await BookingDetails.updateOne(
                   {
                     bookingId: item?.BookingId,
                     "itinerary.IndexNumber": item.IndexNumber,
-                    bookingStatus:{$ne:"CONFIRMED"},
+                    bookingStatus: { $ne: "CONFIRMED" },
                   },
                   {
                     $set: {
@@ -916,32 +947,28 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
                 );
 
                 return error.message;
-
-            }
-            else{
-
-              await BookingDetails.updateOne(
-                {
-                  bookingId: item?.BookingId,
-                  "itinerary.IndexNumber": item.IndexNumber,
-                  bookingStatus:{$ne:"CONFIRMED"}
-                },
-                {
-                  $set: {
-                    bookingStatus: "FAILED",
-                    bookingRemarks: errorMessage,
+              } else {
+                await BookingDetails.updateOne(
+                  {
+                    bookingId: item?.BookingId,
+                    "itinerary.IndexNumber": item.IndexNumber,
+                    bookingStatus: { $ne: "CONFIRMED" },
                   },
-                }
-              );
-              return error.message;
-            }
-
+                  {
+                    $set: {
+                      bookingStatus: "FAILED",
+                      bookingRemarks: errorMessage,
+                    },
+                  }
+                );
+                return error.message;
+              }
             }
           }
         );
         //);
         const results = await Promise.all(updatePromises);
-        if(results.length>0){
+        if (results.length > 0) {
           await transaction.create({
             userId: Authentication.UserId,
             bookingId: bookingId,
@@ -954,14 +981,14 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
             trnsStatus: "success",
             transactionBy: Authentication.UserId,
             pgCharges: udf3,
-            transactionAmount: Number(udf2)+Number(pgChargesAmount),
+            transactionAmount: Number(udf2) + Number(pgChargesAmount),
             statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
             trnsNo: txnid,
             trnsBankRefNo: bank_ref_num,
             cardType: cardCategory,
           });
         }
-        if(totalRefundAmount>0){
+        if (totalRefundAmount > 0) {
           await ledger.create({
             userId: allIds[0], //getuserDetails._id,
             companyId: getuserDetails.company_ID._id,
@@ -970,7 +997,7 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
             currencyType: "INR",
             fop: "DEBIT",
             transactionType: "CREDIT",
-            runningAmount: getconfigAmount+totalRefundAmount,
+            runningAmount: getconfigAmount + totalRefundAmount,
             remarks: `Refund Amount for Booking`,
             transactionBy: getuserDetails._id,
             cartId: udf1,
@@ -981,7 +1008,6 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
             { $inc: { maxcreditLimit: totalRefundAmount } }
           );
         }
-
 
         let successHtmlCode = `<!DOCTYPE html>
     <html lang="en">
@@ -1077,7 +1103,6 @@ var runningAmountShow=newBalanceCredit+Number(pgChargesAmount)
   }
 };
 
-
 const payuWalletResponceSuccess = async (req, res) => {
   try {
     const { status, txnid, productinfo, udf1, udf2, udf3, amount, PG_TYPE } =
@@ -1168,20 +1193,19 @@ const payuWalletResponceSuccess = async (req, res) => {
       // const doerId = req.user._id;
       const loginUser = userData._id;
       // console.log(loginUser, "loginUser");
-      var DIdata
-      if(PG_TYPE == "CC-PG"||PG_TYPE=="UPI-PG"||PG_TYPE == "DC-PG"){
-       DIdata=0
-      }else{
-
-       DIdata = await recieveDI(
-        configData,
-        findUser,
-        productinfo,
-        udf2,
-        loginUser,
-        txnid
-      );
-    }
+      var DIdata;
+      if (PG_TYPE == "CC-PG" || PG_TYPE == "UPI-PG" || PG_TYPE == "DC-PG") {
+        DIdata = 0;
+      } else {
+        DIdata = await recieveDI(
+          configData,
+          findUser,
+          productinfo,
+          udf2,
+          loginUser,
+          txnid
+        );
+      }
 
       // console.log(DIdata, "DIdata1");
       // return false;
@@ -1487,11 +1511,11 @@ const payuWalletRailResponceSuccess = async (req, res) => {
           fop: "CREDIT",
           transactionType: "CREDIT",
           runningAmount: newBalanceAmount,
-          remarks:  "Manual Wallet Amount Credited into Your Account.",
+          remarks: "Manual Wallet Amount Credited into Your Account.",
           transactionBy: userData._id,
         });
 
-        if(Number(udf3)!==0){
+        if (Number(udf3) !== 0) {
           await Railledger.create({
             userId: userData._id,
             companyId: userData.company_ID,
@@ -1510,9 +1534,8 @@ const payuWalletRailResponceSuccess = async (req, res) => {
             { railCashBalance: newBalanceAmount - udf3 },
             { new: true }
           );
-          
         }
-       
+
         console.log("hjdsdh");
         // if (DIdata !== null || DIdata !== 0) {
         //   let tdsAmount = DIdata * (2 / 100);

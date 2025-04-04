@@ -501,6 +501,7 @@ const easeBuzzResponce = async (req, res) => {
               const bookingResponce = {
                 CartId: item.BookingId,
                 bookingResponce: {
+                  ...fSearchApiResponse.data.BookingInfo,
                   CurrentStatus:
                     fSearchApiResponse.data.BookingInfo.CurrentStatus,
                   BookingStatus:
@@ -526,6 +527,9 @@ const easeBuzzResponce = async (req, res) => {
                 },
                 {
                   $set: {
+                    "itinerary.LastTicketingDate":
+                      fSearchApiResponse?.data?.BookingInfo
+                        ?.LastTicketingTime || "",
                     bookingStatus:
                       fSearchApiResponse.data.BookingInfo.CurrentStatus,
                     bookingRemarks:

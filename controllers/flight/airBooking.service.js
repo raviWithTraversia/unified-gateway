@@ -1270,6 +1270,9 @@ const KafilaFun = async (
                   // return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
                 }
 
+                item.LastTicketingDate =
+                  fSearchApiResponse?.data?.BookingInfo?.LastTicketingTime ||
+                  "";
                 const bookingResponce = {
                   CartId: item.BookingId,
                   bookingResponce: {
@@ -1299,9 +1302,7 @@ const KafilaFun = async (
                   },
                   {
                     $set: {
-                      "itinerary.LastTicketingDate":
-                        fSearchApiResponse?.data?.BookingInfo
-                          ?.LastTicketingTime || "",
+                      "itinerary.LastTicketingDate": item.LastTicketingDate,
                       bookingStatus:
                         fSearchApiResponse.data.BookingInfo.CurrentStatus,
                       bookingRemarks:

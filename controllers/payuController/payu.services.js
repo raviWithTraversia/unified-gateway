@@ -747,7 +747,8 @@ const payuSuccess = async (req, res) => {
 
                 // Add to the total refund amount
               }
-
+              item.LastTicketingDate =
+                fSearchApiResponse?.data?.BookingInfo?.LastTicketingTime || "";
               const bookingResponce = {
                 CartId: item.BookingId,
                 bookingResponce: {
@@ -777,9 +778,7 @@ const payuSuccess = async (req, res) => {
                 },
                 {
                   $set: {
-                    "itinerary.LastTicketingDate":
-                      fSearchApiResponse?.data?.BookingInfo
-                        ?.LastTicketingTime || "",
+                    "itinerary.LastTicketingDate": item.LastTicketingDate,
                     bookingStatus:
                       fSearchApiResponse.data.BookingInfo.CurrentStatus,
                     bookingRemarks:

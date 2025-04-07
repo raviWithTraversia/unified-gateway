@@ -82,7 +82,15 @@ module.exports.cancelRailBooking = async function (request) {
       staff: staff ?? "",
     });
 
-    const tokenList = passengerToken.split(""); 
+    const tokenList = passengerToken.split("");
+    const filterRailPaxList=booking.psgnDtlList.filter((element)=>element.currentStatus!='CAN')
+    const isFullCancelled =
+      passengerToken === "YYYYYY" ||
+      tokenList.filter((t) => t === "Y").length === filterRailPaxList.length;
+
+    const bookingStatus = isFullCancelled ? "CANCELLED" : "PARTIALLY CANCELLED";
+
+    booking.bookingStatus = bookingStatus;
     booking.psgnDtlList = booking.psgnDtlList.map((passenger, idx) => {
       if (tokenList[idx] == "Y") {
         return {
@@ -199,15 +207,11 @@ module.exports.verifyOTP = async (request) => {
       { isRefundOTPVerified: true }
     );
 
-   const bookingData= await bookingDetailsRail.findOne({pnrNumber:pnr,"psgnDtlList.currentStatus":{$in:["WL","CNF","RLWL","PQWL","RAC","2S","2A","3A","3E","CC","EC","SL","1A","FC","EV"]}})
-   let status = bookingData ? "PARTIALLY CANCELLED" : "CANCELLED";
-
    await bookingDetailsRail.findOneAndUpdate(
     { pnrNumber: pnr, "psgnDtlList.cancellationId":cancellationId  }, 
     { 
       $set: {
-        "psgnDtlList.$.isRefundOTPVerified": true,  
-        bookingStatus: status, 
+        "psgnDtlList.$.isRefundOTPVerified": true, 
       }
     }, 
     { new: true }

@@ -1121,6 +1121,28 @@ const KafilaFun = async (
                 let gstD = item.GstData;
                 delete gstD.GstDetails.isAgentGst;
               }
+              if (item.Provider === "Kafila") {
+                item.Param.Sector.forEach((sector) => {
+                  PassengerPreferences.Passengers.forEach((passenger) => {
+                    // Filter meals based on source and destination
+                    const matchedMeals = passenger.Meal?.filter(
+                      (meal) => meal.Src === sector.Src && meal.Des === sector.Des
+                    ) || [];
+
+                    const matchBaggage=passenger.Baggage?.filter(
+                      (baggage) => baggage.Src === sector.Src && baggage.Des === sector.Des
+                    ) || [];
+
+                    const matchSeat=passenger?.Seat.filter((seat) => seat.Src === sector.Src && seat.Des === sector.Des
+                  ) || [];
+
+
+            passenger.Baggage=matchBaggage.length>0?matchBaggage:[]
+                    passenger.Meal = matchedMeals.length > 0 ? matchedMeals : [];
+                   passenger.Seat=matchSeat.length>0?matchSeat:[]
+                  });
+                });
+              }
               let requestDataFSearch = {
                 FareChkRes: {
                   Error: item.Error,

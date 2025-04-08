@@ -680,10 +680,11 @@ const updateBookingStatus = async (req, res) => {
                   const ticketUpdate = passenger.Optional.ticketDetails.find(p => p.src === sector.Src && p.des === sector.Des);
                   if (ticketUpdate) {
                     ticketUpdate.ticketNumber = apiPassenger?.Optional?.TicketNumber;
+                    ticketUpdate.status = "CONFIRMED";
                   }
                 }
                 passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
-                passenger.Status = "CONFIRMED";
+                
               }
             })
           );

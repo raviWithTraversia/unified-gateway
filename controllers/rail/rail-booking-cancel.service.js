@@ -83,16 +83,32 @@ module.exports.cancelRailBooking = async function (request) {
     });
 
     const tokenList = passengerToken.split("");
-    booking.psgnDtlList = booking.psgnDtlList.map((passenger, idx) => ({
-      ...passenger,
-      ...(tokenList[idx] === "Y" && { currentStatus: "CAN" }),
-    }));
-
-    booking.cancelTime = new Date();
+    const filterRailPaxList=booking.psgnDtlList.filter((element)=>element.currentStatus!='CAN')
     const isFullCancelled =
       passengerToken === "YYYYYY" ||
-      tokenList.filter((t) => t === "Y").length === booking.psgnDtlList.length;
-    if (isFullCancelled) 
+      tokenList.filter((t) => t === "Y").length === filterRailPaxList.length;
+
+    const bookingStatus = isFullCancelled ? "CANCELLED" : "PARTIALLY CANCELLED";
+
+    booking.bookingStatus = bookingStatus;
+    booking.psgnDtlList = booking.psgnDtlList.map((passenger, idx) => {
+      if (tokenList[idx] == "Y") {
+        return {
+          ...passenger,
+          currentStatus: "CAN",
+          cancellationId: response?.cancellationId,
+          cancelTime: new Date().toISOString(),
+          isRefundOTPVerified: false,
+        };
+      }
+      return passenger;
+    });
+    
+
+    // const isFullCancelled =
+    //   passengerToken === "YYYYYY" ||
+    //   tokenList.filter((t) => t === "Y").length === booking.psgnDtlList.length;
+    // if (isFullCancelled) 
     await booking.save();
     return {
       IsSucess: true,
@@ -191,11 +207,16 @@ module.exports.verifyOTP = async (request) => {
       { isRefundOTPVerified: true }
     );
 
-   const bookingData= await bookingDetailsRail.findOne({pnrNumber:pnr,"psgnDtlList.currentStatus":{$in:["WL","CNF","RLWL","PQWL","RAC","2S","2A","3A","3E","CC","EC","SL","1A","FC","EV"]}})
-   let status=""
-   bookingData?status="PARTIALY CONFIRMED":status="CANCELLED"
-
-    await bookingDetailsRail.findOneAndUpdate({pnrNumber:pnr},{$set:{bookingStatus:status,cancelTime:null}},{new:true})
+   await bookingDetailsRail.findOneAndUpdate(
+    { pnrNumber: pnr, "psgnDtlList.cancellationId":cancellationId  }, 
+    { 
+      $set: {
+        "psgnDtlList.$.isRefundOTPVerified": true, 
+      }
+    }, 
+    { new: true }
+  );
+  
 
     return { result: response };
 

@@ -210,8 +210,8 @@ const sendOtpOnEmail = async (recipientEmail, otp, smtpDetails) => {
   const mailOptions = {
     from: smtpDetails.emailFrom,
     to: recipientEmail,
-    subject: "OTP for New User Registration",
-    text: `Your OTP for New Registartion: ${otp}`,
+    subject: "OTP for User Login/Registration",
+    text: `Your OTP for Login/Registration: ${otp}`,
   };
 
   // Send the email
@@ -1672,8 +1672,8 @@ const RailBookingCommonMethod = async (
   }
 };
 
-const commonAgentPGCharges = async (amout, index = 1) => {
-  const amounts = Number(amout);
+const commonAgentPGCharges = async (amout,minusAgentCharges, index = 1) => {
+  const amounts = Number(amout)-minusAgentCharges;
   const pgCharges = amounts < 2000 ? amounts * 0.0075 : amounts * 0.01;
   return pgCharges;
 };

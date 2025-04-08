@@ -208,7 +208,8 @@ async function handleflight(
     supplierCode,
     error: supplierError,
   } = await getSupplierCredentials({
-    provider: ItineraryPriceCheckResponses?.[0]?.Provider,
+    provider: "Kafila",
+    // provider: ItineraryPriceCheckResponses?.[0]?.Provider,
   });
 
   if (supplierError) {
@@ -1125,21 +1126,30 @@ const KafilaFun = async (
                 item.Param.Sector.forEach((sector) => {
                   PassengerPreferences.Passengers.forEach((passenger) => {
                     // Filter meals based on source and destination
-                    const matchedMeals = passenger.Meal?.filter(
-                      (meal) => meal.Src === sector.Src && meal.Des === sector.Des
-                    ) || [];
+                    const matchedMeals =
+                      passenger.Meal?.filter(
+                        (meal) =>
+                          meal.Src === sector.Src && meal.Des === sector.Des
+                      ) || [];
 
-                    const matchBaggage=passenger.Baggage?.filter(
-                      (baggage) => baggage.Src === sector.Src && baggage.Des === sector.Des
-                    ) || [];
+                    const matchBaggage =
+                      passenger.Baggage?.filter(
+                        (baggage) =>
+                          baggage.Src === sector.Src &&
+                          baggage.Des === sector.Des
+                      ) || [];
 
-                    const matchSeat=passenger?.Seat.filter((seat) => seat.Src === sector.Src && seat.Des === sector.Des
-                  ) || [];
+                    const matchSeat =
+                      passenger?.Seat.filter(
+                        (seat) =>
+                          seat.Src === sector.Src && seat.Des === sector.Des
+                      ) || [];
 
-
-            passenger.Baggage=matchBaggage.length>0?matchBaggage:[]
-                    passenger.Meal = matchedMeals.length > 0 ? matchedMeals : [];
-                   passenger.Seat=matchSeat.length>0?matchSeat:[]
+                    passenger.Baggage =
+                      matchBaggage.length > 0 ? matchBaggage : [];
+                    passenger.Meal =
+                      matchedMeals.length > 0 ? matchedMeals : [];
+                    passenger.Seat = matchSeat.length > 0 ? matchSeat : [];
                   });
                 });
               }

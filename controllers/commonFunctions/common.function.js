@@ -366,7 +366,7 @@ const commonEmailFunctionOnRegistrationUpdate = async (
 const sendSMS = async (mobileno, otp) => {
   try {
     let message = `Your OTP for authentication is:${otp} Kafila Hospitality & Travels Pvt. Ltd`;
-    let url = `http://www.smsintegra.com/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(
+    let url = `https://www.smsintegra.net/api/smsapi.aspx?uid=kafilatravels&pwd=19890&mobile=${encodeURIComponent(
       mobileno
     )}&msg=${encodeURIComponent(
       message

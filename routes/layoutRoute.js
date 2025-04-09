@@ -5,6 +5,7 @@ layout_route.use(bodyParser.json());
 layout_route.use(bodyParser.urlencoded({extended:true}));
 const auth = require("../middleware/auth");
 const layoutController = require('./../controllers/layout/layout.controller')
+const {panLimiter}=require('../middleware/ip.middleware')
 
 layout_route.get(
     '/layout/Count',
@@ -12,11 +13,13 @@ layout_route.get(
 );
 layout_route.post(
     '/layout/pancard',
-    layoutController.checkPanCard
+    panLimiter,
+layoutController.checkPanCard
 )
 
 layout_route.post(
     '/layout/gstnumber',
+    panLimiter,
     layoutController.checkGstin
 )
 

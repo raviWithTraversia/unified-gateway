@@ -7,6 +7,7 @@ const auth = require("../middleware/auth");
 const layoutController = require('./../controllers/layout/layout.controller')
 const {panLimiter}=require('../middleware/ip.middleware')
 
+layout_route.set('trust proxy', true)
 layout_route.get(
     '/layout/Count',
     layoutController.dashBoardCount

@@ -40,8 +40,7 @@ const addAirportDetail = async (req, res) => {
 const getAirportDetails = async (req, res) => {
   try {
     const result = await airportDetailsController.getAirportDetails(req, res);
-    if (result.error)
-      return res.status(500).json({ error: "Internal Server Error" });
+    if (result.error) return res.status(500).json({ error: result.error });
 
     if (result.response == "Input Data is Required") {
       apiErrorres(

@@ -139,8 +139,8 @@ const getAirportDetails = async (req, res) => {
     };
   } catch (error) {
     console.error(error);
-    return { error: `Invalid Input ${req?.inputData ?? ""}` };
-    // res.status(500).json({ error: 'Internal Server Error' });
+    return { error: `Invalid Input ${req.body?.inputData ?? ""}` };
+    // res.status(500).json({ error: "Internal Server Error" });
   }
 };
 

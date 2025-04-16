@@ -70,19 +70,24 @@ const getSearch = async (req, res) => {
     const isTestEnv = ["LIVE", "TEST"].some((type) =>
       req.body.Authentication?.CredentialType.includes(type)
     );
-    let isAirlineFilterEligible=true,isClassAvlInKafila=false;
-    if(req.body.Airlines?.length)
-     isAirlineFilterEligible = req.body.Airlines.some((type) =>
-      ["SG", "6E", "IX", "QP", "FF"].includes(type)
-    );  
-    if(["Economy","Business Class"].includes(req?.body?.ClassOfService))
-      isClassAvlInKafila=true
+    let isAirlineFilterEligible = true,
+      isClassAvlInKafila = false;
+    if (req.body.Airlines?.length)
+      isAirlineFilterEligible = req.body.Airlines.some((type) =>
+        ["SG", "6E", "IX", "QP", "FF"].includes(type)
+      );
+    if (["Economy", "Business Class"].includes(req?.body?.ClassOfService))
+      isClassAvlInKafila = true;
     const isInternationalRoundTrip =
       req.body.TravelType === "International" &&
       req.body.TypeOfTrip === "ROUNDTRIP";
 
     const flightRequests = [];
-    if (!isInternationalRoundTrip&&isAirlineFilterEligible&&isClassAvlInKafila)
+    if (
+      !isInternationalRoundTrip &&
+      isAirlineFilterEligible &&
+      isClassAvlInKafila
+    )
       flightRequests.push(flightSearch.getSearch(req, res));
     if (isTestEnv) flightRequests.push(commonFlightSearch(req.body));
     const results = await Promise.allSettled(flightRequests);
@@ -223,7 +228,11 @@ const getRBD = async (req, res) => {
 
 const getPnrTicket = async (req, res) => {
   try {
+    // throw new Error("Service Unavailable  The Moment");
     const { result, error } = await getCommonPnrTicket(req.body, res);
+    if(error){
+      throw new Error(error)
+    }
     const errorMessage = [
       "Your Balance is not sufficient",
       "Booking data not found",
@@ -1033,7 +1042,7 @@ async function getAllTravellers(req, res) {
     } else {
       apiErrorres(
         res,
-        result.response||errorResponse.SOME_UNOWN,
+        result.response || errorResponse.SOME_UNOWN,
         ServerStatusCode.UNPROCESSABLE,
         true
       );
@@ -1041,7 +1050,7 @@ async function getAllTravellers(req, res) {
   } catch (error) {
     apiErrorres(
       res,
-      error?.message||errorResponse.SOMETHING_WRONG,
+      error?.message || errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );
@@ -1062,7 +1071,7 @@ async function addTravellers(req, res) {
     } else {
       apiErrorres(
         res,
-        result.response||errorResponse.SOME_UNOWN,
+        result.response || errorResponse.SOME_UNOWN,
         ServerStatusCode.UNPROCESSABLE,
         true
       );
@@ -1070,7 +1079,7 @@ async function addTravellers(req, res) {
   } catch (error) {
     apiErrorres(
       res,
-      error?.message||errorResponse.SOMETHING_WRONG,
+      error?.message || errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );
@@ -1101,5 +1110,5 @@ module.exports = {
   importPNR,
   getPnrTicket,
   getAllTravellers,
-  addTravellers
+  addTravellers,
 };

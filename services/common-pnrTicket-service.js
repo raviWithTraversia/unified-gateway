@@ -15,6 +15,14 @@ const { saveLogInFile } = require("../utils/save-log");
 const {convertItineraryForKafila} = require("../helpers/common-search.helper");
 const {convertPaxDetailsForKafila}=require("../helpers/common-import-pnr.helper");
 
+async function totalAmountGet(amount,userId) {
+  const totalAmount = amount.reduce((sum, item) => sum + item.TotalPrice, 0);
+  const agentData=await agentConfig.findOne({userId:userId})
+  if(agentData.maxcreditLimit<totalAmount){
+    return false
+  }
+  return true
+}
 const getCommonPnrTicket = async (request,res) => {
   var errorMessage=""
   try {
@@ -22,6 +30,10 @@ const getCommonPnrTicket = async (request,res) => {
 
     if (!Array.isArray(requestBody)) {
       throw new Error("Invalid request body: Expected an array");
+    }
+    const checkBalance= await totalAmountGet(request.Itinerary,request.Authentication?.UserId)
+    if(!checkBalance){
+       throw new Error("Your Balance is not sufficient")
     }
 
     const promises = requestBody.map(async (requestsForApiBody) => {

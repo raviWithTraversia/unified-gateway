@@ -2352,6 +2352,18 @@ async function updateStatus(booking,status) {
     ;
 }
 
+async function getInvoiceNumber(pnr,BookingId){
+  try{
+  const response=await axios.post(`${BookingId.startsWith("TRV")?Config.TEST?.baseURLBackend:Config.LIVE?.baseURLBackend}/api/irctc-invoice-generator`,{pnr:pnr,bookingId:BookingId})
+  const {invoicings}=response?.data.Result
+
+
+  return `INV${invoicings[0]?.invoiceNumber.replace(/[^0-9]/g, '')}`
+  }catch(error){
+    throw error
+  }
+}
+
 module.exports = {
   createToken,
   securePassword,
@@ -2396,5 +2408,6 @@ module.exports = {
   sendSuccessHtml,
   sendFailedHtml,
   updateStatus,
-  updatePassengerStatus
+  updatePassengerStatus,
+  getInvoiceNumber
 };

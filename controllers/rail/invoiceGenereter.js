@@ -148,7 +148,7 @@ const RailInoviceGerneter = async (req, res) => {
                             cartId:bookingDetail._id,
                             passenger: passenger,
                             invoiceNumber: invoiceNumber,
-                            createdBy: req.user._id,
+                            createdBy: bookingDetail.userId,
                         });//Invoicing
                         await InvoicePrivceBreakup.create({
                             invoiceNumber: invoiceNumber,

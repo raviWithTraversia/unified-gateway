@@ -10,7 +10,8 @@ const {
   generateQR,
 } = require("../../utils/generate-qr");
 const moment=require('moment')
-const { commonAgentPGCharges, commonFunctionsRailLogs } = require('../../controllers/commonFunctions/common.function')
+const { commonAgentPGCharges, commonFunctionsRailLogs,getInvoiceNumber } = require('../../controllers/commonFunctions/common.function')
+
 const getRailSearch = async (req, res) => {
   try {
     const { fromStn, toStn, date, Authentication, traceId } = req.body;
@@ -733,6 +734,7 @@ const DecodeToken = async (req, res) => {
       let formattedDate = `${year}-${month}-${day}T${timePart}`;
 
       jsonData.bookingStatus = "CONFIRMED";
+      jsonData.invoiceNumber=await getInvoiceNumber(jsonData?.pnrNumber,jsonData?.clientTransactionId)
 
       jsonData.bookingDate = new Date(formattedDate);
 

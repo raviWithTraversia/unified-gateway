@@ -2352,17 +2352,31 @@ async function updateStatus(booking,status) {
     ;
 }
 
-async function getInvoiceNumber(pnr,BookingId){
-  try{
-  const response=await axios.post(`${BookingId.startsWith("TRV")?Config.TEST?.baseURLBackend:Config.LIVE?.baseURLBackend}/api/irctc-invoice-generator`,{pnr:pnr,bookingId:BookingId})
-  const {invoicings}=response?.data.Result
+async function getInvoiceNumber(pnr, BookingId) {
+  try {
+    const isTest = BookingId.startsWith("TRV");
+    const baseURL = isTest ? Config.TEST?.baseURLBackend : Config.LIVE?.baseURLBackend;
 
+    const response = await axios.post(`${baseURL}/api/irctc-invoice-generator`, {
+      pnr,
+      bookingId: BookingId
+    });
 
-  return `INV${invoicings[0]?.invoiceNumber.replace(/[^0-9]/g, '')}`
-  }catch(error){
-    throw error
+    const invoicings = response?.data?.Result?.invoicings;
+
+    if (!invoicings || !Array.isArray(invoicings) || !invoicings[0]?.invoiceNumber) {
+      console.warn("Invoice number not found in response:", response.data);
+      return null; // or throw new Error("Invoice number missing")
+    }
+
+    const numericPart = invoicings[0].invoiceNumber.replace(/[^0-9]/g, '');
+    return `INV${numericPart}`;
+  } catch (error) {
+    console.error("Error in getInvoiceNumber:", error.response?.data || error.message);
+    throw error;
   }
 }
+
 
 module.exports = {
   createToken,

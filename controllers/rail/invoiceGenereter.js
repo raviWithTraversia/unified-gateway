@@ -15,15 +15,26 @@ const RailInoviceGerneter = async (req, res) => {
             response: "pnr BookingId is required.",
         }
     }
-
+const bookingDetails=await BookingDetail.findOne({cartId:bookingId})
     let InvoicingDetail = await InvoicingData.find().sort({createdAt: -1}).limit(1);
     let invoiceRandomNumber = 100000;
-    if(InvoicingDetail.length>0){
-        InvoicingDetail = InvoicingDetail[0];
-        let previousInvoiceNumber = InvoicingDetail?.invoiceNumber;
+
+if (bookingDetails && bookingDetails.invoiceNumber) {
+    const invoiceNumberFromBooking = bookingDetails.invoiceNumber.slice(5, 11); // e.g., 100001
+    const parsedNumber = parseInt(invoiceNumberFromBooking);
+
+    if (!isNaN(parsedNumber)) {
+        invoiceRandomNumber = parsedNumber;
+    } else if (InvoicingDetail.length > 0) {
+        let previousInvoiceNumber = InvoicingDetail[0]?.invoiceNumber;
         previousInvoiceNumber = previousInvoiceNumber.slice(-6);
-        invoiceRandomNumber = parseInt(previousInvoiceNumber) +1; 
-    }else{
+        invoiceRandomNumber = parseInt(previousInvoiceNumber) + 1;
+    }
+} else if (InvoicingDetail.length > 0) {
+    let previousInvoiceNumber = InvoicingDetail[0]?.invoiceNumber;
+    previousInvoiceNumber = previousInvoiceNumber.slice(-6);
+    invoiceRandomNumber = parseInt(previousInvoiceNumber) + 1;
+}else{
         invoiceRandomNumber = 100000; 
     }
     let invoiceNumber = "";

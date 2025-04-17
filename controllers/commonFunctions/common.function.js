@@ -28,6 +28,7 @@ const railLogs = require("../../models/Irctc/railLogs");
 const { ObjectId } = require("mongodb");
 const { totalmem } = require("os");
 const axios = require("axios");
+const InvoicingData=require('../../models/Irctc/invvoicingRailData')
 
 const createToken = async (id) => {
   try {
@@ -2354,23 +2355,17 @@ async function updateStatus(booking,status) {
 
 async function getInvoiceNumber(pnr, BookingId) {
   try {
-    const isTest = BookingId.startsWith("TRV");
-    const baseURL = isTest ? Config.TEST?.baseURLBackend : Config.LIVE?.baseURLBackend;
-
-    const response = await axios.post(`${baseURL}/api/irctc-invoice-generator`, {
-      pnr,
-      bookingId: BookingId
-    });
-
-    const invoicings = response?.data?.Result?.invoicings;
-
-    if (!invoicings || !Array.isArray(invoicings) || !invoicings[0]?.invoiceNumber) {
-      console.warn("Invoice number not found in response:", response.data);
-      return null; // or throw new Error("Invoice number missing")
-    }
-
-    const numericPart = invoicings[0].invoiceNumber.replace(/[^0-9]/g, '');
-    return `INV${numericPart}`;
+    let InvoicingDetail = await InvoicingData.find().sort({createdAt: -1}).limit(1);
+        let invoiceRandomNumber = 100000;
+        if(InvoicingDetail.length>0){
+            InvoicingDetail = InvoicingDetail[0];
+            let previousInvoiceNumber = InvoicingDetail?.invoiceNumber;
+            previousInvoiceNumber = previousInvoiceNumber.slice(-6);
+            invoiceRandomNumber = parseInt(previousInvoiceNumber) +1; 
+        }else{
+            invoiceRandomNumber = 100000; 
+        }
+      return `INV25${invoiceRandomNumber}`;
   } catch (error) {
     console.error("Error in getInvoiceNumber:", error.response?.data || error.message);
     throw error;

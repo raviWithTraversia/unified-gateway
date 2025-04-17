@@ -735,9 +735,9 @@ const DecodeToken = async (req, res) => {
 
       jsonData.bookingStatus = "CONFIRMED";
       jsonData.invoiceNumber=await getInvoiceNumber(jsonData?.pnrNumber,jsonData?.clientTransactionId)
-      if(jsonData.invoiceNumber=="INVundefined"||jsonData.invoiceNumber===undefined){
-        jsonData.invoiceNumber=await getInvoiceNumber(jsonData?.pnrNumber,jsonData?.clientTransactionId)
- }
+//       if(jsonData.invoiceNumber=="INVundefined"||jsonData.invoiceNumber===undefined){
+//         jsonData.invoiceNumber=await getInvoiceNumber(jsonData?.pnrNumber,jsonData?.clientTransactionId)
+//  }
 
       jsonData.bookingDate = new Date(formattedDate);
 

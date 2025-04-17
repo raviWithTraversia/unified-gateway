@@ -144,35 +144,35 @@ const partialCancelationCharge = async (req, res) => {
             providerBookingId: req.body.BookingId,
             // bookingId: req.body.BookingId,
           },
-          { $set: { bookingStatus: "PARTIALLY CANCELLED" } },
+          { $set: { bookingStatus: "CANCELLATION PENDING" } },
           { new: true }
         );
       let calculateFareAmount=0
         for(let passengers of req.body.passengarList){
           calculateFareAmount+=calculateDealAmount(booking,passengers.PAX_TYPE)
-          await updatePassengerStatus(booking, passengers,"CANCELLED");
+          await updatePassengerStatus(booking, passengers,"CANCELLATION PENDING");
        }
-          const cancelationBookingInstance = new CancelationBooking({
-            calcelationStatus: "CANCEL",
-            bookingId: booking?.providerBookingId,
-            providerBookingId: booking?.providerBookingId,
-            AirlineCode:
-              booking?.itinerary?.Sectors[0]?.AirlineCode || null,
-            companyId: Authentication?.CompanyId || null,
-            userId: Authentication?.UserId || null,
-            traceId:null,
-            PNR: booking?.PNR || null,
-            fare: calculateFareAmount || 0,
-            AirlineCancellationFee: 0,
-            AirlineRefund: 0,
-            ServiceFee: 0 || 0,
-            RefundableAmt: 0 || 0,
-            description: null,
-            modifyBy: Authentication?.UserId || null,
-            modifyAt: new Date(),
-          });
+          // const cancelationBookingInstance = new CancelationBooking({
+          //   calcelationStatus: "CANCEL",
+          //   bookingId: booking?.providerBookingId,
+          //   providerBookingId: booking?.providerBookingId,
+          //   AirlineCode:
+          //     booking?.itinerary?.Sectors[0]?.AirlineCode || null,
+          //   companyId: Authentication?.CompanyId || null,
+          //   userId: Authentication?.UserId || null,
+          //   traceId:null,
+          //   PNR: booking?.PNR || null,
+          //   fare: calculateFareAmount || 0,
+          //   AirlineCancellationFee: 0,
+          //   AirlineRefund: 0,
+          //   ServiceFee: 0 || 0,
+          //   RefundableAmt: 0 || 0,
+          //   description: null,
+          //   modifyBy: Authentication?.UserId || null,
+          //   modifyAt: new Date(),
+          // });
   
-          await cancelationBookingInstance.save();
+          // await cancelationBookingInstance.save();
           // await paxPreferences.save();
         }
       

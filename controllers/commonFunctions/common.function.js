@@ -2356,7 +2356,10 @@ async function updateStatus(booking,status) {
 
 async function getInvoiceNumber(pnr, BookingId) {
   try {
-    let InvoicingDetail = await bookingDetailsRail.find().sort({createdAt: -1}).limit(1);
+    let InvoicingDetail = await bookingDetailsRail
+    .find({ invoiceNumber: { $exists: true, $ne: null } })
+    .sort({ createdAt: -1 })
+    .limit(1);
         let invoiceRandomNumber = 100000;
         if(InvoicingDetail.length>0){
             InvoicingDetail = InvoicingDetail[0];

@@ -28,7 +28,8 @@ const railLogs = require("../../models/Irctc/railLogs");
 const { ObjectId } = require("mongodb");
 const { totalmem } = require("os");
 const axios = require("axios");
-const InvoicingData=require('../../models/Irctc/invvoicingRailData')
+const InvoicingData=require('../../models/Irctc/invvoicingRailData');
+const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
 
 const createToken = async (id) => {
   try {
@@ -2355,7 +2356,7 @@ async function updateStatus(booking,status) {
 
 async function getInvoiceNumber(pnr, BookingId) {
   try {
-    let InvoicingDetail = await InvoicingData.find().sort({createdAt: -1}).limit(1);
+    let InvoicingDetail = await bookingDetailsRail.find().sort({createdAt: -1}).limit(1);
         let invoiceRandomNumber = 100000;
         if(InvoicingDetail.length>0){
             InvoicingDetail = InvoicingDetail[0];

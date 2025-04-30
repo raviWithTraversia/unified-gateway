@@ -1571,7 +1571,10 @@ const KafilaFun = async (
                 };
                 Logs(logDataCatch);
 
-                if (error.message?.toLowerCase().includes("socket hang up")) {
+                if (
+                  error.message?.toLowerCase().includes("socket hang up") ||
+                  error.message?.toLowerCase().includes("timeout")
+                ) {
                   await BookingDetails.updateOne(
                     {
                       bookingId: item?.BookingId,

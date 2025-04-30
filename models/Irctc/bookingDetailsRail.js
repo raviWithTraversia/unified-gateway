@@ -226,6 +226,7 @@ const ReservationSchema = new mongoose.Schema({
   providerbookingId:{type:String,default:""},
   isEmailSend:{type:Boolean,default:true},
   TotalItemAmount:{type:Number,default:null},
+  invoiceNumber:{type:String,default:null}
  
 },{timestamps:true});
 

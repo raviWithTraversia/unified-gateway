@@ -31,7 +31,6 @@ irctcBookingRoute.post(
 
 irctcBookingRoute.post(
   "/irctc-invoice-generator",
-  auth,
   irctcBookingController.RailinvoiceGenerator
 );
 

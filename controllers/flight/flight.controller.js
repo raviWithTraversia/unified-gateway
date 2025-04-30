@@ -228,8 +228,11 @@ const getRBD = async (req, res) => {
 
 const getPnrTicket = async (req, res) => {
   try {
-    throw new Error("Service Unavailable  The Moment");
+    // throw new Error("Service Unavailable  The Moment");
     const { result, error } = await getCommonPnrTicket(req.body, res);
+    if(error){
+      throw new Error(error)
+    }
     const errorMessage = [
       "Your Balance is not sufficient",
       "Booking data not found",

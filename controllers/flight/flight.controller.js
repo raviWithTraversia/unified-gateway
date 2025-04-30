@@ -230,8 +230,8 @@ const getPnrTicket = async (req, res) => {
   try {
     // throw new Error("Service Unavailable  The Moment");
     const { result, error } = await getCommonPnrTicket(req.body, res);
-    if(error){
-      throw new Error(error)
+    if (error) {
+      throw new Error(error);
     }
     const errorMessage = [
       "Your Balance is not sufficient",
@@ -240,6 +240,7 @@ const getPnrTicket = async (req, res) => {
       "Passenger preferences not found",
       "No passengers found",
       "Hold From Api Side",
+      "Booking is not confirmed",
     ];
     if (typeof result[0] === "string" && errorMessage.includes(result[0])) {
       return apiErrorres(

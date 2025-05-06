@@ -789,13 +789,15 @@ const updatePendingBookingStatus = async (req, res) => {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
       result.response ===
-        "_BookingId or companyId or credentialsType does not exist" ||
-      result.response === "Credential Type does not exist" ||
-      result.response === "Supplier credentials does not exist" ||
+        "_BookingId must be an array" ||
+      result.response === "_BookingId array is empty" ||
+      result.response === "TMC companyID Not Found" ||
       result.response === "Cancellation is still Pending" ||
       result.response === "Kafila API Data Not Found" ||
-      result.response === "Cancelation Data Not Found" ||
-      result.response === "TMC companyID Not Found"
+      result.response === "Invalid fromDate or toDate" ||
+      result.response === "TMC companyID Not Found"||
+      result.response === "Kafila API Data Not Found" ||
+      result.response === "Cancelation Data Not Found"
     ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Status updated Successfully!") {

@@ -8,7 +8,7 @@ const passengerPreferenceModel = require("../../models/booking/PassengerPreferen
 const agentConfig = require("../../models/AgentConfig");
 const ledger = require("../../models/Ledger");
 const axios = require("axios");
-const Logs = require("../../controllers/logs/protalLog.services");
+const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const BookingDetails = require("../../models/booking/BookingDetails");
@@ -318,7 +318,19 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0"
     };  
-    
+    const logData1 = {
+      traceId: Authentication.TraceId,
+      companyId: Authentication.CompanyId,
+      userId: Authentication.UserId,
+      source: "Kafila",
+      type: "Portal log",
+      BookingId: BookingId,
+      product: "Flight",
+      logName: "PARTIAL_CANCEL",
+      request:requestDataForCHarges ,
+      responce: {},
+    };
+    Logs(logData1);
     
     let fCancelApiResponse = await axios.post(
       flightCancelUrl,
@@ -329,6 +341,19 @@ const KafilaFun = async (
         },
       }
     ); 
+    const logData2 = {
+      traceId: Authentication.TraceId,
+      companyId: Authentication.CompanyId,
+      userId: Authentication.UserId,
+      source: "Kafila",
+      type: "Portal log",
+      BookingId: BookingId,
+      product: "Flight",
+      logName: "PARTIAL_CANCEL",
+      request:requestDataForCHarges ,
+      responce: fSearchApiResponse.data,
+    };
+    Logs(logData2);
 
     if(fCancelApiResponse?.data?.R_DATA?.Status == null || (fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "PENDING" || fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "FAILED")){
         try {
@@ -483,6 +508,24 @@ const KafilaFun = async (
       return response.data.ErrorMessage;
     }
   } catch (error) {
+    try{  
+      const logData3 = {
+      traceId: Authentication.TraceId,
+      companyId: Authentication.CompanyId,
+      userId: Authentication.UserId,
+      source: "Kafila",
+      type: "Portal log",
+      BookingId: BookingId,
+      product: "Flight",
+      logName: "PARTIAL_CANCEL",
+      request:"catch error" ,
+      responce:error,
+    };
+    Logs(logData3)
+  }catch(error){
+      throw error
+    }
+  
     return error.message
   }
 };

@@ -58,6 +58,11 @@ default:false
       type:String,
       default:null
     },
+    passenger:{
+type:Array,
+default:null
+    },
+    
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

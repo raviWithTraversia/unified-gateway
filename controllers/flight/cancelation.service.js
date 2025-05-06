@@ -344,8 +344,7 @@ const KafilaFun = async (
             "Content-Type": "application/json",
           },
         }
-      );
-      // console.log(fCancelApiResponse?.data,"fCancelApiResponse data");
+      );     // console.log(fCancelApiResponse?.data,"fCancelApiResponse data");
 
       const logData2 = {
         traceId: Authentication.TraceId,
@@ -1109,20 +1108,24 @@ const updateConfirmBookingStatus = async (req, res) => {
   }
 }
 
-const cancelationDataUpdate=async(Authentication,fCancelApiResponse,BookingIdDetails)=>{
-  const findCancelationBooking = await CancelationBooking.findOne({$or:[{pnr:fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr},{bookingId:BookingIdDetails?.providerBookingId}]
-  })
+const cancelationDataUpdate = async (Authentication, fCancelApiResponse, BookingIdDetails) => {
+  try {
+    const pnr = fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr||" ";
+    const providerBookingId = BookingIdDetails?.providerBookingId;
 
-  if(!findCancelationBooking){
-    const cancelationBookingInstance = new CancelationBooking({
-      calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status || null,
+    const findCancelationBooking = await CancelationBooking.findOne({
+      $or: [{ pnr }, { bookingId: providerBookingId }]
+    });
+
+    const data = {
+      cancelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status || "PENDING",
       AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode || null,
       companyId: Authentication?.CompanyId || null,
-      bookingId:BookingIdDetails?.providerBookingId,
-      providerBookingId:BookingIdDetails?.providerBookingId,
+      bookingId: providerBookingId,
+      providerBookingId,
       userId: Authentication?.UserId || null,
-      traceId:fCancelApiResponse?.data?.R_DATA?.TRACE_ID,
-      PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr || null,
+      traceId: fCancelApiResponse?.data?.R_DATA?.TRACE_ID || "",
+      PNR: pnr || null,
       fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare || null,
       AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee || null,
       AirlineRefund: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund || null,
@@ -1130,21 +1133,21 @@ const cancelationDataUpdate=async(Authentication,fCancelApiResponse,BookingIdDet
       RefundableAmt: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt || null,
       description: fCancelApiResponse?.data?.R_DATA?.Charges?.Description || null,
       modifyBy: Authentication?.UserId || null,
-      modifyAt: new Date(),
-    });
+      modifyAt: new Date()
+    };
 
-
-    await cancelationBookingInstance.save();
-
+    if (!findCancelationBooking) {
+      const cancelationBookingInstance = new CancelationBooking(data);
+      await cancelationBookingInstance.save();
+    } else {
+      await CancelationBooking.findByIdAndUpdate(findCancelationBooking._id, { $set: data }, { new: true });
+    }
+  } catch (error) {
+    console.error("Error saving cancelation data:", error);
+    throw error;
   }
-  else{
-    await CancelationBooking.findByIdAndUpdate(findCancelationBooking._id,{$set:{
+};
 
-    }},{new:true})
-
-  }
-
-}
  
 module.exports = {
   fullCancelation, updateBookingStatus,updatePendingBookingStatus,updateConfirmBookingStatus

@@ -1431,7 +1431,7 @@ const RefundedCommonFunction = async (
 
       // }
       // console.log(refund)
-      if (!refund?.IsCancelled && !refund.IsRefunded) {
+      if (refund?.IsCancelled && !refund.IsRefunded) {
         const isPartialCancellation = refund.CType === "PARTIAL";
         // console.log(isPartialCancellation)
 

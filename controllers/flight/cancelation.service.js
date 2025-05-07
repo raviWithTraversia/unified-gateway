@@ -842,12 +842,42 @@ const updatePendingBookingStatus = async (req, res) => {
     if (isTestEnv) {
       supplier = await Supplier.find({ credentialsType: "TEST", companyId, status: true });
       Url = "http://stage1.ksofttechnology.com/api/Freport";
-      apiRequestBody = { /* Test environment body */ };
+      apiRequestBody = {
+        "P_TYPE": "API",
+        "R_TYPE": "FLIGHT",
+        "R_NAME": "FlightCancelHistory",
+        "R_DATA": {
+          "ACTION": "",
+          "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
+          "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
+        },
+        "AID": "675923",
+        "MODULE": "B2B",
+        "IP": "182.73.146.154",
+        "TOKEN": "fd58e3d2b1e517f4ee46063ae176eee1",
+        "ENV": "D",
+        "Version": "1.0.0.0.0.0"
+      };
     } else if (isProdEnv) {
       supplier = await Supplier.find({ credentialsType: "LIVE", companyId, status: true });
       if (!supplier.length) throw new Error("LIVE supplier not found");
       Url = "http://fhapip.ksofttechnology.com/api/Freport";
-      apiRequestBody = { /* Prod environment body */ };
+      apiRequestBody = {
+        "P_TYPE": "API",
+        "R_TYPE": "FLIGHT",
+        "R_NAME": "FlightCancelHistory",
+        "R_DATA": {
+          "ACTION": "",
+          "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
+          "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
+        },
+        "AID": supplier[0].supplierWsapSesssion,
+        "MODULE": "B2B",
+        "IP": "182.73.146.154",
+        "TOKEN": supplier[0].supplierOfficeId,
+        "ENV": "P",
+        "Version": "1.0.0.0.0.0"
+      } ;
     } else {
       return { response: "Invalid environment" };
     }
@@ -868,28 +898,62 @@ const updatePendingBookingStatus = async (req, res) => {
 
     // Process Refunds
     const isKafilaBooking = cancelationbookignsData.every(item => item.bookingId.startsWith("B2BKFL"));
-    const isB2BBooking = cancelationbookignsData.every(item => item.bookingId.startsWith("B2B"));
+    const isB2BBooking = cancelationbookignsData.every(item => !item.bookingId.startsWith("B2BKFL"));
 
     let refundProcessed = {};
-    if (isKafilaBooking) {
+  if(!isKafilaBooking&&!isB2BBooking){ {
+      return { response: "One Time One Provider Booking Insert" };
+    }}
+ else  if (isKafilaBooking) {
       const updatePromises = cancelationbookignsData.map(async (item) => {
-        await CancelationBooking.updateOne({ bookingId: item.bookingId }, { calcelationStatus: "CANCEL" });
+        // 1. Update CancelationBooking collection
+        await CancelationBooking.updateMany(
+          { bookingId: item.bookingId },
+          { calcelationStatus: "CANCEL" }
+        );
+      
+        // 2. Update bookingDetails document
         const booking = await bookingDetails.findOneAndUpdate(
           { providerBookingId: item.bookingId },
           { bookingStatus: "CANCELLED" },
           { new: true }
         );
-        await Promise.all(item.passenger.map(passenger => 
-          updatePassengerStatus(booking, passenger, "CANCELLED")
-        ));
+      
+        // 3. Update passenger status
+        await Promise.all(
+          item.passenger.map((passenger) =>
+            updatePassengerStatus(booking, passenger, "CANCELLED")
+          )
+        );
+      
+        // 4. Check if any passenger is still pending cancellation
+        const allCancelled = await passengerPreferenceModel.findOne({
+          bookingId: item.bookingId,
+          "Passengers.Optional.ticketDetails.status": "CANCELLATION PENDING",
+        });
+      
+        // 5. Decide new status
+        const newStatus = allCancelled
+          ? "CANCELLATION PENDING"
+          : "PARTIALLY CONFIRMED";
+      
+        console.log(newStatus, "newStatus");
+      
+        // 6. Update bookingDetails with final status
+        await bookingDetails.findOneAndUpdate(
+          { providerBookingId: item.bookingId },
+          { $set: { bookingStatus: newStatus } },
+          { new: true }
+        );
       });
+      
+      // Wait for all updates to complete
       await Promise.all(updatePromises);
+      
     return {response:"Status updated Successfully!"}
     } else if (isB2BBooking) {
       refundProcessed = await RefundedCommonFunction(cancelationbookignsData, fSearchApiResponse.data);
-    } else {
-      return { response: "One Time One Provider Booking Insert" };
-    }
+    } 
 
     // Handle Final Response
     if (refundProcessed.response === "Cancelation Proceed refund") {
@@ -1124,7 +1188,7 @@ const cancelationDataUpdate = async (Authentication, fCancelApiResponse, Booking
       bookingId: providerBookingId,
       providerBookingId,
       userId: Authentication?.UserId || null,
-      traceId: fCancelApiResponse?.data?.R_DATA?.TRACE_ID || "",
+      traceId: fCancelApiResponse?.data?.R_DATA?.TRACE_ID || null,
       PNR: pnr || null,
       fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare || null,
       AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee || null,

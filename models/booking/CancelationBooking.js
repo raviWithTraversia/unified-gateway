@@ -11,7 +11,7 @@ const cancelationSchema = new mongoose.Schema(
     },
     calcelationStatus: {
       type: String,
-      default: null,
+      default: "PENDING",
     },
     providerBookingId :{
       type: String,

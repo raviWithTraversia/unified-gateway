@@ -797,7 +797,8 @@ const updatePendingBookingStatus = async (req, res) => {
       result.response === "Invalid fromDate or toDate" ||
       result.response === "TMC companyID Not Found"||
       result.response === "Kafila API Data Not Found" ||
-      result.response === "Cancelation Data Not Found"
+      result.response === "Cancelation Data Not Found"||
+      result.response === "One Time One Provider Booking Insert"
     ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response === "Status updated Successfully!") {
@@ -810,7 +811,7 @@ const updatePendingBookingStatus = async (req, res) => {
     } else {
       apiErrorres(
         res,
-        errorResponse.SOME_UNOWN,
+        result.response || errorResponse.SOME_UNOWN,
         ServerStatusCode.UNPROCESSABLE,
         true
       );

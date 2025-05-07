@@ -540,7 +540,7 @@ const cancelationDataUpdate=async(Authentication,fCancelApiResponse,BookingIdDet
       bookingId:BookingIdDetails?.providerBookingId,
       providerBookingId:BookingIdDetails?.providerBookingId,
       userId: Authentication?.UserId || null,
-      traceId:fCancelApiResponse?.data?.R_DATA?.TRACE_ID,
+      traceId:fCancelApiResponse?.data?.R_DATA?.TRACE_ID||null,
       PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr || null,
       fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare || null,
       AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee || null,

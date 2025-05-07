@@ -928,16 +928,16 @@ const updatePendingBookingStatus = async (req, res) => {
       
         // 4. Check if any passenger is still pending cancellation
         const allCancelled = await passengerPreferenceModel.findOne({
-          bookingId: item.bookingId,
-          "Passengers.Optional.ticketDetails.status": "CANCELLATION PENDING",
+          bookingId: booking.bookingId,
+          "Passengers.Optional.ticketDetails.status": "CONFIRMED"
         });
       
         // 5. Decide new status
         const newStatus = allCancelled
-          ? "CANCELLATION PENDING"
-          : "PARTIALLY CONFIRMED";
+          ? "PARTIALLY CONFIRMED"
+          : "CANCELLED";
       
-        console.log(newStatus, "newStatus");
+        // console.log(newStatus, "newStatus");
       
         // 6. Update bookingDetails with final status
         await bookingDetails.findOneAndUpdate(

@@ -908,7 +908,7 @@ const updatePendingBookingStatus = async (req, res) => {
       const updatePromises = cancelationbookignsData.map(async (item) => {
         // 1. Update CancelationBooking collection
         await CancelationBooking.updateMany(
-          { bookingId: item.bookingId },
+          { bookingId: item.bookingId , calcelationStatus:"PENDING"},
           { calcelationStatus: "CANCEL" }
         );
       

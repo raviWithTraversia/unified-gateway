@@ -2043,6 +2043,9 @@ const getBookingBill = async (req, res) => {
         totalMealPrice: "$Passengers.totalMealPrice",
         totalSeatPrice: "$Passengers.totalSeatPrice",
         totalFastForwardPrice: "$Passengers.totalFastForwardPrice",
+        seats:"$Passengers.Seat",
+        meals:"$Passengers.Meal",
+        baggages:"$Passengers.Baggage",
       },
     },
     {
@@ -2056,7 +2059,7 @@ const getBookingBill = async (req, res) => {
     { $unwind: "$bookingData" },
     {
       $match: {
-        "bookingData.bookingStatus": "CONFIRMED",
+        "bookingData.bookingStatus": { $in: ["CANCELLED", "CONFIRMED","PARTIALLY CONFIRMED","CANCELLATION PENDING"] },
         "bookingData.userId": agencyId
           ? new ObjectId(agencyId)
           : { $exists: true },
@@ -2093,6 +2096,9 @@ const getBookingBill = async (req, res) => {
         totalMealPrice: 1,
         totalSeatPrice: 1,
         totalFastForwardPrice: 1,
+        seats:1,
+        meals:1,
+        baggages:1,
         agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
         agentId: { $arrayElemAt: ["$userdata.userId", 0] },
         pnr: "$bookingData.PNR",
@@ -2175,94 +2181,137 @@ const getBookingBill = async (req, res) => {
         },
         createdAt: "$bookingData.createdAt",
         getCommercialArray: "$bookingData.itinerary.PriceBreakup",
+        totalFastForwardPrice: "$Passengers.totalFastForwardPrice",
+      itemAmount: "0",
+    DepartureCode:  "$bookingData.itinerary.Sectors.Departure.Code",
+    ArrivalCode:  "$bookingData.itinerary.Sectors.Arrival.Code",
       },
     },
   ]);
-
-  let processedBookingIds = new Set();
-  for (let [index, element] of bookingBill.entries()) {
-    let netAmount = 0;
-    netAmount = await calculateOfferedPricePaxWise(element);
-
-    switch (element.PaxType) {
-      case "ADT": // Adult
-        element.itemAmount = element.itinerary.PriceBreakup[0]?.BaseFare || 0;
-        element.airlineTax = element.itinerary.PriceBreakup[0]?.Tax || 0;
-        break;
-      case "CHD": // Child
-        element.itemAmount = element.itinerary.PriceBreakup[1]?.BaseFare || 0;
-        element.airlineTax = element.itinerary.PriceBreakup[1]?.Tax || 0;
-
-        break;
-      case "INF": // Infant
-        element.itemAmount = element.itinerary.PriceBreakup[2]?.BaseFare || 0;
-        element.airlineTax = element.itinerary.PriceBreakup[2]?.Tax || 0;
-
-        break;
-      default:
-        element.itemAmount = 0; // Default if no match
-    }
-
-    for (let item of element?.getCommercialArray) {
-      for (let items of item?.CommercialBreakup) {
-        if (items?.CommercialType == "Discount") {
-          element.commission = parseFloat(
-            (parseFloat(element.commission) + parseFloat(items.Amount)).toFixed(
-              2
-            )
-          );
-        }
-        if (items?.CommercialType == "TDS") {
-          element.tds = parseFloat(
-            (parseFloat(element.tds) + parseFloat(items.Amount)).toFixed(2)
-          );
+  const finalBillingData = [];
+  const processedBookingIds = new Set();
+  
+  for (const [index, element] of bookingBill.entries()) {
+    // Calculate Net Amount (if needed later)
+    await calculateOfferedPricePaxWise(element); 
+  
+    // Set Base Fare and Tax based on PaxType
+    const paxIndexMap = { ADT: 0, CHD: 1, INF: 2 };
+    const paxIndex = paxIndexMap[element.PaxType] ?? -1;
+    element.itemAmount = paxIndex >= 0 ? element.itinerary.PriceBreakup[paxIndex]?.BaseFare || 0 : 0;
+    element.airlineTax = paxIndex >= 0 ? element.itinerary.PriceBreakup[paxIndex]?.Tax || 0 : 0;
+  
+    // Calculate commission and tds
+    element.commission = 0;
+    element.tds = 0;
+    if (Array.isArray(element?.getCommercialArray)) {
+      for (const item of element.getCommercialArray) {
+        for (const cb of item?.CommercialBreakup || []) {
+          if (cb.CommercialType === "Discount") {
+            element.commission += parseFloat(cb.Amount || 0);
+          } else if (cb.CommercialType === "TDS") {
+            element.tds += parseFloat(cb.Amount || 0);
+          }
         }
       }
+      element.commission = parseFloat(element.commission.toFixed(2));
+      element.tds = parseFloat(element.tds.toFixed(2));
     }
-
-    let getTdsamount = await getTdsAndDsicount([element.itinerary]);
-
+  
+    // Overwrite if bookingId already processed
     if (processedBookingIds.has(element.bookingId)) {
       element.commission = 0;
       element.tds = 0;
-      delete element.itinerary;
     } else {
-      element.commission = getTdsamount.ldgrdiscount;
-      element.tds = getTdsamount.ldgrtds;
+      const tdsAmount = await getTdsAndDsicount([element.itinerary]);
+      element.commission = tdsAmount.ldgrdiscount || 0;
+      element.tds = tdsAmount.ldgrtds || 0;
       processedBookingIds.add(element.bookingId);
-      delete element.itinerary;
     }
-  }
-
-  bookingBill.forEach(async (element, index) => {
+  
+    delete element.itinerary;
+  
+    // Prepare ticket number
     let ticketNumber = [element?.pnr || element?.gdsPnr];
     if (element.ticketNo?.ticketDetails) {
-      ticketNumber = await getTicketNumberBySector(
-        element.ticketNo?.ticketDetails,
-        element.sector
-      );
+      ticketNumber = await getTicketNumberBySector(element.ticketNo.ticketDetails, element.sector);
     }
-    element.bookingId1 = element.bookingId1
-      ? element.bookingId1.replace(/\s+/g, "")
-      : null;
-    element.ticketNo =
-      ticketNumber.length != 0 &&
-      ticketNumber[0] != null &&
-      ticketNumber[0] != ""
-        ? ticketNumber[0]
-        : element.pnr;
-    element.id = index + 1;
-  });
-
-  if (!bookingBill.length) {
-    return {
-      response: "Data Not Found",
+  
+    const baseData = {
+      _id: element._id,
+      paxType: element.paxType,
+      accountPost: null,
+      bookingId: element.bookingId,
+      paxName: element.paxName,
+      agencyName: element.agencyName,
+      agentId: element.agentId,
+      pnr: element.pnr || element.gdsPnr,
+      class: element.class,
+      ccUserName: element.ccUserName,
+      travelDateOutbound: element.travelDateOutbound,
+      travelDateInbound: element.travelDateInbound,
+      issueDate: element.issueDate,
+      airlineTax: 0,
+      tranFee: "0",
+      sTax: "0",
+      commission: 0,
+      tds: "0",
+      cashback: "0",
+      purchaseCode: "0",
+      flightCode: element.flightCode,
+      airlineName: element.airlineName,
+      bookingId1: element.bookingId1?.replace(/\s+/g, "") || null,
+      baseFare: 0,
+      totalBaggagePrice: 0,
+      totalMealPrice: 0,
+      totalSeatPrice: 0,
+      totalFastForwardPrice: 0,
+      Tax: 0,
+      id: 0,
     };
+  
+    // Push main ticket entry
+    finalBillingData.push({
+      ...element,
+      ticketNo: ticketNumber[0] || element.pnr,
+      id: index + 1,
+    });
+  
+    // Handle Add-ons (Seat, Baggage, Meal)
+    const addons = [
+      { list: element.seats, type: "Seat", key: "SeatCode" },
+      { list: element.baggages, type: "Baggage", key: "SsrCode" },
+      { list: element.meals, type: "Meal", key: "SsrCode" },
+    ];
+  
+    for (const { list, key } of addons) {
+      for (const addon of list || []) {
+        if (
+          addon.Price > 0 &&
+          element.DepartureCode?.includes(addon.Src) &&
+          element.ArrivalCode?.includes(addon.Des)
+        ) {
+          finalBillingData.push({
+            ...baseData,
+            ticketNo: `${element.pnr || element.gdsPnr}-${addon[key]}`,
+            sector: `${addon.Src} ${addon.Des}`,
+            flightNo: `${addon.FCode} ${addon.FNo}`,
+            itemAmount: addon.Price,
+          });
+        }
+      }
+    }
   }
+  
+  if (!bookingBill.length) {
+    return { response: "Data Not Found" };
+  }
+  
   return {
     response: "Fetch Data Successfully",
-    data: bookingBill,
+    data: finalBillingData,
   };
+  ;
 };
 
 const getSalesReport = async (req, res) => {
@@ -2762,264 +2811,366 @@ const getBillingData = async (req, res) => {
     };
   }
 
-  const billingData = await passengerPreferenceSchema.aggregate([
-    {
-      $match: {
-        createdAt: {
-          $gte: new Date(istDateString),
-          $lte: new Date(istDateString2),
+ const billingData = await passengerPreferenceSchema.aggregate([
+  {
+    $match: {
+      createdAt: {
+        $gte: new Date(istDateString),
+        $lte: new Date(istDateString2),
+      },
+    },
+  },
+  { $unwind: "$Passengers" },
+  {
+    $lookup: {
+      from: "bookingdetails",
+      localField: "bookingId",
+      foreignField: "bookingId",
+      as: "bookingData",
+    },
+  },
+  { $unwind: "$bookingData" },
+  {
+    $match: {
+      "bookingData.bookingStatus": { $in: ["CANCELLED", "CONFIRMED","PARTIALLY CONFIRMED"] },
+      "Passengers.accountPost": "0",
+    },
+  },
+  {
+    $lookup: {
+      from: "companies",
+      localField: "bookingData.AgencyId",
+      foreignField: "_id",
+      as: "companiesData",
+    },
+  },
+  {
+    $lookup: {
+      from: "users",
+      localField: "bookingData.userId",
+      foreignField: "_id",
+      as: "userdata",
+    },
+  },
+  {
+    $project: {
+      _id: "$Passengers._id",
+      paxType: "$Passengers.PaxType",
+      accountPost: "$Passengers.accountPost",
+      bookingId: "$bookingData.providerBookingId",
+      ticketNo: "$Passengers.Optional",
+      paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
+      agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
+      agentId: { $arrayElemAt: ["$userdata.userId", 0] },
+      pnr: {
+        $cond: {
+          if: { $ifNull: ["$bookingData.PNR", false] },
+          then: "$bookingData.PNR",
+          else: "$bookingData.GPnr",
         },
       },
-    },
-    { $unwind: "$Passengers" },
-    {
-      $lookup: {
-        from: "bookingdetails",
-        localField: "bookingId",
-        foreignField: "bookingId",
-        as: "bookingData",
+      sector: {
+        $concat: [
+          { $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Code", 0] },
+          " ",
+          {
+            $arrayElemAt: [
+              "$bookingData.itinerary.Sectors.Arrival.Code",
+              { $subtract: [{ $size: "$bookingData.itinerary.Sectors" }, 1] },
+            ],
+          },
+        ],
       },
-    },
-    { $unwind: "$bookingData" },
-    {
-      $match: {
-        "bookingData.bookingStatus": { $in: ["CANCELLED", "CONFIRMED"] },
-        "Passengers.accountPost": "0",
+      flightNo: {
+        $concat: [
+          { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
+          " ",
+          { $arrayElemAt: ["$bookingData.itinerary.Sectors.FltNum", 0] },
+        ],
       },
-    },
-    {
-      $lookup: {
-        from: "companies",
-        localField: "bookingData.AgencyId",
-        foreignField: "_id",
-        as: "companiesData",
+      class: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Class", 0] },
+      ccUserName: "AUTO",
+      travelDateOutbound: {
+        $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0],
       },
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "bookingData.userId",
-        foreignField: "_id",
-        as: "userdata",
+      travelDateInbound: {
+        $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0],
       },
-    },
-    {
-      $project: {
-        _id: "$Passengers._id",
-        paxType: "$Passengers.PaxType",
-        accountPost: "$Passengers.accountPost",
-        bookingId: "$bookingData.providerBookingId",
-        ticketNo: "$Passengers.Optional",
-        paxName: { $concat: ["$Passengers.FName", " ", "$Passengers.LName"] },
-        agencyName: { $arrayElemAt: ["$companiesData.companyName", 0] },
-        agentId: { $arrayElemAt: ["$userdata.userId", 0] },
-        pnr: {
-          $cond: {
-            if: { $ifNull: ["$bookingData.PNR", false] },
-            then: "$bookingData.PNR",
-            else: "$bookingData.GPnr",
+      issueDate: "$bookingData.bookingDateTime",
+      airlineTax: "0",
+      tranFee: "0",
+      sTax: "0",
+      commission: "0",
+      tds: "0",
+      cashback: "0",
+      purchaseCode: "0",
+      flightCode: "$bookingData.Supplier",
+      airlineName: {
+        $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
+      },
+      bookingId1: {
+        $trim: {
+          input: {
+            $concat: [
+              { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
+              {
+                $cond: {
+                  if: { $ifNull: ["$bookingData.SalePurchase", false] },
+                  then: "$bookingData.SalePurchase",
+                  else: "1APCC",
+                },
+              },
+              `${MODEENV}~`,
+              "$bookingData.itinerary.FareFamily",
+            ],
           },
         },
-        sector: {
-          $concat: [
-            {
-              $arrayElemAt: [
-                "$bookingData.itinerary.Sectors.Departure.Code",
-                0,
-              ],
-            },
-            " ",
-            {
-              $arrayElemAt: [
-                "$bookingData.itinerary.Sectors.Arrival.Code",
-                { $subtract: [{ $size: "$bookingData.itinerary.Sectors" }, 1] },
-              ],
-            },
-          ],
-        },
-        flightNo: {
-          $concat: [
-            { $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineCode", 0] },
-            " ",
-            { $arrayElemAt: ["$bookingData.itinerary.Sectors.FltNum", 0] },
-          ],
-        },
-        class: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Class", 0] },
-        ccUserName: "AUTO",
-        travelDateOutbound: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0],
-        },
-        travelDateInbound: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0],
-        },
-        issueDate: "$bookingData.bookingDateTime",
-        airlineTax: "0",
-        tranFee: "0",
-        sTax: "0",
-        commission: "0",
-        tds: "0",
-        cashback: "0",
-        purchaseCode: "0",
-        flightCode: "$bookingData.Supplier",
-        airlineName: {
-          $arrayElemAt: ["$bookingData.itinerary.Sectors.AirlineName", 0],
-        },
-        bookingId1: {
-          $trim: {
-            input: {
-              $concat: [
-                {
-                  $arrayElemAt: [
-                    "$bookingData.itinerary.Sectors.AirlineCode",
-                    0,
-                  ],
-                },
-                {
-                  $cond: {
-                    if: { $ifNull: ["$bookingData.SalePurchase", false] },
-                    then: "$bookingData.SalePurchase",
-                    else: "1APCC",
-                  },
-                },
-                `${MODEENV}~`,
-                "$bookingData.itinerary.FareFamily",
-              ],
-            },
-          },
-        },
-        getCommercialArray: "$bookingData.itinerary.PriceBreakup",
-        itinerary: "$bookingData.itinerary",
-
-        baseFare: {
-          $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0],
-        },
-
-        totalBaggagePrice: "$Passengers.totalBaggagePrice",
-        totalMealPrice: "$Passengers.totalMealPrice",
-        totalSeatPrice: "$Passengers.totalSeatPrice",
-        totalFastForwardPrice: "$Passengers.totalFastForwardPrice",
-
-        itemAmount: "0",
       },
+      getCommercialArray: "$bookingData.itinerary.PriceBreakup",
+      itinerary: "$bookingData.itinerary",
+      baseFare: {
+        $arrayElemAt: ["$bookingData.itinerary.PriceBreakup.BaseFare", 0],
+      },
+      totalBaggagePrice: "$Passengers.totalBaggagePrice",
+      totalMealPrice: "$Passengers.totalMealPrice",
+      totalSeatPrice: "$Passengers.totalSeatPrice",
+      seats:"$Passengers.Seat",
+      meals:"$Passengers.Meal",
+      baggages:"$Passengers.Baggage",
+
+      totalFastForwardPrice: "$Passengers.totalFastForwardPrice",
+      itemAmount: "0",
+    DepartureCode:  "$bookingData.itinerary.Sectors.Departure.Code",
+    ArrivalCode:  "$bookingData.itinerary.Sectors.Arrival.Code",
     },
-  ]);
+  },
+]);
 
-  // Remaining processing logic after fetching data
-  let processedBookingIds = new Set();
+// Process the data
+const processedBookingIds = new Set();
+const finalBillingData = [];
 
-  for (const [index, element] of billingData.entries()) {
-    // Initialize baseFare and airlineTax based on PaxType (ADT, CHD, INF)
-    switch (element.paxType) {
-      case "ADT": // Adult
-        element.itemAmount = element.itinerary.PriceBreakup[0]?.BaseFare || 0;
-        element.Tax = element.itinerary.PriceBreakup[0]?.Tax || 0;
-        break;
-      case "CHD": // Child
-        element.itemAmount = element.itinerary.PriceBreakup[1]?.BaseFare || 0;
-        element.Tax = element.itinerary.PriceBreakup[1]?.Tax || 0;
-        break;
-      case "INF": // Infant
-        element.itemAmount = element.itinerary.PriceBreakup[2]?.BaseFare || 0;
-        element.Tax = element.itinerary.PriceBreakup[2]?.Tax || 0;
-        break;
-      default:
-        element.itemAmount = 0;
-        element.Tax = 0;
+for (const [index, element] of billingData.entries()) {
+  const paxIndexMap = { ADT: 0, CHD: 1, INF: 2 };
+  const paxIndex = paxIndexMap[element.paxType] ?? 0;
+
+  const breakup = element.itinerary?.PriceBreakup?.[paxIndex] || {};
+  element.itemAmount = breakup.BaseFare || 0;
+  element.Tax = breakup.Tax || 0;
+
+  element.bookingId1 = element.bookingId1?.replace(/\s+/g, "") || null;
+
+  element.totalBaggagePrice = element.totalBaggagePrice || 0;
+  element.totalMealPrice = element.totalMealPrice || 0;
+  element.totalSeatPrice = element.totalSeatPrice || 0;
+  element.totalFastForwardPrice = element.totalFastForwardPrice || 0;
+
+  element.airlineTax =
+    element.Tax +
+    element.totalBaggagePrice +
+    element.totalMealPrice +
+    element.totalSeatPrice +
+    element.totalFastForwardPrice;
+
+  element.getCommercialArray?.forEach((items) => {
+    if (element.paxType === items.PassengerType) {
+      element.baseFare = items?.BaseFare || element.baseFare;
+      element.airlineTax = items?.airlineTax || element.airlineTax;
+      items.CommercialBreakup?.forEach((item) => {
+        if (item.CommercialType === "Discount") {
+          element.commission = parseFloat(
+            (
+              parseFloat(element.cashback || 0) + parseFloat(item.Amount)
+            ).toFixed(2)
+          );
+        } else if (item.CommercialType === "TDS") {
+          element.tds = parseFloat(
+            (parseFloat(element.tds || 0) + parseFloat(item.Amount)).toFixed(2)
+          );
+        }
+      });
     }
+  });
 
-    // Calculate itemAmount as the sum of baseFare, totalBaggagePrice, totalMealPrice, and totalSeatPrice
-    element.bookingId1 = element.bookingId1
-      ? element.bookingId1.replace(/\s+/g, "")
-      : null;
-    element.totalBaggagePrice = element.totalBaggagePrice || 0;
-    element.totalMealPrice = element.totalMealPrice || 0;
-    element.totalSeatPrice = element.totalSeatPrice || 0;
-    element.totalFastForwardPrice = element.totalFastForwardPrice || 0;
+  if (processedBookingIds.has(element.bookingId)) {
+    element.commission = 0;
+    element.tds = 0;
+  } else {
+    const tdsAmount = await getTdsAndDsicount([element.itinerary]);
+    element.commission = tdsAmount.ldgrdiscount;
+    element.tds = tdsAmount.ldgrtds;
+    processedBookingIds.add(element.bookingId);
+  }
 
-    element.airlineTax =
-      element.Tax +
-      element.totalBaggagePrice +
-      element.totalMealPrice +
-      element.totalSeatPrice +
-      element.totalFastForwardPrice;
+  delete element.itinerary;
 
-    // Map through getCommercialArray and calculate commission and TDS
-    element.getCommercialArray?.map((items) => {
-      if (element.paxType === items.PassengerType) {
-        element.baseFare = items?.BaseFare || element.baseFare;
-        element.airlineTax = items?.airlineTax || element.airlineTax;
-        items.CommercialBreakup.map((item) => {
-          if (item.CommercialType === "Discount") {
-            element.commission = parseFloat(
-              (
-                parseFloat(element.cashback || 0) + parseFloat(item.Amount)
-              ).toFixed(2)
-            );
-          }
-          if (item.CommercialType === "TDS") {
-            element.tds = parseFloat(
-              (parseFloat(element.tds || 0) + parseFloat(item.Amount)).toFixed(
-                2
-              )
-            );
-          }
+  let ticketNumber = [element.pnr];
+  if (element.ticketNo?.ticketDetails) {
+    ticketNumber = await getTicketNumberBySector(
+      element.ticketNo?.ticketDetails,
+      element.sector
+    );
+  }
+  element.ticketNo =
+    ticketNumber.length && ticketNumber[0] ? ticketNumber[0] : element.pnr;
+
+  element.id = index + 1;
+  element.travelDateOutbound = await ISTTime(element.travelDateOutbound);
+  element.travelDateInbound = await ISTTime(element.travelDateInbound);
+  element.issueDate = await ISTTime(element.issueDate);
+
+  finalBillingData.push(element);
+
+  // Add extra entry for seat price
+  if (element.seats?.some(seat => seat.TotalPrice > 0)) {
+    element.seats.forEach((seat) => {
+      if (seat.TotalPrice > 0&&element?.DepartureCode.includes(seat.Src)&&element?.ArrivalCode.includes(seat.Des)) {
+        finalBillingData.push({
+          "_id": element._id,
+          "paxType": element.paxType,
+          "accountPost": element.accountPost,
+          "bookingId": element.bookingId,
+          "ticketNo": `${element.pnr}-${seat.SeatCode }`,
+          "paxName": element.paxName,
+          "agencyName": element.agencyName,
+          "agentId": element.agentId,
+          "pnr": element.pnr,
+          "sector": `${seat.Src} ${seat.Des}`,
+          "flightNo": `${seat.FCode} ${seat.FNo}`,
+          "class": element.class,
+          "ccUserName": element.ccUserName,
+          "travelDateOutbound": element.travelDateOutbound,
+          "travelDateInbound": element.travelDateInbound,
+          "issueDate": element.issueDate,
+          "airlineTax": 0,
+          "tranFee": "0",
+          "sTax": "0",
+          "commission": 0,
+          "tds": "0",
+          "cashback": "0",
+          "purchaseCode": "0",
+          "flightCode": element.flightCode,
+          "airlineName": element.airlineName,
+          "bookingId1": element.bookingId1,
+          "baseFare": 0,
+          "totalBaggagePrice": 0,
+          "totalMealPrice": 0,
+          "totalSeatPrice": 0,
+          "totalFastForwardPrice": 0,
+          "itemAmount": seat.TotalPrice,
+          "Tax": 0,
+          "id": 0
         });
       }
     });
-
-    // Check if the bookingId is already processed to avoid duplicate commissions and TDS
-    if (processedBookingIds.has(element.bookingId)) {
-      element.commission = 0;
-      element.tds = 0;
-      delete element.itinerary;
-    } else {
-      let getTdsamount = await getTdsAndDsicount([element.itinerary]);
-      element.commission = getTdsamount.ldgrdiscount;
-      element.tds = getTdsamount.ldgrtds;
-      processedBookingIds.add(element.bookingId);
-      delete element.itinerary;
-    }
-
-    // Handle ticket number and other details
-    let ticketNumber = [element.pnr];
-    if (element.ticketNo?.ticketDetails) {
-      ticketNumber = await getTicketNumberBySector(
-        element.ticketNo?.ticketDetails,
-        element.sector
-      );
-    }
-    element.ticketNo =
-      ticketNumber.length !== 0 &&
-      ticketNumber[0] != null &&
-      ticketNumber[0] !== ""
-        ? ticketNumber[0]
-        : element.pnr;
-
-    // Convert dates to IST time format
-    element.id = index + 1;
-    element.travelDateOutbound = await ISTTime(element.travelDateOutbound);
-    element.travelDateInbound = await ISTTime(element.travelDateInbound);
-    element.issueDate = await ISTTime(element.issueDate);
-
-    // Clean up fields before returning the final result
-    delete element.getCommercialArray;
-    delete element.baseFare;
-    delete element.totalBaggagePrice;
-    delete element.totalFastForwardPrice;
-    delete element.totalMealPrice;
-    delete element.totalSeatPrice;
+  }
+  
+  if (element.baggages?.some(baggage => baggage.Price  > 0)) {
+    element.baggages.forEach((baggage) => {
+      if (baggage.Price  > 0&&element?.DepartureCode.includes(baggage.Src)&&element?.ArrivalCode.includes(baggage.Des)) {
+        finalBillingData.push({
+          "_id": element._id,
+          "paxType": element.paxType,
+          "accountPost": element.accountPost,
+          "bookingId": element.bookingId,
+          "ticketNo": `${element.pnr}-${baggage.SsrCode }`,
+          "paxName": element.paxName,
+          "agencyName": element.agencyName,
+          "agentId": element.agentId,
+          "pnr": element.pnr,
+          "sector": `${baggage.Src} ${baggage.Des}`,
+          "flightNo": `${baggage.FCode} ${baggage.FNo}`,
+          "class": element.class,
+          "ccUserName": element.ccUserName,
+          "travelDateOutbound": element.travelDateOutbound,
+          "travelDateInbound": element.travelDateInbound,
+          "issueDate": element.issueDate,
+          "airlineTax": 0,
+          "tranFee": "0",
+          "sTax": "0",
+          "commission": 0,
+          "tds": "0",
+          "cashback": "0",
+          "purchaseCode": "0",
+          "flightCode": element.flightCode,
+          "airlineName": element.airlineName,
+          "bookingId1": element.bookingId1,
+          "baseFare": 0,
+          "totalBaggagePrice": 0,
+          "totalMealPrice": 0,
+          "totalSeatPrice": 0,
+          "totalFastForwardPrice": 0,
+          "itemAmount": baggage.Price,
+          "Tax": 0,
+          "id": 0
+        });
+      }
+    });
   }
 
-  if (!billingData.length) {
-    return {
-      response: "Data Not Found",
-    };
+  if (element.meals?.some(meal => meal.Price  > 0)) {
+    element.meals?.forEach((meal) => {
+      if (meal.Price  > 0&&element?.DepartureCode.includes(meal.Src)&&element?.ArrivalCode.includes(meal.Des)) {
+        finalBillingData.push({
+          "_id": element._id,
+          "paxType": element.paxType,
+          "accountPost": element.accountPost,
+          "bookingId": element.bookingId,
+          "ticketNo": `${element.pnr}-${meal.SsrCode }`,
+          "paxName": element.paxName,
+          "agencyName": element.agencyName,
+          "agentId": element.agentId,
+          "pnr": element.pnr,
+          "sector": `${meal.Src} ${meal.Des}`,
+          "flightNo": `${meal.FCode} ${meal.FNo}`,
+          "class": element.class,
+          "ccUserName": element.ccUserName,
+          "travelDateOutbound": element.travelDateOutbound,
+          "travelDateInbound": element.travelDateInbound,
+          "issueDate": element.issueDate,
+          "airlineTax": 0,
+          "tranFee": "0",
+          "sTax": "0",
+          "commission": 0,
+          "tds": "0",
+          "cashback": "0",
+          "purchaseCode": "0",
+          "flightCode": element.flightCode,
+          "airlineName": element.airlineName,
+          "bookingId1": element.bookingId1,
+          "baseFare": 0,
+          "totalBaggagePrice": 0,
+          "totalMealPrice": 0,
+          "totalSeatPrice": 0,
+          "totalFastForwardPrice": 0,
+          "itemAmount": meal.Price,
+          "Tax": 0,
+          "id": 0
+        });
+      }
+    });
   }
+}
 
-  return {
-    response: "Fetch Data Successfully",
-    data: billingData,
-  };
+// Final response
+if (!finalBillingData.length) {
+  return { response: "Data Not Found" };
+}
+
+
+const newArray = finalBillingData.map(
+  ({ seats, baggages, meals, totalBaggagePrice, totalMealPrice, totalSeatPrice, ArrivalCode, DepartureCode,id,totalFastForwardPrice,baseFare,getCommercialArray, ...rest }, index) => ({
+    ...rest,
+    id: index + 1,
+  })
+);
+
+
+return {
+  response: "Fetch Data Successfully",
+  data: newArray,
+};
+
 };
 
 const updateBillPost = async (req, res) => {

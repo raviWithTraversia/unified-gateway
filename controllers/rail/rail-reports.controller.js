@@ -217,7 +217,7 @@ const paxbyBillingData = BillingData.flatMap((element) => {
     trave_date_inbound: convertTimeISTtoUTC(element?.destArrvDate),
     issue_date: element?.createdAt,
     airline_name: "RAILWAY TICKET",
-    airline_tax: Math.round(element?.RailCommercial?.commericalConveniencefee),
+    airline_tax:Math.round(Number(element?.RailCommercial?.commericalConveniencefee)+Number(element?.insuranceCharge)),
     tran_fee: 0,
     s_tax: element?.RailCommercial?.agentServiceCharge/2,
     commission: Math.round(commission),

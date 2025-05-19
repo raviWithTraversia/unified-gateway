@@ -12,6 +12,9 @@ const amendmentCart = require("./amendmentCart.service");
 const amadeus = require("./amadeus/searchFlights.service");
 const Config = require("../../configs/config");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
+const BookingTemp = require("../../models/booking/BookingTemp");
+
+
 const {
   ServerStatusCode,
   errorResponse,
@@ -229,42 +232,63 @@ const getRBD = async (req, res) => {
 const getPnrTicket = async (req, res) => {
   try {
     // throw new Error("Service Unavailable  The Moment");
-    const { result, error } = await getCommonPnrTicket(req.body, res);
-    if (error) {
-      throw new Error(error);
-    }
-    const errorMessage = [
-      "Your Balance is not sufficient",
-      "Booking data not found",
-      "Agent configuration not found",
-      "Passenger preferences not found",
-      "No passengers found",
-      "Hold From Api Side",
-      "Booking is not confirmed",
-    ];
-    if (typeof result[0] === "string" && errorMessage.includes(result[0])) {
-      return apiErrorres(
+    // return false
+    if(req.body.paymentMethod==="PG"){
+        await BookingTemp.create({
+                  companyId: req.body.Authentication.CompanyId,
+                  userId: req.body.Authentication.UserId,
+                  source: "Kafila",
+                  BookingId: req.body.bookingId,
+                  request: JSON.stringify(req.body),
+                  responce: "Hold Booking Save Successfully",
+                })
+                return apiSucessRes(
+                  res,
+                  "Fetch Process Result",
+                  "Hold Booking Save Successfully",
+                  ServerStatusCode.SUCESS_CODE
+                );
+      
+    }else{
+      const { result, error } = await getCommonPnrTicket(req.body, res);
+      if (error) {
+        throw new Error(error);
+      }
+      const errorMessage = [
+        "Your Balance is not sufficient",
+        "Booking data not found",
+        "Agent configuration not found",
+        "Passenger preferences not found",
+        "No passengers found",
+        "Hold From Api Side",
+        "Booking is not confirmed",
+      ];
+      if (typeof result[0] === "string" && errorMessage.includes(result[0])) {
+        return apiErrorres(
+          res,
+          result[0] || errorResponse.SOMETHING_WRONG,
+          ServerStatusCode.SERVER_ERROR,
+          true
+        );
+      }
+  
+      if (error || result.length === 0)
+        return apiErrorres(
+          res,
+          errorResponse.SOMETHING_WRONG,
+          ServerStatusCode.SERVER_ERROR,
+          true
+        );
+  
+      return apiSucessRes(
         res,
-        result[0] || errorResponse.SOMETHING_WRONG,
-        ServerStatusCode.SERVER_ERROR,
-        true
+        "Fetch Process Result",
+        result,
+        ServerStatusCode.SUCESS_CODE
       );
     }
-
-    if (error || result.length === 0)
-      return apiErrorres(
-        res,
-        errorResponse.SOMETHING_WRONG,
-        ServerStatusCode.SERVER_ERROR,
-        true
-      );
-
-    return apiSucessRes(
-      res,
-      "Fetch Process Result",
-      result,
-      ServerStatusCode.SUCESS_CODE
-    );
+   
+   
   } catch (error) {
     console.log({ error });
     return apiErrorres(

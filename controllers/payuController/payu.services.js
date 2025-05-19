@@ -27,6 +27,7 @@ const AgentConfiguration = require("../../models/AgentConfig");
 const { saveLogInFile } = require("../../utils/save-log");
 const { commonFlightBook } = require("../../services/common-flight-book");
 const { error } = require("console");
+const {getCommonPnrTicket}=require('../../services/common-pnrTicket-service')
 
 const payu = async (req, res) => {
   try {
@@ -1101,6 +1102,10 @@ const payuSuccess = async (req, res) => {
     throw error;
   }
 };
+
+
+
+
 
 const payuWalletResponceSuccess = async (req, res) => {
   try {
@@ -2460,6 +2465,988 @@ async function updateBarcode2DByBookingId(
     //console.error("Error updating Barcode2D:", error);
   }
 }
+
+// const commonMethodBooking=async(bodyData,isHold=false,udf1)=>{
+//   try {
+    
+//     const convertDataBookingTempRes = JSON.parse(bodyData);
+//     const PassengerPreferences = JSON.parse(
+//       convertDataBookingTempRes.PassengerPreferences
+//     );
+//     const ItineraryPriceCheckResponses = JSON.parse(
+//       convertDataBookingTempRes.ItineraryPriceCheckResponses
+//     );
+
+//     const Authentication = JSON.parse(
+//       convertDataBookingTempRes.Authentication
+//     );
+
+//     const Segments = convertDataBookingTempRes.Segments;
+
+//     const TravelType = convertDataBookingTempRes.TravelType;
+
+//     const TypeOfTrip = convertDataBookingTempRes.TravelType;
+
+//     const body = {
+//       SearchRequest: {
+//         Authentication,
+//         PassengerPreferences,
+//         ItineraryPriceCheckResponses,
+//         TravelType,
+//         TypeOfTrip,
+//         Segments,
+//          },
+//          isHoldBooking: isHold,
+//     };
+      
+        
+
+//         // console.log(PassengerPreferences)
+
+//         let credentialType = "D";
+//         let createTokenUrl;
+//         let flightSearchUrl;
+//         if (Authentication.CredentialType === "LIVE") {
+//           // Live Url here
+
+//           credentialType = "P";
+//           createTokenUrl = `http://fhapip.ksofttechnology.com/api/Freport`;
+//           flightSearchUrl = `http://fhapip.ksofttechnology.com/api/FPNR`;
+//         } else {
+//           // Test Url here
+//           createTokenUrl = `http://stage1.ksofttechnology.com/api/Freport`;
+//           flightSearchUrl = `http://stage1.ksofttechnology.com/api/FPNR`;
+//         }
+
+//         let getuserDetails;
+
+//         getuserDetails = await UserModel.findOne({
+//           _id: Authentication.UserId,
+//         }).populate("company_ID");
+//         if (getuserDetails) {
+//           getuserDetails = getuserDetails;
+//         } else {
+//           getuserDetails = "User Not Found";
+//         }
+
+//         let getconfigAmount; // Declare getconfigAmount outside of the if block
+//         const companieIds = await UserModel.findById(getuserDetails._id);
+
+//         const getAllComapnies = await UserModel.find({
+//           company_ID: companieIds.company_ID,
+//         }).populate("roleId");
+//         let allIds = getAllComapnies
+//           .filter((item) => item.roleId.name === "Agency")
+//           .map((item) => item._id);
+
+//         const getAgentConfigForUpdateagain = await agentConfig.findOne({
+//           userId: allIds[0],
+//         });
+
+//         if (getAgentConfigForUpdateagain) {
+//           getconfigAmount = getAgentConfigForUpdateagain.maxcreditLimit;
+//         } else {
+//           return "Agency Config Not Found"; // Return the error message if agent config is not found
+//         }
+//         //return getconfigAmount;
+
+//         let totalItemAmount = 0; // Initialize totalItemAmount outside the reduce function
+
+//         const totalsAmount = ItineraryPriceCheckResponses.reduce(
+//           (acc, curr) => {
+//             // Add current item prices to the accumulator
+//             acc.offeredPrice += curr.offeredPrice;
+//             acc.totalMealPrice += curr.totalMealPrice;
+//             acc.totalBaggagePrice += curr.totalBaggagePrice;
+//             acc.totalSeatPrice += curr.totalSeatPrice;
+//             acc.totalFastForwardPrice += curr.totalFastForwardPrice;
+
+//             return acc; // Return accumulator
+//           },
+//           {
+//             offeredPrice: 0,
+//             totalMealPrice: 0,
+//             totalBaggagePrice: 0,
+//             totalSeatPrice: 0,
+//             totalFastForwardPrice: 0,
+//           }
+//         );
+//         // Calculate totalItemAmount by summing up all prices
+//         totalItemAmount =
+//           totalsAmount.offeredPrice +
+//           totalsAmount.totalMealPrice +
+//           totalsAmount.totalBaggagePrice +
+//           totalsAmount.totalFastForwardPrice +
+//           totalsAmount.totalSeatPrice;
+
+//         var pgChargesAmount = 0;
+//         // if (udf3 > 0) {
+//         //   totalItemAmount + udf3;
+//         //   pgChargesAmount = udf3;
+//         // }
+
+//         const newBalanceCredit = getconfigAmount + totalItemAmount;
+
+//         let itemAmount = 0;
+//         // await agentConfig.updateOne(
+//         //   { userId: allIds[0] },
+//         //   { maxcreditLimit: newBalanceCredit }
+//         // );
+
+//         let gtTsAdDnt = await getTdsAndDsicount(ItineraryPriceCheckResponses);
+//         // await ledger.create({
+//         //   userId: allIds[0], //getuserDetails._id,
+//         //   companyId: getuserDetails.company_ID._id,
+//         //   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+//         //   transactionAmount: totalItemAmount,
+//         //   deal: gtTsAdDnt?.ldgrdiscount,
+//         //   tds: gtTsAdDnt?.ldgrtds,
+//         //   currencyType: "INR",
+//         //   fop: "DEBIT",
+//         //   transactionType: "CREDIT",
+//         //   runningAmount: newBalanceCredit,
+//         //   remarks: "Booking Amount Deducted from Your Account(PayU).",
+//         //   transactionBy: getuserDetails._id,
+//         //   cartId: udf1,
+//         // });
+//         // var runningAmountShow = newBalanceCredit + Number(pgChargesAmount);
+//         // await ledger.create({
+//         //   userId: allIds[0], //getuserDetails._id,
+//         //   companyId: getuserDetails.company_ID._id,
+//         //   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+//         //   transactionAmount: totalItemAmount - pgChargesAmount,
+//         //   deal: gtTsAdDnt?.ldgrdiscount,
+//         //   tds: gtTsAdDnt?.ldgrtds,
+//         //   currencyType: "INR",
+//         //   fop: "DEBIT",
+//         //   transactionType: "DEBIT",
+//         //   runningAmount: runningAmountShow - totalItemAmount,
+//         //   remarks: "Booking Amount Deducted from Your Account(PayU).",
+//         //   transactionBy: getuserDetails._id,
+//         //   cartId: udf1,
+//         // });
+
+//         // if (udf3 > 0) {
+//         //   await ledger.create({
+//         //     userId: allIds[0], //getuserDetails._id,
+//         //     companyId: getuserDetails.company_ID._id,
+//         //     ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+//         //     transactionAmount: pgChargesAmount,
+//         //     currencyType: "INR",
+//         //     fop: "DEBIT",
+//         //     transactionType: "DEBIT",
+//         //     runningAmount: newBalanceCredit - totalItemAmount,
+//         //     remarks: "Manual PG_CHARGE",
+//         //     transactionBy: getuserDetails._id,
+//         //     cartId: udf1,
+//         //   });
+//         // }
+
+//         // await agentConfig.updateOne(
+//         //   { userId: allIds[0] },
+//         //   { maxcreditLimit: newBalanceCredit - totalItemAmount }
+//         // );
+
+//         //const hitAPI = await Promise.all(
+//         var totalRefundAmount = 0;
+//         var bookingId = "";
+//         var errorMessage = "";
+//         const updatePromises = ItineraryPriceCheckResponses.map(
+//           async (item, idx) => {
+//             bookingId = item.BookingId;
+//             let requestDataFSearch = {
+//               FareChkRes: {
+//                 Error: item.Error,
+//                 IsFareUpdate: item.IsFareUpdate,
+//                 IsAncl: item.IsAncl,
+//                 Param: item.Param,
+//                 SelectedFlight: [item.SelectedFlight],
+//                 FareBreakup: item.FareDifference,
+//                 GstData: item.GstData,
+//                 Ancl: null,
+//               },
+//               PaxInfo: PassengerPreferences,
+//             };
+
+//             try {
+//               let fSearchApiResponse = null;
+//               if (item.Provider === "Kafila") {
+//                 fSearchApiResponse = await axios.post(
+//                   flightSearchUrl,
+//                   requestDataFSearch,
+//                   {
+//                     headers: {
+//                       "Content-Type": "application/json",
+//                     },
+//                   }
+//                 );
+//               } else {
+//                 // console.log(body?.SearchRequest?.Segments,"segmaents")
+//                 const reqSegment = await body?.SearchRequest?.Segments?.[idx];
+//                 // saveLogInFile("request-segment.json", { reqSegment });
+//                 fSearchApiResponse = await commonFlightBook(
+//                   body,
+//                   reqSegment,
+//                   item,
+//                   PassengerPreferences
+//                 );
+//               }
+//               const logData = {
+//                 traceId: Authentication.TraceId,
+//                 companyId: Authentication.CompanyId,
+//                 userId: Authentication.UserId,
+//                 source: "Kafila",
+//                 type: "API Log",
+//                 BookingId: udf1,
+//                 product: "Flight",
+//                 logName: "air Booking",
+//                 request: requestDataFSearch,
+//                 responce: fSearchApiResponse?.data,
+//               };
+//               const logData1 = {
+//                 traceId: Authentication.TraceId,
+//                 companyId: Authentication.CompanyId,
+//                 userId: Authentication.UserId,
+//                 source: "Kafila",
+//                 type: "Portal log",
+//                 BookingId: udf1,
+//                 product: "Flight",
+//                 logName: "Air Booking",
+//                 request: requestDataFSearch,
+//                 responce: fSearchApiResponse?.data,
+//               };
+//               const logData2 = {
+//                 traceId: Authentication.TraceId,
+//                 companyId: Authentication.CompanyId,
+//                 userId: Authentication.UserId,
+//                 source: "Kafila",
+//                 type: "Portal log",
+//                 BookingId: udf1,
+//                 product: "Flight",
+//                 logName: "EazeBuzz Response",
+//                 request: "Request captured from portal",
+//                 responce: body,
+//               };
+//               Logs(logData);
+//               Logs(logData1);
+//               Logs(logData2);
+//               // console.log(fSearchApiResponse,"jdieeieieiei")
+//               if (!isHold||
+//                 fSearchApiResponse.data.Status == "Failed" ||
+//                 fSearchApiResponse.data.Status == "failed" ||
+//                 fSearchApiResponse?.data?.IsError == true ||
+//                 fSearchApiResponse?.data?.BookingInfo?.CurrentStatus == "FAILED"
+//               ) {
+//                 // console.log(fSearchApiResponse?.data,'JDifeieiei')
+//                 errorMessage =
+//                   fSearchApiResponse?.data?.ErrorMessage ||
+//                   fSearchApiResponse?.data?.BookingInfo?.BookingRemark ||
+//                   "error occured";
+//                 await BookingDetails.updateOne(
+//                   {
+//                     bookingId: udf1,
+//                     "itinerary.IndexNumber": item.IndexNumber,
+//                     bookingStatus: { $ne: "CONFIMED" },
+//                   },
+//                   {
+//                     $set: {
+//                       bookingStatus: "FAILED",
+//                       bookingRemarks:
+//                         fSearchApiResponse?.data?.ErrorMessage ||
+//                         fSearchApiResponse?.data?.BookingInfo?.BookingRemark ||
+//                         "error occured",
+//                     },
+//                   }
+//                 );
+
+//                 await BookingDetails.updateMany(
+//                   {
+//                     bookingId: udf1,
+//                     "itinerary.IndexNumber": item.IndexNumber,
+//                     bookingStatus: { $ne: "CONFIMED" },
+//                   },
+//                   {
+//                     $set: {
+//                       bookingStatus: "FAILED",
+//                       bookingRemarks:
+//                         fSearchApiResponse?.data?.ErrorMessage ||
+//                         fSearchApiResponse?.data?.BookingInfo?.BookingRemark ||
+//                         "error occured",
+//                     },
+//                   }
+//                 );
+
+//                 // Fetch booking details for the failed booking
+//                 const updatedBooking = await BookingDetails.find(
+//                   {
+//                     bookingId: udf1,
+//                     bookingStatus: "FAILED",
+//                   },
+//                   { bookingTotalAmount: 1 }
+//                 );
+
+//                 // Accumulate the refund amounts
+//                 const refundAmount = updatedBooking.reduce((sum, element) => {
+//                   return sum + (element.bookingTotalAmount || 0); // Add if bookingTotalAmount exists
+//                 }, 0);
+
+//                 updatedBooking.length > 1
+//                   ? (totalRefundAmount = totalItemAmount)
+//                   : (totalRefundAmount = refundAmount);
+
+//                 // Add to the total refund amount
+//               }
+//               item.LastTicketingDate =
+//                 fSearchApiResponse?.data?.BookingInfo?.LastTicketingTime || "";
+//               const bookingResponce = {
+//                 CartId: item.BookingId,
+//                 bookingResponce: {
+//                   ...fSearchApiResponse.data.BookingInfo,
+//                   CurrentStatus:
+//                     fSearchApiResponse.data.BookingInfo.CurrentStatus,
+//                   BookingStatus:
+//                     fSearchApiResponse.data.BookingInfo.BookingStatus,
+//                   BookingRemark:
+//                     fSearchApiResponse.data.BookingInfo.BookingRemark,
+//                   BookingId: fSearchApiResponse.data.BookingInfo.BookingId,
+//                   providerBookingId:
+//                     fSearchApiResponse.data.BookingInfo.BookingId,
+//                   PNR: fSearchApiResponse.data.BookingInfo.APnr,
+//                   Type: fSearchApiResponse.data.BookingInfo.GPnr,
+//                   APnr: fSearchApiResponse.data.BookingInfo.APnr,
+//                   GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+//                 },
+//                 itinerary: item,
+//                 PassengerPreferences: PassengerPreferences,
+//                 userDetails: getuserDetails,
+//               };
+//               await BookingDetails.updateOne(
+//                 {
+//                   bookingId: udf1,
+//                   "itinerary.IndexNumber": item.IndexNumber,
+//                 },
+//                 {
+//                   $set: {
+//                     "itinerary.LastTicketingDate": item.LastTicketingDate,
+//                     bookingStatus:
+//                       fSearchApiResponse.data.BookingInfo.CurrentStatus,
+//                     bookingRemarks:
+//                       fSearchApiResponse.data.BookingInfo.BookingRemark,
+//                     providerBookingId: fSearchApiResponse.data.BookingInfo
+//                       ?.BookingId
+//                       ? fSearchApiResponse.data.BookingInfo?.BookingId
+//                       : fSearchApiResponse.data.BookingInfo.CurrentStatus ===
+//                         "CONFIRMED"
+//                       ? await commonProviderMethodDate()
+//                       : fSearchApiResponse.data.BookingInfo.BookingId,
+//                     PNR: fSearchApiResponse.data.BookingInfo.APnr,
+//                     APnr: fSearchApiResponse.data.BookingInfo.APnr,
+//                     GPnr: fSearchApiResponse.data.BookingInfo.GPnr,
+//                     SalePurchase:
+//                       fSearchApiResponse?.data?.BookingInfo?.SalePurchase
+//                         ?.ATDetails?.Account,
+//                   },
+//                 }
+//               );
+
+//               const getpassengersPrefrence =
+//                 await passengerPreferenceModel.findOne({ bookingId: udf1 });
+
+//               if (
+//                 item.Provider === "Kafila" &&
+//                 getpassengersPrefrence?.Passengers
+//               ) {
+//                 // await Promise.all(
+
+//                 getpassengersPrefrence.Passengers.map((passenger) => {
+//                   const apiPassenger =
+//                     fSearchApiResponse.data.PaxInfo.Passengers.find(
+//                       (p) =>
+//                         p.FName === passenger.FName &&
+//                         p.LName === passenger.LName
+//                     );
+//                   if (apiPassenger) {
+//                     // passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+//                     const ticketUpdate =
+//                       passenger?.Optional?.ticketDetails?.find?.(
+//                         (p) =>
+//                           p?.src ===
+//                             fSearchApiResponse?.data?.Param?.Sector?.[0]?.Src &&
+//                           p?.des ===
+//                             fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
+//                       );
+//                     if (ticketUpdate) {
+//                       ticketUpdate.status = fSearchApiResponse.data.BookingInfo
+//                         .CurrentStatus
+//                         ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+//                         : "CONFIRMED";
+//                       ticketUpdate.ticketNumber =
+//                         apiPassenger?.Optional?.TicketNumber;
+//                     }
+
+//                     // passenger.Status = "CONFIRMED";
+//                   }
+//                 });
+//                 // );
+//                 bookingResponce.PassengerPreferences.Passengers =
+//                   getpassengersPrefrence.Passengers;
+//                 await getpassengersPrefrence.save();
+//               } else if (
+//                 fSearchApiResponse?.data?.BookingInfo?.CurrentStatus ===
+//                 "CONFIRMED"
+//               ) {
+//                 getpassengersPrefrence.Passengers.map?.(async (passenger) => {
+//                   const segmentMap = {};
+//                   passenger.Optional.ticketDetails.forEach((ticket, idx) => {
+//                     segmentMap[`${ticket.src}-${ticket.des}`] = idx;
+//                   });
+//                   const selectedPax =
+//                     fSearchApiResponse.data.PaxInfo.Passengers.find(
+//                       (p) =>
+//                         p.FName === passenger.FName &&
+//                         p.LName === passenger.LName
+//                     );
+//                   if (!selectedPax) return passenger;
+//                   // passenger.Status=fSearchApiResponse.data.BookingInfo.CurrentStatus?fSearchApiResponse.data.BookingInfo.CurrentStatus:"CONFIRMED"
+
+//                   // saveLogInFile("selected-pax.json", selectedPax);
+//                   passenger.Optional.EMDDetails = [
+//                     ...(passenger.Optional.EMDDetails || []),
+//                     ...(selectedPax?.Optional?.EMDDetails || []),
+//                   ];
+//                   if (selectedPax?.Optional?.ticketDetails?.length) {
+//                     selectedPax.Optional?.ticketDetails.forEach((ticket) => {
+//                       const segmentIdx =
+//                         segmentMap[`${ticket.src}-${ticket.des}`];
+//                       if (segmentIdx != null) {
+//                         passenger.Optional.ticketDetails[
+//                           segmentIdx
+//                         ].ticketNumber = ticket.ticketNumber;
+//                         passenger.Optional.ticketDetails[segmentIdx].status =
+//                           fSearchApiResponse.data.BookingInfo.CurrentStatus
+//                             ? fSearchApiResponse.data.BookingInfo.CurrentStatus
+//                             : "CONFIRMED";
+//                       } else {
+//                         passenger.Optional.ticketDetails.push(ticket);
+//                       }
+//                     });
+//                   }
+//                   return passenger;
+//                 });
+//                 bookingResponce.PassengerPreferences.Passengers =
+//                   getpassengersPrefrence.Passengers;
+//                 // saveLogInFile(
+//                 //   "pax-preferences.json",
+//                 //   getpassengersPrefrence._doc
+//                 // );
+//                 await getpassengersPrefrence.save();
+//               }
+
+//               if (
+//                 fSearchApiResponse.data.BookingInfo.CurrentStatus === "FAILED"
+//               ) {
+//                 return `${fSearchApiResponse.data}-${fSearchApiResponse.data}`;
+//               } else {
+//                 itemAmount +=
+//                   item?.offeredPrice +
+//                   item?.totalMealPrice +
+//                   item?.totalBaggagePrice +
+//                   item?.totalFastForwardPrice +
+//                   item?.totalSeatPrice;
+
+//                 // Transtion
+//                 // await transaction.updateOne(
+//                 //   { bookingId: item?.BookingId },
+//                 //   { statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
+//                 //     trnsNo:txnid,
+//                 //     // payment_source:payment_source,
+//                 //     paymentMode:payment_source,
+//                 //     trnsType:PG_TYPE,
+//                 //     trnsBankRefNo:bank_ref_num,
+//                 //     cardType:cardCategory
+//                 //   }
+//                 // );
+//               }
+//               //return fSearchApiResponse.data;
+//               const barcodeupdate = await updateBarcode2DByBookingId(
+//                 item?.BookingId,
+//                 PassengerPreferences,
+//                 item,
+//                 fSearchApiResponse.data.BookingInfo.APnr
+//               );
+//               if (barcodeupdate) {
+//                 return bookingResponce;
+//               } else {
+//                 return bookingResponce;
+//               }
+//             } catch (error) {
+//               if (error.message?.toLowerCase().includes("socket hang up")) {
+//                 await BookingDetails.updateOne(
+//                   {
+//                     bookingId: item?.BookingId,
+//                     "itinerary.IndexNumber": item.IndexNumber,
+//                     bookingStatus: { $ne: "CONFIRMED" },
+//                   },
+//                   {
+//                     $set: {
+//                       bookingStatus: "PENDING",
+//                     },
+//                   }
+//                 );
+
+//                 return error.message;
+//               } else {
+//                 await BookingDetails.updateOne(
+//                   {
+//                     bookingId: item?.BookingId,
+//                     "itinerary.IndexNumber": item.IndexNumber,
+//                     bookingStatus: { $ne: "CONFIRMED" },
+//                   },
+//                   {
+//                     $set: {
+//                       bookingStatus: "FAILED",
+//                       bookingRemarks: errorMessage,
+//                     },
+//                   }
+//                 );
+//                 return error.message;
+//               }
+//             }
+//           }
+//         );
+//         //);
+//         const results = await Promise.all(updatePromises);
+//         // if (results.length > 0) {
+//         //   await transaction.create({
+//         //     userId: Authentication.UserId,
+//         //     bookingId: bookingId,
+//         //     companyId: Authentication.CompanyId,
+//         //     trnsNo: txnid,
+//         //     trnsType: "DEBIT",
+//         //     // paymentMode: "Payu",
+//         //     paymentMode: PG_TYPE,
+//         //     paymentGateway: "PayU",
+//         //     trnsStatus: "success",
+//         //     transactionBy: Authentication.UserId,
+//         //     pgCharges: udf3,
+//         //     transactionAmount: Number(udf2) + Number(pgChargesAmount),
+//         //     statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
+//         //     trnsNo: txnid,
+//         //     trnsBankRefNo: bank_ref_num,
+//         //     cardType: cardCategory,
+//         //   });
+//         // }
+//         // if (totalRefundAmount > 0) {
+//         //   await ledger.create({
+//         //     userId: allIds[0], //getuserDetails._id,
+//         //     companyId: getuserDetails.company_ID._id,
+//         //     ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+//         //     transactionAmount: totalRefundAmount,
+//         //     currencyType: "INR",
+//         //     fop: "DEBIT",
+//         //     transactionType: "CREDIT",
+//         //     runningAmount: getconfigAmount + totalRefundAmount,
+//         //     remarks: `Refund Amount for Booking`,
+//         //     transactionBy: getuserDetails._id,
+//         //     cartId: udf1,
+//         //   });
+
+//         //   await agentConfig.updateOne(
+//         //     { userId: allIds[0] },
+//         //     { $inc: { maxcreditLimit: totalRefundAmount } }
+//         //   );
+//         // }
+
+//     //     let successHtmlCode = `<!DOCTYPE html>
+//     // <html lang="en">
+//     // <head>
+//     //   <meta charset="UTF-8">
+//     //   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//     //   <title>Payment Success</title>
+//     //   <style>
+//     //   .success-txt{
+//     //     color: #51a351;
+//     //   }
+//     //   body {
+//     //     font-family: Arial, sans-serif;
+//     //     margin: 0;
+//     //     padding: 0;
+//     //     display: flex;
+//     //     justify-content: center;
+//     //     align-items: center;
+//     //     height: 100vh;
+//     //     background-color: #f2f2f2;
+//     //   }
+      
+//     //   .success-container {
+//     //     max-width: 400px;
+//     //     width: 100%;
+//     //     padding: 20px;
+//     //     border: 1px solid #ccc;
+//     //     border-radius: 5px;
+//     //     background-color: #fff;
+//     //     text-align: center;
+//     //   }
+//     //   .success-container p {
+//     //     margin-top: 10px;
+//     //   }
+      
+//     //   .success-container a {
+//     //     display: inline-block;
+//     //     margin-top: 20px;
+//     //     padding: 10px 20px;
+//     //     background-color: #007bff;
+//     //     color: #fff;
+//     //     text-decoration: none;
+//     //     border-radius: 5px;
+//     //   }
+      
+//     //   .success-container a:hover {
+//     //     background-color: #0056b3;
+//     //   }
+//     // </style>
+
+//     // </head>
+//     // <body>
+//     //   <div class="success-container">
+//     //     <h1 class="success-txt">Payment Successful!</h1>
+//     //     <p class="success-txt">Your payment has been successfully processed.</p>
+//     //     <p>Thank you for your purchase.</p>
+//     //     <a href="${
+//     //       Config[Config.MODE].baseURL
+//     //     }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+//     //   </div>
+//     // </body>
+//     // </html>`;
+
+//     //     if (results.length > 0) {
+//     //       if (itemAmount !== 0) {
+//     //         const runnnigBalance = newBalanceCredit - itemAmount;
+//     //         // await agentConfig.updateOne(
+//     //         //   { userId: getuserDetails._id },
+//     //         //   { maxcreditLimit: runnnigBalance }
+//     //         // );
+//     //         // // await ledger.create({
+//     //         //   userId: getuserDetails._id,
+//     //         //   companyId: getuserDetails.company_ID._id,
+//     //         //   ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+//     //         //   transactionAmount: itemAmount,
+//     //         //   currencyType: "INR",
+//     //         //   fop: "DEBIT",
+//     //         //   transactionType: "DEBIT",
+//     //         //   runningAmount: runnnigBalance,
+//     //         //   remarks: "Booking Amount Dededucted From Your Account.",
+//     //         //   transactionBy: getuserDetails._id,
+//     //         //   cartId: udf1,
+//     //         // });
+//     //       }
+//           return results;
+//         // } else {
+//         //   return "Data does not exist";
+//         // }
+    
+//     }
+//    catch (error) {
+//     throw error;
+//   }
+// }
+async function processHoldBookingWithPg(req,res){
+  const {
+    status,
+    txnid,
+    productinfo,
+    udf1,
+    udf2,
+    udf3,
+    amount,
+    payment_source,
+    bank_ref_num,
+    PG_TYPE,
+    cardCategory,
+  } = req.body;
+try{
+  let getuserDetails;
+
+  const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
+
+  if (!BookingTempData) {
+    return "Data does not exist";
+  }
+const body=JSON.parse(BookingTempData.request);
+  const {Authentication,Itinerary}=body
+  
+        getuserDetails = await UserModel.findOne({
+          _id: Authentication.UserId,
+        }).populate("company_ID");
+        if (getuserDetails) {
+          getuserDetails = getuserDetails;
+        } else {
+          getuserDetails = "User Not Found";
+        }
+
+        let getconfigAmount; // Declare getconfigAmount outside of the if block
+        const companieIds = await UserModel.findById(getuserDetails._id);
+
+        const getAllComapnies = await UserModel.find({
+          company_ID: companieIds.company_ID,
+        }).populate("roleId");
+        let allIds = getAllComapnies
+          .filter((item) => item.roleId.name === "Agency")
+          .map((item) => item._id);
+
+        const getAgentConfigForUpdateagain = await agentConfig.findOne({
+          userId: allIds[0],
+        });
+
+        if (getAgentConfigForUpdateagain) {
+          getconfigAmount = getAgentConfigForUpdateagain.maxcreditLimit;
+        } else {
+          return "Agency Config Not Found"; // Return the error message if agent config is not found
+        }
+        //return getconfigAmount;
+
+        let totalItemAmount = 0; // Initialize totalItemAmount outside the reduce function
+
+        // const totalsAmount = Itinerary.reduce(
+        //   (acc, curr) => {
+        //     acc.offeredPrice += curr.offeredPrice || 0;
+        //     acc.totalMealPrice += curr.totalMealPrice || 0;
+        //     acc.totalBaggagePrice += curr.totalBaggagePrice || 0;
+        //     acc.totalSeatPrice += curr.totalSeatPrice || 0;
+        //     acc.totalFastForwardPrice += curr.totalFastForwardPrice || 0;
+        //     return acc;
+        //   },
+        //   {
+        //     offeredPrice: 0,
+        //     totalMealPrice: 0,
+        //     totalBaggagePrice: 0,
+        //     totalSeatPrice: 0,
+        //     totalFastForwardPrice: 0,
+        //   }
+        // );
+        const result = await BookingDetails.aggregate([
+
+          {
+            $match: {
+              bookingId: udf1
+            }
+          },
+          {
+            $group: {
+              _id: "$bookingId",
+              totalBookingAmount: { $sum: "$bookingTotalAmount" }
+            }
+          }
+        ]);
+        await BookingDetails.updateMany(
+          { bookingId: udf1 },
+          { $set: { paymentMethodType: `PayU-${PG_TYPE}` } },
+          {new:true}
+        );
+
+
+        console.log(result)
+                // Calculate totalItemAmount by summing up all prices
+                totalItemAmount =result[0]?.totalBookingAmount || 0;
+
+        var pgChargesAmount = 0;
+        if (udf3 > 0) {
+          totalItemAmount + udf3;
+          pgChargesAmount = udf3;
+        }
+
+        const newBalanceCredit = getconfigAmount + totalItemAmount;
+
+        let itemAmount = 0;
+  let gtTsAdDnt = await getTdsAndDsicount(Itinerary);
+        await ledger.create({
+          userId: allIds[0], //getuserDetails._id,
+          companyId: getuserDetails.company_ID._id,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionAmount: totalItemAmount,
+          deal: gtTsAdDnt?.ldgrdiscount,
+          tds: gtTsAdDnt?.ldgrtds,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "CREDIT",
+          runningAmount: newBalanceCredit,
+          remarks: "Booking Amount Deducted from Your Account(PayU).",
+          transactionBy: getuserDetails._id,
+          cartId: udf1,
+        });
+        var runningAmountShow = newBalanceCredit + Number(pgChargesAmount);
+        await ledger.create({
+          userId: allIds[0], //getuserDetails._id,
+          companyId: getuserDetails.company_ID._id,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionAmount: totalItemAmount - pgChargesAmount,
+          deal: gtTsAdDnt?.ldgrdiscount,
+          tds: gtTsAdDnt?.ldgrtds,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount: runningAmountShow - totalItemAmount,
+          remarks: "Booking Amount Deducted from Your Account(PayU).",
+          transactionBy: getuserDetails._id,
+          cartId: udf1,
+        });
+
+        if (udf3 > 0) {
+          await ledger.create({
+            userId: allIds[0], //getuserDetails._id,
+            companyId: getuserDetails.company_ID._id,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount: pgChargesAmount,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "DEBIT",
+            runningAmount: newBalanceCredit - totalItemAmount,
+            remarks: "Manual PG_CHARGE",
+            transactionBy: getuserDetails._id,
+            cartId: udf1,
+          });
+        }
+        
+      try{
+        const { result, error } = await getCommonPnrTicket(body, res,true);
+        if (error) {
+          throw new Error(error);
+        }
+        const errorMessage = [
+          "Your Balance is not sufficient",
+          "Booking data not found",
+          "Agent configuration not found",
+          "Passenger preferences not found",
+          "No passengers found",
+          "Hold From Api Side",
+          "Booking is not confirmed",
+        ];
+        if (typeof result[0] === "string" && errorMessage.includes(result[0])) {
+          await ledger.create({
+            userId: allIds[0], //getuserDetails._id,
+            companyId: getuserDetails.company_ID._id,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount: totalRefundAmount,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "CREDIT",
+            runningAmount: getconfigAmount + await ledger.create({
+            userId: allIds[0], //getuserDetails._id,
+            companyId: getuserDetails.company_ID._id,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount: totalItemAmount,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "CREDIT",
+            runningAmount: getconfigAmount + totalItemAmount,
+            remarks: `Refund Amount for Booking`,
+            transactionBy: getuserDetails._id,
+            cartId: udf1,
+          }),
+            remarks: `Refund Amount for Booking`,
+            transactionBy: getuserDetails._id,
+            cartId: udf1,
+          })
+          // return apiErrorres(
+          //   res,
+          //   result[0] || errorResponse.SOMETHING_WRONG,
+          //   ServerStatusCode.SERVER_ERROR,
+          //   true
+          // );
+        }
+
+        await transaction.create({
+          userId: Authentication.UserId,
+          bookingId: udf1,
+          companyId: Authentication.CompanyId,
+          trnsNo: txnid,
+          trnsType: "DEBIT",
+          // paymentMode: "Payu",
+          paymentMode: PG_TYPE,
+          paymentGateway: "PayU",
+          trnsStatus: "success",
+          transactionBy: Authentication.UserId,
+          pgCharges: udf3,
+          transactionAmount: Number(udf2) + Number(pgChargesAmount),
+          statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
+          trnsNo: txnid,
+          trnsBankRefNo: bank_ref_num,
+          cardType: cardCategory,
+        });
+
+
+        let successHtmlCode = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Payment Success</title>
+          <style>
+          .success-txt{
+            color: #51a351;
+          }
+          body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f2f2f2;
+          }
+          
+          .success-container {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            text-align: center;
+          }
+          .success-container p {
+            margin-top: 10px;
+          }
+          
+          .success-container a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+          }
+          
+          .success-container a:hover {
+            background-color: #0056b3;
+          }
+        </style>
+    
+        </head>
+        <body>
+          <div class="success-container">
+            <h1 class="success-txt">Payment Successful!</h1>
+            <p class="success-txt">Your payment has been successfully processed.</p>
+            <p>Thank you for your purchase.</p>
+            <a href="${
+              Config[Config.MODE].baseURL
+            }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+          </div>
+        </body>
+        </html>`;
+    return successHtmlCode
+
+      }
+      catch(error){
+        throw error
+      }
+
+}catch(error){
+  throw error;
+}
+}
 module.exports = {
   payu,
   payuFail,
@@ -2470,4 +3457,6 @@ module.exports = {
   payu2,
   payuRailSuccess,
   payuRailFail,
+  // commonMethodBooking,
+  processHoldBookingWithPg
 };

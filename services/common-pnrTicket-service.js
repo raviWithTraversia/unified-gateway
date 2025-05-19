@@ -30,7 +30,7 @@ async function totalAmountGet(amount, userId) {
   }
   return true;
 }
-const getCommonPnrTicket = async (request, res) => {
+const getCommonPnrTicket = async (request, res,PG=false) => {
   var errorMessage = "";
   try {
     const requestBody = await createPnrTicketRequestBody(request);
@@ -42,7 +42,7 @@ const getCommonPnrTicket = async (request, res) => {
       request.Itinerary,
       request.Authentication?.UserId
     );
-    if (!checkBalance) {
+    if (!checkBalance&&!PG) {
       throw new Error("Your Balance is not sufficient");
     }
 
@@ -97,7 +97,7 @@ const getCommonPnrTicket = async (request, res) => {
     const successfulResults = await Promise.all(
       results
         .filter(({ status, value }) => status === "fulfilled" && value.success)
-        .map(({ value }) => holdBookingProcessPayment(value.result))
+        .map(({ value }) => holdBookingProcessPayment(value.result,PG))
     );
 
     return { result: [...successfulResults] };
@@ -118,7 +118,7 @@ function groupSegments(segments) {
 
 const holdBookingProcessPayment = async (item, pending = false) => {
   // 1. Booking confirmation check
-  if (item?.Status?.toLowerCase?.()?.includes?.("confim") && !pending) {
+  if (!item?.Status?.toLowerCase?.()?.includes?.("confirm")) {
     return "Booking is not confirmed";
   }
 
@@ -144,6 +144,7 @@ const holdBookingProcessPayment = async (item, pending = false) => {
       $set: {
         bookingStatus: "CONFIRMED",
         APnr: item?.PNR,
+        paymentMethodType:pending?bookingData.paymentMethodType:"Wallet",
         providerBookingId: commonProviderMethodDate(bookingData.createdAt),
       },
     },
@@ -241,7 +242,7 @@ const holdBookingProcessPayment = async (item, pending = false) => {
       }
 
       // Passenger update karo
-      passenger.Status = "CONFIRMED";
+      // passenger.Status = "CONFIRMED";
       passenger.Optional.EMDDetails = [
         ...(passenger.Optional.EMDDetails || []),
         ...(selectedPax.Optional?.EMDDetails || []),
@@ -253,6 +254,7 @@ const holdBookingProcessPayment = async (item, pending = false) => {
           if (segmentIdx != null) {
             passenger.Optional.ticketDetails[segmentIdx].ticketNumber =
               ticket.TicketNumber;
+              passenger.Optional.ticketDetails[segmentIdx].status = "CONFIRMED";
           } else {
             passenger.Optional.ticketDetails.push(ticket);
           }

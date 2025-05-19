@@ -18,6 +18,7 @@ const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
+const {commonMethodBooking}=require('../../controllers/payuController/payu.services')
 const {
   createLeadger,
   getTdsAndDsicount,
@@ -683,7 +684,7 @@ const KafilaFun = async (
     calculationOfferPriceWithCommercial,
     totalSSRWithCalculationPrice,
   });
-  if (paymentMethodType === "Wallet") {
+  if (paymentMethodType === "Wallet"||isHoldBooking) {
     try {
       // Retrieve agent configuration
 
@@ -800,7 +801,8 @@ const KafilaFun = async (
       PassengerPreferences,
       ItineraryPriceCheckResponses,
       paymentMethodType,
-      paymentGateway
+      paymentGateway,
+      isHoldBooking
     );
   }
 
@@ -1752,7 +1754,8 @@ const kafilaFunOnlinePayment = async (
   PassengerPreferences,
   ItineraryPriceCheckResponses,
   paymentMethodType,
-  paymentGateway
+  paymentGateway,
+  isHoldBooking
 ) => {
   const createBooking = async (newItem) => {
     try {
@@ -1995,6 +1998,11 @@ const kafilaFunOnlinePayment = async (
           Segments: Segments,
           TravelType: TypeOfTrip,
         });
+//         if(isHoldBooking){
+// const Data=await commonMethodBooking(request, true,ItineraryPriceCheckResponses[0].BookingId);
+
+// return Data
+//         }
 
         const bookingTemp = await BookingTemp.create({
           companyId: Authentication.companyId,

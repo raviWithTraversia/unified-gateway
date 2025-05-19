@@ -402,7 +402,7 @@ const railFareEnquiry = async (req, res) => {
     } else {
       response.traceId = traceId
       response.CommercialCharges = agentCharges
-      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "FareEnquiry", url, req.body, response)
+      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "FareEnquiry", url, queryParams, response)
 
       return {
         response: "Fetch Data Successfully",

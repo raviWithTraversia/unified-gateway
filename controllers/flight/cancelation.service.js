@@ -16,8 +16,12 @@ const crypto = require('crypto');
 const moment=require('moment')
 const {holdBookingProcessPayment}=require('../../services/common-pnrTicket-service')
 const {RefundedCommonFunction,getPnr1APnedingStatus,getPnrDataCommonMethod,commonProviderMethodDate,updateStatus}=require('../../controllers/commonFunctions/common.function')
+const {
+  commonAirBookingCancellation,commonAirBookingCancellationCharge
+} = require("../../services/common-air-cancellation");
 const {updateBarcode2DByBookingId}=require('./airBooking.service')
 const {updatePassengerStatus}=require('../commonFunctions/common.function')
+const {calculateDealAmount}=require('./partialCalcelationCharge.service')
 
 const fullCancelation = async (req, res) => {
   const {
@@ -46,7 +50,6 @@ const fullCancelation = async (req, res) => {
     (fieldName) =>
       req.body[fieldName] === null || req.body[fieldName] === undefined
   );
-
   if (missingFields.length > 0) {
     const missingFieldsString = missingFields.join(", ");
     return {
@@ -92,7 +95,8 @@ const fullCancelation = async (req, res) => {
   }
 
   let result;
-  if (TravelType !== "International" && TravelType !== "Domestic") {
+  if(Provider === "Kafila"){
+    if (TravelType !== "International" && TravelType !== "Domestic") {
     return {
       response: "Travel Type Not Valid",
     };
@@ -109,7 +113,86 @@ const fullCancelation = async (req, res) => {
       agencyUserId,
       providerBookingId
     );
+  }}
+  else{
+  
+        try {
+          // return false;
+        const {Fare,AirlineCancellationFee,AirlineRefund,ServiceFee,RefundableAmt}=req.body.charge;
+
+          const { result, error } = await commonAirBookingCancellation(req.body);
+          if (error)
+            return {
+              response: "Cancellation Failed",
+              data: {
+                Status: "CANCELLATION FAILED",
+                Error:
+                  typeof error === "string"
+                    ? error
+                    : error?.message || "Internal Server Error",
+              },
+            };
+    
+          const status = result?.journey?.[0]?.status || "CANCELLATION FAILED";
+          if (status === "CANCELLED") {
+            const booking = await bookingDetails.findOneAndUpdate(
+              {
+                providerBookingId: req.body.BookingId,
+              },
+              { $set: { bookingStatus: "CANCELLATION PENDING" } },
+              { new: true }
+            );
+    
+            let calculateFareAmount = 0;
+    
+            for (let passenger of req.body.passengarList) {
+              calculateFareAmount += calculateDealAmount(
+                booking,
+                passenger.PAX_TYPE
+              );
+              await updatePassengerStatus(booking, passenger, "CANCELLATION PENDING");
+            }
+            const cancelationBookingInstance = new CancelationBooking({
+              calcelationStatus: "PENDING",
+              bookingId: booking?.providerBookingId,
+              providerBookingId: booking?.providerBookingId,
+              AirlineCode: booking?.itinerary?.Sectors[0]?.AirlineCode || null,
+              companyId: Authentication?.CompanyId || null,
+              userId: Authentication?.UserId || null,
+              traceId: null,
+              PNR: booking?.PNR || null,
+              fare: Fare || 0,
+              AirlineCancellationFee:AirlineCancellationFee ||0,
+              AirlineRefund: RefundableAmt||0,
+              ServiceFee: ServiceFee || 0,
+              RefundableAmt:RefundableAmt  || 0,
+              description: null,
+              modifyBy: Authentication?.UserId || null,
+              passenger:req.body.passengarList,
+              modifyAt: new Date(),
+            });
+    
+            await cancelationBookingInstance.save();
+          }
+    
+          return {
+            response: "Fetch Data Successfully",
+            data: {
+              BookingId: req.body.BookingId,
+              CancelType: req.body.CancelType,
+              PNR: req.body.PNR,
+              Provider: req.body.Provider,
+              Status: status,
+            },
+          };
+        } catch (commonCancellationError) {
+          return {
+            response: commonCancellationError?.message || "Error in Cancellations",
+            data: commonCancellationError,
+          };
+        }
   }
+  
 
   if (!result.IsSucess) {
     return {
@@ -733,20 +816,36 @@ const updateBookingStatus = async (req, res) => {
       }
       else{
         // Provider 1A ke liye alag flow
-        const PNR = await getPnr1APnedingStatus(item.traceId, credentialsType);
-        if (!PNR || !PNR.length) {
-          return { IsSuccess: false, response: "Log api is not working..." };
-        }
-        // Typo fix: item.Provider (na ki item.Proivder)
-        const pnrImportData = await getPnrDataCommonMethod(Authentication, PNR, item?.provider);
-        if (!pnrImportData) {
-          return { IsSuccess: false, response: "PNR Import api Not Working.." };
-        }
-        // Update booking object with new PNR and providerBookingId
-      await bookingDetails.findByIdAndUpdate(item._id,{$set:{GPnr:PNR,providerBookingId:await commonProviderMethodDate(item.createdAt)}},{new:true})
-        // Call holdBookingProcessPayment (pending true)
-        await holdBookingProcessPayment(pnrImportData?.Result, true);
-        await updateBarcode2DByBookingId(item?.bookingId,null,item?.itinerary,PNR)
+       // Step 1: Get PNR
+const PNR = await getPnr1APnedingStatus(item.traceId, credentialsType);
+if (!PNR || !PNR.length) {
+  return { IsSuccess: false, response: "Log api is not working..." };
+}
+
+// Step 2: Fetch PNR Data and Provider Booking ID in Parallel
+const [pnrImportData, providerBookingId] = await Promise.all([
+  getPnrDataCommonMethod(Authentication, PNR, item?.provider),
+  commonProviderMethodDate(item.createdAt)
+]);
+
+if (!pnrImportData) {
+  return { IsSuccess: false, response: "PNR Import api Not Working.." };
+}
+
+// Step 3: Update Booking (include both GPnr and providerBookingId)
+await bookingDetails.findByIdAndUpdate(item._id, {
+  $set: {
+    GPnr: PNR,
+    providerBookingId: providerBookingId
+  }
+}, { new: true });
+
+// Step 4: Run holdBookingProcessPayment and updateBarcode2D in parallel
+await Promise.all([
+  holdBookingProcessPayment(pnrImportData?.Result, true),
+  updateBarcode2DByBookingId(item?.bookingId, null, item?.itinerary, PNR)
+]);
+
       }
       
       // Prepare bulk update data

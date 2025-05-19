@@ -2966,11 +2966,7 @@ for (const [index, element] of billingData.entries()) {
   element.totalFastForwardPrice = element.totalFastForwardPrice || 0;
 
   element.airlineTax =
-    element.Tax +
-    element.totalBaggagePrice +
-    element.totalMealPrice +
-    element.totalSeatPrice +
-    element.totalFastForwardPrice;
+    element.Tax;
 
   element.getCommercialArray?.forEach((items) => {
     if (element.paxType === items.PassengerType) {

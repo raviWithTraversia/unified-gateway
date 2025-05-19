@@ -205,6 +205,52 @@ function convertAirCancellationItineraryForCommonAPI({
   return convertedItinerary;
 }
 
+
+function createAirCancellationChargeRequestBodyForCommonAPI(input) {
+  return {
+    typeOfTrip: input.TypeOfTrip || null,
+    credentialType: input.Authentication?.CredentialType || null,
+    travelType: input.TravelType?.toUpperCase().startsWith('DOM') ? 'DOM' : input.TravelType,
+    systemEntity: "xxxxxx",
+    systemName: "xxxxxx",  
+    corpCode: "xxxxxx",         
+    requestorCode: "xxxxxx",      
+    empCode: "xxxxxx",           
+    traceId: input.Itinerary.map((e) => e.TraceId)[0],
+    "journey": [
+
+        {
+
+            "provider": input.Provider,
+
+            "origin": "NA",
+
+            "destination": "NA",
+
+            "uid": input.Itinerary.map((e) => e.UID)[0],
+
+            "journeyKey": "ce3540df-c882-4b4a-8e5d-0b1d5109d036",
+
+            "itinerary": [
+
+                {
+
+                    "recordLocator": input.PNR
+
+                }
+
+            ]
+
+        }
+
+    ],
+
+    "version": "2"
+
+    
+ || null
+  };
+}
 module.exports = {
-  createAirCancellationRequestBodyForCommonAPI,
+  createAirCancellationRequestBodyForCommonAPI,createAirCancellationChargeRequestBodyForCommonAPI
 };

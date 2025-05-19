@@ -3172,6 +3172,76 @@ try{
   if (!BookingTempData) {
     return "Data does not exist";
   }
+
+  const CheckAllereadyBooking = await BookingDetails.find({
+    bookingId: udf1,
+    bookingStatus: { $ne: "INCOMPLETE" },
+  });
+
+  if (CheckAllereadyBooking.length > 0) {
+    let successHtmlCode = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Payment Success</title>
+      <style>
+      .success-txt{
+        color: #51a351;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f2f2f2;
+      }
+      
+      .success-container {
+        max-width: 400px;
+        width: 100%;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+        text-align: center;
+      }
+      .success-container p {
+        margin-top: 10px;
+      }
+      
+      .success-container a {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      
+      .success-container a:hover {
+        background-color: #0056b3;
+      }
+    </style>
+
+    </head>
+    <body>
+      <div class="success-container">
+        <h1 class="success-txt">Payment Successful!</h1>
+        <p class="success-txt">Your payment has been successfully processed.</p>
+        <p>Thank you for your purchase.</p>
+        <a href="${
+          Config[Config.MODE].baseURL
+        }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+      </div>
+    </body>
+    </html>`;
+return successHtmlCode
+  }
 const body=JSON.parse(BookingTempData.request);
   const {Authentication,Itinerary}=body
   

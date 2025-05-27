@@ -19,6 +19,7 @@ const {
   priceRoundOffNumberValues,
   getTdsAndDsicount,
   calculateOfferedPrice,
+  updateStatus
 } = require("../commonFunctions/common.function");
 const agentConfig = require("../../models/AgentConfig");
 const { apiErrorres } = require("../../utils/commonResponce");
@@ -3355,20 +3356,22 @@ const updateBookingStatus = async (req, res) => {
   const { providerBookingId, bookingId, bookingStatus, pnr, apnr, gpnr } =
     req.body;
   try {
-    var bookingData = {};
-    if (bookingId) {
-      bookingData = await bookingdetails.findOne({ bookingId: bookingId });
-    } else if (providerBookingId) {
-      bookingData = await bookingdetails.findOne({
-        providerBookingId: providerBookingId,
-      });
-    }
+        const bookingData = bookingId
+      ? await bookingdetails.findOne({ bookingId })
+      : await bookingdetails.findOne({ providerBookingId });
+
     if (!bookingData) {
       return {
         response: "No booking Found for this providerBookingId.",
       };
     }
-    const { PNR, Gpnr, Apnr } = bookingData;
+    const { PNR, Gpnr, Apnr,userId,bookingTotalAmount,companyId } = bookingData;
+    const getAgentConfig=await agentConfig.findOne({userId:userId})
+  if(!getAgentConfig){
+    return {
+      response: "Agent data not found",
+    }
+  }
     const updatedData = await bookingdetails.findByIdAndUpdate(
       { _id: bookingData._id },
       {
@@ -3381,6 +3384,32 @@ const updateBookingStatus = async (req, res) => {
       },
       { new: true }
     );
+
+    await updateStatus(bookingData, bookingStatus);
+      if(updatedData.bookingStatus.includes("FAILED")){
+await ledger.create({
+            userId: userId, //getuserDetails._id,
+            companyId: getAgentConfig.companyId,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionAmount: bookingTotalAmount,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "CREDIT",
+            runningAmount: Number(getAgentConfig.maxcreditLimit) + Number(bookingTotalAmount),
+              remarks: `Refund Amount for Booking`,
+            transactionBy: companyId, //getuserDetails._id,
+            cartId: bookingId,
+          })
+
+          await agentConfig.updateOne(
+            { userId: userId },
+            { maxcreditLimit: Number(getAgentConfig.maxcreditLimit) + Number(bookingTotalAmount) }
+          );
+
+    }
+      
+
+
     if (!updatedData) {
       return {
         response: "No booking Found for this providerBookingId.",

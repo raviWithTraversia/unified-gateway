@@ -114,6 +114,10 @@ verifyOtp_route.post(
     '/otp/verify-otp',
     verifyOtpController.varifyOtpEmailOtp
 );
+verifyOtp_route.post(
+    '/otp/verify-otp-And-registration',
+    verifyOtpController.verifyOTPAndRegistration
+);
 
 verifyOtp_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});

@@ -75,6 +75,57 @@ const varifyOtpEmailOtp = async (req, res) => {
   }
 };
 
+
+
+const verifyOTPAndRegistration = async (req, res) => {
+  try {
+    const result = await varifyOtpServices.commonRegistrationOTPVerfication(req, res);
+    if (result.response === "OTP has expired") {
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.PRECONDITION_FAILED,
+        true
+      );
+    } else if (result.response == "OTP verified successfully") {
+        const result = await varifyOtpServices.afterVerifyAddRegistration(req, res);
+        if(result?.data&&!result?.isSometingMissing){
+        apiSucessRes(
+        res,
+        result.response,
+        result?.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+        }else {
+            apiErrorres(
+        res,
+        result.response||result.data,
+        ServerStatusCode.PRECONDITION_FAILED,
+        true
+      );
+        }
+      
+    } else if (result.response === "Invalid OTP") {
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.PRECONDITION_FAILED,
+        true
+      );
+    }
+      else if(result.response){
+      apiErrorres(
+        res,
+        result.response,
+        ServerStatusCode.RESOURCE_NOT_FOUND,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(res, error?.message, ServerStatusCode.PRECONDITION_FAILED, true);
+  }
+};
+
 const sendPhoneOtp = async (req, res) => {
   try {
     const result = await varifyOtpServices.sendPhoneOtp(req, res);
@@ -137,5 +188,6 @@ module.exports = {
   sendEmailOtp,
   varifyOtpEmailOtp,
   sendPhoneOtp,
-  SendTicket
+  SendTicket,
+  verifyOTPAndRegistration
 };

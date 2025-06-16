@@ -11,7 +11,7 @@ const cancelationSchema = new mongoose.Schema(
     },
     calcelationStatus: {
       type: String,
-      default: null,
+      default: "PENDING",
     },
     providerBookingId :{
       type: String,
@@ -58,6 +58,11 @@ default:false
       type:String,
       default:null
     },
+    passenger:{
+type:Array,
+default:null
+    },
+    
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -6,6 +6,7 @@ flight_booking_route.use(bodyParser.urlencoded({ limit: '100mb', extended: true 
 // flight_booking_route.use(bodyParser.json());
 // flight_booking_route.use(bodyParser.urlencoded({extended:true}));
 const flight = require('../../controllers/flightBooking/flightBooking.controller');
+const {} = require("../../middleware/auth");
 
 flight_booking_route.post('/flightbooking/idcreation', flight.getIdCreation);
 flight_booking_route.post('/flightbooking/allBooking', flight.getAllBooking);
@@ -22,7 +23,7 @@ flight_booking_route.post('/flightbooking/manuallyUpdateBookingStatus', flight.m
 flight_booking_route.post('/flightbooking/manuallyUpdateMultipleBookingStatus', flight.manuallyUpdateMultipleBookingStatus);
 flight_booking_route.post('/sendCadDeailonMail',flight.SendCardOnMail)
 flight_booking_route.put('/updateAdvanceMarkup',flight.UpdateAdvanceMarkup)
-flight_booking_route.put('/update/bookingStatus',flight.updateBookingStatus);
+flight_booking_route.patch('/update/bookingStatus',flight.updateBookingStatus);
 flight_booking_route.post('/flight/import-pnr-cart-save',flight.importPnrService);
 
 

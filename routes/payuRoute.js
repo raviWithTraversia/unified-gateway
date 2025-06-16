@@ -51,6 +51,8 @@ payu_route.post(
     payuController.payu2
 );
 
+payu_route.post("/flight/hold-process",payuController.payuHoldProecess)
+
 payu_route.post('/lyra/redirect',auth,lyraService.lyraRedirectLink)
 payu_route.post('/lyra/success',lyraController.lyraSuccess )
 payu_route.post('/flight/lyra/wallet/success',lyraController.lyraWalletResponceSuccess )

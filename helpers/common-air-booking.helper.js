@@ -335,6 +335,8 @@ function convertBookingResponse(request, response, reqSegment, isINTRoundtrip) {
   }
   // if (tickets.length) {
   // }
+  const lastTicketingTime =
+    response?.data?.journey?.[0]?.itinerary?.[0]?.lastTicketingTime || "";
   const travelerDetails = response?.data?.journey?.[0]?.travellerDetails;
   try {
     const data = {
@@ -346,6 +348,7 @@ function convertBookingResponse(request, response, reqSegment, isINTRoundtrip) {
         APnr,
         GPnr,
         SalePurchase: "",
+        LastTicketingTime: lastTicketingTime,
       },
       PaxInfo: updatePassengerDetails(
         request.PassengerPreferences,

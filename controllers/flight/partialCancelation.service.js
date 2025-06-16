@@ -8,12 +8,16 @@ const passengerPreferenceModel = require("../../models/booking/PassengerPreferen
 const agentConfig = require("../../models/AgentConfig");
 const ledger = require("../../models/Ledger");
 const axios = require("axios");
-const Logs = require("../../controllers/logs/protalLog.services");
+const Logs = require("../../controllers/logs/PortalApiLogsCommon");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const BookingDetails = require("../../models/booking/BookingDetails");
 const flightCache = new NodeCache();
 const {updatePassengerStatus}=require("../commonFunctions/common.function")
+const {
+  commonAirBookingCancellation,commonAirBookingCancellationCharge
+} = require("../../services/common-air-cancellation");
+const {calculateDealAmount} = require("./partialCalcelationCharge.service")
 
 const partialCancelation = async (req, res) => {
   const {
@@ -42,6 +46,7 @@ const partialCancelation = async (req, res) => {
       req.body[fieldName] === null || req.body[fieldName] === undefined
   );
 
+  // return false
   if (missingFields.length > 0) {
     const missingFieldsString = missingFields.join(", ");
     return {
@@ -85,24 +90,102 @@ if (checkUserRole?.roleId.name === "Agency") {
 
 // 
   let result;
-  if (TravelType !== "International" && TravelType !== "Domestic") {
-    return {
-      response: "Travel Type Not Valid",
-    };
-  } else {
-    result = await handleflight(
-      Authentication,
-      Provider,
-      PNR,
-      TravelType,
-      BookingId,
-      CancelType,      
-      Sector,
-      Reason,
-      agencyUserId
-      
-    );
-  }
+  if(Provider.toUpperCase() === "KAFILA"){
+    if (TravelType !== "International" && TravelType !== "Domestic") {
+      return {
+        response: "Travel Type Not Valid",
+      };
+    } else {
+      result = await handleflight(
+        Authentication,
+        Provider,
+        PNR,
+        TravelType,
+        BookingId,
+        CancelType,      
+        Sector,
+        Reason,
+        agencyUserId
+        
+      );
+    }
+  }else {
+    try {
+        req.body.CancelType = "JOURNEY";
+        const {Fare,AirlineCancellationFee,AirlineRefund,ServiceFee,RefundableAmt}=req.body.charge;
+        const { result, error } = await commonAirBookingCancellation(req.body);
+        if (error)
+          return {
+            response: "Cancellation Failed",
+            data: {
+              Status: "CANCELLATION FAILED",
+              Error:
+                typeof error === "string"
+                  ? error
+                  : error?.message || "Internal Server Error",
+            },
+          };
+  
+        const status = result?.journey?.[0]?.status || "CANCELLATION FAILED";
+        if (status === "CANCELLED") {
+          const booking = await bookingDetails.findOneAndUpdate(
+            {
+              providerBookingId: req.body.BookingId,
+              // bookingId: req.body.BookingId,
+            },
+            { $set: { bookingStatus: "CANCELLATION PENDING" } },
+            { new: true }
+          );
+        let calculateFareAmount=0
+          for(let passengers of req.body.passengarList){
+            calculateFareAmount+=calculateDealAmount(booking,passengers.PAX_TYPE)
+            await updatePassengerStatus(booking, passengers,"CANCELLATION PENDING");
+         }
+            const cancelationBookingInstance = new CancelationBooking({
+              calcelationStatus: "PENDING",
+              bookingId: booking?.providerBookingId,
+              providerBookingId: booking?.providerBookingId,
+              AirlineCode:
+                booking?.itinerary?.Sectors[0]?.AirlineCode || null,
+              companyId: Authentication?.CompanyId || null,
+              userId: Authentication?.UserId || null,
+              traceId:null,
+              PNR: booking?.PNR || null,
+              fare: Fare || 0,
+              AirlineCancellationFee:AirlineCancellationFee|| 0,
+              AirlineRefund:RefundableAmt|| 0,
+              ServiceFee: ServiceFee || 0,
+              RefundableAmt: RefundableAmt || 0,
+              description: null,
+              passenger: req.body.passengarList,
+              modifyBy: Authentication?.UserId || null,
+              modifyAt: new Date(),
+            });
+    
+            await cancelationBookingInstance.save();
+            // await paxPreferences.save();
+          }
+        
+        return {
+          response: "Fetch Data Successfully",
+          data: {
+            BookingId: req.body.BookingId,
+            CancelType: req.body.CancelType,
+            PNR: req.body.PNR,
+            Provider: req.body.Provider,
+            Status: status,
+          },
+        };
+      } catch (commonCancellationError) {
+        return {
+          response: commonCancellationError?.message || "Error in Cancellations",
+          data: commonCancellationError,
+        };
+      }
+  
+  };
+  
+ 
 
   if (!result.IsSucess) {
     return {
@@ -318,7 +401,19 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0"
     };  
-    
+    const logData1 = {
+      traceId: Authentication.TraceId,
+      companyId: Authentication.CompanyId,
+      userId: Authentication.UserId,
+      source: "Kafila",
+      type: "Portal log",
+      BookingId: BookingId,
+      product: "Flight",
+      logName: "PARTIAL_CANCEL",
+      request:requestDataForCHarges ,
+      responce: {},
+    };
+    Logs(logData1);
     
     let fCancelApiResponse = await axios.post(
       flightCancelUrl,
@@ -329,6 +424,19 @@ const KafilaFun = async (
         },
       }
     ); 
+    const logData2 = {
+      traceId: Authentication.TraceId,
+      companyId: Authentication.CompanyId,
+      userId: Authentication.UserId,
+      source: "Kafila",
+      type: "Portal log",
+      BookingId: BookingId,
+      product: "Flight",
+      logName: "PARTIAL_CANCEL",
+      request:requestDataForCHarges ,
+      responce: fSearchApiResponse.data,
+    };
+    Logs(logData2);
 
     if(fCancelApiResponse?.data?.R_DATA?.Status == null || (fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "PENDING" || fCancelApiResponse?.data?.R_DATA?.Status.toUpperCase() === "FAILED")){
         try {
@@ -483,6 +591,24 @@ const KafilaFun = async (
       return response.data.ErrorMessage;
     }
   } catch (error) {
+    try{  
+      const logData3 = {
+      traceId: Authentication.TraceId,
+      companyId: Authentication.CompanyId,
+      userId: Authentication.UserId,
+      source: "Kafila",
+      type: "Portal log",
+      BookingId: BookingId,
+      product: "Flight",
+      logName: "PARTIAL_CANCEL",
+      request:"catch error" ,
+      responce:error,
+    };
+    Logs(logData3)
+  }catch(error){
+      throw error
+    }
+  
     return error.message
   }
 };
@@ -497,13 +623,13 @@ const cancelationDataUpdate=async(Authentication,fCancelApiResponse,BookingIdDet
       bookingId:BookingIdDetails?.providerBookingId,
       providerBookingId:BookingIdDetails?.providerBookingId,
       userId: Authentication?.UserId || null,
-      traceId:fCancelApiResponse?.data?.R_DATA?.TRACE_ID,
+      traceId:fCancelApiResponse?.data?.R_DATA?.TRACE_ID||null,
       PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr || null,
-      fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare || null,
-      AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee || null,
-      AirlineRefund: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund || null,
-      ServiceFee: fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee || null,
-      RefundableAmt: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt || null,
+      fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare || 0,
+      AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee || 0,
+      AirlineRefund: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund || 0,
+      ServiceFee: fCancelApiResponse?.data?.R_DATA?.Charges?.ServiceFee ||0,
+      RefundableAmt: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt || 0,
       description: fCancelApiResponse?.data?.R_DATA?.Charges?.Description || null,
       modifyBy: Authentication?.UserId || null,
       modifyAt: new Date(),

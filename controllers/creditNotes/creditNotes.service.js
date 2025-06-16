@@ -313,7 +313,7 @@ catch(error){
 
 const cancelationBooking=async(req,res)=>{
   try{
-    const {status,fromDate,toDate}=req.body;
+    const {userId,status,fromDate,toDate}=req.body;
 if(!fromDate||!toDate){
   return({
     response:"Invalid Dates filled"
@@ -326,17 +326,23 @@ const dateQuery = {
     $lte: new Date(toDate + 'T23:59:59.999Z')
   }
 };
-searchData.push(dateQuery)
-const neStatus={ calcelationStatus: { $eq: "CANCEL" } }
-const statusQuery = {
-  calcelationStatus: status
-};
-
-if(status){
-searchData.push(statusQuery)
-}else{
-  searchData.push(neStatus)
+if(userId){
+  searchData.push({userId:new ObjectId(userId)})
 }
+searchData.push(dateQuery)
+// const neStatus={ calcelationStatus: { $eq: "CANCEL" } }
+// const statusQuery = {
+//   calcelationStatus: status
+// };
+
+if(status&&status.toUpperCase()!="ALL"){
+searchData.push({
+  calcelationStatus: status
+})
+}
+// else{
+//   searchData.push(neStatus)
+// }
 
     
    

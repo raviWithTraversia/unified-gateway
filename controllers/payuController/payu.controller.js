@@ -302,7 +302,22 @@ const payuWalletRailResponceSuccess = async (req, res) =>
     
       }
 
+      const payuHoldProecess = async (req, res) => 
+      {
+        try {
+          const result = await payuServices.processHoldBookingWithPg(req, res);
+          res.send(result);
+        } catch (error) {
+          apiErrorres(
+            res,
+          error.message||errorResponse.SOME_UNOWN,
+            ServerStatusCode.INVALID_CRED,
+            true
+          );
+        }
+    
+      }
     
 module.exports = {
-  payu,payuSuccess,payuFail,payuWalletResponceSuccess,payuWalletResponceFailed,payuWalletRailResponceSuccess,payu2,railPayuSuccess,railPayuFail
+  payu,payuSuccess,payuFail,payuWalletResponceSuccess,payuWalletResponceFailed,payuWalletRailResponceSuccess,payu2,railPayuSuccess,railPayuFail,payuHoldProecess
 };

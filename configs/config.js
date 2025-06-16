@@ -27,6 +27,7 @@ module.exports.Config = {
     lyraShopId: 99210763,
     lyraPassword: "prodpassword_5HDCe87tE0aGD7ZA7VrvfBdeXIXGKP7L6FKyhGYjh4Plz",
   },
+  LYRAURL:"https://api.in.lyra.com/pg/rest/v1/charge",
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",
   MONGODB_URL:

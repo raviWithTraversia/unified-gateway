@@ -7,7 +7,7 @@ const bookingDetails = require("../../models/booking/BookingDetails");
 const CancelationBooking = require("../../models/booking/CancelationBooking");
 const passengerPreferenceModel = require("../../models/booking/PassengerPreference");
 const {
-  commonAirBookingCancellation,
+  commonAirBookingCancellation,commonAirBookingCancellationCharge
 } = require("../../services/common-air-cancellation");
 const axios = require("axios");
 const Logs = require("../../controllers/logs/PortalApiLogsCommon");
@@ -91,6 +91,7 @@ const partialCancelationCharge = async (req, res) => {
 
   //
   let result;
+
   if (Provider.toLowerCase() === "kafila") {
     if (TravelType !== "International" && TravelType !== "Domestic") {
       return {
@@ -98,6 +99,7 @@ const partialCancelationCharge = async (req, res) => {
       };
     } else {
       result = await handleflight(
+        req,
         Authentication,
         Provider,
         PNR,
@@ -121,8 +123,9 @@ const partialCancelationCharge = async (req, res) => {
         apiReq: result.apiReq,
       };
     }
-  } else {
-    try {
+  } 
+else{
+try {
       req.body.CancelType = "JOURNEY";
       const { result, error } = await commonAirBookingCancellation(req.body);
       if (error)
@@ -152,27 +155,28 @@ const partialCancelationCharge = async (req, res) => {
           calculateFareAmount+=calculateDealAmount(booking,passengers.PAX_TYPE)
           await updatePassengerStatus(booking, passengers,"CANCELLATION PENDING");
        }
-          // const cancelationBookingInstance = new CancelationBooking({
-          //   calcelationStatus: "CANCEL",
-          //   bookingId: booking?.providerBookingId,
-          //   providerBookingId: booking?.providerBookingId,
-          //   AirlineCode:
-          //     booking?.itinerary?.Sectors[0]?.AirlineCode || null,
-          //   companyId: Authentication?.CompanyId || null,
-          //   userId: Authentication?.UserId || null,
-          //   traceId:null,
-          //   PNR: booking?.PNR || null,
-          //   fare: calculateFareAmount || 0,
-          //   AirlineCancellationFee: 0,
-          //   AirlineRefund: 0,
-          //   ServiceFee: 0 || 0,
-          //   RefundableAmt: 0 || 0,
-          //   description: null,
-          //   modifyBy: Authentication?.UserId || null,
-          //   modifyAt: new Date(),
-          // });
+          const cancelationBookingInstance = new CancelationBooking({
+            calcelationStatus: "PENDING",
+            bookingId: booking?.providerBookingId,
+            providerBookingId: booking?.providerBookingId,
+            AirlineCode:
+              booking?.itinerary?.Sectors[0]?.AirlineCode || null,
+            companyId: Authentication?.CompanyId || null,
+            userId: Authentication?.UserId || null,
+            traceId:null,
+            PNR: booking?.PNR || null,
+            fare: calculateFareAmount || 0,
+            AirlineCancellationFee: 0,
+            AirlineRefund: 0,
+            ServiceFee: 0 || 0,
+            RefundableAmt: 0 || 0,
+            description: null,
+            passenger: req.body.passengarList,
+            modifyBy: Authentication?.UserId || null,
+            modifyAt: new Date(),
+          });
   
-          // await cancelationBookingInstance.save();
+          await cancelationBookingInstance.save();
           // await paxPreferences.save();
         }
       
@@ -192,10 +196,12 @@ const partialCancelationCharge = async (req, res) => {
         data: commonCancellationError,
       };
     }
-  }
-};
+
+}  
+}
 
 async function handleflight(
+  req,
   Authentication,
   Provider,
   PNR,
@@ -257,32 +263,23 @@ async function handleflight(
         if (!supplier?.supplierCodeId?.supplierCode) {
           throw new Error(`Invalid supplier structure at index ${index}`);
         }
+        return await KafilaFun(
+          req,
+          Authentication,
+          supplier,
+          Provider,
+          PNR,
+          TravelType,
+          BookingId,
+          CancelType,
+          Reason,
+          Sector,
+          agencyUserId,
+          BookingIdDetails
+        )
+        
 
-        console.log(
-          `Processing Supplier: ${supplier.supplierCodeId.supplierCode}`
-        );
-
-        supplier.supplierCodeId.supplierCode = "Kafila";
-        switch (supplier.supplierCodeId.supplierCode) {
-          case "Kafila":
-            return await KafilaFun(
-              Authentication,
-              supplier,
-              Provider,
-              PNR,
-              TravelType,
-              BookingId,
-              CancelType,
-              Reason,
-              Sector,
-              agencyUserId,
-              BookingIdDetails
-            );
-          default:
-            throw new Error(
-              `Unsupported supplier: ${supplier.supplierCodeId.supplierCode}`
-            );
-        }
+        
       } catch (error) {
         console.error(`Error for supplier at index ${index}:`, error.message);
       }
@@ -296,6 +293,7 @@ async function handleflight(
 }
 
 const KafilaFun = async (
+  req,
   Authentication,
   supplier,
   Provider,
@@ -335,44 +333,91 @@ const KafilaFun = async (
     Version: "1.0.0.0.0.0",
   };
   try {
-    let response = await axios.post(createTokenUrl, tokenData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+
+
+    let response = null;
+        let requestDataForCHarges = null;
+        let fSearchApiResponse = null;
+      
+        // Step 1: Get token or prepare response based on provider
+        if (Provider === "Kafila") {
+          response = await axios.post(createTokenUrl, tokenData, {
+            headers: { "Content-Type": "application/json" },
+          });
+        } else {
+          response = { data: { Status: "success" } };
+          try{
+    
+          fSearchApiResponse = await commonAirBookingCancellationCharge(req.body, "PARTIAL_CANCELLATION");
+          }
+          catch(e){
+            throw e
+          }
+        }
     // console.log(response.data,'djie')
     if (response.data.Status === "success") {
       let getToken = response.data.Result;
       // console.log('getToken',getToken)
-      let requestDataForCHarges = {
-        P_TYPE: "API",
-        R_TYPE: "FLIGHT",
-        R_NAME: "CANCEL",
-        R_DATA: {
-          ACTION: "CANCEL_CHARGE",
-          BOOKING_ID: BookingId,
-          CANCEL_TYPE: "PARTIAL_CANCELLATION",
-          REASON: Reason,
-          SECTORS: Sector,
-          TRACE_ID: "",
-        },
-        AID: supplier.supplierWsapSesssion,
-        MODULE: "B2B",
-        IP: "182.73.146.154",
-        TOKEN: supplier.supplierOfficeId,
-        ENV: credentialType,
-        Version: "1.0.0.0.0.0",
-      };
-      // console.log(requestDataForCHarges)
-      let fSearchApiResponse = await axios.post(
-        flightCancelUrl,
-        requestDataForCHarges,
-        {
-          headers: {
-            "Content-Type": "application/json",
+      if(Provider === "Kafila"){
+
+        requestDataForCHarges = {
+          P_TYPE: "API",
+          R_TYPE: "FLIGHT",
+          R_NAME: "CANCEL",
+          R_DATA: {
+            ACTION: "CANCEL_CHARGE",
+            BOOKING_ID: BookingId,
+            CANCEL_TYPE: "PARTIAL_CANCELLATION",
+            REASON: Reason,
+            SECTORS: Sector,
+            TRACE_ID: "",
           },
-        }
-      );
+          AID: supplier.supplierWsapSesssion,
+          MODULE: "B2B",
+          IP: "182.73.146.154",
+          TOKEN: supplier.supplierOfficeId,
+          ENV: credentialType,
+          Version: "1.0.0.0.0.0",
+        };
+        const logData1 = {
+          traceId: Authentication.TraceId,
+          companyId: Authentication.CompanyId,
+          userId: Authentication.UserId,
+          source: "Kafila",
+          type: "Portal log",
+          BookingId: BookingId,
+          product: "Flight",
+          logName: "PARTIAL_CANCEL_CHARGE",
+          request:requestDataForCHarges ,
+          responce: {},
+        };
+        Logs(logData1);
+       fSearchApiResponse = await axios.post(
+          flightCancelUrl,
+          requestDataForCHarges,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+     
+      // console.log(requestDataForCHarges)
+      
+      const logData2 = {
+        traceId: Authentication.TraceId,
+        companyId: Authentication.CompanyId,
+        userId: Authentication.UserId,
+        source: "Kafila",
+        type: "Portal log",
+        BookingId: BookingId,
+        product: "Flight",
+        logName: "PARTIAL_CANCEL_CHARGE",
+        request:requestDataForCHarges ,
+        responce: fSearchApiResponse.data,
+      };
+      Logs(logData2);
       if (
         (fSearchApiResponse?.data?.Status !== null &&
           fSearchApiResponse?.data?.Status === "PENDING") ||
@@ -577,6 +622,19 @@ const KafilaFun = async (
       return response.data.ErrorMessage;
     }
   } catch (error) {
+    const logData3 = {
+      traceId: Authentication.TraceId,
+      companyId: Authentication.CompanyId,
+      userId: Authentication.UserId,
+      source: "Kafila",
+      type: "Portal log",
+      BookingId: BookingId,
+      product: "Flight",
+      logName: "PARTIAL_CANCEL_CHARGE",
+      request:"catch error" ,
+      responce:error,
+    };
+    Logs(logData3);
     return error.message;
   }
 };

@@ -16,7 +16,12 @@ const crypto = require('crypto');
 const moment=require('moment')
 const {holdBookingProcessPayment}=require('../../services/common-pnrTicket-service')
 const {RefundedCommonFunction,getPnr1APnedingStatus,getPnrDataCommonMethod,commonProviderMethodDate,updateStatus}=require('../../controllers/commonFunctions/common.function')
+const {
+  commonAirBookingCancellation,commonAirBookingCancellationCharge
+} = require("../../services/common-air-cancellation");
 const {updateBarcode2DByBookingId}=require('./airBooking.service')
+const {updatePassengerStatus}=require('../commonFunctions/common.function')
+const {calculateDealAmount}=require('./partialCalcelationCharge.service')
 
 const fullCancelation = async (req, res) => {
   const {
@@ -45,7 +50,6 @@ const fullCancelation = async (req, res) => {
     (fieldName) =>
       req.body[fieldName] === null || req.body[fieldName] === undefined
   );
-
   if (missingFields.length > 0) {
     const missingFieldsString = missingFields.join(", ");
     return {
@@ -91,7 +95,8 @@ const fullCancelation = async (req, res) => {
   }
 
   let result;
-  if (TravelType !== "International" && TravelType !== "Domestic") {
+  if(Provider === "Kafila"){
+    if (TravelType !== "International" && TravelType !== "Domestic") {
     return {
       response: "Travel Type Not Valid",
     };
@@ -108,7 +113,86 @@ const fullCancelation = async (req, res) => {
       agencyUserId,
       providerBookingId
     );
+  }}
+  else{
+  
+        try {
+          // return false;
+        const {Fare,AirlineCancellationFee,AirlineRefund,ServiceFee,RefundableAmt}=req.body.charge;
+
+          const { result, error } = await commonAirBookingCancellation(req.body);
+          if (error)
+            return {
+              response: "Cancellation Failed",
+              data: {
+                Status: "CANCELLATION FAILED",
+                Error:
+                  typeof error === "string"
+                    ? error
+                    : error?.message || "Internal Server Error",
+              },
+            };
+    
+          const status = result?.journey?.[0]?.status || "CANCELLATION FAILED";
+          if (status === "CANCELLED") {
+            const booking = await bookingDetails.findOneAndUpdate(
+              {
+                providerBookingId: req.body.BookingId,
+              },
+              { $set: { bookingStatus: "CANCELLATION PENDING" } },
+              { new: true }
+            );
+    
+            let calculateFareAmount = 0;
+    
+            for (let passenger of req.body.passengarList) {
+              calculateFareAmount += calculateDealAmount(
+                booking,
+                passenger.PAX_TYPE
+              );
+              await updatePassengerStatus(booking, passenger, "CANCELLATION PENDING");
+            }
+            const cancelationBookingInstance = new CancelationBooking({
+              calcelationStatus: "PENDING",
+              bookingId: booking?.providerBookingId,
+              providerBookingId: booking?.providerBookingId,
+              AirlineCode: booking?.itinerary?.Sectors[0]?.AirlineCode || null,
+              companyId: Authentication?.CompanyId || null,
+              userId: Authentication?.UserId || null,
+              traceId: null,
+              PNR: booking?.PNR || null,
+              fare: Fare || 0,
+              AirlineCancellationFee:AirlineCancellationFee ||0,
+              AirlineRefund: RefundableAmt||0,
+              ServiceFee: ServiceFee || 0,
+              RefundableAmt:RefundableAmt  || 0,
+              description: null,
+              modifyBy: Authentication?.UserId || null,
+              passenger:req.body.passengarList,
+              modifyAt: new Date(),
+            });
+    
+            await cancelationBookingInstance.save();
+          }
+    
+          return {
+            response: "Fetch Data Successfully",
+            data: {
+              BookingId: req.body.BookingId,
+              CancelType: req.body.CancelType,
+              PNR: req.body.PNR,
+              Provider: req.body.Provider,
+              Status: status,
+            },
+          };
+        } catch (commonCancellationError) {
+          return {
+            response: commonCancellationError?.message || "Error in Cancellations",
+            data: commonCancellationError,
+          };
+        }
   }
+  
 
   if (!result.IsSucess) {
     return {
@@ -322,6 +406,19 @@ const KafilaFun = async (
         Version: "1.0.0.0.0.0"
       };
       // console.log(requestDataForCancel,"requestDataForCancel");
+      const logData1 = {
+        traceId: Authentication.TraceId,
+        companyId: Authentication.CompanyId,
+        userId: Authentication.UserId,
+        source: "Kafila",
+        type: "Portal log",
+        BookingId: BookingId,
+        product: "Flight",
+        logName: "FULLCANCEL",
+        request:requestDataForCancel ,
+        responce: {},
+      };
+      Logs(logData1);
       let fCancelApiResponse = await axios.post(
         flightCancelUrl,
         requestDataForCancel,
@@ -330,8 +427,21 @@ const KafilaFun = async (
             "Content-Type": "application/json",
           },
         }
-      );
-      // console.log(fCancelApiResponse?.data,"fCancelApiResponse data");
+      );     // console.log(fCancelApiResponse?.data,"fCancelApiResponse data");
+
+      const logData2 = {
+        traceId: Authentication.TraceId,
+        companyId: Authentication.CompanyId,
+        userId: Authentication.UserId,
+        source: "Kafila",
+        type: "Portal log",
+        BookingId: BookingId,
+        product: "Flight",
+        logName: "FULLCANCEL",
+        request:requestDataForCancel,
+        responce: fCancelApiResponse.data,
+      };
+      Logs(logData2);
       let R_DATAofCancelApiResponse = fCancelApiResponse?.data?.R_DATA;
       console.log(fCancelApiResponse?.data,"ded")
       let ResponseData;
@@ -538,6 +648,19 @@ let booking=null
       return response.data.ErrorMessage;
     }
   } catch (error) {
+    const logData3 = {
+      traceId: Authentication.TraceId,
+      companyId: Authentication.CompanyId,
+      userId: Authentication.UserId,
+      source: "Kafila",
+      type: "Portal log",
+      BookingId: BookingId,
+      product: "Flight",
+      logName: "FULLCANCEL",
+      request:"catch error" ,
+      responce:error,
+    };
+    Logs(logData3);
     return error.message;
   }
 };
@@ -693,20 +816,36 @@ const updateBookingStatus = async (req, res) => {
       }
       else{
         // Provider 1A ke liye alag flow
-        const PNR = await getPnr1APnedingStatus(item.traceId, credentialsType);
-        if (!PNR || !PNR.length) {
-          return { IsSuccess: false, response: "Log api is not working..." };
-        }
-        // Typo fix: item.Provider (na ki item.Proivder)
-        const pnrImportData = await getPnrDataCommonMethod(Authentication, PNR, item?.provider);
-        if (!pnrImportData) {
-          return { IsSuccess: false, response: "PNR Import api Not Working.." };
-        }
-        // Update booking object with new PNR and providerBookingId
-      await bookingDetails.findByIdAndUpdate(item._id,{$set:{GPnr:PNR,providerBookingId:await commonProviderMethodDate(item.createdAt)}},{new:true})
-        // Call holdBookingProcessPayment (pending true)
-        await holdBookingProcessPayment(pnrImportData?.Result, true);
-        await updateBarcode2DByBookingId(item?.bookingId,null,item?.itinerary,PNR)
+       // Step 1: Get PNR
+const PNR = await getPnr1APnedingStatus(item.traceId, credentialsType);
+if (!PNR || !PNR.length) {
+  return { IsSuccess: false, response: "Log api is not working..." };
+}
+
+// Step 2: Fetch PNR Data and Provider Booking ID in Parallel
+const [pnrImportData, providerBookingId] = await Promise.all([
+  getPnrDataCommonMethod(Authentication, PNR, item?.provider),
+  commonProviderMethodDate(item.createdAt)
+]);
+
+if (!pnrImportData) {
+  return { IsSuccess: false, response: "PNR Import api Not Working.." };
+}
+
+// Step 3: Update Booking (include both GPnr and providerBookingId)
+await bookingDetails.findByIdAndUpdate(item._id, {
+  $set: {
+    GPnr: PNR,
+    providerBookingId: providerBookingId
+  }
+}, { new: true });
+
+// Step 4: Run holdBookingProcessPayment and updateBarcode2D in parallel
+await Promise.all([
+  holdBookingProcessPayment(pnrImportData?.Result, true),
+  updateBarcode2DByBookingId(item?.bookingId, null, item?.itinerary, PNR)
+]);
+
       }
       
       // Prepare bulk update data
@@ -774,238 +913,161 @@ const updateBookingStatus = async (req, res) => {
 };
 
 const updatePendingBookingStatus = async (req, res) => {
-  const { _BookingId, credentialsType,companyId,fromDate,toDate } = req.body;
-  if (!_BookingId.length) {
-    return { response: "_BookingId or companyId or credentialsType does not exist" }
-  }
-  if(!companyId){
-    return({
-      response:"TMC companyID Not Found"
-    })
-  }
-  if (!["LIVE", "TEST"].includes(credentialsType)) {
-    return {
-      IsSucess: false,
-      response: "Credential Type does not exist",
-    };
-  }
-  const initialDate = "2025-01-15";
+  try {
+    const { _BookingId, credentialsType, companyId, fromDate, toDate } = req.body;
 
-// Increase the date by one day
-const newDate = moment(toDate).add(1, 'days').format('YYYY-MM-DD');
-  // const objectIdArray = _BookingId.map(id => new ObjectId(id));
-  // const getBookingbyBookingId = await bookingDetails.aggregate([{ $match: { _id: { $in: objectIdArray } } }, {
-  //   $lookup: {
-  //     from: "suppliercodes",
-  //     localField: "provider",
-  //     foreignField: "supplierCode",
-  //     as: "supplierData",
-  //   },
-  // }, { $unwind: "$supplierData" }, {
-  //   $lookup: {
-  //     from: "suppliers",
-  //     localField: "supplierData._id",
-  //     foreignField: "supplierCodeId",
-  //     as: "supplyData",
-  //   },
-  // }, {
-  //   $project: {
-  //     providerBookingId: 1,
-  //     bookingId: 1,
-  //     "itinerary.TraceId": 1,
-  //     credentialsTypeData: {
-  //       $filter: {
-  //         input: "$supplyData",
-  //         as: "item",
-  //         cond: {
-  //           $and: [
-  //             { $eq: ["$$item.credentialsType", credentialsType] },
-  //             { $eq: ["$$item.status", true] }
-  //           ]
-  //         }
-  //       }
-  //     }
-  //   }
-  // }, { $unwind: "$credentialsTypeData" }, {
-  //   $project: {
-  //     providerBookingId: 1,
-  //     bookingId:1,
-  //     traceId: "$itinerary.TraceId",
-  //     supplierUserId: "$credentialsTypeData.supplierUserId",
-  //     supplierPassword: "$credentialsTypeData.supplierPassword",
-  //     supplierWsapSesssion: "$credentialsTypeData.supplierWsapSesssion",
-  //     credentialsTypeData:1
-  //   }
-  // }]);
-
-  
-  // let supplier = getBookingbyBookingId[0].credentialsTypeData;
-  
-    
-  var Url=""
-  var supplier
-      if (
-        req.headers.host == "localhost:3111" ||
-        req.headers.host == "kafila.traversia.net"
-      ) {
-      
-        supplier=await Supplier.find({$and:[{credentialsType:"TEST"},{companyId:companyId},{status:true}]})
-        Url = "http://stage1.ksofttechnology.com/api/Freport";
-       apiRequestBody = {
-          "P_TYPE": "API",
-          "R_TYPE": "FLIGHT",
-          "R_NAME": "FlightCancelHistory",
-          "R_DATA": {
-            "ACTION": "",
-            "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
-            "TO_DATE": new Date(newDate + 'T23:59:59.999Z')
-          },
-          "AID": "675923",
-          "MODULE": "B2B",
-          "IP": "182.73.146.154",
-          "TOKEN": "fd58e3d2b1e517f4ee46063ae176eee1",
-          "ENV": "D",
-          "Version": "1.0.0.0.0.0"
-        };
-      } else if (req.headers.host == "agentapi.kafilaholidays.in") {
-  
-        supplier=await Supplier.find({$and:[{credentialsType:"LIVE"},{companyId:companyId},{status:true}]})
-        Url = "http://fhapip.ksofttechnology.com/api/Freport";
-  
-        apiRequestBody = {
-          "P_TYPE": "API",
-          "R_TYPE": "FLIGHT",
-          "R_NAME": "FlightCancelHistory",
-          "R_DATA": {
-            "ACTION": "",
-            "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
-            "TO_DATE": new Date(newDate + 'T23:59:59.999Z')
-          },
-          "AID": supplier[0].supplierWsapSesssion,
-          "MODULE": "B2B",
-          "IP": "182.73.146.154",
-          "TOKEN": supplier[0].supplierOfficeId,
-          "ENV": "P",
-          "Version": "1.0.0.0.0.0"
-        };
-       
-      } else {
-        return {
-          response: "url not found",
-        };
-      }
-  
-  
-    // const response = (await axios.post(createTokenUrl, postData, {
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   }
-    // }))?.data;
-
-    let fSearchApiResponse = await axios.post(
-      Url,
-      apiRequestBody,
-      
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-      // const getpassengersPrefrence = await passengerPreferenceModel.findOne({ bookingId: item?.bookingId });
-      // if (getpassengersPrefrence && getpassengersPrefrence.Passengers) {
-      //   await Promise.all(getpassengersPrefrence.Passengers.map(async (passenger) => {
-      //     const apiPassenger = response.PaxInfo.Passengers.find(p => p.FName === passenger.FName && p.LName === passenger.LName);
-      //     if (apiPassenger) {
-      //     //  console.log(passenger,"apiPassenger");
-      //       if(passenger?.Optional?.ticketDetails?.length > 0){
-      //         const ticketUpdate = passenger.Optional.ticketDetails.find(p => p.src === fSearchApiResponse.data.Param.Sector[0].Src && p.des === fSearchApiResponse.data.Param.Sector[0].Des);
-      //     //    console.log(ticketUpdate,"ticketUpdate");
-      //         if(ticketUpdate){
-      //           console.log(apiPassenger?.Optional?.TicketNumber,"jdsdsjkdj")
-      //           ticketUpdate.ticketNumber = apiPassenger?.Optional?.TicketNumber;
-      //         }
-      //       }
-            
-      //       passenger.Optional.TicketNumber = apiPassenger.Optional.TicketNumber;
-      //       passenger.Status = "CONFIRMED";
-      //     }
-      //   }));
-
-      //   await getpassengersPrefrence.save();
-      // }
-
-
-
-    // return {
-    //   response: "Status updated Successfully!",
-    //   data:response
-    // }
-    // console.log(response);
-
-// console.log(response?.BookingInfo?.CurrentStatus,"jidie")
-//     bulkOps.push({
-//       updateOne: {
-//         filter: { _id: item._id },
-//         update: { $set: { 
-//           bookingStatus: response?.BookingInfo?.CurrentStatus,
-//           APnr: response?.BookingInfo?.APnr,
-//           GPnr:  response?.BookingInfo?.GPnr,
-//           PNR: response?.BookingInfo?.APnr,
-//          } }
-//       }
-//     });
-const refundHistory = fSearchApiResponse.data;
-
-    if(!refundHistory){
-      return ({
-        response:"Kafila API Data Not Found"
-      })
+    // Validate Inputs
+    if (!Array.isArray(_BookingId)) {
+      return { response: "_BookingId must be an array" };
+    }
+    if (!_BookingId.length) {
+      return { response: "_BookingId array is empty" };
+    }
+    if (!companyId) {
+      return { response: "TMC companyID Not Found" };
+    }
+    if (!["LIVE", "TEST"].includes(credentialsType)) {
+      return { response: "Invalid credentialsType" };
+    }
+    if (!fromDate || !toDate || !moment(fromDate).isValid() || !moment(toDate).isValid()) {
+      return { response: "Invalid fromDate or toDate" };
     }
 
+    // Determine Environment
+    let Url, apiRequestBody, supplier;
+    const isTestEnv = ["localhost:3111", "kafila.traversia.net"].includes(req.headers.host);
+    const isProdEnv = req.headers.host === "agentapi.kafilaholidays.in";
 
-// const bookingIdsInHistory = bookingIds.map(item => item);
+    if (isTestEnv) {
+      supplier = await Supplier.find({ credentialsType: "TEST", companyId, status: true });
+      Url = "http://stage1.ksofttechnology.com/api/Freport";
+      apiRequestBody = {
+        "P_TYPE": "API",
+        "R_TYPE": "FLIGHT",
+        "R_NAME": "FlightCancelHistory",
+        "R_DATA": {
+          "ACTION": "",
+          "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
+          "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
+        },
+        "AID": "675923",
+        "MODULE": "B2B",
+        "IP": "182.73.146.154",
+        "TOKEN": "fd58e3d2b1e517f4ee46063ae176eee1",
+        "ENV": "D",
+        "Version": "1.0.0.0.0.0"
+      };
+    } else if (isProdEnv) {
+      supplier = await Supplier.find({ credentialsType: "LIVE", companyId, status: true });
+      if (!supplier.length) throw new Error("LIVE supplier not found");
+      Url = "http://fhapip.ksofttechnology.com/api/Freport";
+      apiRequestBody = {
+        "P_TYPE": "API",
+        "R_TYPE": "FLIGHT",
+        "R_NAME": "FlightCancelHistory",
+        "R_DATA": {
+          "ACTION": "",
+          "FROM_DATE": new Date(fromDate + 'T00:00:00.000Z'),
+          "TO_DATE": new Date(toDate + 'T23:59:59.999Z')
+        },
+        "AID": supplier[0].supplierWsapSesssion,
+        "MODULE": "B2B",
+        "IP": "182.73.146.154",
+        "TOKEN": supplier[0].supplierOfficeId,
+        "ENV": "P",
+        "Version": "1.0.0.0.0.0"
+      } ;
+    } else {
+      return { response: "Invalid environment" };
+    }
 
-// const filterData = refundHistory.filter(element => bookingIdsInHistory.includes(element.BookingId));
+    // API Call
+    let fSearchApiResponse;
+    try {
+      fSearchApiResponse = await axios.post(Url, apiRequestBody, { headers: { "Content-Type": "application/json" } });
+    } catch (apiError) {
+      return { response: `API Error: ${apiError.message}` };
+    }
 
-// const matchIds=filterData.map(item=> item.BookingId)
+    // Fetch Cancellation Data
+    const cancelationbookignsData = await CancelationBooking.find({ bookingId: { $in: _BookingId } });
+    if (!cancelationbookignsData.length) {
+      return { response: "Cancellation Data Not Found" };
+    }
 
-// console.log(matchIds,"jiejiei")
+    // Process Refunds
+    const isKafilaBooking = cancelationbookignsData.every(item => item.bookingId.startsWith("B2BKFL"));
+    const isB2BBooking = cancelationbookignsData.every(item => !item.bookingId.startsWith("B2BKFL"));
 
-const cancelationbookignsData=await CancelationBooking.find({bookingId:_BookingId})
-if(!cancelationbookignsData.length>0){
-  return ({
-    response:"Cancellation Data Not Found"
-  })
-}
-let refundProcessed = await RefundedCommonFunction(cancelationbookignsData,refundHistory)
-if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="Cancellation Data Not Found"){
-   return({
-      response:"Cancellation is still Pending"
-    })
-  
-  }else if(refundProcessed.response=="Cancelation Proceed refund"){
-    return({
-      response:refundProcessed.response,
+    let refundProcessed = {};
+  if(!isKafilaBooking&&!isB2BBooking){ {
+      return { response: "One Time One Provider Booking Insert" };
+    }}
+ else  if (isKafilaBooking) {
+      const updatePromises = cancelationbookignsData.map(async (item) => {
+        // 1. Update CancelationBooking collection
+        await CancelationBooking.updateMany(
+          { bookingId: item.bookingId , calcelationStatus:"PENDING"},
+          { calcelationStatus: "CANCEL" }
+        );
       
-    })
-  }
+        // 2. Update bookingDetails document
+        const booking = await bookingDetails.findOneAndUpdate(
+          { providerBookingId: item.bookingId },
+          { bookingStatus: "CANCELLED" },
+          { new: true }
+        );
+      
+        // 3. Update passenger status
+        await Promise.all(
+          item.passenger.map((passenger) =>
+            updatePassengerStatus(booking, passenger, "CANCELLED")
+          )
+        );
+      
+        // 4. Check if any passenger is still pending cancellation
+        const allCancelled = await passengerPreferenceModel.findOne({
+          bookingId: booking.bookingId,
+          "Passengers.Optional.ticketDetails.status": "CONFIRMED"
+        });
+      
+        // 5. Decide new status
+        const newStatus = allCancelled
+          ? "PARTIALLY CONFIRMED"
+          : "CANCELLED";
+      
+        // console.log(newStatus, "newStatus");
+      
+        // 6. Update bookingDetails with final status
+        await bookingDetails.findOneAndUpdate(
+          { providerBookingId: item.bookingId },
+          { $set: { bookingStatus: newStatus } },
+          { new: true }
+        );
+      });
+      
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+      
+    return {response:"Status updated Successfully!"}
+    } else if (isB2BBooking) {
+      refundProcessed = await RefundedCommonFunction(cancelationbookignsData, fSearchApiResponse.data);
+    } 
 
-else if(refundProcessed.response=="Cancellation status updated successfully."){
-  return ({response:"Status updated Successfully!"})
-}
-  // if (bulkOps.length) {
-  //   await bookingDetails.bulkWrite(bulkOps);
-  //   return {
-  //     response: "Status updated Successfully!"
-  //   }
-  // } else {
-  //   return {
-  //     response: "Error in updating Status!"
-  //   }
-  // }
-}
+    // Handle Final Response
+    if (refundProcessed.response === "Cancelation Proceed refund") {
+      return { response: refundProcessed.response };
+    } else if (refundProcessed.response === "Cancellation status updated successfully.") {
+      return { response: "Status updated Successfully!" };
+    } else {
+      return { response: "Cancellation is still Pending" };
+    }
+
+  } catch (error) {
+    console.error("Global Error:", error);
+    // return { response: `Server Error: ${error.message}` };
+  }
+};
 
 const updateConfirmBookingStatus = async (req, res) => {
   const { _BookingId, credentialsType } = req.body;
@@ -1209,20 +1271,24 @@ const updateConfirmBookingStatus = async (req, res) => {
   }
 }
 
-const cancelationDataUpdate=async(Authentication,fCancelApiResponse,BookingIdDetails)=>{
-  const findCancelationBooking = await CancelationBooking.findOne({$or:[{pnr:fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr},{bookingId:BookingIdDetails?.providerBookingId}]
-  })
+const cancelationDataUpdate = async (Authentication, fCancelApiResponse, BookingIdDetails) => {
+  try {
+    const pnr = fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr||" ";
+    const providerBookingId = BookingIdDetails?.providerBookingId;
 
-  if(!findCancelationBooking){
-    const cancelationBookingInstance = new CancelationBooking({
-      calcelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status || null,
+    const findCancelationBooking = await CancelationBooking.findOne({
+      $or: [{ pnr }, { bookingId: providerBookingId }]
+    });
+
+    const data = {
+      cancelationStatus: fCancelApiResponse?.data?.R_DATA?.Error?.Status || "PENDING",
       AirlineCode: fCancelApiResponse?.data?.R_DATA?.Charges?.FlightCode || null,
       companyId: Authentication?.CompanyId || null,
-      bookingId:BookingIdDetails?.providerBookingId,
-      providerBookingId:BookingIdDetails?.providerBookingId,
+      bookingId: providerBookingId,
+      providerBookingId,
       userId: Authentication?.UserId || null,
-      traceId:fCancelApiResponse?.data?.R_DATA?.TRACE_ID,
-      PNR: fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr || null,
+      traceId: fCancelApiResponse?.data?.R_DATA?.TRACE_ID || null,
+      PNR: pnr || null,
       fare: fCancelApiResponse?.data?.R_DATA?.Charges?.Fare || null,
       AirlineCancellationFee: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineCancellationFee || null,
       AirlineRefund: fCancelApiResponse?.data?.R_DATA?.Charges?.AirlineRefund || null,
@@ -1230,21 +1296,21 @@ const cancelationDataUpdate=async(Authentication,fCancelApiResponse,BookingIdDet
       RefundableAmt: fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt || null,
       description: fCancelApiResponse?.data?.R_DATA?.Charges?.Description || null,
       modifyBy: Authentication?.UserId || null,
-      modifyAt: new Date(),
-    });
+      modifyAt: new Date()
+    };
 
-
-    await cancelationBookingInstance.save();
-
+    if (!findCancelationBooking) {
+      const cancelationBookingInstance = new CancelationBooking(data);
+      await cancelationBookingInstance.save();
+    } else {
+      await CancelationBooking.findByIdAndUpdate(findCancelationBooking._id, { $set: data }, { new: true });
+    }
+  } catch (error) {
+    console.error("Error saving cancelation data:", error);
+    throw error;
   }
-  else{
-    await CancelationBooking.findByIdAndUpdate(findCancelationBooking._id,{$set:{
+};
 
-    }},{new:true})
-
-  }
-
-}
  
 module.exports = {
   fullCancelation, updateBookingStatus,updatePendingBookingStatus,updateConfirmBookingStatus

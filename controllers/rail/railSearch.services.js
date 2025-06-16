@@ -10,7 +10,8 @@ const {
   generateQR,
 } = require("../../utils/generate-qr");
 const moment=require('moment')
-const { commonAgentPGCharges, commonFunctionsRailLogs } = require('../../controllers/commonFunctions/common.function')
+const { commonAgentPGCharges, commonFunctionsRailLogs,getInvoiceNumber } = require('../../controllers/commonFunctions/common.function')
+
 const getRailSearch = async (req, res) => {
   try {
     const { fromStn, toStn, date, Authentication, traceId } = req.body;
@@ -401,7 +402,7 @@ const railFareEnquiry = async (req, res) => {
     } else {
       response.traceId = traceId
       response.CommercialCharges = agentCharges
-      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "FareEnquiry", url, req.body, response)
+      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "FareEnquiry", url, queryParams, response)
 
       return {
         response: "Fetch Data Successfully",
@@ -733,6 +734,10 @@ const DecodeToken = async (req, res) => {
       let formattedDate = `${year}-${month}-${day}T${timePart}`;
 
       jsonData.bookingStatus = "CONFIRMED";
+      jsonData.invoiceNumber=await getInvoiceNumber(jsonData?.pnrNumber,jsonData?.clientTransactionId)
+//       if(jsonData.invoiceNumber=="INVundefined"||jsonData.invoiceNumber===undefined){
+//         jsonData.invoiceNumber=await getInvoiceNumber(jsonData?.pnrNumber,jsonData?.clientTransactionId)
+//  }
 
       jsonData.bookingDate = new Date(formattedDate);
 
@@ -754,8 +759,6 @@ const DecodeToken = async (req, res) => {
         { $set: jsonData },
         { new: true }
       );
-      console.log(jsonData?.clientTransactionId)
-      console.log(updaterailBooking)
       // commonFunctionsRailLogs(Authentication?.CompanyId,Authentication?.userId,traceId,"Decode Token for Booking","TOken",data,jsonData)
       successHtmlCode = `<!DOCTYPE html>
       <html lang="en">

@@ -6,6 +6,7 @@ const {
   getCommonCabinClass,
 } = require("./common-search.helper");
 const { Config } = require("../configs/config");
+const { saveLogInFile } = require("../utils/save-log");
 
 function createAirPricingRequestBodyForCommonAPI(request) {
   try {
@@ -587,6 +588,7 @@ async function getPnrTicketCommonAPIBody(request) {
           journeyKey: reqItinerary.SearchID,
           origin: reqSegment.Origin,
           destination: reqSegment.Destination,
+          provider: reqItinerary.Provider,
           itinerary: [
             {
               recordLocator: reqItinerary.PNR,
@@ -598,6 +600,7 @@ async function getPnrTicketCommonAPIBody(request) {
     });
   }
 
+  saveLogInFile("pnr-ticket-req.json", data);
   return data;
 }
 module.exports = {

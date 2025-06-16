@@ -18,6 +18,7 @@ const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
+const {commonMethodBooking}=require('../../controllers/payuController/payu.services')
 const {
   createLeadger,
   getTdsAndDsicount,
@@ -208,7 +209,8 @@ async function handleflight(
     supplierCode,
     error: supplierError,
   } = await getSupplierCredentials({
-    provider: ItineraryPriceCheckResponses?.[0]?.Provider,
+    provider: "Kafila",
+    // provider: ItineraryPriceCheckResponses?.[0]?.Provider,
   });
 
   if (supplierError) {
@@ -682,7 +684,7 @@ const KafilaFun = async (
     calculationOfferPriceWithCommercial,
     totalSSRWithCalculationPrice,
   });
-  if (paymentMethodType === "Wallet") {
+  if (paymentMethodType === "Wallet"||isHoldBooking) {
     try {
       // Retrieve agent configuration
 
@@ -799,7 +801,8 @@ const KafilaFun = async (
       PassengerPreferences,
       ItineraryPriceCheckResponses,
       paymentMethodType,
-      paymentGateway
+      paymentGateway,
+      isHoldBooking
     );
   }
 
@@ -1125,21 +1128,30 @@ const KafilaFun = async (
                 item.Param.Sector.forEach((sector) => {
                   PassengerPreferences.Passengers.forEach((passenger) => {
                     // Filter meals based on source and destination
-                    const matchedMeals = passenger.Meal?.filter(
-                      (meal) => meal.Src === sector.Src && meal.Des === sector.Des
-                    ) || [];
+                    const matchedMeals =
+                      passenger.Meal?.filter(
+                        (meal) =>
+                          meal.Src === sector.Src && meal.Des === sector.Des
+                      ) || [];
 
-                    const matchBaggage=passenger.Baggage?.filter(
-                      (baggage) => baggage.Src === sector.Src && baggage.Des === sector.Des
-                    ) || [];
+                    const matchBaggage =
+                      passenger.Baggage?.filter(
+                        (baggage) =>
+                          baggage.Src === sector.Src &&
+                          baggage.Des === sector.Des
+                      ) || [];
 
-                    const matchSeat=passenger?.Seat.filter((seat) => seat.Src === sector.Src && seat.Des === sector.Des
-                  ) || [];
+                    const matchSeat =
+                      passenger?.Seat.filter(
+                        (seat) =>
+                          seat.Src === sector.Src && seat.Des === sector.Des
+                      ) || [];
 
-
-            passenger.Baggage=matchBaggage.length>0?matchBaggage:[]
-                    passenger.Meal = matchedMeals.length > 0 ? matchedMeals : [];
-                   passenger.Seat=matchSeat.length>0?matchSeat:[]
+                    passenger.Baggage =
+                      matchBaggage.length > 0 ? matchBaggage : [];
+                    passenger.Meal =
+                      matchedMeals.length > 0 ? matchedMeals : [];
+                    passenger.Seat = matchSeat.length > 0 ? matchSeat : [];
                   });
                 });
               }
@@ -1248,7 +1260,6 @@ const KafilaFun = async (
                     fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ==
                       "HOLD")
                 ) {
-                  
                   await BookingDetails.updateOne(
                     {
                       bookingId: item?.BookingId,
@@ -1293,9 +1304,13 @@ const KafilaFun = async (
                   // return `${fSearchApiResponse.data.ErrorMessage}-${fSearchApiResponse.data.WarningMessage}`;
                 }
 
+                item.LastTicketingDate =
+                  fSearchApiResponse?.data?.BookingInfo?.LastTicketingTime ||
+                  "";
                 const bookingResponce = {
                   CartId: item.BookingId,
                   bookingResponce: {
+                    ...fSearchApiResponse.data.BookingInfo,
                     CurrentStatus:
                       fSearchApiResponse.data.BookingInfo.CurrentStatus,
                     BookingStatus:
@@ -1321,6 +1336,7 @@ const KafilaFun = async (
                   },
                   {
                     $set: {
+                      "itinerary.LastTicketingDate": item.LastTicketingDate,
                       bookingStatus:
                         fSearchApiResponse.data.BookingInfo.CurrentStatus,
                       bookingRemarks:
@@ -1557,7 +1573,10 @@ const KafilaFun = async (
                 };
                 Logs(logDataCatch);
 
-                if (error.message?.toLowerCase().includes("socket hang up")) {
+                if (
+                  error.message?.toLowerCase().includes("socket hang up") ||
+                  error.message?.toLowerCase().includes("timeout")
+                ) {
                   await BookingDetails.updateOne(
                     {
                       bookingId: item?.BookingId,
@@ -1735,7 +1754,8 @@ const kafilaFunOnlinePayment = async (
   PassengerPreferences,
   ItineraryPriceCheckResponses,
   paymentMethodType,
-  paymentGateway
+  paymentGateway,
+  isHoldBooking
 ) => {
   const createBooking = async (newItem) => {
     try {
@@ -1978,6 +1998,11 @@ const kafilaFunOnlinePayment = async (
           Segments: Segments,
           TravelType: TypeOfTrip,
         });
+//         if(isHoldBooking){
+// const Data=await commonMethodBooking(request, true,ItineraryPriceCheckResponses[0].BookingId);
+
+// return Data
+//         }
 
         const bookingTemp = await BookingTemp.create({
           companyId: Authentication.companyId,

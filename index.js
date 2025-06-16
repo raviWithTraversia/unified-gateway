@@ -88,6 +88,7 @@ app.use(
     origin: "*",
   })
 );
+app.set('trust proxy', true); // ✅ VERY IMPORTANT
 app.use((req, res, next) => {
   res.header("Cache-Control", "no-store");
   res.header("Content-Type", "application/json");

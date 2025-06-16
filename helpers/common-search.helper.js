@@ -98,7 +98,7 @@ function convertItineraryForKafila({
     IndexNumber: itinerary.indexNumber,
     Provider: itinerary.provider,
     ValCarrier: itinerary.valCarrier,
-    LastTicketingDate: "",
+    LastTicketingDate: itinerary.lastTicketingTime || "",
     TravelTime: sumDurationForKafila([itinerary.airSegments[0]]),
     PriceBreakup: [
       passengerPriceBreakupForKafila("ADT", itinerary.priceBreakup),

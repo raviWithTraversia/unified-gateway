@@ -89,9 +89,29 @@ app.use(
   })
 );
 app.set('trust proxy', true); // ✅ VERY IMPORTANT
+app.use((err, req, res, next) => {
+  // Handle Invalid JSON parse errors
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ Message: 'Invalid JSON payload', IsSucess:false,
+    Error:true });
+  }
+
+  console.error('Unhandled error:', err);
+
+  res.status(500).json({
+    Message: 'Something went wrong. Please try again later.',
+    IsSucess:false,
+    Error:true
+  });
+});
+
 app.use((req, res, next) => {
   res.header("Cache-Control", "no-store");
-  res.header("Content-Type", "application/json");
+
+  
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Content-Security-Policy", "default-src 'self'");
+
   next();
 });
 
@@ -114,7 +134,6 @@ app.use(
   swaggerUI.serve,
   swaggerUI.setup(swaggerDocs, swaggerUiOptions)
 );
-
 const port = process.env.PORT || 3111;
 //let host = '192.168.1.8'
 app.listen(port, function () {

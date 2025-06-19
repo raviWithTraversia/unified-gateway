@@ -86,7 +86,7 @@ const loginUser = async (req, res) => {
     }).populate("roleId");
     if (!user) {
       return {
-        response: "User not found",
+        response: "Invalid username or password",
       };
     }
     if (user.userStatus === Status.InActive || user.userStatus === Status.Inactive) {
@@ -98,7 +98,7 @@ const loginUser = async (req, res) => {
     const isPasswordValid = await user.isPasswordCorrect(password)
     if (!isPasswordValid) {
       return {
-        response: "Invalid password",
+        response: "Invalid username or password",
       };
     }
     const token = await commonFunction.createToken(user._id);

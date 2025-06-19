@@ -41,11 +41,14 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const result = await userServices.loginUser(req, res);
-    if (result.response == "User not found") {
+    // if (result.response == "User not found") {
+    //   apiErrorres(res, result.response, ServerStatusCode.UNAUTHORIZED, true);
+    // } else if (result.response == "Invalid password") {
+    //   apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    // }
+     if (result.response == "Invalid username or password") {
       apiErrorres(res, result.response, ServerStatusCode.UNAUTHORIZED, true);
-    } else if (result.response == "Invalid password") {
-      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
-    } else if (result.response === "User is not active") {
+    }  else if (result.response === "User is not active") {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else {
       apiSucessRes(
@@ -58,7 +61,7 @@ const loginUser = async (req, res) => {
   } catch (error) {
     apiErrorres(
       res,
-      errorResponse.SOMETHING_WRONG,
+      error?.message??errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );

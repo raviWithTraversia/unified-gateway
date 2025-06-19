@@ -91,7 +91,11 @@ app.use(
 app.set('trust proxy', true); // ✅ VERY IMPORTANT
 app.use((req, res, next) => {
   res.header("Cache-Control", "no-store");
-  res.header("Content-Type", "application/json");
+
+  
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Content-Security-Policy", "default-src 'self'");
+
   next();
 });
 
@@ -114,7 +118,6 @@ app.use(
   swaggerUI.serve,
   swaggerUI.setup(swaggerDocs, swaggerUiOptions)
 );
-
 const port = process.env.PORT || 3111;
 //let host = '192.168.1.8'
 app.listen(port, function () {

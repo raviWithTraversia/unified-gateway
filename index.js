@@ -89,6 +89,22 @@ app.use(
   })
 );
 app.set('trust proxy', true); // ✅ VERY IMPORTANT
+app.use((err, req, res, next) => {
+  // Handle Invalid JSON parse errors
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ Message: 'Invalid JSON payload', IsSucess:false,
+    Error:true });
+  }
+
+  console.error('Unhandled error:', err);
+
+  res.status(500).json({
+    Message: 'Something went wrong. Please try again later.',
+    IsSucess:false,
+    Error:true
+  });
+});
+
 app.use((req, res, next) => {
   res.header("Cache-Control", "no-store");
 

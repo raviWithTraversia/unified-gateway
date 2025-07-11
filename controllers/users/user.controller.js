@@ -136,7 +136,7 @@ const satteUserInsert = async (req, res) => {
 const forgotPassword = async (req, res) => {
   try {
     const result = await userServices.forgotPassword(req);
-    if (result.response == "User not found") {
+    if (result.response == "Invalid username or password") {
       apiErrorres(
         res,
         result.response,

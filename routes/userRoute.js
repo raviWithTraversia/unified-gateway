@@ -187,9 +187,20 @@ user_route.post(
 *                type: string
 *                example: Password reset email sent
 */
+const rateLimit = require("express-rate-limit");
+
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 5 min
+  max: 3, // Max 3 attempts per 5 min
+  message: {
+    message: "Too many requests. Please try again later.",
+  },
+});
+
 
 user_route.post(
   '/user/forgot-password',
+  forgotPasswordLimiter,
   //userValidatior.userForgetPassword,
   userController.forgotPassword
 )

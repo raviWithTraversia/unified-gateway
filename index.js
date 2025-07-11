@@ -81,13 +81,27 @@ const swaggerUiOptions = {
   displayOperationId: true,
   deepLinking: true,
 };
+const allowedOrigins = ["https://kafilaui.traversia.net","http://localhost:4200","https://agent.kafilaholidays.in"];
 
 // Place your cache control middleware here // remove after dev to pro
 app.use(
   cors({
-    origin: "*",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
+
+// app.use(
+//   cors({
+//     origin: "*",
+//   })
+// );
 app.set('trust proxy', true); // ✅ VERY IMPORTANT
 app.use((err, req, res, next) => {
   // Handle Invalid JSON parse errors
@@ -111,7 +125,7 @@ app.use((req, res, next) => {
   
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://code.jquery.com 'unsafe-inline'; connect-src 'self' https://kafila.traversia.net");
-   res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("X-XSS-Protection", "1; mode=block");
   res.setHeader("X-Powered-By", ""); // overwrite
   res.removeHeader("X-Powered-By");

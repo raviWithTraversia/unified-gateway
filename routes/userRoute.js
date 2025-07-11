@@ -190,8 +190,8 @@ user_route.post(
 const rateLimit = require("express-rate-limit");
 
 const forgotPasswordLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 5 min
-  max: 3, // Max 3 attempts per 5 min
+  windowMs: 2 * 60 * 1000, // 2 min
+  max: 3, // Max 3 attempts per 3 min
   message: {
     message: "Too many requests. Please try again later.",
   },

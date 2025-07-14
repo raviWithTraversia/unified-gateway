@@ -8,7 +8,9 @@ class ExpressLoader {
         // Middleware that transforms the raw string of req.body into json
         app.use(express.json());
 
-        app.use(express.urlencoded({ limit: '100mb', extended: true }))
+     app.disable('x-powered-by');
+     
+     app.use(express.urlencoded({ limit: '100mb', extended: true }))
         
         const allowedOrigins = ["https://kafilaui.traversia.net","http://localhost:4200","https://agent.kafilaholidays.in"];
         
@@ -29,6 +31,15 @@ class ExpressLoader {
         // parses incoming requests with JSON payloads
         // app.use(cors());
         // app.options("*", cors());
+
+   app.use((req, res, next) => {
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://code.jquery.com 'unsafe-inline'; connect-src 'self' https://kafila.traversia.net");
+      res.setHeader("X-Frame-Options", "DENY");
+      res.setHeader("X-XSS-Protection", "1; mode=block");
+      res.removeHeader("X-Powered-By");
+      next();
+    });
 
         return app;
     }

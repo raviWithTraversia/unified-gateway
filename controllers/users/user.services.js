@@ -824,7 +824,7 @@ const forgotPassword = async (req, res) => {
     );
     if (!user) {
       return {
-        response: "User not found",
+        response: "Invalid username or password",
       };
     }
 

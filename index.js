@@ -6,6 +6,7 @@ const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
 const basicAuth = require("express-basic-auth");
 const cors = require("cors");
+const multer = require('multer');
 const { enableGZipCompression } = require("./utils/compression");
 let MongoUrl = Config.MONGODB_URL;
 if (Config.MODE === "LIVE") {
@@ -118,6 +119,29 @@ app.set('trust proxy', true); // ✅ VERY IMPORTANT
 //     Error:true
 //   });
 // });
+
+app.use((err, req, res, next) => {
+  // Multer file validation error
+  if (err.code === 'INVALID_FILE_TYPE') {
+    return res.status(400).json({
+      IsSucess: false,
+      Message: 'Invalid image file'
+    });
+  }
+
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      IsSucess: false,
+      Message: err.message
+    });
+  }
+
+  return res.status(500).json({
+    IsSucess: false,
+    Message: err.message || 'Something went wrong'
+  });
+});
+
 app.disable('x-powered-by');
 app.use((req, res, next) => {
   res.header("Cache-Control", "no-store");

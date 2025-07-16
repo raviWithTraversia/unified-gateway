@@ -34,14 +34,6 @@ const addBankDetails = async (req,res) => {
                 true
             )
          }
-         else if(result.response === "This account number alrady exist"){
-            apiErrorres(
-                res,
-                result.response,
-                ServerStatusCode.ALREADY_EXIST,
-                true
-            )
-         }
          else if(result.isSomethingMissing){
             apiErrorres(
                 res,
@@ -50,7 +42,6 @@ const addBankDetails = async (req,res) => {
                 true
             )
          }
-         
          else{
             apiErrorres(
                 res,

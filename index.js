@@ -103,28 +103,28 @@ app.use(
 //   })
 // );
 app.set('trust proxy', true); // ✅ VERY IMPORTANT
-app.use((err, req, res, next) => {
-  // Handle Invalid JSON parse errors
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    return res.status(400).json({ Message: 'Invalid JSON payload', IsSucess:false,
-    Error:true });
-  }
+// app.use((err, req, res, next) => {
+//   // Handle Invalid JSON parse errors
+//   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+//     return res.status(400).json({ Message: 'Invalid JSON payload', IsSucess:false,
+//     Error:true });
+//   }
 
-  console.error('Unhandled error:', err);
+//   console.error('Unhandled error:', err);
 
-  res.status(500).json({
-    Message: 'Something went wrong. Please try again later.',
-    IsSucess:false,
-    Error:true
-  });
-});
+//   res.status(500).json({
+//     Message: 'Something went wrong. Please try again later.',
+//     IsSucess:false,
+//     Error:true
+//   });
+// });
 app.disable('x-powered-by');
 app.use((req, res, next) => {
   res.header("Cache-Control", "no-store");
 
   
   res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://code.jquery.com 'unsafe-inline'; connect-src 'self' https://kafila.traversia.net");
+  res.setHeader("Content-Security-Policy", "default-src 'self';");
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("X-XSS-Protection", "1; mode=block");
   res.removeHeader("X-Powered-By");

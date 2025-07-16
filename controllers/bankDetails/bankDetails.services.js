@@ -42,7 +42,7 @@ const addBankDetails = async (req, res) => {
     let checkIfAccountNoExist = await bankDetail.find({accountNumber :accountNumber });
     if(checkIfAccountNoExist.length > 0){
       return{
-        response : 'This Account Number alerady Exist'
+        response : 'This Account Number already Exist'
       }
     };
   //  console.log(req.files, "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmbbbbbbbbbbbbbbbbbbbbbbbbb");

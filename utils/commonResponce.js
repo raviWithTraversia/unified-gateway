@@ -1,5 +1,5 @@
 const apiSucessRes = (res, message, result, code, apiReq, error, token, refreshToken, expireTime) =>  {
-    
+     res.removeHeader("X-Powered-By"); // only use certification 
     return res.status(code).json({
         IsSucess: true,
         ResponseStatusCode: code,
@@ -16,7 +16,7 @@ const apiSucessRes = (res, message, result, code, apiReq, error, token, refreshT
 };
 
 const apiSucessResforAgency = (res, message, result, count ,code) =>  {
-    
+    res.removeHeader("X-Powered-By"); // only use certification 
     return res.status(code).json({
         IsSucess: true,
         ResponseStatusCode: code,
@@ -28,6 +28,7 @@ const apiSucessResforAgency = (res, message, result, count ,code) =>  {
 
 };
 const apiErrorres = (res,message,code, error) => {
+     res.removeHeader("X-Powered-By"); // only use certification 
     return res.status(code).json({
         IsSucess : false,
         Message: message,

@@ -82,7 +82,7 @@ const swaggerUiOptions = {
   displayOperationId: true,
   deepLinking: true,
 };
-const allowedOrigins = ["https://kafilaui.traversia.net","http://localhost:4200","https://agent.kafilaholidays.in"];
+const allowedOrigins = ["https://kafilaui.traversia.net","http://localhost:4200","https://test.payu.in","https://agent.kafilaholidays.in","https://secure.payu.in"];
 
 // Place your cache control middleware here // remove after dev to pro
 app.use(

@@ -52,11 +52,11 @@ const storeDepositRequest = async (req, res) => {
                 true
             )
 
-        } else if (result.isSometingMissing) {
+        } else if (result.isSomethingMissing) {
             apiErrorres(
                 res,
                 result.data,
-                ServerStatusCode.RESOURCE_NOT_FOUND,
+                ServerStatusCode.BAD_REQUEST,
                 true
             )
         }
@@ -132,7 +132,7 @@ const getDepositByagencyId = async (req, res) => {
     } catch (error) {
         apiErrorres(
             res,
-            errorResponse.SOMETHING_WRONG,
+            error?.message||errorResponse.SOMETHING_WRONG,
             ServerStatusCode.SERVER_ERROR,
             true
         )

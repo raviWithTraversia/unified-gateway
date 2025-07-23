@@ -52,6 +52,13 @@ const adddepositDetails = async (req, res) => {
         data: `Missing or null fields: ${missingFieldsString}`,
       };
     }
+if (typeof amount !== 'number' || isNaN(amount) || amount < 0) {
+  return {
+    response: null,
+    isSomethingMissing: true,
+    data: "Amount must be a positive number",
+  };
+}
 
     // Check if the same records exist
     const existingDepositRequest = await depositDetail.findOne({
@@ -179,17 +186,10 @@ const getDepositRequestByAgentId = async (req, res) => {
       .populate("agencyId")
       .populate("userId");
     console.log("depositDetail: ", depositDetail);
-    if (result.length > 0) {
       return {
         response: "Fetch Data Successfuly!!",
         data: result,
       };
-    } else {
-      return {
-        response: "Deposit request not available",
-        data: null,
-      };
-    }
   } catch (error) {
     throw error;
   }

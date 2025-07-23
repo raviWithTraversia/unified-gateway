@@ -2790,7 +2790,8 @@ const getBookingByPaxDetails = async (req, res) => {
 };
 
 const getBillingData = async (req, res) => {
-  const { key, fromDate, toDate } = req.query;
+  try{
+const { key, fromDate, toDate } = req.query;
   const istDateString = await ISOTime(fromDate);
   const istDateString2 = await ISOTime(toDate);
 
@@ -3017,7 +3018,6 @@ for (const [index, element] of billingData.entries()) {
   element.issueDate = await ISTTime(element.issueDate);
 
   finalBillingData.push(element);
-
   // Add extra entry for seat price
   if (element.seats?.some(seat => seat.TotalPrice > 0)) {
     element.seats.forEach((seat) => {
@@ -3168,6 +3168,13 @@ return {
   data: newArray,
 };
 
+  }catch(error){
+    return{
+      response:"Fetch Data Successfully",
+      data:error.message
+    }
+  }
+  
 };
 
 const updateBillPost = async (req, res) => {

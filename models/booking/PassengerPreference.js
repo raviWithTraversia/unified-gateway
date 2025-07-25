@@ -31,6 +31,8 @@ const passengerPreferenceSchema = new mongoose.Schema(
     PaxMobile: { type: String, default: null },
     Passengers: [
       {
+        eTime:{type:Date,default:Date.now()},
+        errorMessage: { type: String, default: null },
         accountPost: { type: String, default: "0" },
         PaxType: { type: String, default: null },
         passengarSerialNo: { type: Number, default: null },

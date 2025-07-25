@@ -32,10 +32,33 @@ const ISOTime = async (time) => {
   return istDate.toISOString();
 };
 
-const ISTTime = async (time) => {
-  const utcDate = new Date(time);
-  const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
-  return istDate.toISOString();
+const ISTTime =  async(time) => {
+  
+  if (!time || typeof time !== "string") return null;
+
+const cleanTime = time.replace(/\s+/g, ""); // remove all spaces
+
+const utcDate = new Date(cleanTime);
+
+if (isNaN(utcDate.getTime())) {
+  console.error("Invalid date format:", time);
+  return null;
+}
+
+const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
+return istDate;
+}
+
+const ISTTime1 = async(time) => {
+  // const utcDate = new Date(time); // Don't remove whitespace from ISO string
+
+  // if (isNaN(utcDate.getTime())) {
+  //   console.error("Invalid date format:", time);
+  //   return '';
+  // }
+
+  const istDate = new Date(time.getTime() + 5.5 * 60 * 60 * 1000);
+  return istDate;
 };
 
 const getAllBooking = async (req, res) => {
@@ -2790,8 +2813,7 @@ const getBookingByPaxDetails = async (req, res) => {
 };
 
 const getBillingData = async (req, res) => {
-  try{
-const { key, fromDate, toDate } = req.query;
+  const { key, fromDate, toDate } = req.query;
   const istDateString = await ISOTime(fromDate);
   const istDateString2 = await ISOTime(toDate);
 
@@ -2893,10 +2915,10 @@ const { key, fromDate, toDate } = req.query;
       class: { $arrayElemAt: ["$bookingData.itinerary.Sectors.Class", 0] },
       ccUserName: "AUTO",
       travelDateOutbound: {
-        $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.Date", 0],
+        $arrayElemAt: ["$bookingData.itinerary.Sectors.Departure.DateTimeStamp", 0],
       },
       travelDateInbound: {
-        $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.Date", 0],
+        $arrayElemAt: ["$bookingData.itinerary.Sectors.Arrival.DateTimeStamp", 0],
       },
       issueDate: "$bookingData.bookingDateTime",
       airlineTax: "0",
@@ -3015,9 +3037,11 @@ for (const [index, element] of billingData.entries()) {
   element.id = index + 1;
   element.travelDateOutbound = await ISTTime(element.travelDateOutbound);
   element.travelDateInbound = await ISTTime(element.travelDateInbound);
-  element.issueDate = await ISTTime(element.issueDate);
+  // element.travelDateInbound = element.travelDateInbound
+  element.issueDate = await ISTTime1(element.issueDate);
 
   finalBillingData.push(element);
+
   // Add extra entry for seat price
   if (element.seats?.some(seat => seat.TotalPrice > 0)) {
     element.seats.forEach((seat) => {
@@ -3168,13 +3192,45 @@ return {
   data: newArray,
 };
 
-  }catch(error){
-    return{
-      response:"Fetch Data Successfully",
-      data:error.message
-    }
+};
+
+const updatePaxAccountPostUseProviderBookingId = async (req, res) => {
+  const { providerBookingIds } = req.body;
+  if (!providerBookingIds?.length) {
+    return {
+      response: "Provider BookingId is required",
+      IsSucess: false,
+    };
   }
-  
+
+  const bookings = await BookingDetails.find(
+    { providerBookingId: { $in: providerBookingIds } },
+    { bookingId: 1 }
+  );
+
+  const bookingIds = bookings.map((b) => b.bookingId);
+
+  if (!bookingIds.length) {
+    return {
+      response: "Booking IDS not available",
+      IsSucess: false,
+    };
+  }
+
+  const result = await passengerPreferenceModel.updateMany(
+    { bookingId: { $in: bookingIds } },
+    {
+      $set: {
+        "Passengers.$[].accountPost": 0,
+      },
+    }
+  );
+
+  return {
+    response: "AccountPost Updated Successfully",
+    IsSucess: true,
+    data: result,
+  };
 };
 
 const updateBillPost = async (req, res) => {
@@ -3188,8 +3244,8 @@ const updateBillPost = async (req, res) => {
   for (let item of accountPostArr) {
     bulkOps.push({
       updateOne: {
-        filter: { "Passengers._id": item._id },
-        update: { $set: { "Passengers.$.accountPost": item.accountPost } },
+        filter: { "Passengers._id":new ObjectId(item._id) },
+        update: { $set: { "Passengers.$.accountPost": item.accountPost,"Passengers.$.eTime":new Date(),"Passengers.$.errorMessage":item.errorMessage} },
       },
     });
   }
@@ -3781,5 +3837,6 @@ module.exports = {
   getPendingBooking,
   manuallyUpdateMultipleBookingStatus,
   updateBookingStatus,
+  updatePaxAccountPostUseProviderBookingId,
   importPnrService,
 };

@@ -329,7 +329,7 @@ const getBillingData = async (req, res) => {
     console.log(error)
     apiErrorres(
       res,
-      errorResponse.SOMETHING_WRONG,
+      JSON.stringify(error.stack),
       ServerStatusCode.SERVER_ERROR,
       true
     );
@@ -509,6 +509,29 @@ const importPnrService = async (req, res) => {
   }
 }
 
+const updatePaxAccountPostUseProviderBookingId = async (req, res) => {
+  try {
+    const result = await getAllBookingServices.updatePaxAccountPostUseProviderBookingId(req);
+    if (!result?.IsSucess) {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    }  else{
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    }
+  } catch (error) {
+    apiErrorres(
+      res,
+      error?.message??errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
 const UpdateAdvanceMarkup=async(req,res)=>{
   try{
 
@@ -597,5 +620,6 @@ module.exports = {
   PendingBooking,
   manuallyUpdateMultipleBookingStatus,
   updateBookingStatus,
+  updatePaxAccountPostUseProviderBookingId,
   importPnrService
 };

@@ -8,7 +8,7 @@ const agentConfigSchema = new mongoose.Schema({
   },
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Company",
+    ref: "Company"
   },
   userType: {
     type: String
@@ -192,6 +192,6 @@ RailbookingPrefix: {
   timestamps: true,
   strict: true, // Ensures only defined fields are saved
 });
-
+agentConfigSchema.index({ companyId: 1 });
 const AgentConfiguration = mongoose.model("AgentConfiguration", agentConfigSchema);
 module.exports = AgentConfiguration;

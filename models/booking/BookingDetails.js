@@ -317,7 +317,9 @@ const bookingDetailsSchema = new mongoose.Schema(
 );
 bookingDetailsSchema.index({companyId: 1, createdAt: -1 });
 bookingDetailsSchema.index({createdAt: -1 });
-bookingDetailsSchema.index({bookedBy: 1, createdAt: -1 });
+bookingDetailsSchema.index({bookedBy: 1});
+bookingDetailsSchema.index({ userId: 1 });
+
 
 const BookingDetails = mongoose.model("BookingDetails", bookingDetailsSchema);
 module.exports = BookingDetails;

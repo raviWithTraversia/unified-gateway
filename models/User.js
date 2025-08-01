@@ -173,6 +173,7 @@ const counterSchema = new mongoose.Schema({
 });
 
 const Counter = mongoose.model("Counter", counterSchema);
+userSchema.index({company_ID: 1});
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();

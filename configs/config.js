@@ -27,6 +27,8 @@ module.exports.Config = {
     lyraShopId: 99210763,
     lyraPassword: "prodpassword_5HDCe87tE0aGD7ZA7VrvfBdeXIXGKP7L6FKyhGYjh4Plz",
   },
+
+  TMCID:"6555f84c991eaa63cb171a9f",
   LYRAURL:"https://api.in.lyra.com/pg/rest/v1/charge",
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",

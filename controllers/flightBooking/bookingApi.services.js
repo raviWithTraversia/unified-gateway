@@ -377,7 +377,7 @@ const skip = (pages - 1) * limits;
     },
   },
 ]);
-
+// const status=await bookingdetails.find(filter);
 
     // Further processing...
 let bookingDetails = paginatedResults[0]?.paginatedResults||[];
@@ -387,26 +387,26 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
         response: "Data Not Found",
       };
     } else {
-      const statusCounts = {
-        PENDING: 0,
-        CONFIRMED: 0,
-        FAILED: 0,
-        CANCELLED: 0,
-        INCOMPLETE: 0,
-        HOLD: 0,
-        "HOLD RELEASED": 0,
-        "FAILED PAYMENT": 0,
-      };
+      // const statusCounts = {
+      //   PENDING: 0,
+      //   CONFIRMED: 0,
+      //   FAILED: 0,
+      //   CANCELLED: 0,
+      //   INCOMPLETE: 0,
+      //   HOLD: 0,
+      //   "HOLD RELEASED": 0,
+      //   "FAILED PAYMENT": 0,
+      // };
 
-      // Iterate over the bookingDetails array
-      var bookingIds = [];
+      // // Iterate over the bookingDetails array
+      // var bookingIds = [];
 
-      // Iterate over the bookingDetails array
-      bookingDetails.forEach((booking) => {
-        const status = booking.bookingStatus;
-        // Increment the count corresponding to the status
-        statusCounts[status]++;
-      });
+      // // Iterate over the bookingDetails array
+      // bookingDetails.forEach((booking) => {
+      //   const status = booking.bookingStatus;
+      //   // Increment the count corresponding to the status
+      //   statusCounts[status]++;
+      // });
       const allBookingData = [];
 
       await Promise.all(
@@ -442,7 +442,7 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
                   new Date(a.bookingDetails.bookingDateTime)
               )
           ),
-          statusCounts: statusCounts,
+          // statusCounts: statusCounts,
           totalCount: paginatedResults[0]?.totalCount[0]?.count || 0,
         },
       };
@@ -691,26 +691,26 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
         response: "Data Not Found",
       };
     } else {
-      const statusCounts = {
-        PENDING: 0,
-        CONFIRMED: 0,
-        FAILED: 0,
-        CANCELLED: 0,
-        INCOMPLETE: 0,
-        HOLD: 0,
-        "HOLD RELEASED": 0,
-        "FAILED PAYMENT": 0,
-        "CANCELLATION PENDING": 0,
-      };
+      // const statusCounts = {
+      //   PENDING: 0,
+      //   CONFIRMED: 0,
+      //   FAILED: 0,
+      //   CANCELLED: 0,
+      //   INCOMPLETE: 0,
+      //   HOLD: 0,
+      //   "HOLD RELEASED": 0,
+      //   "FAILED PAYMENT": 0,
+      //   "CANCELLATION PENDING": 0,
+      // };
 
-      // Iterate over the bookingDetails array
+      // // Iterate over the bookingDetails array
 
-      // Iterate over the bookingDetails array
-      bookingDetails.forEach((booking) => {
-        const status = booking.bookingStatus;
-        // Increment the count corresponding to the status
-        statusCounts[status]++;
-      });
+      // // Iterate over the bookingDetails array
+      // bookingDetails.forEach((booking) => {
+      //   const status = booking.bookingStatus;
+      //   // Increment the count corresponding to the status
+      //   statusCounts[status]++;
+      // });
       const allBookingData = [];
       await Promise.all(
         bookingDetails.map(async (booking) => {
@@ -742,7 +742,7 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
               new Date(b.bookingDetails.bookingDateTime) -
               new Date(a.bookingDetails.bookingDateTime)
           ),
-          statusCounts: statusCounts,
+          // statusCounts: statusCounts,
           totalCount: paginatedResults[0]?.totalCount[0]?.count || 0,
         },
       };
@@ -992,25 +992,25 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
         response: "Data Not Found",
       };
     } else {
-      const statusCounts = {
-        PENDING: 0,
-        CONFIRMED: 0,
-        FAILED: 0,
-        CANCELLED: 0,
-        INCOMPLETE: 0,
-        HOLD: 0,
-        "HOLD RELEASED": 0,
-        "FAILED PAYMENT": 0,
-        "CANCELLATION PENDING": 0,
-      };
-      var bookingIds = [];
+      // const statusCounts = {
+      //   PENDING: 0,
+      //   CONFIRMED: 0,
+      //   FAILED: 0,
+      //   CANCELLED: 0,
+      //   INCOMPLETE: 0,
+      //   HOLD: 0,
+      //   "HOLD RELEASED": 0,
+      //   "FAILED PAYMENT": 0,
+      //   "CANCELLATION PENDING": 0,
+      // };
+      // var bookingIds = [];
 
-      // Iterate over the bookingDetails array
-      bookingDetails.forEach((booking) => {
-        const status = booking.bookingStatus;
-        // Increment the count corresponding to the status
-        statusCounts[status]++;
-      });
+      // // Iterate over the bookingDetails array
+      // bookingDetails.forEach((booking) => {
+      //   const status = booking.bookingStatus;
+      //   // Increment the count corresponding to the status
+      //   statusCounts[status]++;
+      // });
       const allBookingData = [];
 
       await Promise.all(
@@ -1049,7 +1049,7 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
               new Date(b.bookingDetails.bookingDateTime) -
               new Date(a.bookingDetails.bookingDateTime)
           ),
-          statusCounts: statusCounts,
+          // statusCounts: statusCounts,
           totalCount: paginatedResults[0]?.totalCount[0]?.count || 0,
         },
       };
@@ -2059,6 +2059,111 @@ const getBookingCalendarCount = async (req, res) => {
     data: checkBookingCount,
   };
 };
+
+const getProvideStatusCount = async (req, res) => {
+  try {
+    let { companyId, toDate, fromDate } = req.body;
+
+    const bookingDetailsQuery = {
+      // createdAt: {
+      //   $gte: startDateUTC,
+      //   $lte: endDateUTC
+      // },
+      ...(Config?.TMCID !== companyId
+        ? { AgencyId:new ObjectId(companyId) }
+        : { companyId: new ObjectId(companyId) })
+    };
+
+     if (fromDate || toDate) {
+      bookingDetailsQuery.createdAt = {};
+      if (fromDate) {
+        if (!moment(fromDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid fromDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+
+        let startDate = moment(fromDate)
+          .set("hour", 0)
+          .set("minute", 0)
+          .set("second", 0)
+          .toDate();
+        bookingDetailsQuery.createdAt["$gte"] = startDate;
+      }
+      if (toDate) {
+        if (!moment(toDate, "YYYY-MM-DD", true).isValid())
+          return apiErrorres(
+            res,
+            "invalid toDate format, must be YYYY-MM-DD",
+            400,
+            true
+          );
+        let endDate = moment(toDate)
+          .set("hour", 23)
+          .set("minute", 59)
+          .second(59)
+          .toDate();
+        bookingDetailsQuery.createdAt["$lte"] = endDate;
+      }
+    }
+    if (fromDate && toDate) {
+      if (moment(toDate).isBefore(fromDate)) {
+        return apiErrorres(
+          res,
+          "invalid fromDate | toDate, toDate must be a date greater than or equal to fromDate",
+          400,
+          true
+        );
+      }
+    }
+
+    // Build query filter
+    
+
+    // Use aggregation to count booking statuses directly in DB
+    const bookingStatusCounts = await BookingDetails.aggregate([
+      { $match: bookingDetailsQuery },
+      {
+        $group: {
+          _id: "$bookingStatus",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Initialize default status counts
+    const statusCounts = {
+      PENDING: 0,
+      CONFIRMED: 0,
+      FAILED: 0,
+      CANCELLED: 0,
+      INCOMPLETE: 0,
+      HOLD: 0,
+      "HOLD RELEASED": 0,
+      "FAILED PAYMENT": 0,
+      "CANCELLATION PENDING":0 
+    };
+
+    // Fill counts from aggregation result
+    bookingStatusCounts.forEach(({ _id, count }) => {
+      if (statusCounts.hasOwnProperty(_id)) {
+        statusCounts[_id] = count;
+      }
+    });
+
+    return {
+      response: "Data Found Successfully",
+      data:statusCounts
+    };
+
+  } catch (error) {
+    console.error("Error in getProvideStatusCount:", error);
+    throw error;
+  }
+};
+
 
 const getDeparturesList = async (req, res) => {
   try {
@@ -3893,4 +3998,5 @@ module.exports = {
   updateBookingStatus,
   updatePaxAccountPostUseProviderBookingId,
   importPnrService,
+  getProvideStatusCount
 };

@@ -74,6 +74,39 @@ const getAllBooking = async (req, res) => {
   }
 }; 
 
+const getAllStatusCount = async (req, res) => {
+  try {
+    const result = await getAllBookingServices.getProvideStatusCount(req, res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "User id does not exist" || result.response === "Data Not Found") {
+      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    } else if (result.response === "Data Found Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
 const PendingBooking = async(req,res)=>{
   try {
     const result = await getAllBookingServices.getPendingBooking(req, res);
@@ -621,5 +654,6 @@ module.exports = {
   manuallyUpdateMultipleBookingStatus,
   updateBookingStatus,
   updatePaxAccountPostUseProviderBookingId,
-  importPnrService
+  importPnrService,
+  getAllStatusCount
 };

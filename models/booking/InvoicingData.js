@@ -33,5 +33,6 @@ const InvoicingDataSchema = new mongoose.Schema({
 },{
     timestamps : true  
 });
+InvoicingDataSchema.index({bookingId: 1 });
 
 module.exports = mongoose.model('InvoicingData' , InvoicingDataSchema);

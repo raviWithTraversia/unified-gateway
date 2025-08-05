@@ -149,13 +149,7 @@ const invoiceGenerator = async (req, res) => {
                     }
                     // console.log(passenger);
                     if(bookingDetail?.invoicingdata.length == 0){
-                        await InvoicingData.create({
-                            invoiceNumber: invoiceNumber,
-                            bookingId: bookingDetail._id,
-                            passenger: passenger,
-                            companyId: bookingDetail?.companyId,
-                            AgencyId: bookingDetail?.AgencyId
-                        }); //InvoicingData
+                       //InvoicingData
                         await Invoicing.create({
                             cartId:bookingDetail._id,
                             passenger: passenger,
@@ -171,6 +165,13 @@ const invoiceGenerator = async (req, res) => {
                         });//InvoicePriceBreakup
                     }
                 }
+                  await InvoicingData.create({
+                            invoiceNumber: invoiceNumber,
+                            bookingId: bookingDetail._id,
+                            passenger: ttpasanegers[0],
+                            companyId: bookingDetail?.companyId,
+                            AgencyId: bookingDetail?.AgencyId
+                        });
             }
             
         } 

@@ -110,7 +110,7 @@ const getAllBooking = async (req, res) => {
   //   };
   // }
 const pages = parseInt(page) || 1;
-const limits = parseInt(limit) || 10;
+const limits = parseInt(limit) || 200;
 const skip = (pages - 1) * limits;
   // Check if company Id exists
   const checkUserIdExist = await User.findById(userId)
@@ -2124,14 +2124,24 @@ const getProvideStatusCount = async (req, res) => {
 
     // Use aggregation to count booking statuses directly in DB
     const bookingStatusCounts = await BookingDetails.aggregate([
-      { $match: bookingDetailsQuery },
-      {
-        $group: {
-          _id: "$bookingStatus",
-          count: { $sum: 1 }
+  { $match: bookingDetailsQuery },
+  {
+    $group: {
+      _id: "$bookingStatus",
+      count: { $sum: 1 },
+      totalSellPrice: {
+        $sum: {
+          $cond: [
+            { $eq: ["$bookingStatus", "CONFIRMED"] },
+            "$bookingTotalAmount",  // change to your actual field name for total price
+            0
+          ]
         }
       }
-    ]);
+    }
+  }
+]);
+
 
     // Initialize default status counts
     const statusCounts = {
@@ -2147,15 +2157,22 @@ const getProvideStatusCount = async (req, res) => {
     };
 
     // Fill counts from aggregation result
-    bookingStatusCounts.forEach(({ _id, count }) => {
+    let totalSellPrice = 0;
+    bookingStatusCounts.forEach(({ _id, count ,totalSellPrice: sellPrice = 0}) => {
       if (statusCounts.hasOwnProperty(_id)) {
         statusCounts[_id] = count;
+        if (_id === "CONFIRMED") {
+      totalSellPrice = sellPrice;
+    }
       }
     });
 
     return {
       response: "Data Found Successfully",
-      data:statusCounts
+      data:{
+        statusCount:statusCounts,
+        totalSellPrice:totalSellPrice
+      }
     };
 
   } catch (error) {

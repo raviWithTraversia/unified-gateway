@@ -62,7 +62,7 @@ const ISTTime1 = async(time) => {
 };
 
 const getAllBooking = async (req, res) => {
-  const {
+  let {
     userId,
     agencyId,
     bookingId,
@@ -109,6 +109,7 @@ const getAllBooking = async (req, res) => {
   //     response: "User id does not exist",
   //   };
   // }
+  limit>200?limit=200:limit
 const pages = parseInt(page) || 1;
 const limits = parseInt(limit) || 200;
 const skip = (pages - 1) * limits;

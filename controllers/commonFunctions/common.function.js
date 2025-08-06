@@ -2076,10 +2076,7 @@ const sendEmailForSatte = async (
     <p>Dear ${name},</p>
     
     <p>Greetings from Kafila Hospitality and Travels Pvt. Ltd.!</p>
-
-    <p>We had the pleasure of meeting you at SATTE 2025 at Yashobhoomi, New Delhi, and we have your visiting card.</p>
-
-    <p>As per your request, we have registered you on our B2B portal:<br>
+ <p>As per your request, we have registered you on our B2B portal:<br>
     <a href="${loginUrl}">${loginUrl}</a></p>
 
     <p>Please find below your login details for accessing your account:</p>

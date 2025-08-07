@@ -136,7 +136,8 @@ const invoiceGenerator = async (req, res) => {
             
             }
             invoiceNumber = bookingDetail?.CompanyDetail?.agentconfigurations?.InvoiceingPrefix + invoiceRandomNumber;
-            if(bookingDetail?.passengerpreferences?.Passengers?.length>0){  
+            let invoiceData=await InvoicingData.findOne({bookingId:bookingDetail._id})
+            if(bookingDetail?.passengerpreferences?.Passengers?.length>0&&!invoiceData){  
                 let ttpasanegers = bookingDetail?.passengerpreferences?.Passengers;
                 for(const passenger of ttpasanegers){
                     let pasType = passenger?.PaxType;

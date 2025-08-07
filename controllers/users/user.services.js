@@ -1123,276 +1123,525 @@ const getUser = async (req, res) => {
     throw error
   }
 };
+// const getAllAgencyAndDistributer = async (req, res) => {
+//   try {
+//     let parentId = req.query.id;
+//     let sales_In_ChargeId=req.query.sales_In_ChargeId
+//     const searchQuery = req.query.search || ''; 
+//     let page = parseInt(req.query.page) || 1; 
+//     let limit = parseInt(req.query.limit) || 10;
+//     var status=req.query.status;
+// const findSalesIncharge=await User.findOne({_id:sales_In_ChargeId,sales_In_Charge:true})
+// const findSalesInchargeData=findSalesIncharge?{"agentconfigurationsData.salesInchargeIds":new mongoose.Types.ObjectId(sales_In_ChargeId)}:{}
+
+//     const findTmcUser=await Company.findById(parentId)
+//     const skip = (page - 1) * limit;
+//     const searchCondition = searchQuery
+//       ? { $or: [
+//           { fname: { $regex: searchQuery, $options: 'i' } }, // Search by first name
+//           { lastName: { $regex: searchQuery, $options: 'i' } }, // Search by last name
+//           { "company_ID.companyName": { $regex: searchQuery, $options: 'i' } }, // Search by company name
+//         ] }
+//       : {};
+    
+//      findStatus=  status=="All"?{}: {"company_ID.companyStatus":{ $eq:status}}
+      
+
+//     const users = await User.aggregate([
+//       { 
+//         $lookup: {
+//           from: 'companies', // Name of the companies collection
+//           localField: 'company_ID',
+//           foreignField: '_id',
+//           as: 'company_ID'
+//         }
+//       },
+//       { 
+//         $unwind: {
+//           path: '$company_ID',
+//           preserveNullAndEmptyArrays: true
+//         }
+//       },
+//       {
+//       $lookup:{
+//         from:"agentconfigurations",
+//         localField:"_id",
+//         foreignField:"userId",
+//         as:"agentconfigurationsData"
+//       }
+//       },
+//       {
+//         $unwind: {
+//           path: '$agentconfigurationsData',
+//           preserveNullAndEmptyArrays: true
+//         }
+//       },
+//       {
+//         $addFields: {
+//           matchCondition: {
+//             $switch: {
+//               branches: [
+//                 {
+//                   case: { $eq: [findTmcUser.type, "TMC"] }, // First condition
+//                   then: { $in: ["$company_ID.type", ["TMC", "Agency", "Distributer"]] } // Result if true
+//                 },
+//                 {
+//                   case: { $eq: ["$company_ID.parent", new mongoose.Types.ObjectId(parentId)] }, // Second condition (else if)
+//                   then: true // Result if true
+//                 },
+//                 {
+//                   case: { $eq: ["$company_ID._id", new mongoose.Types.ObjectId(parentId)] }, // Second condition (else if)
+//                   then: true 
+//                 },
+                
+//               ],
+//               default: false // Result if no conditions match
+//             }
+//           }
+//         }
+//       },
+//       {
+//         $match: {
+//           matchCondition: true
+//         }
+//       },
+
+//       {
+//       $match:findSalesInchargeData
+//        },
+//        {
+//         $lookup: {
+//           from: 'roles', // Name of the roles collection
+//           localField: 'roleId',
+//           foreignField: '_id',
+//           as: 'roleId'
+//         }
+//       },
+//       { 
+//         $unwind: {
+//           path: '$roleId',
+//           preserveNullAndEmptyArrays: true
+//         }
+//       },
+//       {$match:{"roleId.type":{$ne:"Manual"}}},
+//       { 
+//         $lookup: {
+//           from: 'cities', // Name of the cities collection
+//           localField: 'cityId',
+//           foreignField: '_id',
+//           as: 'cityId'
+//         }
+//       },
+//       { 
+//         $unwind: {
+//           path: '$cityId',
+//           preserveNullAndEmptyArrays: true
+//         }
+//       },
+//     { 
+//         $unwind: {
+//           path: '$company_ID.parent',
+//           preserveNullAndEmptyArrays: true
+//         }
+//       },
+//      { 
+//         $lookup: {
+//           from: 'companies',
+//           localField: 'company_ID.parent',
+//           foreignField: '_id',
+//           as: 'company_ID.parent'
+//         }
+//       },
+//       { 
+//         $unwind: {
+//           path: '$company_ID.parent',
+//           preserveNullAndEmptyArrays: true
+//         }
+//       },
+
+//       {$match:searchCondition},
+//       {$match:findStatus},
+
+//       {
+//         $lookup:{
+//           from:'agentconfigurations',
+//           localField:'_id',
+//           foreignField:"userId",
+//           as:"salesIncharge"
+
+//         },
+//       },
+//       { 
+//         $unwind: {
+//           path: '$salesIncharge',
+//           preserveNullAndEmptyArrays: true
+//         }
+//       },
+//       { 
+//         $lookup: {
+//           from: 'users',
+//           localField: 'salesIncharge.salesInchargeIds',
+//           foreignField: '_id',
+//           as: 'salesInchargeData'
+//         }
+//       },
+//       { $unwind: { path: '$salesInchargeData', preserveNullAndEmptyArrays: true } },
+//       {
+//         $lookup:{
+//           from:"agentconfigurations",
+//           localField:"_id",
+//           foreignField:"userId",
+//           as:"agentconfigurations"
+
+//         }
+//       },
+//       {$unwind:{path:"$agentconfigurations" ,preserveNullAndEmptyArrays: true}},
+
+//       {$facet:{
+
+//         totalCount: [{ $count: "count" }],
+//         paginatorData:[
+
+      
+//       {
+//         $group: {
+//           _id: "$_id",
+//           company_ID: {
+//             $first: {
+//               _id: "$company_ID._id",
+//               companyName: "$company_ID.companyName",
+//               type: "$company_ID.type",
+//               companyStatus: "$company_ID.companyStatus",
+//               cashBalance: "$company_ID.cashBalance",
+//               creditBalance: "$company_ID.creditBalance",
+//               maxCreditLimit: "$company_ID.maxCreditLimit",
+//               updatedAt: "$company_ID.updatedAt",
+//               parent: {
+//                 _id: "$company_ID.parent._id",
+//                 companyName: "$company_ID.parent.companyName",
+//                 type: "$company_ID.parent.type"
+//               }
+          
+//           }},
+//           salesIncharge: { $first: "$salesIncharge.salesInchargeIds" },
+//           salesInchargeData:{$first:{ fname:  "$salesInchargeData.fname" ,
+//           lastName:  "$salesInchargeData.lastName",
+//           title: "$salesInchargeData.title" }},
+
+//          userType: { $first: "$userType" },
+//           login_Id: { $first: "$login_Id" },
+//           email: { $first: "$email" },
+//           deactivation_Date: { $first: "$deactivation_Date" },
+//           logoURI: { $first: "$logoURI" },
+//           roleId: { $first: "$roleId" },
+//           title: { $first: "$title" },
+//           fname: { $first: "$fname" },
+//           lastName: { $first: "$lastName" },
+//           password: { $first: "$password" },
+//           securityStamp: { $first: "$securityStamp" },
+//           phoneNumber: { $first: "$phoneNumber" },
+//           twoFactorEnabled: { $first: "$twoFactorEnabled" },
+//           lockoutEnabled: { $first: "$lockoutEnabled" },
+//           accessfailedCount: { $first: "$accessfailedCount" },
+//           emailConfirmed: { $first: "$emailConfirmed" },
+//           phoneNumberConfirmed: { $first: "$phoneNumberConfirmed" },
+//           userStatus: { $first: "$userStatus" },
+//           userPanName: { $first: "$userPanName" },
+//           userPanNumber: { $first: "$userPanNumber" },
+//           sex: { $first: "$sex" },
+//           dob: { $first: "$dob" },
+//           nationality: { $first: "$nationality" },
+//           deviceToken: { $first: "$deviceToken" },
+//           deviceID: { $first: "$deviceID" },
+//           user_planType: { $first: "$user_planType" },
+//           sales_In_Charge: { $first: "$sales_In_Charge" },
+//           personalPanCardUpload: { $first: "$personalPanCardUpload" },
+//           created_Date: { $first: "$created_Date" },
+//           lastModifiedDate: { $first: "$lastModifiedDate" },
+//           last_LoginDate: { $first: "$last_LoginDate" },
+//           activation_Date: { $first: "$activation_Date" },
+//           createdAt: { $first: "$createdAt" },
+//           updatedAt: { $first: "$updatedAt" },
+//           resetToken: { $first: "$resetToken" },
+//           ip_address: { $first: "$ip_address" },
+//           userId: { $first: "$userId" },
+//           encryptUserId: { $first: "$encryptUserId" },
+//           maxcreditLimit: { $first: "$agentconfigurations.maxcreditLimit" },
+//           agentConfigID: { $first: "$agentconfigurations._id" }
+//         }
+//       },
+//       {$sort:{userId:1}},
+      
+//       { $skip: skip }, 
+//       { $limit: limit },
+//     ]
+//     },}
+//     ])
+    
+//     //console.log("=======>>>", users);
+//    const usersData=users[0].paginatorData
+//     // let data = [];
+//     // for (let i = 0; i < usersData.length; i++) {
+//     //   if (usersData[i].roleId.type == 'Manual') {
+//     //     continue;
+//     //   } else {
+//     //     data.push(usersData[i])
+//     //   }
+//     // }
+//     if (usersData.length != 0) {
+//       return {
+//         response: 'Agency Data fetch Sucessfully',
+//         data: usersData,
+//         totalCount: users[0].totalCount[0].count
+//       }
+//     } else {
+//       return {
+//         response: 'Agency Data not found'
+//       }
+//     }
+
+//   } catch (error) {
+//     console.log(error);
+//     throw error
+//   }
+// };
+
 const getAllAgencyAndDistributer = async (req, res) => {
   try {
     let parentId = req.query.id;
-    let sales_In_ChargeId=req.query.sales_In_ChargeId
-    const searchQuery = req.query.search || ''; 
-    let page = parseInt(req.query.page) || 1; 
+    let sales_In_ChargeId = req.query.sales_In_ChargeId;
+    const searchQuery = req.query.search || '';
+    let page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
-    var status=req.query.status;
-const findSalesIncharge=await User.findOne({_id:sales_In_ChargeId,sales_In_Charge:true})
-const findSalesInchargeData=findSalesIncharge?{"agentconfigurationsData.salesInchargeIds":new mongoose.Types.ObjectId(sales_In_ChargeId)}:{}
+    var status = req.query.status;
 
-    const findTmcUser=await Company.findById(parentId)
+    const findSalesIncharge = await User.findOne({ _id: sales_In_ChargeId, sales_In_Charge: true });
+    const findSalesInchargeData = findSalesIncharge ? { "agentconfigurationsData.salesInchargeIds": new mongoose.Types.ObjectId(sales_In_ChargeId) } : {};
+
+    const findTmcUser = await Company.findById(parentId);
     const skip = (page - 1) * limit;
     const searchCondition = searchQuery
-      ? { $or: [
-          { fname: { $regex: searchQuery, $options: 'i' } }, // Search by first name
-          { lastName: { $regex: searchQuery, $options: 'i' } }, // Search by last name
-          { "company_ID.companyName": { $regex: searchQuery, $options: 'i' } }, // Search by company name
-        ] }
+      ? {
+          $or: [
+            { fname: { $regex: searchQuery, $options: 'i' } },
+            { lastName: { $regex: searchQuery, $options: 'i' } },
+            { "company_ID.companyName": { $regex: searchQuery, $options: 'i' } },
+          ]
+        }
       : {};
-    
-     findStatus=  status=="All"?{}: {"company_ID.companyStatus":{ $eq:status}}
-      
+
+    const findStatus = status == "All" ? {} : { "company_ID.companyStatus": { $eq: status } };
 
     const users = await User.aggregate([
-      { 
-        $lookup: {
-          from: 'companies', // Name of the companies collection
-          localField: 'company_ID',
-          foreignField: '_id',
-          as: 'company_ID'
+  // Initial filtering based on salesIncharge and TMC conditions
+  {
+    $lookup: {
+      from: 'agentconfigurations',
+      localField: '_id',
+      foreignField: 'userId',
+      as: 'agentconfigurationsData'
+    }
+  },
+  {
+    $unwind: {
+      path: '$agentconfigurationsData',
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  {
+    $lookup: {
+      from: 'companies',
+      localField: 'company_ID',
+      foreignField: '_id',
+      as: 'company_ID'
+    }
+  },
+  {
+    $unwind: {
+      path: '$company_ID',
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  {
+    $addFields: {
+      matchCondition: {
+        $switch: {
+          branches: [
+            {
+              case: { $eq: [findTmcUser.type, "TMC"] },
+              then: { $in: ["$company_ID.type", ["TMC", "Agency", "Distributer"]] }
+            },
+            {
+              case: { $eq: ["$company_ID.parent", new mongoose.Types.ObjectId(parentId)] },
+              then: true
+            },
+            {
+              case: { $eq: ["$company_ID._id", new mongoose.Types.ObjectId(parentId)] },
+              then: true
+            },
+          ],
+          default: false
         }
-      },
-      { 
-        $unwind: {
-          path: '$company_ID',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-      $lookup:{
-        from:"agentconfigurations",
-        localField:"_id",
-        foreignField:"userId",
-        as:"agentconfigurationsData"
       }
-      },
-      {
-        $unwind: {
-          path: '$agentconfigurationsData',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $addFields: {
-          matchCondition: {
-            $switch: {
-              branches: [
-                {
-                  case: { $eq: [findTmcUser.type, "TMC"] }, // First condition
-                  then: { $in: ["$company_ID.type", ["TMC", "Agency", "Distributer"]] } // Result if true
-                },
-                {
-                  case: { $eq: ["$company_ID.parent", new mongoose.Types.ObjectId(parentId)] }, // Second condition (else if)
-                  then: true // Result if true
-                },
-                {
-                  case: { $eq: ["$company_ID._id", new mongoose.Types.ObjectId(parentId)] }, // Second condition (else if)
-                  then: true 
-                },
-                
-              ],
-              default: false // Result if no conditions match
-            }
+    }
+  },
+  { $match: { matchCondition: true } },
+  { $match: findSalesInchargeData },
+  { $match: searchCondition },
+  { $match: findStatus },
+{
+        $facet: {
+          totalCount: [{ $count: "count" }],
+          paginatedResults: [
+            { $sort: { userId: 1 } },
+            { $skip: skip },
+            { $limit: limit },
+            
+            // Heavy lookups AFTER pagination
+            {
+              $lookup: {
+                from: 'roles',
+                localField: 'roleId',
+                foreignField: '_id',
+                as: 'roleId'
+              }
+            },
+            { $unwind: { path: '$roleId', preserveNullAndEmptyArrays: true } },
+            { $match: { "roleId.type": { $ne: "Manual" } } },
+            {
+              $lookup: {
+                from: 'cities',
+                localField: 'cityId',
+                foreignField: '_id',
+                as: 'cityId'
+              }
+            },
+            { $unwind: { path: '$cityId', preserveNullAndEmptyArrays: true } },
+            {
+              $unwind: {
+                path: '$company_ID.parent',
+                preserveNullAndEmptyArrays: true
+              }
+            },
+            {
+              $lookup: {
+                from: 'companies',
+                localField: 'company_ID.parent',
+                foreignField: '_id',
+                as: 'company_ID.parent'
+              }
+            },
+            { $unwind: { path: '$company_ID.parent', preserveNullAndEmptyArrays: true } },
+            {
+              $lookup: {
+                from: 'agentconfigurations',
+                localField: '_id',
+                foreignField: "userId",
+                as: "salesIncharge"
+              }
+            },
+            { $unwind: { path: '$salesIncharge', preserveNullAndEmptyArrays: true } },
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'salesIncharge.salesInchargeIds',
+                foreignField: '_id',
+                as: 'salesInchargeData'
+              }
+            },
+            { $unwind: { path: '$salesInchargeData', preserveNullAndEmptyArrays: true } },
+            {
+              $lookup: {
+                from: "agentconfigurations",
+                localField: "_id",
+                foreignField: "userId",
+                as: "agentconfigurations"
+              }
+            },
+            { $unwind: { path: "$agentconfigurations", preserveNullAndEmptyArrays: true } },
+        {
+          $group: {
+            _id: "$_id",
+            company_ID: {
+              $first: {
+                _id: "$company_ID._id",
+                companyName: "$company_ID.companyName",
+                type: "$company_ID.type",
+                companyStatus: "$company_ID.companyStatus",
+                cashBalance: "$company_ID.cashBalance",
+                creditBalance: "$company_ID.creditBalance",
+                maxCreditLimit: "$company_ID.maxCreditLimit",
+                updatedAt: "$company_ID.updatedAt",
+                parent: {
+                  _id: "$company_ID.parent._id",
+                  companyName: "$company_ID.parent.companyName",
+                  type: "$company_ID.parent.type"
+                }
+              }
+            },
+            salesIncharge: { $first: "$salesIncharge.salesInchargeIds" },
+            salesInchargeData: {
+              $first: {
+                fname: "$salesInchargeData.fname",
+                lastName: "$salesInchargeData.lastName",
+                title: "$salesInchargeData.title"
+              }
+            },
+            userType: { $first: "$userType" },
+            login_Id: { $first: "$login_Id" },
+            email: { $first: "$email" },
+            deactivation_Date: { $first: "$deactivation_Date" },
+            logoURI: { $first: "$logoURI" },
+            roleId: { $first: "$roleId" },
+            title: { $first: "$title" },
+            fname: { $first: "$fname" },
+            lastName: { $first: "$lastName" },
+            password: { $first: "$password" },
+            securityStamp: { $first: "$securityStamp" },
+            phoneNumber: { $first: "$phoneNumber" },
+            twoFactorEnabled: { $first: "$twoFactorEnabled" },
+            lockoutEnabled: { $first: "$lockoutEnabled" },
+            accessfailedCount: { $first: "$accessfailedCount" },
+            emailConfirmed: { $first: "$emailConfirmed" },
+            phoneNumberConfirmed: { $first: "$phoneNumberConfirmed" },
+            userStatus: { $first: "$userStatus" },
+            userPanName: { $first: "$userPanName" },
+            userPanNumber: { $first: "$userPanNumber" },
+            sex: { $first: "$sex" },
+            dob: { $first: "$dob" },
+            nationality: { $first: "$nationality" },
+            deviceToken: { $first: "$deviceToken" },
+            deviceID: { $first: "$deviceID" },
+            user_planType: { $first: "$user_planType" },
+            sales_In_Charge: { $first: "$sales_In_Charge" },
+            personalPanCardUpload: { $first: "$personalPanCardUpload" },
+            created_Date: { $first: "$created_Date" },
+            lastModifiedDate: { $first: "$lastModifiedDate" },
+            last_LoginDate: { $first: "$last_LoginDate" },
+            activation_Date: { $first: "$activation_Date" },
+            createdAt: { $first: "$createdAt" },
+            updatedAt: { $first: "$updatedAt" },
+            resetToken: { $first: "$resetToken" },
+            ip_address: { $first: "$ip_address" },
+            userId: { $first: "$userId" },
+            encryptUserId: { $first: "$encryptUserId" },
+            maxcreditLimit: { $first: "$agentconfigurations.maxcreditLimit" },
+            agentConfigID: { $first: "$agentconfigurations._id" }
           }
         }
-      },
-      {
-        $match: {
-          matchCondition: true
-        }
-      },
+      ]
+    }
+  }
+]);
 
-      {
-      $match:findSalesInchargeData
-       },
-       {
-        $lookup: {
-          from: 'roles', // Name of the roles collection
-          localField: 'roleId',
-          foreignField: '_id',
-          as: 'roleId'
-        }
-      },
-      { 
-        $unwind: {
-          path: '$roleId',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {$match:{"roleId.type":{$ne:"Manual"}}},
-      { 
-        $lookup: {
-          from: 'cities', // Name of the cities collection
-          localField: 'cityId',
-          foreignField: '_id',
-          as: 'cityId'
-        }
-      },
-      { 
-        $unwind: {
-          path: '$cityId',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-    { 
-        $unwind: {
-          path: '$company_ID.parent',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-     { 
-        $lookup: {
-          from: 'companies',
-          localField: 'company_ID.parent',
-          foreignField: '_id',
-          as: 'company_ID.parent'
-        }
-      },
-      { 
-        $unwind: {
-          path: '$company_ID.parent',
-          preserveNullAndEmptyArrays: true
-        }
-      },
 
-      {$match:searchCondition},
-      {$match:findStatus},
+    const usersData = users[0].paginatedResults;
 
-      {
-        $lookup:{
-          from:'agentconfigurations',
-          localField:'_id',
-          foreignField:"userId",
-          as:"salesIncharge"
-
-        },
-      },
-      { 
-        $unwind: {
-          path: '$salesIncharge',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      { 
-        $lookup: {
-          from: 'users',
-          localField: 'salesIncharge.salesInchargeIds',
-          foreignField: '_id',
-          as: 'salesInchargeData'
-        }
-      },
-      { $unwind: { path: '$salesInchargeData', preserveNullAndEmptyArrays: true } },
-      {
-        $lookup:{
-          from:"agentconfigurations",
-          localField:"_id",
-          foreignField:"userId",
-          as:"agentconfigurations"
-
-        }
-      },
-      {$unwind:{path:"$agentconfigurations" ,preserveNullAndEmptyArrays: true}},
-
-      {$facet:{
-
-        totalCount: [{ $count: "count" }],
-        paginatorData:[
-
-      
-      {
-        $group: {
-          _id: "$_id",
-          company_ID: {
-            $first: {
-              _id: "$company_ID._id",
-              companyName: "$company_ID.companyName",
-              type: "$company_ID.type",
-              companyStatus: "$company_ID.companyStatus",
-              cashBalance: "$company_ID.cashBalance",
-              creditBalance: "$company_ID.creditBalance",
-              maxCreditLimit: "$company_ID.maxCreditLimit",
-              updatedAt: "$company_ID.updatedAt",
-              parent: {
-                _id: "$company_ID.parent._id",
-                companyName: "$company_ID.parent.companyName",
-                type: "$company_ID.parent.type"
-              }
-          
-          }},
-          salesIncharge: { $first: "$salesIncharge.salesInchargeIds" },
-          salesInchargeData:{$first:{ fname:  "$salesInchargeData.fname" ,
-          lastName:  "$salesInchargeData.lastName",
-          title: "$salesInchargeData.title" }},
-
-         userType: { $first: "$userType" },
-          login_Id: { $first: "$login_Id" },
-          email: { $first: "$email" },
-          deactivation_Date: { $first: "$deactivation_Date" },
-          logoURI: { $first: "$logoURI" },
-          roleId: { $first: "$roleId" },
-          title: { $first: "$title" },
-          fname: { $first: "$fname" },
-          lastName: { $first: "$lastName" },
-          password: { $first: "$password" },
-          securityStamp: { $first: "$securityStamp" },
-          phoneNumber: { $first: "$phoneNumber" },
-          twoFactorEnabled: { $first: "$twoFactorEnabled" },
-          lockoutEnabled: { $first: "$lockoutEnabled" },
-          accessfailedCount: { $first: "$accessfailedCount" },
-          emailConfirmed: { $first: "$emailConfirmed" },
-          phoneNumberConfirmed: { $first: "$phoneNumberConfirmed" },
-          userStatus: { $first: "$userStatus" },
-          userPanName: { $first: "$userPanName" },
-          userPanNumber: { $first: "$userPanNumber" },
-          sex: { $first: "$sex" },
-          dob: { $first: "$dob" },
-          nationality: { $first: "$nationality" },
-          deviceToken: { $first: "$deviceToken" },
-          deviceID: { $first: "$deviceID" },
-          user_planType: { $first: "$user_planType" },
-          sales_In_Charge: { $first: "$sales_In_Charge" },
-          personalPanCardUpload: { $first: "$personalPanCardUpload" },
-          created_Date: { $first: "$created_Date" },
-          lastModifiedDate: { $first: "$lastModifiedDate" },
-          last_LoginDate: { $first: "$last_LoginDate" },
-          activation_Date: { $first: "$activation_Date" },
-          createdAt: { $first: "$createdAt" },
-          updatedAt: { $first: "$updatedAt" },
-          resetToken: { $first: "$resetToken" },
-          ip_address: { $first: "$ip_address" },
-          userId: { $first: "$userId" },
-          encryptUserId: { $first: "$encryptUserId" },
-          maxcreditLimit: { $first: "$agentconfigurations.maxcreditLimit" },
-          agentConfigID: { $first: "$agentconfigurations._id" }
-        }
-      },
-      {$sort:{userId:1}},
-      
-      { $skip: skip }, 
-      { $limit: limit },
-    ]
-    },}
-    ])
-    
-    //console.log("=======>>>", users);
-   const usersData=users[0].paginatorData
-    // let data = [];
-    // for (let i = 0; i < usersData.length; i++) {
-    //   if (usersData[i].roleId.type == 'Manual') {
-    //     continue;
-    //   } else {
-    //     data.push(usersData[i])
-    //   }
-    // }
     if (usersData.length != 0) {
       return {
         response: 'Agency Data fetch Sucessfully',
-        data: usersData,
-        totalCount: users[0].totalCount[0].count
+        data: usersData.sort((a, b) => (a.userId > b.userId ? 1 : -1)),
+        totalCount: users[0]?.totalCount[0]?.count || 0
       }
     } else {
       return {
@@ -1402,7 +1651,7 @@ const findSalesInchargeData=findSalesIncharge?{"agentconfigurationsData.salesInc
 
   } catch (error) {
     console.log(error);
-    throw error
+    throw error;
   }
 };
 

@@ -4,6 +4,8 @@ const User = require("../../models/User");
 const Company = require("../../models/Company");
 const axios = require("axios");
 const { Config } = require("../../configs/config");
+const { commonFunctionsRailLogs } = require("../../controllers/commonFunctions/common.function");
+const { updateBookingWithCartId } = require("./railSearch.services");
 
 
 const createIrctcBooking = async (req, res) => {};
@@ -47,11 +49,11 @@ const irctcPaymentSubmit = async (req, res) => {
       paymentMode: paymentMode,
       paramMap: paramMap,
     };
-    console.log(queryParams, "queryParams");
+    // console.log(queryParams, "queryParams");
     const response = (
       await axios.post(url, queryParams, { headers: { Authorization: auth } })
     )?.data;
-    console.log(response, "response");
+    // console.log(response, "response");
     if (!response) {
       return {
         response: "No Response from Irctc",
@@ -63,7 +65,7 @@ const irctcPaymentSubmit = async (req, res) => {
       };
     }
   } catch (error) {
-    console.log(error, "error");
+    // console.log(error, "error");
     apiErrorres(
       res,
       errorResponse.SOMETHING_WRONG,
@@ -122,7 +124,7 @@ const boardingstationenq = async (req, res) => {
     const response = (
       await axios.get(url, { headers: { Authorization: auth } })
     )?.data;
-    console.log(response, "response");
+    // console.log(response, "response");
     if (!response) {
       return {
         response: "No Response from Irctc",
@@ -134,7 +136,7 @@ const boardingstationenq = async (req, res) => {
       };
     }
   } catch (error) {
-    console.log(error, "error");
+    // console.log(error, "error");
     apiErrorres(
       res,
       errorResponse.SOMETHING_WRONG,
@@ -181,7 +183,7 @@ const irctcAmountDeduction = async (req, res) => {
     //   };
     // }
   } catch (error) {
-    console.log(error, "error");
+    // console.log(error, "error");
     apiErrorres(
       res,
       errorResponse.SOMETHING_WRONG,
@@ -191,9 +193,34 @@ const irctcAmountDeduction = async (req, res) => {
   }
 };
 
+const checkBookingWithCartId=async(cartId,traceId,Authentication)=>{
+    
+    try{
+      let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/bookingdetails/${cartId}`;
+    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
+    if (Authentication.CredentialType === "LIVE") {
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/bookingdetails/${cartId}`;
+    }
+    const response = (
+      await axios.get(url, { headers: { Authorization: auth } })
+    )?.data;
+    commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "BookDetail", url, {}, response)
+    // console.log(response, "response");
+    if (!response||!response?.pnrNumber) {
+      return 
+    }
+    return  await updateBookingWithCartId(response,cartId)
+
+    }catch(error){
+        // console.log(error,"error");
+        throw error
+    }
+}
+
 module.exports = {
   createIrctcBooking,
   irctcPaymentSubmit,
   boardingstationenq,
   irctcAmountDeduction,
+  checkBookingWithCartId
 };

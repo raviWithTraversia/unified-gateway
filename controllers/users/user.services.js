@@ -1414,6 +1414,7 @@ const getAllAgencyAndDistributer = async (req, res) => {
     let page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
     var status = req.query.status;
+    let type=req.query.type||"All"
 
     const findSalesIncharge = await User.findOne({ _id: sales_In_ChargeId, sales_In_Charge: true });
     const findSalesInchargeData = findSalesIncharge ? { "agentconfigurationsData.salesInchargeIds": new mongoose.Types.ObjectId(sales_In_ChargeId) } : {};
@@ -1430,7 +1431,26 @@ const getAllAgencyAndDistributer = async (req, res) => {
         }
       : {};
 
-    const findStatus = status == "All" ? {} : { "company_ID.companyStatus": { $eq: status } };
+ let findStatus = {};
+
+switch (status?.toUpperCase()) {
+  case "ACTIVE":
+    findStatus["company_ID.companyStatus"] = "Active";
+    break;
+  case "INACTIVE":
+    findStatus["company_ID.companyStatus"] = "Inactive";
+    break;
+}
+
+switch (type?.toUpperCase()) {
+  case "RAIL":
+    findStatus["company_ID.railSubAgentId"] = { $exists: true, $ne: "" };
+    break;
+  case "FLIGHT":
+    findStatus["company_ID.railSubAgentId"] = { $exists: true, $eq: "" };
+    break;
+}
+
 
     const users = await User.aggregate([
   // Initial filtering based on salesIncharge and TMC conditions
@@ -1626,6 +1646,8 @@ const getAllAgencyAndDistributer = async (req, res) => {
             userId: { $first: "$userId" },
             encryptUserId: { $first: "$encryptUserId" },
             maxcreditLimit: { $first: "$agentconfigurations.maxcreditLimit" },
+            railCashBalance: { $first: "$agentconfigurations.railCashBalance" },
+            railAgentId: { $first: "$company_ID.railSubAgentId" },
             agentConfigID: { $first: "$agentconfigurations._id" }
           }
         }

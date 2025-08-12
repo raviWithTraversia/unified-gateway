@@ -11,6 +11,8 @@ const {
 } = require("../../utils/generate-qr");
 const moment=require('moment')
 const { commonAgentPGCharges, commonFunctionsRailLogs,getInvoiceNumber } = require('../../controllers/commonFunctions/common.function')
+const  trainStation = require('../../models/TrainStation')
+
 
 const getRailSearch = async (req, res) => {
   try {
@@ -842,6 +844,60 @@ const DecodeToken = async (req, res) => {
   }
 };
 
+const updateBookingWithCartId=async(jsonData,cartId)=>{
+  try{
+//  let bookingDateStr = jsonData?.bookingDate;
+
+//       bookingDateStr = bookingDateStr.replace(".0", "").replace(" IST", "");
+
+//       let [datePart, timePart] = bookingDateStr.split(" ");
+
+//       let [day, month, year] = datePart.split("-");
+//       let formattedDate = `${year}-${month}-${day}T${timePart}`;
+
+      jsonData.bookingStatus = "CONFIRMED";
+      jsonData.invoiceNumber=await getInvoiceNumber(jsonData?.pnrNumber,jsonData?.clientTransactionId)
+      jsonData.fromStnName= await provideStationName(jsonData?.fromStn)
+      jsonData.resvnUptoStnName= await provideStationName(jsonData?.resvnUptoStn)
+      jsonData.boardingStnName= await provideStationName(jsonData?.boardingStn)
+//       if(jsonData.invoiceNumber=="INVundefined"||jsonData.invoiceNumber===undefined){
+//         jsonData.invoiceNumber=await getInvoiceNumber(jsonData?.pnrNumber,jsonData?.clientTransactionId)
+//  }
+
+      // jsonData.bookingDate = new Date(formattedDate);
+
+      if (jsonData?.reservationId && jsonData?.pnrNumber) {
+        const qrCodeData = prepareRailBookingQRDataString({
+          booking: jsonData,
+        });
+        console.dir({ jsonData, qrCodeData }, { depth: null })
+        if (qrCodeData) {
+          const qrImage = await generateQR({
+            text: qrCodeData,
+            fileName: `${Date.now()}-${jsonData?.pnrNumber}.png`,
+          });
+          if (qrImage) jsonData.qrImage = qrImage;
+        }
+      }
+      await RailBookingSchema.findOneAndUpdate(
+        { cartId: cartId },
+        { $set: jsonData },
+        { new: true }
+      );
+      return true
+  }
+  catch(error){
+return false
+  } 
+}
+const provideStationName=async(stationCode)=>{
+  if(!stationCode) return null
+  const station=await trainStation.findOne({StationCode:stationCode})
+  if(!station) return null
+  return station.StationName
+
+  
+}
 module.exports = {
   getRailSearch,
   railSearchBtwnDate,
@@ -850,5 +906,6 @@ module.exports = {
   DecodeToken,
   railBoardingEnquiry,
   ChangeBoardingStation,
-  PnrEnquirry
+  PnrEnquirry,
+  updateBookingWithCartId
 };

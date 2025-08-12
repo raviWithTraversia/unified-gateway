@@ -2063,7 +2063,7 @@ const getBookingCalendarCount = async (req, res) => {
 
 const getProvideStatusCount = async (req, res) => {
   try {
-    let { companyId, toDate, fromDate } = req.body;
+    let { companyId, toDate, fromDate,airlineCode } = req.body;
 
     const bookingDetailsQuery = {
       // createdAt: {
@@ -2074,6 +2074,9 @@ const getProvideStatusCount = async (req, res) => {
         ? { AgencyId:new ObjectId(companyId) }
         : { companyId: new ObjectId(companyId) })
     };
+    if(airlineCode){
+      bookingDetailsQuery.airlineCode=airlineCode
+    }
 
      if (fromDate || toDate) {
       bookingDetailsQuery.createdAt = {};

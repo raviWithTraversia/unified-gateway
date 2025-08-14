@@ -2353,20 +2353,20 @@ async function updateStatus(booking,status) {
 
 async function getInvoiceNumber(pnr, BookingId) {
   try {
-    let InvoicingDetail = await bookingDetailsRail
-    .find({ invoiceNumber: { $exists: true, $ne: null } })
-    .sort({ createdAt: -1 })
-    .limit(1);
-        let invoiceRandomNumber = 100000;
-        if(InvoicingDetail.length>0){
-            InvoicingDetail = InvoicingDetail[0];
-            let previousInvoiceNumber = InvoicingDetail?.invoiceNumber;
-            previousInvoiceNumber = previousInvoiceNumber.slice(-6);
-            invoiceRandomNumber = parseInt(previousInvoiceNumber) +1; 
-        }else{
-            invoiceRandomNumber = 100000; 
-        }
-      return `INV25${invoiceRandomNumber}`;
+    // let InvoicingDetail = await bookingDetailsRail
+    // .find({ invoiceNumber: { $exists: true, $ne: null } })
+    // .sort({ createdAt: -1 })
+    // .limit(1);
+    //     let invoiceRandomNumber = 100000;
+    //     if(InvoicingDetail.length>0){
+    //         InvoicingDetail = InvoicingDetail[0];
+    //         let previousInvoiceNumber = InvoicingDetail?.invoiceNumber;
+    //         previousInvoiceNumber = previousInvoiceNumber.slice(-6);
+    //         invoiceRandomNumber = parseInt(previousInvoiceNumber) +1; 
+    //     }else{
+    //         invoiceRandomNumber = 100000; 
+    //     }
+      return `P25${pnr}${new Date()?.getDate()}`;
   } catch (error) {
     console.error("Error in getInvoiceNumber:", error.response?.data || error.message);
     throw error;

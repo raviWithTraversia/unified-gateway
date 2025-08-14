@@ -10,7 +10,7 @@ const companies=require('../../../models/Company')
 const {commonFunctionsRailLogs ,commonMethodDate,ProivdeIndiaStandardTime}=require('../../../controllers/commonFunctions/common.function')
 const {checkPnrStatus} = require('../../rail/rail.controller')
 const {Config}=require('../../../configs/config')
-const {checkBookingWithCartId}=require('../irctcBooking.service')
+const {checkBookingWithCartId,gernateCancelCard}=require('../irctcBooking.service')
 
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
@@ -1300,31 +1300,35 @@ return await checkBookingWithCartId(bookingId,bookingData.traceId,Authentication
     }
 
     const latesPassengerData = await checkPnrStatus(Authentication, bookingData.pnrNumber);
-    if (typeof latesPassengerData === "string") return;
+    // if (typeof latesPassengerData === "string") return;
 
-    const updateData = {
-        "psgnDtlList.$[elem].currentStatus": latesPassengerData.map(p => p.currentStatus),
-        "psgnDtlList.$[elem].currentBerthNo": latesPassengerData.map(p => 
-            p.currentBerthNo === "0" ? p.bookingBerthNo : p.currentBerthNo
-        )
-    };
+    // const updateData = {
+    //     "psgnDtlList.$[elem].currentStatus": latesPassengerData.map(p => p.currentStatus),
+    //     "psgnDtlList.$[elem].currentBerthNo": latesPassengerData.map(p => 
+    //         p.currentBerthNo === "0" ? p.bookingBerthNo : p.currentBerthNo
+    //     )
+    // };
 
-    await railBookings.findByIdAndUpdate(
-        bookingData._id,
-        { $set: updateData },
-        { arrayFilters: [{ "elem.index": { $exists: true } }], new: true }
-    );
+    // await railBookings.findByIdAndUpdate(
+    //     bookingData._id,
+    //     { $set: updateData },
+    //     { arrayFilters: [{ "elem.index": { $exists: true } }], new: true }
+    // );
 
-    await railBookings.findOneAndUpdate(
+ const cancelBookingData=   await railBookings.findOneAndUpdate(
         { 
             _id: bookingData._id,
             "psgnDtlList.currentStatus": { 
                 $nin: ["WL","CNF","RLWL","PQWL","RAC","2S","2A","3A","3E","CC","EC","SL","1A","FC","EV","TQWL"] 
-            }
+            },
+            bookingStatus: { $ne: "CANCELLED" }
         },
-        { $set: { bookingStatus: "INCOMPLETE" } },
+        { $set: { bookingStatus: "CANCELLED PROCESS" } },
         { new: true }
     );
+    if(cancelBookingData && cancelBookingData?.bookingStatus!=="CANCELLED"){
+        return await gernateCancelCard(Authentication,cancelBookingData,cancelBookingData?.traceId);
+    }
 }
 
 async function getUserContext(userId) {

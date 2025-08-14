@@ -444,7 +444,7 @@ async function fetchCancellationCharges(req, res) {
       );
     }
 // const currentStatus=
-console.log(latesPassengerData)
+// console.log(latesPassengerData)
 const booking = await bookingDetailsRail.findOneAndUpdate(
   { pnrNumber: pnr }, // Match the document by PNR number
   [
@@ -810,11 +810,49 @@ async function fetchCancellations(req, res) {
     }
     console.log({ query });
 
-    const cancellations = await RailCancellation.find(query).populate("userId");
+    const cancellations = await RailCancellation.aggregate([
+  { $match: query }, // match your filter
+  {
+    $lookup: {
+      from: "users",            // "userId" ka reference collection name
+      localField: "userId",     // field in RailCancellation
+      foreignField: "_id",      // field in users
+      as: "userId"
+    }
+  },
+  {
+    $unwind: {
+      path: "$userId",
+      preserveNullAndEmptyArrays: true // same as populate's default behavior
+    }
+  },
+  {
+    $lookup:{
+      from:"bookingdetailsrails",
+      localField:"txnId",
+      foreignField:"cartId",
+      as:"bookingDetails"
+
+    }
+  },
+  {
+    $unwind: {
+      path: "$bookingDetails",
+      preserveNullAndEmptyArrays: true // same as populate's default behavior
+    }
+  },
+  {
+    $group: {
+      _id: "$_id",
+      doc: { $first: "$$ROOT" }
+    }
+  },
+]);
+
     return res.status(200).json({
       IsSucess: true,
       Message: "Cancellations Fetched Successfully",
-      Result: cancellations,
+      Result:cancellations.length>0? cancellations.map((doc)=> doc.doc):[],
     });
   } catch (error) {
     console.log({ error });

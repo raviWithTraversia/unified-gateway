@@ -11,14 +11,14 @@ const searchForUserEmulate = async (req, res) => {
     const getUserId = await UserModule.findOne({ _id: userId, roleId: { $exists: true, $ne: null } });
 
     const getRole = await RoleModel.findOne({ _id: getUserId.roleId });
-    const searchRegex = new RegExp(search, 'i');
+    const searchRegex = new RegExp(`^${search}`, 'i');
     const searchNumber = new RegExp(userId, 'i');
 
     const matchConditions = [];
 
     if (!isNaN(searchNumber)) {
       matchConditions.push({ "userData.userId": searchNumber });
-      console.log("shaa")
+      // console.log("shaa")
     }
 
     matchConditions.push({ 'companyData.companyName': searchRegex });

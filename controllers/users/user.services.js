@@ -1883,7 +1883,7 @@ const searchForAgency = async (req, res) => {
 
     const findTmcUser = await User.findOne({ _id: userId, roleId: { $exists: true, $ne: null } }).populate("company_ID");
 
-    const searchRegex = new RegExp(search, 'i');
+    const searchRegex = new RegExp(`^${search}`, 'i');
     const searchNumber = new RegExp(userId, 'i');
 
     const matchConditions = [];

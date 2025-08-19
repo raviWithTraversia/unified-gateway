@@ -808,10 +808,11 @@ async function fetchCancellations(req, res) {
         );
       }
     }
-    console.log({ query });
+    // console.log({ query });
 
     const cancellations = await RailCancellation.aggregate([
   { $match: query }, // match your filter
+  {$sort:{createdAt:-1}},
   {
     $lookup: {
       from: "users",            // "userId" ka reference collection name
@@ -835,6 +836,7 @@ async function fetchCancellations(req, res) {
 
     }
   },
+
   {
     $unwind: {
       path: "$bookingDetails",
@@ -847,6 +849,7 @@ async function fetchCancellations(req, res) {
       doc: { $first: "$$ROOT" }
     }
   },
+  { $sort: { createdAt: -1 } }
 ]);
 
     return res.status(200).json({

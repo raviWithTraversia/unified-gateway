@@ -5,6 +5,8 @@ website_manager_route.use(bodyParser.json());
 website_manager_route.use(bodyParser.urlencoded({extended:true}));
 const auth = require("../middleware/auth");
 const websiteManager = require("../controllers/websiteManager/websiteManager.controller");
+require('../controllers/Scheduler/scheduler.service')
+path = require("path");
 
 /**
  * @swagger
@@ -185,5 +187,20 @@ website_manager_route.get(
     '/website/retrive-website-manager/:domainName' ,
      websiteManager.retriveWebsiteManager
 );
+
+website_manager_route.get("/download-agent-balance-report/:fileName",auth, (req, res) => {
+  const fileName = `agentBalanceReport-data-${req.params.fileName}.json` || req.params.fileName;
+  const filePath = path.join(__dirname.replace("\\routes", ""), "public", "report", "agentBalanceReport", fileName);
+
+  res.download(filePath, fileName, (err) => {
+    if (err) {
+      res.status(400).json({
+        success: false,
+        message: "File not found",
+        error: err,
+      });
+    } 
+  });
+});
 
 module.exports = website_manager_route;

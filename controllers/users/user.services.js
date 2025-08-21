@@ -1591,6 +1591,13 @@ switch (type?.toUpperCase()) {
                 cashBalance: "$company_ID.cashBalance",
                 creditBalance: "$company_ID.creditBalance",
                 maxCreditLimit: "$company_ID.maxCreditLimit",
+                // panNumber: "$company_ID.panNumber",
+                gstNumber: "$company_ID.gstNumber",
+                address: "$company_ID.companyAddress",
+                pinCode: "$company_ID.companyPinCode",
+                state: "$company_ID.companyState",
+                city: "$company_ID.companyCity",
+                phoneNumber: "$company_ID.phoneNumber",
                 updatedAt: "$company_ID.updatedAt",
                 parent: {
                   _id: "$company_ID.parent._id",

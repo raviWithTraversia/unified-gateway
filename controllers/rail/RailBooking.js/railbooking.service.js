@@ -1283,7 +1283,7 @@ const findRailAllBooking = async (req, res) => {
         response: "Fetch Data Successfully",
         data: {
             bookingList: railBooking.sort((a, b) => 
-                new Date(b.bookingDate) - new Date(a.bookingDate)
+                new Date(b.createdAt) - new Date(a.createdAt)
             ),
             statusCounts: statusCounts,
         }

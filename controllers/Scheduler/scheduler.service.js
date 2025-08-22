@@ -7,7 +7,7 @@ const {Config} = require("../../configs/config");
 // require("../../Public/report/agentBalenceReport");
 
 // API endpoint jaha se JSON aayega
-const DATA_URL = `http://localhost:3111/api/agentBalenceReport`
+const DATA_URL = `https://agentapi.kafilaholidays.in/api/agentBalenceReport`
  today =new Date()
 today.setDate(today.getDate() - 1);
 let yesterday=today.toISOString().split("T")[0];
@@ -31,8 +31,9 @@ if (!fs.existsSync(SAVE_PATH)) {
 }
 
 // Scheduler jo har din 4:00 PM pe chalega
-cron.schedule("08 15 * * *", async () => {
-  console.log("⏰ Scheduler triggered at 11:16 AM");
+cron.schedule("45 02 * * *", async () => {
+  
+  console.log("🚀 Scheduler is running... 2:45",today);
 
   try {
     let page = 1;

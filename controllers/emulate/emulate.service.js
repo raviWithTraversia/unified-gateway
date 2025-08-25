@@ -102,7 +102,7 @@ const searchForUserEmulate = async (req, res) => {
     //  return false
     if (companiesList.length > 0) {
       return {
-        data: companiesList
+        data: companiesList?.sort((a, b) => a.userId - b.userId)
       };
     } else {
       return {

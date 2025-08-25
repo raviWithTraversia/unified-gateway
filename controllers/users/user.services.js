@@ -1456,20 +1456,6 @@ switch (type?.toUpperCase()) {
   // Initial filtering based on salesIncharge and TMC conditions
   {
     $lookup: {
-      from: 'agentconfigurations',
-      localField: '_id',
-      foreignField: 'userId',
-      as: 'agentconfigurationsData'
-    }
-  },
-  {
-    $unwind: {
-      path: '$agentconfigurationsData',
-      preserveNullAndEmptyArrays: true
-    }
-  },
-  {
-    $lookup: {
       from: 'companies',
       localField: 'company_ID',
       foreignField: '_id',
@@ -1506,6 +1492,20 @@ switch (type?.toUpperCase()) {
     }
   },
   { $match: { matchCondition: true } },
+  {
+    $lookup: {
+      from: 'agentconfigurations',
+      localField: '_id',
+      foreignField: 'userId',
+      as: 'agentconfigurationsData'
+    }
+  },
+  {
+    $unwind: {
+      path: '$agentconfigurationsData',
+      preserveNullAndEmptyArrays: true
+    }
+  },
   { $match: findSalesInchargeData },
   { $match: searchCondition },
   { $match: findStatus },

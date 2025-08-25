@@ -4001,6 +4001,65 @@ async function calculateOfferedPriceForAll(ItineraryPriceCheckResponses) {
   return calculationOfferPriceWithCommercial;
 }
 
+
+async function checkSameDaySamePax(req, res) {
+  try {
+    const { Authentication, Segments } = req.body.SearchRequest;
+    const { PassengerPreferences } = req.body;
+
+    // Current date (YYYY-MM-DD)
+    // const date = new Date().toISOString().split("T")[0];
+
+    // Step 1: Get booking IDs for today's confirmed bookings on same route
+    const bookings = await bookingdetails.find(
+      {
+        AgencyId: Authentication?.AgencyId,
+        bookingStatus: "CONFIRMED",
+        // createdAt: {
+        //   $gte: new Date(`${date}T00:00:00Z`),
+        //   $lt: new Date(`${date}T23:59:59Z`)
+        // },
+        "itinerary.Sectors.Departure.Code": Segments[0]?.Origin,
+        "itinerary.Sectors.Arrival.Code": Segments[0]?.Destination,
+        "itinerary.Sectors.Departure.Date":{ $regex: `^${Segments[0]?.DepartureDate}` }
+
+      },
+      { _id: 1 }
+    ).sort({ createdAt: -1 });
+
+    // if (!bookings.length) {
+    //   return { success: true, response: "No prior bookings found" };
+    // }
+
+    // Step 2: Extract only booking IDs
+    const bookingIds = bookings.map(b => b._id);
+
+    // Step 3: Get passenger preferences linked with those bookings
+    const passengerPreferences = await passengerPreferenceModel.find(
+      { bid: { $in: bookingIds } },
+      { Passengers: 1 }
+    );
+
+    // Step 4: Check if any passenger matches
+    const isDuplicate = passengerPreferences.some(pref =>
+      pref.Passengers.every(p1 =>
+        PassengerPreferences.Passengers.every(p2 =>
+          p1.FName.toLowerCase() === p2.FName.toLowerCase() && p1.LName.toLowerCase() === p2.LName.toLowerCase()
+        )
+      )
+    );
+
+    if (isDuplicate) {
+      return { success: false, response: "A booking for the same passenger name already exists in the system. Do you wish to proceed with creating another booking?" };
+    }
+
+    return { success: true, response: "Booking Allowed" };
+
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   getAllBooking,
   getBookingByBookingId,
@@ -4019,5 +4078,6 @@ module.exports = {
   updateBookingStatus,
   updatePaxAccountPostUseProviderBookingId,
   importPnrService,
-  getProvideStatusCount
+  getProvideStatusCount,
+  checkSameDaySamePax
 };

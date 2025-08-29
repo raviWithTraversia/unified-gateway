@@ -182,7 +182,7 @@ const searchForUserEmulate = async (req, res) => {
       }, {
         $group: {
           _id: "$companyData._id",
-          companyName: { $first: "$companyData.companyName" },
+          name: { $first: "$companyData.companyName" },
           userId: { $first: "$userId" }
         }
       }

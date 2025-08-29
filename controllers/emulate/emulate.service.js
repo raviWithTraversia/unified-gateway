@@ -139,7 +139,20 @@ const searchForUserEmulate = async (req, res) => {
   try {
     const { companyId, search, userId } = req.query;
 
-    const getUserId = await UserModule.findOne({ _id: userId, roleId: { $exists: true, $ne: null } });
+    const getUserId = await UserModule.findOne({ _id: userId, roleId: { $exists: true, $ne: null } }).populate("company_ID");
+let matchObject = {
+  $or: [
+    { userIdString: new RegExp(search, 'i') },
+    { fname: new RegExp(search, 'i') },
+    { lastName: new RegExp(search, 'i') },
+    { 'companyData.companyName': new RegExp(search, 'i') }
+  ]
+};
+
+// Agar type "TMC" nahi hai to parent wali condition lagani hai
+if (getUserId.company_ID.type !== "TMC") {
+  matchObject['companyData.parent'] = getUserId.company_ID;
+}
 
     const getRole = await RoleModel.findOne({ _id: getUserId.roleId });
     const searchRegex = new RegExp(`^${search}`, 'i');
@@ -172,20 +185,26 @@ const searchForUserEmulate = async (req, res) => {
           userIdString: { $toString: '$userId' }
         }
       },
+      
       {
-        $match: {
-          'companyData.parent': getUserId.company_ID,
-          $or: [{ userIdString: new RegExp(search, 'i') },
-          { 'companyData.companyName': new RegExp(search, 'i') }
-          ]
-        }
-      }, {
-        $group: {
-          _id: "$companyData._id",
-          name: { $first: "$companyData.companyName" },
-          userId: { $first: "$userId" }
-        }
+        $match: matchObject
+      },
+       {
+  $group: {
+    _id: "$_id",
+    name: {
+      $first: {
+        $cond: [
+          { $eq: ["$companyData.type", "TMC"] },
+          { $concat: ["$fname", " ", "$lastName"] },
+          "$companyData.companyName"
+        ]
       }
+    },
+    userId: { $first: "$userId" }
+  }
+}
+
 
     ]);
     // console.log(getCompaniesDetails)
@@ -217,7 +236,7 @@ const searchForUserEmulate = async (req, res) => {
     //     $match: {
     //       $or: [
     //         { fname: new RegExp(search, 'i') },
-    //         { lastName: new RegExp(search, 'i') },
+            // { lastName: new RegExp(search, 'i') },
     //         { userIdString: new RegExp(search, 'i') }
     //       ]
     //     }

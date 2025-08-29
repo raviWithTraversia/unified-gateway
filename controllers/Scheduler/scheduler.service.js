@@ -8,9 +8,9 @@ const {Config} = require("../../configs/config");
 
 // API endpoint jaha se JSON aayega
 const DATA_URL = `https://agentapi.kafilaholidays.in/api/agentBalenceReport`
- today =new Date()
-today.setDate(today.getDate() - 1);
-let yesterday=today.toISOString().split("T")[0];
+//  today =new Date()
+// today.setDate(today.getDate() - 1);
+let yesterday=getYesterdayIST();
 
 
 let payload={
@@ -33,7 +33,7 @@ if (!fs.existsSync(SAVE_PATH)) {
 // Scheduler jo har din 4:00 PM pe chalega
 cron.schedule("45 02 * * *", async () => {
   
-  console.log("🚀 Scheduler is running... 2:45",today);
+  console.log("🚀 Scheduler is running... 2:45",yesterday);
 
   try {
     let page = 1;
@@ -83,7 +83,19 @@ cron.schedule("45 02 * * *", async () => {
 
 
 
+function getYesterdayIST() {
+  let today = new Date();
+  
+  // IST shift = +5 hours 30 minutes
+  let istOffset = 5.5 * 60 * 60 * 1000;
+  
+  let istDate = new Date(today.getTime() + istOffset);
 
+  istDate.setDate(istDate.getDate() - 1);
+  // return istDate
+
+  return istDate.toISOString().split("T")[0];
+}
 // function getAgentBalacneReportQuery(){
 
 // }

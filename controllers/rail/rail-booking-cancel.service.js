@@ -61,6 +61,7 @@ module.exports.cancelRailBooking = async function (request) {
         Result: response,
       };
     }
+    
     const booking = await bookingDetailsRail.findOne({ reservationId });
     const railCancellation = await RailCancellation.create({
       ...response,

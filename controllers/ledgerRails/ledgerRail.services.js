@@ -605,7 +605,9 @@ const GetBalanceReport=async(req ,res)=>{
         },
         {
           $match: {
-            matchCondition: true
+            matchCondition: true,
+            railSubAgentId: { $exists: true, $ne: "" },
+
           }
         },
         {

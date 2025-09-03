@@ -421,7 +421,10 @@ const payuSuccess = async (req, res) => {
       </html>`;
       return successHtmlCode;
     } else if (status === "success") {
-      const BookingTempData = await BookingTemp.findOne({ BookingId: udf1 });
+      const BookingTempData = await BookingTemp.findOne({ BookingId: udf1,count:0 });
+      await BookingTemp.findByIdAndUpdate(BookingTempData._id, {
+        $set: { count: 1 },
+      }, { new: true });
 
       if (BookingTempData) {
         const convertDataBookingTempRes = JSON.parse(BookingTempData.request);

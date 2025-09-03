@@ -29,7 +29,11 @@ const BookingTempSchema = new mongoose.Schema({
         type : String,
         required : false,
         default : null 
-    } 
+    } ,
+    count:{
+        type:Number,
+        default:0
+    }
 }, {
     timestamps: true // Adds created_at and updated_at fields
 }

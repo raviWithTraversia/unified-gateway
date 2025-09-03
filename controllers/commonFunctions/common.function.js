@@ -2076,10 +2076,7 @@ const sendEmailForSatte = async (
     <p>Dear ${name},</p>
     
     <p>Greetings from Kafila Hospitality and Travels Pvt. Ltd.!</p>
-
-    <p>We had the pleasure of meeting you at SATTE 2025 at Yashobhoomi, New Delhi, and we have your visiting card.</p>
-
-    <p>As per your request, we have registered you on our B2B portal:<br>
+ <p>As per your request, we have registered you on our B2B portal:<br>
     <a href="${loginUrl}">${loginUrl}</a></p>
 
     <p>Please find below your login details for accessing your account:</p>
@@ -2356,20 +2353,20 @@ async function updateStatus(booking,status) {
 
 async function getInvoiceNumber(pnr, BookingId) {
   try {
-    let InvoicingDetail = await bookingDetailsRail
-    .find({ invoiceNumber: { $exists: true, $ne: null } })
-    .sort({ createdAt: -1 })
-    .limit(1);
-        let invoiceRandomNumber = 100000;
-        if(InvoicingDetail.length>0){
-            InvoicingDetail = InvoicingDetail[0];
-            let previousInvoiceNumber = InvoicingDetail?.invoiceNumber;
-            previousInvoiceNumber = previousInvoiceNumber.slice(-6);
-            invoiceRandomNumber = parseInt(previousInvoiceNumber) +1; 
-        }else{
-            invoiceRandomNumber = 100000; 
-        }
-      return `INV25${invoiceRandomNumber}`;
+    // let InvoicingDetail = await bookingDetailsRail
+    // .find({ invoiceNumber: { $exists: true, $ne: null } })
+    // .sort({ createdAt: -1 })
+    // .limit(1);
+    //     let invoiceRandomNumber = 100000;
+    //     if(InvoicingDetail.length>0){
+    //         InvoicingDetail = InvoicingDetail[0];
+    //         let previousInvoiceNumber = InvoicingDetail?.invoiceNumber;
+    //         previousInvoiceNumber = previousInvoiceNumber.slice(-6);
+    //         invoiceRandomNumber = parseInt(previousInvoiceNumber) +1; 
+    //     }else{
+    //         invoiceRandomNumber = 100000; 
+    //     }
+      return `P25${pnr}${new Date()?.getDate()}`;
   } catch (error) {
     console.error("Error in getInvoiceNumber:", error.response?.data || error.message);
     throw error;

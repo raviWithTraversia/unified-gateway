@@ -4,6 +4,9 @@ const User = require("../../models/User");
 const Company = require("../../models/Company");
 const axios = require("axios");
 const { Config } = require("../../configs/config");
+const { commonFunctionsRailLogs } = require("../../controllers/commonFunctions/common.function");
+const { updateBookingWithCartId } = require("./railSearch.services");
+const RailCancellation = require("../../models/Irctc/rail-cancellation");
 
 
 const createIrctcBooking = async (req, res) => {};
@@ -47,11 +50,11 @@ const irctcPaymentSubmit = async (req, res) => {
       paymentMode: paymentMode,
       paramMap: paramMap,
     };
-    console.log(queryParams, "queryParams");
+    // console.log(queryParams, "queryParams");
     const response = (
       await axios.post(url, queryParams, { headers: { Authorization: auth } })
     )?.data;
-    console.log(response, "response");
+    // console.log(response, "response");
     if (!response) {
       return {
         response: "No Response from Irctc",
@@ -63,7 +66,7 @@ const irctcPaymentSubmit = async (req, res) => {
       };
     }
   } catch (error) {
-    console.log(error, "error");
+    // console.log(error, "error");
     apiErrorres(
       res,
       errorResponse.SOMETHING_WRONG,
@@ -122,7 +125,7 @@ const boardingstationenq = async (req, res) => {
     const response = (
       await axios.get(url, { headers: { Authorization: auth } })
     )?.data;
-    console.log(response, "response");
+    // console.log(response, "response");
     if (!response) {
       return {
         response: "No Response from Irctc",
@@ -134,7 +137,7 @@ const boardingstationenq = async (req, res) => {
       };
     }
   } catch (error) {
-    console.log(error, "error");
+    // console.log(error, "error");
     apiErrorres(
       res,
       errorResponse.SOMETHING_WRONG,
@@ -181,7 +184,7 @@ const irctcAmountDeduction = async (req, res) => {
     //   };
     // }
   } catch (error) {
-    console.log(error, "error");
+    // console.log(error, "error");
     apiErrorres(
       res,
       errorResponse.SOMETHING_WRONG,
@@ -191,9 +194,125 @@ const irctcAmountDeduction = async (req, res) => {
   }
 };
 
+const checkBookingWithCartId=async(cartId,traceId,Authentication)=>{
+    
+    try{
+      let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/bookingdetails/${cartId}`;
+    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
+    if (Authentication.CredentialType === "LIVE") {
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/bookingdetails/${cartId}`;
+    }
+    const response = (
+      await axios.get(url, { headers: { Authorization: auth } })
+    )?.data;
+    commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "BookDetail", url, {}, response)
+    // console.log(response, "response");
+    if (!response||!response?.pnrNumber) {
+      return 
+    }
+    return  await updateBookingWithCartId(response,cartId)
+
+    }catch(error){
+        // console.log(error,"error");
+        throw error
+    }
+}
+
+const gernateCancelCard=async(Authentication,booking,traceId)=>{
+  try{
+
+    const irctcMatsterId=Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_MASTER_ID:Config.TEST.IRCTC_MASTER_ID;
+
+    let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tabkhservices/historySearchByTxnId/${irctcMatsterId}/${booking?.reservationId}`;
+    const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
+
+    if (Authentication.CredentialType === "LIVE") {
+      url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/tabkhservices/historySearchByTxnId/${irctcMatsterId}/${booking?.reservationId}`;
+    }
+    const response = (
+      await axios.get(url, { headers: { Authorization: auth } })
+    )?.data;
+
+if(response?.bookingResponseList?.length===0){
+  return
+  
+}
+const bookingData=response?.bookingResponseList[0]?.cancellationDetails[0]||[]
+    commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "cancelDetail", url, {}, response)
+    // console.log(response, "response");
+    // if (bookingData.length === 0) {
+    //   return 
+    // }
+    let passgerslist=booking?.psgnDtlList;
+    let token = "";
+    for (let i = 0; i <6; i++) {  // <= ki jagah < use karo
+    if (passgerslist[i]?.currentStatus === "CAN") {  // yahan true ya false check hoga
+      token+= "Y";
+    } else {
+      token += "N";
+    }
+}
+
+    const railCancellation = await RailCancellation.create({
+          ...bookingData,
+          userId: booking?.userId,
+          companyId: booking?.companyId,
+          agencyId: booking?.AgencyId,
+          reservationId:booking?.reservationId,
+          passengerToken:token,
+          txnId:booking?.cartId,
+          pnrNo:booking?.pnrNumber,
+         isSuccess: !!bookingData.success,
+          travelInsuranceRefundAmount: Number(bookingData.travelinsuranceRefundAmount),
+          amountCollected: Number(bookingData.canPsgnFare),
+          cashDeducted: Number(bookingData.prsCancelCharge),
+          cancelledDate: Date(bookingData.cancellationDate),
+          gstFlag: !!bookingData.gstFlag||false,
+          timeStamp: Date(bookingData.timeStamp),
+          cancellationId: bookingData?.cancellationId,
+          noOfPsgn: Number(bookingData.noOfPsgn),
+          currentStatus: ["CAN"],
+          remark:  "AUTO CANCELLED",
+          staff:  "",
+        });
+    
+        // const isFullCancelled=booking.psgnDtlList.some((element)=>element.currentStatus!='CAN')
+        //  const bookingStatus = isFullCancelled ? "PARTIALLY CANCELLED" : "CANCELLED";
+    
+        // booking.bookingStatus = bookingStatus;
+
+        const tokenList = token.split("");
+        const filterRailPaxList=booking.psgnDtlList.filter((element)=>element.currentStatus!='CAN')
+        const isFullCancelled =
+          token === "YYYYYY" ||
+          tokenList.filter((t) => t === "Y").length === filterRailPaxList.length;
+    
+        const bookingStatus =  "CANCELLED";
+    
+        booking.bookingStatus = bookingStatus;
+        booking.psgnDtlList = booking.psgnDtlList.map((passenger, idx) => {
+          if (tokenList[idx] == "Y") {
+            return {
+              ...passenger,
+              currentStatus: "CAN",
+              cancellationId: bookingData?.cancellationId,
+              cancelTime:bookingData.cancellationDate? new Date(bookingData.cancellationDate): new Date(),
+              isRefundOTPVerified: false,
+            };
+          }
+          return passenger;
+        });
+          await booking.save();
+  }
+  catch (error) {
+    throw error
+  }
+}
 module.exports = {
   createIrctcBooking,
   irctcPaymentSubmit,
   boardingstationenq,
   irctcAmountDeduction,
+  checkBookingWithCartId,
+  gernateCancelCard
 };

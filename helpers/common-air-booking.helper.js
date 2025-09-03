@@ -484,7 +484,7 @@ async function getCardDetails({ supplierCode, credentialType }) {
       throw new Error(
         `${supplierCode} ${credentialType} Card Details Not Found`
       );
-    let { cardNumber, expiryMonth, expiryYear } = cardDetails;
+    let { cardNumber, expiryMonth, expiryYear, cardType } = cardDetails;
     if (!cardNumber || !expiryMonth || !expiryYear)
       throw new Error(
         `${supplierCode} ${credentialType} Card Details Are Invalid`
@@ -495,7 +495,7 @@ async function getCardDetails({ supplierCode, credentialType }) {
     return {
       cardDetails: {
         cardNumber,
-        code: "VI",
+        code: cardType,
         expiryYear: expiryYear.slice(-2),
         expiryMonth,
       },

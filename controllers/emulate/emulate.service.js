@@ -3,6 +3,7 @@ const CompanyModel = require('../../models/Company');
 const RoleModel = require('../../models/Role');
 const { Status } = require("../../utils/constants");
 const commonFunction = require('../commonFunctions/common.function');
+const {ObjectId} = require('mongodb');
 
 // const searchForUserEmulate = async (req, res) => {
 //   try {
@@ -150,11 +151,19 @@ let matchObject = {
 };
 
 // Agar type "TMC" nahi hai to parent wali condition lagani hai
-if (getUserId.company_ID.type !== "TMC") {
-  matchObject['companyData.parent'] = getUserId.company_ID;
-}
+// if (getUserId.company_ID.type !== "TMC") {
+//   matchObject['companyData.parent'] = getUserId.company_ID;
+
+// }
 
     const getRole = await RoleModel.findOne({ _id: getUserId.roleId });
+    if (getUserId.company_ID.type !== "TMC"&&getUserId.company_ID.type.toUpperCase() == "AGENCY"){
+  matchObject['companyData._id'] = getUserId.company_ID._id;
+  
+}else if(getUserId.company_ID.type !== "TMC"){
+    matchObject['companyData.parent'] = getUserId.company_ID._id;
+
+}
     const searchRegex = new RegExp(`^${search}`, 'i');
     const searchNumber = new RegExp(userId, 'i');
 
@@ -166,6 +175,7 @@ if (getUserId.company_ID.type !== "TMC") {
     }
 
     matchConditions.push({ 'companyData.companyName': searchRegex });
+        let checkUserId=new ObjectId(userId)
 
     //if(getRole.name == 'TMC' || getRole.name == 'Distributer' || getRole.name == 'Supplier') {
     const getCompaniesDetails = await UserModule.aggregate([
@@ -187,15 +197,28 @@ if (getUserId.company_ID.type !== "TMC") {
       },
       
       {
-        $match: matchObject
+        $match: {
+          ...matchObject,
+          _id: { $ne: checkUserId }   // ✅ Exclude current user directly
+        }
       },
+       {
+        $lookup: {
+          from: 'roles',
+          localField: 'roleId',
+          foreignField: '_id',
+          as: 'roleData'
+        }
+      },
+      { $unwind: { path: '$roleData', preserveNullAndEmptyArrays: true } },
+
        {
   $group: {
     _id: "$_id",
     name: {
       $first: {
         $cond: [
-          { $eq: ["$companyData.type", "TMC"] },
+          { $eq: ["$roleData.type", "Manual"] },
           { $concat: ["$fname", " ", "$lastName"] },
           "$companyData.companyName"
         ]
@@ -203,10 +226,14 @@ if (getUserId.company_ID.type !== "TMC") {
     },
     userId: { $first: "$userId" }
   }
-}
+},
+      { $sort: { userId: 1 } }  // ✅ Sorting bhi aggregation me
+
 
 
     ]);
+
+    // console.log(matchObject)
     // console.log(getCompaniesDetails)
     // let companiesList = [];
     // for (let i = 0; i < getCompaniesDetails.length; i++) {
@@ -252,9 +279,10 @@ if (getUserId.company_ID.type !== "TMC") {
     //const getUserDetails = await UserModule.findOne({ company_ID : getUserId.company_ID });
 
     //  return false
+
     if (getCompaniesDetails.length > 0) {
       return {
-        data: getCompaniesDetails?.sort((a, b) => a.userId - b.userId)
+        data: getCompaniesDetails
       };
     } else {
       return {

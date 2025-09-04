@@ -2080,6 +2080,87 @@ return data=[]
     throw error;
   }
 };
+// const searchForAgency = async (req, res) => {
+//   try {
+//     const { search, userId } = req.query;
+
+//     const findTmcUser = await User.findOne({
+//       _id: userId,
+//       roleId: { $exists: true, $ne: null }
+//     }).populate("company_ID");
+
+//     if (!findTmcUser) {
+//       return { data: [] };
+//     }
+
+//     const companyId = findTmcUser.company_ID._id;
+//     const companyType = findTmcUser.company_ID.type;
+
+//     const matchStage =
+//       companyType === "TMC"
+//         ? { type: { $in: ["TMC", "Agency", "Distributer"] } }
+//         : {
+//             $or: [
+//               { parent: new mongoose.Types.ObjectId(companyId) },
+//               { _id: new mongoose.Types.ObjectId(companyId) }
+//             ]
+//           };
+
+//     const getCompaniesDetails = await Company.aggregate([
+//       { $match: matchStage },
+
+//       {
+//         $lookup: {
+//           from: "users",
+//           localField: "_id",
+//           foreignField: "company_ID",
+//           as: "userData"
+//         }
+//       },
+//       { $unwind: { path: "$userData", preserveNullAndEmptyArrays: true } },
+
+//       { $addFields: { userIdString: { $toString: "$userData.userId" } } },
+
+//       {
+//         $match: {
+//           $or: [
+//             { userIdString: new RegExp(search, "i") },
+//             { companyName: new RegExp(search, "i") },
+//             { "userData.fname": new RegExp(search, "i") },
+//             { "userData.lastName": new RegExp(search, "i") }
+//           ]
+//         }
+//       },
+
+//       {
+//         $lookup: {
+//           from: "roles",
+//           localField: "userData.roleId",
+//           foreignField: "_id",
+//           as: "roleData"
+//         }
+//       },
+//       { $unwind: { path: "$roleData", preserveNullAndEmptyArrays: true } },
+
+//       { $match: { "roleData.type": "Default" } },
+
+//       {
+//         $group: {
+//           _id: "$userData._id",
+//           name: { $first: "$companyName" },
+//           userId: { $first: "$userData.userId" },
+//           company_ID: { $first: "$_id" }
+//         }
+//       }
+//     ]);
+
+//     return { data: getCompaniesDetails };
+
+//   } catch (error) {
+//     console.error(error);
+//     throw error;
+//   }
+// };
 
 module.exports = {
   registerUser,

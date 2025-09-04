@@ -1296,7 +1296,7 @@ async function updateBookingStatus(bookingId, Authentication) {
     if (!bookingData) return;
     // let updateStatusAPI=null
     if(!bookingData?.pnrNumber){
-return await checkBookingWithCartId(bookingId,bookingData.traceId,Authentication)
+return await checkBookingWithCartId(bookingId,bookingData.traceId,Authentication,bookingData)
     }
 
     const latesPassengerData = await checkPnrStatus(Authentication, bookingData.pnrNumber);

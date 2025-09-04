@@ -47,17 +47,21 @@ const getRailSearch = async (req, res) => {
     if (Authentication.CredentialType === "LIVE") {
       url = `${Config.LIVE.IRCTC_BASE_URL}/eticketing/webservices/taenqservices/tatwnstns/${fromStn}/${toStn}/${renewDate[0]}${renewDate[1]}${renewDate[2]}`;
     }
-    console.log(url, "url")
+    // console.log(url, "url")
     const response = (
       await axios.get(url, { headers: { Authorization: auth } })
     )?.data;
+
+      response.traceId = traceId
+
+ commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "Rail Search", url, {}, response)
+
     if (!response?.trainBtwnStnsList?.length) {
       return {
         response: "No Response from Irctc",
       };
     } else {
-      response.traceId = traceId
-      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "Rail Search", url, req.body, response)
+      // commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "Rail Search", url, {}, response)
 
       return {
         response: "Fetch Data Successfully",
@@ -65,7 +69,7 @@ const getRailSearch = async (req, res) => {
       };
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     apiErrorres(
       res,
       errorResponse.SOMETHING_WRONG,

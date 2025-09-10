@@ -1,197 +1,197 @@
 const railBookings = require("../../../models/Irctc/bookingDetailsRail");
 const {
-  RailBookingCommonMethod,
+    RailBookingCommonMethod,
 } = require("../../../controllers/commonFunctions/common.function");
 const User = require("../../../models/User");
 const config = require("../../../models/AgentConfig");
 const { ObjectId } = require("mongodb");
 const { generateQR } = require("../../../utils/generate-qr");
-const companies=require('../../../models/Company')
-const {commonFunctionsRailLogs ,commonMethodDate,ProivdeIndiaStandardTime}=require('../../../controllers/commonFunctions/common.function')
-const {checkPnrStatus} = require('../../rail/rail.controller')
-const {Config}=require('../../../configs/config')
-const {checkBookingWithCartId,gernateCancelCard}=require('../irctcBooking.service')
+const companies = require('../../../models/Company')
+const { commonFunctionsRailLogs, commonMethodDate, ProivdeIndiaStandardTime } = require('../../../controllers/commonFunctions/common.function')
+const { checkPnrStatus } = require('../../rail/rail.controller')
+const { Config } = require('../../../configs/config')
+const { checkBookingWithCartId, gernateCancelCard } = require('../irctcBooking.service')
 
 const ISOTime = async (time) => {
-  const utcDate = new Date(time);
-  const istDate = new Date(utcDate.getTime() - 5.5 * 60 * 60 * 1000);
-  return istDate.toISOString();
+    const utcDate = new Date(time);
+    const istDate = new Date(utcDate.getTime() - 5.5 * 60 * 60 * 1000);
+    return istDate.toISOString();
 };
 
 const ISTTime = async (time) => {
-  const utcDate = new Date(time);
-  const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
-  return istDate.toISOString();
+    const utcDate = new Date(time);
+    const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
+    return istDate.toISOString();
 };
 const StartBookingRail = async (req) => {
-  try {
-      const {
-          userId,
-          companyId,
-          cartId,
-          amount,
-          paymentmethod,
-          agencyId,
-          CommercialCharges,
-          traceId,
-          clientTransactionId,
-          journeyDate,
-          contactDetails,
-          ticketType,
-          passengerList,
-          boardingStation,
-          railFareBreakupRes,
-          reservationMode,
-          jQuota
-      } = req.body;
+    try {
+        const {
+            userId,
+            companyId,
+            cartId,
+            amount,
+            paymentmethod,
+            agencyId,
+            CommercialCharges,
+            traceId,
+            clientTransactionId,
+            journeyDate,
+            contactDetails,
+            ticketType,
+            passengerList,
+            boardingStation,
+            railFareBreakupRes,
+            reservationMode,
+            jQuota
+        } = req.body;
 
-      // Required fields validation
-      const requiredFields = [
-          "userId",
-          "companyId",
-          "cartId",
-          "amount",
-          "paymentmethod",
-          "agencyId",
-          "clientTransactionId",
-      ];
+        // Required fields validation
+        const requiredFields = [
+            "userId",
+            "companyId",
+            "cartId",
+            "amount",
+            "paymentmethod",
+            "agencyId",
+            "clientTransactionId",
+        ];
 
-      const missingFields = requiredFields.filter(field => !req.body[field]);
-      if (missingFields.length > 0) {
-          return {
-              response: null,
-              isSomethingMissing: true,
-              data: `Missing or null fields: ${missingFields.join(", ")}`,
-          };
-      }
+        const missingFields = requiredFields.filter(field => !req.body[field]);
+        if (missingFields.length > 0) {
+            return {
+                response: null,
+                isSomethingMissing: true,
+                data: `Missing or null fields: ${missingFields.join(", ")}`,
+            };
+        }
 
-      // Check if booking already exists
-      // const existingBooking = await railBookings.findOne({ cartId });
-      // if (existingBooking) {
-      //     return {
-      //         response: "Your Booking already exists",
-      //     };
-      // }
+        // Check if booking already exists
+        // const existingBooking = await railBookings.findOne({ cartId });
+        // if (existingBooking) {
+        //     return {
+        //         response: "Your Booking already exists",
+        //     };
+        // }
 
-      // Process Rail Booking
-      const RailBooking = await RailBookingCommonMethod(
-          userId,
-          amount,
-          companyId,
-          cartId,
-          paymentmethod,
-          railFareBreakupRes?.CommercialCharges,
-          railFareBreakupRes?.enqClass
-      );
+        // Process Rail Booking
+        const RailBooking = await RailBookingCommonMethod(
+            userId,
+            amount,
+            companyId,
+            cartId,
+            paymentmethod,
+            railFareBreakupRes?.CommercialCharges,
+            railFareBreakupRes?.enqClass
+        );
 
-      if (RailBooking.response === "Your Balance is not sufficient.") {
-        commonFunctionsRailLogs(
-          companyId,
-          userId,
-          traceId,
-          "start booking",
-          "startBooking",
-          req.body,
-          RailBooking?.response
-      );
-          return {
-              response: "Your Balance is not sufficient.",
-          };
-      }
+        if (RailBooking.response === "Your Balance is not sufficient.") {
+            commonFunctionsRailLogs(
+                companyId,
+                userId,
+                traceId,
+                "start booking",
+                "startBooking",
+                req.body,
+                RailBooking?.response
+            );
+            return {
+                response: "Your Balance is not sufficient.",
+            };
+        }
 
-      if (RailBooking.response === "An error occurred. Please try again later.") {
-        commonFunctionsRailLogs(
-          companyId,
-          userId,
-          traceId,
-          "start booking",
-          "startBooking",
-          req.body,
-          RailBooking?.response
-      );
-          return {
-              response: "Something went wrong",
-          };
-      }
+        if (RailBooking.response === "An error occurred. Please try again later.") {
+            commonFunctionsRailLogs(
+                companyId,
+                userId,
+                traceId,
+                "start booking",
+                "startBooking",
+                req.body,
+                RailBooking?.response
+            );
+            return {
+                response: "Something went wrong",
+            };
+        }
 
-      // Handle successful booking responses
-      const CommonDateBooking = await commonMethodDate();
+        // Handle successful booking responses
+        const CommonDateBooking = await commonMethodDate();
 
-      if (
-          RailBooking?.response == "Amount transferred successfully." ||
-          RailBooking?.response === "Cart Created Succefully."
-      ) {
- 
-          const newBooking = {
-              cartId,
-              clientTransactionId,
-              companyId,
-              userId,
-              AgencyId: agencyId,
-              paymentMethod: paymentmethod,
-              trainNumber: railFareBreakupRes?.trainNo,
-              journeyDate: `${railFareBreakupRes?.avlDayList[0]?.availablityDate} 00:00:00.0 IST`,
-              fromStn: railFareBreakupRes?.from,
-              destStn: railFareBreakupRes?.to,
-              jClass: railFareBreakupRes?.enqClass,
-              reservationMode,
-              mobileNumber: contactDetails?.mobileNumber || null,
-              emailId: contactDetails?.emailId || null,
-              ticketType,
-              boardingStn: boardingStation,
-              jQuota,
-              RailCommercial: CommercialCharges,
-              psgnDtlList: passengerList,
-              traceId,
-              providerbookingId: CommonDateBooking?.bookingId,
-              journeyClass: railFareBreakupRes?.journeyClass,
-            journeyQuota: railFareBreakupRes?.jQuota,
-            RailCommercial:CommercialCharges,
-            trainName: railFareBreakupRes?.trainName,
-            distance: railFareBreakupRes?.distance,
-            boardingDate: railFareBreakupRes?.avlDayList[0]?.availablityDate+" 00:00:00.0 IST",
-            reservationCharge: railFareBreakupRes?.reservationCharge,
-            totalFare: railFareBreakupRes?.totalFare,
-            wpServiceCharge: railFareBreakupRes?.wpServiceCharge,
-            totalItemAmount:RailBooking.amount
-               };
+        if (
+            RailBooking?.response == "Amount transferred successfully." ||
+            RailBooking?.response === "Cart Created Succefully."
+        ) {
 
-        
-          // Save booking to database
-          const createdBooking = await railBookings.create(newBooking);
+            const newBooking = {
+                cartId,
+                clientTransactionId,
+                companyId,
+                userId,
+                AgencyId: agencyId,
+                paymentMethod: paymentmethod,
+                trainNumber: railFareBreakupRes?.trainNo,
+                journeyDate: `${railFareBreakupRes?.avlDayList[0]?.availablityDate} 00:00:00.0 IST`,
+                fromStn: railFareBreakupRes?.from,
+                destStn: railFareBreakupRes?.to,
+                jClass: railFareBreakupRes?.enqClass,
+                reservationMode,
+                mobileNumber: contactDetails?.mobileNumber || null,
+                emailId: contactDetails?.emailId || null,
+                ticketType,
+                boardingStn: boardingStation,
+                jQuota,
+                RailCommercial: CommercialCharges,
+                psgnDtlList: passengerList,
+                traceId,
+                providerbookingId: CommonDateBooking?.bookingId,
+                journeyClass: railFareBreakupRes?.journeyClass,
+                journeyQuota: railFareBreakupRes?.jQuota,
+                RailCommercial: CommercialCharges,
+                trainName: railFareBreakupRes?.trainName,
+                distance: railFareBreakupRes?.distance,
+                boardingDate: railFareBreakupRes?.avlDayList[0]?.availablityDate + " 00:00:00.0 IST",
+                reservationCharge: railFareBreakupRes?.reservationCharge,
+                totalFare: railFareBreakupRes?.totalFare,
+                wpServiceCharge: railFareBreakupRes?.wpServiceCharge,
+                totalItemAmount: RailBooking.amount
+            };
 
-          if (!createdBooking) {
-              return {
-                  response: "Failed to create booking",
-              };
-          }
 
-          // Log booking process
-          commonFunctionsRailLogs(
-              companyId,
-              userId,
-              traceId,
-              "start booking",
-              "startBooking",
-              req.body,
-              RailBooking?.response
-          );
+            // Save booking to database
+            const createdBooking = await railBookings.create(newBooking);
 
-          return {
-              response: RailBooking?.response,
-              bookingId: createdBooking._id,
-          };
-      }
+            if (!createdBooking) {
+                return {
+                    response: "Failed to create booking",
+                };
+            }
 
-      // Default fallback response
-      return {
-          response: "Unknown response from RailBookingCommonMethod",
-      };
+            // Log booking process
+            commonFunctionsRailLogs(
+                companyId,
+                userId,
+                traceId,
+                "start booking",
+                "startBooking",
+                req.body,
+                RailBooking?.response
+            );
 
-  } catch (error) {
-      console.error("Error in StartBookingRail:", error);
-      throw error; // Rethrow the error for higher-level handling
-  }
+            return {
+                response: RailBooking?.response,
+                bookingId: createdBooking._id,
+            };
+        }
+
+        // Default fallback response
+        return {
+            response: "Unknown response from RailBookingCommonMethod",
+        };
+
+    } catch (error) {
+        console.error("Error in StartBookingRail:", error);
+        throw error; // Rethrow the error for higher-level handling
+    }
 };
 //   const findRailAllBooking = async (req, res) => {
 //         const {
@@ -223,10 +223,10 @@ const StartBookingRail = async (req) => {
 //           (fieldName) =>
 //             req.body[fieldName] === null || req.body[fieldName] === undefined
 //         );
-      
+
 //         if (missingFields.length > 0) {
 //           const missingFieldsString = missingFields.join(", ");
-      
+
 //           return {
 //             response: null,
 //             isSometingMissing: true,
@@ -274,23 +274,23 @@ const StartBookingRail = async (req) => {
 //           ],{new:true})
 //         }
 //    await railBookings.findOneAndUpdate({_id:bookingDataCartId._id,"psgnDtlList.currentStatus":{$nin:["WL","CNF","RLWL","PQWL","RAC","2S","2A","3A","3E","CC","EC","SL","1A","FC","EV","TQWL" ]}},{$set:{bookingStatus:"CANCELLED"}},{new:true})
- 
+
 
 //       }
 //         const checkUserIdExist = await User.findById(userId)
 //           .populate("roleId")
 //           .populate("company_ID");
-      
+
 //     const commonDateItc=await ProivdeIndiaStandardTime(fromDate,toDate);
-    
+
 
 //         if (
 //           (checkUserIdExist.roleId && checkUserIdExist.roleId.name === "Agency") ||
 //           (checkUserIdExist.roleId && checkUserIdExist.roleId.type == "Manual")
 //         ) {
 //           const filter = {};
-      
-      
+
+
 //           if (
 //             agencyId == "6555f84c991eaa63cb171a9f" &&
 //             checkUserIdExist.roleId &&
@@ -305,19 +305,19 @@ const StartBookingRail = async (req) => {
 //               ? (filter.companyId = checkUserIdExist.company_ID._id)
 //               : (filter.AgencyId = new ObjectId(checkUserIdExist?.company_ID?._id));
 //           }
-      
+
 //       if (bookingId !== undefined && bookingId.trim() !== "") {
 //         filter.clientTransactionId = bookingId;
 //       }
-      
+
 //       if (pnr !== undefined && pnr.trim() !== "") {
 //         filter.pnrNumber = pnr;
 //       }
-      
+
 //       if (status !== undefined && status.trim() !== "") {
 //         filter.bookingStatus = status;
 //       }
-      
+
 //       if (fromDate !== undefined && fromDate.trim() !== "" && toDate !== undefined && toDate.trim() !== "") {
 //         filter.bookingDate = {
 //           $gte: commonDateItc.startDateUTC, // Start of fromDate
@@ -429,11 +429,11 @@ const StartBookingRail = async (req) => {
 //   },
 // ]);
 
-      
-      
+
+
 //       if(filter.clientTransactionId!==""){
 //       await railBookings.findOneAndUpdate({clientTransactionId:filter.clientTransactionId},{$set:{isEmailSend:false}})
-      
+
 //       }
 //           console.log("1st");
 //           if (!railBooking || railBooking.length === 0) {
@@ -452,22 +452,22 @@ const StartBookingRail = async (req) => {
 //             //   HOLDRELEASED: 0,
 //             //   "FAILED PAYMENT": 0,
 //             // };
-      
-      
+
+
 //             // railBooking.forEach((booking) => {
-        
-       
+
+
 
 //             //     const status = booking.bookingStatus;
 //             //     // Increment the count corresponding to the status
 //             //     statusCounts[status]++;
 //             //   });
-               
-      
-        
+
+
+
 //             let filteredBookingData = railBooking; 
-      
-         
+
+
 //             return {
 //               response: "Fetch Data Successfully",
 //               data: {
@@ -543,7 +543,7 @@ const StartBookingRail = async (req) => {
 //             };
 //           }
 //           console.log(filter,"filter")
-      
+
 //          const railBooking = await railBookings.aggregate([
 //   { $match: filter },
 
@@ -639,14 +639,14 @@ const StartBookingRail = async (req) => {
 //     $replaceRoot: { newRoot: "$railBooking" },
 //   },
 // ]);
-         
+
 //           if(filter.clientTransactionId!==""){
 //             await railBookings.findOneAndUpdate({clientTransactionId:filter.clientTransactionId},{$set:{isEmailSend:false}})
-            
+
 //             }
-      
+
 //           console.log("2nd");
-      
+
 //           if (!railBooking || railBooking.length === 0) {
 //             return {
 //               response: "Data Not Found",
@@ -662,23 +662,23 @@ const StartBookingRail = async (req) => {
 //           //     HOLDRELEASED: 0,
 //           //     "FAILED PAYMENT": 0,
 //           //   };
-      
+
 //           //   railBooking.forEach((booking) => {
-        
-       
+
+
 
 //           //       const status = booking.bookingStatus;
 //           //       // Increment the count corresponding to the status
 //           //       statusCounts[status]++;
 //           //     });
-           
+
 //             // Iterate over the railBooking array
-      
+
 //             // Iterate over the railBooking array
-           
+
 //             let filteredBookingData = railBooking; // Copy the original data
-      
-           
+
+
 //             return {
 //               response: "Fetch Data Successfully",
 //               data: {
@@ -705,13 +705,13 @@ const StartBookingRail = async (req) => {
 //             checkUserIdExist?.roleId?.type == "Manual"?filter.companyId = new ObjectId(agencyId):filter.userId=new ObjectId(agencyId);
 //             // let allagencyId = agencyId.map(id => new ObjectId(id));
 //             // filter.AgencyId={$in:allagencyId}
-      
+
 //             // console.log(filter.AgencyId)
 //           }
 //           else if(agencyId !== undefined &&agencyId !== "" ){
 //             filter.companyId = new ObjectId(agencyId)
 //           }
-      
+
 //           if (bookingId !== undefined && bookingId.trim() !== "") {
 //             filter.clientTransactionId = bookingId;
 //           }
@@ -740,7 +740,7 @@ const StartBookingRail = async (req) => {
 //               $gte: commonDateItc.startDateUTC, // Start of toDate
 //             };
 //           }
-          
+
 //             const railBooking = await railBookings.aggregate([
 //   { $match: filter },
 
@@ -837,7 +837,7 @@ const StartBookingRail = async (req) => {
 //   },
 // ]);
 // ;
-           
+
 //           if(filter.clientTransactionId!==""){
 //           await railBookings.findOneAndUpdate({clientTransactionId:filter.clientTransactionId},{$set:{isEmailSend:false}})
 //           }
@@ -866,7 +866,7 @@ const StartBookingRail = async (req) => {
 //       //         HOLDRELEASED: 0,
 //       //         "FAILED PAYMENT": 0,
 //       //       };
-      
+
 //       //       // Iterate over the railBooking array
 
 //       // railBooking.forEach((booking) => {
@@ -1194,10 +1194,10 @@ const findRailAllBooking = async (req, res) => {
 
     // 1. Validate required fields
     const requiredFields = [
-        "agencyId", "bookingId", "pnr", "status", 
+        "agencyId", "bookingId", "pnr", "status",
         "fromDate", "toDate", "salesInchargeIds"
     ];
-    const missingFields = requiredFields.filter(field => 
+    const missingFields = requiredFields.filter(field =>
         req.body[field] === null || req.body[field] === undefined
     );
 
@@ -1224,9 +1224,9 @@ const findRailAllBooking = async (req, res) => {
     if (!user) return { response: "User not found" };
 
     // 5. Date conversion
-     let commonDateItc=null
-    if(fromDate && toDate){
- commonDateItc = await ProivdeIndiaStandardTime(fromDate, toDate)
+    let commonDateItc = null
+    if (fromDate && toDate) {
+        commonDateItc = await ProivdeIndiaStandardTime(fromDate, toDate)
     };
 
     // 6. Build query filter based on user role
@@ -1255,34 +1255,34 @@ const findRailAllBooking = async (req, res) => {
     if (!railBooking.length) {
         return { response: "Data Not Found" };
     }
-    
-      const statusCounts = {
-               PENDING: 0,
-     CONFIRMED: 0,
-      FAILED: 0,
-       CANCELLED: 0,
-   INCOMPLETE: 0,
-      HOLD: 0,
-       HOLDRELEASED: 0,
-      "FAILED PAYMENT": 0,
-     };
-      
-      
+
+    const statusCounts = {
+        PENDING: 0,
+        CONFIRMED: 0,
+        FAILED: 0,
+        CANCELLED: 0,
+        INCOMPLETE: 0,
+        HOLD: 0,
+        HOLDRELEASED: 0,
+        "FAILED PAYMENT": 0,
+    };
+
+
     railBooking.forEach((booking) => {
-        
-       
+
+
 
         const status = booking.bookingStatus;
-    // Increment the count corresponding to the status
+        // Increment the count corresponding to the status
         statusCounts[status]++;
-  });
-    
+    });
+
 
 
     return {
         response: "Fetch Data Successfully",
         data: {
-            bookingList: railBooking.sort((a, b) => 
+            bookingList: railBooking.sort((a, b) =>
                 new Date(b.createdAt) - new Date(a.createdAt)
             ),
             statusCounts: statusCounts,
@@ -1295,8 +1295,8 @@ async function updateBookingStatus(bookingId, Authentication) {
     const bookingData = await railBookings.findOne({ cartId: bookingId });
     if (!bookingData) return;
     // let updateStatusAPI=null
-    if(!bookingData?.pnrNumber){
-return await checkBookingWithCartId(bookingId,bookingData.traceId,Authentication,bookingData)
+    if (!bookingData?.pnrNumber) {
+        return await checkBookingWithCartId(bookingId, bookingData.traceId, Authentication, bookingData)
     }
 
     const latesPassengerData = await checkPnrStatus(Authentication, bookingData.pnrNumber);
@@ -1315,19 +1315,28 @@ return await checkBookingWithCartId(bookingId,bookingData.traceId,Authentication
     //     { arrayFilters: [{ "elem.index": { $exists: true } }], new: true }
     // );
 
- const cancelBookingData=   await railBookings.findOneAndUpdate(
-        { 
+    const cancelBookingData = await railBookings.findOneAndUpdate(
+        {
             _id: bookingData._id,
-            "psgnDtlList.currentStatus": { 
-                $nin: ["WL","CNF","RLWL","PQWL","RAC","2S","2A","3A","3E","CC","EC","SL","1A","FC","EV","TQWL"] 
+            "psgnDtlList.currentStatus": {
+                $nin: [
+                    'CNF', 'RAC', 'WL',
+                    'GNWL', 'RLWL', 'PQWL',
+                    'RQWL', 'RSWL', 'CKWL',
+                    'TQWL', 'NOSB',
+                    'MOD', 'RELEASED', '1A',
+                    '2A', '3A', '3E',
+                    'CC', 'EC', 'SL',
+                    'FC', '2S', 'EV'
+                ]
             },
             bookingStatus: { $ne: "CANCELLED" }
         },
         { $set: { bookingStatus: "CANCELLED PROCESS" } },
         { new: true }
     );
-    if(cancelBookingData && cancelBookingData?.bookingStatus!=="CANCELLED"){
-        return await gernateCancelCard(Authentication,cancelBookingData,cancelBookingData?.traceId);
+    if (cancelBookingData && cancelBookingData?.bookingStatus !== "CANCELLED") {
+        return await gernateCancelCard(Authentication, cancelBookingData, cancelBookingData?.traceId);
     }
 }
 
@@ -1363,8 +1372,8 @@ async function buildFilter(params) {
                 const companiesData = await companies.find({
                     parent: user.company_ID._id
                 });
-                filter.AgencyId = { 
-                    $in: companiesData.map(c => new ObjectId(c._id)) 
+                filter.AgencyId = {
+                    $in: companiesData.map(c => new ObjectId(c._id))
                 };
             } else {
                 filter.AgencyId = new ObjectId(agencyId);
@@ -1372,10 +1381,10 @@ async function buildFilter(params) {
         }
     }
     // TMC user filter
-    else if (role === "TMC" && (roleType === "Default" || 
-            (roleType === "Manual" && user.company_ID.equals("6555f84c991eaa63cb171a9f")))) {
+    else if (role === "TMC" && (roleType === "Default" ||
+        (roleType === "Manual" && user.company_ID.equals("6555f84c991eaa63cb171a9f")))) {
         if (agencyId && agencyId !== "6555f84c991eaa63cb171a9f") {
-            roleType === "Manual" 
+            roleType === "Manual"
                 ? filter.companyId = new ObjectId(agencyId)
                 : filter.userId = new ObjectId(agencyId);
         } else if (agencyId) {
@@ -1436,7 +1445,7 @@ function getCommonLookupStages() {
             }
         },
         { $unwind: { path: "$userId", preserveNullAndEmptyArrays: true } },
-        
+
         // BookedBy lookup
         {
             $lookup: {
@@ -1447,7 +1456,7 @@ function getCommonLookupStages() {
             }
         },
         { $unwind: { path: "$BookedBy", preserveNullAndEmptyArrays: true } },
-        
+
         // Invoicing data lookup
         {
             $lookup: {
@@ -1458,7 +1467,7 @@ function getCommonLookupStages() {
             }
         },
         { $unwind: { path: "$invoicingdatas", preserveNullAndEmptyArrays: true } },
-        
+
         // Agent configuration lookup
         {
             $addFields: { companyIdForLookup: "$userId.company_ID._id" }
@@ -1472,7 +1481,7 @@ function getCommonLookupStages() {
             }
         },
         { $unwind: { path: "$agentconfigurationData", preserveNullAndEmptyArrays: true } },
-        
+
         // Company lookup
         {
             $lookup: {
@@ -1483,7 +1492,7 @@ function getCommonLookupStages() {
             }
         },
         { $unwind: { path: "$companyId", preserveNullAndEmptyArrays: true } },
-        
+
         // Grouping and restructuring
         {
             $group: {
@@ -1500,81 +1509,81 @@ function getCommonLookupStages() {
     ]
 }
 const getProvideStatusCount = async (req, res) => {
-  try {
-    let { companyId, toDate, fromDate } = req.body;
-    const commonDateItc = await ProivdeIndiaStandardTime(fromDate, toDate)
+    try {
+        let { companyId, toDate, fromDate } = req.body;
+        const commonDateItc = await ProivdeIndiaStandardTime(fromDate, toDate)
 
-    const bookingDetailsQuery = {
-      createdAt: {
-        $gte: commonDateItc.startDateUTC,
-        $lte: commonDateItc.endDateUTC
-      },
-      ...(Config?.TMCID !== companyId
-        ? { AgencyId:new ObjectId(companyId) }
-        : { companyId: new ObjectId(companyId) })
-    };
+        const bookingDetailsQuery = {
+            createdAt: {
+                $gte: commonDateItc.startDateUTC,
+                $lte: commonDateItc.endDateUTC
+            },
+            ...(Config?.TMCID !== companyId
+                ? { AgencyId: new ObjectId(companyId) }
+                : { companyId: new ObjectId(companyId) })
+        };
 
-    // Build query filter
-    
+        // Build query filter
 
-    // Use aggregation to count booking statuses directly in DB
-    const bookingStatusCounts = await railBookings.aggregate([
-  { $match: bookingDetailsQuery },
-  {
-    $group: {
-      _id: "$bookingStatus",
-      count: { $sum: 1 },
-      totalSellPrice: {
-        $sum: {
-          $cond: [
-            { $eq: ["$bookingStatus", "CONFIRMED"] },
-            "$bookingTotalAmount",  // change to your actual field name for total price
-            0
-          ]
-        }
-      }
+
+        // Use aggregation to count booking statuses directly in DB
+        const bookingStatusCounts = await railBookings.aggregate([
+            { $match: bookingDetailsQuery },
+            {
+                $group: {
+                    _id: "$bookingStatus",
+                    count: { $sum: 1 },
+                    totalSellPrice: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$bookingStatus", "CONFIRMED"] },
+                                "$bookingTotalAmount",  // change to your actual field name for total price
+                                0
+                            ]
+                        }
+                    }
+                }
+            }
+        ]);
+
+
+        // Initialize default status counts
+        const statusCounts = {
+            PENDING: 0,
+            CONFIRMED: 0,
+            FAILED: 0,
+            CANCELLED: 0,
+            INCOMPLETE: 0,
+            HOLD: 0,
+            "HOLD RELEASED": 0,
+            "FAILED PAYMENT": 0,
+            "CANCELLATION PENDING": 0
+        };
+
+        // Fill counts from aggregation result
+        let totalSellPrice = 0;
+        bookingStatusCounts.forEach(({ _id, count, totalSellPrice: sellPrice = 0 }) => {
+            if (statusCounts.hasOwnProperty(_id)) {
+                statusCounts[_id] = count;
+                if (_id === "CONFIRMED") {
+                    totalSellPrice = sellPrice;
+                }
+            }
+        });
+
+        return {
+            response: "Data Found Successfully",
+            data: {
+                statusCount: statusCounts,
+                totalSellPrice: totalSellPrice,
+                totalCount: bookingStatusCounts.length
+            }
+        };
+
+    } catch (error) {
+        console.error("Error in getProvideStatusCount:", error);
+        throw error;
     }
-  }
-]);
-
-
-    // Initialize default status counts
-    const statusCounts = {
-      PENDING: 0,
-      CONFIRMED: 0,
-      FAILED: 0,
-      CANCELLED: 0,
-      INCOMPLETE: 0,
-      HOLD: 0,
-      "HOLD RELEASED": 0,
-      "FAILED PAYMENT": 0,
-      "CANCELLATION PENDING":0 
-    };
-
-    // Fill counts from aggregation result
-    let totalSellPrice = 0;
-    bookingStatusCounts.forEach(({ _id, count ,totalSellPrice: sellPrice = 0}) => {
-      if (statusCounts.hasOwnProperty(_id)) {
-        statusCounts[_id] = count;
-        if (_id === "CONFIRMED") {
-      totalSellPrice = sellPrice;
-    }
-      }
-    });
-
-    return {
-      response: "Data Found Successfully",
-      data:{
-        statusCount:statusCounts,
-        totalSellPrice:totalSellPrice,
-        totalCount:bookingStatusCounts.length
-      }
-    };
-
-  } catch (error) {
-    console.error("Error in getProvideStatusCount:", error);
-    throw error;
-  }
 };
 
-module.exports = { StartBookingRail, findRailAllBooking,getProvideStatusCount };
+module.exports = { StartBookingRail, findRailAllBooking, getProvideStatusCount };

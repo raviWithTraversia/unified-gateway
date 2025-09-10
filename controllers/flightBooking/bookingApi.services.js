@@ -4043,7 +4043,7 @@ async function checkSameDaySamePax(req, res) {
     // Step 4: Check if any passenger matches
     const isDuplicate = passengerPreferences.some(pref =>
       pref.Passengers.every(p1 =>
-        PassengerPreferences.Passengers.every(p2 =>
+        PassengerPreferences.Passengers.some(p2 =>
           p1.FName.toLowerCase() === p2.FName.toLowerCase() && p1.LName.toLowerCase() === p2.LName.toLowerCase()
         )
       )

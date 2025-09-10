@@ -216,10 +216,10 @@ const checkBookingWithCartId=async(cartId,traceId,Authentication,booking)=>{
     if (!response||!response?.pnrNumber) {
       
       // createRailLedger(Authentication?.UserId,booking)
-     await Promise.all([
-       createRailLedgerCredit(Authentication?.UserId,booking),
-      //  booking.save()
-     ])
+    //  await Promise.all([
+    //    createRailLedgerCredit(Authentication?.UserId,booking),
+    //   //  booking.save()
+    //  ])
     
       return 
     }
@@ -279,7 +279,7 @@ const createRailLedgerCredit = async (userId, booking) => {
       fop: "CREDIT",
       transactionType: "CREDIT",
       runningAmount: newBalance,
-      remarks: "AUTO REFUND",
+      remarks: "Manual AUTO REFUND",
       transactionBy: userId,
       cartId: booking.cartId,
     }),
@@ -401,5 +401,6 @@ module.exports = {
   boardingstationenq,
   irctcAmountDeduction,
   checkBookingWithCartId,
-  gernateCancelCard
+  gernateCancelCard,
+  createRailLedgerCredit
 };

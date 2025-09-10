@@ -3,14 +3,16 @@ const cron = require("node-cron");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
 const {Config} = require("../../configs/config");
+const {createRailLedgerCredit} = require("../rail/irctcBooking.service");
 // require("../../Public/report/agentBalenceReport");
 
 // API endpoint jaha se JSON aayega
 const DATA_URL = `https://agentapi.kafilaholidays.in/api/agentBalenceReport`
 //  today =new Date()
 // today.setDate(today.getDate() - 1);
-let yesterday=getYesterdayIST();
+let yesterday=getYesterdayIST(1);
 
 
 let payload={
@@ -67,8 +69,8 @@ cron.schedule("45 02 * * *", async () => {
       .filter(f => f.startsWith("agentBalanceReport-data-"))
       .sort((a, b) => fs.statSync(path.join(SAVE_PATH, b)).mtime - fs.statSync(path.join(SAVE_PATH, a)).mtime);
 
-    if (files.length > 3) {
-      let oldFiles = files.slice(3); // keep latest 3
+    if (files.length > 30) {
+      let oldFiles = files.slice(30); // keep latest 3
       for (let f of oldFiles) {
         fs.unlinkSync(path.join(SAVE_PATH, f));
         console.log(`🗑 Deleted old file: ${f}`);
@@ -83,7 +85,7 @@ cron.schedule("45 02 * * *", async () => {
 
 
 
-function getYesterdayIST() {
+function getYesterdayIST(daysAgo) {
   let today = new Date();
   
   // IST shift = +5 hours 30 minutes
@@ -91,11 +93,71 @@ function getYesterdayIST() {
   
   let istDate = new Date(today.getTime() + istOffset);
 
-  istDate.setDate(istDate.getDate() - 1);
+  istDate.setDate(istDate.getDate() - daysAgo);
   // return istDate
 
   return istDate.toISOString().split("T")[0];
 }
+
+
+// railBookingUpdate and provide refund
+
+cron.schedule("00 06 * * *", async () => {
+  console.log("🚀 Scheduler is running... 6:00");
+await getRailBooking();
+});
+
+cron.schedule("00 12 * * *", async () => {
+  console.log("🚀 Scheduler is running... 12:00");
+await getRailBooking();
+});
+
+cron.schedule("00 18 * * *", async () => {
+  console.log("🚀 Scheduler is running... 18:00");
+await getRailBooking();
+});
+cron.schedule("59 23 * * *", async () => {
+  console.log("🚀 Scheduler is running... 23:59");
+await getRailBooking();
+});
+async function getRailBooking() {
+  let date = getYesterdayIST(0);
+  const now = new Date();
+const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+
+
+  // Query se booking data fetch karna
+  let bookingData = await bookingDetailsRail.find({
+    createdAt: {
+      $gte: new Date(`${date}T00:00:00Z`),
+      $lt: thirtyMinutesAgo
+    },
+    bookingStatus: "INCOMPLETE",
+    // createdAt: {
+    //   $gt:new Date()
+    // }
+  });
+
+  if (!bookingData || bookingData.length === 0) {
+    console.log("❌ No bookings found for today");
+    return [];
+  }
+
+  // Promise.all ke saath handle karna
+  await Promise.all(
+    bookingData.map((booking) =>
+      createRailLedgerCredit(booking.userId, booking)
+    )
+  );
+  console.log(
+    `✅ Ledger entries created for ${bookingData.length} bookings`
+  );
+
+  return "All ledger entries created successfully";
+}
+
+
+
 // function getAgentBalacneReportQuery(){
 
 // }

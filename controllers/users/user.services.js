@@ -1432,6 +1432,16 @@ const getAllAgencyAndDistributer = async (req, res) => {
       : {};
 
  let findStatus = {};
+ let bookingDetailsPipeline ={
+    $lookup: {
+      from: "bookingdetails",
+      localField: "_id",
+      foreignField: "userId",
+      as: "bookingDetails"
+    },
+  }
+let bookingDetailsUnwindPipeline =  {$unwind: { path: "$bookingDetails", preserveNullAndEmptyArrays: true }
+  };
 
 switch (status?.toUpperCase()) {
   case "ACTIVE":
@@ -1445,15 +1455,28 @@ switch (status?.toUpperCase()) {
 switch (type?.toUpperCase()) {
   case "RAIL":
     findStatus["company_ID.railSubAgentId"] = { $exists: true, $ne: "" };
+    bookingDetailsPipeline ={
+    $lookup: {
+      from: "railbookingdetails",
+      localField: "_id",
+      foreignField: "userId",
+      as: "bookingDetails"
+    },
+  }   
+  bookingDetailsUnwindPipeline= {$unwind: { path: "$bookingDetails", preserveNullAndEmptyArrays: true }
+  };
+   
+  
     break;
   case "FLIGHT":
     findStatus["company_ID.railSubAgentId"] = { $exists: true, $eq: "" };
-    break;
+   break;
 }
 
 
+// console.log(bookingDetailsPipeline,"bookingDetailsPipeline");
     const users = await User.aggregate([
-  // Initial filtering based on salesIncharge and TMC conditions
+  // Initial fconiltering based on salesIncharge and TMC conditions
   {
     $lookup: {
       from: 'companies',
@@ -1512,6 +1535,7 @@ switch (type?.toUpperCase()) {
 {
         $facet: {
           totalCount: [{ $count: "count" }],
+
           paginatedResults: [
             { $sort: { userId: 1 } },
             { $skip: skip },
@@ -1579,6 +1603,9 @@ switch (type?.toUpperCase()) {
               }
             },
             { $unwind: { path: "$agentconfigurations", preserveNullAndEmptyArrays: true } },
+            bookingDetailsPipeline,
+            bookingDetailsUnwindPipeline,
+
         {
           $group: {
             _id: "$_id",
@@ -1655,7 +1682,16 @@ switch (type?.toUpperCase()) {
             maxcreditLimit: { $first: "$agentconfigurations.maxcreditLimit" },
             railCashBalance: { $first: "$agentconfigurations.railCashBalance" },
             railAgentId: { $first: "$company_ID.railSubAgentId" },
-            agentConfigID: { $first: "$agentconfigurations._id" }
+            agentConfigID: { $first: "$agentconfigurations._id" },
+totalBooking: {
+  $sum: {
+    $cond: [
+      { $eq: ["$bookingDetails.bookingStatus", "CONFIRMED"] }, // condition
+      1, // agar CONFIRMED hai to +1
+      0  // warna +0
+    ]
+  }
+},
           }
         }
       ]

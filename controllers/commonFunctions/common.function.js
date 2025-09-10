@@ -2366,7 +2366,7 @@ async function getInvoiceNumber(pnr, BookingId) {
     //     }else{
     //         invoiceRandomNumber = 100000; 
     //     }
-      return `P25${pnr}${new Date()?.getDate()}`;
+      return `PS25${pnr}11`;
   } catch (error) {
     console.error("Error in getInvoiceNumber:", error.response?.data || error.message);
     throw error;

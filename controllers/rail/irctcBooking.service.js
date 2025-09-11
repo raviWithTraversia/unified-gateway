@@ -4,9 +4,12 @@ const User = require("../../models/User");
 const Company = require("../../models/Company");
 const axios = require("axios");
 const { Config } = require("../../configs/config");
-const { commonFunctionsRailLogs } = require("../../controllers/commonFunctions/common.function");
+const { commonFunctionsRailLogs, createLeadger } = require("../../controllers/commonFunctions/common.function");
 const { updateBookingWithCartId } = require("./railSearch.services");
 const RailCancellation = require("../../models/Irctc/rail-cancellation");
+const Railleadger=require('../../models/Irctc/ledgerRail')
+const agentConfig=require('../../models/AgentConfig')
+const StationMaster=require('../../models/TrainStation')
 
 
 const createIrctcBooking = async (req, res) => {};
@@ -194,9 +197,12 @@ const irctcAmountDeduction = async (req, res) => {
   }
 };
 
-const checkBookingWithCartId=async(cartId,traceId,Authentication)=>{
+const checkBookingWithCartId=async(cartId,traceId,Authentication,booking)=>{
     
     try{
+      if(booking?.bookingStatus==="FAILED"){
+        return 
+ }
       let url = `${Config.TEST.IRCTC_BASE_URL}/eticketing/webservices/tatktservices/bookingdetails/${cartId}`;
     const auth = Authentication.CredentialType==="LIVE"?Config.LIVE.IRCTC_AUTH:Config.TEST.IRCTC_AUTH;
     if (Authentication.CredentialType === "LIVE") {
@@ -208,6 +214,13 @@ const checkBookingWithCartId=async(cartId,traceId,Authentication)=>{
     commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "BookDetail", url, {}, response)
     // console.log(response, "response");
     if (!response||!response?.pnrNumber) {
+      
+      // createRailLedger(Authentication?.UserId,booking)
+    //  await Promise.all([
+    //    createRailLedgerCredit(Authentication?.UserId,booking),
+    //   //  booking.save()
+    //  ])
+    
       return 
     }
     return  await updateBookingWithCartId(response,cartId)
@@ -217,6 +230,80 @@ const checkBookingWithCartId=async(cartId,traceId,Authentication)=>{
         throw error
     }
 }
+
+const createRailLedgerCredit = async (userId, booking) => {
+  try {
+    // console.log(booking, "booking");
+
+    // Run independent queries in parallel
+    const [getAgentConfig, getTicketBalance,getTrainStation] = await Promise.all([
+      agentConfig.findOne({ userId: userId }),
+      Railleadger.findOne({
+        cartId: booking.cartId,
+        transactionType: "DEBIT"
+      }).sort({ createdAt: -1 }),
+      StationMaster.findOne({StationCode:booking?.fromStn})
+      
+
+    ]);
+
+    if (!getAgentConfig) throw new Error("Agent config not found");
+
+    // Example: Calculate new balance
+    booking.fromStnName= getTrainStation?.StationName;
+    booking.boardingStn=getTrainStation?.StationCode
+    booking.bookingStatus="FAILED"
+      booking.message="Booking Failed"
+      // booking.resvnUptoStnName= await provideStationName(jsonData?.resvnUptoStn)
+     booking.boardingStnName= getTrainStation?.StationName;
+    const ticketAmount = getTicketBalance?.transactionAmount || 0;
+    const currentBalance = getAgentConfig.railCashBalance || 0;
+    const newBalance = Math.round(currentBalance +ticketAmount);
+
+    // Update balance
+    const ledgerId = `LG${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const [updatedAgentConfig,railBalance,bookingData]=await Promise.all([
+      agentConfig.findOneAndUpdate(
+      { userId: userId },
+      { $set: { railCashBalance: newBalance } },
+      { new: true }
+    ),
+    Railleadger.create({
+      userId,
+      companyId: getAgentConfig.companyId,
+      ledgerId,
+      transactionAmount: ticketAmount,
+      agentCharges: 0,
+      currencyType: "INR",
+      fop: "CREDIT",
+      transactionType: "CREDIT",
+      runningAmount: newBalance,
+      remarks: "Manual AUTO REFUND",
+      transactionBy: userId,
+      cartId: booking.cartId,
+    }),
+    booking.save()
+    ])
+    // const updatedAgentConfig = await agentConfig.findOneAndUpdate(
+    //   { userId: userId },
+    //   { $set: { railCashBalance: newBalance } },
+    //   { new: true }
+    // );
+
+    if (!updatedAgentConfig) {
+      throw new Error("Failed to update agent balance.");
+    }
+
+    // Create ledger entry
+  
+
+    return 
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 const gernateCancelCard=async(Authentication,booking,traceId)=>{
   try{
@@ -314,5 +401,6 @@ module.exports = {
   boardingstationenq,
   irctcAmountDeduction,
   checkBookingWithCartId,
-  gernateCancelCard
+  gernateCancelCard,
+  createRailLedgerCredit
 };

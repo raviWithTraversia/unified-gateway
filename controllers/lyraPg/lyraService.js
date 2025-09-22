@@ -26,7 +26,7 @@ const {
   commonProviderMethodDate,
   sendSuccessHtml,
   sendFailedHtml,
-  commonFunctionsRailLogs,
+  commonFunctionsPGLogs,
 } = require("../commonFunctions/common.function");
 const AgentConfiguration = require("../../models/AgentConfig");
 const { saveLogInFile } = require("../../utils/save-log");
@@ -94,9 +94,10 @@ const lyraRedirectLink = async (req, res) => {
         },
         return: {
           method: "POST",
-          url: `${
-            Config[Authentication?.CredentialType ?? "TEST"].baseURLBackend
-          }/api/${url}`,
+          url: `http://localhost:3111/api/${url}`,
+          // url: `${
+          //   Config[Authentication?.CredentialType ?? "TEST"].baseURLBackend
+          // }/api/${url}`,
           timeout: 100,
         },
       },
@@ -114,7 +115,7 @@ const lyraRedirectLink = async (req, res) => {
       });
       return;
     }
-    commonFunctionsRailLogs(
+    commonFunctionsPGLogs(
       Authentication?.CompanyId,
       Authentication?.UserId,
       traceId,
@@ -129,7 +130,7 @@ const lyraRedirectLink = async (req, res) => {
       data: response?.data,
     });
   } catch (err) {
-    commonFunctionsRailLogs(
+    commonFunctionsPGLogs(
       Authentication?.CompanyId,
       Authentication?.UserId,
       traceId,
@@ -917,8 +918,19 @@ const lyraSuccess = async (req, res) => {
 const lyraWalletResponceSuccess = async (req, res) => {
   try {
     const { vads_charge_uuid, vads_order_info, vads_ctx_mode } = req.body;
-    let { status, txnid, udf1, udf2, udf3, amount, PG_TYPE } =
-      await fetchChargeDetails(vads_charge_uuid, vads_ctx_mode);
+    let bodyForCommon =
+      await fetchChargeDetails(vads_charge_uuid, vads_ctx_mode)
+      return await lyraAndPhonePeFlightCommonSucess(bodyForCommon);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const lyraAndPhonePeFlightCommonSucess=async(body)=>{
+  try {
+    // const { vads_charge_uuid, vads_order_info, vads_ctx_mode } = req.body;
+    let { status, txnid, udf1, udf2, udf3, amount, PG_TYPE,payment_source } =body
+      // await fetchChargeDetails(vads_charge_uuid, vads_ctx_mode);
     let productinfo = "Flight";
     amount = Number(udf2) + Number(udf3);
 
@@ -933,20 +945,20 @@ const lyraWalletResponceSuccess = async (req, res) => {
         match: { name: "Agency" },
       });
 
-      const findUser = await User.findById(userData._id);
-      const configData = await agentConfig
-        .findOne({ userId: userData._id })
-        .populate("diSetupIds")
-        .populate({
-          path: "diSetupIds",
-          populate: {
-            path: "diSetupIds", // If diSetupIds contains another reference
-            model: "diSetup",
-          },
-        });
-      // console.log(configData, "configData");
-      // const doerId = req.user._id;
-      const loginUser = userData._id;
+      // const findUser = await User.findById(userData._id);
+      // const configData = await agentConfig
+      //   .findOne({ userId: userData._id })
+      //   .populate("diSetupIds")
+      //   .populate({
+      //     path: "diSetupIds",
+      //     populate: {
+      //       path: "diSetupIds", // If diSetupIds contains another reference
+      //       model: "diSetup",
+      //     },
+      //   });
+      // // console.log(configData, "configData");
+      // // const doerId = req.user._id;
+      // const loginUser = userData._id;
       // console.log(loginUser, "loginUser");
       var DIdata;
       if (PG_TYPE == "CC-PG" || PG_TYPE == "UPI-PG") {
@@ -1002,7 +1014,7 @@ const lyraWalletResponceSuccess = async (req, res) => {
           fop: "DEBIT",
           transactionType: "DEBIT",
           runningAmount: newBalanceAmount - udf3,
-          remarks: "Manual AUTO_PGcharges(Lyra)",
+          remarks: `Manual AUTO_PGcharges(${payment_source??"Lyra"})`,
           transactionBy: userData._id,
         });
         await agentConfig.findOneAndUpdate(
@@ -1018,11 +1030,11 @@ const lyraWalletResponceSuccess = async (req, res) => {
             // console.log(tdsAmount, "tdsAmount2");
             // console.log("hjdsdh12");
             const findUser = await User.findById(userData._id);
-            console.log(findUser, "findUser");
+            // console.log(findUser, "findUser");
             const configData = await agentConfig.findOne({
               userId: userData._id,
             });
-            console.log(configData, "configData");
+            // console.log(configData, "configData");
             if (!configData) {
               return {
                 response: "User not found",
@@ -1042,10 +1054,10 @@ const lyraWalletResponceSuccess = async (req, res) => {
               configData.maxcreditLimit -= tdsAmount;
               runningAmount = configData.maxcreditLimit;
             }
-            console.log(runningAmount, "runningAmount");
+            // console.log(runningAmount, "runningAmount");
             await configData.save();
             const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-            console.log(runningAmount, "runningAmount");
+            // console.log(runningAmount, "runningAmount");
             await ledger.create({
               userId: findUser._id,
               companyId: findUser.company_ID,
@@ -1069,7 +1081,7 @@ const lyraWalletResponceSuccess = async (req, res) => {
           trnsNo: txnid,
           trnsType: "DEBIT",
           paymentMode: PG_TYPE,
-          paymentGateway: "Lyra",
+          paymentGateway: payment_source ?? "Lyra",
           trnsStatus: "success",
           transactionBy: userData._id,
           transactionAmount: Number(udf2) + Number(udf3),
@@ -1088,7 +1100,7 @@ const lyraWalletResponceSuccess = async (req, res) => {
   } catch (error) {
     throw error;
   }
-};
+}
 
 const lyraWalletRailResponceSuccess = async (req, res) => {
   try {
@@ -1549,4 +1561,5 @@ module.exports = {
   lyraSuccess,
   lyraWalletResponceSuccess,
   lyraWalletRailResponceSuccess,
+  lyraAndPhonePeFlightCommonSucess,
 };

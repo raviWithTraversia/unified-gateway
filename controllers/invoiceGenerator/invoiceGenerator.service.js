@@ -387,6 +387,8 @@ const transactionList = async (req, res) => {
                 }else if (gateway==='lyra'){
                     pGateway="LYRA"
 
+                }else if(gateway ==="phonepe"){
+                    pGateway="PHONEPE"
                 }
                 console.log(pGateway)
                 let obj1 = {

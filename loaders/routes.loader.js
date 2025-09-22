@@ -83,8 +83,13 @@ const railReportRoute = require("../routes/rail-reports.route");
 const railCommercial = require("../routes/railCommercial.Routes");
 const railPgCharges = require("../routes/railPgCharges");
 const railGroupManage = require("../routes/railPGChargesGroup");
+const phonePeRoutes = require("../routes/phonePeRoute");
 class RoutesLoader {
   static initRoutes(app) {
+    // phonePe Route
+    app.use("/", phonePeRoutes);
+
+    // user route
     app.use("/api", userRoute);
 
     //  logs route By AlamShah

@@ -269,14 +269,26 @@ function getExpectedAuthHeader() {
 }
 
 const phonePeWebhoockUrlIntegration = async (req, res) => {
-    const incomingAuth = req.headers['authorization'];
+    try{
+
+    
+    const incomingAuth = req.headers['authorization']??"";
 
   // Validate Authorization header
+    commonFunctionsPGLogs("68d116cb9d77fc1d3fe38cc0", "68d116cb9d77fc1d3fe38cc0", "", "PG", incomingAuth, req.body, {})
+
   const expectedAuth = getExpectedAuthHeader();
   if (incomingAuth !== expectedAuth) {
     return res.status(401).json({ IsSucess: false, Message: "Unauthorized" });
   }
+    commonFunctionsPGLogs("68d116cb9d77fc1d3fe38cc0", "68d116cb9d77fc1d3fe38cc0", "", "PG", `${incomingAuth}-${expectedAuth}`, req.body,{})
+
   return res.status(200).json({ IsSucess: true, Message: "Authorized", bodyData:req.body});
+}
+catch(e){
+    commonFunctionsPGLogs("68d116cb9d77fc1d3fe38cc0", "68d116cb9d77fc1d3fe38cc0", "", "PG", "", {}, e?.stack)
+    return res.status(400).json({ IsSucess: false, Message: e.message, error:e.stack});
+}
 }
 
 module.exports = {

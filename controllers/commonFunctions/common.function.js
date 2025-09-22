@@ -30,6 +30,7 @@ const { totalmem } = require("os");
 const axios = require("axios");
 const InvoicingData=require('../../models/Irctc/invvoicingRailData');
 const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
+const PGLogs = require("../../models/Logs/PG.logs");
 
 const createToken = async (id) => {
   try {
@@ -1690,7 +1691,7 @@ const commonFunctionsRailLogs = async (
   res
 ) => {
   try {
-    console.log(userId, companyId, traceId, type, url, req, res);
+    // console.log(userId, companyId, traceId, type, url, req, res);
 
     // Ensure `userId` and `companyId` are valid ObjectId instances
     const validUserId = new mongoose.Types.ObjectId(userId);
@@ -1715,6 +1716,43 @@ const commonFunctionsRailLogs = async (
     console.error("Error creating document:", error.message);
   }
 };
+
+const commonFunctionsPGLogs = async (
+  userId,
+  companyId,
+  traceId,
+  type,
+  url,
+  req,
+  res
+) => {
+  try {
+    // console.log(userId, companyId, traceId, type, url, req, res);
+
+    // Ensure `userId` and `companyId` are valid ObjectId instances
+    const validUserId = new mongoose.Types.ObjectId(userId);
+    const validCompanyId = new mongoose.Types.ObjectId(companyId);
+
+    // Create the document
+    const raillog = new PGLogs({
+      userId: validUserId,
+      companyId: validCompanyId,
+      traceId,
+      type,
+      url,
+      req: JSON.stringify(req),
+      res: JSON.stringify(res),
+    });
+
+    // Save the instance
+    console.log(railLogs, "djieie");
+    await raillog.save();
+    console.log("Document created successfully");
+  } catch (error) {
+    console.error("Error creating document:", error.message);
+  }
+};
+
 
 const commonMethodDate = (bookingDate = new Date()) => {
   const date = new Date(bookingDate);
@@ -2419,5 +2457,6 @@ module.exports = {
   sendFailedHtml,
   updateStatus,
   updatePassengerStatus,
-  getInvoiceNumber
+  getInvoiceNumber,
+  commonFunctionsPGLogs
 };

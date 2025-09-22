@@ -13,6 +13,12 @@ module.exports.Config = {
     Mode: "TEST",
     lyraShopId: 99210763,
     lyraPassword: "testpassword_E3BhaoOPy3jv2LcdqKZ3n5TY0ShwiD1mkL7bl6VmhJg1l",
+    phonePeClientId:"KAFILAUAT_25091813133013",
+    phonePeClientSecret:"MDIyZjQyOTUtNDg4Zi00OTVmLWJkNzYtZWE1ZGY5NWU4MWI3",
+    phonePeVersion:"1",
+    phonePeAuthUrl:"https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token",
+    phonePePaymentUrl:"https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/pay",
+    phonePePaymentDetailUrl:"https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/order",
   },
   LIVE: {
     baseURL: "https://agent.kafilaholidays.in", // frontend

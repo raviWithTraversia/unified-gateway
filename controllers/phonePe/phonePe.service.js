@@ -155,10 +155,10 @@ function createPhonePeBody(body) {
             "type": "PG_CHECKOUT",
             "message": `${productinfo} payment for ${paymentFor}`,
             "merchantUrls": {
-                //         "redirectUrl": `${
-                //     Config[Authentication?.CredentialType ?? "TEST"].baseURLBackend
-                //   }/api/${url}`
-                redirectUrl: `http://localhost:3111/api/${url}?merchantId=${merchantIdUnique}&credentialType=${Authentication?.CredentialType}`,
+                        "redirectUrl": `${
+                    Config[Authentication?.CredentialType ?? "TEST"].baseURLBackend
+                  }/api/${url}?merchantId=${merchantIdUnique}&credentialType=${Authentication?.CredentialType}`
+                // redirectUrl: `http://localhost:3111/api/${url}?merchantId=${merchantIdUnique}&credentialType=${Authentication?.CredentialType}`,
             },
             "paymentModeConfig": {
                 enabledPaymentModes: [enabledPaymentMode]

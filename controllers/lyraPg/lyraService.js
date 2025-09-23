@@ -94,10 +94,10 @@ const lyraRedirectLink = async (req, res) => {
         },
         return: {
           method: "POST",
-          url: `http://localhost:3111/api/${url}`,
-          // url: `${
-          //   Config[Authentication?.CredentialType ?? "TEST"].baseURLBackend
-          // }/api/${url}`,
+          // url: `http://localhost:3111/api/${url}`,
+          url: `${
+            Config[Authentication?.CredentialType ?? "TEST"].baseURLBackend
+          }/api/${url}`,
           timeout: 100,
         },
       },

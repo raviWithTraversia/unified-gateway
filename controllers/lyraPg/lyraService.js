@@ -204,8 +204,689 @@ const fetchChargeDetails = async (vads_charge_uuid, Mode) => {
 };
 const lyraSuccess = async (req, res) => {
   const { vads_charge_uuid } = req.body;
+try{
+  let body =await fetchChargeDetails(vads_charge_uuid);
+  return await lyraAndPhonePeFlightBookingCommonSucess(body);
 
+}catch(error){
+  throw error;
+}
+  
+};
+
+const lyraWalletResponceSuccess = async (req, res) => {
   try {
+    const { vads_charge_uuid, vads_order_info, vads_ctx_mode } = req.body;
+    let bodyForCommon =
+      await fetchChargeDetails(vads_charge_uuid, vads_ctx_mode)
+      return await lyraAndPhonePeFlightCommonSucess(bodyForCommon);
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
+const lyraWalletRailResponceSuccess = async (req, res) => {
+  try {
+    const { vads_charge_uuid, vads_order_info } = req.body;
+    let body =await fetchChargeDetails(vads_charge_uuid);
+    return await phonePeAndLyraRailWalletSucess(body);
+    
+  } catch (error) {
+    throw error;
+  }
+};
+
+const payuRailSuccess = async (req, res) => {
+  try {
+    const {
+      status,
+      txnid,
+      productinfo,
+      udf1,
+      udf2,
+      udf3,
+      amount,
+      payment_source,
+      bank_ref_num,
+      PG_TYPE,
+      cardCategory,
+    } = req.body;
+
+    const CheckAllereadyBooking = await RailBookingDetail.find({
+      CartId: udf1,
+      bookingStatus: { $ne: "INCOMPLETE" },
+    });
+    if (CheckAllereadyBooking.length) {
+      let successHtmlCode = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Payment Success</title>
+          <style>
+          .success-txt{
+            color: #51a351;
+          }
+          body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f2f2f2;
+          }
+          
+          .success-container {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            text-align: center;
+          }
+          .success-container p {
+            margin-top: 10px;
+          }
+          
+          .success-container a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+          }
+          
+          .success-container a:hover {
+            background-color: #0056b3;
+          }
+        </style>
+    
+        </head>
+        <body>
+          <div class="success-container">
+            <h1 class="success-txt">Payment Successful!</h1>
+            <p class="success-txt">Your payment has been successfully processed.</p>
+            <p>Thank you for your purchase.</p>
+            <a href="${
+              Config[Config.MODE].baseURL
+            }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
+          </div>
+        </body>
+        </html>`;
+      return successHtmlCode;
+    } else if (status === "success") {
+      const agentData = await RailBookingDetail.aggregate([
+        {
+          $match: {
+            cartId: udf1,
+          },
+        },
+        {
+          $lookup: {
+            from: "agentconfigurations",
+            localField: "userId",
+            foreignField: "userId",
+            as: "agentData",
+          },
+        },
+        {
+          $unwind: {
+            path: "$agentData",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "AgencyId",
+            foreignField: "_id",
+            as: "ComapnyData",
+          },
+        },
+        {
+          $unwind: {
+            path: "$ComapnyData",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ]);
+      // console.log("jsoeo",agentData);
+
+      if (agentData.length == 0) {
+        throw new Error("Data not found");
+      }
+
+      let runningAmount = agentData[0].agentData?.railCashBalance || 0;
+      const userData = agentData[0]?.agentData || null;
+      const CompnayData = agentData[0]?.ComapnyData;
+      const parsedAmount = Number(amount);
+      const parsedPgCharges = Number(udf3);
+      const initialRunningAmount = Number(runningAmount);
+
+      runningAmount += parsedAmount;
+      await createLedgerEntry({
+        userId: userData.userId,
+        companyId: CompnayData._id,
+        transactionType: "CREDIT",
+        transactionAmount: parsedAmount,
+        updatedRunningAmount: runningAmount,
+        remarks: "Credit Ticket Amount.",
+        txnid,
+      });
+
+      const debitAmountWithoutPgCharges = parsedAmount - parsedPgCharges;
+      runningAmount -= debitAmountWithoutPgCharges;
+      await createLedgerEntry({
+        userId: userData.userId,
+        companyId: CompnayData._id,
+        transactionType: "DEBIT",
+        transactionAmount: debitAmountWithoutPgCharges,
+        updatedRunningAmount: runningAmount,
+        remarks: "Debited Ticket Amount.",
+        txnid,
+      });
+
+      if (parsedPgCharges > 0) {
+        runningAmount -= parsedPgCharges;
+        await createLedgerEntry({
+          userId: userData.userId,
+          companyId: CompnayData._id,
+          transactionType: "DEBIT",
+          transactionAmount: parsedPgCharges,
+          updatedRunningAmount: runningAmount,
+          remarks: "Debited for PG charges (PayU).",
+          txnid,
+        });
+      }
+
+      const wsLoginUrl =
+        req.headers.host == "localhost:3111" ||
+        req.headers.host == "kafila.traversia.net"
+          ? Config?.TEST?.IRCTC_BASE_URL + "/eticketing/wsapplogin"
+          : Config?.LIVE?.IRCTC_BASE_URL + "/eticketing/wsapplogin";
+      let irctcLoginFormFields = {
+        wsTxnId: udf1,
+        wsloginId: CompnayData?.railSubAgentId,
+        wsReturnUrl:
+          req.headers.host == "localhost:3111" ||
+          req.headers.host == "kafila.traversia.net"
+            ? Config?.TEST?.baseURLBackend + "/api/rail/bookingSave"
+            : Config?.LIVE?.baseURLBackend + "/api/rail/bookingSave",
+      };
+
+      await transaction.create({
+        userId: agentData?.userId,
+        bookingId: udf3,
+        companyId: CompnayData?._id,
+        trnsNo: txnid,
+        trnsType: "DEBIT",
+        // paymentMode: "Payu",
+        paymentMode: PG_TYPE,
+        paymentGateway: "PayU",
+        trnsStatus: "success",
+        transactionBy: agentData?.userId,
+        pgCharges: udf3,
+        transactionAmount: parsedAmount,
+        statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
+        trnsNo: txnid,
+        trnsBankRefNo: bank_ref_num,
+        cardType: cardCategory,
+      });
+
+      // const agentData=await agentConfig.findOne({userId:Authentication.userId})
+
+      await RailBookingDetail.findOneAndUpdate(
+        { cartId: udf1 },
+        { $set: { bookingStatus: "PENDING" } },
+        { new: true }
+      );
+
+      let successHtmlCode = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Success</title>
+        <style>
+        .success-txt{
+          color: #51a351;
+        }
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background-color: #f2f2f2;
+        }
+        
+        .success-container {
+          max-width: 400px;
+          width: 100%;
+          padding: 20px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          background-color: #fff;
+          text-align: center;
+        }
+        .success-container p {
+          margin-top: 10px;
+        }
+        
+        .success-container a {
+          display: inline-block;
+          margin-top: 20px;
+          padding: 10px 20px;
+          background-color: #007bff;
+          color: #fff;
+          text-decoration: none;
+          border-radius: 5px;
+        }
+        
+        .success-container a:hover {
+          background-color: #0056b3;
+        }
+      </style>
+  
+      </head>
+      <body>
+       <form id="redirectForm" method="POST" action="${wsLoginUrl}">
+            <input type="hidden" name="wsloginId" value='${irctcLoginFormFields.wsloginId}' />
+            <input type="hidden" name="wsTxnId" value='${irctcLoginFormFields.wsTxnId}' />
+            <input type="hidden" name="wsReturnUrl" value='${irctcLoginFormFields.wsReturnUrl}' />
+          </form>
+          <script>
+            document.getElementById("redirectForm").submit();
+          </script>
+      </body>
+      </html>`;
+
+      return successHtmlCode;
+    } else {
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
+// lyra and PhonePe flight wallet success common Use
+const lyraAndPhonePeFlightCommonSucess=async(body)=>{
+  try {
+    // const { vads_charge_uuid, vads_order_info, vads_ctx_mode } = req.body;
+    let { status, txnid, udf1, udf2, udf3, amount, PG_TYPE,payment_source } =body
+      // await fetchChargeDetails(vads_charge_uuid, vads_ctx_mode);
+    let productinfo = "Flight";
+    amount = Number(udf2) + Number(udf3);
+
+    var successHtmlCode;
+    const findtransaction = await transaction.find({ trnsNo: txnid });
+    if (findtransaction.length > 0) {
+      successHtmlCode = sendSuccessHtml(Config[Config.MODE].baseURL);
+      return successHtmlCode;
+    }
+    else if(status==="Pending"){
+const pendingHtml = await sendFailedHtml(Config[Config.MODE].baseURL,"PENDING");
+      return pendingHtml;
+    }
+     else if (status === "PAID") {
+      const userData = await User.findOne({ company_ID: udf1 }).populate({
+        path: "roleId",
+        match: { name: "Agency" },
+      });
+
+      // const findUser = await User.findById(userData._id);
+      // const configData = await agentConfig
+      //   .findOne({ userId: userData._id })
+      //   .populate("diSetupIds")
+      //   .populate({
+      //     path: "diSetupIds",
+      //     populate: {
+      //       path: "diSetupIds", // If diSetupIds contains another reference
+      //       model: "diSetup",
+      //     },
+      //   });
+      // // console.log(configData, "configData");
+      // // const doerId = req.user._id;
+      // const loginUser = userData._id;
+      // console.log(loginUser, "loginUser");
+      var DIdata;
+      if (PG_TYPE == "CC-PG" || PG_TYPE == "UPI-PG") {
+        DIdata = 0;
+      } else {
+        DIdata = 0;
+
+        //  DIdata = await recieveDI(
+        //   configData,
+        //   findUser,
+        //   productinfo,
+        //   udf2,
+        //   loginUser,
+        //   txnid
+        // );
+      }
+
+      // console.log(DIdata, "DIdata1");
+      // return false;
+      if (userData) {
+        const getAgentConfigForUpdate = await agentConfig.findOne({
+          userId: userData._id,
+        });
+        const maxCreditAmount = getAgentConfigForUpdate?.maxcreditLimit ?? 0;
+        const newBalanceAmount = maxCreditAmount + Number(amount);
+
+        await agentConfig.findOneAndUpdate(
+          { userId: userData._id },
+          { maxcreditLimit: newBalanceAmount },
+          { new: true }
+        );
+        await ledger.create({
+          userId: userData._id,
+          companyId: userData.company_ID,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionId: txnid,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "CREDIT",
+          transactionType: "CREDIT",
+          runningAmount: newBalanceAmount,
+          remarks: "Wallet Amount Credited into Your Account.",
+          transactionBy: userData._id,
+        });
+
+        await ledger.create({
+          userId: userData._id,
+          companyId: userData.company_ID,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionId: txnid,
+          transactionAmount: udf3,
+          currencyType: "INR",
+          fop: "DEBIT",
+          transactionType: "DEBIT",
+          runningAmount: newBalanceAmount - udf3,
+          remarks: `Manual AUTO_PGcharges(${payment_source??"Lyra"})`,
+          transactionBy: userData._id,
+        });
+        await agentConfig.findOneAndUpdate(
+          { userId: userData._id },
+          { maxcreditLimit: newBalanceAmount - udf3 },
+          { new: true }
+        );
+        if (DIdata !== null || DIdata !== 0) {
+          let tdsAmount = DIdata * (2 / 100);
+          // console.log(tdsAmount, "tdsAmount");
+          if (tdsAmount != 0) {
+            tdsAmount = await priceRoundOffNumberValues(tdsAmount);
+            // console.log(tdsAmount, "tdsAmount2");
+            // console.log("hjdsdh12");
+            const findUser = await User.findById(userData._id);
+            // console.log(findUser, "findUser");
+            const configData = await agentConfig.findOne({
+              userId: userData._id,
+            });
+            // console.log(configData, "configData");
+            if (!configData) {
+              return {
+                response: "User not found",
+              };
+            }
+            if (productinfo === "Rail") {
+              if (configData?.maxcreditLimit < amount) {
+                return { response: "Insufficient Balance" };
+              }
+              configData.maxRailCredit -= tdsAmount;
+              runningAmount = configData.maxRailCredit;
+            }
+            if (productinfo === "Flight") {
+              if (configData?.maxcreditLimit < amount) {
+                return { response: "Insufficient Balance" };
+              }
+              configData.maxcreditLimit -= tdsAmount;
+              runningAmount = configData.maxcreditLimit;
+            }
+            // console.log(runningAmount, "runningAmount");
+            await configData.save();
+            const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+            // console.log(runningAmount, "runningAmount");
+            await ledger.create({
+              userId: findUser._id,
+              companyId: findUser.company_ID,
+              ledgerId: ledgerId,
+              transactionId: txnid,
+              transactionAmount: tdsAmount,
+              currencyType: "INR",
+              fop: "DEBIT",
+              transactionType: "DEBIT",
+              runningAmount,
+              remarks: `Manual AUTO_TDS`,
+              transactionBy: userData._id,
+              productinfo,
+            });
+          }
+        }
+
+        await transaction.create({
+          userId: userData._id,
+          companyId: userData.company_ID,
+          trnsNo: txnid,
+          trnsType: "DEBIT",
+          paymentMode: PG_TYPE,
+          paymentGateway: payment_source ?? "Lyra",
+          trnsStatus: "success",
+          transactionBy: userData._id,
+          transactionAmount: Number(udf2) + Number(udf3),
+          pgCharges: udf3,
+        });
+
+        successHtmlCode = await sendSuccessHtml(Config[Config.MODE].baseURL);
+        return successHtmlCode;
+      } else {
+        return "Data does not exist";
+      }
+    } else {
+      const failedHtml = await sendFailedHtml(Config[Config.MODE].baseURL,"Failed");
+      return failedHtml;
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+// lyra and phonepe rail wallet success
+const phonePeAndLyraRailWalletSucess=async(body)=>{
+  try{
+    let { status, txnid, udf1, udf2, udf3, amount, PG_TYPE,payment_source } =body
+
+    let productinfo = "Rail";
+    amount = Number(udf2) + Number(udf3);
+    // console.log("shadaab ali");
+    //productinfo = product udf3= pgcharges;
+    var successHtmlCode;
+    const findtransaction = await transaction.find({ trnsNo: txnid });
+    if (findtransaction.length > 0) {
+      successHtmlCode = sendSuccessHtml(Config[Config.MODE].baseURL);
+      return successHtmlCode;
+    }
+    else if(status==="Pending"){
+const pendingHtml = await sendFailedHtml(Config[Config.MODE].baseURL,"PENDING");
+      return pendingHtml;
+    }
+ else   if (status === "PAID") {
+      const userData = await User.findOne({ company_ID: udf1 }).populate({
+        path: "roleId",
+        match: { name: "Agency" },
+      });
+
+      // const findUser = await User.findById(userData._id);
+      // const configData = await agentConfig
+      //   .findOne({ userId: userData._id })
+      //   .populate("diSetupIds")
+      //   .populate({
+      //     path: "diSetupIds",
+      //     populate: {
+      //       path: "diSetupIds", // If diSetupIds contains another reference
+      //       model: "diSetup",
+      //     },
+      //   });
+      // // console.log(configData, "configData");
+      // // const doerId = req.user._id;
+      // const loginUser = userData._id;
+      // console.log(loginUser, "loginUser");
+      // let DIdata = await recieveDI(
+      //   configData,
+      //   findUser,
+      //   productinfo,
+      //   udf2,
+      //   loginUser,
+      //   txnid
+      // );
+      // console.log(DIdata, "DIdata1");
+      // return false;
+      if (userData) {
+        const getAgentConfigForUpdate = await agentConfig.findOne({
+          userId: userData._id,
+        });
+        const maxCreditAmount = getAgentConfigForUpdate?.railCashBalance ?? 0;
+        const newBalanceAmount = maxCreditAmount + Number(amount);
+
+        await agentConfig.findOneAndUpdate(
+          { userId: userData._id },
+          { railCashBalance: newBalanceAmount },
+          { new: true }
+        );
+        await Railledger.create({
+          userId: userData._id,
+          companyId: userData.company_ID,
+          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+          transactionId: txnid,
+          transactionAmount: amount,
+          currencyType: "INR",
+          fop: "CREDIT",
+          transactionType: "CREDIT",
+          runningAmount: newBalanceAmount,
+          remarks: "Manual Wallet Amount Credited into Your Account.",
+          transactionBy: userData._id,
+        });
+
+        if (Number(udf3) !== 0) {
+          await Railledger.create({
+            userId: userData._id,
+            companyId: userData.company_ID,
+            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
+            transactionId: txnid,
+            transactionAmount: udf3,
+            currencyType: "INR",
+            fop: "DEBIT",
+            transactionType: "DEBIT",
+            runningAmount: newBalanceAmount - udf3,
+            remarks:  `Manual AUTO_PGcharges(${payment_source??"Lyra"})`,
+            transactionBy: userData._id,
+          });
+          await agentConfig.findOneAndUpdate(
+            { userId: userData._id },
+            { railCashBalance: newBalanceAmount - udf3 },
+            { new: true }
+          );
+        }
+
+        console.log("hjdsdh");
+        // if (DIdata !== null || DIdata !== 0) {
+        //   let tdsAmount = DIdata * (2 / 100);
+        //   // console.log(tdsAmount, "tdsAmount");
+        //   if (tdsAmount != 0) {
+        //     tdsAmount = await priceRoundOffNumberValues(tdsAmount);
+        //     // console.log(tdsAmount, "tdsAmount2");
+        //     // console.log("hjdsdh12");
+        //     const findUser = await User.findById(userData._id);
+        //     console.log(findUser, "findUser");
+        //     const configData = await agentConfig.findOne({
+        //       userId: userData._id,
+        //     });
+        //     console.log(configData, "configData");
+        //     if (!configData) {
+        //       return {
+        //         response: "User not found",
+        //       };
+        //     }
+        //     if (productinfo === "Rail") {
+        //       if (configData?.railCashBalance < amount) {
+        //         return { response: "Insufficient Balance" };
+        //       }
+        //       configData.railCashBalance -= tdsAmount;
+        //       runningAmount = configData.maxRailCredit;
+        //     }
+        //     // if (productinfo === "Flight") {
+        //     //   if (configData?.maxcreditLimit < amount) {
+        //     //     return { response: "Insufficient Balance" };
+        //     //   }
+        //     //   configData.maxcreditLimit -= tdsAmount;
+        //     //   runningAmount = configData.maxcreditLimit;
+        //     // }
+        //     // console.log(runningAmount, "runningAmount");
+        //     await configData.save();
+        //     // const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
+        //     // console.log(runningAmount, "runningAmount");
+        //     // await Railledger.create({
+        //     //   userId: findUser._id,
+        //     //   companyId: findUser.company_ID,
+        //     //   ledgerId: ledgerId,
+        //     //   transactionId: txnid,
+        //     //   transactionAmount: tdsAmount,
+        //     //   currencyType: "INR",
+        //     //   fop: "DEBIT",
+        //     //   transactionType: "DEBIT",
+        //     //   runningAmount,
+        //     //   remarks: `TDS against ${tdsAmount} DI deposit.`,
+        //     //   transactionBy: userData._id,
+        //     //   productinfo,
+        //     // });
+        //   }
+        // }
+
+        await transaction.create({
+          userId: userData._id,
+          companyId: userData.company_ID,
+          trnsNo: txnid,
+          trnsType: "DEBIT",
+          paymentMode: PG_TYPE,
+          paymentGateway: payment_source ?? "Lyra",
+          trnsStatus: "success",
+          transactionBy: userData._id,
+          transactionAmount: Number(udf2) + Number(udf3),
+          pgCharges: udf3,
+        });
+
+        successHtmlCode = sendSuccessHtml(Config[Config.MODE].baseURL);
+        return successHtmlCode;
+      } else {
+        return "Data does not exist";
+      }
+    } else {
+      const failedHtml = sendFailedHtml(Config[Config.MODE].baseURL);
+      return failedHtml;
+    }
+
+  }catch(error){
+    throw error
+  }
+
+}
+
+//  lyra and phonepe flight booking common success
+
+const lyraAndPhonePeFlightBookingCommonSucess = async (body) => {
+   try {
     const {
       udf1,
       udf2,
@@ -215,7 +896,8 @@ const lyraSuccess = async (req, res) => {
       PG_TYPE,
       cardCategory,
       txnid,
-    } = await fetchChargeDetails(vads_charge_uuid);
+      payment_source
+    } = body;
 
     const CheckAllereadyBooking = await BookingDetails.find({
       bookingId: udf1,
@@ -421,7 +1103,7 @@ const lyraSuccess = async (req, res) => {
           fop: "DEBIT",
           transactionType: "CREDIT",
           runningAmount: newBalanceCredit,
-          remarks: "Booking Amount Deducted from Your Account(Lyra).",
+          remarks: `Booking Amount Deducted from Your Account(${payment_source??"Lyra"}).`,
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
@@ -437,7 +1119,7 @@ const lyraSuccess = async (req, res) => {
           fop: "DEBIT",
           transactionType: "DEBIT",
           runningAmount: runningAmountShow - totalItemAmount,
-          remarks: "Booking Amount Deducted from Your Account(Lyra).",
+          remarks: `Booking Amount Deducted from Your Account(${payment_source??"Lyra"}).`,
           transactionBy: getuserDetails._id,
           cartId: udf1,
         });
@@ -539,9 +1221,9 @@ const lyraSuccess = async (req, res) => {
                 type: "Portal log",
                 BookingId: udf1,
                 product: "Flight",
-                logName: "Lyra Response",
+                logName: `${payment_source??"Lyra"} Response` ,
                 request: "Request captured from portal",
-                responce: req.body,
+                responce: body,
               };
               Logs(logData);
               Logs(logData1);
@@ -838,7 +1520,7 @@ const lyraSuccess = async (req, res) => {
             trnsType: "DEBIT",
             // paymentMode: "Payu",
             paymentMode: PG_TYPE,
-            paymentGateway: "Lyra",
+            paymentGateway: payment_source??"Lyra",
             trnsStatus: "success",
             transactionBy: Authentication.UserId,
             pgCharges: udf3,
@@ -913,648 +1595,7 @@ const lyraSuccess = async (req, res) => {
   } catch (error) {
     throw error;
   }
-};
-
-const lyraWalletResponceSuccess = async (req, res) => {
-  try {
-    const { vads_charge_uuid, vads_order_info, vads_ctx_mode } = req.body;
-    let bodyForCommon =
-      await fetchChargeDetails(vads_charge_uuid, vads_ctx_mode)
-      return await lyraAndPhonePeFlightCommonSucess(bodyForCommon);
-  } catch (error) {
-    throw error;
-  }
-};
-
-const lyraAndPhonePeFlightCommonSucess=async(body)=>{
-  try {
-    // const { vads_charge_uuid, vads_order_info, vads_ctx_mode } = req.body;
-    let { status, txnid, udf1, udf2, udf3, amount, PG_TYPE,payment_source } =body
-      // await fetchChargeDetails(vads_charge_uuid, vads_ctx_mode);
-    let productinfo = "Flight";
-    amount = Number(udf2) + Number(udf3);
-
-    var successHtmlCode;
-    const findtransaction = await transaction.find({ trnsNo: txnid });
-    if (findtransaction.length > 0) {
-      successHtmlCode = sendSuccessHtml(Config[Config.MODE].baseURL);
-      return successHtmlCode;
-    } else if (status === "PAID") {
-      const userData = await User.findOne({ company_ID: udf1 }).populate({
-        path: "roleId",
-        match: { name: "Agency" },
-      });
-
-      // const findUser = await User.findById(userData._id);
-      // const configData = await agentConfig
-      //   .findOne({ userId: userData._id })
-      //   .populate("diSetupIds")
-      //   .populate({
-      //     path: "diSetupIds",
-      //     populate: {
-      //       path: "diSetupIds", // If diSetupIds contains another reference
-      //       model: "diSetup",
-      //     },
-      //   });
-      // // console.log(configData, "configData");
-      // // const doerId = req.user._id;
-      // const loginUser = userData._id;
-      // console.log(loginUser, "loginUser");
-      var DIdata;
-      if (PG_TYPE == "CC-PG" || PG_TYPE == "UPI-PG") {
-        DIdata = 0;
-      } else {
-        DIdata = 0;
-
-        //  DIdata = await recieveDI(
-        //   configData,
-        //   findUser,
-        //   productinfo,
-        //   udf2,
-        //   loginUser,
-        //   txnid
-        // );
-      }
-
-      // console.log(DIdata, "DIdata1");
-      // return false;
-      if (userData) {
-        const getAgentConfigForUpdate = await agentConfig.findOne({
-          userId: userData._id,
-        });
-        const maxCreditAmount = getAgentConfigForUpdate?.maxcreditLimit ?? 0;
-        const newBalanceAmount = maxCreditAmount + Number(amount);
-
-        await agentConfig.findOneAndUpdate(
-          { userId: userData._id },
-          { maxcreditLimit: newBalanceAmount },
-          { new: true }
-        );
-        await ledger.create({
-          userId: userData._id,
-          companyId: userData.company_ID,
-          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionId: txnid,
-          transactionAmount: amount,
-          currencyType: "INR",
-          fop: "CREDIT",
-          transactionType: "CREDIT",
-          runningAmount: newBalanceAmount,
-          remarks: "Wallet Amount Credited into Your Account.",
-          transactionBy: userData._id,
-        });
-
-        await ledger.create({
-          userId: userData._id,
-          companyId: userData.company_ID,
-          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionId: txnid,
-          transactionAmount: udf3,
-          currencyType: "INR",
-          fop: "DEBIT",
-          transactionType: "DEBIT",
-          runningAmount: newBalanceAmount - udf3,
-          remarks: `Manual AUTO_PGcharges(${payment_source??"Lyra"})`,
-          transactionBy: userData._id,
-        });
-        await agentConfig.findOneAndUpdate(
-          { userId: userData._id },
-          { maxcreditLimit: newBalanceAmount - udf3 },
-          { new: true }
-        );
-        if (DIdata !== null || DIdata !== 0) {
-          let tdsAmount = DIdata * (2 / 100);
-          // console.log(tdsAmount, "tdsAmount");
-          if (tdsAmount != 0) {
-            tdsAmount = await priceRoundOffNumberValues(tdsAmount);
-            // console.log(tdsAmount, "tdsAmount2");
-            // console.log("hjdsdh12");
-            const findUser = await User.findById(userData._id);
-            // console.log(findUser, "findUser");
-            const configData = await agentConfig.findOne({
-              userId: userData._id,
-            });
-            // console.log(configData, "configData");
-            if (!configData) {
-              return {
-                response: "User not found",
-              };
-            }
-            if (productinfo === "Rail") {
-              if (configData?.maxcreditLimit < amount) {
-                return { response: "Insufficient Balance" };
-              }
-              configData.maxRailCredit -= tdsAmount;
-              runningAmount = configData.maxRailCredit;
-            }
-            if (productinfo === "Flight") {
-              if (configData?.maxcreditLimit < amount) {
-                return { response: "Insufficient Balance" };
-              }
-              configData.maxcreditLimit -= tdsAmount;
-              runningAmount = configData.maxcreditLimit;
-            }
-            // console.log(runningAmount, "runningAmount");
-            await configData.save();
-            const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-            // console.log(runningAmount, "runningAmount");
-            await ledger.create({
-              userId: findUser._id,
-              companyId: findUser.company_ID,
-              ledgerId: ledgerId,
-              transactionId: txnid,
-              transactionAmount: tdsAmount,
-              currencyType: "INR",
-              fop: "DEBIT",
-              transactionType: "DEBIT",
-              runningAmount,
-              remarks: `Manual AUTO_TDS`,
-              transactionBy: userData._id,
-              productinfo,
-            });
-          }
-        }
-
-        await transaction.create({
-          userId: userData._id,
-          companyId: userData.company_ID,
-          trnsNo: txnid,
-          trnsType: "DEBIT",
-          paymentMode: PG_TYPE,
-          paymentGateway: payment_source ?? "Lyra",
-          trnsStatus: "success",
-          transactionBy: userData._id,
-          transactionAmount: Number(udf2) + Number(udf3),
-          pgCharges: udf3,
-        });
-
-        successHtmlCode = await sendSuccessHtml(Config[Config.MODE].baseURL);
-        return successHtmlCode;
-      } else {
-        return "Data does not exist";
-      }
-    } else {
-      const failedHtml = await sendFailedHtml(Config[Config.MODE].baseURL);
-      return failedHtml;
-    }
-  } catch (error) {
-    throw error;
-  }
 }
-
-const lyraWalletRailResponceSuccess = async (req, res) => {
-  try {
-    const { vads_charge_uuid, vads_order_info } = req.body;
-    let { status, txnid, udf1, udf2, udf3, amount, PG_TYPE } =
-      await fetchChargeDetails(vads_charge_uuid);
-    let productinfo = "Rail";
-    amount = Number(udf2) + Number(udf3);
-    // console.log("shadaab ali");
-    //productinfo = product udf3= pgcharges;
-    var successHtmlCode;
-    const findtransaction = await transaction.find({ trnsNo: txnid });
-    if (findtransaction.length > 0) {
-      successHtmlCode = sendSuccessHtml(Config[Config.MODE].baseURL);
-      return successHtmlCode;
-    }
-    if (status === "PAID") {
-      const userData = await User.findOne({ company_ID: udf1 }).populate({
-        path: "roleId",
-        match: { name: "Agency" },
-      });
-
-      const findUser = await User.findById(userData._id);
-      const configData = await agentConfig
-        .findOne({ userId: userData._id })
-        .populate("diSetupIds")
-        .populate({
-          path: "diSetupIds",
-          populate: {
-            path: "diSetupIds", // If diSetupIds contains another reference
-            model: "diSetup",
-          },
-        });
-      // console.log(configData, "configData");
-      // const doerId = req.user._id;
-      const loginUser = userData._id;
-      // console.log(loginUser, "loginUser");
-      // let DIdata = await recieveDI(
-      //   configData,
-      //   findUser,
-      //   productinfo,
-      //   udf2,
-      //   loginUser,
-      //   txnid
-      // );
-      // console.log(DIdata, "DIdata1");
-      // return false;
-      if (userData) {
-        const getAgentConfigForUpdate = await agentConfig.findOne({
-          userId: userData._id,
-        });
-        const maxCreditAmount = getAgentConfigForUpdate?.railCashBalance ?? 0;
-        const newBalanceAmount = maxCreditAmount + Number(amount);
-
-        await agentConfig.findOneAndUpdate(
-          { userId: userData._id },
-          { railCashBalance: newBalanceAmount },
-          { new: true }
-        );
-        await Railledger.create({
-          userId: userData._id,
-          companyId: userData.company_ID,
-          ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-          transactionId: txnid,
-          transactionAmount: amount,
-          currencyType: "INR",
-          fop: "CREDIT",
-          transactionType: "CREDIT",
-          runningAmount: newBalanceAmount,
-          remarks: "Manual Wallet Amount Credited into Your Account.",
-          transactionBy: userData._id,
-        });
-
-        if (Number(udf3) !== 0) {
-          await Railledger.create({
-            userId: userData._id,
-            companyId: userData.company_ID,
-            ledgerId: "LG" + Math.floor(100000 + Math.random() * 900000),
-            transactionId: txnid,
-            transactionAmount: udf3,
-            currencyType: "INR",
-            fop: "DEBIT",
-            transactionType: "DEBIT",
-            runningAmount: newBalanceAmount - udf3,
-            remarks: "Manual Wallet debited for PG charges(Lyra)",
-            transactionBy: userData._id,
-          });
-          await agentConfig.findOneAndUpdate(
-            { userId: userData._id },
-            { railCashBalance: newBalanceAmount - udf3 },
-            { new: true }
-          );
-        }
-
-        console.log("hjdsdh");
-        // if (DIdata !== null || DIdata !== 0) {
-        //   let tdsAmount = DIdata * (2 / 100);
-        //   // console.log(tdsAmount, "tdsAmount");
-        //   if (tdsAmount != 0) {
-        //     tdsAmount = await priceRoundOffNumberValues(tdsAmount);
-        //     // console.log(tdsAmount, "tdsAmount2");
-        //     // console.log("hjdsdh12");
-        //     const findUser = await User.findById(userData._id);
-        //     console.log(findUser, "findUser");
-        //     const configData = await agentConfig.findOne({
-        //       userId: userData._id,
-        //     });
-        //     console.log(configData, "configData");
-        //     if (!configData) {
-        //       return {
-        //         response: "User not found",
-        //       };
-        //     }
-        //     if (productinfo === "Rail") {
-        //       if (configData?.railCashBalance < amount) {
-        //         return { response: "Insufficient Balance" };
-        //       }
-        //       configData.railCashBalance -= tdsAmount;
-        //       runningAmount = configData.maxRailCredit;
-        //     }
-        //     // if (productinfo === "Flight") {
-        //     //   if (configData?.maxcreditLimit < amount) {
-        //     //     return { response: "Insufficient Balance" };
-        //     //   }
-        //     //   configData.maxcreditLimit -= tdsAmount;
-        //     //   runningAmount = configData.maxcreditLimit;
-        //     // }
-        //     // console.log(runningAmount, "runningAmount");
-        //     await configData.save();
-        //     // const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000); // Example random number generation
-        //     // console.log(runningAmount, "runningAmount");
-        //     // await Railledger.create({
-        //     //   userId: findUser._id,
-        //     //   companyId: findUser.company_ID,
-        //     //   ledgerId: ledgerId,
-        //     //   transactionId: txnid,
-        //     //   transactionAmount: tdsAmount,
-        //     //   currencyType: "INR",
-        //     //   fop: "DEBIT",
-        //     //   transactionType: "DEBIT",
-        //     //   runningAmount,
-        //     //   remarks: `TDS against ${tdsAmount} DI deposit.`,
-        //     //   transactionBy: userData._id,
-        //     //   productinfo,
-        //     // });
-        //   }
-        // }
-
-        await transaction.create({
-          userId: userData._id,
-          companyId: userData.company_ID,
-          trnsNo: txnid,
-          trnsType: "DEBIT",
-          paymentMode: PG_TYPE,
-          paymentGateway: "Lyra",
-          trnsStatus: "success",
-          transactionBy: userData._id,
-          transactionAmount: Number(udf2) + Number(udf3),
-          pgCharges: udf3,
-        });
-
-        successHtmlCode = sendSuccessHtml(Config[Config.MODE].baseURL);
-        return successHtmlCode;
-      } else {
-        return "Data does not exist";
-      }
-    } else {
-      const failedHtml = sendFailedHtml(Config[Config.MODE].baseURL);
-      return failedHtml;
-    }
-  } catch (error) {
-    throw error;
-  }
-};
-
-const payuRailSuccess = async (req, res) => {
-  try {
-    const {
-      status,
-      txnid,
-      productinfo,
-      udf1,
-      udf2,
-      udf3,
-      amount,
-      payment_source,
-      bank_ref_num,
-      PG_TYPE,
-      cardCategory,
-    } = req.body;
-
-    const CheckAllereadyBooking = await RailBookingDetail.find({
-      CartId: udf1,
-      bookingStatus: { $ne: "INCOMPLETE" },
-    });
-    if (CheckAllereadyBooking.length) {
-      let successHtmlCode = `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Payment Success</title>
-          <style>
-          .success-txt{
-            color: #51a351;
-          }
-          body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f2f2f2;
-          }
-          
-          .success-container {
-            max-width: 400px;
-            width: 100%;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #fff;
-            text-align: center;
-          }
-          .success-container p {
-            margin-top: 10px;
-          }
-          
-          .success-container a {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-          }
-          
-          .success-container a:hover {
-            background-color: #0056b3;
-          }
-        </style>
-    
-        </head>
-        <body>
-          <div class="success-container">
-            <h1 class="success-txt">Payment Successful!</h1>
-            <p class="success-txt">Your payment has been successfully processed.</p>
-            <p>Thank you for your purchase.</p>
-            <a href="${
-              Config[Config.MODE].baseURL
-            }/home/manageFlightBooking/cart-details-review?bookingId=${udf1}">Go to Merchant...</a>
-          </div>
-        </body>
-        </html>`;
-      return successHtmlCode;
-    } else if (status === "success") {
-      const agentData = await RailBookingDetail.aggregate([
-        {
-          $match: {
-            cartId: udf1,
-          },
-        },
-        {
-          $lookup: {
-            from: "agentconfigurations",
-            localField: "userId",
-            foreignField: "userId",
-            as: "agentData",
-          },
-        },
-        {
-          $unwind: {
-            path: "$agentData",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $lookup: {
-            from: "companies",
-            localField: "AgencyId",
-            foreignField: "_id",
-            as: "ComapnyData",
-          },
-        },
-        {
-          $unwind: {
-            path: "$ComapnyData",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-      ]);
-      // console.log("jsoeo",agentData);
-
-      if (agentData.length == 0) {
-        throw new Error("Data not found");
-      }
-
-      let runningAmount = agentData[0].agentData?.railCashBalance || 0;
-      const userData = agentData[0]?.agentData || null;
-      const CompnayData = agentData[0]?.ComapnyData;
-      const parsedAmount = Number(amount);
-      const parsedPgCharges = Number(udf3);
-      const initialRunningAmount = Number(runningAmount);
-
-      runningAmount += parsedAmount;
-      await createLedgerEntry({
-        userId: userData.userId,
-        companyId: CompnayData._id,
-        transactionType: "CREDIT",
-        transactionAmount: parsedAmount,
-        updatedRunningAmount: runningAmount,
-        remarks: "Credit Ticket Amount.",
-        txnid,
-      });
-
-      const debitAmountWithoutPgCharges = parsedAmount - parsedPgCharges;
-      runningAmount -= debitAmountWithoutPgCharges;
-      await createLedgerEntry({
-        userId: userData.userId,
-        companyId: CompnayData._id,
-        transactionType: "DEBIT",
-        transactionAmount: debitAmountWithoutPgCharges,
-        updatedRunningAmount: runningAmount,
-        remarks: "Debited Ticket Amount.",
-        txnid,
-      });
-
-      if (parsedPgCharges > 0) {
-        runningAmount -= parsedPgCharges;
-        await createLedgerEntry({
-          userId: userData.userId,
-          companyId: CompnayData._id,
-          transactionType: "DEBIT",
-          transactionAmount: parsedPgCharges,
-          updatedRunningAmount: runningAmount,
-          remarks: "Debited for PG charges (PayU).",
-          txnid,
-        });
-      }
-
-      const wsLoginUrl =
-        req.headers.host == "localhost:3111" ||
-        req.headers.host == "kafila.traversia.net"
-          ? Config?.TEST?.IRCTC_BASE_URL + "/eticketing/wsapplogin"
-          : Config?.LIVE?.IRCTC_BASE_URL + "/eticketing/wsapplogin";
-      let irctcLoginFormFields = {
-        wsTxnId: udf1,
-        wsloginId: CompnayData?.railSubAgentId,
-        wsReturnUrl:
-          req.headers.host == "localhost:3111" ||
-          req.headers.host == "kafila.traversia.net"
-            ? Config?.TEST?.baseURLBackend + "/api/rail/bookingSave"
-            : Config?.LIVE?.baseURLBackend + "/api/rail/bookingSave",
-      };
-
-      await transaction.create({
-        userId: agentData?.userId,
-        bookingId: udf3,
-        companyId: CompnayData?._id,
-        trnsNo: txnid,
-        trnsType: "DEBIT",
-        // paymentMode: "Payu",
-        paymentMode: PG_TYPE,
-        paymentGateway: "PayU",
-        trnsStatus: "success",
-        transactionBy: agentData?.userId,
-        pgCharges: udf3,
-        transactionAmount: parsedAmount,
-        statusDetail: "APPROVED OR COMPLETED SUCCESSFULLY",
-        trnsNo: txnid,
-        trnsBankRefNo: bank_ref_num,
-        cardType: cardCategory,
-      });
-
-      // const agentData=await agentConfig.findOne({userId:Authentication.userId})
-
-      await RailBookingDetail.findOneAndUpdate(
-        { cartId: udf1 },
-        { $set: { bookingStatus: "PENDING" } },
-        { new: true }
-      );
-
-      let successHtmlCode = `<!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Payment Success</title>
-        <style>
-        .success-txt{
-          color: #51a351;
-        }
-        body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          background-color: #f2f2f2;
-        }
-        
-        .success-container {
-          max-width: 400px;
-          width: 100%;
-          padding: 20px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          background-color: #fff;
-          text-align: center;
-        }
-        .success-container p {
-          margin-top: 10px;
-        }
-        
-        .success-container a {
-          display: inline-block;
-          margin-top: 20px;
-          padding: 10px 20px;
-          background-color: #007bff;
-          color: #fff;
-          text-decoration: none;
-          border-radius: 5px;
-        }
-        
-        .success-container a:hover {
-          background-color: #0056b3;
-        }
-      </style>
-  
-      </head>
-      <body>
-       <form id="redirectForm" method="POST" action="${wsLoginUrl}">
-            <input type="hidden" name="wsloginId" value='${irctcLoginFormFields.wsloginId}' />
-            <input type="hidden" name="wsTxnId" value='${irctcLoginFormFields.wsTxnId}' />
-            <input type="hidden" name="wsReturnUrl" value='${irctcLoginFormFields.wsReturnUrl}' />
-          </form>
-          <script>
-            document.getElementById("redirectForm").submit();
-          </script>
-      </body>
-      </html>`;
-
-      return successHtmlCode;
-    } else {
-    }
-  } catch (error) {
-    throw error;
-  }
-};
 
 module.exports = {
   lyraRedirectLink,
@@ -1562,4 +1603,6 @@ module.exports = {
   lyraWalletResponceSuccess,
   lyraWalletRailResponceSuccess,
   lyraAndPhonePeFlightCommonSucess,
+  phonePeAndLyraRailWalletSucess,
+  lyraAndPhonePeFlightBookingCommonSucess,
 };

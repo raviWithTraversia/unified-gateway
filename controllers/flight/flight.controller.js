@@ -13,6 +13,7 @@ const amadeus = require("./amadeus/searchFlights.service");
 const Config = require("../../configs/config");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const BookingTemp = require("../../models/booking/BookingTemp");
+const fixedFareData=require('./fixedFare.service')
 
 
 const {
@@ -1114,6 +1115,37 @@ async function addTravellers(req, res) {
   }
 }
 
+const getFixedFare=async(req,res)=>{
+  try {
+    const result = await fixedFareData.getFixedFareService(req, res);
+    if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "fixed Fare Details found sucessfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    }
+     else {
+      apiErrorres(
+        res,
+        result.response || errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(
+      res,
+      error?.message || errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
 module.exports = {
   getSearch,
   airPricing,
@@ -1139,4 +1171,5 @@ module.exports = {
   getPnrTicket,
   getAllTravellers,
   addTravellers,
+  getFixedFare
 };

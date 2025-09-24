@@ -2281,7 +2281,7 @@ const sendSuccessHtml=(URL)=>{
             return successHtmlCode;
 }
 
-const sendFailedHtml=(URL)=>{
+const sendFailedHtml=(URL,status="Failed")=>{
   const successHtmlCode = ` <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -2330,7 +2330,7 @@ const sendFailedHtml=(URL)=>{
         </head>
         <body>
           <div class="failed-container">
-            <h1 class="failed-txt">Payment Failed!</h1>
+            <h1 class="failed-txt">Payment ${status}!</h1>
             <p class="failed-txt">Your payment has failed.</p>
             <p>Please try again later.</p>
             <a href="${

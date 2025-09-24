@@ -1,6 +1,6 @@
 const phonePeSearvice = require("./phonePe.service");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
-const {lyraAndPhonePeFlightCommonSucess}=require('../lyraPg/lyraService')
+const {lyraAndPhonePeFlightCommonSucess,phonePeAndLyraRailWalletSucess,lyraAndPhonePeFlightBookingCommonSucess}=require('../lyraPg/lyraService')
 const {
     ServerStatusCode,
     errorResponse,
@@ -20,7 +20,7 @@ const {
       return apiErrorres(res, error.message,500,false);
     }
   };
-  const phonePeSuccess = async (req, res) => {
+  const phonePeFlightWalletSuccess = async (req, res) => {
     try {
       const response = await phonePeSearvice.phonePeSuccess(req,res);
       if(response?.response == "failed to get phonePe Token"){
@@ -28,6 +28,8 @@ const {
       }
       else if(response?.response == "success"){
     let htmlData= await lyraAndPhonePeFlightCommonSucess(response.data);
+      res.setHeader("Content-Type", "text/html"); // ✅ Important
+
     res.send(htmlData);
 }
 else {
@@ -39,7 +41,45 @@ else {
     }
   };
 
+  const phonePeRailWalletSuccess = async (req, res) => {
+    try {
+      const response = await phonePeSearvice.phonePeSuccess(req,res);
+      if(response?.response == "failed to get phonePe Token"){
+        return apiErrorres(res, response.response, 400, false);
+      }
+      else if(response?.response == "success"){
+    let htmlData= await phonePeAndLyraRailWalletSucess(response.data);
+    res.send(htmlData);
+}
+else {
+    apiErrorres(res, response.response, 400, response.data);
+}
+      
+    } catch (error) {
+      return apiErrorres(res, error.message,500,false);
+    }
+  };
+  const phonePeFlightBookingSuccess = async (req, res) => {
+    try {
+      const response = await phonePeSearvice.phonePeSuccess(req,res);
+      if(response?.response == "failed to get phonePe Token"){
+        return apiErrorres(res, response.response, 400, false);
+      }
+      else if(response?.response == "success"){
+    let htmlData= await lyraAndPhonePeFlightBookingCommonSucess(response.data);
+    res.send(htmlData);
+}
+else {
+    apiErrorres(res, response.response, 400, response.data);
+}
+      
+    } catch (error) {
+      return apiErrorres(res, error.message,500,false);
+    }
+  };
   module.exports = {
     phonePeInitiatePayment,
-    phonePeSuccess
+    phonePeFlightWalletSuccess,
+    phonePeRailWalletSuccess,
+    phonePeFlightBookingSuccess
   };

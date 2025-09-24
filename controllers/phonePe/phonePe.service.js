@@ -96,7 +96,7 @@ function createPhonePeBody(body) {
         agentId,
         paymentType
     } = body
-    let merchantIdUnique = `${agentId}_${Date.now()}`
+    let merchantIdUnique =crypto.createHash("sha256").update(`${agentId}_${Date.now()}`).digest("hex").slice(0, 35);// `${agentId}_${Date.now()}`
     let url = "";
     if (
         paymentFor.toLowerCase() == "wallet" &&
@@ -107,7 +107,7 @@ function createPhonePeBody(body) {
         productinfo.toLowerCase() == "flight" &&
         paymentFor.toLowerCase() == "booking"
     ) {
-        url = "lyra/phonepe/success";
+        url = "flight/phonepe/success";
     } else if (
         productinfo.toLowerCase() == "rail" &&
         paymentFor.toLowerCase() == "wallet"
@@ -138,7 +138,15 @@ function createPhonePeBody(body) {
         };
     }
 
-
+let enablePayments=[enabledPaymentMode]
+if(paymentType === "UPI"){
+    enablePayments.push({
+                    "type": "UPI_COLLECT"
+                },
+                {
+                    "type": "UPI_QR"
+                },);
+}
     const apiBody = {
 
         "merchantOrderId": merchantIdUnique,
@@ -161,7 +169,7 @@ function createPhonePeBody(body) {
                 // redirectUrl: `http://localhost:3111/api/${url}?merchantId=${merchantIdUnique}&credentialType=${Authentication?.CredentialType}`,
             },
             "paymentModeConfig": {
-                enabledPaymentModes: [enabledPaymentMode]
+                enabledPaymentModes: enablePayments
 
                 // "disabledPaymentModes": [
                 //     {
@@ -227,8 +235,9 @@ const phonePeSuccess = async (req, res) => {
             }
 
         }
+        commonFunctionsPGLogs(Config?.TMCID, Config?.TMCID, bookingId, "PG", `${Config[credentialType ?? "TEST"]?.phonePePaymentDetailUrl}/${bookingId}/status?details=false`, null, response?.data)
         const chnageResponse = {
-            status: response?.data?.state === "COMPLETED" ? "PAID" : response?.data?.state === "FAILED" ? "Failed" : "Pending", txnid: `${response?.data?.orderId}_${bookingId}`, bookingId: response?.data?.orderId, udf1: response?.data?.metaInfo?.udf1, udf2: response?.data?.metaInfo?.udf2, udf3: response?.data?.metaInfo?.udf3, amount: response?.data?.amount, PG_TYPE: convetToPgType(response?.data?.metaInfo?.udf4), payment_source: "phonePe"
+            status: response?.data?.state === "COMPLETED" ? "PAID" : response?.data?.state === "FAILED" ? "Failed" : "Pending", txnid: `${response?.data?.orderId}_${bookingId}`, bookingId: response?.data?.orderId, udf1: response?.data?.metaInfo?.udf1, udf2: response?.data?.metaInfo?.udf2, udf3: response?.data?.metaInfo?.udf3, amount: response?.data?.amount, PG_TYPE: convetToPgType(response?.data?.metaInfo?.udf4), payment_source: "phonePe",bank_ref_num:response?.data?.orderId,cardCategory:response?.data?.metaInfo?.udf4
         }
 
         return {

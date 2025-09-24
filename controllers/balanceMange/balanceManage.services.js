@@ -843,8 +843,8 @@ const configData=await agentConfig.findOne({userId:doerId});
 
 const getBalanceTmc = async (req, res) => {
   try {
-    var Url = "";
-    var payload = {};
+    let Url = "";
+    let payload = {};
     if (
       req.headers.host == "localhost:3111" ||
       req.headers.host == "kafila.traversia.net"

@@ -2331,7 +2331,7 @@ const sendFailedHtml=(URL,status="Failed")=>{
         <body>
           <div class="failed-container">
             <h1 class="failed-txt">Payment ${status}!</h1>
-            <p class="failed-txt">Your payment has failed.</p>
+            <p class="failed-txt">Your payment has ${status}.</p>
             <p>Please try again later.</p>
             <a href="${
               URL

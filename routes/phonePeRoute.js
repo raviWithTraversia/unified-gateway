@@ -11,7 +11,7 @@ phonePe.post('/api/paymentGateway/phonePe', auth,phonePeInitiatePayment);
 phonePe.get('/api/flight/phonepe/wallet/success', phonePeFlightWalletSuccess);
 phonePe.get('/api/rail/phonepe/wallet/success', phonePeRailWalletSuccess);
 phonePe.get("/api/flight/phonepe/success",phonePeFlightBookingSuccess)
-phonePe.get("/phonepe/webhook", phonePeWebhoockUrlIntegration);
+phonePe.post("/phonepe/webhook", phonePeWebhoockUrlIntegration);
 
 // phonePe.post('/paymentGateway/easeBussResponce', auth, easeBuzzController.easeBuzzResponce);
 

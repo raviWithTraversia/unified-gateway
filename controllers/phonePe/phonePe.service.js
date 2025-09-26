@@ -3,11 +3,16 @@ const { Config } = require("../../configs/config");
 const { create } = require("lodash");
 const {commonFunctionsPGLogs}=require('../commonFunctions/common.function')
 const crypto = require("crypto");
+const phonePeBerarToken=require('../../models/Logs/phonePeBerarToken')
+
 
 const phonePeAuthentication = async (credentialType) => {
     // let logs
     try {
-
+const phonePeToken=await phonePeBerarToken.findOne({expiresAt:{$gt:Date.now()}}).sort({createdAt:-1}).lean()
+        if (phonePeToken) {
+            return phonePeToken.berarToken
+        }
 
         const body = {
             "client_id": Config[credentialType ?? "TEST"]?.phonePeClientId,
@@ -16,6 +21,7 @@ const phonePeAuthentication = async (credentialType) => {
             "grant_type": "client_credentials"
         }
 let url=Config[credentialType ?? "TEST"]?.phonePeAuthUrl
+
   
         const response = await axios.post(url, body, {
             headers: {
@@ -26,10 +32,18 @@ let url=Config[credentialType ?? "TEST"]?.phonePeAuthUrl
             return false;
 
         }
+        await phonePeBerarToken.deleteMany({});
+
+        await phonePeBerarToken.create({
+            berarToken: response.data.access_token,
+            expiresAt: response.data.expires_at * 1000 // convert seconds -> ms
+        });
+
+        return response.data.access_token;
         // logs.res = JSON.stringify(response)
         // commonFunctionsPGLogs(logs)
 
-        return response?.data?.access_token
+        // return response?.data?.access_token
     }
     catch (e) {
         // logs.res = JSON.stringify(e)
@@ -151,7 +165,7 @@ if(paymentType === "UPI"){
 
         "merchantOrderId": merchantIdUnique,
         "amount": apiAmount,
-        // "expireAfter": 1200,
+        "expireAfter": 300,
         "metaInfo": {
             "udf1": bookingId,
             "udf2": normalAmount,
@@ -206,6 +220,9 @@ if(paymentType === "UPI"){
 
 
 }
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 const phonePeSuccess = async (req, res) => {
     const bookingId = req.query.merchantId;        // "12345"
     const credentialType = req.query.credentialType; // "wallet"
@@ -214,7 +231,7 @@ const phonePeSuccess = async (req, res) => {
             response: "failed to get phonePe Token"
         }
     }
-
+let i=1
     const berarToken = await phonePeAuthentication(credentialType)
     if (!berarToken) {
         return {
@@ -226,7 +243,9 @@ const phonePeSuccess = async (req, res) => {
         "Authorization": `O-Bearer ${berarToken}`
     }
     try {
-        const response = await axios.get(`${Config[credentialType ?? "TEST"]?.phonePePaymentDetailUrl}/${bookingId}/status?details=false`, {
+        let response
+        do {
+response = await axios.get(`${Config[credentialType ?? "TEST"]?.phonePePaymentDetailUrl}/${bookingId}/status?details=false`, {
             headers: headers
         })
         if (!response?.data) {
@@ -235,6 +254,15 @@ const phonePeSuccess = async (req, res) => {
             }
 
         }
+        i++
+        if (response.data.state.toUpperCase() === "PENDING") {
+            await delay(15000); // 15000 ms = 15 seconds
+        }
+        }
+        while (response?.data?.state.toUpperCase() === "PENDING")
+
+
+        // if(response?.data?.state.toUpperCase()==="PENDING")
         commonFunctionsPGLogs(Config?.TMCID, Config?.TMCID, bookingId, "PG", `${Config[credentialType ?? "TEST"]?.phonePePaymentDetailUrl}/${bookingId}/status?details=false`, null, response?.data)
         const chnageResponse = {
             status: response?.data?.state === "COMPLETED" ? "PAID" : response?.data?.state === "FAILED" ? "Failed" : "Pending", txnid: `${response?.data?.orderId}_${bookingId}`, bookingId: response?.data?.orderId, udf1: response?.data?.metaInfo?.udf1, udf2: response?.data?.metaInfo?.udf2, udf3: response?.data?.metaInfo?.udf3, amount: response?.data?.amount, PG_TYPE: convetToPgType(response?.data?.metaInfo?.udf4), payment_source: "phonePe",bank_ref_num:response?.data?.orderId,cardCategory:response?.data?.metaInfo?.udf4
@@ -274,7 +302,7 @@ function getExpectedAuthHeader() {
     let PHONEPE_PASSWORD = "testpassword123";
   const authString = `${PHONEPE_USERNAME}:${PHONEPE_PASSWORD}`;
   const hash = crypto.createHash('sha256').update(authString).digest('hex');
-  return `SHA256 ${hash}`;
+  return `${hash}`;
 }
 
 const phonePeWebhoockUrlIntegration = async (req, res) => {
@@ -284,15 +312,16 @@ const phonePeWebhoockUrlIntegration = async (req, res) => {
     const incomingAuth = req.headers['authorization']??"";
 
   // Validate Authorization header
-    commonFunctionsPGLogs("68d116cb9d77fc1d3fe38cc0", "68d116cb9d77fc1d3fe38cc0", "", "PG", incomingAuth, req.body, {})
+    commonFunctionsPGLogs("", "68d116cb9d77fc1d3fe38cc0", "", "PG", incomingAuth, req.body, {})
 
   const expectedAuth = getExpectedAuthHeader();
   if (incomingAuth !== expectedAuth) {
     return res.status(401).json({ IsSucess: false, Message: "Unauthorized" });
   }
-    commonFunctionsPGLogs("68d116cb9d77fc1d3fe38cc0", "68d116cb9d77fc1d3fe38cc0", "", "PG", `${incomingAuth}-${expectedAuth}`, req.body,{})
+    commonFunctionsPGLogs("68d116cb9d77fc1d3fe38cc0", "68d116cb9d77fc1d3fe38cc0", req.body?.payload?.merchantOrderId??"", "webhook", `${incomingAuth}-${expectedAuth}`, req.body,
+{})
 
-  return res.status(200).json({ IsSucess: true, Message: "Authorized", bodyData:req.body});
+  return res.status(200).json({ IsSucess: true, Message: "Authorized and Updated successfully", data:req.body?.payload});
 }
 catch(e){
     commonFunctionsPGLogs("68d116cb9d77fc1d3fe38cc0", "68d116cb9d77fc1d3fe38cc0", "", "PG", "", {}, e?.stack)

@@ -256,10 +256,10 @@ response = await axios.get(`${Config[credentialType ?? "TEST"]?.phonePePaymentDe
         }
         i++
         if (response.data.state.toUpperCase() === "PENDING") {
-            await delay(5000); // 5000 ms = 5 seconds
+            await delay(15000); // 15000 ms = 15 seconds
         }
         }
-        while (response?.data?.state.toUpperCase() === "PENDING"&&i<5)
+        while (response?.data?.state.toUpperCase() === "PENDING")
 
 
         // if(response?.data?.state.toUpperCase()==="PENDING")

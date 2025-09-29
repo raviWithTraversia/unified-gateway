@@ -21,6 +21,10 @@ const pgLogsSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  status: {
+    type: String,
+    default: null,
+  },
   req: {
     type: String,
     default: "",

@@ -1724,7 +1724,8 @@ const commonFunctionsPGLogs = async (
   type,
   url,
   req,
-  res
+  res,
+  status=null,
 ) => {
   try {
     // console.log(userId, companyId, traceId, type, url, req, res);
@@ -1740,6 +1741,7 @@ const commonFunctionsPGLogs = async (
       traceId,
       type,
       url,
+      status:status,
       req: JSON.stringify(req),
       res: JSON.stringify(res),
     });

@@ -14,7 +14,7 @@ const plbgrouphasplbmasters = require("../../models/PLBGroupHasPLBMaster");
 const managemarkupsimport = require("../../models/ManageMarkup");
 const countryMaping = require("../../models/CountryMapping");
 const moment = require("moment");
-
+const {Config} = require('../../configs/config')
 const getApplyAllCommercial = async (
   Authentication,
   TravelType,
@@ -678,7 +678,8 @@ const getApplyAllCommercial = async (
       (a, b) => a.TotalPrice - b.TotalPrice
     );
     //return congifDetails;
-  } else if (
+  }
+   else if (
     companyDetails.type == "Agency" &&
     companyDetails.parent.type == "Distributer"
   ) {
@@ -13887,6 +13888,425 @@ async function calculateAfterCommertialPricePLB(
     }
   }
 }
+const getCommercialForPkFare=async(req,res)=>{
+  try{
+    const  pkFareUserId=Config.PKFAREUSERID??"65cdfd5203e867cfc4153aa7"
+    // const userDetails = await UserModule.findOne({ _id: pkFareUserId });
+  // if (!userDetails) {
+  //   return {
+  //     IsSuccess: false,
+  //     response: "User Id Not Available",
+  //   };
+  // }
+
+  const companyDetails = await Company.findOne({
+    _id: pkFareUserId,
+  }).populate("parent", "type");
+  // const fareFamilyMasterGet = await fareFamilyMaster.find({});
+  // let incentivePlanDetails;
+  // let plbPlanDetails;
+ 
+  if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {
+    // TMC-Agency // // one time apply commertioal
+    //console.log('TMC-Agency');
+    const [
+      commercialPlanDetails,
+      incentivePlanDetails,
+      plbPlanDetails,
+      markupDetails,
+      congifDetails,
+      countryMapingVal,
+    ] = await Promise.all([
+      getAssignCommercialPKFare(companyDetails._id),
+      getAssignIncentive(companyDetails._id),
+      getAssignPlb(companyDetails._id),
+      getAssignMarcup(companyDetails._id),
+      getAssignCongifDetails(companyDetails.parent._id),
+     countryMaping.find(
+      {
+        companyId: companyDetails.parent._id,
+        //ContinentCode: { $in: allCountryValue },
+      },
+      {
+        countries: 1,
+        _id: 0, // Exclude _id field
+      }
+    ),
+    ]);
+
+    //console.log(congifDetails);
+
+    return  {
+      response:"Fetch Commercial Data Successfully",
+      IsSuccess: true,
+      data: {
+        commercialPlanDetails,
+        incentivePlanDetails,
+        plbPlanDetails,
+        markupDetails,
+        congifDetails,
+        countryMapingVal,
+      },
+    }
+
+  
+
+  }
+}catch(err){
+    throw err
+  }
+
+}
+
+const getAssignCommercialPKFare = async (companyId) => {
+  //// Get Commertial id , plb, incentive so on...
+  let getAgentConfig = await agentConfig.findOne({
+    companyId: companyId,
+  }); // check config
+
+  //return getAgentConfig;
+
+  let commercialairplansVar = [];
+  let combineAllCommercialArr = [];
+  let aircommercialListVar;
+
+  if (!getAgentConfig || getAgentConfig.commercialPlanIds === null) {
+    getAgentConfig = await agencyGroup.findById(getAgentConfig.agencyGroupId);
+    if (getAgentConfig) {
+      // check from group privillage plan id
+      commercialairplansVar = await commercialairplans
+        .findOne({
+          _id: getAgentConfig.commercialPlanId,
+          status: true,
+        })
+        .select("_id commercialPlanName");
+      if (!commercialairplansVar) {
+        return { IsSuccess: false, Message: "Commercial Not Available" };
+      }
+
+      aircommercialListVar = await aircommercialsList
+        .find({
+          commercialAirPlanId: commercialairplansVar._id,
+        })
+        .populate([
+          {
+            path: "carrier",
+            select: "airlineCode",
+          },
+          {
+            path: "supplier",
+            select: "supplierCode",
+          },
+          {
+            path: "source",
+            select: "supplierCode",
+          },
+          {
+            path: "fareFamily",
+            select: "fareFamilyName fareFamilyCode",
+          },
+        ]);
+      //console.log(aircommercialListVar);
+      if (aircommercialListVar.length > 0) {
+  let mappingData = await Promise.all(
+    aircommercialListVar.map(async (items) => {
+      const matchedFareFamilyCodes =
+        items.fareFamily ? items.fareFamily.fareFamilyCode : null;
+
+      const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
+        .findOne({ airCommercialId: items._id })
+        .populate("commercialFilter.commercialFilterId");
+
+      const updateaircommercialmatrixesVar =
+        await updateaircommercialmatrixes.findOne({
+          airCommercialPlanId: items._id,
+        });
+
+      return {
+        _id: items._id,
+        travelType: items.travelType,
+        carrier: items.carrier ? items.carrier.airlineCode : null,
+        commercialCategory: items.commercialCategory,
+        supplier: items.supplier ? items.supplier.supplierCode : null,
+        source: items.source ? items.source.supplierCode : null, // ✅ fixed source
+        priority: items.priority,
+        aircommercialfilterincexcs: aircommercialfilterincexcsVar,
+        updateaircommercialmatrixes: updateaircommercialmatrixesVar,
+        fareFamily: matchedFareFamilyCodes,
+      };
+    })
+  );
+
+  combineAllCommercialArr.push({
+    plan: commercialairplansVar,
+    commercialFilterList: mappingData,
+  });
+}
+ else {
+        return { IsSuccess: false, Message: "Commercial Not Available" };
+      }
+    } else {
+      return { IsSuccess: false, Message: "Commercial Not Available" };
+    }
+  } else {
+    // check Manuwal from config
+    //return getAgentConfig
+    commercialairplansVar = await commercialairplans
+      .findOne({
+        _id: getAgentConfig.commercialPlanIds,
+        status: true,
+      })
+      .select("_id commercialPlanName");
+    if (!commercialairplansVar) {
+      return { IsSuccess: false, Message: "Commercial Not Available" };
+    }
+    aircommercialListVar = await aircommercialsList
+      .find({
+        commercialAirPlanId: commercialairplansVar._id,
+      })
+      .populate([
+        {
+          path: "carrier",
+          select: "_id airlineCode",
+        },
+        {
+          path: "supplier",
+          select: "supplierCode",
+        },
+        {
+          path: "source",
+          select: "supplierCode",
+        },
+        {
+          path: "fareFamily",
+          select: "fareFamilyName fareFamilyCode",
+        },
+      ]);
+
+    if (aircommercialListVar.length > 0) {
+      //const fareFamilyMasterGet = await fareFamilyMaster.find({});
+
+      let mappingData = aircommercialListVar.map(async (items) => {
+        //return items
+
+        const matchedFareFamilyCodes =
+          items.fareFamily != null ? items.fareFamily?.fareFamilyCode : null;
+
+        const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
+          .findOne({
+            airCommercialId: items._id,
+          })
+          .populate("commercialFilter.commercialFilterId");
+        const updateaircommercialmatrixesVar = await updateaircommercialmatrixes
+          .findOne({ airCommercialPlanId: items._id })
+          .populate("data.AirCommertialRowMasterId")
+          .populate("data.AirCommertialColumnMasterId");
+
+        return {
+          _id: items._id,
+          travelType: items.travelType,
+          carrier: items.carrier ? items.carrier.airlineCode : null,
+          commercialCategory: items.commercialCategory,
+          supplier: items.supplier ? items.supplier.supplierCode : null,
+          source: items.supplier ? items.supplier.supplierCode : null,
+          priority: items.priority,
+          aircommercialfilterincexcs: aircommercialfilterincexcsVar,
+          updateaircommercialmatrixes: updateaircommercialmatrixesVar,
+          fareFamily: matchedFareFamilyCodes,
+        };
+      });
+      mappingData = await Promise.all(mappingData);
+      combineAllCommercialArr.push({
+        plan: commercialairplansVar,
+        commercialFilterList: mappingData,
+      });
+    } else {
+      return { IsSuccess: false, Message: "Commercial Not Available" };
+    }
+  }
+  if (!commercialairplansVar) {
+    return { IsSuccess: false, Message: "No Commercial Air Plan Found" };
+  }
+  return { IsSuccess: true, data: combineAllCommercialArr };
+};
+
+const getAssignIncentivePKFare = async (companyId) => {
+  //// Get Commertial id , plb, incentive so on...
+  let getAgentConfig = await agentConfig.findOne({
+    companyId: companyId,
+  }); // check config
+  //return getAgentConfig;
+  let incentivegroupmastersVar = [];
+  let incentiveListVar;
+  if (!getAgentConfig || getAgentConfig.incentiveGroupIds === null) {
+    getAgentConfig = await agencyGroup.findById(getAgentConfig.agencyGroupId);
+    if (getAgentConfig) {
+      // check from group incentive plan id
+      // incentivegroupmastersVar = await incentivegroupmasters
+      //   .findOne({
+      //     _id: getAgentConfig.incentiveGroupId,
+      //   })
+      //   .select("_id incentiveGroupName");
+      //return incentivegroupmastersVar;
+      incentiveListVar = await incentivegrouphasincentivemasters
+        .find({
+          incentiveGroupId: getAgentConfig.incentiveGroupId,
+        })
+        .populate({
+          path: "incentiveMasterId",
+          populate: [
+            { path: "supplierCode" },
+            { path: "airlineCode" },
+            { path: "cabinClass" },
+            { path: "fareFamily" },
+          ],
+        });
+
+      if (incentiveListVar.length > 0) {
+        return { IsSuccess: true, data: incentiveListVar };
+      } else {
+        return { IsSuccess: false, Message: "Incentive Not Available" };
+      }
+    } else {
+      return { IsSuccess: false, Message: "Incentive Group Id  Not Available" };
+    }
+  } else {
+    // check Manuwal from config
+    // incentivegroupmastersVar = await incentivegroupmasters
+    //   .findOne({
+    //     _id: getAgentConfig.incentiveGroupIds
+
+    //   })
+    //   .select("_id incentiveGroupName");
+
+    incentiveListVar = await incentivegrouphasincentivemasters
+      .find({
+        incentiveGroupId: getAgentConfig.incentiveGroupIds,
+      })
+      .populate({
+        path: "incentiveMasterId",
+        populate: [
+          { path: "supplierCode" },
+          { path: "airlineCode" },
+          { path: "cabinClass" },
+          { path: "fareFamily" },
+        ],
+      });
+
+    if (incentiveListVar.length > 0) {
+      return { IsSuccess: true, data: incentiveListVar };
+    } else {
+      return { IsSuccess: false, Message: "Incentive Not Available" };
+    }
+  }
+};
+
+const getAssignPlbPKFare = async (companyId) => {
+  //// Get Commertial id , plb, incentive so on...
+  let getAgentConfig = await agentConfig.findOne({
+    companyId: companyId,
+  }); // check config
+  //return getAgentConfig;
+  let plbgroupmastersVar = [];
+  let plbListVar;
+  if (!getAgentConfig || getAgentConfig.plbGroupIds === null) {
+    getAgentConfig = await agencyGroup.findById(getAgentConfig.agencyGroupId);
+    if (getAgentConfig) {
+      // check from group incentive plan id
+      // plbgroupmastersVar = await plbgroupmasters
+      //   .findOne({
+      //     _id: getAgentConfig.incentiveGroupId,
+      //   })
+      //   .select("_id PLBGroupName");
+      //return incentivegroupmastersVar;
+      plbListVar = await plbgrouphasplbmasters
+        .find({
+          PLBGroupId: getAgentConfig.plbGroupId,
+        })
+        .populate({
+          path: "PLBMasterId",
+          populate: [
+            { path: "supplierCode" },
+            { path: "airlineCode" },
+            { path: "cabinClass" },
+            { path: "fareFamily" },
+          ],
+        });
+
+      if (plbListVar.length > 0) {
+        return { IsSuccess: true, data: plbListVar };
+      } else {
+        return { IsSuccess: false, Message: "PLB Group Not Available" };
+      }
+    } else {
+      return { IsSuccess: false, Message: "PLB Group Id  Not Available" };
+    }
+  } else {
+    // check Manuwal from config
+    // plbgroupmastersVar = await plbgroupmasters
+    //   .findOne({
+    //     _id: getAgentConfig.plbGroupIds
+
+    //   })
+    //   .select("_id PLBGroupName");
+
+    plbListVar = await plbgrouphasplbmasters
+      .find({
+        PLBGroupId: getAgentConfig.plbGroupIds,
+      })
+      .populate({
+        path: "PLBMasterId",
+        populate: [
+          { path: "supplierCode" },
+          { path: "airlineCode" },
+          { path: "cabinClass" },
+          { path: "fareFamily" },
+        ],
+      });
+
+    if (plbListVar.length > 0) {
+      return { IsSuccess: true, data: plbListVar };
+    } else {
+      return { IsSuccess: false, Message: "PLB Group Not Available" };
+    }
+  }
+};
+
+const getAssignMarcupPKFare = async (companyId) => {
+  let getmarkupData = await managemarkupsimport
+    .find({
+      companyId: companyId,
+    })
+    .populate("airlineCodeId")
+    .populate("markupData.markUpCategoryId");
+
+  if (getmarkupData.length > 0) {
+    return { IsSuccess: true, data: getmarkupData };
+  } else {
+    return { IsSuccess: false, Message: "Markup Not Available" };
+  }
+};
+
+const getAssignCongifDetailsPKFare = async (companyId) => {
+  try {
+    let getAgentConfig = await agentConfig.findOne({
+      companyId: companyId,
+    });
+
+    // console.log(companyId);
+
+    if (getAgentConfig) {
+      return { IsSuccess: true, data: getAgentConfig };
+    } else {
+      return { IsSuccess: false, Message: "Agent Config Not Available" };
+    }
+  } catch (error) {
+    console.error("Error fetching agent config:", error);
+    return { IsSuccess: false, Message: "Error fetching agent config" };
+  }
+};
+
 module.exports = {
   getApplyAllCommercial,
+  getCommercialForPkFare
 };

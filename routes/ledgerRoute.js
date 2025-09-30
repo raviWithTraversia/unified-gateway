@@ -16,6 +16,10 @@ ledger_route.post(
     ledgetController.transactionReport
 )
 ledger_route.post('/agentBalenceReport',ledgetController.getAllledgerbyDate)
+ledger_route.post(
+  "/get-pay-online-history",
+  ledgetController.onlinePaymentHistoryController
+);
 
 ledger_route.get('/test', auth, function (req, res) {
     res.status(200).json({ status: "success", msg: "this is test responce" });

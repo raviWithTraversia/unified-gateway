@@ -31,6 +31,7 @@ const axios = require("axios");
 const InvoicingData=require('../../models/Irctc/invvoicingRailData');
 const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
 const PGLogs = require("../../models/Logs/PG.logs");
+const onlinePaymentHistorySchema = require("../../models/onlinePaymentHistory");
 
 const createToken = async (id) => {
   try {
@@ -2413,6 +2414,29 @@ async function getInvoiceNumber(pnr, BookingId) {
   }
 }
 
+const savePaymentHistoryLogs=async(body)=>{
+  try{
+    let {userId,companyId,transId,amount,status,type,product}=body
+    const createPaymentHistory=new onlinePaymentHistorySchema({
+      userId:userId,
+      companyId:companyId,
+      parentId:Config.TMCID??companyId,
+      transId:transId,
+      amount:amount,
+      status:status,
+      type:type,
+      product:product
+     
+      
+    })
+    await createPaymentHistory.save();
+
+  }
+  catch(error){
+  console.log(error)
+  }
+}
+
 
 module.exports = {
   createToken,
@@ -2460,5 +2484,6 @@ module.exports = {
   updateStatus,
   updatePassengerStatus,
   getInvoiceNumber,
-  commonFunctionsPGLogs
+  commonFunctionsPGLogs,
+  savePaymentHistoryLogs
 };

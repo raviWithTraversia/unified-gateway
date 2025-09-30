@@ -14,6 +14,7 @@ const Config = require("../../configs/config");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const BookingTemp = require("../../models/booking/BookingTemp");
 const fixedFareData=require('./fixedFare.service')
+const getCommercialForPkFareService = require("./flight.commercial");
 
 
 const {
@@ -38,6 +39,7 @@ const { commonFlightSearch } = require("../../services/common-search");
 const { saveLogInFile } = require("../../utils/save-log");
 const { importPNRHelper } = require("../../helpers/common-import-pnr.helper");
 const travellersDetailsService = require("./travellersDetails.service");
+const { getCommercialForPkFare } = require("./flight.commercial");
 
 const getSearch = async (req, res) => {
   console.log(
@@ -1146,6 +1148,36 @@ const getFixedFare=async(req,res)=>{
   }
 }
 
+const getCommercialForPkFareController=async(req,res)=>{
+  try {
+    const result = await getCommercialForPkFareService.getCommercialForPkFare(req, res);
+  if (!result.response && result.isSometingMissing) {
+      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    } else if (result.response === "Fetch Commercial Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    }
+     else {
+      apiErrorres(
+        res,
+        result.response || errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    apiErrorres(
+      res,
+      error?.message || errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
 module.exports = {
   getSearch,
   airPricing,
@@ -1171,5 +1203,6 @@ module.exports = {
   getPnrTicket,
   getAllTravellers,
   addTravellers,
-  getFixedFare
+  getFixedFare,
+  getCommercialForPkFareController
 };

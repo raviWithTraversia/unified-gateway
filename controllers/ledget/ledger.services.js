@@ -10,6 +10,7 @@ const {
   priceRoundOffNumberValues,
   calculateOfferedPricePaxWise,
 } = require("../commonFunctions/common.function");
+const payOnlineHistoryUpdate=require("../../models/onlinePaymentHistory")
 
 const getAllledger = async (req, res) => {
   const { userId, fromDate, toDate, transactionType } = req.body;
@@ -147,6 +148,52 @@ const getAllledger = async (req, res) => {
   };
 };
 
+const onlinePaymentHistory=async(req,res)=>{
+  const { companyId, startDate, endDate, status } = req.body;
+ 
+  try{
+    let searchPayloadDate={}
+     if(status){
+      searchPayloadDate={
+        companyId:companyId,
+        createdAt: {
+          $gte: new Date(startDate), // Start of fromDate
+          $lte: new Date(endDate), // End of toDate
+        },
+        status:status
+      }
+    
+  }
+  else {
+    searchPayloadDate={
+      companyId:companyId,
+      createdAt: {
+        $gte: new Date(startDate), // Start of fromDate
+        $lte: new Date(endDate), // End of toDate
+      },
+    }
+  }
+
+    const getPaymentHistory=await payOnlineHistoryUpdate.find(
+      searchPayloadDate
+    ).populate("companyId","companyName").populate("userId","userId").sort({createdAt:-1})
+
+    if(!getPaymentHistory||getPaymentHistory.length==0){
+      return{
+        response:"Data Not Found"
+      }
+    }
+
+    return{
+      response:"Fetch Data Successfully",
+      data:getPaymentHistory
+
+    }
+
+  }catch(error){
+    throw error
+  }
+}
 const transactionReport = async (req, res) => {
   try {
     console.log("jiejeij");
@@ -379,4 +426,5 @@ module.exports = {
   getAllledger,
   transactionReport,
   getAllledgerbyDate,
+  onlinePaymentHistory
 };

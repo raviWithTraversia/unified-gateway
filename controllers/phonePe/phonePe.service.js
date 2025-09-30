@@ -1,11 +1,12 @@
 const axios = require("axios");
 const { Config } = require("../../configs/config");
 const { create } = require("lodash");
-const {commonFunctionsPGLogs}=require('../commonFunctions/common.function')
+const {commonFunctionsPGLogs,savePaymentHistoryLogs}=require('../commonFunctions/common.function')
 const crypto = require("crypto");
 const phonePeBerarToken=require('../../models/Logs/phonePeBerarToken')
 const PGLogs = require("../../models/Logs/PG.logs");
 const {lyraAndPhonePeFlightCommonSucess,phonePeAndLyraRailWalletSucess,lyraAndPhonePeFlightBookingCommonSucess}=require('../lyraPg/lyraService')
+
 
 
 
@@ -216,7 +217,16 @@ if(paymentType === "UPI"){
         }
 
     }
-
+let createLogs={
+    userId: Authentication?.userId,
+    companyId: Authentication?.companyId,
+    transId: merchantIdUnique,
+    amount:Number(normalAmount)+Number(pgCharges),
+    status:"PENDING",
+    type:"PHONEPE",
+    product:productinfo
+}
+    savePaymentHistoryLogs(createLogs)
     return {
         apiBody: apiBody,
         merchantId: merchantIdUnique
@@ -277,7 +287,7 @@ const pendingCount = result?.deletedCount??0;
 
         commonFunctionsPGLogs(Config?.TMCID, Config?.TMCID, bookingId, "PG", `${Config[credentialType ?? "TEST"]?.phonePePaymentDetailUrl}/${bookingId}/status?details=false` ,null, response?.data,`${pendingCount}`)
         const chnageResponse = {
-            status: response?.data?.state === "COMPLETED" ? "PAID" : response?.data?.state === "FAILED" ? "Failed" : "Pending", txnid: `${response?.data?.orderId}_${bookingId}`, bookingId: response?.data?.orderId, udf1: response?.data?.metaInfo?.udf1, udf2: response?.data?.metaInfo?.udf2, udf3: response?.data?.metaInfo?.udf3, amount: response?.data?.amount, PG_TYPE: convetToPgType(response?.data?.metaInfo?.udf4), payment_source: "phonePe",bank_ref_num:response?.data?.orderId,cardCategory:response?.data?.metaInfo?.udf4
+            status: response?.data?.state === "COMPLETED" ? "PAID" : response?.data?.state === "FAILED" ? "Failed" : "Pending", txnid: `${bookingId}`, bookingId: response?.data?.orderId, udf1: response?.data?.metaInfo?.udf1, udf2: response?.data?.metaInfo?.udf2, udf3: response?.data?.metaInfo?.udf3, amount: response?.data?.amount, PG_TYPE: convetToPgType(response?.data?.metaInfo?.udf4), payment_source: "phonePe",bank_ref_num:response?.data?.orderId,cardCategory:response?.data?.metaInfo?.udf4
         }
 
         return {
@@ -357,7 +367,7 @@ const changeBodySuccessWebhook=(response)=>{
          const chnageResponse = {
             productType: response?.metaInfo?.udf6,
             paymentFor: response?.metaInfo?.udf7,
-            status: response?.state === "COMPLETED" ? "PAID" : response?.state === "FAILED" ? "Failed" : "Pending", txnid: `${response?.orderId}_${response?.merchantOrderId}`, bookingId: response?.orderId, udf1: response?.metaInfo?.udf1, udf2: response?.metaInfo?.udf2, udf3: response?.metaInfo?.udf3, amount: response?.amount, PG_TYPE: convetToPgType(response?.metaInfo?.udf4), payment_source: "phonePe",bank_ref_num:response?.orderId,cardCategory:response?.metaInfo?.udf4,
+            status: response?.state === "COMPLETED" ? "PAID" : response?.state === "FAILED" ? "Failed" : "Pending", txnid: `${response?.merchantOrderId}`, bookingId: response?.orderId, udf1: response?.metaInfo?.udf1, udf2: response?.metaInfo?.udf2, udf3: response?.metaInfo?.udf3, amount: response?.amount, PG_TYPE: convetToPgType(response?.metaInfo?.udf4), payment_source: "phonePe",bank_ref_num:response?.orderId,cardCategory:response?.metaInfo?.udf4,
         }
         return chnageResponse
     }

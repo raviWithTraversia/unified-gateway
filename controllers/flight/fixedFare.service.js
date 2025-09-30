@@ -1,7 +1,9 @@
 const axios = require("axios");
 const getFixedFareService=async(req,res)=>{
     try{
-        let payloadDate=dateDecorate(new Date().toISOString(),true);
+      const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+let payloadDate=dateDecorate(tomorrow.toISOString(), true);
       let Url = "";
     let  payload = {
     "P_TYPE": "CC",

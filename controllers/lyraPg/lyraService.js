@@ -27,11 +27,13 @@ const {
   sendSuccessHtml,
   sendFailedHtml,
   commonFunctionsPGLogs,
+  savePaymentHistoryLogs
 } = require("../commonFunctions/common.function");
 const AgentConfiguration = require("../../models/AgentConfig");
 const { saveLogInFile } = require("../../utils/save-log");
 const { commonFlightBook } = require("../../services/common-flight-book");
 const { error } = require("console");
+const PayOnlineHistoryPayment=require('../../models/onlinePaymentHistory')
 
 const lyraRedirectLink = async (req, res) => {
   const {
@@ -116,14 +118,24 @@ const lyraRedirectLink = async (req, res) => {
       return;
     }
     commonFunctionsPGLogs(
-      Authentication?.CompanyId,
-      Authentication?.UserId,
+      Authentication?.companyId,
+      Authentication?.userId,
       traceId,
       "LYRA LOG",
       url,
       req.body,
       response.data
     );
+    let createLogs={
+        userId: Authentication?.userId,
+        companyId: Authentication?.companyId,
+        transId: response?.data?.uuid,
+        amount:Number(normalAmount)+Number(pgCharges),
+        status:"PENDING",
+        type:"LYRA",
+        product:productinfo
+    }
+        savePaymentHistoryLogs(createLogs)
     res.status(200).json({
       success: true,
       Message: "response found",
@@ -540,10 +552,18 @@ const pendingHtml = await sendFailedHtml(Config[Config.MODE].baseURL,"PENDING");
       return pendingHtml;
     }
      else if (status === "PAID") {
-      const userData = await User.findOne({ company_ID: udf1 }).populate({
+      
+      const [userData,payOnlineHistoryUpdate ]= await Promise.all([
+          User.findOne({ company_ID: udf1 }).populate({
         path: "roleId",
         match: { name: "Agency" },
-      });
+      }),
+
+      PayOnlineHistoryPayment.findOneAndUpdate({ transId: txnid }, { $set: { status: "CONFIRMED" } }, { new: true })
+      ])
+      
+    
+
 
       // const findUser = await User.findById(userData._id);
       // const configData = await agentConfig
@@ -694,6 +714,8 @@ const pendingHtml = await sendFailedHtml(Config[Config.MODE].baseURL,"PENDING");
         return "Data does not exist";
       }
     } else {
+      await  PayOnlineHistoryPayment.findOneAndUpdate({ transId: txnid }, { $set: { status: "FAILED" } }, { new: true })
+
       const failedHtml = await sendFailedHtml(Config[Config.MODE].baseURL,"Failed");
       return failedHtml;
     }
@@ -723,10 +745,14 @@ const pendingHtml = await sendFailedHtml(Config[Config.MODE].baseURL,"PENDING");
       return pendingHtml;
     }
  else   if (status === "PAID") {
-      const userData = await User.findOne({ company_ID: udf1 }).populate({
+          const [userData,payOnlineHistoryUpdate ]= await Promise.all([
+          User.findOne({ company_ID: udf1 }).populate({
         path: "roleId",
         match: { name: "Agency" },
-      });
+      }),
+
+      PayOnlineHistoryPayment.findOneAndUpdate({ transId: txnid }, { $set: { status: "CONFIRMED" } }, { new: true })
+      ])
 
       // const findUser = await User.findById(userData._id);
       // const configData = await agentConfig
@@ -873,6 +899,7 @@ const pendingHtml = await sendFailedHtml(Config[Config.MODE].baseURL,"PENDING");
         return "Data does not exist";
       }
     } else {
+      await  PayOnlineHistoryPayment.findOneAndUpdate({ transId: txnid }, { $set: { status: "FAILED" } }, { new: true })
       const failedHtml = sendFailedHtml(Config[Config.MODE].baseURL);
       return failedHtml;
     }

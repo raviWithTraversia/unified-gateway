@@ -17,7 +17,7 @@ ledger_route.post(
 )
 ledger_route.post('/agentBalenceReport',ledgetController.getAllledgerbyDate)
 ledger_route.post(
-  "/get-pay-online-history",
+  "/get-pay-online-history",auth,
   ledgetController.onlinePaymentHistoryController
 );
 

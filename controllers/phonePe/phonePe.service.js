@@ -343,7 +343,7 @@ const phonePeWebhoockUrlIntegration = async (req, res) => {
     commonFunctionsPGLogs("68d116cb9d77fc1d3fe38cc0", "68d116cb9d77fc1d3fe38cc0", req.body?.payload?.merchantOrderId??"", "webhook", `${incomingAuth}-${expectedAuth}`, req.body,
 {})
 if(req.body.type=="CHECKOUT_ORDER_COMPLETED"){
-    const changeBodySuccess=changeBodySuccessWebhook(req.body?.payload)
+    const changeBodySuccess= await changeBodySuccessWebhook(req.body?.payload)
 if(changeBodySuccess?.productType.toLowerCase()=="flight"&&changeBodySuccess?.paymentFor.toLowerCase()=="wallet"){
 await lyraAndPhonePeFlightCommonSucess(changeBodySuccess)
 }
@@ -357,13 +357,21 @@ else if(changeBodySuccess?.productType.toLowerCase()=="flight"&&changeBodySucces
   return res.status(200).json({ IsSucess: true, Message: "Authorized and Updated successfully", data:req.body?.payload});
 }
 catch(e){
+    console.log(e)
     commonFunctionsPGLogs("68d116cb9d77fc1d3fe38cc0", "68d116cb9d77fc1d3fe38cc0", "", "PG", "", {}, e?.stack)
-    return res.status(400).json({ IsSucess: false, Message: e.message, error:e.stack});
+    return res.status(400).json({ IsSucess: false, Message: e.message, data:[]});
 }
 }
 
-const changeBodySuccessWebhook=(response)=>{
+const changeBodySuccessWebhook=async(response)=>{
     try{
+        let getInDBMetaInfo=null
+        if(!response?.metaInfo){
+            throw new Error("metaInfo Missing")
+            // getInDBMetaInfo=await PGLogs.findOne({traceId:response?.merchantOrderId}).sort({createdAt:1})
+            // bodyOfMetaInfo=JSON.parse(getInDBMetaInfo?.req)
+            // response.metaInfo=bodyOfMetaInfo?.metaInfo
+ }
          const chnageResponse = {
             productType: response?.metaInfo?.udf6,
             paymentFor: response?.metaInfo?.udf7,
@@ -372,7 +380,8 @@ const changeBodySuccessWebhook=(response)=>{
         return chnageResponse
     }
     catch(error){
-        return null
+    
+        throw error
     }
 }
 

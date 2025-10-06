@@ -319,9 +319,9 @@ const convetToPgType = (pgType) => {
 
 }
 
-function getExpectedAuthHeader() {
-    let PHONEPE_USERNAME = "testuser";
-    let PHONEPE_PASSWORD = "testpassword123";
+function getExpectedAuthHeader(user,password) {
+    let PHONEPE_USERNAME = user;
+    let PHONEPE_PASSWORD = password;
   const authString = `${PHONEPE_USERNAME}:${PHONEPE_PASSWORD}`;
   const hash = crypto.createHash('sha256').update(authString).digest('hex');
   return `${hash}`;
@@ -336,7 +336,42 @@ const phonePeWebhoockUrlIntegration = async (req, res) => {
   // Validate Authorization header
     commonFunctionsPGLogs("", "68d116cb9d77fc1d3fe38cc0", "", "PG", incomingAuth, req.body, {})
 
-  const expectedAuth = getExpectedAuthHeader();
+  const expectedAuth = getExpectedAuthHeader("testuser","testpassword123");
+  if (incomingAuth !== expectedAuth) {
+    return res.status(401).json({ IsSucess: false, Message: "Unauthorized" });
+  }
+    commonFunctionsPGLogs("68d116cb9d77fc1d3fe38cc0", "68d116cb9d77fc1d3fe38cc0", req.body?.payload?.merchantOrderId??"", "webhook", `${incomingAuth}-${expectedAuth}`, req.body,
+{})
+if(req.body.type=="CHECKOUT_ORDER_COMPLETED"){
+    const changeBodySuccess= await changeBodySuccessWebhook(req.body?.payload)
+if(changeBodySuccess?.productType.toLowerCase()=="flight"&&changeBodySuccess?.paymentFor.toLowerCase()=="wallet"){
+await lyraAndPhonePeFlightCommonSucess(changeBodySuccess)
+}
+else if(changeBodySuccess?.productType.toLowerCase()=="rail"&&changeBodySuccess?.paymentFor.toLowerCase()=="wallet"){
+    await phonePeAndLyraRailWalletSucess(changeBodySuccess)
+}
+else if(changeBodySuccess?.productType.toLowerCase()=="flight"&&changeBodySuccess?.paymentFor.toLowerCase()=="booking"){
+    await lyraAndPhonePeFlightBookingCommonSucess(changeBodySuccess)
+}
+}
+  return res.status(200).json({ IsSucess: true, Message: "Authorized and Updated successfully", data:req.body?.payload});
+}
+catch(e){
+    console.log(e)
+    commonFunctionsPGLogs("68d116cb9d77fc1d3fe38cc0", "68d116cb9d77fc1d3fe38cc0", "", "PG", "", {}, e?.stack)
+    return res.status(400).json({ IsSucess: false, Message: e.message, data:[]});
+}
+}
+const phonePeWebhoockLiveUrlIntegration = async (req, res) => {
+    try{
+
+    
+    const incomingAuth = req.headers['authorization']??"";
+
+  // Validate Authorization header
+    commonFunctionsPGLogs("", "68d116cb9d77fc1d3fe38cc0", "", "PG", incomingAuth, req.body, {})
+
+  const expectedAuth = getExpectedAuthHeader(Config?.phonePeUserName,Config?.phonePePassword);
   if (incomingAuth !== expectedAuth) {
     return res.status(401).json({ IsSucess: false, Message: "Unauthorized" });
   }
@@ -389,7 +424,8 @@ module.exports = {
     phonePeAuthentication,
     phonePeRedirectUrl,
     phonePeSuccess,
-    phonePeWebhoockUrlIntegration
+    phonePeWebhoockUrlIntegration,
+    phonePeWebhoockLiveUrlIntegration
 }
 
 

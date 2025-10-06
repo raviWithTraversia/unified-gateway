@@ -71,7 +71,7 @@ let payloadDate=dateDecorate(tomorrow.toISOString(), true);
 
   const groupMap = new Map();
 
-  data.Result.filter(ele => ele.SeatA > 0).forEach(ele => {
+  data.Result.filter(ele => ele.SeatA > 0&&ele.SeatA!==ele.SeatH).forEach(ele => {
     const srcDes = `${ele.Src}-${ele.Des}`;
     const availableDate = dateDecorate(ele?.Ddate);
 

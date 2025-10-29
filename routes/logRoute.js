@@ -192,6 +192,8 @@ log_route.get('/log/getFarerules',eventLogController.getFairRuleslog)
 
 log_route.get('/log/getPgCharges',eventLogController.getPgChargeslog)
 
+log_route.get('/log/bookingLogs',eventLogController.getUpdateBookingLogs)
+
 
 
 

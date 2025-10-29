@@ -607,7 +607,7 @@ const updateBookingStatus=async(req,res)=>{
     const result = await getAllBookingServices.updateBookingStatus(req,res);
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (result.response === "No booking Found for this providerBookingId." || result.response === "No valid IDs provided" ) {
+    } else if (result.response === "No booking Found for this providerBookingId." || result.response === "No valid IDs provided" ||result.response==="Cancel and Confirm Booking not allowed to update") {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
     } else if (result.response == "Booking Status Updated Successfully.") {
       apiSucessRes(

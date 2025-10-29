@@ -1872,12 +1872,12 @@ message="Password"
     message="Email"
   }
  
-    const UserExist=await User.findOne({email:email})
-    if(UserExist){
-return({
-  response:"User email already exist"
-})
-    }
+//     const UserExist=await User.findOne({email:email})
+//     if(UserExist){
+// return({
+//   response:"User email already exist"
+// })
+//     }
     
     const userData=await User.findById(id)
     const payload={ password: hashedPassword?hashedPassword:userData.password,email:email?email:userData.email,login_Id:email?email:userData.login_Id}

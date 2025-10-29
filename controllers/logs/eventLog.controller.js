@@ -394,6 +394,39 @@ const getPgChargeslog=async(req,res)=>{
 
     }
 }
+const getUpdateBookingLogs=async(req,res)=>{
+    try{
+        const result = await EventLogServices.getUpdateBookingLogs(req);
+        if (!result.response && result.isSometingMissing) {
+            apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+        } else if (result.response === "Either doucment_id does not exist" || result.response === "Data Not Found") {
+            apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+        } else if (result.response === "Fetch Data Successfully") {
+            apiSucessRes(
+                res,
+                result.response,
+                result.data,
+                ServerStatusCode.SUCESS_CODE
+            );
+        } else {
+            apiErrorres(
+                res,
+                errorResponse.SOME_UNOWN,
+                ServerStatusCode.UNPROCESSABLE,
+                true
+            );
+        }
+
+    }catch(error){
+        apiErrorres(
+            res,
+            errorResponse.SOMETHING_WRONG,
+            ServerStatusCode.SERVER_ERROR,
+            true
+        )
+
+    }
+}
 
 
 const getmarkuplog=async(req,res)=>{
@@ -430,4 +463,4 @@ const getmarkuplog=async(req,res)=>{
     }
 }
 
-module.exports = { storeEventLog, retriveEventLogByCompanyId, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog,getFairRuleslog,getPgChargeslog,getmarkuplog}
+module.exports = { storeEventLog, retriveEventLogByCompanyId, getEventLog,getEventlogbyid,getAgencyLog ,getAgencyLogConfig,getairCommercialfilterlog,getDisetuplog,getSsrlog,getIncenctivelog,getFairRuleslog,getPgChargeslog,getmarkuplog,getUpdateBookingLogs}

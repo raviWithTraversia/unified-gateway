@@ -120,6 +120,30 @@ cron.schedule("59 23 * * *", async () => {
   console.log("🚀 Scheduler is running... 23:59");
 await getRailBooking();
 });
+
+cron.schedule("00 15 * * *", async () => {
+  console.log("🚀 Scheduler is running... 3:00");
+await getRailBooking();
+});
+cron.schedule("00 17 * * *", async () => {
+  console.log("🚀 Scheduler is running... 5:00");
+await getRailBooking();
+});
+
+
+cron.schedule("00 19 * * *", async () => {
+  console.log("🚀 Scheduler is running... 7:00");
+await getRailBooking();
+});
+cron.schedule("00 21 * * *", async () => {
+  console.log("🚀 Scheduler is running... 9:00");
+await getRailBooking();
+});
+cron.schedule("00 23 * * *", async () => {
+  console.log("🚀 Scheduler is running... 23:00");
+await getRailBooking();
+});
+
 async function getRailBooking() {
   let date = getYesterdayIST(0);
   const now = new Date();
@@ -144,15 +168,14 @@ const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
   }
 
   // Promise.all ke saath handle karna
-  await Promise.all(
-    bookingData.map((booking) =>
-      createRailLedgerCredit(booking.userId, booking)
-    )
-  );
-  console.log(
-    `✅ Ledger entries created for ${bookingData.length} bookings`
-  );
-
+ for (const booking of bookingData) {
+    try {
+      // await createRailLedgerCredit(booking.userId, booking);
+       console.log(`✅ Updated booking ${booking._id}`);
+    } catch (err) {
+      console.error(`❌ Error processing booking ${booking._id}:`, err);
+    }
+  }
   return "All ledger entries created successfully";
 }
 

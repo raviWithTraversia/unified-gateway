@@ -22,7 +22,7 @@ const {
 const {updateBarcode2DByBookingId}=require('./airBooking.service')
 const {updatePassengerStatus}=require('../commonFunctions/common.function')
 const {calculateDealAmount}=require('./partialCalcelationCharge.service')
-
+const {Config}=require('../../configs/config')
 const fullCancelation = async (req, res) => {
   const {
     Authentication,
@@ -706,6 +706,7 @@ const updateBookingStatus = async (req, res) => {
           bookingId: 1,
           provider:1,
           itinerary:1,
+          bookingStatus: 1,
           // "itinerary.TraceId": 1,
           credentialsTypeData: {
             $filter: {
@@ -726,6 +727,7 @@ const updateBookingStatus = async (req, res) => {
         $project: {
           providerBookingId: 1,
           bookingId: 1,
+          bookingStatus: 1,
           traceId: "$itinerary.TraceId",
           supplierUserId: "$credentialsTypeData.supplierUserId",
           supplierPassword: "$credentialsTypeData.supplierPassword",
@@ -877,6 +879,21 @@ await Promise.all([
     await Promise.all(
       bulkOps.map(async (element) => {
         const bookingStatus = element.updateOne.update.$set.bookingStatus;
+        let logsData={
+            eventName:"APIUPDATEUpdateBookingStatus",
+            doerId:req.user._id,
+            doerName:"API Update",
+            companyId:Config?.TMCID,
+            oldValue:getBookingbyBookingId[0],
+            newValue:{
+              bookingStatus:bookingStatus,
+            },
+            documentId:element.updateOne.filter._id,
+            description:"Update BookingStatus",
+          }
+          console.log(logsData,"logsData")
+          EventLogs(logsData)
+        
         if (bookingStatus && bookingStatus.toUpperCase() === "FAILED") {
           const ledgerId = "LG" + Math.floor(100000 + Math.random() * 900000);
           // Fetch booking data

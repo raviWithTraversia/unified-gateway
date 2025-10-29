@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const evenLogSchema = new mongoose.Schema({
+const eventLogSchema = new mongoose.Schema({
     eventName: {
         type: String,
         required: false,
@@ -43,5 +43,11 @@ type:mongoose.Schema.Types.ObjectId,
 }, {
     timestamps: true // Adds created_at and updated_at fields
 });
+eventLogSchema.index({ companyId: 1 });
+eventLogSchema.index({ doerId: 1 });
+eventLogSchema.index({ eventName: 1 });
+eventLogSchema.index({ createdAt: -1 }); 
+eventLogSchema.index({ doumentId: 1 }); 
 
-module.exports = mongoose.model('EventLog', evenLogSchema);
+
+module.exports = mongoose.model('EventLog', eventLogSchema);

@@ -34,9 +34,10 @@ flight_route.post(
   auth,
   flight.partialCancelationCharge
 );
-flight_route.post("/flight/updateBookingStatus", flight.updateBookingStatus);
+flight_route.post("/flight/updateBookingStatus",auth, flight.updateBookingStatus);
 flight_route.post(
   "/flight/updatePendingBookingStatus",
+  auth,
   flight.updatePendingBookingStatus
 );
 

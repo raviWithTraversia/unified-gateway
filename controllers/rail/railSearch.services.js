@@ -316,6 +316,7 @@ const railFareEnquiry = async (req, res) => {
       amount,
       traceId
     } = req.body;
+    
     if ((!trainNo, !Authentication)) {
       return { response: "Provide required fields" };
     }
@@ -325,6 +326,20 @@ const railFareEnquiry = async (req, res) => {
         response: "Credential Type does not exist",
       };
     }
+    let hasPassengerFoodChoice = false
+    if(passengerList&&passengerList?.length){
+      hasPassengerFoodChoice = passengerList.some(
+  (psg) => psg?.passengerFoodChoice === "None"
+);
+    }
+
+
+if (hasPassengerFoodChoice) {
+  passengerList.forEach((psg) => {
+    psg.passengerFoodChoice = "D";
+  });
+}
+
 
     const checkUser = await agentConfig.findOne({ userId: Authentication.UserId }).populate({
       path: 'userId',      // First, populate the userId field

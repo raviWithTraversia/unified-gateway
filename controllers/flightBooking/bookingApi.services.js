@@ -25,6 +25,8 @@ const agentConfig = require("../../models/AgentConfig");
 const { apiErrorres } = require("../../utils/commonResponce");
 const BookingDetails = require("../../models/booking/BookingDetails");
 const { response } = require("../../routes/flight/flightRoute");
+const EventLogs=require('../logs/EventApiLogsCommon')
+
 
 const ISOTime = async (time) => {
   const utcDate = new Date(time);
@@ -3608,9 +3610,17 @@ const updateBookingStatus = async (req, res) => {
         response: "No booking Found for this providerBookingId.",
       };
     }
+    else if(bookingData.bookingStatus==="CANCELLED"||bookingData.bookingStatus==="CANCELLATION PENDING"||bookingData.bookingStatus==="CONFIRMED"){
+      return {
+        response: "Cancel and Confirm Booking not allowed to update",
+      };
+
+    }
     const { PNR, Gpnr, Apnr,userId,bookingTotalAmount,companyId } = bookingData;
-    const getAgentConfig=await agentConfig.findOne({userId:userId})
-  if(!getAgentConfig){
+    let updatebyUserId=req.user._id
+
+    const [getAgentConfig,updateByUserDetails]=await Promise.all([agentConfig.findOne({userId:userId}),User.findById(updatebyUserId)])
+  if(!getAgentConfig || !updateByUserDetails){
     return {
       response: "Agent data not found",
     }
@@ -3627,6 +3637,17 @@ const updateBookingStatus = async (req, res) => {
       },
       { new: true }
     );
+  let logsData={
+    eventName:"UpdateBookingStatus",
+    doerId:updatebyUserId,
+    doerName:updateByUserDetails.fname,
+    companyId:getAgentConfig.companyId,
+    oldValue:bookingData,
+    newValue:updatedData,
+    documentId:bookingData._id,
+    description:"Update BookingStatus",
+  }
+  EventLogs(logsData)
 
     await updateStatus(bookingData, bookingStatus);
       if(updatedData.bookingStatus.includes("FAILED")){

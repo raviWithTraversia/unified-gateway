@@ -17,7 +17,8 @@ async function getCommonAirPricing(request) {
     if (requestError) throw new Error(requestError);
     const airPricingURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
-      "/pricing/airpricing";
+      "/prebook/v2/AirPricing";
+    // "/pricing/airpricing";
     const { data: response } = await axios.post(airPricingURL, requestBody);
     saveLogInFile("pricing-res.json", response);
     // console.dir({ response }, { depth: null });

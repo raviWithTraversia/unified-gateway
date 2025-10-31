@@ -1,6 +1,7 @@
 const moment = require("moment");
 const uuid = require("uuid");
 const { saveLogInFile } = require("../utils/save-log");
+const { getVendorList } = require("./credentials");
 
 const commonCabinClassMap = {
   Economy: "Economy",
@@ -55,6 +56,7 @@ function createSearchRequestBodyForCommonAPI(request) {
     returnSpecialFare: false,
     refundableOnly: request.RefundableOnly,
     airlines: request.Airlines,
+    vendorList: getVendorList(),
   };
   return { uniqueKey, requestBody };
 }
@@ -158,7 +160,7 @@ function convertItineraryForKafila({
       Dur: sumDurationForKafila([segment]),
       layover: convertedItinerary?.Sectors?.[idx]?.layover ?? "",
       Seat: segment.noSeats,
-      FClass: segment.classofService,
+      FClass: segment.classOfService || segment.classofService || "",
       PClass: segment.productClass,
       FBasis: segment.fareBasisCode,
       FlightType: "",
@@ -323,11 +325,11 @@ function convertSegmentForKafila(segment) {
     IsConnect: segment.isConnect ?? false,
     AirlineCode: segment.airlineCode ?? "",
     AirlineName: segment.airlineName ?? "",
-    Class: segment.classofService ?? "",
+    Class: segment.classOfService || segment.classofService || "",
     CabinClass: getKafilaCabinClass(segment.cabinClass) ?? "",
     BookingCounts: segment.bookingCounts ?? "", // missing
     NoSeats: segment.noSeats ?? "",
-    FltNum: segment.fltNum ?? "",
+    FltNum: segment.flightNumber || segment.fltNum || "",
     EquipType: segment.equipType ?? "",
     FlyingTime: sumDurationForKafila([segment], "flyingTime"),
     TravelTime: sumDurationForKafila([segment], "flyingTime"),

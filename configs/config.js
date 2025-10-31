@@ -5,7 +5,8 @@ module.exports.Config = {
     baseURL: "https://kafilaui.traversia.net", // frontend
     baseURLBackend: "https://kafila.traversia.net",
     // additionalFlightsBaseURL: "http://localhost:31101/api",
-    additionalFlightsBaseURL: "http://kafilaapi.traversia.net:61102/api",
+    additionalFlightsBaseURL: "http://kafilacore.traversia.net:90/api",
+    // additionalFlightsBaseURL: "http://kafilaapi.traversia.net:61102/api",
     baseURLBackend: "https://kafila.traversia.net",
     IRCTC_BASE_URL: "https://stagews.irctc.co.in",
     IRCTC_MASTER_ID: "WKAFL00000",
@@ -13,12 +14,15 @@ module.exports.Config = {
     Mode: "TEST",
     lyraShopId: 99210763,
     lyraPassword: "testpassword_E3BhaoOPy3jv2LcdqKZ3n5TY0ShwiD1mkL7bl6VmhJg1l",
-    phonePeClientId:"KAFILAUAT_25091813133013",
-    phonePeClientSecret:"MDIyZjQyOTUtNDg4Zi00OTVmLWJkNzYtZWE1ZGY5NWU4MWI3",
-    phonePeVersion:"1",
-    phonePeAuthUrl:"https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token",
-    phonePePaymentUrl:"https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/pay",
-    phonePePaymentDetailUrl:"https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/order",
+    phonePeClientId: "KAFILAUAT_25091813133013",
+    phonePeClientSecret: "MDIyZjQyOTUtNDg4Zi00OTVmLWJkNzYtZWE1ZGY5NWU4MWI3",
+    phonePeVersion: "1",
+    phonePeAuthUrl:
+      "https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token",
+    phonePePaymentUrl:
+      "https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/pay",
+    phonePePaymentDetailUrl:
+      "https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/order",
   },
   LIVE: {
     baseURL: "https://agent.kafilaholidays.in", // frontend
@@ -32,18 +36,20 @@ module.exports.Config = {
     Mode: "LIVE",
     lyraShopId: 99210763,
     lyraPassword: "prodpassword_5HDCe87tE0aGD7ZA7VrvfBdeXIXGKP7L6FKyhGYjh4Plz",
-        phonePeClientId:"SU2510061057216616168064",
-    phonePeClientSecret:"07a93cfb-a9df-415c-9cfa-b7beae98a2f9",
-    phonePeVersion:"1",
-    phonePeAuthUrl:"https://api.phonepe.com/apis/identity-manager/v1/oauth/token",
-    phonePePaymentUrl:"https://api.phonepe.com/apis/pg/checkout/v2/pay",
-    phonePePaymentDetailUrl:"https://api.phonepe.com/apis/pg/checkout/v2/order",
+    phonePeClientId: "SU2510061057216616168064",
+    phonePeClientSecret: "07a93cfb-a9df-415c-9cfa-b7beae98a2f9",
+    phonePeVersion: "1",
+    phonePeAuthUrl:
+      "https://api.phonepe.com/apis/identity-manager/v1/oauth/token",
+    phonePePaymentUrl: "https://api.phonepe.com/apis/pg/checkout/v2/pay",
+    phonePePaymentDetailUrl:
+      "https://api.phonepe.com/apis/pg/checkout/v2/order",
   },
-  phonePeUserName:"KAFILALIVE_25091813133013",
-  phonePePassword:"9S3dpYt4swiHaJD",
+  phonePeUserName: "KAFILALIVE_25091813133013",
+  phonePePassword: "9S3dpYt4swiHaJD",
 
-  TMCID:"6555f84c991eaa63cb171a9f",
-  LYRAURL:"https://api.in.lyra.com/pg/rest/v1/charge",
+  TMCID: "6555f84c991eaa63cb171a9f",
+  LYRAURL: "https://api.in.lyra.com/pg/rest/v1/charge",
   PORT: process.env.PORT || 3111,
   SECRET_JWT: process.env.SECRET_JWT || "kafilapanel",
   MONGODB_URL:

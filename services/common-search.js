@@ -16,7 +16,8 @@ async function commonFlightSearch(request) {
       createSearchRequestBodyForCommonAPI(request);
     const url =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
-      "/flight/search";
+      "/Search/v2/LowFareSearch";
+    // "/flight/search";
     console.log({ url });
     console.log(
       `${
@@ -37,7 +38,7 @@ async function commonFlightSearch(request) {
     let itineraries = response?.data?.journey?.[0]?.itinerary
       ?.filter(
         (itinerary) =>
-          !["h1","x1", "sg"].includes(itinerary.valCarrier.toLowerCase())
+          !["h1", "x1", "sg"].includes(itinerary.valCarrier.toLowerCase())
       )
       ?.map((itinerary, idx) =>
         convertItineraryForKafila({

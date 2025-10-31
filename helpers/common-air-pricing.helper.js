@@ -7,6 +7,7 @@ const {
 } = require("./common-search.helper");
 const { Config } = require("../configs/config");
 const { saveLogInFile } = require("../utils/save-log");
+const { getVendorList } = require("./credentials");
 
 function createAirPricingRequestBodyForCommonAPI(request) {
   try {
@@ -40,6 +41,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
               indexNumber: reqItinerary.IndexNumber,
               provider: reqItinerary.Provider,
               promoCodeType: reqItinerary.PromoCodeType,
+              dealCode: reqItinerary.DealCode || "", // !TBD
               airSegments: reqItinerary.Sectors.map((sector) => ({
                 travelTime: convertDurationForCommonAPI(sector.TravelTime),
                 airlineCode: sector.AirlineCode,
@@ -51,6 +53,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                   ? { code: sector.OperatingCarrier }
                   : null,
                 fltNum: sector.FltNum,
+                flightNumber: sector.FltNum,
                 equipType: sector.EquipType,
                 group: sector.Group,
                 baggageInfo: sector.BaggageInfo,
@@ -65,6 +68,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                     })()
                   : "",
                 classofService: sector.Class,
+                classOfService: sector.Class,
                 cabinClass: getCommonCabinClass(sector.CabinClass),
                 productClass: sector.ProductClass,
                 noSeats: sector.NoSeats,
@@ -96,6 +100,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
           ],
         },
       ],
+      vendorList: getVendorList(),
     };
     return { requestBody };
   } catch (error) {

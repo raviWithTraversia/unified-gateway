@@ -13,9 +13,8 @@ const amadeus = require("./amadeus/searchFlights.service");
 const Config = require("../../configs/config");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const BookingTemp = require("../../models/booking/BookingTemp");
-const fixedFareData=require('./fixedFare.service')
+const fixedFareData = require("./fixedFare.service");
 const getCommercialForPkFareService = require("./flight.commercial");
-
 
 const {
   ServerStatusCode,
@@ -89,12 +88,12 @@ const getSearch = async (req, res) => {
       req.body.TypeOfTrip === "ROUNDTRIP";
 
     const flightRequests = [];
-    if (
-      !isInternationalRoundTrip &&
-      isAirlineFilterEligible &&
-      isClassAvlInKafila
-    )
-      flightRequests.push(flightSearch.getSearch(req, res));
+    // if (
+    //   !isInternationalRoundTrip &&
+    //   isAirlineFilterEligible &&
+    //   isClassAvlInKafila
+    // )
+    //   flightRequests.push(flightSearch.getSearch(req, res));
     if (isTestEnv) flightRequests.push(commonFlightSearch(req.body));
     const results = await Promise.allSettled(flightRequests);
     // console.log(results, "results");
@@ -236,23 +235,22 @@ const getPnrTicket = async (req, res) => {
   try {
     // throw new Error("Service Unavailable  The Moment");
     // return false
-    if(req.body.paymentMethod==="PG"){
-        await BookingTemp.create({
-                  companyId: req.body.Authentication.CompanyId,
-                  userId: req.body.Authentication.UserId,
-                  source: "Kafila",
-                  BookingId: req.body.bookingId,
-                  request: JSON.stringify(req.body),
-                  responce: "Hold Booking Save Successfully",
-                })
-                return apiSucessRes(
-                  res,
-                  "Fetch Process Result",
-                  "Hold Booking Save Successfully",
-                  ServerStatusCode.SUCESS_CODE
-                );
-      
-    }else{
+    if (req.body.paymentMethod === "PG") {
+      await BookingTemp.create({
+        companyId: req.body.Authentication.CompanyId,
+        userId: req.body.Authentication.UserId,
+        source: "Kafila",
+        BookingId: req.body.bookingId,
+        request: JSON.stringify(req.body),
+        responce: "Hold Booking Save Successfully",
+      });
+      return apiSucessRes(
+        res,
+        "Fetch Process Result",
+        "Hold Booking Save Successfully",
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
       const { result, error } = await getCommonPnrTicket(req.body, res);
       if (error) {
         throw new Error(error);
@@ -274,7 +272,7 @@ const getPnrTicket = async (req, res) => {
           true
         );
       }
-  
+
       if (error || result.length === 0)
         return apiErrorres(
           res,
@@ -282,7 +280,7 @@ const getPnrTicket = async (req, res) => {
           ServerStatusCode.SERVER_ERROR,
           true
         );
-  
+
       return apiSucessRes(
         res,
         "Fetch Process Result",
@@ -290,8 +288,6 @@ const getPnrTicket = async (req, res) => {
         ServerStatusCode.SUCESS_CODE
       );
     }
-   
-   
   } catch (error) {
     console.log({ error });
     return apiErrorres(
@@ -815,16 +811,15 @@ const updatePendingBookingStatus = async (req, res) => {
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
-      result.response ===
-        "_BookingId must be an array" ||
+      result.response === "_BookingId must be an array" ||
       result.response === "_BookingId array is empty" ||
       result.response === "TMC companyID Not Found" ||
       result.response === "Cancellation is still Pending" ||
       result.response === "Kafila API Data Not Found" ||
       result.response === "Invalid fromDate or toDate" ||
-      result.response === "TMC companyID Not Found"||
+      result.response === "TMC companyID Not Found" ||
       result.response === "Kafila API Data Not Found" ||
-      result.response === "Cancelation Data Not Found"||
+      result.response === "Cancelation Data Not Found" ||
       result.response === "One Time One Provider Booking Insert"
     ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
@@ -1117,7 +1112,7 @@ async function addTravellers(req, res) {
   }
 }
 
-const getFixedFare=async(req,res)=>{
+const getFixedFare = async (req, res) => {
   try {
     const result = await fixedFareData.getFixedFareService(req, res);
     if (!result.response && result.isSometingMissing) {
@@ -1129,8 +1124,7 @@ const getFixedFare=async(req,res)=>{
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    }
-     else {
+    } else {
       apiErrorres(
         res,
         result.response || errorResponse.SOME_UNOWN,
@@ -1146,12 +1140,15 @@ const getFixedFare=async(req,res)=>{
       true
     );
   }
-}
+};
 
-const getCommercialForPkFareController=async(req,res)=>{
+const getCommercialForPkFareController = async (req, res) => {
   try {
-    const result = await getCommercialForPkFareService.getCommercialForPkFare(req, res);
-  if (!result.response && result.isSometingMissing) {
+    const result = await getCommercialForPkFareService.getCommercialForPkFare(
+      req,
+      res
+    );
+    if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (result.response === "Fetch Commercial Data Successfully") {
       apiSucessRes(
@@ -1160,8 +1157,7 @@ const getCommercialForPkFareController=async(req,res)=>{
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    }
-     else {
+    } else {
       apiErrorres(
         res,
         result.response || errorResponse.SOME_UNOWN,
@@ -1177,7 +1173,7 @@ const getCommercialForPkFareController=async(req,res)=>{
       true
     );
   }
-}
+};
 module.exports = {
   getSearch,
   airPricing,
@@ -1204,5 +1200,5 @@ module.exports = {
   getAllTravellers,
   addTravellers,
   getFixedFare,
-  getCommercialForPkFareController
+  getCommercialForPkFareController,
 };

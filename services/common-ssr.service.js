@@ -13,22 +13,27 @@ module.exports.getCommonSSR = async (request) => {
       ...request,
       Itinerary,
     });
+    saveLogInFile("ssrRequestBody.json", requestBody);
     if (error) return { error };
     const ssrBaggageAndMealURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
-      "/ssr/getSSR";
+      "/prebook/v2/GetSSRs";
     const { data: responseMealOrBaggage } = await axios.post(
       ssrBaggageAndMealURL,
       requestBody
     );
 
+    saveLogInFile("responseMealOrBaggage.json", responseMealOrBaggage);
+
     const ssrOnlySeatURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
-      "/seat/airSeatMap";
+      "/prebook/v2/GetSeatMap";
     const { data: responseSeat } = await axios.post(
       ssrOnlySeatURL,
       requestBody
     );
+    saveLogInFile("responseSeat.json", responseSeat);
+
     const convertedSSRItinerary = await convertSSRItineraryForCommonAPI({
       responseMealOrBaggage: responseMealOrBaggage.data,
       responseSeat: responseSeat.data,

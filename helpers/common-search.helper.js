@@ -79,28 +79,31 @@ function convertItineraryForKafila({
     CarbonEmission: itinerary.carbonEmission,
     InPolicy: itinerary.inPolicy,
     IsRecommended: itinerary.isRecommended,
-    UID: itinerary.uid,
+    UID: itinerary.uid || itinerary.uId || "",
     BaseFare: itinerary.baseFare,
     Taxes: Number(itinerary.taxes) || 0,
     TotalPrice: itinerary.totalPrice,
     OfferedPrice: itinerary.totalPrice,
     GrandTotal: itinerary.totalPrice,
-    Currency: "INR",
-    FareType: itinerary.fareType,
+    Currency: itinerary.currency || "",
+    FareType:
+      itinerary?.fareType || itinerary?.airSegments?.[0]?.fareType || "",
     Stop: itinerary.airSegments.length - 1,
     IsVia: itinerary.airSegments.length > 1,
     TourCode: "",
     PricingMethod: "",
-    FareFamily: itinerary.fareFamily,
+    FareFamily:
+      itinerary?.fareFamily || itinerary?.airSegments?.[0]?.fareFamily || "",
     PromotionalFare: !!itinerary.promotionalCode,
     FareFamilyDN: null,
     PromotionalCode: itinerary.promotionalCode,
     PromoCodeType: itinerary.promoCodeType,
-    RefundableFare: itinerary.refundableFare,
+    RefundableFare: itinerary.refundableFare || itinerary.refundable || false,
     IndexNumber: itinerary.indexNumber,
     Provider: itinerary.provider,
     ValCarrier: itinerary.valCarrier,
-    LastTicketingDate: itinerary.lastTicketingTime || "",
+    LastTicketingDate:
+      itinerary.lastTicketingTime || itinerary.lastTicketingDate || "",
     TravelTime: sumDurationForKafila([itinerary.airSegments[0]]),
     PriceBreakup: [
       passengerPriceBreakupForKafila("ADT", itinerary.priceBreakup),
@@ -110,12 +113,14 @@ function convertItineraryForKafila({
     ],
     Sectors: itinerary.airSegments.map(convertSegmentForKafila),
     FareRule: null,
-    HostTokens: null,
+    HostTokens: itinerary.hostTokens || [],
     Key: itinerary.key,
     SearchID: response?.journey?.[0]?.journeyKey,
     TRCNumber: null,
     TraceId: response.traceId,
     OI: null,
+    OfficeId: itinerary.officeId || "",
+    Errors: itinerary.errors || [],
   };
 
   convertedItinerary[apiItinerary ? "apiItinerary" : "SelectedFlight"] = {
@@ -162,7 +167,7 @@ function convertItineraryForKafila({
       Seat: segment.noSeats,
       FClass: segment.classOfService || segment.classofService || "",
       PClass: segment.productClass,
-      FBasis: segment.fareBasisCode,
+      FBasis: segment.fareBasisCode || segment.fareBasis || "",
       FlightType: "",
       OI: null,
     })),
@@ -327,22 +332,23 @@ function convertSegmentForKafila(segment) {
     AirlineName: segment.airlineName ?? "",
     Class: segment.classOfService || segment.classofService || "",
     CabinClass: getKafilaCabinClass(segment.cabinClass) ?? "",
-    BookingCounts: segment.bookingCounts ?? "", // missing
+    BookingCounts: segment.bookingCounts || segment.rbds || "", // missing
     NoSeats: segment.noSeats ?? "",
     FltNum: segment.flightNumber || segment.fltNum || "",
-    EquipType: segment.equipType ?? "",
+    EquipType: segment.equipType || segment.equipmentType || "",
     FlyingTime: sumDurationForKafila([segment], "flyingTime"),
     TravelTime: sumDurationForKafila([segment], "flyingTime"),
     TechStopOver: segment.technicalStops?.length ?? 0, // missing
     layover: getTechnicalStopRemark(segment.technicalStops), // missing
-    Status: "", // missing
+    Status: segment.status || "", // missing
     OperatingCarrier: segment.operatingCarrier?.code ?? null,
     MarketingCarrier: null,
-    BaggageInfo: segment.baggageInfo ?? "",
+    BaggageInfo: segment.baggageInfo || segment.cabinBaggage || "",
+    NoOfSeats: segment.noOfSeats || "",
     HandBaggage: segment.handBaggage ?? "",
-    TransitTime: null,
+    TransitTime: segment.transitTime || "",
     MealCode: null,
-    key: segment.key ?? "",
+    key: segment.key || segment.segRef || "",
     Distance: "",
     ETicket: "No",
     ChangeOfPlane: "",
@@ -352,7 +358,7 @@ function convertSegmentForKafila(segment) {
     Group: segment.group ?? "",
     LinkAvailability: false,
     PolledAvailabilityOption: "",
-    FareBasisCode: segment.fareBasisCode ?? "",
+    FareBasisCode: segment.fareBasisCode || segment.fareBasis || "",
     HostTokenRef: segment.offerDetails
       ? JSON.stringify(segment.offerDetails)
       : "",
@@ -361,6 +367,9 @@ function convertSegmentForKafila(segment) {
     Arrival: convertFlightDetailsForKafila(segment.arrival),
     OI: [],
     ProductClass: segment.productClass ?? "",
+    FareFamily: segment.fareFamily || "",
+    FareType: segment.fareType || "",
+    Brand: segment.brand || null,
   };
 }
 
@@ -397,7 +406,7 @@ function passengerPriceBreakupForKafila(type, priceBreakup) {
       Basic: 0,
       Tax: 0,
     },
-    key: breakup.key ?? "",
+    key: breakup.key || breakup.fareCalc || "",
     OI: [],
   };
 }

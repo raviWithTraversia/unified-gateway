@@ -28,7 +28,7 @@ module.exports.Config = {
     baseURL: "https://agent.kafilaholidays.in", // frontend
     baseURLBackend: "https://agentapi.kafilaholidays.in",
     // additionalFlightsBaseURL: "http://localhost:31101/api",
-    additionalFlightsBaseURL: "http://kflapi.kafilaholidays.in:61101/api",
+    additionalFlightsBaseURL: "<LIVE_URL>",
     baseURLBackend: "https://agentapi.kafilaholidays.in",
     IRCTC_BASE_URL: "https://www.aps.irctc.co.in",
     IRCTC_MASTER_ID: "WKAFILA00000",

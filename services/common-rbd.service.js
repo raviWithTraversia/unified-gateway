@@ -4,18 +4,25 @@ const {
   createRBDRequestBody,
   createRBDResponse,
 } = require("../helpers/common-rbd.helper");
+const { saveLogInFile } = require("../utils/save-log");
 
 module.exports.getCommonRBD = async (request) => {
   try {
     console.dir({ request }, { depth: null });
     const { requestBody, error: requestError } = createRBDRequestBody(request);
+    saveLogInFile("rbd-request.json", requestBody);
     if (requestError) throw new Error("Failed to create RBD request body");
     const rbdURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
-      "/rbd/getrbd";
+      "/prebook/v2/GetRBDs";
+    // "/rbd/getrbd";
     const { data: response } = await axios.post(rbdURL, requestBody);
+    saveLogInFile("rbd-response.json", response);
+
     if (!response.data?.journey?.[0]) throw new Error("No Data Available");
-    return { result: createRBDResponse(response.data.journey[0].itinerary[0]) };
+    return {
+      result: createRBDResponse(response.data.journey[0]),
+    };
   } catch (err) {
     console.dir({ err }, { depth: null });
     return { error: err?.response?.data?.message || err.message };

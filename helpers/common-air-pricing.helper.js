@@ -256,16 +256,16 @@ async function convertSSRItineraryForCommonAPI({
     };
   }
 
-  if (isDOM_AI) {
-    itinerary.ssrInfo.meal = itinerary.airSegments.flatMap((segment) =>
-      Config.AI_MEALS.map((meal) => {
-        meal.flightNumber = segment.fltNum;
-        meal.origin = segment.departure.code;
-        meal.destination = segment.arrival.code;
-        return meal;
-      })
-    );
-  }
+  // if (isDOM_AI) {
+  //   itinerary.ssrInfo.meal = itinerary.airSegments.flatMap((segment) =>
+  //     Config.AI_MEALS.map((meal) => {
+  //       meal.flightNumber = segment.fltNum;
+  //       meal.origin = segment.departure.code;
+  //       meal.destination = segment.arrival.code;
+  //       return meal;
+  //     })
+  //   );
+  // }
 
   let allSegmentsOfSeatMap = [];
   let allSeatsList = [];

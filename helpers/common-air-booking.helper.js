@@ -4,11 +4,13 @@ const {
   convertDurationForCommonAPI,
   convertFlightDetailsForCommonAPI,
   convertPriceBreakupForCommonAPI,
+  createAirPricingRequestBodyForCommonAPI,
 } = require("./common-air-pricing.helper");
 const { convertTravelTypeForCommonAPI } = require("./common-search.helper");
 const SupplierCode = require("../models/supplierCode");
 const CardDetailsModel = require("../models/CardDetails");
 const { monthMap } = require("../utils/month-map");
+const { getVendorList } = require("./credentials");
 
 async function createAirBookingRequestBodyForCommonAPI(
   request,
@@ -39,15 +41,21 @@ async function createAirBookingRequestBodyForCommonAPI(
         ? reqItinerary?.Sectors?.at(-1)?.Arrival?.CityCode
         : reqSegment.Destination;
 
+    const pricingRQ = createAirPricingRequestBodyForCommonAPI({
+      ...request.SearchRequest,
+      Itinerary: request.ItineraryPriceCheckResponses,
+    });
+
     const requestBody = {
       typeOfTrip: SearchRequest.TypeOfTrip,
       credentialType: SearchRequest?.Authentication?.CredentialType ?? "TEST",
       travelType,
-      systemEntity: "KAFILA",
-      systemName: "KAFILA",
-      corpCode: "000000",
-      requestorCode: "000000",
-      empCode: "000000",
+      companyId: SearchRequest?.Authentication?.CompanyId || "000000",
+      // systemEntity: "KAFILA",
+      // systemName: "KAFILA",
+      // corpCode: "000000",
+      // requestorCode: "000000",
+      // empCode: "000000",
       uniqueKey: reqItinerary.UniqueKey,
       traceId: reqItinerary.TraceId,
       journey: [
@@ -55,7 +63,9 @@ async function createAirBookingRequestBodyForCommonAPI(
           journeyKey: reqItinerary.SearchID,
           origin,
           destination,
-          rbdChanged: false, // ! TODO:
+          issueTicket: !request.isHoldBooking,
+          travelOrder: 1,
+          ptcChanged: false,
           travellerDetails: PassengerPreferences?.Passengers?.map(
             (passenger, idx) =>
               convertTravelerDetailsForCommonAPI(
@@ -65,77 +75,80 @@ async function createAirBookingRequestBodyForCommonAPI(
                 PassengerPreferences
               )
           ),
-          itinerary: [
-            {
-              sessionKey: reqItinerary.SessionKey,
-              uid: reqItinerary.UID,
-              indexNumber: reqItinerary.IndexNumber,
-              provider: reqItinerary.Provider,
-              promoCodeType: reqItinerary.PromoCodeType,
-              airSegments: reqItinerary.Sectors.map((sector) => ({
-                key: sector.key ?? "",
-                travelTime: convertDurationForCommonAPI(sector.TravelTime),
-                airlineCode: sector.AirlineCode,
-                airlineName: sector.AirlineName,
-                flyingTime: convertDurationForCommonAPI(sector.FlyingTime),
-                departure: convertFlightDetailsForCommonAPI(sector.Departure),
-                arrival: convertFlightDetailsForCommonAPI(sector.Arrival),
-                operatingCarrier: sector.OperatingCarrier
-                  ? { code: sector.OperatingCarrier }
-                  : null,
-                fltNum: sector.FltNum,
-                equipType: sector.EquipType,
-                group: sector.Group,
-                baggageInfo: sector.BaggageInfo,
-                handBaggage: sector.HandBaggage,
-                offerDetails: null,
-                classofService: sector.Class,
-                cabinClass: sector.CabinClass,
-                productClass: sector.ProductClass,
-                noSeats: sector.Seats,
-                fareBasisCode: sector.FareBasisCode,
-                availabilitySource: sector.AvailabilitySource,
-                isConnect: sector.IsConnect,
-              })),
-              priceBreakup: convertPriceBreakupForCommonAPI(
-                reqItinerary.PriceBreakup
-              ),
-              freeSeat: reqItinerary.FreeSeat,
-              freeMeal: reqItinerary.FreeMeal,
-              carbonEmission: reqItinerary.CarbonEmission,
-              baseFare: reqItinerary.BaseFare,
-              taxes: reqItinerary.Taxes,
-              totalPrice: reqItinerary.TotalPrice,
-              valCarrier: reqItinerary.ValCarrier,
-              refundableFare: reqItinerary.RefundableFare,
-              sessionKey: reqItinerary.SessionKey,
-              fareType: reqItinerary.FareType,
-              promotionalCode: reqItinerary.PromotionalCode,
-              fareFamily: reqItinerary.FareFamily,
-              key: reqItinerary.Key,
-              inPolicy: reqItinerary.InPolicy,
-              isRecommended: reqItinerary.IsRecommended,
-            },
-          ],
+          itinerary: pricingRQ.requestBody.journey[0].itinerary,
+          // itinerary: [
+          //   {
+          //     sessionKey: reqItinerary.SessionKey,
+          //     uId: reqItinerary.UID,
+          //     // uid: reqItinerary.UID,
+          //     indexNumber: reqItinerary.IndexNumber,
+          //     provider: reqItinerary.Provider,
+          //     promoCodeType: reqItinerary.PromoCodeType,
+          //     dealCode: reqItinerary.DealCode || "",
+          //     airSegments: reqItinerary.Sectors.map((sector) => ({
+          //       key: sector.key ?? "",
+          //       travelTime: convertDurationForCommonAPI(sector.TravelTime),
+          //       airlineCode: sector.AirlineCode,
+          //       airlineName: sector.AirlineName,
+          //       flyingTime: convertDurationForCommonAPI(sector.FlyingTime),
+          //       departure: convertFlightDetailsForCommonAPI(sector.Departure),
+          //       arrival: convertFlightDetailsForCommonAPI(sector.Arrival),
+          //       operatingCarrier: sector.OperatingCarrier
+          //         ? { code: sector.OperatingCarrier }
+          //         : null,
+          //       fltNum: sector.FltNum,
+          //       equipType: sector.EquipType,
+          //       group: sector.Group,
+          //       baggageInfo: sector.BaggageInfo,
+          //       handBaggage: sector.HandBaggage,
+          //       offerDetails: null,
+          //       classofService: sector.Class,
+          //       cabinClass: sector.CabinClass,
+          //       productClass: sector.ProductClass,
+          //       noSeats: sector.Seats,
+          //       fareBasisCode: sector.FareBasisCode,
+          //       availabilitySource: sector.AvailabilitySource,
+          //       isConnect: sector.IsConnect,
+          //     })),
+          //     priceBreakup: convertPriceBreakupForCommonAPI(
+          //       reqItinerary.PriceBreakup
+          //     ),
+          //     freeSeat: reqItinerary.FreeSeat,
+          //     freeMeal: reqItinerary.FreeMeal,
+          //     carbonEmission: reqItinerary.CarbonEmission,
+          //     baseFare: reqItinerary.BaseFare,
+          //     taxes: reqItinerary.Taxes,
+          //     totalPrice: reqItinerary.TotalPrice,
+          //     valCarrier: reqItinerary.ValCarrier,
+          //     refundableFare: reqItinerary.RefundableFare,
+          //     sessionKey: reqItinerary.SessionKey,
+          //     fareType: reqItinerary.FareType,
+          //     promotionalCode: reqItinerary.PromotionalCode,
+          //     fareFamily: reqItinerary.FareFamily,
+          //     key: reqItinerary.Key,
+          //     inPolicy: reqItinerary.InPolicy,
+          //     isRecommended: reqItinerary.IsRecommended,
+          //   },
+          // ],
         },
       ],
-      gstDetails: {
-        fullName: PassengerPreferences?.GstData?.gstName || null,
-        emailAddress: PassengerPreferences?.GstData?.gstEmail || null,
-        homePhone: PassengerPreferences?.GstData?.gstmobile || null,
-        workPhone: PassengerPreferences?.GstData?.gstmobile || null,
-        gstNumber: PassengerPreferences?.GstData?.gstNumber || null,
-        companyName: PassengerPreferences?.GstData?.gstName || null,
-        addressLine1: PassengerPreferences?.GstData?.gstAddress || null,
-        addressLine2: PassengerPreferences?.GstData?.gstAddressLine2 || null,
-        city:
-          PassengerPreferences?.GstData?.gstCity ||
-          PassengerPreferences?.GstData?.GSTState ||
-          null,
-        provinceState: PassengerPreferences?.GstData?.GSTState || null,
-        postalCode: PassengerPreferences?.GstData?.GSTPinCode || null,
-        countryCode: PassengerPreferences?.GstData?.gstCountryCode || null,
-      },
+      // gstDetails: {
+      //   fullName: PassengerPreferences?.GstData?.gstName || null,
+      //   emailAddress: PassengerPreferences?.GstData?.gstEmail || null,
+      //   homePhone: PassengerPreferences?.GstData?.gstmobile || null,
+      //   workPhone: PassengerPreferences?.GstData?.gstmobile || null,
+      //   gstNumber: PassengerPreferences?.GstData?.gstNumber || null,
+      //   companyName: PassengerPreferences?.GstData?.gstName || null,
+      //   addressLine1: PassengerPreferences?.GstData?.gstAddress || null,
+      //   addressLine2: PassengerPreferences?.GstData?.gstAddressLine2 || null,
+      //   city:
+      //     PassengerPreferences?.GstData?.gstCity ||
+      //     PassengerPreferences?.GstData?.GSTState ||
+      //     null,
+      //   provinceState: PassengerPreferences?.GstData?.GSTState || null,
+      //   postalCode: PassengerPreferences?.GstData?.GSTPinCode || null,
+      //   countryCode: PassengerPreferences?.GstData?.gstCountryCode || null,
+      // },
       // agencyInfo: {
       //   companyName: "",
       //   addressLine1: "",
@@ -155,6 +168,7 @@ async function createAirBookingRequestBodyForCommonAPI(
       tourCode: null,
       isHoldBooking: request.isHoldBooking || false,
       fareMasking: false,
+      vendorList: getVendorList(),
     };
     if (reqItinerary.ValCarrier === "AI") {
       const { cardDetails, error: cardDetailsError } = await getCardDetails({
@@ -303,9 +317,9 @@ function convertTravelerDetailsForCommonAPI(
             isdCode: traveler.IsdCode ?? null,
           },
     frequentFlyer: traveler.FrequentFlyer ?? null,
-    nationality: traveler.Nationality ?? null,
-    department: traveler.Department ?? null,
-    designation: traveler.Designation ?? null,
+    nationality: traveler.Nationality ?? "IN",
+    department: traveler.Department ?? "",
+    designation: traveler.Designation ?? "",
   };
 }
 
@@ -317,9 +331,9 @@ function convertBookingResponse(request, response, reqSegment, isINTRoundtrip) {
   const src = reqSegment.Origin;
   const des = reqSegment.Destination;
   // const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
-  const pnrs = response?.data?.journey?.[0]?.recLocInfo;
+  const pnrs = response?.data?.journey?.[0]?.recLoc;
   const bookingStatus =
-    response?.data?.journey?.[0]?.status?.pnrStatus ?? "Pending";
+    response?.data?.journey?.[0]?.bookingStatus ?? "Pending";
   const errorMessage =
     response?.data?.journey?.[0]?.reason ||
     response?.data?.journey?.[0]?.message ||
@@ -329,8 +343,8 @@ function convertBookingResponse(request, response, reqSegment, isINTRoundtrip) {
   console.log({ errorMessage });
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
-    PNR = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
-    APnr = pnrs.find((pnr) => pnr.type === "UAPI")?.pnr ?? null;
+    PNR = pnrs.find((pnr) => pnr.type === "GDS")?.pnr ?? null;
+    APnr = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
     GPnr = pnrs.find((pnr) => pnr.type === "GDS")?.pnr ?? null;
   }
   // if (tickets.length) {

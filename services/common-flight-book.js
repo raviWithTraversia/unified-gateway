@@ -40,6 +40,8 @@ module.exports.commonFlightBook = async function (
         reqSegment,
         reqItinerary
       );
+    saveLogInFile("common-book-request.json", requestBody);
+
     logData.request = error || requestBody;
     const isINTRoundtrip =
       requestBody?.typeOfTrip === "ROUNDTRIP" &&
@@ -81,6 +83,7 @@ module.exports.commonFlightBook = async function (
     saveLogInFile("common-flight-book-error.json", {
       stack: error.stack,
       error: error.message,
+      data: error?.response?.data,
     });
     throw new Error(error.message);
   } finally {

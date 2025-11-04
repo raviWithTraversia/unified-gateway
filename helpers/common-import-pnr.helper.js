@@ -6,6 +6,8 @@ const user = require("../models/User");
 const {
   getApplyAllCommercial,
 } = require("../controllers/flight/flight.commercial");
+const { getVendorList } = require("./credentials");
+const { saveLogInFile } = require("../utils/save-log");
 
 async function importPNRHelper(request) {
   try {
@@ -18,36 +20,32 @@ async function importPNRHelper(request) {
 
     const importPNRRequest = {
       typeOfTrip: "ONEWAY",
-      credentialType: Authentication?.CredentialType,
       travelType: "DOM",
-      systemEntity: "x",
-      systemName: "x",
-      corpCode: "x",
-      requestorCode: "x",
-      empCode: "x",
-      traceId: uuidv4(),
-      journey: [
-        {
-          provider: provider,
-          origin: "",
-          destination: "",
-          uid: uuidv4(),
-          journeyKey: uuidv4(),
-          itinerary: [
-            {
-              recordLocator: pnr,
-            },
-          ],
-        },
-      ],
+      credentialType: Authentication?.CredentialType,
+      // systemEntity: "x",
+      // systemName: "x",
+      // corpCode: "x",
+      // requestorCode: "x",
+      // empCode: "x",
+      traceId: Authentication?.TraceId || uuidv4(),
+      companyId: Authentication?.CompanyId,
+      recLoc: {
+        type: "GDS",
+        pnr,
+      },
+      provider,
+      vendorList: getVendorList(),
     };
+    saveLogInFile("import-pnr-request.json", importPNRRequest);
     const url =
       Config[Authentication.CredentialType ?? "TEST"].additionalFlightsBaseURL +
-      `/pnr/importPNR`;
+      `/postbook/v2/RetrievePnr`;
+    // `/pnr/importPNR`;
     // console.log({ importURL: url });
 
     const pnrResponse = await axios.post(url, importPNRRequest);
     const result = pnrResponse.data;
+    saveLogInFile("pnr-response.json", result);
     const journey = result.data?.journey?.[0];
     const itinerary = journey?.itinerary?.[0];
     const isInternationalTrip = itinerary.airSegments.some(
@@ -92,10 +90,10 @@ async function importPNRHelper(request) {
 
     return {
       result: {
-        Status: journey?.status?.pnrStatus || "failed",
+        Status: journey?.bookingStatus || "failed",
         PNR:
-          journey?.recLocInfo?.find?.((details) => details?.type === "GDS")
-            ?.pnr ?? null,
+          journey?.recLoc?.find?.((details) => details?.type === "GDS")?.pnr ??
+          null,
         Itinerary: iternaryObj,
         Passengers,
         // data: result.data,

@@ -37,6 +37,8 @@ function createSearchRequestBodyForCommonAPI(request) {
     requestorCode: "000000", // !TBD
     empCode: "000000", // !TBD
     uniqueKey: uniqueKey,
+    traceId: uniqueKey,
+    companyId: request.Authentication.CompanyId,
     sectors: request.Segments.map((segment) => ({
       origin: segment.Origin,
       destination: segment.Destination,
@@ -96,7 +98,7 @@ function convertItineraryForKafila({
       itinerary?.fareFamily || itinerary?.airSegments?.[0]?.fareFamily || "",
     PromotionalFare: !!itinerary.promotionalCode,
     FareFamilyDN: null,
-    PromotionalCode: itinerary.promotionalCode,
+    PromotionalCode: itinerary.promotionalCode || itinerary.dealCode || "",
     PromoCodeType: itinerary.promoCodeType,
     RefundableFare: itinerary.refundableFare || itinerary.refundable || false,
     IndexNumber: itinerary.indexNumber,

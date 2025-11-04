@@ -30,6 +30,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
       empCode: "000000",
       uniqueKey: reqItinerary.UniqueKey,
       traceId: reqItinerary.TraceId,
+      companyId: request.Authentication.CompanyId,
       journey: [
         {
           journeyKey: reqItinerary.SearchID,
@@ -61,7 +62,8 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                 // equipType: sector.EquipType,
                 equipmentType: sector.EquipType,
                 group: sector.Group,
-                baggageInfo: sector.BaggageInfo,
+                // baggageInfo: sector.BaggageInfo,
+                cabinBaggage: sector.BaggageInfo,
                 handBaggage: sector.HandBaggage,
                 offerDetails: sector?.HostTokenRef?.length
                   ? (() => {
@@ -72,7 +74,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                       }
                     })()
                   : "",
-                classofService: sector.Class,
+                // classofService: sector.Class,
                 classOfService: sector.Class,
                 cabinClass: getCommonCabinClass(sector.CabinClass),
                 productClass: sector.ProductClass,
@@ -83,7 +85,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                 fareBasisCode: sector.FareBasisCode,
                 fareType: sector.FareType,
                 rbds: sector.BookingCounts,
-                // technicalStops: sector.technicalStops || [],
+                technicalStops: sector.TechStopOver || [],
                 // transitTime: sector.TransitTime,
                 brand: sector.Brand,
                 availabilitySource: sector.AvailabilitySource,
@@ -104,14 +106,16 @@ function createAirPricingRequestBodyForCommonAPI(request) {
               totalPrice: reqItinerary.TotalPrice,
               currency: reqItinerary.Currency ?? "INR",
               valCarrier: reqItinerary.ValCarrier,
-              refundableFare: reqItinerary.RefundableFare,
+              refundable: reqItinerary.RefundableFare,
               sessionKey: reqItinerary.SessionKey,
               fareType: reqItinerary.FareType,
-              promotionalCode: reqItinerary.PromotionalCode,
+              // promotionalCode: reqItinerary.PromotionalCode,
+              dealCode: reqItinerary.PromotionalCode || "",
               fareFamily: reqItinerary.FareFamily,
               key: reqItinerary.Key,
               inPolicy: reqItinerary.InPolicy,
               isRecommended: reqItinerary.IsRecommended,
+              lastTicketingDate: reqItinerary.LastTicketingDate,
             },
           ],
         },
@@ -585,7 +589,9 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
             Compartemnt: compartment,
             Type: type || "Seat",
             Seatcode: seatCode,
-            Availability: availability == "Open" ? true : false,
+            Availability: ["Open", "Available"].includes(availability)
+              ? true
+              : false,
             // Availability: availability == "Available" ? true : false,
             Paid: paid,
             Currency: currency,
@@ -632,29 +638,28 @@ async function getPnrTicketCommonAPIBody(request) {
   for (var reqItinerary of request.Itinerary) {
     data.push({
       typeOfTrip: request.TypeOfTrip,
-      credentialType: request.Authentication.CredentialType,
       travelType: convertTravelTypeForCommonAPI(request.TravelType),
-      systemEntity: "TCIL",
-      systemName: "Astra2.0",
-      corpCode: "000000",
-      requestorCode: "000000",
-      empCode: "000000",
-      uniqueKey: reqItinerary.UniqueKey,
+      credentialType: request.Authentication.CredentialType,
+      // systemEntity: "TCIL",
+      // systemName: "Astra2.0",
+      // corpCode: "000000",
+      // requestorCode: "000000",
+      // empCode: "000000",
       traceId: reqItinerary.TraceId,
-      journey: [
-        {
-          journeyKey: reqItinerary.SearchID,
-          origin: reqSegment.Origin,
-          destination: reqSegment.Destination,
-          provider: reqItinerary.Provider,
-          itinerary: [
-            {
-              recordLocator: reqItinerary.PNR,
-            },
-          ],
-        },
-      ],
-      version: "1",
+      companyId: request.Authentication.CompanyId,
+      // uniqueKey: reqItinerary.UniqueKey,
+      recLoc: {
+        type: "GDS",
+        pnr: reqItinerary.PNR,
+      },
+      travellerDetails: [],
+      cardDetails: {},
+      provider: reqItinerary.Provider,
+      gstDetails: {},
+      agencyInfo: {},
+      rmFields: [],
+      vendorList: getVendorList(),
+      // version: "1",
     });
   }
 

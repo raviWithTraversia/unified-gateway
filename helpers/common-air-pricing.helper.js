@@ -120,7 +120,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
           ],
         },
       ],
-      vendorList: getVendorList(),
+      vendorList: getVendorList(request.Authentication.CredentialType),
     };
     return { requestBody };
   } catch (error) {
@@ -559,6 +559,9 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
           characteristics,
           paid,
         } = seatFacilities;
+        const characteristicStrings = characteristics.map(
+          (char) => char.description
+        );
         if (seatCode) {
           let DDate = "",
             ssrProperty = [];
@@ -573,7 +576,8 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
           if (
             seatRows?.facilities?.[seatIdx - 1]?.type === "Aisle" ||
             seatRows?.facilities?.[seatIdx + 1]?.type === "Aisle" ||
-            (characteristics?.length && characteristics.includes("Aisle seat"))
+            (characteristicStrings?.length &&
+              characteristicStrings.includes("Aisle seat"))
           ) {
             ssrProperty.push({
               SKey: "AISLE",
@@ -595,7 +599,7 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
             // Availability: availability == "Available" ? true : false,
             Paid: paid,
             Currency: currency,
-            Characteristics: characteristics,
+            Characteristics: characteristicStrings,
             TotalPrice: amount,
             Key: key,
             FCode: segmentsList?.airlineCode || "",
@@ -640,14 +644,8 @@ async function getPnrTicketCommonAPIBody(request) {
       typeOfTrip: request.TypeOfTrip,
       travelType: convertTravelTypeForCommonAPI(request.TravelType),
       credentialType: request.Authentication.CredentialType,
-      // systemEntity: "TCIL",
-      // systemName: "Astra2.0",
-      // corpCode: "000000",
-      // requestorCode: "000000",
-      // empCode: "000000",
       traceId: reqItinerary.TraceId,
       companyId: request.Authentication.CompanyId,
-      // uniqueKey: reqItinerary.UniqueKey,
       recLoc: {
         type: "GDS",
         pnr: reqItinerary.PNR,
@@ -658,8 +656,7 @@ async function getPnrTicketCommonAPIBody(request) {
       gstDetails: {},
       agencyInfo: {},
       rmFields: [],
-      vendorList: getVendorList(),
-      // version: "1",
+      vendorList: getVendorList(request.Authentication.CredentialType),
     });
   }
 

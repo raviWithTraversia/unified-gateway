@@ -58,7 +58,7 @@ function createSearchRequestBodyForCommonAPI(request) {
     returnSpecialFare: false,
     refundableOnly: request.RefundableOnly,
     airlines: request.Airlines,
-    vendorList: getVendorList(),
+    vendorList: getVendorList(request.Authentication.CredentialType),
   };
   return { uniqueKey, requestBody };
 }

@@ -34,14 +34,13 @@ async function importPNRHelper(request) {
         pnr,
       },
       provider,
-      vendorList: getVendorList(),
+      vendorList: getVendorList(Authentication.CredentialType),
     };
     saveLogInFile("import-pnr-request.json", importPNRRequest);
     const url =
       Config[Authentication.CredentialType ?? "TEST"].additionalFlightsBaseURL +
       `/postbook/v2/RetrievePnr`;
     // `/pnr/importPNR`;
-    // console.log({ importURL: url });
 
     const pnrResponse = await axios.post(url, importPNRRequest);
     const result = pnrResponse.data;

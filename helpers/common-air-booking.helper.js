@@ -168,7 +168,7 @@ async function createAirBookingRequestBodyForCommonAPI(
       tourCode: null,
       isHoldBooking: request.isHoldBooking || false,
       fareMasking: false,
-      vendorList: getVendorList(),
+      vendorList: getVendorList(SearchRequest?.Authentication?.CredentialType),
     };
     if (reqItinerary.ValCarrier === "AI") {
       const { cardDetails, error: cardDetailsError } = await getCardDetails({
@@ -287,7 +287,11 @@ function convertTravelerDetailsForCommonAPI(
             "YYYY-MM-DD"
           ),
         }
-      : null,
+      : {
+          number: "",
+          issuingCountry: "",
+          expiryDate: "",
+        },
     contactDetails:
       idx === 0
         ? {
@@ -335,16 +339,17 @@ function convertBookingResponse(request, response, reqSegment, isINTRoundtrip) {
   const bookingStatus =
     response?.data?.journey?.[0]?.bookingStatus ?? "Pending";
   const errorMessage =
-    response?.data?.journey?.[0]?.reason ||
-    response?.data?.journey?.[0]?.message ||
-    response?.data?.journey?.[0]?.messages ||
-    "";
+    response?.data?.journey?.[0]?.errorList?.join?.(", ") || null;
+  // response?.data?.journey?.[0]?.reason ||
+  // response?.data?.journey?.[0]?.message ||
+  // response?.data?.journey?.[0]?.messages ||
+  ("");
 
   console.log({ errorMessage });
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
     PNR = pnrs.find((pnr) => pnr.type === "GDS")?.pnr ?? null;
-    APnr = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
+    // APnr = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
     GPnr = pnrs.find((pnr) => pnr.type === "GDS")?.pnr ?? null;
   }
   // if (tickets.length) {

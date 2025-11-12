@@ -346,11 +346,15 @@ function convertBookingResponse(request, response, reqSegment, isINTRoundtrip) {
   ("");
 
   console.log({ errorMessage });
+
+  const provider = response?.data?.journey?.[0]?.itinerary?.[0]?.provider;
   let [PNR, APnr, GPnr] = [null, null, null];
   if (pnrs?.length) {
     PNR = pnrs.find((pnr) => pnr.type === "GDS")?.pnr ?? null;
     // APnr = pnrs.find((pnr) => pnr.type === "Airline")?.pnr ?? null;
-    GPnr = pnrs.find((pnr) => pnr.type === "GDS")?.pnr ?? null;
+    GPnr =
+      pnrs.find((pnr) => pnr.type === (provider === "1AN" ? "Airline" : "GDS"))
+        ?.pnr ?? null;
   }
   // if (tickets.length) {
   // }

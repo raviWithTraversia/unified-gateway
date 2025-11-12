@@ -34,6 +34,35 @@ const testCredentials = [
     productClass: [],
     excludeAirlines: [],
   },
+  // {
+  //   vendorCode: "1AN",
+  //   credential: {
+  //     userId: "WSK4HKAF",
+  //     password: "3FZ@ZZVeRiS+",
+  //     pseudoCityCode: "DELVS317Q",
+  //     wSAP_TargetBranch: "1ASIWKAFK4H",
+  //   },
+  //   fareTypes: [
+  //     "RP",
+  //     // "RF",
+  //     "RU",
+  //     "MNR",
+  //     // "TAC",
+  //     // "ET",
+  //     "IFS",
+  //     // "XND"
+  //   ],
+  //   dealCodes: [
+  //     {
+  //       airlineCode: "AI",
+  //       dealCode: "015118",
+  //       dealCodeType: "Corporate",
+  //     },
+  //   ],
+  //   productClass: [],
+  //   //"includeAirlines": ["UK"], //"AI", "UK"
+  //   excludeAirlines: [],
+  // },
 ];
 
 const liveCredentials = [];

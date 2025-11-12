@@ -30,7 +30,7 @@ async function totalAmountGet(amount, userId) {
   }
   return true;
 }
-const getCommonPnrTicket = async (request, res,PG=false) => {
+const getCommonPnrTicket = async (request, res, PG = false) => {
   var errorMessage = "";
   try {
     const requestBody = await createPnrTicketRequestBody(request);
@@ -42,17 +42,22 @@ const getCommonPnrTicket = async (request, res,PG=false) => {
       request.Itinerary,
       request.Authentication?.UserId
     );
-    if (!checkBalance&&!PG) {
+    if (!checkBalance && !PG) {
       throw new Error("Your Balance is not sufficient");
     }
 
     const promises = requestBody.map(async (requestsForApiBody) => {
       try {
-        const rbdURL =
+        const processPNR_URL =
           Config[request.Authentication.CredentialType]
-            .additionalFlightsBaseURL + "/pnr/ticket";
-
-        const { data: response } = await axios.post(rbdURL, requestsForApiBody);
+            .additionalFlightsBaseURL + "/postbook/v2/IssueTicket";
+        // .additionalFlightsBaseURL + "/pnr/ticket";
+        saveLogInFile("process-pnr-RQ.json", requestsForApiBody);
+        const { data: response } = await axios.post(
+          processPNR_URL,
+          requestsForApiBody
+        );
+        saveLogInFile("process-pnr-RS.json", response.data);
 
         if (!response?.data) throw new Error("No Data Available");
 
@@ -75,16 +80,22 @@ const getCommonPnrTicket = async (request, res,PG=false) => {
         return {
           success: true,
           result: {
-            Status: journey[0]?.status?.pnrStatus || "failed",
+            Status: journey[0]?.bookingStatus || "failed",
+            // Status: journey[0]?.status?.pnrStatus || "failed",
             PNR:
-              journey[0]?.recLocInfo?.find?.(
-                (details) => details?.type === "GDS"
-              )?.pnr ?? null,
+              journey[0]?.recLoc?.find?.((details) => details?.type === "GDS")
+                ?.pnr ?? null,
             Itinerary: convertedItinerary,
             Passengers,
           },
         };
       } catch (error) {
+        saveLogInFile("process-pnr.ERR.RS.json", {
+          data: error?.response?.data,
+          message: error.message,
+          stack: error.stack,
+        });
+
         // console.error("API Call Error:", error.message);
         errorMessage = error.message;
 
@@ -97,7 +108,7 @@ const getCommonPnrTicket = async (request, res,PG=false) => {
     const successfulResults = await Promise.all(
       results
         .filter(({ status, value }) => status === "fulfilled" && value.success)
-        .map(({ value }) => holdBookingProcessPayment(value.result,PG))
+        .map(({ value }) => holdBookingProcessPayment(value.result, PG))
     );
 
     return { result: [...successfulResults] };
@@ -144,7 +155,7 @@ const holdBookingProcessPayment = async (item, pending = false) => {
       $set: {
         bookingStatus: "CONFIRMED",
         APnr: item?.PNR,
-        paymentMethodType:pending?bookingData.paymentMethodType:"Wallet",
+        paymentMethodType: pending ? bookingData.paymentMethodType : "Wallet",
         providerBookingId: commonProviderMethodDate(bookingData.createdAt),
       },
     },
@@ -254,7 +265,7 @@ const holdBookingProcessPayment = async (item, pending = false) => {
           if (segmentIdx != null) {
             passenger.Optional.ticketDetails[segmentIdx].ticketNumber =
               ticket.TicketNumber;
-              passenger.Optional.ticketDetails[segmentIdx].status = "CONFIRMED";
+            passenger.Optional.ticketDetails[segmentIdx].status = "CONFIRMED";
           } else {
             passenger.Optional.ticketDetails.push(ticket);
           }

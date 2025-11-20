@@ -577,7 +577,7 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
             seatRows?.facilities?.[seatIdx - 1]?.type === "Aisle" ||
             seatRows?.facilities?.[seatIdx + 1]?.type === "Aisle" ||
             (characteristicStrings?.length &&
-              characteristicStrings.includes("Aisle seat"))
+              characteristicStrings.some((char) => char.toUpperCase("AISLE")))
           ) {
             ssrProperty.push({
               SKey: "AISLE",

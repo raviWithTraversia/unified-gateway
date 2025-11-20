@@ -332,8 +332,8 @@ function convertBookingResponse(request, response, reqSegment, isINTRoundtrip) {
   // const src = request.SearchRequest.Segments[0].Origin; // TODO: needs to be dynamic
   // console.log(response);
 
-  const src = reqSegment.Origin;
-  const des = reqSegment.Destination;
+  const src = reqSegment?.Origin || "";
+  const des = reqSegment?.Destination || "";
   // const des = request.SearchRequest.Segments[0].Destination; // TODO: needs to be dynamic
   const pnrs = response?.data?.journey?.[0]?.recLoc;
   const bookingStatus =
@@ -374,7 +374,7 @@ function convertBookingResponse(request, response, reqSegment, isINTRoundtrip) {
         LastTicketingTime: lastTicketingTime,
       },
       PaxInfo: updatePassengerDetails(
-        request.PassengerPreferences,
+        request?.PassengerPreferences || { Passengers: [] },
         travelerDetails,
         src,
         des,
@@ -414,7 +414,7 @@ function convertBookingResponse(request, response, reqSegment, isINTRoundtrip) {
           WarningMessage: errorMessage || error.message,
         },
         PaxInfo: updatePassengerDetails(
-          request.PassengerPreferences,
+          request?.PassengerPreferences || { Passengers: [] },
           travelerDetails,
           src,
           des
@@ -434,58 +434,59 @@ function updatePassengerDetails(
   if (!travelerDetails?.length) return passengerPreferences;
   const updatedPassengerPreferences = {
     ...passengerPreferences,
-    Passengers: passengerPreferences.Passengers.map((pax, idx) => {
-      if (!travelerDetails?.[idx]?.eTicket?.length) return pax;
-      const ticketDetails =
-        travelerDetails?.[idx]?.eTicket?.map?.((ticket) => ({
-          ticketNumber: ticket.eTicketNumber,
-          src,
-          des,
-        })) || [];
+    Passengers:
+      passengerPreferences?.Passengers?.map?.((pax, idx) => {
+        if (!travelerDetails?.[idx]?.eTicket?.length) return pax;
+        const ticketDetails =
+          travelerDetails?.[idx]?.eTicket?.map?.((ticket) => ({
+            ticketNumber: ticket.eTicketNumber,
+            src,
+            des,
+          })) || [];
 
-      // ? save same ticket number for international tickets
-      if (
-        isINTRoundtrip &&
-        ticketDetails?.length === 1 &&
-        ticketDetails?.[0]?.ticketNumber
-      ) {
-        ticketDetails.push({
-          ticketNumber: ticketDetails[0].ticketNumber,
-          src: des,
-          des: src,
-        });
-      }
-      const EMDDetails = travelerDetails[idx]?.emd || [];
-      // if (
-      //   ticketDetails?.length &&
-      //   !pax.Optional?.ticketDetails?.some((ticket) => ticket?.ticketNumber)
-      // ) {
-      //   pax.Optional.ticketDetails = ticketDetails;
-      // } else {
-      //   pax.Optional.ticketDetails = [
-      //     ...pax.Optional.ticketDetails,
-      //     ticketDetails,
-      //   ];
-      // }
-      // if (
-      //   EMDDetails.length &&
-      //   !pax.Optional?.EMD?.some((emd) => emd?.EMDNumber)
-      // ) {
-      //   pax.Optional.EMDDetails = EMDDetails;
-      // } else {
-      //   pax.Optional.EMDDetails = [...pax.Optional.EMDDetails, EMDDetails];
-      // }
-      // return pax;
-      saveLogInFile("tickets.json", { ticketDetails, EMDDetails });
-      return {
-        ...pax,
-        Optional: {
-          ticketDetails,
-          EMDDetails,
-          // ...pax.Optional = {}
-        },
-      };
-    }),
+        // ? save same ticket number for international tickets
+        if (
+          isINTRoundtrip &&
+          ticketDetails?.length === 1 &&
+          ticketDetails?.[0]?.ticketNumber
+        ) {
+          ticketDetails.push({
+            ticketNumber: ticketDetails[0].ticketNumber,
+            src: des,
+            des: src,
+          });
+        }
+        const EMDDetails = travelerDetails[idx]?.emd || [];
+        // if (
+        //   ticketDetails?.length &&
+        //   !pax.Optional?.ticketDetails?.some((ticket) => ticket?.ticketNumber)
+        // ) {
+        //   pax.Optional.ticketDetails = ticketDetails;
+        // } else {
+        //   pax.Optional.ticketDetails = [
+        //     ...pax.Optional.ticketDetails,
+        //     ticketDetails,
+        //   ];
+        // }
+        // if (
+        //   EMDDetails.length &&
+        //   !pax.Optional?.EMD?.some((emd) => emd?.EMDNumber)
+        // ) {
+        //   pax.Optional.EMDDetails = EMDDetails;
+        // } else {
+        //   pax.Optional.EMDDetails = [...pax.Optional.EMDDetails, EMDDetails];
+        // }
+        // return pax;
+        saveLogInFile("tickets.json", { ticketDetails, EMDDetails });
+        return {
+          ...pax,
+          Optional: {
+            ticketDetails,
+            EMDDetails,
+            // ...pax.Optional = {}
+          },
+        };
+      }) || [],
   };
   return updatedPassengerPreferences;
 }

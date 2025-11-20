@@ -1,39 +1,29 @@
 const axios = require("axios");
 const { Config } = require("../configs/config");
-const fs = require("fs");
-const path = require("path");
 const {
   convertItineraryForKafila,
-  createSearchRequestBodyForCommonAPI,
 } = require("../helpers/common-search.helper");
 const {
   getApplyAllCommercial,
 } = require("../controllers/flight/flight.commercial");
 const { saveLogInFile } = require("../utils/save-log");
+const {
+  createDCSearchRequestBodyForCommonAPI,
+} = require("../helpers/common-date-change-search.helper");
 
-async function commonFlightSearch(request) {
+async function commonDateChangeSearch(request) {
   try {
     const { requestBody, uniqueKey } =
-      createSearchRequestBodyForCommonAPI(request);
+      createDCSearchRequestBodyForCommonAPI(request);
+    saveLogInFile("DC-Search.RQ.json", requestBody);
     const url =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/Search/v2/LowFareSearch";
-    // "/flight/search";
-    console.log({ url });
-    console.log(
-      `${
-        request?.Authentication?.TraceId || ""
-      } search sent to gateway at : ${new Date()}`
-    );
 
     const { data: response } = await axios.post(url, requestBody, {
       timeout: Config.apiTimeout || Infinity,
     });
-    console.log(
-      `${
-        request?.Authentication?.TraceId || ""
-      } search results received from gateway at : ${new Date()}`
-    );
+    saveLogInFile("DC-Search.RS.json", response);
 
     //  ? assumption: only one way flights are considered
     let itineraries = response?.data?.journey?.[0]?.itinerary
@@ -60,17 +50,25 @@ async function commonFlightSearch(request) {
           request.TravelType,
           itineraries
         );
-      } catch (errorApplyingCommercial) {
-        console.log({ errorApplyingCommercial });
+      } catch (error) {
+        saveLogInFile("DC-commercial.ERR.json", {
+          data: error?.response?.data,
+          message: error.message,
+          stack: error.stack,
+        });
+        console.log({ error });
       }
     }
-    // console.log({ itineraries });
     return { data: itineraries };
   } catch (error) {
-    saveLogInFile("search-rs.error.json", error?.response?.data);
+    saveLogInFile("DC-Search.ERR.json", {
+      data: error?.response?.data,
+      message: error.message,
+      stack: error.stack,
+    });
     return { error: error.message };
   }
 }
 module.exports = {
-  commonFlightSearch,
+  commonDateChangeSearch,
 };

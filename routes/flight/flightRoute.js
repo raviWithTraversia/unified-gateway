@@ -2,7 +2,9 @@ const express = require("express");
 const flight_route = express();
 const bodyParser = require("body-parser");
 const auth = require("../../middleware/auth");
-
+const {
+  DCSearchValidations,
+} = require("../../validations/dc-search.validations");
 // flight_route.use(bodyParser.json());
 // flight_route.use(bodyParser.urlencoded({extended:true}));
 
@@ -10,6 +12,7 @@ flight_route.use(bodyParser.json({ limit: "100mb" }));
 flight_route.use(bodyParser.urlencoded({ limit: "100mb", extended: true }));
 
 const flight = require("../../controllers/flight/flight.controller");
+const { validateRQ } = require("../../middleware/validate");
 flight_route.post("/flight/search", auth, flight.getSearch);
 flight_route.post("/Pricing/AirPricing", auth, flight.airPricing);
 flight_route.post("/Flight/RBD", auth, flight.getRBD);
@@ -34,7 +37,11 @@ flight_route.post(
   auth,
   flight.partialCancelationCharge
 );
-flight_route.post("/flight/updateBookingStatus",auth, flight.updateBookingStatus);
+flight_route.post(
+  "/flight/updateBookingStatus",
+  auth,
+  flight.updateBookingStatus
+);
 flight_route.post(
   "/flight/updatePendingBookingStatus",
   auth,
@@ -68,6 +75,18 @@ flight_route.post("/flight/amadeusTest", flight.amadeusTest);
 flight_route.post("/flight/import-pnr", flight.importPNR);
 flight_route.post("/flight/getAllTravellers", auth, flight.getAllTravellers);
 flight_route.post("/flight/addTravellers", auth, flight.addTravellers);
-flight_route.get("/flight/fixed-fare",flight.getFixedFare)
-flight_route.post("/flight/commercial-for-pk-fare",flight.getCommercialForPkFareController)
+flight_route.get("/flight/fixed-fare", flight.getFixedFare);
+flight_route.post(
+  "/flight/commercial-for-pk-fare",
+  flight.getCommercialForPkFareController
+);
+
+// re-issue/date change
+flight_route.post(
+  "/flight/date-change-search",
+  DCSearchValidations,
+  validateRQ,
+  flight.getDateChangeSearch
+);
+flight_route.post("/flight/split-pnr", flight.splitPNR);
 module.exports = flight_route;

@@ -40,6 +40,9 @@ const { importPNRHelper } = require("../../helpers/common-import-pnr.helper");
 const travellersDetailsService = require("./travellersDetails.service");
 const { getCommercialForPkFare } = require("./flight.commercial");
 const { commonSplitPNR } = require("../../services/common-split-pnr");
+const {
+  commonDateChangeSearch,
+} = require("../../services/common-date-change-search");
 
 const getSearch = async (req, res) => {
   console.log(
@@ -102,6 +105,98 @@ const getSearch = async (req, res) => {
     results.forEach((result) => {
       saveLogInFile("result.json", result);
       // console.dir({ result }, { depth: null });
+      if (
+        result.status === "fulfilled" &&
+        (result?.value?.data?.response?.length || result.value?.data?.length)
+      )
+        itineraries = [
+          ...itineraries,
+          ...(result?.value?.data?.response || result.value.data),
+        ];
+    });
+    // "6E", "SG"
+    itineraries = itineraries
+      .filter((itinerary) =>
+        ["Kafila", "1A", "1AN", "6E"].includes(itinerary.Provider)
+      )
+      .sort((a, b) => a.TotalPrice - b.TotalPrice);
+    if (itineraries.length) {
+      apiSucessRes(
+        res,
+        "Fetch Data Successfully",
+        itineraries,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else {
+      apiErrorres(res, "No Data Found", 400, true);
+    }
+    await flightSerchLogServices.addFlightSerchReport(req);
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      error.message || errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  } finally {
+    console.log(
+      `${
+        req?.body?.Authentication?.TraceId ?? ""
+      } search finished at ${new Date()}`
+    );
+  }
+};
+
+const getDateChangeSearch = async (req, res) => {
+  try {
+    // const validationResult = await validateSearchRequest(req);
+    // if (!validationResult.response && validationResult.isSometingMissing)
+    //   return apiErrorres(
+    //     res,
+    //     validationResult.data,
+    //     ServerStatusCode.SERVER_ERROR,
+    //     true
+    //   );
+    // if (
+    //   validationResult.response === "Trace Id Required" ||
+    //   validationResult.response === "Credential Type does not exist" ||
+    //   validationResult.response === "Supplier credentials does not exist" ||
+    //   validationResult.response === "Company or User id field are required" ||
+    //   validationResult.response === "TMC Compnay id does not exist" ||
+    //   validationResult.response === "Travel Type Not Valid" ||
+    //   validationResult.response === "your company not Active"
+    // )
+    //   return apiErrorres(
+    //     res,
+    //     validationResult.response,
+    //     ServerStatusCode.BAD_REQUEST,
+    //     true
+    //   );
+
+    // const isTestEnv = ["LIVE", "TEST"].some((type) =>
+    //   req.body.Authentication?.CredentialType.includes(type)
+    // );
+    let isAirlineFilterEligible = true,
+      isClassAvlInKafila = false;
+    if (req.body.Airlines?.length)
+      isAirlineFilterEligible = req.body.Airlines.some((type) =>
+        ["SG", "6E", "IX", "QP", "FF"].includes(type)
+      );
+    // if (["Economy", "Business Class"].includes(req?.body?.ClassOfService))
+    //   isClassAvlInKafila = true;
+    const isInternationalRoundTrip =
+      req.body.TravelType === "International" &&
+      req.body.TypeOfTrip === "ROUNDTRIP";
+
+    const flightRequests = [];
+    // if (isTestEnv)
+    flightRequests.push(commonDateChangeSearch(req.body));
+    const results = await Promise.allSettled(flightRequests);
+    // console.log(results, "results");
+    let itineraries = [];
+    results.forEach((result) => {
+      saveLogInFile("result.json", result);
       if (
         result.status === "fulfilled" &&
         (result?.value?.data?.response?.length || result.value?.data?.length)
@@ -636,35 +731,67 @@ const partialCancelationCharge = async (req, res) => {
 };
 const splitPNR = async (req, res) => {
   try {
-    const result = await commonSplitPNR(req.body);
-    console.log(result?.data, "response");
-    if (!result.response && result.isSometingMissing) {
-      apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    } else if (
-      result.response === "Trace Id Required" ||
-      result.response === "Credential Type does not exist" ||
-      result.response === "Supplier credentials does not exist" ||
-      result.response === "Company or User id field are required" ||
-      result.response === "TMC Compnay id does not exist" ||
-      result.response === "Travel Type Not Valid" ||
-      result.response === "Booking Id does not exist"
-    ) {
-      apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
-    } else if (result.response === "Fetch Data Successfully") {
-      apiSucessRes(
+    if (!req.body?.Authentication) {
+      return apiErrorres(
         res,
-        result.response,
-        result.data,
-        ServerStatusCode.SUCESS_CODE
-      );
-    } else {
-      apiErrorres(
-        res,
-        result.response || errorResponse.SOME_UNOWN,
-        ServerStatusCode.UNPROCESSABLE,
+        "Authentication Details Required",
+        ServerStatusCode.BAD_REQUEST,
         true
       );
     }
+    if (!req.body?.PNR) {
+      return apiErrorres(
+        res,
+        "PNR Required",
+        ServerStatusCode.BAD_REQUEST,
+        true
+      );
+    }
+
+    if (!req.body?.passengarList?.length) {
+      return apiErrorres(
+        res,
+        "Passenger List Required",
+        ServerStatusCode.BAD_REQUEST,
+        true
+      );
+    }
+
+    const result = await commonSplitPNR(req.body);
+    return apiSucessRes(
+      res,
+      "PNR Splitted Successfully",
+      result,
+      ServerStatusCode.SUCESS_CODE
+    );
+
+    // if (!result.response && result.isSometingMissing) {
+    //   apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
+    // } else if (
+    //   result.response === "Trace Id Required" ||
+    //   result.response === "Credential Type does not exist" ||
+    //   result.response === "Supplier credentials does not exist" ||
+    //   result.response === "Company or User id field are required" ||
+    //   result.response === "TMC Compnay id does not exist" ||
+    //   result.response === "Travel Type Not Valid" ||
+    //   result.response === "Booking Id does not exist"
+    // ) {
+    //   apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
+    // } else if (result.response === "Fetch Data Successfully") {
+    //   apiSucessRes(
+    //     res,
+    //     result.response,
+    //     result.data,
+    //     ServerStatusCode.SUCESS_CODE
+    //   );
+    // } else {
+    //   apiErrorres(
+    //     res,
+    //     result.response || errorResponse.SOME_UNOWN,
+    //     ServerStatusCode.UNPROCESSABLE,
+    //     true
+    //   );
+    // }
   } catch (error) {
     console.error(error);
     apiErrorres(
@@ -1243,4 +1370,6 @@ module.exports = {
   addTravellers,
   getFixedFare,
   getCommercialForPkFareController,
+  splitPNR,
+  getDateChangeSearch,
 };

@@ -24,12 +24,14 @@ module.exports.commonSplitPNR = async function (request) {
       provider: request.Provider,
       vendorList: getVendorList(request.Authentication.CredentialType),
     };
-    saveLogInFile("import-pnr-request.json", importPNRRequest);
+    saveLogInFile("IMPORT-PNR.RQ.JSON", importPNRRequest);
     const importPnrUrl =
       Config[request.Authentication.CredentialType ?? "TEST"]
         .additionalFlightsBaseURL + `/postbook/v2/RetrievePnr`;
 
     const pnrResponse = await axios.post(importPnrUrl, importPNRRequest);
+    saveLogInFile("IMPORT-PNR.RS.JSON", pnrResponse.data);
+
     const result = pnrResponse.data?.data?.journey?.[0];
 
     // ? same as cancellation request
@@ -38,18 +40,24 @@ module.exports.commonSplitPNR = async function (request) {
       result
     );
     if (error) return { error };
-    saveLogInFile("split-pnr-request.json", requestBody);
+    saveLogInFile("SPLIT-PNR.RQ.JSON", requestBody);
     const url =
       Config[request?.Authentication?.CredentialType ?? "TEST"]
         .additionalFlightsBaseURL + "/postbook/v2/SplitPnr";
 
     const { data: response } = await axios.post(url, requestBody);
-    saveLogInFile("split-pnr--response.json", response);
+    saveLogInFile("SPLIT-PNR.RS.JSON", response);
 
     if (response?.errors?.length) return { error: response.errors[0] };
-    return { result: response?.data };
+    const bookingResponse = convertBookingResponse(null, response, null, false);
+
+    return { result: bookingResponse };
   } catch (error) {
-    saveLogInFile("split-pnr-error.json", error?.response?.data);
+    saveLogInFile("SPLIT-PNR.ERR.JSON", {
+      data: error?.response?.data,
+      message: error.message,
+      stack: error.stack,
+    });
     console.dir({ response: error?.response?.data }, { depth: null });
     return { error };
   }

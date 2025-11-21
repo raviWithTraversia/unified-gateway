@@ -9,20 +9,21 @@ const {
 } = require("../controllers/flight/flight.commercial");
 const { saveLogInFile } = require("../utils/save-log");
 
-async function getCommonAirPricing(request) {
-  console.dir({ request }, { depth: null });
+async function getCommonDCAirPricing(request) {
   try {
     const { requestBody, error: requestError } =
       createAirPricingRequestBodyForCommonAPI(request);
-    saveLogInFile("pricing-req.json", requestBody);
+    requestBody.PNR = request.PNR;
+    requestBody.IsReissuancePricing = true;
+
+    saveLogInFile("dc-pricing-req.json", requestBody);
     if (requestError) throw new Error(requestError);
     const airPricingURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/prebook/v2/AirPricing";
     // "/pricing/airpricing";
     const { data: response } = await axios.post(airPricingURL, requestBody);
-    saveLogInFile("pricing-res.json", response);
-    // console.dir({ response }, { depth: null });
+    saveLogInFile("dc-pricing-res.json", response);
     let convertedItinerary = convertAirPricingItineraryForCommonAPI({
       response: response.data,
       requestBody,
@@ -40,15 +41,23 @@ async function getCommonAirPricing(request) {
         result = resultWithCommercial;
       }
     } catch (airPricingCommercialError) {
+      saveLogInFile("dc-pricing-commercial-err.json", {
+        message: error.message,
+        stack: error.stack,
+      });
       console.log({ airPricingCommercialError });
     }
-    // console.dir({ result }, { depth: null });
     return { result };
   } catch (error) {
+    saveLogInFile("dc-after-rs-pricing-err.json", {
+      data: error?.response?.data,
+      message: error.message,
+      stack: error.stack,
+    });
     console.log({ error });
     console.dir({ errResponse: error?.response?.data }, { depth: null });
     return { error: error.response?.data?.message || error.message };
   }
 }
 
-module.exports = { getCommonAirPricing };
+module.exports = { getCommonDCAirPricing };

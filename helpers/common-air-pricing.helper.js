@@ -23,12 +23,12 @@ function createAirPricingRequestBodyForCommonAPI(request) {
       typeOfTrip: request.TypeOfTrip,
       credentialType: request.Authentication.CredentialType,
       travelType: convertTravelTypeForCommonAPI(request.TravelType),
-      systemEntity: "TCIL",
-      systemName: "Astra2.0",
-      corpCode: "000000",
-      requestorCode: "000000",
-      empCode: "000000",
-      uniqueKey: reqItinerary.UniqueKey,
+      // systemEntity: "TCIL",
+      // systemName: "Astra2.0",
+      // corpCode: "000000",
+      // requestorCode: "000000",
+      // empCode: "000000",
+      // uniqueKey: reqItinerary.UniqueKey,
       traceId: reqItinerary.TraceId,
       companyId: request.Authentication.CompanyId,
       journey: [
@@ -43,7 +43,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
               indexNumber: reqItinerary.IndexNumber,
               provider: reqItinerary.Provider,
               promoCodeType: reqItinerary.PromoCodeType,
-              dealCode: reqItinerary.DealCode || "", // !TBD
+              dealCode: reqItinerary.DealCode || "",
               officeId: reqItinerary.OfficeId || "",
               hostTokens: reqItinerary.HostTokens || [],
               errors: reqItinerary.Errors || [],
@@ -124,6 +124,10 @@ function createAirPricingRequestBodyForCommonAPI(request) {
     };
     return { requestBody };
   } catch (error) {
+    saveLogInFile("dc-pricing-RQ-err.json", {
+      message: error.message,
+      stack: error.stack,
+    });
     return { error: error.message };
   }
 }

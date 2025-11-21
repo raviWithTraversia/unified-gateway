@@ -43,6 +43,9 @@ const { commonSplitPNR } = require("../../services/common-split-pnr");
 const {
   commonDateChangeSearch,
 } = require("../../services/common-date-change-search");
+const {
+  getCommonDCAirPricing,
+} = require("../../services/common-date-change-pricing");
 
 const getSearch = async (req, res) => {
   console.log(
@@ -304,6 +307,36 @@ const airPricing = async (req, res) => {
   }
 };
 
+const getDateChangePricing = async (req, res) => {
+  try {
+    const { result, error } = await getCommonDCAirPricing(req.body);
+    if (error)
+      return res.status(500).json({
+        IsSucess: false,
+        ResponseStatusCode: 500,
+        Message: error,
+        Result: [],
+      });
+    return res.status(200).json({
+      IsSucess: true,
+      ResponseStatusCode: 200,
+      Message: "Fetch Data Successfully",
+      Result: result,
+      ApiReq: {
+        Itinerary: result,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+
 const getRBD = async (req, res) => {
   try {
     const { result, error } = await getCommonRBD(req.body);
@@ -395,6 +428,85 @@ const getPnrTicket = async (req, res) => {
   }
 };
 const startBooking = async (req, res) => {
+  try {
+    const validationResult = await validateAirBooking(req);
+    console.log({ validationResult });
+    const isValidReq = validationResult.success;
+    if (!isValidReq) {
+      if (!validationResult.response && validationResult.isSometingMissing) {
+        return apiErrorres(
+          res,
+          validationResult.data,
+          ServerStatusCode.SERVER_ERROR,
+          true
+        );
+      }
+      if (
+        validationResult.response === "Trace Id Required" ||
+        validationResult.response === "Credential Type does not exist" ||
+        validationResult.response === "Supplier credentials does not exist" ||
+        validationResult.response ===
+          "Company or User Trace id field are required" ||
+        validationResult.response === "TMC Compnay id does not exist" ||
+        validationResult.response === "Travel Type Not Valid" ||
+        validationResult.response === "allready created booking"
+      ) {
+        return apiErrorres(
+          res,
+          validationResult.response,
+          ServerStatusCode.BAD_REQUEST,
+          true
+        );
+      }
+      if (validationResult.response) {
+        return apiErrorres(
+          res,
+          validationResult.response,
+          ServerStatusCode.BAD_REQUEST,
+          true
+        );
+      }
+    }
+    // if (req.body.ItineraryPriceCheckResponses?.[0]?.Provider !== "Kafila") {
+    //   const { result, error } = await commonFlightBook(req.body);
+    //   if (error) return apiErrorres(res, error, 500, true);
+    //   return apiSucessRes(
+    //     res,
+    //     "Fetch Data Successfully",
+    //     result,
+    //     ServerStatusCode.SUCESS_CODE
+    //   );
+    // }
+    const result = await airBooking.startBooking(req, res);
+    console.log({ bookResponse: result.response });
+    if (result.response === "Fetch Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else if (result.response === "allready created booking") {
+      apiErrorres(res, result.response, ServerStatusCode.UNPROCESSABLE, true);
+    } else {
+      apiErrorres(
+        res,
+        errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+const dateChangeBooking = async (req, res) => {
   try {
     const validationResult = await validateAirBooking(req);
     console.log({ validationResult });
@@ -1372,4 +1484,6 @@ module.exports = {
   getCommercialForPkFareController,
   splitPNR,
   getDateChangeSearch,
+  getDateChangePricing,
+  dateChangeBooking,
 };

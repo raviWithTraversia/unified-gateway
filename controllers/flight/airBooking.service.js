@@ -18,7 +18,9 @@ const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
-const {commonMethodBooking}=require('../../controllers/payuController/payu.services')
+const {
+  commonMethodBooking,
+} = require("../../controllers/payuController/payu.services");
 const {
   createLeadger,
   getTdsAndDsicount,
@@ -29,6 +31,9 @@ const SupplierCode = require("../../models/supplierCode");
 const { getSupplierCredentials } = require("../../utils/get-supplier-creds");
 const { commonFlightBook } = require("../../services/common-flight-book");
 const { saveLogInFile } = require("../../utils/save-log");
+const {
+  makeCommonDCBooking,
+} = require("../../services/common-date-change-booking");
 
 const startBooking = async (req, res) => {
   const {
@@ -159,6 +164,15 @@ const startBooking = async (req, res) => {
       response: "Fetch Data Successfully",
       data: result.response,
     };
+  }
+};
+
+const handleDateChangeBooking = async (req, res) => {
+  try {
+    const result = await makeCommonDCBooking(req.body);
+    return { response: "Fetch Data Successfully", data: result };
+  } catch (error) {
+    return { response: "Something went wrong" };
   }
 };
 
@@ -684,7 +698,7 @@ const KafilaFun = async (
     calculationOfferPriceWithCommercial,
     totalSSRWithCalculationPrice,
   });
-  if (paymentMethodType === "Wallet"||isHoldBooking) {
+  if (paymentMethodType === "Wallet" || isHoldBooking) {
     try {
       // Retrieve agent configuration
 
@@ -1998,11 +2012,11 @@ const kafilaFunOnlinePayment = async (
           Segments: Segments,
           TravelType: TypeOfTrip,
         });
-//         if(isHoldBooking){
-// const Data=await commonMethodBooking(request, true,ItineraryPriceCheckResponses[0].BookingId);
+        //         if(isHoldBooking){
+        // const Data=await commonMethodBooking(request, true,ItineraryPriceCheckResponses[0].BookingId);
 
-// return Data
-//         }
+        // return Data
+        //         }
 
         const bookingTemp = await BookingTemp.create({
           companyId: Authentication.companyId,
@@ -2365,5 +2379,6 @@ async function updateBarcode2DByBookingId(
 
 module.exports = {
   startBooking,
+  handleDateChangeBooking,
   updateBarcode2DByBookingId,
 };

@@ -2,32 +2,40 @@ const { check } = require("express-validator");
 const { isValidDate } = require("./helpers/date");
 
 module.exports.DCBookingValidations = [
-  check("Authentication")
+  check("SearchRQ").notEmpty().isObject().withMessage("SearchRQ is required"),
+  check("SearchRQ.Authentication")
     .notEmpty()
     .isObject()
     .withMessage("Authentication field is missing"),
-  check("Authentication.CredentialType")
+  check("SearchRQ.Authentication.CredentialType")
     .notEmpty()
     .isString()
     .isIn(["TEST", "LIVE"])
     .withMessage("credentialType must be TEST or LIVE"),
-  check("Authentication.TraceId")
+  check("SearchRQ.Authentication.TraceId")
     .notEmpty()
     .isString()
     .withMessage("Invalid TraceId"),
-  check("Authentication.UserId")
+  check("SearchRQ.Authentication.UserId")
     .notEmpty()
     .isString()
     .withMessage("Invalid UserId"),
 
-  check("TypeOfTrip").notEmpty().isString().withMessage("Invalid TypeOfTrip"),
-  check("TravelType")
+  check("SearchRQ.TypeOfTrip")
+    .notEmpty()
+    .isString()
+    .withMessage("Invalid TypeOfTrip"),
+  check("SearchRQ.TravelType")
     .notEmpty()
     .isIn(["Domestic", "International"])
     .withMessage("Invalid TravelType"),
   check("PNR").notEmpty().isString().withMessage("Invalid Airlines"),
-  check("Itinerary")
+  check("ItineraryPriceCheckResponses")
     .notEmpty()
     .isArray({ min: 1 })
     .withMessage("Invalid Airlines"),
+  check("paymentMethodType")
+    .notEmpty()
+    .isString()
+    .withMessage("Invalid Payment Method Type"),
 ];

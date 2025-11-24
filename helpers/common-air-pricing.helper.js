@@ -11,8 +11,10 @@ const { getVendorList } = require("./credentials");
 
 function createAirPricingRequestBodyForCommonAPI(request) {
   try {
-    const reqItinerary = request.Itinerary?.[0];
-    const reqSegment = request.Segments?.[0];
+    const reqItinerary =
+      request.Itinerary?.[0] || request.ItineraryPriceCheckResponses?.[0];
+    const reqSegment =
+      request.Segments?.[0] || request?.SearchRQ?.Segments?.[0];
 
     if (!reqItinerary || !reqSegment)
       throw new Error(
@@ -20,9 +22,13 @@ function createAirPricingRequestBodyForCommonAPI(request) {
       );
 
     const requestBody = {
-      typeOfTrip: request.TypeOfTrip,
-      credentialType: request.Authentication.CredentialType,
-      travelType: convertTravelTypeForCommonAPI(request.TravelType),
+      typeOfTrip: request?.TypeOfTrip || request?.SearchRQ?.TypeOfTrip,
+      credentialType:
+        request?.Authentication?.CredentialType ||
+        request?.SearchRQ?.Authentication?.CredentialType,
+      travelType: convertTravelTypeForCommonAPI(
+        request?.TravelType || request?.SearchRQ?.TravelType
+      ),
       // systemEntity: "TCIL",
       // systemName: "Astra2.0",
       // corpCode: "000000",
@@ -30,7 +36,9 @@ function createAirPricingRequestBodyForCommonAPI(request) {
       // empCode: "000000",
       // uniqueKey: reqItinerary.UniqueKey,
       traceId: reqItinerary.TraceId,
-      companyId: request.Authentication.CompanyId,
+      companyId:
+        request?.Authentication?.CompanyId ||
+        request?.SearchRQ?.Authentication?.CompanyId,
       journey: [
         {
           journeyKey: reqItinerary.SearchID,
@@ -120,7 +128,10 @@ function createAirPricingRequestBodyForCommonAPI(request) {
           ],
         },
       ],
-      vendorList: getVendorList(request.Authentication.CredentialType),
+      vendorList: getVendorList(
+        request?.Authentication?.CredentialType ||
+          request?.SearchRQ?.Authentication?.CredentialType
+      ),
     };
     return { requestBody };
   } catch (error) {

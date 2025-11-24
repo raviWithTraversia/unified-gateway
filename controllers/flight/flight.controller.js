@@ -508,44 +508,45 @@ const startBooking = async (req, res) => {
 };
 const dateChangeBooking = async (req, res) => {
   try {
-    const validationResult = await validateAirBooking(req);
-    console.log({ validationResult });
-    const isValidReq = validationResult.success;
-    if (!isValidReq) {
-      if (!validationResult.response && validationResult.isSometingMissing) {
-        return apiErrorres(
-          res,
-          validationResult.data,
-          ServerStatusCode.SERVER_ERROR,
-          true
-        );
-      }
-      if (
-        validationResult.response === "Trace Id Required" ||
-        validationResult.response === "Credential Type does not exist" ||
-        validationResult.response === "Supplier credentials does not exist" ||
-        validationResult.response ===
-          "Company or User Trace id field are required" ||
-        validationResult.response === "TMC Compnay id does not exist" ||
-        validationResult.response === "Travel Type Not Valid" ||
-        validationResult.response === "allready created booking"
-      ) {
-        return apiErrorres(
-          res,
-          validationResult.response,
-          ServerStatusCode.BAD_REQUEST,
-          true
-        );
-      }
-      if (validationResult.response) {
-        return apiErrorres(
-          res,
-          validationResult.response,
-          ServerStatusCode.BAD_REQUEST,
-          true
-        );
-      }
-    }
+    // const validationResult = await validateAirBooking(req);
+    // const isValidReq = validationResult.success;
+    // if (!isValidReq) {
+    //   if (!validationResult.response && validationResult.isSometingMissing) {
+    //     return apiErrorres(
+    //       res,
+    //       validationResult.data,
+    //       ServerStatusCode.SERVER_ERROR,
+    //       true
+    //     );
+    //   }
+    //   if (
+    //     validationResult.response === "Trace Id Required" ||
+    //     validationResult.response === "Credential Type does not exist" ||
+    //     validationResult.response === "Supplier credentials does not exist" ||
+    //     validationResult.response ===
+    //       "Company or User Trace id field are required" ||
+    //     validationResult.response === "TMC Compnay id does not exist" ||
+    //     validationResult.response === "Travel Type Not Valid" ||
+    //     validationResult.response === "allready created booking"
+    //   ) {
+    //     return apiErrorres(
+    //       res,
+    //       validationResult.response,
+    //       ServerStatusCode.BAD_REQUEST,
+    //       true
+    //     );
+    //   }
+    //   if (validationResult.response) {
+    //     return apiErrorres(
+    //       res,
+    //       validationResult.response,
+    //       ServerStatusCode.BAD_REQUEST,
+    //       true
+    //     );
+    //   }
+    // }
+
+    //
     // if (req.body.ItineraryPriceCheckResponses?.[0]?.Provider !== "Kafila") {
     //   const { result, error } = await commonFlightBook(req.body);
     //   if (error) return apiErrorres(res, error, 500, true);
@@ -556,8 +557,7 @@ const dateChangeBooking = async (req, res) => {
     //     ServerStatusCode.SUCESS_CODE
     //   );
     // }
-    const result = await airBooking.startBooking(req, res);
-    console.log({ bookResponse: result.response });
+    const result = await airBooking.handleDateChangeBooking(req, res);
     if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
         res,

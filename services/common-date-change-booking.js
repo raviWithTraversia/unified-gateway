@@ -13,11 +13,24 @@ const {
 } = require("../helpers/common-air-booking.helper");
 
 async function makeCommonDCBooking(request) {
+  const logData = {
+    traceId: request.ItineraryPriceCheckResponses?.[0]?.TraceId ?? "blank",
+    companyId: request?.SearchRequest?.Authentication?.CompanyId ?? "blank",
+    userId: request?.SearchRequest?.Authentication?.UserId ?? "blank",
+    source: "APIGateway",
+    type: "Portal log",
+    BookingId: request.ItineraryPriceCheckResponses?.[0]?.BookingId ?? "blank",
+    product: "Flight",
+    logName: "Common Response",
+    request: {},
+    responce: {},
+  };
   try {
     const { requestBody, error: requestError } =
       createAirPricingRequestBodyForCommonAPI(request);
     requestBody.PNR = request.PNR;
     requestBody.isReissuanceBooking = true;
+    logData.request = error || requestBody;
 
     saveLogInFile("dc-booking-req.json", requestBody);
     if (requestError) throw new Error(requestError);
@@ -27,8 +40,14 @@ async function makeCommonDCBooking(request) {
           request?.SearchRQ?.Authentication?.CredentialType
       ].additionalFlightsBaseURL + "/book/v2/CreatePnr";
     const { data: response } = await axios.post(bookingURL, requestBody);
+    logData.responce = response;
+
     saveLogInFile("dc-booking-res.json", response);
 
+    logData.responce = {
+      response: logData.responce,
+      bookingResponse,
+    };
     const isINTRoundtrip = request?.SearchRQ?.Segments?.length > 1;
     const bookingResponse = convertBookingResponse(
       request,

@@ -84,10 +84,10 @@ const getSearch = async (req, res) => {
     );
     let isAirlineFilterEligible = true,
       isClassAvlInKafila = false;
-    if (req.body.Airlines?.length)
-      isAirlineFilterEligible = req.body.Airlines.some((type) =>
-        ["SG", "6E", "IX", "QP", "FF"].includes(type)
-      );
+    // if (req.body.Airlines?.length)
+    //   isAirlineFilterEligible = req.body.Airlines.some((type) =>
+    //     ["SG", "6E", "IX", "QP", "FF"].includes(type)
+    //   );
     if (["Economy", "Business Class"].includes(req?.body?.ClassOfService))
       isClassAvlInKafila = true;
     const isInternationalRoundTrip =
@@ -119,9 +119,9 @@ const getSearch = async (req, res) => {
     });
     // "6E", "SG"
     itineraries = itineraries
-      .filter((itinerary) =>
-        ["Kafila", "1A", "1AN", "6E"].includes(itinerary.Provider)
-      )
+      // .filter((itinerary) =>
+      //   ["Kafila", "1A", "1AN", "6E"].includes(itinerary.Provider)
+      // )
       .sort((a, b) => a.TotalPrice - b.TotalPrice);
     if (itineraries.length) {
       apiSucessRes(

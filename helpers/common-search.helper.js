@@ -60,6 +60,7 @@ function createSearchRequestBodyForCommonAPI(request) {
     airlines: request.Airlines,
     vendorList: getVendorList(request.Authentication.CredentialType),
   };
+  saveLogInFile("search-RQ.json", requestBody);
   return { uniqueKey, requestBody };
 }
 function convertTravelTypeForCommonAPI(travelType) {

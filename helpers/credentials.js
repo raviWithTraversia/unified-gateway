@@ -83,6 +83,26 @@ const testCredentials = [
     //"includeAirlines": [""], //"AI", "UK"
     excludeAirlines: [],
   },
+  {
+    vendorCode: "SG",
+    credential: {
+      userId: "APITESTID",
+      password: "Spice@123",
+      pseudoCityCode: "WWW",
+      wSAP_TargetBranch: "WWW",
+    },
+    fareTypes: [],
+    dealCodes: [
+      // {
+      //   airlineCode: "6E",
+      //   dealCode: "015118",
+      //   dealCodeType: "Corporate",
+      // },
+    ],
+    productClass: [],
+    //"includeAirlines": [""], //"AI", "UK"
+    excludeAirlines: [],
+  },
 ];
 
 const liveCredentials = [];

@@ -29,6 +29,7 @@ async function commonFlightSearch(request) {
     const { data: response } = await axios.post(url, requestBody, {
       timeout: Config.apiTimeout || Infinity,
     });
+    saveLogInFile("search-RS.json", response);
     console.log(
       `${
         request?.Authentication?.TraceId || ""
@@ -37,10 +38,10 @@ async function commonFlightSearch(request) {
 
     //  ? assumption: only one way flights are considered
     let itineraries = response?.data?.journey?.[0]?.itinerary
-      ?.filter(
-        (itinerary) =>
-          !["h1", "x1", "sg"].includes(itinerary.valCarrier.toLowerCase())
-      )
+      // ?.filter(
+      //   (itinerary) =>
+      //     !["h1", "x1"].includes(itinerary.valCarrier.toLowerCase())
+      // )
       ?.map((itinerary, idx) =>
         convertItineraryForKafila({
           itinerary,

@@ -10,6 +10,7 @@ const { saveLogInFile } = require("../utils/save-log");
 const {
   createDCSearchRequestBodyForCommonAPI,
 } = require("../helpers/common-date-change-search.helper");
+const { authenticate } = require("../helpers/authentication.helper");
 
 async function commonDateChangeSearch(request) {
   try {
@@ -20,8 +21,10 @@ async function commonDateChangeSearch(request) {
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/Search/v2/LowFareSearch";
 
+    const token = await authenticate(request.Authentication.CredentialType);
     const { data: response } = await axios.post(url, requestBody, {
       timeout: Config.apiTimeout || Infinity,
+      headers: { Authorization: `Bearer ${token}` },
     });
     saveLogInFile("DC-Search.RS.json", response);
 

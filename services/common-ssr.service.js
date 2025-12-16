@@ -5,6 +5,7 @@ const {
 } = require("../helpers/common-air-pricing.helper");
 const { Config } = require("../configs/config");
 const { saveLogInFile } = require("../utils/save-log");
+const { authenticate } = require("../helpers/authentication.helper");
 
 module.exports.getCommonSSR = async (request) => {
   try {
@@ -18,9 +19,12 @@ module.exports.getCommonSSR = async (request) => {
     const ssrBaggageAndMealURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/prebook/v2/GetSSRs";
+
+    const token = await authenticate(request.Authentication.CredentialType);
     const { data: responseMealOrBaggage } = await axios.post(
       ssrBaggageAndMealURL,
-      requestBody
+      requestBody,
+      { headers: { Authorization: `Bearer ${token}` } }
     );
 
     saveLogInFile("responseMealOrBaggage.json", responseMealOrBaggage);
@@ -30,7 +34,12 @@ module.exports.getCommonSSR = async (request) => {
       "/prebook/v2/GetSeatMap";
     const { data: responseSeat } = await axios.post(
       ssrOnlySeatURL,
-      requestBody
+      requestBody,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     saveLogInFile("responseSeat.json", responseSeat);
 

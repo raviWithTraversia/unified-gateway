@@ -9,6 +9,7 @@ const {
 } = require("../helpers/common-air-cancellation.helper");
 const { saveLogInFile } = require("../utils/save-log");
 const { getVendorList } = require("../helpers/credentials");
+const { authenticate } = require("../helpers/authentication.helper");
 
 module.exports.commonAirBookingCancellation = async function (request) {
   try {
@@ -32,7 +33,10 @@ module.exports.commonAirBookingCancellation = async function (request) {
         Config[request.Authentication.CredentialType ?? "TEST"]
           .additionalFlightsBaseURL + `/postbook/v2/RetrievePnr`;
 
-      const pnrResponse = await axios.post(importPnrUrl, importPNRRequest);
+      const token = await authenticate(request.Authentication.CredentialType);
+      const pnrResponse = await axios.post(importPnrUrl, importPNRRequest, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       result = pnrResponse.data?.data?.journey?.[0];
     }
 
@@ -48,7 +52,9 @@ module.exports.commonAirBookingCancellation = async function (request) {
     // .additionalFlightsBaseURL + "/cancel/cancelPNR";
 
     const { data: response } = await axios.post(url, requestBody);
-    saveLogInFile("cancellation-response.json", response);
+    saveLogInFile("cancellation-response.json", response, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
     if (response?.errors?.length) return { error: response.errors[0] };
     return { result: response?.data, requestBody };
@@ -74,7 +80,10 @@ module.exports.commonAirBookingCancellationCharge = async function (
       .additionalFlightsBaseURL + "/postbook/v2/AirPenalty";
   // .additionalFlightsBaseURL + "/pnr/airPenalty";
 
-  const { data: response } = await axios.post(url, requestBody);
+  const token = await authenticate(request.Authentication.CredentialType);
+  const { data: response } = await axios.post(url, requestBody, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   saveLogInFile("cancellation-charge-response.json", response);
 
   if (response?.errors?.length) return { error: response.errors[0] };

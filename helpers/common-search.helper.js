@@ -4,25 +4,29 @@ const { saveLogInFile } = require("../utils/save-log");
 const { getVendorList } = require("./credentials");
 
 const commonCabinClassMap = {
-  Economy: "Economy",
-  "Business Class": "Business",
-  "First Class": "First",
-  "Premium Economy": "PremiumEconomy",
+  ECONOMY: "Economy",
+  "BUSINESS CLASS": "Business",
+  "FIRST CLASS": "First",
+  "PREMIUM ECONOMY": "PremiumEconomy",
 };
 
 const kafilaCabinClassMap = {
-  Economy: "Economy",
-  Business: "Business Class",
-  First: "First Class",
-  PremiumEconomy: "Premium Economy",
+  ECONOMY: "Economy",
+  BUSINESS: "Business Class",
+  FIRST: "First Class",
+  PREMIUMECONOMY: "Premium Economy",
 };
 
 function getCommonCabinClass(kafilaCabinClass) {
-  return commonCabinClassMap[kafilaCabinClass] ?? kafilaCabinClass;
+  return (
+    commonCabinClassMap[kafilaCabinClass.toUpperCase()] ?? kafilaCabinClass
+  );
 }
 
 function getKafilaCabinClass(commonCabinClass) {
-  return kafilaCabinClassMap[commonCabinClass] ?? commonCabinClass;
+  return (
+    kafilaCabinClassMap[commonCabinClass.toUpperCase()] ?? commonCabinClass
+  );
 }
 
 function createSearchRequestBodyForCommonAPI(request) {
@@ -143,7 +147,10 @@ function convertItineraryForKafila({
     )}T${itinerary?.airSegments?.at(-1)?.arrival?.time}:00`,
     Dur: sumDurationForKafila(itinerary.airSegments),
     Stop: convertedItinerary.Stop,
-    Seats: itinerary?.airSegments[0]?.noSeats,
+    Seats:
+      itinerary?.airSegments[0]?.noSeats ||
+      itinerary?.airSegments?.[0]?.noOfSeats ||
+      "0",
     Sector: `${response?.journey?.[0]?.origin},${response?.journey?.[0]?.destination}`,
     Itinerary: itinerary.airSegments.map((segment, idx) => ({
       Id: idx,
@@ -167,7 +174,7 @@ function convertItineraryForKafila({
       AArpt: segment.arrival.name,
       Dur: sumDurationForKafila([segment]),
       layover: convertedItinerary?.Sectors?.[idx]?.layover ?? "",
-      Seat: segment.noSeats,
+      Seat: segment.noSeats || segment.noOfSeats || "0",
       FClass: segment.classOfService || segment.classofService || "",
       PClass: segment.productClass,
       FBasis: segment.fareBasisCode || segment.fareBasis || "",
@@ -336,7 +343,7 @@ function convertSegmentForKafila(segment) {
     Class: segment.classOfService || segment.classofService || "",
     CabinClass: getKafilaCabinClass(segment.cabinClass) ?? "",
     BookingCounts: segment.bookingCounts || segment.rbds || "", // missing
-    NoSeats: segment.noSeats ?? "",
+    NoSeats: segment.noSeats || segment?.noOfSeats || "",
     FltNum: segment.flightNumber || segment.fltNum || "",
     EquipType: segment.equipType || segment.equipmentType || "",
     FlyingTime: sumDurationForKafila([segment], "flyingTime"),
@@ -346,9 +353,9 @@ function convertSegmentForKafila(segment) {
     Status: segment.status || "", // missing
     OperatingCarrier: segment.operatingCarrier?.code ?? null,
     MarketingCarrier: null,
-    BaggageInfo: segment.baggageInfo || segment.cabinBaggage || "",
+    BaggageInfo: segment.baggageInfo || "",
     NoOfSeats: segment.noOfSeats || "",
-    HandBaggage: segment.handBaggage ?? "",
+    HandBaggage: segment.handBaggage || segment.cabinBaggage || "",
     TransitTime: segment.transitTime || "",
     MealCode: null,
     key: segment.key || segment.segRef || "",
@@ -386,10 +393,11 @@ function passengerPriceBreakupForKafila(type, priceBreakup) {
     NoOfPassenger: breakup.noOfPassenger,
     Tax: Number(breakup.tax) || 0,
     BaseFare: breakup.baseFare,
-    TaxBreakup: breakup.taxBreakup.map((tax) => ({
-      TaxType: tax.taxType,
-      Amount: tax.amount,
-    })),
+    TaxBreakup:
+      breakup.taxBreakup?.map((tax) => ({
+        TaxType: tax.taxType,
+        Amount: tax.amount,
+      })) ?? [],
     AirPenalty: breakup.airPenalty,
     CommercialBreakup: [
       {

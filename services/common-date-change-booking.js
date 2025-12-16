@@ -11,6 +11,7 @@ const { saveLogInFile } = require("../utils/save-log");
 const {
   convertBookingResponse,
 } = require("../helpers/common-air-booking.helper");
+const { authenticate } = require("../helpers/authentication.helper");
 
 async function makeCommonDCBooking(request) {
   const logData = {
@@ -39,7 +40,12 @@ async function makeCommonDCBooking(request) {
         request?.Authentication?.CredentialType ||
           request?.SearchRQ?.Authentication?.CredentialType
       ].additionalFlightsBaseURL + "/book/v2/CreatePnr";
-    const { data: response } = await axios.post(bookingURL, requestBody);
+
+    const token = await authenticate(request.Authentication.CredentialType);
+
+    const { data: response } = await axios.post(bookingURL, requestBody, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     logData.responce = response;
 
     saveLogInFile("dc-booking-res.json", response);

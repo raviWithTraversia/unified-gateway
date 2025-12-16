@@ -4,8 +4,8 @@ module.exports.Config = {
   TEST: {
     baseURL: "https://kafilaui.traversia.net", // frontend
     baseURLBackend: "https://kafila.traversia.net",
-    // additionalFlightsBaseURL: "http://localhost:52446/api",
-    additionalFlightsBaseURL: "http://kafilacore.traversia.net:90/api",
+    additionalFlightsBaseURL: "http://localhost:52446/api",
+    // additionalFlightsBaseURL: "http://kafilacore.traversia.net:90/api",
     // additionalFlightsBaseURL: "http://kafilaapi.traversia.net:61102/api",
     baseURLBackend: "https://kafila.traversia.net",
     IRCTC_BASE_URL: "https://stagews.irctc.co.in",
@@ -105,7 +105,7 @@ module.exports.Config = {
 
   EASEBUZZ_PG_URL: "https://testpay.easebuzz.in/payment/initiateLink",
   CancellationGSTRate: 5,
-  apiTimeout: 40_000, // 40 s,
+  apiTimeout: 120_000, // 40 s,
   AI_MEALS: [
     {
       code: "VJML",

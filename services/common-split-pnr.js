@@ -8,6 +8,7 @@ const {
 } = require("../helpers/common-air-cancellation.helper");
 const { saveLogInFile } = require("../utils/save-log");
 const { getVendorList } = require("../helpers/credentials");
+const { authenticate } = require("../helpers/authentication.helper");
 
 module.exports.commonSplitPNR = async function (request) {
   try {
@@ -29,7 +30,10 @@ module.exports.commonSplitPNR = async function (request) {
       Config[request.Authentication.CredentialType ?? "TEST"]
         .additionalFlightsBaseURL + `/postbook/v2/RetrievePnr`;
 
-    const pnrResponse = await axios.post(importPnrUrl, importPNRRequest);
+    const token = await authenticate(request.Authentication.CredentialType);
+    const pnrResponse = await axios.post(importPnrUrl, importPNRRequest, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     saveLogInFile("IMPORT-PNR.RS.JSON", pnrResponse.data);
 
     const result = pnrResponse.data?.data?.journey?.[0];
@@ -45,7 +49,9 @@ module.exports.commonSplitPNR = async function (request) {
       Config[request?.Authentication?.CredentialType ?? "TEST"]
         .additionalFlightsBaseURL + "/postbook/v2/SplitPnr";
 
-    const { data: response } = await axios.post(url, requestBody);
+    const { data: response } = await axios.post(url, requestBody, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     saveLogInFile("SPLIT-PNR.RS.JSON", response);
 
     if (response?.errors?.length) return { error: response.errors[0] };

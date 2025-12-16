@@ -5,6 +5,7 @@ const {
   createRBDResponse,
 } = require("../helpers/common-rbd.helper");
 const { saveLogInFile } = require("../utils/save-log");
+const { authenticate } = require("../helpers/authentication.helper");
 
 module.exports.getCommonRBD = async (request) => {
   try {
@@ -16,7 +17,11 @@ module.exports.getCommonRBD = async (request) => {
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/prebook/v2/GetRBDs";
     // "/rbd/getrbd";
-    const { data: response } = await axios.post(rbdURL, requestBody);
+
+    const token = await authenticate(request.Authentication.CredentialType);
+    const { data: response } = await axios.post(rbdURL, requestBody, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     saveLogInFile("rbd-response.json", response);
 
     if (!response.data?.journey?.[0]) throw new Error("No Data Available");

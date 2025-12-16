@@ -9,6 +9,7 @@ const { saveLogInFile } = require("../utils/save-log");
 const Logs = require("../controllers/logs/PortalApiLogsCommon");
 const http = require("http");
 const https = require("https");
+const { authenticate } = require("../helpers/authentication.helper");
 
 module.exports.commonFlightBook = async function (
   request,
@@ -55,10 +56,12 @@ module.exports.commonFlightBook = async function (
       (request.isHoldBooking ? "HoldPnr" : "CreatePnr");
     // .additionalFlightsBaseURL + "/booking/airbooking";
 
+    const token = await authenticate(request.Authentication.CredentialType);
     const { data: response } = await axios.post(url, requestBody, {
       timeout: 120_000,
       httpAgent: new http.Agent({ keepAlive: true }),
       httpsAgent: new https.Agent({ keepAlive: true }),
+      headers: { Authorization: `Bearer ${token}` },
     });
     logData.responce = response;
 

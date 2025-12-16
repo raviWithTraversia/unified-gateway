@@ -8,19 +8,25 @@ const {
   getApplyAllCommercial,
 } = require("../controllers/flight/flight.commercial");
 const { saveLogInFile } = require("../utils/save-log");
+const { authenticate } = require("../helpers/authentication.helper");
 
 async function getCommonAirPricing(request) {
   console.dir({ request }, { depth: null });
   try {
     const { requestBody, error: requestError } =
       createAirPricingRequestBodyForCommonAPI(request);
+
     saveLogInFile("pricing-req.json", requestBody);
     if (requestError) throw new Error(requestError);
     const airPricingURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/prebook/v2/AirPricing";
     // "/pricing/airpricing";
-    const { data: response } = await axios.post(airPricingURL, requestBody);
+
+    const token = await authenticate(request.Authentication.CredentialType);
+    const { data: response } = await axios.post(airPricingURL, requestBody, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     saveLogInFile("pricing-res.json", response);
     // console.dir({ response }, { depth: null });
     let convertedItinerary = convertAirPricingItineraryForCommonAPI({

@@ -5,19 +5,22 @@ const path = require("path");
 const {
   convertItineraryForKafila,
   createSearchRequestBodyForCommonAPI,
+  getCommonCabinClass,
 } = require("../helpers/common-search.helper");
 const {
   getApplyAllCommercial,
 } = require("../controllers/flight/flight.commercial");
 const { saveLogInFile } = require("../utils/save-log");
+const { authenticate } = require("../helpers/authentication.helper");
 
 async function commonFlightSearch(request) {
   try {
+    const baseURL =
+      Config[request.Authentication.CredentialType].additionalFlightsBaseURL;
+
     const { requestBody, uniqueKey } =
       createSearchRequestBodyForCommonAPI(request);
-    const url =
-      Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
-      "/Search/v2/LowFareSearch";
+    const url = baseURL + "/Search/v2/LowFareSearch";
     // "/flight/search";
     console.log({ url });
     console.log(
@@ -26,8 +29,12 @@ async function commonFlightSearch(request) {
       } search sent to gateway at : ${new Date()}`
     );
 
+    const token = await authenticate(request.Authentication.CredentialType);
     const { data: response } = await axios.post(url, requestBody, {
       timeout: Config.apiTimeout || Infinity,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     saveLogInFile("search-RS.json", response);
     console.log(
@@ -37,7 +44,13 @@ async function commonFlightSearch(request) {
     );
 
     //  ? assumption: only one way flights are considered
+    let cabinClass = getCommonCabinClass(request.Segments[0].ClassOfService);
     let itineraries = response?.data?.journey?.[0]?.itinerary
+      ?.filter(
+        (itinerary) =>
+          itinerary.airSegments[0].cabinClass.toUpperCase() ===
+          cabinClass.toUpperCase()
+      )
       // ?.filter(
       //   (itinerary) =>
       //     !["h1", "x1"].includes(itinerary.valCarrier.toLowerCase())

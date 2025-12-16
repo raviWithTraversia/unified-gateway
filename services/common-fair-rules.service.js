@@ -4,6 +4,7 @@ const {
 } = require("../helpers/common-fair-rule.helper");
 const { Config } = require("../configs/config");
 const { saveLogInFile } = require("../utils/save-log");
+const { authenticate } = require("../helpers/authentication.helper");
 
 module.exports.getCommonFairRules = async function (request) {
   try {
@@ -14,7 +15,11 @@ module.exports.getCommonFairRules = async function (request) {
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
       "/prebook/v2/FareRules";
     // "/fare/farerules";
-    const { data: response } = await axios.post(fairRuleURL, requestBody);
+
+    const token = await authenticate(request.Authentication.CredentialType);
+    const { data: response } = await axios.post(fairRuleURL, requestBody, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     saveLogInFile("fare-rule-response.json", response);
 
     const journey = response.data?.journey?.[0];

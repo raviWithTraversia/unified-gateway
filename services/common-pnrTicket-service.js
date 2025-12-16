@@ -21,6 +21,7 @@ const {
 const {
   convertPaxDetailsForKafila,
 } = require("../helpers/common-import-pnr.helper");
+const { authenticate } = require("../helpers/authentication.helper");
 
 async function totalAmountGet(amount, userId) {
   const totalAmount = amount.reduce((sum, item) => sum + item.TotalPrice, 0);
@@ -53,9 +54,12 @@ const getCommonPnrTicket = async (request, res, PG = false) => {
             .additionalFlightsBaseURL + "/postbook/v2/IssueTicket";
         // .additionalFlightsBaseURL + "/pnr/ticket";
         saveLogInFile("process-pnr-RQ.json", requestsForApiBody);
+
+        const token = await authenticate(request.Authentication.CredentialType);
         const { data: response } = await axios.post(
           processPNR_URL,
-          requestsForApiBody
+          requestsForApiBody,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         saveLogInFile("process-pnr-RS.json", response.data);
 

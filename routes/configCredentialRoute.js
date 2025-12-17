@@ -6,6 +6,7 @@ configCredential_route.use(bodyParser.urlencoded({extended:true}));
 const auth = require("../middleware/auth");
 
 const configCredentialController = require('../controllers/configCredential.js/configCredential.controller');
+const configCredentialService = require('../controllers/configCredential.js/configCredential.services');
 
 configCredential_route.post(
     '/configCred/addCredential',
@@ -22,6 +23,11 @@ configCredential_route.patch(
 configCredential_route.delete(
     '/configCred/deleteCredential',
     configCredentialController.deleteCredential
+);
+
+configCredential_route.get(
+    '/getIp',
+    configCredentialService.getIP
 );
 
 configCredential_route.get('/test',auth, function(req, res){

@@ -125,10 +125,27 @@ const deleteCredential = async (req,res) => {
     }
 };
 
+const getIP = (req, res) => {
+    // req.headers['x-forwarded-for']?.split(',')[0] ||
+    // req.headers['x-client-ip']||
+    // req.headers['x-real-ip'] ||
+    // req.connection.remoteAddress;
+
+  const ip =
+    // req.headers["x-forwarded-for"] ||
+    req.headers["x-forwarded-for"]?.split(',')[0]||
+    req.connection.remoteAddress ||
+    req.socket.remoteAddress ||
+    req.ip;
+  res.json({ ip });
+};
+
+
 module.exports = {
     addCredntials,
     updateCredential,
     getCredentialForCompany,
-    deleteCredential
+    deleteCredential,
+    getIP
 }
 

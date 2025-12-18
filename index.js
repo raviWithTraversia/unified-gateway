@@ -6,7 +6,7 @@ const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
 const basicAuth = require("express-basic-auth");
 const cors = require("cors");
-const multer = require('multer');
+const multer = require("multer");
 const { enableGZipCompression } = require("./utils/compression");
 let MongoUrl = Config.MONGODB_URL;
 if (Config.MODE === "LIVE") {
@@ -82,7 +82,14 @@ const swaggerUiOptions = {
   displayOperationId: true,
   deepLinking: true,
 };
-const allowedOrigins = ["https://kafilaui.traversia.net","http://localhost:4200","https://test.payu.in","https://agent.kafilaholidays.in","https://secure.payu.in"];
+const allowedOrigins = [
+  "https://kafilaui.traversia.net",
+  "https://kafilauae.traversia.net",
+  "http://localhost:4200",
+  "https://test.payu.in",
+  "https://agent.kafilaholidays.in",
+  "https://secure.payu.in",
+];
 
 // Place your cache control middleware here // remove after dev to pro
 app.use(
@@ -103,7 +110,7 @@ app.use(
 //     origin: "*",
 //   })
 // );
-app.set('trust proxy', true); // ✅ VERY IMPORTANT
+app.set("trust proxy", true); // ✅ VERY IMPORTANT
 // app.use((err, req, res, next) => {
 //   // Handle Invalid JSON parse errors
 //   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
@@ -122,31 +129,30 @@ app.set('trust proxy', true); // ✅ VERY IMPORTANT
 
 app.use((err, req, res, next) => {
   // Multer file validation error
-  if (err.code === 'INVALID_FILE_TYPE') {
+  if (err.code === "INVALID_FILE_TYPE") {
     return res.status(400).json({
       IsSucess: false,
-      Message: 'Invalid image file'
+      Message: "Invalid image file",
     });
   }
 
   if (err instanceof multer.MulterError) {
     return res.status(400).json({
       IsSucess: false,
-      Message: err.message
+      Message: err.message,
     });
   }
 
   return res.status(500).json({
     IsSucess: false,
-    Message: err.message || 'Something went wrong'
+    Message: err.message || "Something went wrong",
   });
 });
 
-app.disable('x-powered-by');
+app.disable("x-powered-by");
 app.use((req, res, next) => {
   res.header("Cache-Control", "no-store");
 
-  
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Content-Security-Policy", "default-src 'self';");
   res.setHeader("X-Frame-Options", "DENY");

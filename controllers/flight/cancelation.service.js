@@ -31,6 +31,7 @@ const {
 const { updateBarcode2DByBookingId } = require("./airBooking.service");
 const { updatePassengerStatus } = require("../commonFunctions/common.function");
 const { calculateDealAmount } = require("./partialCalcelationCharge.service");
+const EventLogs = require("../../controllers/logs/EventApiLogsCommon");
 const { Config } = require("../../configs/config");
 const fullCancelation = async (req, res) => {
   const {
@@ -84,7 +85,7 @@ const fullCancelation = async (req, res) => {
   }
   // check user and its role
   let agencyUserId;
-  const checkUserRole = await Users.findById(UserId)
+  const checkUserRole = await Users.findById(req.user._id)
     .populate("company_ID")
     .populate("roleId");
   if (checkUserRole?.roleId.name === "Agency") {
@@ -102,7 +103,9 @@ const fullCancelation = async (req, res) => {
       agencyUserId = agencyUser._id;
     }
   }
-
+  let remarks = `Cancellation Category/Remark : ${Reason?.Reason}(${
+    req.body.remarks ?? ""
+  })`;
   let result;
   if (Provider === "Kafila") {
     if (TravelType !== "International" && TravelType !== "Domestic") {
@@ -111,6 +114,7 @@ const fullCancelation = async (req, res) => {
       };
     } else {
       result = await handleflight(
+        req,
         Authentication,
         Provider,
         PNR,
@@ -120,7 +124,9 @@ const fullCancelation = async (req, res) => {
         Sector,
         Reason,
         agencyUserId,
-        providerBookingId
+        providerBookingId,
+        checkUserRole,
+        remarks
       );
     }
   } else {
@@ -147,15 +153,36 @@ const fullCancelation = async (req, res) => {
           },
         };
 
-      const status = result?.journey?.[0]?.status || "CANCELLATION FAILED";
+      const status =
+        result?.journey?.[0]?.bookingStatus?.toUpperCase() ||
+        "CANCELLATION FAILED";
       if (status === "CANCELLED") {
         const booking = await bookingDetails.findOneAndUpdate(
           {
             providerBookingId: req.body.BookingId,
           },
-          { $set: { bookingStatus: "CANCELLATION PENDING" } },
+          {
+            $set: {
+              bookingStatus: "CANCELLATION PENDING",
+              bookingRemarks: remarks,
+            },
+          },
           { new: true }
         );
+
+        // let calculateFareAmount = 0;
+        let logsData = {
+          eventName: "cancel-booking",
+          doerId: req.user._id,
+          doerName: checkUserRole?.firstName ?? "",
+          companyId: checkUserRole?.company_ID,
+          oldValue: { bookingStatus: "CONFIRMED", ...booking },
+          newValue: booking,
+          documentId: booking._id,
+          description: "cancellation Charege",
+          ipAddress: req.user.userIp,
+        };
+        EventLogs(logsData);
 
         let calculateFareAmount = 0;
 
@@ -184,8 +211,8 @@ const fullCancelation = async (req, res) => {
           AirlineRefund: RefundableAmt || 0,
           ServiceFee: ServiceFee || 0,
           RefundableAmt: RefundableAmt || 0,
-          description: null,
-          modifyBy: Authentication?.UserId || null,
+          description: remarks,
+          modifyBy: req.user._id || null,
           passenger: req.body.passengarList,
           modifyAt: new Date(),
         });
@@ -225,6 +252,7 @@ const fullCancelation = async (req, res) => {
 };
 
 async function handleflight(
+  req,
   Authentication,
   Provider,
   PNR,
@@ -234,7 +262,9 @@ async function handleflight(
   Sector,
   Reason,
   agencyUserId,
-  providerBookingId
+  providerBookingId,
+  checkUserRole,
+  remarks
 ) {
   // International
   // Check LIVE and TEST
@@ -290,6 +320,7 @@ async function handleflight(
         switch (supplier.supplierCodeId.supplierCode) {
           case "Kafila":
             return await KafilaFun(
+              req,
               Authentication,
               supplier,
               Provider,
@@ -301,7 +332,9 @@ async function handleflight(
               Reason,
               agencyUserId,
               BookingIdDetails,
-              providerBookingId
+              providerBookingId,
+              checkUserRole,
+              remarks
             );
           default:
             throw new Error(
@@ -321,6 +354,7 @@ async function handleflight(
 }
 
 const KafilaFun = async (
+  req,
   Authentication,
   supplier,
   Provider,
@@ -332,7 +366,9 @@ const KafilaFun = async (
   Reason,
   agencyUserId,
   BookingIdDetails,
-  providerBookingId
+  providerBookingId,
+  checkUserRole,
+  remarks
 ) => {
   let createTokenUrl;
   let flightCancelUrl;
@@ -364,7 +400,7 @@ const KafilaFun = async (
       },
     });
 
-    console.log(response.data, "tokennnn");
+    // console.log(response.data, 'tokennnn');
     if (response.data.Status === "success") {
       let getToken = response.data.Result;
       let requestDataForCHarges = {
@@ -385,10 +421,7 @@ const KafilaFun = async (
         ENV: credentialType,
         Version: "1.0.0.0.0.0",
       };
-      console.log(
-        requestDataForCHarges,
-        "requestDataForCHarges requestDataForCHarges"
-      );
+      // console.log(requestDataForCHarges,"requestDataForCHarges requestDataForCHarges")
       let fSearchApiResponse = await axios.post(
         flightCancelUrl,
         requestDataForCHarges,
@@ -398,9 +431,9 @@ const KafilaFun = async (
           },
         }
       );
-      console.log(fSearchApiResponse.data, "1API Responce");
+      // console.log(fSearchApiResponse.data, "1API Responce")
       if (fSearchApiResponse.data.Status !== null) {
-        console.log("sdhf");
+        // console.log('sdhf')
       }
 
       let requestDataForCancel = {
@@ -428,7 +461,7 @@ const KafilaFun = async (
       const logData1 = {
         traceId: Authentication.TraceId,
         companyId: Authentication.CompanyId,
-        userId: Authentication.UserId,
+        userId: req.user._id,
         source: "Kafila",
         type: "Portal log",
         BookingId: BookingId,
@@ -451,7 +484,7 @@ const KafilaFun = async (
       const logData2 = {
         traceId: Authentication.TraceId,
         companyId: Authentication.CompanyId,
-        userId: Authentication.UserId,
+        userId: req.user._id,
         source: "Kafila",
         type: "Portal log",
         BookingId: BookingId,
@@ -462,11 +495,11 @@ const KafilaFun = async (
       };
       Logs(logData2);
       let R_DATAofCancelApiResponse = fCancelApiResponse?.data?.R_DATA;
-      console.log(fCancelApiResponse?.data, "ded");
+      // console.log(fCancelApiResponse?.data,"ded")
       let ResponseData;
       if (R_DATAofCancelApiResponse === undefined) {
         ResponseData = fCancelApiResponse?.data;
-        console.log(ResponseData, "ddd");
+        // console.log(ResponseData,"ddd")
       } else {
         ResponseData = fCancelApiResponse?.data?.R_DATA;
       }
@@ -480,11 +513,7 @@ const KafilaFun = async (
         ResponseData?.Status.toUpperCase() === "FAILED"
       ) {
         // console.log(ResponseData,"fCancelApiResponse In");
-        await cancelationDataUpdate(
-          Authentication,
-          fCancelApiResponse,
-          BookingIdDetails
-        );
+        // await cancelationDataUpdate(Authentication,fCancelApiResponse,BookingIdDetails,req,checkUserRole)
         let booking = null;
         if (
           ResponseData?.Status == null ||
@@ -496,6 +525,7 @@ const KafilaFun = async (
             {
               $set: {
                 bookingStatus: "CANCELLATION PENDING",
+                bookingRemarks: remarks,
                 cancelationDate: Date.now(),
               },
             },
@@ -506,7 +536,9 @@ const KafilaFun = async (
         await cancelationDataUpdate(
           Authentication,
           fCancelApiResponse,
-          BookingIdDetails
+          booking,
+          req,
+          checkUserRole
         );
         return fCancelApiResponse?.data;
       } else if (
@@ -627,7 +659,7 @@ const KafilaFun = async (
           newBalance = maxCreditLimit + ResponseData?.Charges?.RefundableAmt;
           // (ResponseData?.Charges?.RefundableAmt - tdsAmount || 0);
           pricecheck = ResponseData?.Charges?.RefundableAmt - (tdsAmount || 0);
-          console.log(pricecheck, "pricecheck3");
+          // console.log(pricecheck,"pricecheck3");
           if (!isNaN(pricecheck)) {
             pricecheck = pricecheck;
           } else {
@@ -660,7 +692,8 @@ const KafilaFun = async (
         // });
         let booking = await bookingDetails.findOneAndUpdate(
           { _id: BookingIdDetails._id },
-          { $set: { bookingStatus: "CANCELLED" } },
+          { $set: { bookingStatus: "CANCELLED" }, bookingRemarks: remarks },
+
           { new: true } // To return the updated document
         );
 
@@ -697,7 +730,9 @@ const KafilaFun = async (
         await cancelationDataUpdate(
           Authentication,
           fCancelApiResponse,
-          BookingIdDetails
+          booking,
+          req,
+          checkUserRole
         );
         // console.log("jksjskj jdjsjdsjkj ")
         return fCancelApiResponse?.data;
@@ -705,7 +740,9 @@ const KafilaFun = async (
         await cancelationDataUpdate(
           Authentication,
           fCancelApiResponse,
-          BookingIdDetails
+          BookingIdDetails,
+          req,
+          checkUserRole
         );
         return fCancelApiResponse?.data;
       }
@@ -978,6 +1015,7 @@ const updateBookingStatus = async (req, res) => {
           },
           documentId: element.updateOne.filter._id,
           description: "Update BookingStatus",
+          ipAddress: req.user.userIp,
         };
         console.log(logsData, "logsData");
         EventLogs(logsData);
@@ -1052,6 +1090,7 @@ const updatePendingBookingStatus = async (req, res) => {
       req.headers.host
     );
     const isProdEnv = req.headers.host === "agentapi.kafilaholidays.in";
+    const checkUserRole = await Users.findOne({ _id: req.user._id });
 
     if (isTestEnv) {
       supplier = await Supplier.find({
@@ -1069,10 +1108,10 @@ const updatePendingBookingStatus = async (req, res) => {
           FROM_DATE: new Date(fromDate + "T00:00:00.000Z"),
           TO_DATE: new Date(toDate + "T23:59:59.999Z"),
         },
-        AID: "675923",
+        AID: "7020922",
         MODULE: "B2B",
         IP: "182.73.146.154",
-        TOKEN: "fd58e3d2b1e517f4ee46063ae176eee1",
+        TOKEN: "85b8ce6bfb798bc6ed96838e434bcd5d",
         ENV: "D",
         Version: "1.0.0.0.0.0",
       };
@@ -1140,7 +1179,11 @@ const updatePendingBookingStatus = async (req, res) => {
         // 1. Update CancelationBooking collection
         await CancelationBooking.updateMany(
           { bookingId: item.bookingId, calcelationStatus: "PENDING" },
-          { calcelationStatus: "CANCEL" }
+          {
+            calcelationStatus: "CANCEL",
+            modifyBy: req.user._id,
+            modifyAt: new Date(),
+          }
         );
 
         // 2. Update bookingDetails document
@@ -1149,6 +1192,19 @@ const updatePendingBookingStatus = async (req, res) => {
           { bookingStatus: "CANCELLED" },
           { new: true }
         );
+
+        let logsData = {
+          eventName: "cancel-booking",
+          doerId: req.user._id,
+          doerName: checkUserRole?.firstName ?? "",
+          companyId: checkUserRole?.company_ID,
+          oldValue: { bookingStatus: "CANCELLATION PENDING", ...booking },
+          newValue: booking,
+          documentId: booking._id,
+          description: "Update PendingBookingStatus",
+          ipAddress: req.user.userIp,
+        };
+        EventLogs(logsData);
 
         // 3. Update passenger status
         await Promise.all(
@@ -1167,6 +1223,20 @@ const updatePendingBookingStatus = async (req, res) => {
         const newStatus = allCancelled ? "PARTIALLY CONFIRMED" : "CANCELLED";
 
         // console.log(newStatus, "newStatus");
+        if (allCancelled) {
+          let logsData = {
+            eventName: "cancel-booking",
+            doerId: req.user._id,
+            doerName: checkUserRole?.firstName ?? "",
+            companyId: checkUserRole?.company_ID,
+            oldValue: { booking },
+            newValue: { bookingStatus: newStatus, ...booking },
+            documentId: booking._id,
+            description: "pending cancellation",
+            ipAddress: req.user.userIp,
+          };
+          EventLogs(logsData);
+        }
 
         // 6. Update bookingDetails with final status
         await bookingDetails.findOneAndUpdate(
@@ -1183,7 +1253,9 @@ const updatePendingBookingStatus = async (req, res) => {
     } else if (isB2BBooking) {
       refundProcessed = await RefundedCommonFunction(
         cancelationbookignsData,
-        fSearchApiResponse.data
+        fSearchApiResponse.data,
+        req,
+        checkUserRole
       );
     }
 
@@ -1434,7 +1506,9 @@ const updateConfirmBookingStatus = async (req, res) => {
 const cancelationDataUpdate = async (
   Authentication,
   fCancelApiResponse,
-  BookingIdDetails
+  BookingIdDetails,
+  req,
+  checkUserRole
 ) => {
   try {
     const pnr = fCancelApiResponse?.data?.R_DATA?.Charges?.Pnr || " ";
@@ -1466,9 +1540,22 @@ const cancelationDataUpdate = async (
         fCancelApiResponse?.data?.R_DATA?.Charges?.RefundableAmt || null,
       description:
         fCancelApiResponse?.data?.R_DATA?.Charges?.Description || null,
-      modifyBy: Authentication?.UserId || null,
+      modifyBy: req.user._id || null,
       modifyAt: new Date(),
     };
+
+    let logsData = {
+      eventName: "cancel-booking",
+      doerId: req.user._id,
+      doerName: checkUserRole?.firstName ?? "",
+      companyId: checkUserRole?.company_ID,
+      oldValue: { bookingStatus: "CONFIRMED", ...BookingIdDetails },
+      newValue: BookingIdDetails,
+      documentId: BookingIdDetails._id,
+      description: "cancelLation Update",
+      ipAddress: req.user.userIp,
+    };
+    EventLogs(logsData);
 
     if (!findCancelationBooking) {
       const cancelationBookingInstance = new CancelationBooking(data);

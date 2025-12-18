@@ -30,10 +30,13 @@ async function commonFlightSearch(request) {
     );
 
     const token = await authenticate(request.Authentication.CredentialType);
+    // saveLogInFile("header.json", { header, url, requestBody });
     const { data: response } = await axios.post(url, requestBody, {
-      timeout: Config.apiTimeout || Infinity,
+      // timeout: Config.apiTimeout || Infinity,
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
     });
     saveLogInFile("search-RS.json", response);
@@ -81,7 +84,11 @@ async function commonFlightSearch(request) {
     // console.log({ itineraries });
     return { data: itineraries };
   } catch (error) {
-    saveLogInFile("search-rs.error.json", error?.response?.data);
+    saveLogInFile("search-rs.error.json", {
+      message: error.message,
+      data: error?.response?.data,
+      stack: error.stack,
+    });
     return { error: error.message };
   }
 }

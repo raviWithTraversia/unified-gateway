@@ -77,9 +77,11 @@ const fullCancelationCharge = async (req, res) => {
 
   // check user and its role
   let agencyUserId;
-  const checkUserRole = await Users.findById(UserId)
+
+  const checkUserRole = await Users.findById(req.user._id)
     .populate("company_ID")
     .populate("roleId");
+  // console.log(req.IP)
   if (checkUserRole?.roleId.name === "Agency") {
     agencyUserId = checkUserRole._id;
   } else {
@@ -97,195 +99,214 @@ const fullCancelationCharge = async (req, res) => {
   }
   // if (Provider.toLowerCase() === "kafila") {
   let result;
-  if (Provider === "Kafila") {
-    if (TravelType !== "International" && TravelType !== "Domestic") {
-      return {
-        response: "Travel Type Not Valid",
-      };
-    } else {
-      result = await handleflight(
-        req,
-        Authentication,
-        Provider,
-        PNR,
-        TravelType,
-        BookingId,
-        CancelType,
-        Sector,
-        Reason,
-        agencyUserId
-      );
-      // console.log(Reason,'0')
-    }
-
-    if (!result.IsSucess) {
-      return {
-        response: result.response,
-      };
-    } else {
-      return {
-        response: "Fetch Data Successfully",
-        data: result.response,
-        apiReq: result.apiReq,
-      };
-      // }
-      // } else {
-      //   try {
-      //     // return false;
-      //     const { result, error } = await commonAirBookingCancellation(req.body);
-      //     if (error)
-      //       return {
-      //         response: "Cancellation Failed",
-      //         data: {
-      //           Status: "CANCELLATION FAILED",
-      //           Error:
-      //             typeof error === "string"
-      //               ? error
-      //               : error?.message || "Internal Server Error",
-      //         },
-      //       };
-
-      //     const status = result?.journey?.[0]?.status || "CANCELLATION FAILED";
-      //     if (status === "CANCELLED") {
-      //       const booking = await BookingDetails.findOneAndUpdate(
-      //         {
-      //           providerBookingId: req.body.BookingId,
-      //         },
-      //         { $set: { bookingStatus: "CANCELLATION PENDING" } },
-      //         { new: true }
-      //       );
-
-      //       let calculateFareAmount = 0;
-
-      //       for (let passenger of req.body.passengarList) {
-      //         calculateFareAmount += calculateDealAmount(
-      //           booking,
-      //           passenger.PAX_TYPE
-      //         );
-      //         await updatePassengerStatus(booking, passenger, "CANCELLATION PENDING");
-      //       }
-      //       const cancelationBookingInstance = new CancelationBooking({
-      //         calcelationStatus: "PENDING",
-      //         bookingId: booking?.providerBookingId,
-      //         providerBookingId: booking?.providerBookingId,
-      //         AirlineCode: booking?.itinerary?.Sectors[0]?.AirlineCode || null,
-      //         companyId: Authentication?.CompanyId || null,
-      //         userId: Authentication?.UserId || null,
-      //         traceId: null,
-      //         PNR: booking?.PNR || null,
-      //         fare: calculateFareAmount || 0,
-      //         AirlineCancellationFee: 0,
-      //         AirlineRefund: 0,
-      //         ServiceFee: 0 || 0,
-      //         RefundableAmt: 0 || 0,
-      //         description: null,
-      //         modifyBy: Authentication?.UserId || null,
-      //         passenger:req.body.passengarList,
-      //         modifyAt: new Date(),
-      //       });
-
-      //       await cancelationBookingInstance.save();
-      //     }
-
-      //     return {
-      //       response: "Fetch Data Successfully",
-      //       data: {
-      //         BookingId: req.body.BookingId,
-      //         CancelType: req.body.CancelType,
-      //         PNR: req.body.PNR,
-      //         Provider: req.body.Provider,
-      //         Status: status,
-      //       },
-      //     };
-      //   } catch (commonCancellationError) {
-      //     return {
-      //       response: commonCancellationError?.message || "Error in Cancellations",
-      //       data: commonCancellationError,
-      //     };
-      //   }
-    }
+  let remarks = `Cancellation Category/Remark : ${Reason?.Reason}(${
+    req.body.remarks ?? ""
+  }) `;
+  // if(Provider === "Kafila"){
+  if (TravelType !== "International" && TravelType !== "Domestic") {
+    return {
+      response: "Travel Type Not Valid",
+    };
   } else {
-    try {
-      // return false;
-      // const {Fare,AirlineCancellationFee,AirlineRefund,ServiceFee,RefundableAmt}=req.body.charge;
-
-      const { result, error } = await commonAirBookingCancellation(req.body);
-      if (error)
-        return {
-          response: "Cancellation Failed",
-          data: {
-            Status: "CANCELLATION FAILED",
-            Error:
-              typeof error === "string"
-                ? error
-                : error?.message || "Internal Server Error",
-          },
-        };
-
-      const status =
-        result?.journey?.[0]?.bookingStatus || "CANCELLATION FAILED";
-      if (status?.toUpperCase?.() === "CANCELLED") {
-        const booking = await bookingDetails.findOneAndUpdate(
-          {
-            providerBookingId: req.body.BookingId,
-          },
-          { $set: { bookingStatus: "CANCELLATION PENDING" } },
-          { new: true }
-        );
-
-        let calculateFareAmount = 0;
-
-        for (let passenger of req.body.passengarList) {
-          calculateFareAmount += calculateDealAmount(
-            booking,
-            passenger.PAX_TYPE
-          );
-          await updatePassengerStatus(
-            booking,
-            passenger,
-            "CANCELLATION PENDING"
-          );
-        }
-        const cancelationBookingInstance = new CancelationBooking({
-          calcelationStatus: "PENDING",
-          bookingId: booking?.providerBookingId,
-          providerBookingId: booking?.providerBookingId,
-          AirlineCode: booking?.itinerary?.Sectors[0]?.AirlineCode || null,
-          companyId: Authentication?.CompanyId || null,
-          userId: Authentication?.UserId || null,
-          traceId: null,
-          PNR: booking?.PNR || null,
-          fare: booking?.bookingTotalAmount || 0,
-          AirlineCancellationFee: 0,
-          AirlineRefund: 0,
-          ServiceFee: 0,
-          RefundableAmt: 0,
-          description: null,
-          modifyBy: Authentication?.UserId || null,
-          passenger: req.body.passengarList,
-          modifyAt: new Date(),
-        });
-
-        await cancelationBookingInstance.save();
-      }
-
-      return {
-        response: "Fetch Data Successfully",
-        data: {
-          BookingId: req.body.BookingId,
-          CancelType: req.body.CancelType,
-          PNR: req.body.PNR,
-          Provider: req.body.Provider,
-          Status: status,
-        },
-      };
-    } catch (commonCancellationError) {
-      return {
-        response: commonCancellationError?.message || "Error in Cancellations",
-        data: commonCancellationError,
-      };
-    }
+    result = await handleflight(
+      req,
+      Authentication,
+      Provider,
+      PNR,
+      TravelType,
+      BookingId,
+      CancelType,
+      Sector,
+      Reason,
+      agencyUserId,
+      checkUserRole,
+      remarks
+    );
+    // console.log(Reason,'0')
   }
+
+  if (!result.IsSucess) {
+    return {
+      response: result.response,
+    };
+  } else {
+    return {
+      response: "Fetch Data Successfully",
+      data: result.response,
+      apiReq: result?.apiReq,
+    };
+    // }
+    // } else {
+    //   try {
+    //     // return false;
+    //     const { result, error } = await commonAirBookingCancellation(req.body);
+    //     if (error)
+    //       return {
+    //         response: "Cancellation Failed",
+    //         data: {
+    //           Status: "CANCELLATION FAILED",
+    //           Error:
+    //             typeof error === "string"
+    //               ? error
+    //               : error?.message || "Internal Server Error",
+    //         },
+    //       };
+
+    //     const status = result?.journey?.[0]?.status || "CANCELLATION FAILED";
+    //     if (status === "CANCELLED") {
+    //       const booking = await BookingDetails.findOneAndUpdate(
+    //         {
+    //           providerBookingId: req.body.BookingId,
+    //         },
+    //         { $set: { bookingStatus: "CANCELLATION PENDING" } },
+    //         { new: true }
+    //       );
+
+    //       let calculateFareAmount = 0;
+
+    //       for (let passenger of req.body.passengarList) {
+    //         calculateFareAmount += calculateDealAmount(
+    //           booking,
+    //           passenger.PAX_TYPE
+    //         );
+    //         await updatePassengerStatus(booking, passenger, "CANCELLATION PENDING");
+    //       }
+    //       const cancelationBookingInstance = new CancelationBooking({
+    //         calcelationStatus: "PENDING",
+    //         bookingId: booking?.providerBookingId,
+    //         providerBookingId: booking?.providerBookingId,
+    //         AirlineCode: booking?.itinerary?.Sectors[0]?.AirlineCode || null,
+    //         companyId: Authentication?.CompanyId || null,
+    //         userId: Authentication?.UserId || null,
+    //         traceId: null,
+    //         PNR: booking?.PNR || null,
+    //         fare: calculateFareAmount || 0,
+    //         AirlineCancellationFee: 0,
+    //         AirlineRefund: 0,
+    //         ServiceFee: 0 || 0,
+    //         RefundableAmt: 0 || 0,
+    //         description: null,
+    //         modifyBy: Authentication?.UserId || null,
+    //         passenger:req.body.passengarList,
+    //         modifyAt: new Date(),
+    //       });
+
+    //       await cancelationBookingInstance.save();
+    //     }
+
+    //     return {
+    //       response: "Fetch Data Successfully",
+    //       data: {
+    //         BookingId: req.body.BookingId,
+    //         CancelType: req.body.CancelType,
+    //         PNR: req.body.PNR,
+    //         Provider: req.body.Provider,
+    //         Status: status,
+    //       },
+    //     };
+    //   } catch (commonCancellationError) {
+    //     return {
+    //       response: commonCancellationError?.message || "Error in Cancellations",
+    //       data: commonCancellationError,
+    //     };
+    //   }
+    // }
+  }
+  // else{
+
+  //         try {
+  //           // return false;
+  //         // const {Fare,AirlineCancellationFee,AirlineRefund,ServiceFee,RefundableAmt}=req.body.charge;
+
+  //           const { result, error } = await commonAirBookingCancellation(req.body);
+  //           if (error)
+  //             return {
+  //               response: "Cancellation Failed",
+  //               data: {
+  //                 Status: "CANCELLATION FAILED",
+  //                 Error:
+  //                   typeof error === "string"
+  //                     ? error
+  //                     : error?.message || "Internal Server Error",
+  //               },
+  //             };
+
+  //           const status =result?.journey?.[0]?.status || "CANCELLATION FAILED";
+  //           // result?.journey?.[0]?.status || "CANCELLATION FAILED";
+
+  //           if (status === "CANCELLED") {
+  //         //  let remarks=`${Reason?.Reason},${Reason?.Remarks} Full Cancellation By ${checkUserRole?.fname} ${checkUserRole?.lastName || ""}`
+  //             const booking = await bookingDetails.findOneAndUpdate(
+  //               {
+  //                 providerBookingId: req.body.BookingId,
+  //               },
+  //               { $set: { bookingStatus: "CANCELLATION PENDING",
+  //                 bookingRemarks:remarks
+  //                } },
+  //               { new: true }
+  //             );
+
+  //             let calculateFareAmount = 0;
+  //             let logsData={
+  //                 eventName:"cancel-booking",
+  //                 doerId:req.user._id,
+  //                 doerName:checkUserRole?.firstName??"",
+  //                 companyId:checkUserRole?.company_ID,
+  //                 oldValue:{  bookingStatus:"CONFIRMED",...booking},
+  //                 newValue:booking,
+  //                 documentId:booking._id,
+  //                 description:"cancellation Charege",
+  //                 ipAddress: req.user.userIp
+  //               }
+  //               EventLogs(logsData)
+
+  //             for (let passenger of req.body.passengarList) {
+  //               calculateFareAmount += calculateDealAmount(
+  //                 booking,
+  //                 passenger.PAX_TYPE
+  //               );
+  //               await updatePassengerStatus(booking, passenger, "CANCELLATION PENDING");
+  //             }
+  //             const cancelationBookingInstance = new CancelationBooking({
+  //               calcelationStatus: "PENDING",
+  //               bookingId: booking?.providerBookingId,
+  //               providerBookingId: booking?.providerBookingId,
+  //               AirlineCode: booking?.itinerary?.Sectors[0]?.AirlineCode || null,
+  //               companyId: Authentication?.CompanyId || null,
+  //               userId: Authentication?.UserId || null,
+  //               traceId: null,
+  //               PNR: booking?.PNR || null,
+  //               fare:  booking?.bookingTotalAmount || 0,
+  //               AirlineCancellationFee: 0,
+  //               AirlineRefund: 0,
+  //               ServiceFee:  0,
+  //               RefundableAmt: 0,
+  //               description: null,
+  //               modifyBy: req.user._id || null,
+  //               passenger:req.body.passengarList,
+  //               modifyAt: new Date(),
+  //             });
+
+  //             await cancelationBookingInstance.save();
+  //           }
+
+  //           return {
+  //             response: "Fetch Data Successfully",
+  //             data: {
+  //               BookingId: req.body.BookingId,
+  //               CancelType: req.body.CancelType,
+  //               PNR: req.body.PNR,
+  //               Provider: req.body.Provider,
+  //               Status: status,
+  //             },
+  //           };
+  //         } catch (commonCancellationError) {
+  //           return {
+  //             response: commonCancellationError?.message || "Error in Cancellations",
+  //             data: commonCancellationError,
+  //           };
+  //         }
+  //   }
 };
 
 async function handleflight(
@@ -298,7 +319,9 @@ async function handleflight(
   CancelType,
   Sector,
   Reason,
-  agencyUserId
+  agencyUserId,
+  checkUserRole,
+  remarks
 ) {
   // International
   // Check LIVE and TEST
@@ -365,7 +388,9 @@ async function handleflight(
           Reason,
           Sector,
           agencyUserId,
-          BookingIdDetails
+          BookingIdDetails,
+          checkUserRole,
+          remarks
         );
       } catch (error) {
         console.error(`Error for supplier at index ${index}:`, error.message);
@@ -391,7 +416,9 @@ const KafilaFun = async (
   Reason,
   Sector,
   agencyUserId,
-  BookingIdDetails
+  BookingIdDetails,
+  checkUserRole,
+  remarks
 ) => {
   let createTokenUrl;
   let flightCancelUrl;
@@ -500,7 +527,7 @@ const KafilaFun = async (
 
       const status = fSearchApiResponse?.data?.Status;
       const isPending = status === "PENDING";
-      const isFailed = ["Failed", "ERROR", "failed"].includes(status);
+      const isFailed = ["FAILED", "ERROR"].includes(status);
 
       // Step 3: Handle pending or failed status
       if (isPending || isFailed) {
@@ -526,23 +553,38 @@ const KafilaFun = async (
             ServiceFee: 0,
             RefundableAmt: 0,
             description: fSearchApiResponse?.data?.WarningMessage || null,
-            modifyBy: Authentication?.UserId,
+            modifyBy: req.user._id,
             modifyAt: new Date(),
           });
 
           await cancelationBookingInstance.save();
+
+          // let remarks=`${Reason?.Reason},${Reason?.Remarks} Full Cancellation By ${checkUserRole?.fname} ${checkUserRole?.lastName || ""}`
 
           const bookingDeatails = await bookingDetails.findOneAndUpdate(
             { _id: BookingIdDetails._id },
             {
               $set: {
                 bookingStatus: "CANCELLATION PENDING",
+                bookingRemarks: remarks,
                 cancelationDate: new Date(),
               },
             },
             { new: true }
           );
 
+          let logsData = {
+            eventName: "cancel-booking",
+            doerId: req.user._id,
+            doerName: checkUserRole?.fname ?? "",
+            companyId: checkUserRole?.company_ID,
+            oldValue: { bookingStatus: "CONFIRMEND", ...bookingDeatails },
+            newValue: bookingDeatails,
+            documentId: bookingDeatails._id,
+            description: "cancelation Charge",
+            ipAddress: req.user.userIp,
+          };
+          EventLogs(logsData);
           await updateStatus(bookingDeatails, "CANCELLATION PENDING");
         }
 
@@ -594,7 +636,7 @@ const KafilaFun = async (
     Logs({
       traceId: Authentication.TraceId,
       companyId: Authentication.CompanyId,
-      userId: Authentication.UserId,
+      userId: req.user._id,
       source: "Kafila",
       type: "Portal log",
       BookingId,

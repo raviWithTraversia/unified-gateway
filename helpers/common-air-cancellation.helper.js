@@ -44,6 +44,7 @@ function createAirCancellationRequestBodyForCommonAPI(request, pnrResponse) {
       cardDetails: {},
       rmFields: [],
       vendorList: getVendorList(request.Authentication?.CredentialType),
+      vendorBookingId: request.providerBookingId || "",
     };
 
     return { requestBody };
@@ -191,25 +192,23 @@ function convertAirCancellationItineraryForCommonAPI({
   return convertedItinerary;
 }
 
-function createAirCancellationChargeRequestBodyForCommonAPI(input) {
+function createAirCancellationChargeRequestBodyForCommonAPI(
+  input,
+  cancellationType
+) {
   return {
     typeOfTrip: input.TypeOfTrip || null,
     travelType: input.TravelType?.toUpperCase().startsWith("DOM")
       ? "DOM"
       : input.TravelType,
     credentialType: input.Authentication?.CredentialType || null,
-    // systemEntity: "xxxxxx",
-    // systemName: "xxxxxx",
-    // corpCode: "xxxxxx",
-    // requestorCode: "xxxxxx",
-    // empCode: "xxxxxx",
-    traceId: input.Itinerary.map((e) => e.TraceId)[0],
+    traceId: input.Itinerary[0].TraceId,
     companyId: input.Authentication?.CompanyId || "000000",
     recLoc: {
       type: "GDS",
       pnr: input.PNR,
     },
-    cancelType: "ALL",
+    cancelType: cancellationType === "FULL_CANCELLATION" ? "ALL" : "JOURNEY",
     cancelRemarks: "Cancellation Charge Details",
     travellerDetails: [],
     airSegments: [],
@@ -219,6 +218,7 @@ function createAirCancellationChargeRequestBodyForCommonAPI(input) {
     cardDetails: {},
     rmFields: [],
     vendorList: getVendorList(),
+    VendorBookingId: input.providerBookingId || "",
   };
 }
 module.exports = {

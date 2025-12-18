@@ -56,7 +56,9 @@ module.exports.commonFlightBook = async function (
       (request.isHoldBooking ? "HoldPnr" : "CreatePnr");
     // .additionalFlightsBaseURL + "/booking/airbooking";
 
-    const token = await authenticate(request.Authentication.CredentialType);
+    const token = await authenticate(
+      request?.SearchRequest?.Authentication.CredentialType
+    );
     const { data: response } = await axios.post(url, requestBody, {
       timeout: 120_000,
       httpAgent: new http.Agent({ keepAlive: true }),

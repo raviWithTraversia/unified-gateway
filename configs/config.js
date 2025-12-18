@@ -6,7 +6,6 @@ module.exports.Config = {
     baseURLBackend: "https://kafila.traversia.net",
     additionalFlightsBaseURL: "http://localhost:52446/api",
     // additionalFlightsBaseURL: "http://kafilacore.traversia.net:90/api",
-    // additionalFlightsBaseURL: "http://kafilaapi.traversia.net:61102/api",
     baseURLBackend: "https://kafila.traversia.net",
     IRCTC_BASE_URL: "https://stagews.irctc.co.in",
     IRCTC_MASTER_ID: "WKAFL00000",

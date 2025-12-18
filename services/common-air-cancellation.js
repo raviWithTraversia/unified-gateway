@@ -14,6 +14,7 @@ const { authenticate } = require("../helpers/authentication.helper");
 module.exports.commonAirBookingCancellation = async function (request) {
   try {
     let result = null;
+    let token = null;
     if (request.cancelType !== "ALL") {
       const importPNRRequest = {
         typeOfTrip: "ONEWAY",
@@ -27,13 +28,14 @@ module.exports.commonAirBookingCancellation = async function (request) {
         },
         provider: request.Provider,
         vendorList: getVendorList(request.Authentication.CredentialType),
+        vendorBookingId: request.providerBookingId || "",
       };
       saveLogInFile("import-pnr-request.json", importPNRRequest);
       const importPnrUrl =
         Config[request.Authentication.CredentialType ?? "TEST"]
           .additionalFlightsBaseURL + `/postbook/v2/RetrievePnr`;
 
-      const token = await authenticate(request.Authentication.CredentialType);
+      token = await authenticate(request.Authentication.CredentialType);
       const pnrResponse = await axios.post(importPnrUrl, importPNRRequest, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -51,12 +53,20 @@ module.exports.commonAirBookingCancellation = async function (request) {
         .additionalFlightsBaseURL + "/postbook/v2/CancelPnr";
     // .additionalFlightsBaseURL + "/cancel/cancelPNR";
 
-    const { data: response } = await axios.post(url, requestBody);
-    saveLogInFile("cancellation-response.json", response, {
-      headers: { Authorization: `Bearer ${token}` },
+    const { data: response } = await axios.post(url, requestBody, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
+    saveLogInFile("cancellation-response.json", response);
 
-    if (response?.errors?.length) return { error: response.errors[0] };
+    if (response?.errors?.length) {
+      response.errors = response.errors.filter(
+        (error) =>
+          error?.description?.toUpperCase() !== "AIR SEGMENTS NOT FOUND"
+      );
+      if (response.errors.length) return { error: response.errors[0] };
+    }
     return { result: response?.data, requestBody };
   } catch (error) {
     saveLogInFile("cancellation-error.json", error?.response?.data);
@@ -70,8 +80,9 @@ module.exports.commonAirBookingCancellationCharge = async function (
   request,
   msg
 ) {
-  const requestBody = await createAirCancellationChargeRequestBodyForCommonAPI(
-    request
+  const requestBody = createAirCancellationChargeRequestBodyForCommonAPI(
+    request,
+    msg
   );
   // if (error) return { error };
   saveLogInFile("cancellation-charge-request.json", requestBody);
@@ -88,7 +99,7 @@ module.exports.commonAirBookingCancellationCharge = async function (
 
   if (response?.errors?.length) return { error: response.errors[0] };
   // return { result: response?.data };
-  return await convertResponseToAirCancellationCharge(
+  return convertResponseToAirCancellationCharge(
     request,
     response?.data?.journey,
     msg
@@ -194,13 +205,17 @@ function calculateFare(journey, paxType, paxCount, itinerary) {
 
             // Extract refund amount safely
             const penalty = pb.airPenalty.find(
-              (p) => p.type === "Refund" || p.Ref
+              (p) => p.type.toLowerCase() === "cancel" || p.Ref
+              // (p) => p.type === "Refund" || p.Ref
             );
-            const refund = penalty?.amount ?? pb.airPenalty?.[1]?.Refund ?? 0;
+            const cancellationCharges = penalty?.amount ?? totalFare;
+            // const refund = penalty?.amount ?? pb.airPenalty?.[1]?.Refund ?? 0;
 
-            refundAmount = refund * paxCount;
             totalFare = paxWiseAmount * paxCount;
-            airCancelationFee = totalFare - refundAmount;
+            refundAmount = totalFare - cancellationCharges * paxCount;
+            // refundAmount = refund * paxCount;
+            airCancelationFee = cancellationCharges;
+            // airCancelationFee = totalFare - refundAmount;
           }
         });
       });

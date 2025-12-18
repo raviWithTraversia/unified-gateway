@@ -19,6 +19,7 @@ function createDCSearchRequestBodyForCommonAPI(request) {
     PNR: request.PNR,
     searchType: 1,
     ReissueDates: request.ReissueDates,
+    Provider: request.Provider,
   };
   return { uniqueKey: traceID, requestBody };
 }

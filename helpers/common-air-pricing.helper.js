@@ -93,7 +93,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                 fareBasisCode: sector.FareBasisCode,
                 fareType: sector.FareType,
                 rbds: sector.BookingCounts,
-                technicalStops: sector.TechStopOver || [],
+                technicalStops: [],
                 // transitTime: sector.TransitTime,
                 brand: sector.Brand,
                 availabilitySource: sector.AvailabilitySource,

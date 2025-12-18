@@ -51,6 +51,11 @@ async function getCommonAirPricing(request) {
     // console.dir({ result }, { depth: null });
     return { result };
   } catch (error) {
+    saveLogInFile("pricing-err.res.json", {
+      message: error.message,
+      stack: error.stack,
+      data: error?.response?.data,
+    });
     console.log({ error });
     console.dir({ errResponse: error?.response?.data }, { depth: null });
     return { error: error.response?.data?.message || error.message };

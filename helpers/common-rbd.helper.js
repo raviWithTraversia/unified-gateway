@@ -12,8 +12,10 @@ module.exports.createPnrTicketRequestBody = async (request) => {
   return getPnrTicketCommonAPIBody(request);
 };
 
-module.exports.createRBDResponse = (journey) => {
+module.exports.createRBDResponse = async (journey) => {
   return {
-    Sectors: journey.airSegments.map(convertSegmentForKafila),
+    Sectors: await Promise.all(
+      journey.airSegments.map(convertSegmentForKafila)
+    ),
   };
 };

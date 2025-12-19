@@ -52,7 +52,7 @@ async function importPNRHelper(request) {
         segment.arrival?.countryCode != segment.departure?.countryCode
     );
 
-    let convertedItinerary = convertItineraryForKafila({
+    let convertedItinerary = await convertItineraryForKafila({
       itinerary,
       idx: 1,
       response: result.data,

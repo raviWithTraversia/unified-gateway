@@ -26,7 +26,7 @@ module.exports.getCommonRBD = async (request) => {
 
     if (!response.data?.journey?.[0]) throw new Error("No Data Available");
     return {
-      result: createRBDResponse(response.data.journey[0]),
+      result: await createRBDResponse(response.data.journey[0]),
     };
   } catch (err) {
     console.dir({ err }, { depth: null });

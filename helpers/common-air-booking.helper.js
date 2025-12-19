@@ -456,7 +456,21 @@ function updatePassengerDetails(
             des: src,
           });
         }
-        const EMDDetails = travelerDetails[idx]?.emd || [];
+        const EMDDetails =
+          travelerDetails[idx]?.emd?.map?.((emd) => {
+            let type = emd.type.toLowerCase();
+            if (type !== "seat" && type !== "baggage") type = "ffwd";
+            return {
+              EMDNumber: emd.EMDNumber || emd.emdNumber || "",
+              IssuedDate: emd.IssuedDate || emd.IssueDate || "",
+              amount: emd.amount || 0,
+              type,
+              currency: emd.currency || "",
+              origin: emd.departure || "",
+              destination: emd.arrival || "",
+              status: "confirmed",
+            };
+          }) || [];
         // if (
         //   ticketDetails?.length &&
         //   !pax.Optional?.ticketDetails?.some((ticket) => ticket?.ticketNumber)

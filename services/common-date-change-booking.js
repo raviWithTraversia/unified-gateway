@@ -68,7 +68,7 @@ async function makeCommonDCBooking(request) {
     // };
     return bookingResponse;
 
-    // let convertedItinerary = convertAirPricingItineraryForCommonAPI({
+    // let convertedItinerary = await convertAirPricingItineraryForCommonAPI({
     //   response: response.data,
     //   requestBody,
     //   originalRequest: request,

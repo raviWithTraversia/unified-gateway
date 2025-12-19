@@ -48,24 +48,26 @@ async function commonFlightSearch(request) {
 
     //  ? assumption: only one way flights are considered
     let cabinClass = getCommonCabinClass(request.Segments[0].ClassOfService);
-    let itineraries = response?.data?.journey?.[0]?.itinerary
-      ?.filter(
-        (itinerary) =>
-          itinerary.airSegments[0].cabinClass.toUpperCase() ===
-          cabinClass.toUpperCase()
-      )
-      // ?.filter(
-      //   (itinerary) =>
-      //     !["h1", "x1"].includes(itinerary.valCarrier.toLowerCase())
-      // )
-      ?.map((itinerary, idx) =>
-        convertItineraryForKafila({
-          itinerary,
-          idx,
-          response: response.data,
-          uniqueKey,
-        })
-      );
+    let itineraries = await Promise.all(
+      response?.data?.journey?.[0]?.itinerary
+        ?.filter(
+          (itinerary) =>
+            itinerary.airSegments[0].cabinClass.toUpperCase() ===
+            cabinClass.toUpperCase()
+        )
+        // ?.filter(
+        //   (itinerary) =>
+        //     !["h1", "x1"].includes(itinerary.valCarrier.toLowerCase())
+        // )
+        ?.map((itinerary, idx) =>
+          convertItineraryForKafila({
+            itinerary,
+            idx,
+            response: response.data,
+            uniqueKey,
+          })
+        )
+    );
     if (itineraries?.length) {
       try {
         // itineraries = itineraries.filter(

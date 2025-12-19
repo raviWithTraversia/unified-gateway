@@ -143,15 +143,18 @@ function createAirPricingRequestBodyForCommonAPI(request) {
   }
 }
 
-function convertAirPricingItineraryForCommonAPI({
+async function convertAirPricingItineraryForCommonAPI({
   response,
   requestBody,
   originalRequest,
 }) {
-  const reqItinerary = requestBody.journey[0].itinerary[0];
-  const journey = response.journey[0];
-  const itinerary = journey.itinerary[0] || journey.itinerary;
-  const convertedItinerary = convertItineraryForKafila({
+  const reqItinerary = requestBody?.journey?.[0]?.itinerary?.[0];
+  const journey = response?.journey?.[0];
+  const itinerary = journey?.itinerary?.[0] || journey?.itinerary;
+  if (!itinerary) {
+    throw new Error(response?.message || "Error Pricing Itinerary");
+  }
+  const convertedItinerary = await convertItineraryForKafila({
     itinerary,
     idx: 1,
     response,
@@ -340,7 +343,9 @@ async function convertSSRItineraryForCommonAPI({
     Adt: paxDetails.adults,
     Chd: paxDetails.children,
     Inf: paxDetails.infants,
-    Sector: itinerary.airSegments.map(convertSegmentForKafila),
+    Sector: await Promise.all(
+      itinerary.airSegments.map(convertSegmentForKafila)
+    ),
     PF: "",
     PC: "",
     Routing: "ALL",
@@ -400,9 +405,9 @@ async function convertSSRItineraryForCommonAPI({
         Complmnt: false,
         Paid: baggage?.paid || false,
         Currency: baggage?.currency || "INR",
-        FCode: baggage?.airlineCode,
-        FNo: baggage?.flightNumber || "INR",
-        OI: baggage?.code || "INR",
+        FCode: baggage?.airlineCode || "",
+        FNo: baggage?.flightNumber || "",
+        OI: baggage?.code || "",
         Price: baggage?.amount || 0,
         SsrCode: baggage?.code || "",
         SsrDesc: baggage?.name || "",

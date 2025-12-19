@@ -74,7 +74,7 @@ function travellerDetailsForCancellation(travellerData, pnrTravellerData) {
   });
 }
 
-function convertAirCancellationItineraryForCommonAPI({
+async function convertAirCancellationItineraryForCommonAPI({
   response,
   requestBody,
   originalRequest,
@@ -82,7 +82,7 @@ function convertAirCancellationItineraryForCommonAPI({
   const reqItinerary = requestBody.journey[0].itinerary[0];
   const journey = response.journey[0];
   const itinerary = journey.itinerary[0];
-  const convertedItinerary = convertItineraryForKafila({
+  const convertedItinerary = await convertItineraryForKafila({
     itinerary,
     idx: 1,
     response,

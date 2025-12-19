@@ -1,3 +1,12 @@
+require("dotenv").config();
+console.log({
+  SINGLE_REDIS_INSTANCE: process.env.SINGLE_REDIS_INSTANCE,
+  REDIS_PORT: process.env.REDIS_PORT,
+  REDIS_USERNAME: process.env.REDIS_USERNAME,
+  REDIS_PASSWORD: process.env.REDIS_PASSWORD,
+});
+
+const { redisClient } = require("./redis/redis.index");
 const { ExpressLoader } = require("./loaders/express.loader");
 const { RoutesLoader } = require("./loaders/routes.loader");
 const { Config } = require("./configs/config");

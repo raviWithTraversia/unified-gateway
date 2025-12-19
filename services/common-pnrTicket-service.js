@@ -68,7 +68,7 @@ const getCommonPnrTicket = async (request, res, PG = false) => {
         const { journey, uniqueKey } = response.data;
         const itinerary = journey[0]?.itinerary[0];
 
-        const convertedItinerary = convertItineraryForKafila({
+        const convertedItinerary = await convertItineraryForKafila({
           itinerary,
           idx: 1,
           response: response.data,

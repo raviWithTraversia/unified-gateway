@@ -29,7 +29,7 @@ async function getCommonDCAirPricing(request) {
       headers: { Authorization: `Bearer ${token}` },
     });
     saveLogInFile("dc-pricing-res.json", response);
-    let convertedItinerary = convertAirPricingItineraryForCommonAPI({
+    let convertedItinerary = await convertAirPricingItineraryForCommonAPI({
       response: response.data,
       requestBody,
       originalRequest: request,

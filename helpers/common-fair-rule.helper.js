@@ -6,8 +6,10 @@ const { convertSegmentForKafila } = require("./common-search.helper");
 module.exports.createFairRulesRequest = (request) => {
   return createAirPricingRequestBodyForCommonAPI(request);
 };
-module.exports.createFairRuleResponse = (journey) => {
+module.exports.createFairRuleResponse = async (journey) => {
   return {
-    Sectors: journey.airSegments.map(convertSegmentForKafila),
+    Sectors: await Promise.all(
+      journey.airSegments.map(convertSegmentForKafila)
+    ),
   };
 };

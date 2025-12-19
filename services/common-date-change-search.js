@@ -29,19 +29,21 @@ async function commonDateChangeSearch(request) {
     saveLogInFile("DC-Search.RS.json", response);
 
     //  ? assumption: only one way flights are considered
-    let itineraries = response?.data?.journey?.[0]?.itinerary
-      ?.filter(
-        (itinerary) =>
-          !["h1", "x1", "sg"].includes(itinerary.valCarrier.toLowerCase())
-      )
-      ?.map((itinerary, idx) =>
-        convertItineraryForKafila({
-          itinerary,
-          idx,
-          response: response.data,
-          uniqueKey,
-        })
-      );
+    let itineraries = await Promise.all(
+      response?.data?.journey?.[0]?.itinerary
+        ?.filter(
+          (itinerary) =>
+            !["h1", "x1", "sg"].includes(itinerary.valCarrier.toLowerCase())
+        )
+        ?.map((itinerary, idx) =>
+          convertItineraryForKafila({
+            itinerary,
+            idx,
+            response: response.data,
+            uniqueKey,
+          })
+        )
+    );
     if (itineraries?.length) {
       try {
         // itineraries = itineraries.filter(

@@ -2,6 +2,8 @@ const moment = require("moment");
 const uuid = require("uuid");
 const { saveLogInFile } = require("../utils/save-log");
 const { getVendorList } = require("./credentials");
+const { getAirportByCode } = require("../redis/airport.service");
+const { getAirlineByCode } = require("../redis/airline.service");
 
 const commonCabinClassMap = {
   ECONOMY: "Economy",
@@ -71,7 +73,7 @@ function convertTravelTypeForCommonAPI(travelType) {
   return travelType.toLowerCase().includes("dom") ? "DOM" : "INT";
 }
 
-function convertItineraryForKafila({
+async function convertItineraryForKafila({
   itinerary,
   idx,
   response,
@@ -118,7 +120,9 @@ function convertItineraryForKafila({
       passengerPriceBreakupForKafila("CHD", itinerary.priceBreakup),
       passengerPriceBreakupForKafila("INF", itinerary.priceBreakup),
     ],
-    Sectors: itinerary.airSegments.map(convertSegmentForKafila),
+    Sectors: await Promise.all(
+      itinerary.airSegments.map(convertSegmentForKafila)
+    ),
     FareRule: null,
     HostTokens: itinerary.hostTokens || [],
     Key: itinerary.key,
@@ -316,11 +320,11 @@ function formatDateForKafila(dateString) {
   return moment(dateString, "DD/MM/YYYY").format("YYYY-MM-DD");
 }
 
-function convertFlightDetailsForKafila(flight) {
+async function convertFlightDetailsForKafila(flight) {
   if (!flight) return {};
   const date = formatDateForKafila(flight.date);
 
-  return {
+  const flightDetails = {
     Terminal: flight.terminal,
     Date: date,
     Time: flight.time,
@@ -333,10 +337,28 @@ function convertFlightDetailsForKafila(flight) {
     CountryCode: flight.countryCode,
     CountryName: flight.countryName,
   };
+
+  if (
+    !flightDetails.Name ||
+    !flightDetails.CityCode ||
+    !flightDetails.CityName ||
+    !flightDetails.CountryCode ||
+    !flightDetails.CountryName
+  ) {
+    const airport = await getAirportByCode(flightDetails.Code);
+    flightDetails.Name = airport?.Airport_Name || flight.name || "";
+    flightDetails.CityCode = airport?.City_Code || flight.cityCode || "";
+    flightDetails.CityName = airport?.City_Name || flight.cityName || "";
+    flightDetails.CountryCode =
+      airport?.Country_Code || flight.countryCode || "";
+    flightDetails.CountryName =
+      airport?.Country_Name || flight.countryName || "";
+  }
+  return flightDetails;
 }
 
-function convertSegmentForKafila(segment) {
-  return {
+async function convertSegmentForKafila(segment) {
+  const sector = {
     IsConnect: segment.isConnect ?? false,
     AirlineCode: segment.airlineCode ?? "",
     AirlineName: segment.airlineName ?? "",
@@ -373,14 +395,21 @@ function convertSegmentForKafila(segment) {
       ? JSON.stringify(segment.offerDetails)
       : "",
     APISRequirementsRef: "",
-    Departure: convertFlightDetailsForKafila(segment.departure),
-    Arrival: convertFlightDetailsForKafila(segment.arrival),
+    Departure: await convertFlightDetailsForKafila(segment.departure),
+    Arrival: await convertFlightDetailsForKafila(segment.arrival),
     OI: [],
     ProductClass: segment.productClass ?? "",
     FareFamily: segment.fareFamily || "",
     FareType: segment.fareType || "",
     Brand: segment.brand || null,
   };
+
+  if (!sector.AirlineName) {
+    const airline = await getAirlineByCode(sector.AirlineCode);
+    sector.AirlineName = airline?.airlineName || segment?.airlineName || "";
+  }
+
+  return sector;
 }
 
 function passengerPriceBreakupForKafila(type, priceBreakup) {
@@ -455,7 +484,6 @@ module.exports = {
   createSearchRequestBodyForCommonAPI,
   defaultFareRuleForKafila,
   passengerPriceBreakupForKafila,
-  convertSegmentForKafila,
   formatDateForKafila,
   sumDurationForKafila,
   convertItineraryForKafila,

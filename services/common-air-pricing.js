@@ -29,7 +29,7 @@ async function getCommonAirPricing(request) {
     });
     saveLogInFile("pricing-res.json", response);
     // console.dir({ response }, { depth: null });
-    let convertedItinerary = convertAirPricingItineraryForCommonAPI({
+    let convertedItinerary = await convertAirPricingItineraryForCommonAPI({
       response: response.data,
       requestBody,
       originalRequest: request,

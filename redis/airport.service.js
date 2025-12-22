@@ -30,6 +30,7 @@ const getAirPortDetails = async () => {
   return airports;
 };
 
+getAirPortDetails();
 const getAirportByCode = async (code) => {
   let _airport = {};
   let key = getCustomCode(code);

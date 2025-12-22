@@ -1,6 +1,7 @@
 const Redis = require("ioredis");
-const { getAirPortDetails } = require("./airport.service");
-const { getAirlineDetails } = require("./airline.service");
+// const { getAirPortDetails } = require("./airport.service");
+// const { getAirlineDetails } = require("./airline.service");
+const cacheSeeders = require("./cache-seeders");
 
 const sentinelAddressList = process.env.REDIS_SENTINELS?.split?.("|") ?? [];
 const sentinels = [];
@@ -39,8 +40,7 @@ redisClient.on("error", (err) => {
 
 redisClient.on("ready", () => {
   console.log("CONNECTED TO REDIS SERVER");
-  getAirPortDetails();
-  getAirlineDetails();
+  cacheSeeders();
 });
 
 module.exports = {

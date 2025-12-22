@@ -34,6 +34,7 @@ const getAirlineDetails = async () => {
   return airlines;
 };
 
+// getAirlineDetails();
 const getAirlineByCode = async (code) => {
   let airline = {};
   try {

@@ -71,8 +71,9 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                 equipmentType: sector.EquipType,
                 group: sector.Group,
                 // baggageInfo: sector.BaggageInfo,
-                cabinBaggage: sector.BaggageInfo,
+                baggageInfo: sector.BaggageInfo,
                 handBaggage: sector.HandBaggage,
+                cabinBaggage: sector.HandBaggage,
                 offerDetails: sector?.HostTokenRef?.length
                   ? (() => {
                       try {
@@ -564,6 +565,10 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
   let facilitiesArrayList = [];
   if (!allSegmentsList?.length) return;
   await allSegmentsList.forEach((segmentsList) => {
+    // ? strip starting 0, seat map matching in UI was getting failed because 0491 != 491
+    if (segmentsList?.flightNumber?.startsWith("0")) {
+      segmentsList.flightNumber = segmentsList.flightNumber.substring(1);
+    }
     segmentsList?.seatRows?.forEach?.((seatRows) => {
       facilitiesArrayList = [];
       seatRows?.facilities?.forEach?.((seatFacilities, seatIdx) => {

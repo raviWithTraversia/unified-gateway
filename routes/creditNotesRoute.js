@@ -12,6 +12,8 @@ credit_Notes.post("/find-cancelation", auth,creditNotescontroller.cancelationBoo
 credit_Notes.post("/find-cacelation-history-update",auth,creditNotescontroller.findCancelationRefund)
 credit_Notes.post("/manual-refund",auth,creditNotescontroller.ManualRefund)
 credit_Notes.post("/flight/manual/refund/update",auth,creditNoteService.editRefundCancelation)
+credit_Notes.post("/flight/find-pending-cancelation",auth,creditNotescontroller.pendingCancelationFind)
+
 
 
 

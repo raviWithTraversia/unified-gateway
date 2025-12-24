@@ -19,6 +19,7 @@ const InvoicingData = require("../../models/booking/InvoicingData");
 const {ObjectId}=require("mongodb");
 const BookingDetails = require("../../models/booking/BookingDetails");
 const moment=require('moment')
+const EventLogs=require('../logs/EventApiLogsCommon')
 
 
 
@@ -168,6 +169,7 @@ const CancelBookingData = await bookingDetails.aggregate([
       PNR: { $first: "$PNR" },
       paymentMethodType: { $first: "$paymentMethodType" },
       bookingId: { $first: "$bookingId" },
+      bookingRemarks: { $first: "$bookingRemarks" },
       userId: { $first: "$userId" },
       companyId: { $first: "$companyId" },
       createdAt: { $first: "$createdAt" },
@@ -192,6 +194,7 @@ const CancelBookingData = await bookingDetails.aggregate([
       companyId: 1,
       createdAt: 1,
       providerBookingId: 1,
+      bookingRemarks: 1,
       passengesDetails: { $arrayElemAt: ["$passengerData", 0] },
       agentconfigurations: 1,
       InvoicingData: 1,
@@ -413,6 +416,7 @@ searchData.push({
     ServiceFee:1,
     PNR:1,
     createdAt:1,
+    description:1,
     isRefund:1,
     bookingDetails:"$bookingdetailsData"
 
@@ -446,6 +450,7 @@ const findCancelationRefund = async (req, res) => {
 var apiRequestBody={}
 var Url=""
 var supplier
+let checkUserRole = await Users.findOne({ _id: req.user._id });
     if (
       req.headers.host == "localhost:3111" ||
       req.headers.host == "kafila.traversia.net"
@@ -525,8 +530,8 @@ if(!cancelationbookignsData){
     response:"Cancellation Data Not Found"
   })
 }
-let refundProcessed = await RefundedCommonFunction(cancelationbookignsData,refundHistory)
-  console.log(refundProcessed.response,"djei")
+let refundProcessed = await RefundedCommonFunction(cancelationbookignsData,refundHistory,req,checkUserRole)
+  // console.log(refundProcessed.response,"djei")
 if(refundProcessed.response=="Not Match BookingID"||refundProcessed.response==="Cancelation Data Not Found"){
    return({
       response:refundProcessed.response
@@ -607,11 +612,14 @@ const editRefundCancelation = async (req, res) => {
     const { AirlineCancellationFee, AirlineRefund, ServiceFee, remarks, bookingId, RefundableAmount,cartId ,DealAmount,provider} = req.body;
 
     let editRefund=false;
-    const findCancelationData = await CancelationBooking.findById(id);
+    const [findCancelationData,checkUserRole] = await Promise.all([CancelationBooking.findById(id),Users.findById(req.user._id)]);
     if (!findCancelationData) {
       return res.status(404).json({IsSucess:false, Message: "Cancellation Data not found" });
     }
     if(findCancelationData?.isRefund){
+      return res.status(404).json({IsSucess:false, Message: "Allready Provide Refund" })
+    }
+    if(!checkUserRole){
       return res.status(404).json({IsSucess:false, Message: "Allready Provide Refund" })
     }
     
@@ -718,7 +726,7 @@ var calculateDealAmountMinus=0
       transactionType: "CREDIT",
       runningAmount: newBalance,
       remarks: `Manual ${remarks}` || "Cancellation Amount Added Into Your Account.",
-      transactionBy: agentConfigData.userId
+      transactionBy: req.user._id
     });
 
 
@@ -733,11 +741,25 @@ var calculateDealAmountMinus=0
           RefundableAmt:refundAmount,
           AirlineRefund:AirlineRefund,
           isRefund: true,
-          calcelationStatus: "REFUNDED"
+          calcelationStatus: "REFUNDED",
+          modifyBy:req.user._id
         }
       },
       { new: true }
     );
+
+    let logsData={
+                    eventName:"cancel-booking",
+                    doerId:req.user._id,
+                    doerName:checkUserRole?.firstName??"",
+                    companyId:checkUserRole?.company_ID,
+                  oldValue:bookingData,
+                    newValue:{bookingStatus:"REFUNDED",...bookingData},
+                    documentId:bookingData._id,
+                    description:"Refund Process",
+                    ipAddress: req.user.userIp
+                  }
+                  EventLogs(logsData)
 
     // Send success response
     return res.status(200).json({ IsSucess:true,Message: "Refund Process Completed Successfully" });
@@ -902,6 +924,112 @@ const ManualRefund = async (req, res) => {
 };
 
 
-module.exports = {flightCreditNotes,cancelationBooking,findCancelationRefund,ManualRefund,editRefundCancelation}
+const findPendinCanelation = async (req, res) => {
+  try {
+    const { toDate, fromDate } = req.body;
+    let usersDetails = await Users.findById(req.user._id);
+
+    let matchingCondition = {};
+
+    const isTMCUser =
+      String(usersDetails.company_ID) === String(Config.TMCID);
+
+    // Common date condition
+    const dateCondition = {
+      $gt: new Date(`${fromDate}T00:00:00.000Z`),
+      $lt: new Date(`${toDate}T23:59:59.999Z`)
+    };
+
+    if (isTMCUser) {
+      matchingCondition = {
+        createdAt: dateCondition,
+        calcelationStatus: "PENDING"
+      };
+    } else {
+      matchingCondition = {
+        createdAt: dateCondition,
+        calcelationStatus: "PENDING",
+        userId: usersDetails._id
+      };
+    }
+
+    let findCancelationBookingDetails = await CancelationBooking.aggregate([
+      { $match: matchingCondition },
+      {$lookup: {
+        from: "users",
+        localField: "modifyBy",
+        foreignField: "_id",
+        as: "usersData"
+      }},
+      { $unwind: "$usersData" },
+      {
+        $lookup: {
+          from: "bookingdetails",
+          localField: "providerBookingId",
+          foreignField: "providerBookingId",
+          as: "bookingDetails"
+        }
+      },
+      { $unwind: "$bookingDetails" },
+      { $match: { "bookingDetails.bookingStatus": "CANCELLATION PENDING" } },
+      {$project:{
+        "bookingDetails.providerBookingId":1,
+        "bookingDetails.itinerary.Sectors.AirlineCode":1,
+        "bookingDetails.PNR":1,
+        "bookingDetails.bookingId":1,
+        "bookingDetails.bookingStatus":1,
+        // "reult.createdAt":1,
+        AirlineCode:1,
+        fare:1,
+        createdAt:1,
+        AirlineCancellationFee:1,
+        AirlineRefundData:1,
+        ServiceFee:1,
+        RefundableAmt:1,
+        "usersData.fname":1,
+        "usersData.lastName":1,
+        "usersData.title":1,
+        "bookingDetails.itinerary.Sectors.Departure.CityCode":1,
+        "bookingDetails.itinerary.Sectors.Arrival.CityCode":1,
+        "bookingDetails.itinerary.GrandTotal":1,
+        "bookingDetails.invoiceNo":1,
+        "bookingDetails.bookingType":1,
+        "bookingDetails.itinerary.Sectors.Departure.DateTimeStamp":1,
+        "bookingDetails.travelType":1,
+        "bookingDetails._id":1,
+        "bookingDetails.itinerary.Sectors.FltNum":1,
+        "bookingDetails.bookingRemarks":1,
+        "bookingDetails.provider":1
+
+  }},
+   {
+    $group: {
+      _id: "$bookingDetails._id",
+      data: { $first: "$$ROOT" } // keep original response as it is
+    }
+  },
+  {$sort: { createdAt: -1 }}
+    ]);
+
+    let cancelationBooking=[]
+  
+    if (findCancelationBookingDetails.length > 0) {
+    cancelationBooking = findCancelationBookingDetails.map((item) => {
+      return item.data;
+    });
+
+      return {
+        response: "Fetch Data Successfully",
+        data: cancelationBooking
+      };
+    } else {
+      return { response: "No Pending Cancellation Found" };
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
 
 
+module.exports = {flightCreditNotes,cancelationBooking,findCancelationRefund,ManualRefund,editRefundCancelation,findPendinCanelation}

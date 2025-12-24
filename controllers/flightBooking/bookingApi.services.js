@@ -80,7 +80,8 @@ const getAllBooking = async (req, res) => {
     cancelationPending,
     provider,
     page,
-    limit
+    limit,
+    providerBookingId
   } = req.body;
   const fieldNames = [
     "agencyId",
@@ -111,10 +112,10 @@ const getAllBooking = async (req, res) => {
   //     response: "User id does not exist",
   //   };
   // }
-  limit>200?limit=200:limit
-const pages = parseInt(page) || 1;
-const limits = parseInt(limit) || 200;
-const skip = (pages - 1) * limits;
+  limit > 200 ? limit = 200 : limit
+  const pages = parseInt(page) || 1;
+  const limits = parseInt(limit) || 200;
+  const skip = (pages - 1) * limits;
   // Check if company Id exists
   const checkUserIdExist = await User.findById(userId)
     .populate("roleId")
@@ -162,12 +163,10 @@ const skip = (pages - 1) * limits;
     ) {
       filter.companyId = new ObjectId(agencyId);
     } else if (agencyId !== undefined && agencyId !== "") {
-      console.log("djie");
       filter.AgencyId = new ObjectId(agencyId);
     } else {
-      console.log("jdi");
       checkUserIdExist.roleId.type == "Manual" &&
-      checkUserIdExist.company_ID?.type == "TMC"
+        checkUserIdExist.company_ID?.type == "TMC"
         ? (filter.companyId = checkUserIdExist.company_ID._id)
         : (filter.AgencyId = new ObjectId(checkUserIdExist?.company_ID?._id));
     }
@@ -177,9 +176,13 @@ const skip = (pages - 1) * limits;
       filter.bookingId = bookingId;
     }
 
+    if (providerBookingId !== undefined && providerBookingId.trim() !== "") {
+      filter.providerBookingId = providerBookingId;
+    }
+
     // Filter by PNR
     if (pnr !== undefined && pnr.trim() !== "") {
-      filter.PNR = pnr;
+      filter.$or = [{ PNR: pnr },{GPnr:pnr}];
     }
 
     // Filter by bookingStatus
@@ -272,118 +275,118 @@ const skip = (pages - 1) * limits;
       delete filter.createdAt; // Removes the 'age' key from obj
     }
 
-   const paginatedResults = await bookingdetails.aggregate([
-  // Step 1: Match
-  { $match: filter },
+    const paginatedResults = await bookingdetails.aggregate([
+      // Step 1: Match
+      { $match: filter },
 
-  // Step 2: Sort
-  { $sort: { createdAt: -1 } },
+      // Step 2: Sort
+      { $sort: { createdAt: -1 } },
 
-  // Step 3: Facet to get total count and paginated data
-  {
-    $facet: {
-      totalCount: [{ $count: "count" }],
-      paginatedResults: [
-        { $skip: skip },
-        { $limit: limits },
+      // Step 3: Facet to get total count and paginated data
+      {
+        $facet: {
+          totalCount: [{ $count: "count" }],
+          paginatedResults: [
+            { $skip: skip },
+            { $limit: limits },
 
-        // Step 4: Lookup user and their company
-        {
-          $lookup: {
-            from: "users",
-            localField: "userId",
-            foreignField: "_id",
-            as: "userId",
-            pipeline: [
-              {
-                $lookup: {
-                  from: "companies",
-                  localField: "company_ID",
-                  foreignField: "_id",
-                  as: "company_ID",
-                },
+            // Step 4: Lookup user and their company
+            {
+              $lookup: {
+                from: "users",
+                localField: "userId",
+                foreignField: "_id",
+                as: "userId",
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: "companies",
+                      localField: "company_ID",
+                      foreignField: "_id",
+                      as: "company_ID",
+                    },
+                  },
+                  {
+                    $unwind: {
+                      path: "$company_ID",
+                      preserveNullAndEmptyArrays: true,
+                    },
+                  },
+                ],
               },
-              {
-                $unwind: {
-                  path: "$company_ID",
-                  preserveNullAndEmptyArrays: true,
-                },
+            },
+            {
+              $unwind: {
+                path: "$userId",
+                preserveNullAndEmptyArrays: true,
               },
-            ],
-          },
-        },
-        {
-          $unwind: {
-            path: "$userId",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            },
 
-        // Lookup BookedBy
-        {
-          $lookup: {
-            from: "users",
-            localField: "BookedBy",
-            foreignField: "_id",
-            as: "BookedBy",
-          },
-        },
-        {
-          $unwind: {
-            path: "$BookedBy",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            // Lookup BookedBy
+            {
+              $lookup: {
+                from: "users",
+                localField: "BookedBy",
+                foreignField: "_id",
+                as: "BookedBy",
+              },
+            },
+            {
+              $unwind: {
+                path: "$BookedBy",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
 
-        // Lookup invoicingdatas
-        {
-          $lookup: {
-            from: "invoicingdatas",
-            localField: "_id",
-            foreignField: "bookingId",
-            as: "invoicingdatas",
-          },
-        },
-        {
-          $unwind: {
-            path: "$invoicingdatas",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            // Lookup invoicingdatas
+            {
+              $lookup: {
+                from: "invoicingdatas",
+                localField: "_id",
+                foreignField: "bookingId",
+                as: "invoicingdatas",
+              },
+            },
+            {
+              $unwind: {
+                path: "$invoicingdatas",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
 
-        // Lookup agentconfigurationData
-        {
-          $lookup: {
-            from: "agentconfigurations",
-            let: { companyId: "$userId.company_ID._id" },
-            pipeline: [
-              { $match: { $expr: { $eq: ["$companyId", "$$companyId"] } } },
-              { $limit: 1 },
-            ],
-            as: "agentconfigurationData",
-          },
-        },
-        {
-          $unwind: {
-            path: "$agentconfigurationData",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            // Lookup agentconfigurationData
+            {
+              $lookup: {
+                from: "agentconfigurations",
+                let: { companyId: "$userId.company_ID._id" },
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$companyId", "$$companyId"] } } },
+                  { $limit: 1 },
+                ],
+                as: "agentconfigurationData",
+              },
+            },
+            {
+              $unwind: {
+                path: "$agentconfigurationData",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
 
-        // Add salesId
-        {
-          $addFields: {
-            salesId: "$agentconfigurationData.salesInchargeIds",
-          },
+            // Add salesId
+            {
+              $addFields: {
+                salesId: "$agentconfigurationData.salesInchargeIds",
+              },
+            },
+          ],
         },
-      ],
-    },
-  },
-]);
-// const status=await bookingdetails.find(filter);
+      },
+    ]);
+    // const status=await bookingdetails.find(filter);
 
     // Further processing...
-let bookingDetails = paginatedResults[0]?.paginatedResults||[];
+    let bookingDetails = paginatedResults[0]?.paginatedResults || [];
     console.log("1st");
     if (!bookingDetails || bookingDetails.length === 0) {
       return {
@@ -442,7 +445,7 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
             (a, b) =>
               new Date(
                 b.bookingDetails.bookingDateTime -
-                  new Date(a.bookingDetails.bookingDateTime)
+                new Date(a.bookingDetails.bookingDateTime)
               )
           ),
           // statusCounts: statusCounts,
@@ -499,8 +502,11 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;
     }
+    if (providerBookingId !== undefined && providerBookingId.trim() !== "") {
+      filter.providerBookingId = providerBookingId;
+    }
     if (pnr !== undefined && pnr.trim() !== "") {
-      filter.PNR = pnr;
+      filter.$or = [{ PNR: pnr },{GPnr:pnr}];
     }
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
@@ -576,118 +582,118 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
       delete filter.createdAt; // Removes the 'age' key from obj
     }
 
-     const paginatedResults = await bookingdetails.aggregate([
-  // Step 1: Match
-  { $match: filter },
+    const paginatedResults = await bookingdetails.aggregate([
+      // Step 1: Match
+      { $match: filter },
 
-  // Step 2: Sort
-  { $sort: { createdAt: -1 } },
+      // Step 2: Sort
+      { $sort: { createdAt: -1 } },
 
-  // Step 3: Facet to get total count and paginated data
-  {
-    $facet: {
-      totalCount: [{ $count: "count" }],
-      paginatedResults: [
-        { $skip: skip },
-        { $limit: limits },
+      // Step 3: Facet to get total count and paginated data
+      {
+        $facet: {
+          totalCount: [{ $count: "count" }],
+          paginatedResults: [
+            { $skip: skip },
+            { $limit: limits },
 
-        // Step 4: Lookup user and their company
-        {
-          $lookup: {
-            from: "users",
-            localField: "userId",
-            foreignField: "_id",
-            as: "userId",
-            pipeline: [
-              {
-                $lookup: {
-                  from: "companies",
-                  localField: "company_ID",
-                  foreignField: "_id",
-                  as: "company_ID",
-                },
+            // Step 4: Lookup user and their company
+            {
+              $lookup: {
+                from: "users",
+                localField: "userId",
+                foreignField: "_id",
+                as: "userId",
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: "companies",
+                      localField: "company_ID",
+                      foreignField: "_id",
+                      as: "company_ID",
+                    },
+                  },
+                  {
+                    $unwind: {
+                      path: "$company_ID",
+                      preserveNullAndEmptyArrays: true,
+                    },
+                  },
+                ],
               },
-              {
-                $unwind: {
-                  path: "$company_ID",
-                  preserveNullAndEmptyArrays: true,
-                },
+            },
+            {
+              $unwind: {
+                path: "$userId",
+                preserveNullAndEmptyArrays: true,
               },
-            ],
-          },
-        },
-        {
-          $unwind: {
-            path: "$userId",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            },
 
-        // Lookup BookedBy
-        {
-          $lookup: {
-            from: "users",
-            localField: "BookedBy",
-            foreignField: "_id",
-            as: "BookedBy",
-          },
-        },
-        {
-          $unwind: {
-            path: "$BookedBy",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            // Lookup BookedBy
+            {
+              $lookup: {
+                from: "users",
+                localField: "BookedBy",
+                foreignField: "_id",
+                as: "BookedBy",
+              },
+            },
+            {
+              $unwind: {
+                path: "$BookedBy",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
 
-        // Lookup invoicingdatas
-        {
-          $lookup: {
-            from: "invoicingdatas",
-            localField: "_id",
-            foreignField: "bookingId",
-            as: "invoicingdatas",
-          },
-        },
-        {
-          $unwind: {
-            path: "$invoicingdatas",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            // Lookup invoicingdatas
+            {
+              $lookup: {
+                from: "invoicingdatas",
+                localField: "_id",
+                foreignField: "bookingId",
+                as: "invoicingdatas",
+              },
+            },
+            {
+              $unwind: {
+                path: "$invoicingdatas",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
 
-        // Lookup agentconfigurationData
-        {
-          $lookup: {
-            from: "agentconfigurations",
-            let: { companyId: "$userId.company_ID._id" },
-            pipeline: [
-              { $match: { $expr: { $eq: ["$companyId", "$$companyId"] } } },
-              { $limit: 1 },
-            ],
-            as: "agentconfigurationData",
-          },
-        },
-        {
-          $unwind: {
-            path: "$agentconfigurationData",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            // Lookup agentconfigurationData
+            {
+              $lookup: {
+                from: "agentconfigurations",
+                let: { companyId: "$userId.company_ID._id" },
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$companyId", "$$companyId"] } } },
+                  { $limit: 1 },
+                ],
+                as: "agentconfigurationData",
+              },
+            },
+            {
+              $unwind: {
+                path: "$agentconfigurationData",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
 
-        // Add salesId
-        {
-          $addFields: {
-            salesId: "$agentconfigurationData.salesInchargeIds",
-          },
+            // Add salesId
+            {
+              $addFields: {
+                salesId: "$agentconfigurationData.salesInchargeIds",
+              },
+            },
+          ],
         },
-      ],
-    },
-  },
-]);
-;
+      },
+    ]);
+    ;
 
     console.log("2nd");
-    let bookingDetails = paginatedResults[0]?.paginatedResults||[];
+    let bookingDetails = paginatedResults[0]?.paginatedResults || [];
 
     if (!bookingDetails || bookingDetails.length === 0) {
       return {
@@ -779,6 +785,9 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
     if (bookingId !== undefined && bookingId.trim() !== "") {
       filter.bookingId = bookingId;
     }
+    if (providerBookingId !== undefined && providerBookingId.trim() !== "") {
+      filter.providerBookingId = providerBookingId;
+    }
     let orConditions = [];
     if (ArilineFilter !== undefined && ArilineFilter !== "") {
       orConditions.push(
@@ -792,7 +801,7 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
       filter.$or = orConditions;
     }
     if (pnr !== undefined && pnr.trim() !== "") {
-      filter.PNR = pnr;
+      filter.$or = [{ PNR: pnr },{GPnr:pnr}];
     }
     if (status !== undefined && status.trim() !== "") {
       filter.bookingStatus = status;
@@ -868,114 +877,114 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
       delete filter.createdAt; // Removes the 'age' key from obj
     }
     console.log(filter, "j;die");
-     const paginatedResults = await bookingdetails.aggregate([
-  // Step 1: Match
-  { $match: filter },
+    const paginatedResults = await bookingdetails.aggregate([
+      // Step 1: Match
+      { $match: filter },
 
-  // Step 2: Sort
-  { $sort: { createdAt: -1 } },
+      // Step 2: Sort
+      { $sort: { createdAt: -1 } },
 
-  // Step 3: Facet to get total count and paginated data
-  {
-    $facet: {
-      totalCount: [{ $count: "count" }],
-      paginatedResults: [
-        { $skip: skip },
-        { $limit: limits },
+      // Step 3: Facet to get total count and paginated data
+      {
+        $facet: {
+          totalCount: [{ $count: "count" }],
+          paginatedResults: [
+            { $skip: skip },
+            { $limit: limits },
 
-        // Step 4: Lookup user and their company
-        {
-          $lookup: {
-            from: "users",
-            localField: "userId",
-            foreignField: "_id",
-            as: "userId",
-            pipeline: [
-              {
-                $lookup: {
-                  from: "companies",
-                  localField: "company_ID",
-                  foreignField: "_id",
-                  as: "company_ID",
-                },
+            // Step 4: Lookup user and their company
+            {
+              $lookup: {
+                from: "users",
+                localField: "userId",
+                foreignField: "_id",
+                as: "userId",
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: "companies",
+                      localField: "company_ID",
+                      foreignField: "_id",
+                      as: "company_ID",
+                    },
+                  },
+                  {
+                    $unwind: {
+                      path: "$company_ID",
+                      preserveNullAndEmptyArrays: true,
+                    },
+                  },
+                ],
               },
-              {
-                $unwind: {
-                  path: "$company_ID",
-                  preserveNullAndEmptyArrays: true,
-                },
+            },
+            {
+              $unwind: {
+                path: "$userId",
+                preserveNullAndEmptyArrays: true,
               },
-            ],
-          },
-        },
-        {
-          $unwind: {
-            path: "$userId",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            },
 
-        // Lookup BookedBy
-        {
-          $lookup: {
-            from: "users",
-            localField: "BookedBy",
-            foreignField: "_id",
-            as: "BookedBy",
-          },
-        },
-        {
-          $unwind: {
-            path: "$BookedBy",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            // Lookup BookedBy
+            {
+              $lookup: {
+                from: "users",
+                localField: "BookedBy",
+                foreignField: "_id",
+                as: "BookedBy",
+              },
+            },
+            {
+              $unwind: {
+                path: "$BookedBy",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
 
-        // Lookup invoicingdatas
-        {
-          $lookup: {
-            from: "invoicingdatas",
-            localField: "_id",
-            foreignField: "bookingId",
-            as: "invoicingdatas",
-          },
-        },
-        {
-          $unwind: {
-            path: "$invoicingdatas",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            // Lookup invoicingdatas
+            {
+              $lookup: {
+                from: "invoicingdatas",
+                localField: "_id",
+                foreignField: "bookingId",
+                as: "invoicingdatas",
+              },
+            },
+            {
+              $unwind: {
+                path: "$invoicingdatas",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
 
-        // Lookup agentconfigurationData
-        {
-          $lookup: {
-            from: "agentconfigurations",
-            let: { companyId: "$userId.company_ID._id" },
-            pipeline: [
-              { $match: { $expr: { $eq: ["$companyId", "$$companyId"] } } },
-              { $limit: 1 },
-            ],
-            as: "agentconfigurationData",
-          },
-        },
-        {
-          $unwind: {
-            path: "$agentconfigurationData",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+            // Lookup agentconfigurationData
+            {
+              $lookup: {
+                from: "agentconfigurations",
+                let: { companyId: "$userId.company_ID._id" },
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$companyId", "$$companyId"] } } },
+                  { $limit: 1 },
+                ],
+                as: "agentconfigurationData",
+              },
+            },
+            {
+              $unwind: {
+                path: "$agentconfigurationData",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
 
-        // Add salesId
-        {
-          $addFields: {
-            salesId: "$agentconfigurationData.salesInchargeIds",
-          },
+            // Add salesId
+            {
+              $addFields: {
+                salesId: "$agentconfigurationData.salesInchargeIds",
+              },
+            },
+          ],
         },
-      ],
-    },
-  },
-]);
+      },
+    ]);
 
 
 
@@ -989,7 +998,7 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
     // .populate("BookedBy");
     console.log("3rd");
 
-    const bookingDetails = paginatedResults[0]?.paginatedResults||[];
+    const bookingDetails = paginatedResults[0]?.paginatedResults || [];
     if (!bookingDetails || bookingDetails.length === 0) {
       return {
         response: "Data Not Found",
@@ -1075,8 +1084,12 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
       }
+      if (providerBookingId !== undefined && providerBookingId.trim() !== "") {
+        filter.providerBookingId = providerBookingId;
+      }
       if (pnr !== undefined && pnr.trim() !== "") {
-        filter.PNR = pnr;
+          filter.$or = [{ PNR: pnr },{GPnr:pnr}];
+;
       }
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
@@ -1235,11 +1248,11 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
               (a, b) =>
                 new Date(
                   b.bookingDetails.bookingDateTime -
-                    new Date(a.bookingDetails.bookingDateTime)
+                  new Date(a.bookingDetails.bookingDateTime)
                 )
             ),
             statusCounts: statusCounts,
-            totalCount: allBookingData.length||0,
+            totalCount: allBookingData.length || 0,
           },
         };
       }
@@ -1256,8 +1269,11 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
       }
+      if (providerBookingId !== undefined && providerBookingId.trim() !== "") {
+        filter.providerBookingId = providerBookingId;
+      }
       if (pnr !== undefined && pnr.trim() !== "") {
-        filter.PNR = pnr;
+      filter.$or = [{ PNR: pnr },{GPnr:pnr}];
       }
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
@@ -1397,7 +1413,7 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
                 new Date(a.bookingDetails.bookingDateTime)
             ),
             statusCounts: statusCounts,
-            totalCount: filteredBookingData.length||0,
+            totalCount: filteredBookingData.length || 0,
           },
         };
       }
@@ -1414,8 +1430,11 @@ let bookingDetails = paginatedResults[0]?.paginatedResults||[];
       if (bookingId !== undefined && bookingId.trim() !== "") {
         filter.bookingId = bookingId;
       }
+      if (providerBookingId !== undefined && providerBookingId.trim() !== "") {
+        filter.providerBookingId = providerBookingId;
+      }
       if (pnr !== undefined && pnr.trim() !== "") {
-        filter.PNR = pnr;
+      filter.$or = [{ PNR: pnr },{GPnr:pnr}];
       }
       if (status !== undefined && status.trim() !== "") {
         filter.bookingStatus = status;
@@ -2814,7 +2833,7 @@ const getBookingByPaxDetails = async (req, res) => {
     const getPaxByTicket = await passengerPreferenceSchema.aggregate([
       {
         $match: {
-          "Passengers.Optional.TicketNumber": ticketNumber,
+          "Passengers.Optional.ticketDetails.ticketNumber": ticketNumber,
         },
       },
       { $unwind: "$Passengers" },

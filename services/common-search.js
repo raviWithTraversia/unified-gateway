@@ -54,7 +54,10 @@ async function commonFlightSearch(request) {
           (itinerary) =>
             itinerary.airSegments[0].cabinClass.toUpperCase() ===
               cabinClass.toUpperCase() &&
-            !(itinerary.provider === "1A" && itinerary.valCarrier === "SG")
+            !(
+              itinerary.provider === "1A" &&
+              ["SG", "H1"].includes(itinerary.valCarrier.toUpperCase())
+            )
         )
         // ?.filter(
         //   (itinerary) =>

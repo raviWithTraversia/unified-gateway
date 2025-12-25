@@ -95,6 +95,7 @@ async function commonFlightSearch(request) {
       message: error.message,
       data: error?.response?.data,
       stack: error.stack,
+      path: error?.request?.path,
     });
     return { error: error.message };
   }

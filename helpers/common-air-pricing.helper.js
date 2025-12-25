@@ -402,21 +402,23 @@ async function convertSSRItineraryForCommonAPI({
 
   convertedSSRResponse.Ancl = {
     Baggage:
-      itinerary?.ssrInfo?.baggage?.map((baggage) => ({
-        Complmnt: false,
-        Paid: baggage?.paid || false,
-        Currency: baggage?.currency || "INR",
-        FCode: baggage?.airlineCode || "",
-        FNo: baggage?.flightNumber || "",
-        OI: baggage?.code || "",
-        Price: baggage?.amount || 0,
-        SsrCode: baggage?.code || "",
-        SsrDesc: baggage?.name || "",
-        SsrFor: "Journey",
-        Trip: baggage?.wayType,
-        Src: baggage.origin,
-        Des: baggage.destination,
-      })) || [],
+      itinerary?.ssrInfo?.baggage
+        ?.sort((a, b) => a.amount - b.amount)
+        ?.map((baggage) => ({
+          Complmnt: false,
+          Paid: baggage?.paid || false,
+          Currency: baggage?.currency || "INR",
+          FCode: baggage?.airlineCode || "",
+          FNo: baggage?.flightNumber || "",
+          OI: baggage?.code || "",
+          Price: baggage?.amount || 0,
+          SsrCode: baggage?.code || "",
+          SsrDesc: baggage?.name || "",
+          SsrFor: "Journey",
+          Trip: baggage?.wayType,
+          Src: baggage.origin,
+          Des: baggage.destination,
+        })) || [],
     FastForward:
       itinerary?.ssrInfo?.fastForward?.map((fastForward) => ({
         Complmnt: false,

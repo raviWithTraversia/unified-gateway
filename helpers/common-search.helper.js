@@ -26,9 +26,19 @@ function getCommonCabinClass(kafilaCabinClass) {
 }
 
 function getKafilaCabinClass(commonCabinClass) {
-  return (
-    kafilaCabinClassMap[commonCabinClass.toUpperCase()] ?? commonCabinClass
-  );
+  if (kafilaCabinClassMap[commonCabinClass.toUpperCase()]) {
+    return titleCase(kafilaCabinClassMap[commonCabinClass.toUpperCase()]);
+  }
+
+  return titleCase(commonCabinClass);
+}
+
+function titleCase(str) {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 function createSearchRequestBodyForCommonAPI(request) {

@@ -69,7 +69,7 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                 flightNumber: sector.FltNum,
                 // equipType: sector.EquipType,
                 equipmentType: sector.EquipType,
-                group: sector.Group,
+                group: (parseInt(sector.Group) + 1).toString(),
                 // baggageInfo: sector.BaggageInfo,
                 baggageInfo: sector.BaggageInfo,
                 handBaggage: sector.HandBaggage,
@@ -590,8 +590,8 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
           (char) => char.description
         );
         if (seatCode) {
-          let DDate = "",
-            ssrProperty = [];
+          let DDate = "";
+          let ssrProperty = [];
           if (segmentsList?.departure?.date) {
             DDate =
               moment(
@@ -600,12 +600,19 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
               ).format("YYYY-MM-DDTHH:mm") + ":00.000Z";
             // DDate = DDate + "T00:00:00.000Z";
           }
-          if (
-            seatRows?.facilities?.[seatIdx - 1]?.type === "Aisle" ||
-            seatRows?.facilities?.[seatIdx + 1]?.type === "Aisle" ||
-            (characteristicStrings?.length &&
-              characteristicStrings.some((char) => char.toUpperCase("AISLE")))
-          ) {
+
+          let isBeforeAisle =
+            seatRows?.facilities?.[seatIdx - 1]?.type === "Aisle";
+          let isAfterAisle =
+            seatRows?.facilities?.[seatIdx + 1]?.type === "Aisle";
+
+          // let isAisleSeat =
+          //   characteristicStrings?.length &&
+          //   characteristicStrings.some((char) =>
+          //     char.toUpperCase().includes("AISLE")
+          //   );
+
+          if (isBeforeAisle || isAfterAisle) {
             ssrProperty.push({
               SKey: "AISLE",
               SValue: "True",
@@ -638,7 +645,7 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
               segmentsList?.destination?.code ||
               segmentsList?.arrival?.code ||
               "",
-            Group: segmentsList.group || "",
+            Group: (parseInt(segmentsList.group) + 1).toString() || "",
             DDate: DDate,
             Deck: deck,
             SsrProperty: ssrProperty,

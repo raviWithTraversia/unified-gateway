@@ -368,6 +368,7 @@ async function convertFlightDetailsForKafila(flight) {
 }
 
 async function convertSegmentForKafila(segment) {
+  let group = parseInt(segment.group);
   const sector = {
     IsConnect: segment.isConnect ?? false,
     AirlineCode: segment.airlineCode ?? "",
@@ -397,7 +398,7 @@ async function convertSegmentForKafila(segment) {
     ParticipantLevel: "",
     OptionalServicesIndicator: false,
     AvailabilitySource: segment.availabilitySource ?? "",
-    Group: segment.group ?? "",
+    Group: (group - 1).toString(),
     LinkAvailability: false,
     PolledAvailabilityOption: "",
     FareBasisCode: segment.fareBasisCode || segment.fareBasis || "",

@@ -43,7 +43,8 @@ async function createAirBookingRequestBodyForCommonAPI(
 
     const pricingRQ = createAirPricingRequestBodyForCommonAPI({
       ...request.SearchRequest,
-      Itinerary: request.ItineraryPriceCheckResponses,
+      Itinerary: [reqItinerary],
+      // Itinerary: request.ItineraryPriceCheckResponses,
     });
 
     const requestBody = {
@@ -289,11 +290,15 @@ function convertTravelerDetailsForCommonAPI(
           expiryDate: moment(traveler?.Optional?.PassportExpiryDate).format(
             "YYYY-MM-DD"
           ),
+          issueDate: moment(traveler?.Optional?.PassportIssuedDate).format(
+            "YYYY-MM-DD"
+          ),
         }
       : {
           number: "",
           issuingCountry: "",
           expiryDate: "",
+          issueDate: "",
         },
     contactDetails:
       idx === 0

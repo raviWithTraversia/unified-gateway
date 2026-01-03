@@ -42,6 +42,7 @@ const addSsrCommercialGroup = async (req, res) => {
         companyId: companyId,
         documentId: saveFareRuleGroup._id,
         description: "Add Manage SSR Groups",
+        ipAddress: req.user.userIp
       }
       EventLogs(LogsData)
       return {
@@ -98,6 +99,7 @@ const editSsrCommercialGroup = async (req, res) => {
         companyId: updateSsrCommercialData.companyId,
         documentId: updateSsrCommercialData._id,
         description: "Edit Manage SSR Groups",
+        ipAddress: req.user.userIp
       }
       EventLogs(LogsData)
 
@@ -217,6 +219,7 @@ const deleteSsrCommercialGroup = async (req, res) => {
         companyId: deleteData.companyId,
         documentId: deleteData._id,
         description: "Delete Manage SSR Groups",
+        ipAddress: req.user.userIp
       }
       EventLogs(LogsData)
       return {

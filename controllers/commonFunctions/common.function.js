@@ -32,10 +32,12 @@ const InvoicingData=require('../../models/Irctc/invvoicingRailData');
 const bookingDetailsRail = require("../../models/Irctc/bookingDetailsRail");
 const PGLogs = require("../../models/Logs/PG.logs");
 const onlinePaymentHistorySchema = require("../../models/onlinePaymentHistory");
+// const EventLogs = require("../../models/Logs/EventLogs");
+const EventLogs=require('../../controllers/logs/EventApiLogsCommon')
 
-const createToken = async (id) => {
+const createToken = async (id,userIp) => {
   try {
-    const token = await jwt.sign({ _id: id }, Config.SECRET_JWT);
+    const token = await jwt.sign({ _id: id,userIp:userIp }, Config.SECRET_JWT);
     return token;
   } catch (error) {
     return error.message;
@@ -1346,7 +1348,9 @@ const priceRoundOffNumberValues = async (numberValue) => {
 
 const RefundedCommonFunction = async (
   cancelationBookingsData,
-  refundHistory
+  refundHistory,
+  req,
+  checkUserRole
 ) => {
   try {
     let responseMessage = "Cancellation Data Not Found";
@@ -1460,7 +1464,7 @@ const RefundedCommonFunction = async (
             ? "CANCELLATION PENDING"
             : "PARTIALLY CONFIRMED";
           console.log(newStatus, "newStatus");
-          await BookingDetails.findOneAndUpdate(
+        let booking=  await BookingDetails.findOneAndUpdate(
             { providerBookingId: matchingBooking.bookingId },
             { $set: { bookingStatus: newStatus } },
             { new: true }
@@ -1494,10 +1498,24 @@ const RefundedCommonFunction = async (
                 RefundableAmt: refund.RefundableAmount,
                 isRefund: false,
                 calcelationStatus: "CANCEL",
+                modifyBy:req.user._id
               },
             },
             { new: true } // Returns the updated document
           );
+
+          let logsData={
+                    eventName:"cancel-booking",
+                    doerId:req.user._id,
+                    doerName:checkUserRole?.firstName??"",
+                    companyId:checkUserRole?.company_ID,
+                  oldValue:{  bookingStatus:"CANCELLATION PENDING",...booking},
+                    newValue:booking,
+                    documentId:booking._id,
+                    description:"Update Pending Booking",
+                    ipAddress:req.user.userIp
+                  }
+                  EventLogs(logsData)
         } else {
           // console.log("djdieieie")
         const booking =  await BookingDetails.findOneAndUpdate(
@@ -1536,10 +1554,23 @@ const RefundedCommonFunction = async (
                 RefundableAmt: refund.RefundableAmount,
                 isRefund: false,
                 calcelationStatus: "CANCEL",
+                modifyBy:req.user._id
               },
             },
             { new: true } // Returns the updated document
           );
+          let logsData={
+                    eventName:"cancel-booking",
+                    doerId:req.user._id,
+                    doerName:checkUserRole?.firstName??"",
+                    companyId:checkUserRole?.company_ID,
+                  oldValue:{  bookingStatus:"CANCELLATION PENDING",...booking},
+                    newValue:booking,
+                    documentId:booking._id,
+                    description:"Update Pending Booking",
+                    ipAddress:req.user.userIp
+                  }
+                  EventLogs(logsData)
         }
 
         responseMessage = "Cancellation status updated successfully.";

@@ -6,9 +6,8 @@ const {
 const {
   convertFlightDetailsForCommonAPI,
 } = require("./common-air-pricing.helper");
-const { getVendorList } = require("./credentials");
 
-function createAirCancellationRequestBodyForCommonAPI(request, pnrResponse) {
+function createAirCancellationRequestBodyForCommonAPI(request) {
   try {
     const reqItinerary = request.Itinerary?.[0];
     const reqSegment = request.Segments?.[0];
@@ -18,64 +17,77 @@ function createAirCancellationRequestBodyForCommonAPI(request, pnrResponse) {
       );
 
     const requestBody = {
-      typeOfTrip: request.TypeOfTrip || "ONEWAY",
-      travelType: request.TravelType?.toUpperCase().startsWith("DOM")
-        ? "DOM"
-        : request.TravelType,
-      credentialType: request.Authentication?.CredentialType || null,
-      traceId: request.Itinerary[0].TraceId,
-      companyId: request.Authentication?.CompanyId || "000000",
-      recLoc: {
-        type: "GDS",
-        pnr: request.PNR,
-      },
-      cancelType: request.CancelType,
-      cancelRemarks: request.Reason?.Reason,
-      autoBspRefund: true,
-      travellerDetails: request?.passengarList
-        ? travellerDetailsForCancellation(
-            request.passengarList,
-            pnrResponse.travellerDetails
-          )
-        : [],
-      airSegments: [],
-      provider: request.Provider,
-      gstDetails: {},
-      agencyInfo: {},
-      cardDetails: {},
-      rmFields: [],
-      vendorList: getVendorList(request.Authentication?.CredentialType),
-      vendorBookingId: request.providerBookingId || "",
+      typeOfTrip: request?.TypeOfTrip,
+      credentialType: request?.Authentication?.CredentialType,
+      travelType: convertTravelTypeForCommonAPI(request?.TravelType),
+      systemEntity: "TCIL",
+      systemName: "Astra2.0",
+      corpCode: "000000",
+      requestorCode: "000000",
+      empCode: "000000",
+      uniqueKey: reqItinerary?.UniqueKey,
+      traceId: reqItinerary?.TraceId,
+      journey: [
+        {
+          origin: reqSegment?.Departure?.Code,
+          provider: reqItinerary?.Provider,
+          destination: reqSegment?.Arrival?.Code,
+          itinerary: [
+            {
+              recordLocator: request?.PNR??request?.GPnr,
+              cancelRemarks: request?.Reason?.Reason
+                ? `${request?.Reason?.Reason} ${request.Reason.Scenarios ?? ""}`
+                    .replace(/[^a-zA-Z0-9 ]/g, "")
+                    .slice(0, 65) // ? 1A supports only 65 characters cancellation remark with no special characters
+                : "",
+              cancelType: request?.CancelType || "",
+              airSegments: null,
+              travellerDetails: request?.passengarList
+                ? travellerDetailsForCancellation(request.passengarList)
+                : null,
+            },
+          ],
+        },
+      ],
     };
-
+    // if (request.CancelType !== "ALL") {
+    //   request.journey[0].itinerary[0].airSegments = request.Segments.map(
+    //     (sector) => ({
+    //       airlineCode: sector?.AirlineCode,
+    //       departure: convertFlightDetailsForCommonAPI(sector?.Departure),
+    //       arrival: convertFlightDetailsForCommonAPI(sector?.Arrival),
+    //       operatingCarrier: reqItinerary?.ValCarrier
+    //         ? { code: reqItinerary?.ValCarrier }
+    //         : null,
+    //       fltNum: sector?.FltNum,
+    //     })
+    //   );
+    //   request.journey[0].itinerary[0].travellerDetails =
+    //     request?.passengarList?.map((traveller, idx) => ({
+    //       travellerId: idx + 1,
+    //       title: traveller.TTL,
+    //       firstName: traveller.FNAME,
+    //       lastName: traveller.LNAME,
+    //       type: travller.PAX_TYPE,
+    //     }));
+    // }
     return { requestBody };
   } catch (error) {
-    saveLogInFile("cancellation-request-error.json", error.message);
     return { error: error.message };
   }
 }
 
-function travellerDetailsForCancellation(travellerData, pnrTravellerData) {
+function travellerDetailsForCancellation(travellerData) {
   if (!travellerData || !Array.isArray(travellerData)) return null;
 
-  return travellerData.map(({ PAX_TYPE, FNAME, TTL, LNAME }) => {
-    const pax = pnrTravellerData.find((pax) => {
-      const fullName = (pax.firstName + " " + pax.lastName).toLowerCase();
-      return (
-        fullName.includes(FNAME.toLowerCase()) &&
-        fullName.includes(LNAME.toLowerCase())
-      );
-    });
-    return {
-      travellerId: pax.travellerId,
-      type: PAX_TYPE,
-      // firstName: `${FNAME} ${TTL}`,
-      // lastName: LNAME,
-    };
-  });
+  return travellerData.map(({ PAX_TYPE, FNAME, TTL, LNAME }) => ({
+    type: PAX_TYPE,
+    firstName: `${FNAME} ${TTL}`,
+    lastName: LNAME,
+  }));
 }
 
-async function convertAirCancellationItineraryForCommonAPI({
+function convertAirCancellationItineraryForCommonAPI({
   response,
   requestBody,
   originalRequest,
@@ -83,7 +95,7 @@ async function convertAirCancellationItineraryForCommonAPI({
   const reqItinerary = requestBody.journey[0].itinerary[0];
   const journey = response.journey[0];
   const itinerary = journey.itinerary[0];
-  const convertedItinerary = await convertItineraryForKafila({
+  const convertedItinerary = convertItineraryForKafila({
     itinerary,
     idx: 1,
     response,
@@ -193,36 +205,52 @@ async function convertAirCancellationItineraryForCommonAPI({
   return convertedItinerary;
 }
 
-function createAirCancellationChargeRequestBodyForCommonAPI(
-  input,
-  cancellationType
-) {
+
+function createAirCancellationChargeRequestBodyForCommonAPI(input) {
   return {
     typeOfTrip: input.TypeOfTrip || null,
-    travelType: input.TravelType?.toUpperCase().startsWith("DOM")
-      ? "DOM"
-      : input.TravelType,
     credentialType: input.Authentication?.CredentialType || null,
-    traceId: input.Itinerary[0].TraceId,
-    companyId: input.Authentication?.CompanyId || "000000",
-    recLoc: {
-      type: "GDS",
-      pnr: input.PNR,
-    },
-    cancelType: cancellationType === "FULL_CANCELLATION" ? "ALL" : "JOURNEY",
-    cancelRemarks: "Cancellation Charge Details",
-    travellerDetails: [],
-    airSegments: [],
-    provider: input.Provider,
-    gstDetails: {},
-    agencyInfo: {},
-    cardDetails: {},
-    rmFields: [],
-    vendorList: getVendorList(),
-    VendorBookingId: input.providerBookingId || "",
+    travelType: input.TravelType?.toUpperCase().startsWith('DOM') ? 'DOM' : input.TravelType,
+    systemEntity: "xxxxxx",
+    systemName: "xxxxxx",  
+    corpCode: "xxxxxx",         
+    requestorCode: "xxxxxx",      
+    empCode: "xxxxxx",           
+    traceId: input.Itinerary.map((e) => e.TraceId)[0],
+    "journey": [
+
+        {
+
+            "provider": input.Provider,
+
+            "origin": "NA",
+
+            "destination": "NA",
+
+            "uid": input.Itinerary.map((e) => e.UID)[0],
+
+            "journeyKey": "ce3540df-c882-4b4a-8e5d-0b1d5109d036",
+
+            "itinerary": [
+
+                {
+
+                    "recordLocator": input.PNR
+
+                }
+
+            ]
+
+        }
+
+    ],
+
+    "version": "2"
+
+    
+ || null
   };
 }
 module.exports = {
-  createAirCancellationRequestBodyForCommonAPI,
-  createAirCancellationChargeRequestBodyForCommonAPI,
+  createAirCancellationRequestBodyForCommonAPI,createAirCancellationChargeRequestBodyForCommonAPI
 };

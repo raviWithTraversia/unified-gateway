@@ -13890,14 +13890,28 @@ async function calculateAfterCommertialPricePLB(
 }
 const getCommercialForPkFare=async(req,res)=>{
   try{
-    const  pkFareUserId=Config.PKFAREUSERID??"65cdfd5203e867cfc4153aa7"
+
+    let {travelType,supplier,userId,airlineCode,fareFamily,bookingDate,origin,destination}=req.body
+    const pkFareUserId = userId;
     // const userDetails = await UserModule.findOne({ _id: pkFareUserId });
   // if (!userDetails) {
   //   return {
   //     IsSuccess: false,
   //     response: "User Id Not Available",
+
   //   };
   // }
+  // console.log(airlineCode,'airlineCode');
+  const requiredFeild=['userId','airlineCode','supplier','bookingDate','travelType']
+
+  for(let fields of requiredFeild){
+    if(!req.body[fields]){
+      return {
+        IsSuccess: false,
+        response: `${fields} is required`,
+      };
+    }
+  }
 
   const companyDetails = await Company.findOne({
     _id: pkFareUserId,
@@ -13905,7 +13919,12 @@ const getCommercialForPkFare=async(req,res)=>{
   // const fareFamilyMasterGet = await fareFamilyMaster.find({});
   // let incentivePlanDetails;
   // let plbPlanDetails;
- 
+bookingDate=`${bookingDate}T00:00:00.000Z`
+fareFamily=fareFamily||null
+// airlineCode=airlineCode.pop(null)
+airlineCode.push(null)
+
+//  console.log(airlineCode,'companyDetails');
   if (companyDetails.type == "Agency" && companyDetails.parent.type == "TMC") {
     // TMC-Agency // // one time apply commertioal
     //console.log('TMC-Agency');
@@ -13917,11 +13936,13 @@ const getCommercialForPkFare=async(req,res)=>{
       congifDetails,
       countryMapingVal,
     ] = await Promise.all([
-      getAssignCommercialPKFare(companyDetails._id),
-      getAssignIncentive(companyDetails._id),
-      getAssignPlb(companyDetails._id),
-      getAssignMarcup(companyDetails._id),
-      getAssignCongifDetails(companyDetails.parent._id),
+      getAssignCommercialPKFare(companyDetails._id,travelType,supplier,fareFamily,airlineCode),
+      getAssignIncentivePKFare(companyDetails._id,bookingDate,origin,destination),
+      getAssignPlbPKFare(companyDetails._id,bookingDate,origin,destination),
+      // getAssignPlbPKFare(companyDetails._id),
+      getAssignMarcupPKFare(companyDetails.parent._id),
+     getAssignCongifDetailsPKFare(companyDetails.parent._id),
+
      countryMaping.find(
       {
         companyId: companyDetails.parent._id,
@@ -13936,11 +13957,16 @@ const getCommercialForPkFare=async(req,res)=>{
 
     //console.log(congifDetails);
 
+    // let airCommercial=[]
+    // if(commercialPlanDetails){
+    // airCommercial=await makePriorityForPKFareGroup(travelType,supplier,airlineCode,commercialPlanDetails,fareFamily)
+    // }
+ 
     return  {
       response:"Fetch Commercial Data Successfully",
       IsSuccess: true,
       data: {
-        commercialPlanDetails,
+        airCommercial:commercialPlanDetails?.data,
         incentivePlanDetails,
         plbPlanDetails,
         markupDetails,
@@ -13958,179 +13984,106 @@ const getCommercialForPkFare=async(req,res)=>{
 
 }
 
-const getAssignCommercialPKFare = async (companyId) => {
-  //// Get Commertial id , plb, incentive so on...
-  let getAgentConfig = await agentConfig.findOne({
-    companyId: companyId,
-  }); // check config
+const getAssignCommercialPKFare = async (
+  companyId,
+  travelType,
+  supplier,
+  fareFamily,
+  airlineCode
+) => {
+  // 🔹 1. Fetch agent configuration
+  const getAgentConfig = await agentConfig.findOne({ companyId }).lean();
+  if (!getAgentConfig) {
+    return { IsSuccess: false, Message: "Agent configuration not found" };
+  }
 
-  //return getAgentConfig;
+  // 🔹 2. Fetch active commercial plan
+  const commercialPlan = await commercialairplans
+    .findOne({ _id: getAgentConfig.commercialPlanIds, status: true })
+    .select("_id commercialPlanName")
+    .lean();
 
-  let commercialairplansVar = [];
-  let combineAllCommercialArr = [];
-  let aircommercialListVar;
+  if (!commercialPlan) {
+    return { IsSuccess: false, Message: "No active Commercial Plan found" };
+  }
 
-  if (!getAgentConfig || getAgentConfig.commercialPlanIds === null) {
-    getAgentConfig = await agencyGroup.findById(getAgentConfig.agencyGroupId);
-    if (getAgentConfig) {
-      // check from group privillage plan id
-      commercialairplansVar = await commercialairplans
-        .findOne({
-          _id: getAgentConfig.commercialPlanId,
-          status: true,
-        })
-        .select("_id commercialPlanName");
-      if (!commercialairplansVar) {
-        return { IsSuccess: false, Message: "Commercial Not Available" };
-      }
+  // 🔹 3. Fetch all air commercials (only one DB hit)
+  const aircommercialListVar = await aircommercialsList
+    .find({
+      commercialAirPlanId: commercialPlan._id,
+      travelType,
+      commercialCategory: "Ticket",
+    })
+    .populate([
+      { path: "carrier", select: "airlineCode" },
+      { path: "supplier", select: "supplierCode" },
+      { path: "source", select: "supplierCode" },
+      { path: "fareFamily", select: "fareFamilyCode" },
+    ])
+    .lean();
 
-      aircommercialListVar = await aircommercialsList
-        .find({
-          commercialAirPlanId: commercialairplansVar._id,
-        })
-        .populate([
-          {
-            path: "carrier",
-            select: "airlineCode",
-          },
-          {
-            path: "supplier",
-            select: "supplierCode",
-          },
-          {
-            path: "source",
-            select: "supplierCode",
-          },
-          {
-            path: "fareFamily",
-            select: "fareFamilyName fareFamilyCode",
-          },
-        ]);
-      //console.log(aircommercialListVar);
-      if (aircommercialListVar.length > 0) {
-  let mappingData = await Promise.all(
-    aircommercialListVar.map(async (items) => {
-      const matchedFareFamilyCodes =
-        items.fareFamily ? items.fareFamily.fareFamilyCode : null;
+  if (!aircommercialListVar?.length) {
+    return { IsSuccess: false, Message: "Commercial Not Available" };
+  }
 
-      const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
-        .findOne({ airCommercialId: items._id })
-        .populate("commercialFilter.commercialFilterId");
+  // 🔹 4. Filter only supplier-specific data
+  const supplierFiltered = aircommercialListVar.filter(
+    (item) =>
+      item?.supplier?.supplierCode?.toUpperCase() ===
+      supplier?.toUpperCase()
+  );
 
-      const updateaircommercialmatrixesVar =
-        await updateaircommercialmatrixes.findOne({
-          airCommercialPlanId: items._id,
-        });
+  // Pick filtered list OR fallback to all commercials
+  const commercialsToProcess =
+    supplierFiltered.length > 0 ? supplierFiltered : aircommercialListVar;
+
+  // 🔹 5. Prepare mapping (parallelized async calls)
+  const mappingData = await Promise.all(
+    commercialsToProcess.map(async (item) => {
+      const [filterIncExc, matrix] = await Promise.all([
+        aircommercialfilterincexcs
+          .findOne({ airCommercialId: item._id })
+          .populate("commercialFilter.commercialFilterId")
+          .lean(),
+        updateaircommercialmatrixes
+          .findOne({ airCommercialPlanId: item._id })
+          .populate("data.AirCommertialRowMasterId")
+          .populate("data.AirCommertialColumnMasterId")
+          .lean(),
+      ]);
 
       return {
-        _id: items._id,
-        travelType: items.travelType,
-        carrier: items.carrier ? items.carrier.airlineCode : null,
-        commercialCategory: items.commercialCategory,
-        supplier: items.supplier ? items.supplier.supplierCode : null,
-        source: items.source ? items.source.supplierCode : null, // ✅ fixed source
-        priority: items.priority,
-        aircommercialfilterincexcs: aircommercialfilterincexcsVar,
-        updateaircommercialmatrixes: updateaircommercialmatrixesVar,
-        fareFamily: matchedFareFamilyCodes,
+        _id: item._id,
+        travelType: item.travelType,
+        carrier: item.carrier?.airlineCode || null,
+        commercialCategory: item.commercialCategory,
+        supplier: item.supplier?.supplierCode || null,
+        source: item.source?.supplierCode || null,
+        priority: item.priority,
+        aircommercialfilterincexcs: filterIncExc || null,
+        updateaircommercialmatrixes: matrix || null,
+        fareFamily: item.fareFamily?.fareFamilyCode || null,
       };
     })
   );
 
-  combineAllCommercialArr.push({
-    plan: commercialairplansVar,
-    commercialFilterList: mappingData,
-  });
-}
- else {
-        return { IsSuccess: false, Message: "Commercial Not Available" };
-      }
-    } else {
-      return { IsSuccess: false, Message: "Commercial Not Available" };
-    }
-  } else {
-    // check Manuwal from config
-    //return getAgentConfig
-    commercialairplansVar = await commercialairplans
-      .findOne({
-        _id: getAgentConfig.commercialPlanIds,
-        status: true,
-      })
-      .select("_id commercialPlanName");
-    if (!commercialairplansVar) {
-      return { IsSuccess: false, Message: "Commercial Not Available" };
-    }
-    aircommercialListVar = await aircommercialsList
-      .find({
-        commercialAirPlanId: commercialairplansVar._id,
-      })
-      .populate([
-        {
-          path: "carrier",
-          select: "_id airlineCode",
-        },
-        {
-          path: "supplier",
-          select: "supplierCode",
-        },
-        {
-          path: "source",
-          select: "supplierCode",
-        },
-        {
-          path: "fareFamily",
-          select: "fareFamilyName fareFamilyCode",
-        },
-      ]);
+  // 🔹 6. Smart filtering — primary and fallback logic
+  const filteredList =
+    mappingData.filter(
+      (i) =>
+        airlineCode.includes(i.carrier)
+    ) ||
+    mappingData.filter((i) => i.fareFamily === null && i.carrier === null);
 
-    if (aircommercialListVar.length > 0) {
-      //const fareFamilyMasterGet = await fareFamilyMaster.find({});
-
-      let mappingData = aircommercialListVar.map(async (items) => {
-        //return items
-
-        const matchedFareFamilyCodes =
-          items.fareFamily != null ? items.fareFamily?.fareFamilyCode : null;
-
-        const aircommercialfilterincexcsVar = await aircommercialfilterincexcs
-          .findOne({
-            airCommercialId: items._id,
-          })
-          .populate("commercialFilter.commercialFilterId");
-        const updateaircommercialmatrixesVar = await updateaircommercialmatrixes
-          .findOne({ airCommercialPlanId: items._id })
-          .populate("data.AirCommertialRowMasterId")
-          .populate("data.AirCommertialColumnMasterId");
-
-        return {
-          _id: items._id,
-          travelType: items.travelType,
-          carrier: items.carrier ? items.carrier.airlineCode : null,
-          commercialCategory: items.commercialCategory,
-          supplier: items.supplier ? items.supplier.supplierCode : null,
-          source: items.supplier ? items.supplier.supplierCode : null,
-          priority: items.priority,
-          aircommercialfilterincexcs: aircommercialfilterincexcsVar,
-          updateaircommercialmatrixes: updateaircommercialmatrixesVar,
-          fareFamily: matchedFareFamilyCodes,
-        };
-      });
-      mappingData = await Promise.all(mappingData);
-      combineAllCommercialArr.push({
-        plan: commercialairplansVar,
-        commercialFilterList: mappingData,
-      });
-    } else {
-      return { IsSuccess: false, Message: "Commercial Not Available" };
-    }
-  }
-  if (!commercialairplansVar) {
-    return { IsSuccess: false, Message: "No Commercial Air Plan Found" };
-  }
-  return { IsSuccess: true, data: combineAllCommercialArr };
+  // 🔹 7. Return results
+  return {
+    IsSuccess: true,
+    data: filteredList.length > 0 ? filteredList : mappingData.filter((i) => i.fareFamily === null && i.carrier === null), // fallback if no specific match found
+  };
 };
 
-const getAssignIncentivePKFare = async (companyId) => {
+
+const getAssignIncentivePKFare = async (companyId,bookingDate,origin,destination) => {
   //// Get Commertial id , plb, incentive so on...
   let getAgentConfig = await agentConfig.findOne({
     companyId: companyId,
@@ -14138,39 +14091,7 @@ const getAssignIncentivePKFare = async (companyId) => {
   //return getAgentConfig;
   let incentivegroupmastersVar = [];
   let incentiveListVar;
-  if (!getAgentConfig || getAgentConfig.incentiveGroupIds === null) {
-    getAgentConfig = await agencyGroup.findById(getAgentConfig.agencyGroupId);
-    if (getAgentConfig) {
-      // check from group incentive plan id
-      // incentivegroupmastersVar = await incentivegroupmasters
-      //   .findOne({
-      //     _id: getAgentConfig.incentiveGroupId,
-      //   })
-      //   .select("_id incentiveGroupName");
-      //return incentivegroupmastersVar;
-      incentiveListVar = await incentivegrouphasincentivemasters
-        .find({
-          incentiveGroupId: getAgentConfig.incentiveGroupId,
-        })
-        .populate({
-          path: "incentiveMasterId",
-          populate: [
-            { path: "supplierCode" },
-            { path: "airlineCode" },
-            { path: "cabinClass" },
-            { path: "fareFamily" },
-          ],
-        });
-
-      if (incentiveListVar.length > 0) {
-        return { IsSuccess: true, data: incentiveListVar };
-      } else {
-        return { IsSuccess: false, Message: "Incentive Not Available" };
-      }
-    } else {
-      return { IsSuccess: false, Message: "Incentive Group Id  Not Available" };
-    }
-  } else {
+  
     // check Manuwal from config
     // incentivegroupmastersVar = await incentivegroupmasters
     //   .findOne({
@@ -14193,15 +14114,25 @@ const getAssignIncentivePKFare = async (companyId) => {
         ],
       });
 
-    if (incentiveListVar.length > 0) {
-      return { IsSuccess: true, data: incentiveListVar };
+      // console.log(incentiveListVar)
+       filterIncentiveList = incentiveListVar.filter((item) =>
+  item.incentiveMasterId.PLBType === "outgoing" &&
+  moment(bookingDate).isBetween(
+    item.incentiveMasterId.datefIssueFrom,
+    item.incentiveMasterId.datefIssueTo,
+    null,
+    "[]"
+  )&&item.incentiveMasterId.origin.toUpperCase() ===origin.toUpperCase()&& item.incentiveMasterId.destination.toUpperCase()===destination.toUpperCase()
+);
+    if (filterIncentiveList.length > 0) {
+      return filterIncentiveList 
     } else {
-      return { IsSuccess: false, Message: "Incentive Not Available" };
+      return []
     }
   }
-};
 
-const getAssignPlbPKFare = async (companyId) => {
+
+const getAssignPlbPKFare = async (companyId,bookingDate,origin,destination) => {
   //// Get Commertial id , plb, incentive so on...
   let getAgentConfig = await agentConfig.findOne({
     companyId: companyId,
@@ -14209,39 +14140,7 @@ const getAssignPlbPKFare = async (companyId) => {
   //return getAgentConfig;
   let plbgroupmastersVar = [];
   let plbListVar;
-  if (!getAgentConfig || getAgentConfig.plbGroupIds === null) {
-    getAgentConfig = await agencyGroup.findById(getAgentConfig.agencyGroupId);
-    if (getAgentConfig) {
-      // check from group incentive plan id
-      // plbgroupmastersVar = await plbgroupmasters
-      //   .findOne({
-      //     _id: getAgentConfig.incentiveGroupId,
-      //   })
-      //   .select("_id PLBGroupName");
-      //return incentivegroupmastersVar;
-      plbListVar = await plbgrouphasplbmasters
-        .find({
-          PLBGroupId: getAgentConfig.plbGroupId,
-        })
-        .populate({
-          path: "PLBMasterId",
-          populate: [
-            { path: "supplierCode" },
-            { path: "airlineCode" },
-            { path: "cabinClass" },
-            { path: "fareFamily" },
-          ],
-        });
-
-      if (plbListVar.length > 0) {
-        return { IsSuccess: true, data: plbListVar };
-      } else {
-        return { IsSuccess: false, Message: "PLB Group Not Available" };
-      }
-    } else {
-      return { IsSuccess: false, Message: "PLB Group Id  Not Available" };
-    }
-  } else {
+  
     // check Manuwal from config
     // plbgroupmastersVar = await plbgroupmasters
     //   .findOne({
@@ -14263,14 +14162,24 @@ const getAssignPlbPKFare = async (companyId) => {
           { path: "fareFamily" },
         ],
       });
+       let filterIncentiveList = plbListVar.filter((item) =>
+  item?.PLBMasterId?.PLBType === "outgoing" &&
+  moment(bookingDate).isBetween(
+    item?.PLBMasterId?.travelDateFrom,
+    item.PLBMasterId.travelDateTo,
+    null,
+    "[]"
+  )&&
+  item.PLBMasterId.origin.toUpperCase() ===origin.toUpperCase()&& item.PLBMasterId.destination.toUpperCase()===destination.toUpperCase()
+);
 
-    if (plbListVar.length > 0) {
-      return { IsSuccess: true, data: plbListVar };
+
+    if (filterIncentiveList.length > 0) {
+      return filterIncentiveList;
     } else {
-      return { IsSuccess: false, Message: "PLB Group Not Available" };
+      return [];
     }
   }
-};
 
 const getAssignMarcupPKFare = async (companyId) => {
   let getmarkupData = await managemarkupsimport
@@ -14305,7 +14214,72 @@ const getAssignCongifDetailsPKFare = async (companyId) => {
     return { IsSuccess: false, Message: "Error fetching agent config" };
   }
 };
+// const makePriorityForPKFareGroup = async (
+//   TravelType,
+//   supplier,
+//   carrier,
+//   commercialPlanDetails,
+//   fareFamily
+// ) => {
+//   const groupedMatches = {};
+//   const isValidFareFamily = !["FD", "FF"].includes(fareFamily);
 
+//   // possible matching combinations
+//   const conditions = [
+//     { carrier, source: supplier, fareFamily },
+//     { carrier, source: supplier, fareFamily: null },
+//     { carrier: null, source: supplier, fareFamily },
+//     { carrier, source: null, fareFamily },
+//     { carrier: null, source: null, fareFamily },
+//     { carrier, source: null, fareFamily: null },
+//     { carrier: null, source: supplier, fareFamily: null },
+//     { carrier: null, source: null, fareFamily: null },
+//   ];
+
+//   for (const commList of commercialPlanDetails.data) {
+
+//     if (
+//       commList.travelType === TravelType &&
+//       commList.commercialCategory === "Ticket"
+//     ) {
+//       for (const cond of conditions) {
+//         const matchCarrier = cond.carrier === undefined || commList.carrier === cond.carrier;
+//         const matchSource = cond.source === undefined || commList.source === cond.source;
+//         const matchFareFamily =
+//           cond.fareFamily === undefined || commList.fareFamily === cond.fareFamily;
+
+//         if (matchCarrier && matchSource && matchFareFamily && isValidFareFamily) {
+//           const groupKey = [
+//             TravelType,
+//             commList.carrier || "",
+//             commList.source || "",
+//             commList.commercialCategory,
+//             commList.fareFamily || "",
+//           ]
+//             .filter(Boolean)
+//             .join("-");
+
+//           groupedMatches[groupKey] ??= [];
+//           groupedMatches[groupKey].push(commList);
+//           break;
+//         }
+//       }
+//     }
+//   }
+
+//   // sort each group by priority & merge
+//   let mergedArray = [];
+//   for (const groupKey in groupedMatches) {
+//     const sorted = groupedMatches[groupKey].sort((a, b) => a.priority - b.priority);
+//     mergedArray = mergedArray.concat(sorted);
+//   }
+
+//   return mergedArray;
+// };
+
+
+
+       
 module.exports = {
   getApplyAllCommercial,
   getCommercialForPkFare

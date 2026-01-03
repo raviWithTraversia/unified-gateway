@@ -36,7 +36,7 @@ const { cancelationDataUpdate } = require("./cancelation.service")
 const { makeAuthentication } = require("../../helpers/common-decoratare-helper")
 
 
-const commonBookingForReschedule = async (req, res) => {
+const pkFareStartBooking = async (req, res, body) => {
   const {
     SearchRequest: {
       Authentication,
@@ -56,7 +56,7 @@ const commonBookingForReschedule = async (req, res) => {
     paymentMethodType,
     paymentGateway,
     isHoldBooking,
-  } = req.body;
+  } = body;
   const fieldNames = [
     "Authentication",
     "TypeOfTrip",
@@ -94,13 +94,13 @@ const commonBookingForReschedule = async (req, res) => {
   let companyId = Authentication.CompanyId;
   let UserId = Authentication.UserId;
   let TraceId = Authentication.TraceId;
-//   let bookingId = await gernrateCartId(Authentication);
-//   if (!bookingId) {
-//     return {
-//       IsSuccess: false,
-//       response: "bookingId not generated",
-//     };
-//   }
+  let bookingId = await gernrateCartId(Authentication);
+  if (!bookingId) {
+    return {
+      IsSuccess: false,
+      response: "bookingId not generated",
+    };
+  }
 
   if (!companyId || !UserId || !TraceId) {
     return {
@@ -392,7 +392,7 @@ const KafilaFun = async (
               // TraceId: Authentication?.TraceId,
             },
           };
-          return await createBooking(newItem, req,paymentMethodType === "Wallet");
+          return await createBooking(newItem, req);
         }
         return { IsSucess: false, response: "Something went wrong" }
       })
@@ -468,6 +468,100 @@ const KafilaFun = async (
     };
   }
 };
+
+
+// async function updateBarcode2DByBookingId(
+//   bookingId,
+//   passengerPreferencesData,
+//   item,
+//   pnr
+// ) {
+//   try {
+//     const generateBarcodeUrl =
+//       "http://flightapi.traversia.net/api/GenerateBarCode/GenerateBarCode";
+//     const lastSectorIndex = item.Sectors.length - 1;
+//     const passengerPreference = await passengerPreferenceModel.findOne({
+//       bookingId: bookingId,
+//     });
+
+//     if (!passengerPreference) {
+//       console.error(
+//         "Passenger preference not found for booking ID:",
+//         bookingId
+//       );
+//       return; // Exit function if document not found
+//     }
+
+//     for (let passenger of passengerPreference.Passengers) {
+//       try {
+//         let reqPassengerData = {
+//           Company: item?.Provider,
+//           TripType: "O",
+//           PNR: pnr,
+//           PaxId: bookingId,
+//           PassangerFirstName: passenger?.FName,
+//           PassangerLastName: passenger?.LName,
+//           PassangetMidName: null,
+//           isInfant: false,
+//           MyAllData: [
+//             {
+//               DepartureStation: item?.Sectors[0]?.Departure?.Code,
+//               ArrivalStation: item?.Sectors[lastSectorIndex]?.Arrival?.Code,
+//               CarrierCode: item?.Sectors[0]?.AirlineCode,
+//               FlightNumber: item?.Sectors[0]?.FltNum,
+//               JulianDate: item?.Sectors[0]?.Departure?.Date,
+//               SeatNo: "",
+//               CheckInSeq: "N",
+//             },
+//           ],
+//         };
+
+//         const response = await axios.post(
+//           generateBarcodeUrl,
+//           reqPassengerData,
+//           {
+//             headers: {
+//               "Content-Type": "application/json",
+//             },
+//           }
+//         );
+
+//         const newToken = response.data;
+//         if (!passenger.barCode2D) {
+//           passenger.barCode2D = [];
+//         }
+//         // break;
+//         //passengerPreference.Passengers.forEach(p => {
+//         //if (p.FName === passenger.FName && p.LName === passenger.LName) {
+//         passenger.barCode2D.push({
+//           FCode: item?.Sectors[0]?.AirlineCode,
+//           FNo: item?.Sectors[0]?.FltNum,
+//           Src: item?.Sectors[0]?.Departure?.Code,
+//           Des: item?.Sectors[lastSectorIndex]?.Arrival?.Code,
+//           Code: newToken,
+//         });
+//         //}
+//         //});
+
+//         //console.log("mytoken", passenger);
+//         // console.log("Barcode2D updated successfully for passenger:", passenger);
+//       } catch (error) {
+//         // console.error(
+//         //   "Error updating Barcode2D for passenger:",
+//         //   passenger,
+//         //   error
+//         // );
+//       }
+//     }
+//     //console.log("mydata", passengerPreference);
+//     // Save the updated document back to the database
+//     await passengerPreference.save();
+//     //console.log("Barcode2D updated successfully for booking ID:", bookingId);
+//   } catch (error) {
+//     //console.error("Error updating Barcode2D:", error);
+//   }
+// }
+
 
 // ==================== HELPER FUNCTIONS ====================
 const returnPriceBreakupArray = (itineraryItem) => {
@@ -680,9 +774,8 @@ const getUserDetails = async (Authentication) => {
   }
 };
 
-const handleWalletPayment = async (getuserDetails, totalSSRWithCalculationPrice, ItineraryPriceCheckResponses, isHoldBooking, bookingId,isWallet=true) => {
+const handleWalletPayment = async (getuserDetails, totalSSRWithCalculationPrice, ItineraryPriceCheckResponses, isHoldBooking, bookingId,isPkFareUpdate=false) => {
   if (isHoldBooking) return null;
-  if(!isWallet) return null
 
   try {
     // console.log(ItineraryPriceCheckResponses,"itenaray")
@@ -777,7 +870,7 @@ const handleWalletPayment = async (getuserDetails, totalSSRWithCalculationPrice,
 };
 
 // const createBooking = async (newItem) => {
-const createBooking = async (newItem, req ,isWallet) => {
+const createBooking = async (newItem, req) => {
   try {
     const auth = req.body?.authentication;
 
@@ -795,19 +888,10 @@ const createBooking = async (newItem, req ,isWallet) => {
       response: "Booking Save Successfully",
     };
 
-    let bookingDetails, bookingTemp;
-
-    if(!isWallet){
-  [bookingDetails, bookingTemp] = await Promise.all([
+    const [bookingDetails, bookingTemp] = await Promise.all([
       BookingDetails.create(newItem),
       BookingTemp.create(bookingTempPayload)
     ]);
-    }else{
-       [bookingDetails] = await Promise.all([
-        BookingDetails.create(newItem),
-      ]);
-    }
-   
 
     // 🔥 Non-blocking logs
     EventLogs({
@@ -841,7 +925,7 @@ const createBooking = async (newItem, req ,isWallet) => {
 // };
 
 
-const updateBookingCommonMethod = async (req, res) => {
+const pkFareUpdateBooking = async (req, res) => {
   const { BookingInfo, cartId, Authentication, PaxInfo } = req.body;
 
   try {
@@ -1087,190 +1171,190 @@ const updateBookingCommonMethod = async (req, res) => {
 
 
 
-// const gernrateCartId = async (Authenticaion) => {
-//   let url = `${Config[Authenticaion.CredentialType ?? "TEST"].baseURLBackend}/api/flightbooking/idcreation`
-//   let body = {
-//     companyId: Authenticaion?.CompanyId ?? Config?.TMCID
-//   }
-//   try {
-//     const response = await axios.post(url, body);
-//     return response.data.Result;
-//   } catch (error) {
-//     console.error("Error generating cartId:", error.message);
-//     return null;
-//   }
+const gernrateCartId = async (Authenticaion) => {
+  let url = `${Config[Authenticaion.CredentialType ?? "TEST"].baseURLBackend}/api/flightbooking/idcreation`
+  let body = {
+    companyId: Authenticaion?.CompanyId ?? Config?.TMCID
+  }
+  try {
+    const response = await axios.post(url, body);
+    return response.data.Result;
+  } catch (error) {
+    console.error("Error generating cartId:", error.message);
+    return null;
+  }
 
-// }
-
-
+}
 
 
 
-// // cancel Request for PkFare
+
+
+// cancel Request for PkFare
 
 
 
-// const cancelRequestForPkFare = async (req, res) => {
-//   try {
-//     const journey = req.body?.journey?.[0];
-//     const authData = req.body?.authentication;
+const cancelRequestForPkFare = async (req, res) => {
+  try {
+    const journey = req.body?.journey?.[0];
+    const authData = req.body?.authentication;
 
-//     // Extract data safely
-//     const pnr = journey?.recLoc?.[0]?.pnr || "";
-//     const bookingStatus = journey?.bookingStatus || "";
+    // Extract data safely
+    const pnr = journey?.recLoc?.[0]?.pnr || "";
+    const bookingStatus = journey?.bookingStatus || "";
 
-//     // Validate PNR
-//     if (!pnr) {
-//       throw new Error("PNR not found");
-//     }
+    // Validate PNR
+    if (!pnr) {
+      throw new Error("PNR not found");
+    }
 
-//     // Validate booking status
-//     if (bookingStatus.toLowerCase() !== "cancelled") {
-//       throw new Error("Booking is not cancelled");
-//     }
+    // Validate booking status
+    if (bookingStatus.toLowerCase() !== "cancelled") {
+      throw new Error("Booking is not cancelled");
+    }
 
-//     // Build authentication
-//     const Authentication = makeAuthentication(authData);
+    // Build authentication
+    const Authentication = makeAuthentication(authData);
 
-//     // Check user
-//     const [checkUserRole, bookingData] = await Promise.all([UserModel.findById(req.user._id), BookingDetails.findOne({ PNR: pnr })
-//     ]);
-//     if (!checkUserRole) {
-//       throw new Error("User not found");
-//     }
+    // Check user
+    const [checkUserRole, bookingData] = await Promise.all([UserModel.findById(req.user._id), BookingDetails.findOne({ PNR: pnr })
+    ]);
+    if (!checkUserRole) {
+      throw new Error("User not found");
+    }
 
-//     if (!bookingData) {
-//       throw new Error("No booking found with given PNR");
-//     }
+    if (!bookingData) {
+      throw new Error("No booking found with given PNR");
+    }
 
-//     if (bookingData.bookingStatus !== "CONFIRMED") {
-//       throw new Error("Booking is not in confirmed status");
-//     }
-
-
-
-//     // Update booking
-//     const booking = await BookingDetails.findOneAndUpdate(
-//       { PNR: pnr, bookingStatus: "CONFIRMED" },
-//       {
-//         $set: {
-//           bookingStatus: "CANCELLATION PENDING",
-//           bookingRemarks: req.body?.remarks || "",
-//           cancelationDate: Date.now(),
-//         },
-//       },
-//       { new: true }
-//     );
-
-//     if (!booking) {
-//       throw new Error("Booking not found with given PNR");
-//     }
-
-//     // --------------------------
-//     // 🔥 Run both functions in parallel
-//     // --------------------------
-//     await Promise.all([
-//       updateStatus(booking, "CANCELLATION PENDING"),
-//       cancelationDataUpdate(Authentication, {}, booking, req, checkUserRole)
-//     ]);
-
-//     // Success response
-//     return res.json({
-//       isSuccess: true,
-//       "ResponseStatusCode": 200,
-//       Message: "Cancellation request processed successfully",
-//       Result: booking
-//     });
-
-//   } catch (error) {
-//     // console.error("Cancellation Error:", error);
-
-//     return res.status(400).json({
-//       isSuccess: false,
-//       "ResponseStatusCode": 400,
-//       Message: error.message,
-//     });
-//   }
-// };
-
-// const getRequestOrderNumberPkFare = async (req, res) => {
-//   try {
-//     const { authentication, orderNumber, referenceId } = req.body;
-
-//     const requiredFields = ["authentication", "orderNumber", "referenceId"];
-//     const missingFields = requiredFields.filter(
-//       field => req.body[field] === undefined || req.body[field] === null
-//     );
-
-//     if (missingFields.length) {
-//       return res.status(400).json({
-//         IsSucess: false,
-//         Message: `Missing fields: ${missingFields.join(", ")}`,
-//         Result: null
-//       });
-//     }
-
-//     const bookingId = `${orderNumber}|${referenceId}`;
-
-//     const [bookingTemp,loginUser] = await Promise.all([BookingTemp.findOne(
-//       { BookingId: bookingId,count:0 },
-//       { request: 1, cartId:1 , _id: 1 }   // 🔥 optimization
-//     ).lean(),
-//      UserModel.findById(req.user._id).lean()])
+    if (bookingData.bookingStatus !== "CONFIRMED") {
+      throw new Error("Booking is not in confirmed status");
+    }
 
 
-//     if (!bookingTemp) {
-//       return res.status(400).json({
-//         IsSucess: false,
-//         Message: "No Booking Found For This BookingId",
-//         Result: null
-//       });
-//     }
 
-//     let bookingData=await BookingDetails.findOne({ bookingId: bookingTemp.cartId })
-//         .select("bookingTotalAmount itinerary")
-//         .lean()
-//     if(!bookingData){
-//       return res.status(400).json({
-//         IsSucess: false,
-//         Message: "No Booking Found For This BookingId",
-//         Result: null
-//       });
-//     }
-//    let amountDeduct=await handleWalletPayment(loginUser, bookingData?.bookingTotalAmount, [bookingData?.itinerary], false, bookingTemp.cartId,true)
+    // Update booking
+    const booking = await BookingDetails.findOneAndUpdate(
+      { PNR: pnr, bookingStatus: "CONFIRMED" },
+      {
+        $set: {
+          bookingStatus: "CANCELLATION PENDING",
+          bookingRemarks: req.body?.remarks || "",
+          cancelationDate: Date.now(),
+        },
+      },
+      { new: true }
+    );
 
-//    if(amountDeduct){
-//     return res.status(400).json({
-//       IsSucess: false,
-//       Message: amountDeduct.response,
-//       Result: null
-//     });
-//    }
+    if (!booking) {
+      throw new Error("Booking not found with given PNR");
+    }
 
-//    await BookingTemp.findByIdAndUpdate(bookingTemp._id, {
-//     $inc: { count: 1 },
-//    }, { new: true });
-//     return res.status(200).json({
-//       IsSucess: true,
-//       Message: "Success",
-//       Result: bookingTemp.request,
-//       cartId: bookingTemp.cartId
-//     });
+    // --------------------------
+    // 🔥 Run both functions in parallel
+    // --------------------------
+    await Promise.all([
+      updateStatus(booking, "CANCELLATION PENDING"),
+      cancelationDataUpdate(Authentication, {}, booking, req, checkUserRole)
+    ]);
 
-//   } catch (error) {
-//     console.error("getRequestPkFare Error:", error);
-//     return res.status(500).json({
-//       IsSucess: false,
-//       Message: "Internal Server Error",
-//       Result: null
-//     });
-//   }
-// };
+    // Success response
+    return res.json({
+      isSuccess: true,
+      "ResponseStatusCode": 200,
+      Message: "Cancellation request processed successfully",
+      Result: booking
+    });
+
+  } catch (error) {
+    // console.error("Cancellation Error:", error);
+
+    return res.status(400).json({
+      isSuccess: false,
+      "ResponseStatusCode": 400,
+      Message: error.message,
+    });
+  }
+};
+
+const getRequestOrderNumberPkFare = async (req, res) => {
+  try {
+    const { authentication, orderNumber, referenceId } = req.body;
+
+    const requiredFields = ["authentication", "orderNumber", "referenceId"];
+    const missingFields = requiredFields.filter(
+      field => req.body[field] === undefined || req.body[field] === null
+    );
+
+    if (missingFields.length) {
+      return res.status(400).json({
+        IsSucess: false,
+        Message: `Missing fields: ${missingFields.join(", ")}`,
+        Result: null
+      });
+    }
+
+    const bookingId = `${orderNumber}|${referenceId}`;
+
+    const [bookingTemp,loginUser] = await Promise.all([BookingTemp.findOne(
+      { BookingId: bookingId,count:0 },
+      { request: 1, cartId:1 , _id: 1 }   // 🔥 optimization
+    ).lean(),
+     UserModel.findById(req.user._id).lean()])
+
+
+    if (!bookingTemp) {
+      return res.status(400).json({
+        IsSucess: false,
+        Message: "No Booking Found For This BookingId",
+        Result: null
+      });
+    }
+
+    let bookingData=await BookingDetails.findOne({ bookingId: bookingTemp.cartId })
+        .select("bookingTotalAmount itinerary")
+        .lean()
+    if(!bookingData){
+      return res.status(400).json({
+        IsSucess: false,
+        Message: "No Booking Found For This BookingId",
+        Result: null
+      });
+    }
+   let amountDeduct=await handleWalletPayment(loginUser, bookingData?.bookingTotalAmount, [bookingData?.itinerary], false, bookingTemp.cartId,true)
+
+   if(amountDeduct){
+    return res.status(400).json({
+      IsSucess: false,
+      Message: amountDeduct.response,
+      Result: null
+    });
+   }
+
+   await BookingTemp.findByIdAndUpdate(bookingTemp._id, {
+    $inc: { count: 1 },
+   }, { new: true });
+    return res.status(200).json({
+      IsSucess: true,
+      Message: "Success",
+      Result: bookingTemp.request,
+      cartId: bookingTemp.cartId
+    });
+
+  } catch (error) {
+    console.error("getRequestPkFare Error:", error);
+    return res.status(500).json({
+      IsSucess: false,
+      Message: "Internal Server Error",
+      Result: null
+    });
+  }
+};
 
 module.exports = {
-commonBookingForReschedule,
-  updateBookingCommonMethod,
-//   cancelRequestForPkFare,
-//   getRequestOrderNumberPkFare
+  pkFareStartBooking,
+  pkFareUpdateBooking,
+  cancelRequestForPkFare,
+  getRequestOrderNumberPkFare
   //   updateBarcode2DByBookingId,
 };

@@ -253,7 +253,7 @@ const approveAndRejectDeposit = async (req, res) => {
         
       }
       if (updateResponse.product === "Flight") {
-        configData.maxcreditLimit += updateResponse.amount + DIdata;
+        configData.maxcreditLimit += updateResponse.amount;
         runningAmount = configData.maxcreditLimit;
       await ledger.create({
         userId: updateResponse.userId,
@@ -305,6 +305,7 @@ await ledger.create({
         companyId: updateResponse.companyId,
         documentId: updateResponse._id,
         description: "Credit request approved",
+        ipAddress: req.user.userIp
       };
       EventLogs(LogsData);
       return {
@@ -329,6 +330,7 @@ await ledger.create({
         companyId: updateCreditRequestRejected.companyId,
         documentId: updateCreditRequestRejected._id,
         description: "Credit request rejected",
+        ipAddress: req.user.userIp
       };
 
       EventLogs(LogsData);

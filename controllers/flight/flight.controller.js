@@ -13,8 +13,9 @@ const amadeus = require("./amadeus/searchFlights.service");
 const Config = require("../../configs/config");
 const { apiSucessRes, apiErrorres } = require("../../utils/commonResponce");
 const BookingTemp = require("../../models/booking/BookingTemp");
-const fixedFareData = require("./fixedFare.service");
+const fixedFareData=require('./fixedFare.service')
 const getCommercialForPkFareService = require("./flight.commercial");
+
 
 const {
   ServerStatusCode,
@@ -38,14 +39,10 @@ const { commonFlightSearch } = require("../../services/common-search");
 const { saveLogInFile } = require("../../utils/save-log");
 const { importPNRHelper } = require("../../helpers/common-import-pnr.helper");
 const travellersDetailsService = require("./travellersDetails.service");
-const { getCommercialForPkFare } = require("./flight.commercial");
-const { commonSplitPNR } = require("../../services/common-split-pnr");
-const {
-  commonDateChangeSearch,
-} = require("../../services/common-date-change-search");
-const {
-  getCommonDCAirPricing,
-} = require("../../services/common-date-change-pricing");
+// const { getCommercialForPkFare } = require("./flight.commercial");
+const {pkFareStartBooking,pkFareUpdateBooking}=require('./pkFareStartBooking')
+const {commonFunctionDecorator,commonFunctionUpdateBooking}=require('../../helpers/common-decoratare-helper')
+
 
 const getSearch = async (req, res) => {
   console.log(
@@ -84,10 +81,10 @@ const getSearch = async (req, res) => {
     );
     let isAirlineFilterEligible = true,
       isClassAvlInKafila = false;
-    // if (req.body.Airlines?.length)
-    //   isAirlineFilterEligible = req.body.Airlines.some((type) =>
-    //     ["SG", "6E", "IX", "QP", "FF"].includes(type)
-    //   );
+    if (req.body.Airlines?.length)
+      isAirlineFilterEligible = req.body.Airlines.some((type) =>
+        ["SG", "6E", "IX", "QP", "FF"].includes(type)
+      );
     if (["Economy", "Business Class"].includes(req?.body?.ClassOfService))
       isClassAvlInKafila = true;
     const isInternationalRoundTrip =
@@ -108,98 +105,6 @@ const getSearch = async (req, res) => {
     results.forEach((result) => {
       saveLogInFile("result.json", result);
       // console.dir({ result }, { depth: null });
-      if (
-        result.status === "fulfilled" &&
-        (result?.value?.data?.response?.length || result.value?.data?.length)
-      )
-        itineraries = [
-          ...itineraries,
-          ...(result?.value?.data?.response || result.value.data),
-        ];
-    });
-    // "6E", "SG"
-    itineraries = itineraries
-      // .filter((itinerary) =>
-      //   ["Kafila", "1A", "1AN", "6E"].includes(itinerary.Provider)
-      // )
-      .sort((a, b) => a.TotalPrice - b.TotalPrice);
-    if (itineraries.length) {
-      apiSucessRes(
-        res,
-        "Fetch Data Successfully",
-        itineraries,
-        ServerStatusCode.SUCESS_CODE
-      );
-    } else {
-      apiErrorres(res, "No Data Found", 400, true);
-    }
-    await flightSerchLogServices.addFlightSerchReport(req);
-  } catch (error) {
-    console.error(error);
-    apiErrorres(
-      res,
-      error.message || errorResponse.SOMETHING_WRONG,
-      ServerStatusCode.SERVER_ERROR,
-      true
-    );
-  } finally {
-    console.log(
-      `${
-        req?.body?.Authentication?.TraceId ?? ""
-      } search finished at ${new Date()}`
-    );
-  }
-};
-
-const getDateChangeSearch = async (req, res) => {
-  try {
-    // const validationResult = await validateSearchRequest(req);
-    // if (!validationResult.response && validationResult.isSometingMissing)
-    //   return apiErrorres(
-    //     res,
-    //     validationResult.data,
-    //     ServerStatusCode.SERVER_ERROR,
-    //     true
-    //   );
-    // if (
-    //   validationResult.response === "Trace Id Required" ||
-    //   validationResult.response === "Credential Type does not exist" ||
-    //   validationResult.response === "Supplier credentials does not exist" ||
-    //   validationResult.response === "Company or User id field are required" ||
-    //   validationResult.response === "TMC Compnay id does not exist" ||
-    //   validationResult.response === "Travel Type Not Valid" ||
-    //   validationResult.response === "your company not Active"
-    // )
-    //   return apiErrorres(
-    //     res,
-    //     validationResult.response,
-    //     ServerStatusCode.BAD_REQUEST,
-    //     true
-    //   );
-
-    // const isTestEnv = ["LIVE", "TEST"].some((type) =>
-    //   req.body.Authentication?.CredentialType.includes(type)
-    // );
-    let isAirlineFilterEligible = true,
-      isClassAvlInKafila = false;
-    if (req.body.Airlines?.length)
-      isAirlineFilterEligible = req.body.Airlines.some((type) =>
-        ["SG", "6E", "IX", "QP", "FF"].includes(type)
-      );
-    // if (["Economy", "Business Class"].includes(req?.body?.ClassOfService))
-    //   isClassAvlInKafila = true;
-    const isInternationalRoundTrip =
-      req.body.TravelType === "International" &&
-      req.body.TypeOfTrip === "ROUNDTRIP";
-
-    const flightRequests = [];
-    // if (isTestEnv)
-    flightRequests.push(commonDateChangeSearch(req.body));
-    const results = await Promise.allSettled(flightRequests);
-    // console.log(results, "results");
-    let itineraries = [];
-    results.forEach((result) => {
-      saveLogInFile("result.json", result);
       if (
         result.status === "fulfilled" &&
         (result?.value?.data?.response?.length || result.value?.data?.length)
@@ -307,36 +212,6 @@ const airPricing = async (req, res) => {
   }
 };
 
-const getDateChangePricing = async (req, res) => {
-  try {
-    const { result, error } = await getCommonDCAirPricing(req.body);
-    if (error)
-      return res.status(500).json({
-        IsSucess: false,
-        ResponseStatusCode: 500,
-        Message: error,
-        Result: [],
-      });
-    return res.status(200).json({
-      IsSucess: true,
-      ResponseStatusCode: 200,
-      Message: "Fetch Data Successfully",
-      Result: result,
-      ApiReq: {
-        Itinerary: result,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    apiErrorres(
-      res,
-      errorResponse.SOMETHING_WRONG,
-      ServerStatusCode.SERVER_ERROR,
-      true
-    );
-  }
-};
-
 const getRBD = async (req, res) => {
   try {
     const { result, error } = await getCommonRBD(req.body);
@@ -364,22 +239,23 @@ const getPnrTicket = async (req, res) => {
   try {
     // throw new Error("Service Unavailable  The Moment");
     // return false
-    if (req.body.paymentMethod === "PG") {
-      await BookingTemp.create({
-        companyId: req.body.Authentication.CompanyId,
-        userId: req.body.Authentication.UserId,
-        source: "Kafila",
-        BookingId: req.body.bookingId,
-        request: JSON.stringify(req.body),
-        responce: "Hold Booking Save Successfully",
-      });
-      return apiSucessRes(
-        res,
-        "Fetch Process Result",
-        "Hold Booking Save Successfully",
-        ServerStatusCode.SUCESS_CODE
-      );
-    } else {
+    if(req.body.paymentMethod==="PG"){
+        await BookingTemp.create({
+                  companyId: req.body.Authentication.CompanyId,
+                  userId: req.body.Authentication.UserId,
+                  source: "Kafila",
+                  BookingId: req.body.bookingId,
+                  request: JSON.stringify(req.body),
+                  responce: "Hold Booking Save Successfully",
+                })
+                return apiSucessRes(
+                  res,
+                  "Fetch Process Result",
+                  "Hold Booking Save Successfully",
+                  ServerStatusCode.SUCESS_CODE
+                );
+      
+    }else{
       const { result, error } = await getCommonPnrTicket(req.body, res);
       if (error) {
         throw new Error(error);
@@ -401,7 +277,7 @@ const getPnrTicket = async (req, res) => {
           true
         );
       }
-
+  
       if (error || result.length === 0)
         return apiErrorres(
           res,
@@ -409,14 +285,16 @@ const getPnrTicket = async (req, res) => {
           ServerStatusCode.SERVER_ERROR,
           true
         );
-
+  
       return apiSucessRes(
         res,
-        "Fetch Process Result",
+        "Processed Succefully",
         result,
         ServerStatusCode.SUCESS_CODE
       );
     }
+   
+   
   } catch (error) {
     console.log({ error });
     return apiErrorres(
@@ -479,85 +357,6 @@ const startBooking = async (req, res) => {
     // }
     const result = await airBooking.startBooking(req, res);
     console.log({ bookResponse: result.response });
-    if (result.response === "Fetch Data Successfully") {
-      apiSucessRes(
-        res,
-        result.response,
-        result.data,
-        ServerStatusCode.SUCESS_CODE
-      );
-    } else if (result.response === "allready created booking") {
-      apiErrorres(res, result.response, ServerStatusCode.UNPROCESSABLE, true);
-    } else {
-      apiErrorres(
-        res,
-        errorResponse.SOME_UNOWN,
-        ServerStatusCode.UNPROCESSABLE,
-        true
-      );
-    }
-  } catch (error) {
-    console.error(error);
-    apiErrorres(
-      res,
-      errorResponse.SOMETHING_WRONG,
-      ServerStatusCode.SERVER_ERROR,
-      true
-    );
-  }
-};
-const dateChangeBooking = async (req, res) => {
-  try {
-    // const validationResult = await validateAirBooking(req);
-    // const isValidReq = validationResult.success;
-    // if (!isValidReq) {
-    //   if (!validationResult.response && validationResult.isSometingMissing) {
-    //     return apiErrorres(
-    //       res,
-    //       validationResult.data,
-    //       ServerStatusCode.SERVER_ERROR,
-    //       true
-    //     );
-    //   }
-    //   if (
-    //     validationResult.response === "Trace Id Required" ||
-    //     validationResult.response === "Credential Type does not exist" ||
-    //     validationResult.response === "Supplier credentials does not exist" ||
-    //     validationResult.response ===
-    //       "Company or User Trace id field are required" ||
-    //     validationResult.response === "TMC Compnay id does not exist" ||
-    //     validationResult.response === "Travel Type Not Valid" ||
-    //     validationResult.response === "allready created booking"
-    //   ) {
-    //     return apiErrorres(
-    //       res,
-    //       validationResult.response,
-    //       ServerStatusCode.BAD_REQUEST,
-    //       true
-    //     );
-    //   }
-    //   if (validationResult.response) {
-    //     return apiErrorres(
-    //       res,
-    //       validationResult.response,
-    //       ServerStatusCode.BAD_REQUEST,
-    //       true
-    //     );
-    //   }
-    // }
-
-    //
-    // if (req.body.ItineraryPriceCheckResponses?.[0]?.Provider !== "Kafila") {
-    //   const { result, error } = await commonFlightBook(req.body);
-    //   if (error) return apiErrorres(res, error, 500, true);
-    //   return apiSucessRes(
-    //     res,
-    //     "Fetch Data Successfully",
-    //     result,
-    //     ServerStatusCode.SUCESS_CODE
-    //   );
-    // }
-    const result = await airBooking.handleDateChangeBooking(req, res);
     if (result.response === "Fetch Data Successfully") {
       apiSucessRes(
         res,
@@ -841,79 +640,6 @@ const partialCancelationCharge = async (req, res) => {
     );
   }
 };
-const splitPNR = async (req, res) => {
-  try {
-    if (!req.body?.Authentication) {
-      return apiErrorres(
-        res,
-        "Authentication Details Required",
-        ServerStatusCode.BAD_REQUEST,
-        true
-      );
-    }
-    if (!req.body?.PNR) {
-      return apiErrorres(
-        res,
-        "PNR Required",
-        ServerStatusCode.BAD_REQUEST,
-        true
-      );
-    }
-
-    if (!req.body?.passengarList?.length) {
-      return apiErrorres(
-        res,
-        "Passenger List Required",
-        ServerStatusCode.BAD_REQUEST,
-        true
-      );
-    }
-
-    const result = await commonSplitPNR(req.body);
-    return apiSucessRes(
-      res,
-      "PNR Splitted Successfully",
-      result,
-      ServerStatusCode.SUCESS_CODE
-    );
-
-    // if (!result.response && result.isSometingMissing) {
-    //   apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
-    // } else if (
-    //   result.response === "Trace Id Required" ||
-    //   result.response === "Credential Type does not exist" ||
-    //   result.response === "Supplier credentials does not exist" ||
-    //   result.response === "Company or User id field are required" ||
-    //   result.response === "TMC Compnay id does not exist" ||
-    //   result.response === "Travel Type Not Valid" ||
-    //   result.response === "Booking Id does not exist"
-    // ) {
-    //   apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
-    // } else if (result.response === "Fetch Data Successfully") {
-    //   apiSucessRes(
-    //     res,
-    //     result.response,
-    //     result.data,
-    //     ServerStatusCode.SUCESS_CODE
-    //   );
-    // } else {
-    //   apiErrorres(
-    //     res,
-    //     result.response || errorResponse.SOME_UNOWN,
-    //     ServerStatusCode.UNPROCESSABLE,
-    //     true
-    //   );
-    // }
-  } catch (error) {
-    console.error(error);
-    apiErrorres(
-      res,
-      error?.message || errorResponse.SOMETHING_WRONG,
-      ServerStatusCode.SERVER_ERROR,
-      true
-    );
-  }
-};
 
 const updateBookingStatus = async (req, res) => {
   try {
@@ -1092,15 +818,16 @@ const updatePendingBookingStatus = async (req, res) => {
     if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (
-      result.response === "_BookingId must be an array" ||
+      result.response ===
+        "_BookingId must be an array" ||
       result.response === "_BookingId array is empty" ||
       result.response === "TMC companyID Not Found" ||
       result.response === "Cancellation is still Pending" ||
       result.response === "Kafila API Data Not Found" ||
       result.response === "Invalid fromDate or toDate" ||
-      result.response === "TMC companyID Not Found" ||
+      result.response === "TMC companyID Not Found"||
       result.response === "Kafila API Data Not Found" ||
-      result.response === "Cancelation Data Not Found" ||
+      result.response === "Cancelation Data Not Found"||
       result.response === "One Time One Provider Booking Insert"
     ) {
       apiErrorres(res, result.response, ServerStatusCode.BAD_REQUEST, true);
@@ -1393,7 +1120,7 @@ async function addTravellers(req, res) {
   }
 }
 
-const getFixedFare = async (req, res) => {
+const getFixedFare=async(req,res)=>{
   try {
     const result = await fixedFareData.getFixedFareService(req, res);
     if (!result.response && result.isSometingMissing) {
@@ -1405,7 +1132,8 @@ const getFixedFare = async (req, res) => {
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    } else {
+    }
+     else {
       apiErrorres(
         res,
         result.response || errorResponse.SOME_UNOWN,
@@ -1421,15 +1149,12 @@ const getFixedFare = async (req, res) => {
       true
     );
   }
-};
+}
 
-const getCommercialForPkFareController = async (req, res) => {
+const getCommercialForPkFareController=async(req,res)=>{
   try {
-    const result = await getCommercialForPkFareService.getCommercialForPkFare(
-      req,
-      res
-    );
-    if (!result.response && result.isSometingMissing) {
+    const result = await getCommercialForPkFareService.getCommercialForPkFare(req, res);
+  if (!result.response && result.isSometingMissing) {
       apiErrorres(res, result.data, ServerStatusCode.SERVER_ERROR, true);
     } else if (result.response === "Fetch Commercial Data Successfully") {
       apiSucessRes(
@@ -1438,7 +1163,8 @@ const getCommercialForPkFareController = async (req, res) => {
         result.data,
         ServerStatusCode.SUCESS_CODE
       );
-    } else {
+    }
+     else {
       apiErrorres(
         res,
         result.response || errorResponse.SOME_UNOWN,
@@ -1450,6 +1176,136 @@ const getCommercialForPkFareController = async (req, res) => {
     apiErrorres(
       res,
       error?.message || errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+}
+
+const pkFareStartBookingController = async (req, res) => {
+
+
+  try {
+    // const validationResult = await validateAirBooking(req);
+    // console.log({ validationResult });
+    // const isValidReq = validationResult.success;
+    // if (!isValidReq) {
+    //   if (!validationResult.response && validationResult.isSometingMissing) {
+    //     return apiErrorres(
+    //       res,
+    //       validationResult.data,
+    //       ServerStatusCode.SERVER_ERROR,
+    //       true
+    //     );
+    //   }
+    //   if (
+    //     validationResult.response === "Trace Id Required" ||
+    //     validationResult.response === "Credential Type does not exist" ||
+    //     validationResult.response === "Supplier credentials does not exist" ||
+    //     validationResult.response ===
+    //       "Company or User Trace id field are required" ||
+    //     validationResult.response === "TMC Compnay id does not exist" ||
+    //     validationResult.response === "Travel Type Not Valid" ||
+    //     validationResult.response === "allready created booking"
+    //   ) {
+    //     return apiErrorres(
+    //       res,
+    //       validationResult.response,
+    //       ServerStatusCode.BAD_REQUEST,
+    //       true
+    //     );
+    //   }
+    //   if (validationResult.response) {
+    //     return apiErrorres(
+    //       res,
+    //       validationResult.response,
+    //       ServerStatusCode.BAD_REQUEST,
+    //       true
+    //     );
+    //   }
+    // }
+    // if (req.body.ItineraryPriceCheckResponses?.[0]?.Provider !== "Kafila") {
+    //   const { result, error } = await commonFlightBook(req.body);
+    //   if (error) return apiErrorres(res, error, 500, true);
+    //   return apiSucessRes(
+    //     res,
+    //     "Fetch Data Successfully",
+    //     result,
+    //     ServerStatusCode.SUCESS_CODE
+    //   );
+    // }
+    const body=commonFunctionDecorator(req.body)
+
+    // req.body=body
+    const result = await pkFareStartBooking(req, res,body);
+    console.log({ bookResponse: result.response });
+    if (result.response === "Fetch Data Successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else if (result.response === "allready created booking"||result.response === "Some Technical Issue"||result.response === "Your Balance is not sufficient") {
+      apiErrorres(res, result.response, ServerStatusCode.UNPROCESSABLE, true);
+    } else {
+      apiErrorres(
+        res,
+       result.response || errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+     error?.message || errorResponse.SOMETHING_WRONG,
+      ServerStatusCode.SERVER_ERROR,
+      true
+    );
+  }
+};
+
+const pkFareUpadateBooking = async (req, res) => {
+  try {
+    
+    // if (req.body.ItineraryPriceCheckResponses?.[0]?.Provider !== "Kafila") {
+    //   const { result, error } = await commonFlightBook(req.body);
+    //   if (error) return apiErrorres(res, error, 500, true);
+    //   return apiSucessRes(
+    //     res,
+    //     "Fetch Data Successfully",
+    //     result,
+    //     ServerStatusCode.SUCESS_CODE
+    //   );
+    // }
+    let body=commonFunctionUpdateBooking(req.body)
+    req.body=body
+    const result = await pkFareUpdateBooking(req, res);
+    console.log({ bookResponse: result.response });
+    if (result.response === "Booking updated successfully") {
+      apiSucessRes(
+        res,
+        result.response,
+        result.data,
+        ServerStatusCode.SUCESS_CODE
+      );
+    } else if (result.response === "allready created booking") {
+      apiErrorres(res, result.response, ServerStatusCode.UNPROCESSABLE, true);
+    } else {
+      apiErrorres(
+        res,
+       result.response || errorResponse.SOME_UNOWN,
+        ServerStatusCode.UNPROCESSABLE,
+        true
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    apiErrorres(
+      res,
+      errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );
@@ -1482,8 +1338,6 @@ module.exports = {
   addTravellers,
   getFixedFare,
   getCommercialForPkFareController,
-  splitPNR,
-  getDateChangeSearch,
-  getDateChangePricing,
-  dateChangeBooking,
+  pkFareStartBookingController,
+  pkFareUpadateBooking
 };

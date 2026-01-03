@@ -62,6 +62,14 @@ default:false
 type:Array,
 default:null
     },
+    IpAddress: {
+      type: String,
+      default: null,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,

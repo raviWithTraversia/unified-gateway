@@ -247,7 +247,8 @@ const approveAndRejectCredit = async (req, res) => {
                 doerName: loginUser.fname,
                 companyId: updateCreditRequestApproved.company_ID,
                 documentId: updateCreditRequestApproved._id, // Replace this with the actual ID
-                description: "Credit request approved"
+                description: "Credit request approved",
+                ipAddress: req.user.userIp
             };
             EventLogs(LogsData)
             return {
@@ -268,7 +269,8 @@ const approveAndRejectCredit = async (req, res) => {
                 doerName: loginUser.fname,
                 companyId: updateCreditRequestRejected.company_Id,
                 documentId: updateCreditRequestRejected._id, // Replace this with the actual ID
-                description: "Credit request rejected"
+                description: "Credit request rejected",
+                ipAddress: req.user.userIp
             };
             EventLogs(LogsData)
             return {

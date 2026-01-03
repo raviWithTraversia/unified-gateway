@@ -319,12 +319,11 @@ const gernateCancelCard=async(Authentication,booking,traceId)=>{
     const response = (
       await axios.get(url, { headers: { Authorization: auth } })
     )?.data;
-
 if(response?.bookingResponseList?.length===0){
   return
   
 }
-const bookingData=response?.bookingResponseList[0]?.cancellationDetails[0]||[]
+const bookingData=response?.bookingResponseList[0]?.cancellationDetails||[]
     commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "cancelDetail", url, {}, response)
     // console.log(response, "response");
     // if (bookingData.length === 0) {
@@ -340,29 +339,58 @@ const bookingData=response?.bookingResponseList[0]?.cancellationDetails[0]||[]
     }
 }
 
-    const railCancellation = await RailCancellation.create({
-          ...bookingData,
-          userId: booking?.userId,
-          companyId: booking?.companyId,
-          agencyId: booking?.AgencyId,
-          reservationId:booking?.reservationId,
-          passengerToken:token,
-          txnId:booking?.cartId,
-          pnrNo:booking?.pnrNumber,
-         isSuccess: !!bookingData.success,
-          travelInsuranceRefundAmount: Number(bookingData.travelinsuranceRefundAmount),
-          amountCollected: Number(bookingData.canPsgnFare),
-          cashDeducted: Number(bookingData.prsCancelCharge),
-          cancelledDate: Date(bookingData.cancellationDate),
-          gstFlag: !!bookingData.gstFlag||false,
-          timeStamp: Date(bookingData.timeStamp),
-          cancellationId: bookingData?.cancellationId,
-          noOfPsgn: Number(bookingData.noOfPsgn),
-          currentStatus: ["CAN"],
-          remark:  "AUTO CANCELLED",
-          staff:  "",
-        });
-    
+    const totalTravelInsuranceRefundAmount = bookingData.reduce(
+  (acc, item) => acc + Number(item.travelinsuranceRefundAmount || 0),
+  0
+);
+
+const totalAmountCollected = bookingData.reduce(
+  (acc, item) => acc + Number(item.refundAmount || 0),
+  0
+);
+
+const totalCashDeducted = bookingData.reduce(
+  (acc, item) => acc + Number(item.prsCancelCharge || 0),
+  0
+);
+
+// take common fields from first element
+const passengerDetails = bookingData[0]?.psgnDtlList?.filter((item)=>item.currentStatus=="CAN") || [];
+
+const railCancellation = await RailCancellation.create({
+  // 🔹 keep passenger-wise data separately
+  passengers: passengerDetails,
+
+  userId: booking?.userId,
+  companyId: booking?.companyId,
+  agencyId: booking?.AgencyId,
+  reservationId: booking?.reservationId,
+  passengerToken: token,
+  txnId: booking?.cartId,
+  pnrNo: booking?.pnrNumber,
+
+  isSuccess: bookingData.some(item => item.success === true),
+
+  travelInsuranceRefundAmount: totalTravelInsuranceRefundAmount,
+  refundAmount: totalAmountCollected,
+  cashDeducted: totalCashDeducted,
+
+  cancelledDate: bookingData?.[0]?.cancellationDate
+    ? new Date(bookingData?.[0]?.cancellationDate)
+    : null,
+
+  gstFlag: !!bookingData?.[0]?.gstFlag,
+
+  timeStamp: new Date(),
+
+  cancellationId: bookingData?.[0]?.cancellationId,
+  noOfPsgn: Number(passengerDetails.length || bookingData.length),
+
+  currentStatus: ["CAN"],
+  remark: "AUTO CANCELLED",
+  staff: "",
+});
+
         // const isFullCancelled=booking.psgnDtlList.some((element)=>element.currentStatus!='CAN')
         //  const bookingStatus = isFullCancelled ? "PARTIALLY CANCELLED" : "CANCELLED";
     
@@ -389,9 +417,10 @@ const bookingData=response?.bookingResponseList[0]?.cancellationDetails[0]||[]
           }
           return passenger;
         });
-          await booking.save();
+          await booking.save(); 
   }
   catch (error) {
+    commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "cancelDetail", `${JSON.stringify(error)}-${error.stack}-${error}`, {}, {error:error})
     throw error
   }
 }

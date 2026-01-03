@@ -249,7 +249,7 @@ function calculateCharges({ journeyClass, netFare, timeDifference, bookingStatus
   const chargesBefore48Hours = {
     "1A": 240,
     EC: 240,
-    CC: 240,
+    CC: 180,
     "2A": 200,
     "3A": 180,
     "3E": 180,

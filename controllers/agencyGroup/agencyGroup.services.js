@@ -161,7 +161,9 @@ const LogsData={
         doerName:userData.fname,
  companyId:companyId,
  documentId:newAgencyGroup._id,
-             description:"Add AgencyGroup",
+ description:"Add AgencyGroup",
+   ipAddress: req.user.userIp
+
           }
          EventLogs(LogsData)
 
@@ -213,6 +215,8 @@ oldValue:AgencyGroupData,
 newValue:updateAgencyGroupData,
 documentId:updateAgencyGroupData._id,
          description:"Edit AgencyGroup",
+         ipAddress: req.user.userIp
+
       }
      EventLogs(LogsData)
 
@@ -280,6 +284,7 @@ const deleteAgencyGroup = async (req, res) => {
 companyId:deleteData.companyId,
 documentId:id,
          description:"Delete AgencyGroup",
+         ipAddress: req.user.userIp
       }
      EventLogs(LogsData)
 

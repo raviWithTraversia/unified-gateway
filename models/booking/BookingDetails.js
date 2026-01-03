@@ -296,6 +296,7 @@ const bookingDetailsSchema = new mongoose.Schema(
       IsAncl: { type: String, default: false },
       TraceId: { type: String, default: null },
     },
+    ipAdress:{type: String, default: null},
     modifyBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -312,8 +313,12 @@ const bookingDetailsSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    additional_booking_remarks:{
+    type:String,
+    default:null
   },
-  { timestamps: true }
+  },
+   { timestamps: true }
 );
 bookingDetailsSchema.index({companyId: 1, createdAt: -1 });
 bookingDetailsSchema.index({createdAt: -1 });

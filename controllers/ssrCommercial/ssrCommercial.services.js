@@ -70,6 +70,7 @@ const LogsData={
  companyId:companyId,
  documentId:savedServiceRequest._id,
              description:"Add Issuance Commercials",
+             ipAddress: req.user.userIp
           }
          EventLogs(LogsData)
 
@@ -160,6 +161,7 @@ const editSsrCommercial = async (req,res) => {
          oldValue:findSsrData[0],
          newValue:existingSsrData,
                      description:"Edit Issuance Commercials",
+                     ipAddress: req.user.userIp
                   }
                  EventLogs(LogsData)
         
@@ -192,6 +194,7 @@ const deleteSsrCommercial = async (req,res) => {
  companyId:deleteSsrCommercial.companyId,
  documentId:deleteSsrCommercial._id,
              description:"Delete Issuance Commercials",
+             ipAddress: req.user.userIp
           }
          EventLogs(LogsData)
 

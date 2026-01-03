@@ -26,7 +26,7 @@ const getAllPermission = async (req, res) => {
             data: null,
           };
         }
-      } else if (getRoleId.name === "Agency" || getRoleId.name === "Distributer") {       
+      } else if (getRoleId.name === "Agency" || getRoleId.name === "Distributer"||getRoleId.name === "ApiPartner") {       
         let getAgentConfig = await agentConfig.findOne({
           companyId: checkUser.company_ID,
         });         

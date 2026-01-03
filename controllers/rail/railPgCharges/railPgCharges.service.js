@@ -32,6 +32,7 @@ const addPgCharges = async (req, res) => {
           companyId: pgChargesInsert.companyId,
           documentId: pgChargesInsert._id,
           description: "Add PgCharges",
+          ipAddress: req.user.userIp
         }
         EventLogs(LogsData)
         return {
@@ -87,6 +88,7 @@ const editPgcharges = async (req, res) => {
         oldValue: data,
         newValue: updateData,
         description: "Edit PgCharges",
+        ipAddress: req.user.userIp
       }
       EventLogs(LogsData)
       return {

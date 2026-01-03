@@ -37,7 +37,8 @@ const LogsData={
         doerName:userData.fname,
  companyId:companyId,
  documentId:IncentiveMasterData._id,
-       description:'add Incentive Master'
+       description:'add Incentive Master',
+       ipAddress: req.user.userIp
         
           }
          EventLogs(LogsData)
@@ -105,7 +106,8 @@ const LogsData={
  documentId:IncentiveMasterUpdate._id,
  oldValue:oldIncentiveValue,
  newValue:IncentiveMasterUpdate,
-  description:'Edit Incentive Master'
+  description:'Edit Incentive Master',
+  ipAddress: req.user.userIp
         
           }
          EventLogs(LogsData)
@@ -140,7 +142,8 @@ const removeIncentiveMaster = async (req, res) => {
                 doerName:userData.fname,
          companyId:result.companyId,
          documentId:result._id,
-               description:'Delete Incentive Master'
+               description:'Delete Incentive Master',
+               ipAddress: req.user.userIp
                 
                   }
                  EventLogs(LogsData)
@@ -204,7 +207,8 @@ const CopyIncentiveMaster = async (req, res) => {
                     doerName:userData.fname,
              companyId:IncMaster.companyId,
              documentId:IncMaster._id,
-                   description:'Copy Incentive Master'
+                   description:'Copy Incentive Master',
+                   ipAddress: req.user.userIp
                     
                       }
                      EventLogs(LogsData)

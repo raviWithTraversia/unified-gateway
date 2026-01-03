@@ -18,9 +18,8 @@ const axios = require("axios");
 const uuid = require("uuid");
 const NodeCache = require("node-cache");
 const flightCache = new NodeCache();
-const {
-  commonMethodBooking,
-} = require("../../controllers/payuController/payu.services");
+const { commonMethodBooking } = require('../../controllers/payuController/payu.services')
+const EventLogs = require('../../controllers/logs/EventApiLogsCommon')
 const {
   createLeadger,
   getTdsAndDsicount,
@@ -31,10 +30,7 @@ const SupplierCode = require("../../models/supplierCode");
 const { getSupplierCredentials } = require("../../utils/get-supplier-creds");
 const { commonFlightBook } = require("../../services/common-flight-book");
 const { saveLogInFile } = require("../../utils/save-log");
-const { commonBookingForReschedule } = require("./reschduleBooking.service.js")
-const {
-  makeCommonDCBooking,
-} = require("../../services/common-date-change-booking");
+const bwipjs = require('bwip-js');
 
 const startBooking = async (req, res) => {
   const {
@@ -56,6 +52,7 @@ const startBooking = async (req, res) => {
     paymentMethodType,
     paymentGateway,
     isHoldBooking,
+    booking_remarks
   } = req.body;
   const fieldNames = [
     "Authentication",
@@ -141,7 +138,8 @@ const startBooking = async (req, res) => {
       paymentMethodType,
       paymentGateway,
       req,
-      isHoldBooking
+      isHoldBooking,
+      booking_remarks
     );
   }
   const logData = {
@@ -168,21 +166,6 @@ const startBooking = async (req, res) => {
   }
 };
 
-const handleDateChangeBooking = async (req, res) => {
-  try {
-    let response = await commonBookingForReschedule(req.body);
-    if (response.IsSucess) {
-      const result = await makeCommonDCBooking(req.body);
-      return { response: "Fetch Data Successfully", data: result };
-
-    } else {
-      return { IsSucess: false, response: response.Message, data: null };
-    }
-  } catch (error) {
-    return { response: "Something went wrong" };
-  }
-};
-
 async function handleflight(
   Authentication,
   TypeOfTrip,
@@ -200,7 +183,8 @@ async function handleflight(
   paymentMethodType,
   paymentGateway,
   req,
-  isHoldBooking
+  isHoldBooking,
+  booking_remarks
 ) {
   // International
   // Check LIVE and TEST
@@ -330,7 +314,8 @@ async function handleflight(
     paymentMethodType,
     paymentGateway,
     req,
-    isHoldBooking
+    isHoldBooking,
+    booking_remarks
   );
   // console.dir({ responsesApi }, { depth: null });
   // delete this one
@@ -360,7 +345,8 @@ const KafilaFun = async (
   paymentMethodType,
   paymentGateway,
   req,
-  isHoldBooking
+  isHoldBooking,
+  booking_remarks
 ) => {
   const paxList = JSON.parse(JSON.stringify(req.body.PassengerPreferences));
   let tripTypeValue;
@@ -823,7 +809,8 @@ const KafilaFun = async (
       ItineraryPriceCheckResponses,
       paymentMethodType,
       paymentGateway,
-      isHoldBooking
+      isHoldBooking,
+      req
     );
   }
 
@@ -903,10 +890,21 @@ const KafilaFun = async (
           error,
         };
       }
-      const createBooking = async (newItem) => {
+      const createBooking = async (newItem, req) => {
         try {
           console.log(newItem, "newItem");
+          newItem.additional_booking_remarks=req.body.booking_remarks??""
           let bookingDetailsCreate = await BookingDetails.create(newItem);
+          let logsData = {
+            eventName: "createBooking",
+            doerId: req.user._id,
+            doerName: "",
+            companyId: newItem?.AgencyId,
+            documentId: bookingDetailsCreate._id,
+            description: "cancellation Charege",
+            ipAddress: req.user.userIp
+          }
+          EventLogs(logsData)
           // console.log({ bookingDetailsCreate });
           return {
             msg: "Booking created successfully",
@@ -1083,7 +1081,7 @@ const KafilaFun = async (
             },
           };
           console.log({ newItem });
-          return await createBooking(newItem); // Call function to create booking
+          return await createBooking(newItem, req); // Call function to create booking
           // }
         })
       );
@@ -1776,11 +1774,23 @@ const kafilaFunOnlinePayment = async (
   ItineraryPriceCheckResponses,
   paymentMethodType,
   paymentGateway,
-  isHoldBooking
+  isHoldBooking,
+  req
 ) => {
-  const createBooking = async (newItem) => {
+  const createBooking = async (newItem, req) => {
     try {
+      newItem.additional_booking_remarks=req.body.booking_remarks??""
       let bookingDetailsCreate = await BookingDetails.create(newItem);
+      let logsData = {
+        eventName: "createBooking",
+        doerId: req.user._id,
+        doerName: "",
+        companyId: newItem?.AgencyId,
+        documentId: bookingDetailsCreate._id,
+        description: "cancellation Charege",
+        ipAddress: req.user.userIp
+      }
+      EventLogs(logsData)
       console.log(bookingDetailsCreate, "bookingDetailsCreate1");
       return {
         msg: "Booking created successfully",
@@ -1854,6 +1864,8 @@ const kafilaFunOnlinePayment = async (
           TravelTime: sector.TravelTime,
           Departure: departure,
           Arrival: arrival,
+          HandBaggage: sector.HandBaggage||null,
+          BaggageInfo: sector.BaggageInfo||null,
         };
 
         return sectorObject; // Return the constructed sector object
@@ -1956,7 +1968,7 @@ const kafilaFunOnlinePayment = async (
         },
       };
       console.log({ newItem });
-      return await createBooking(newItem); // Call function to create booking
+      return await createBooking(newItem, req); // Call function to create booking
       // }
     })
   );
@@ -2299,8 +2311,8 @@ async function updateBarcode2DByBookingId(
   pnr
 ) {
   try {
-    const generateBarcodeUrl =
-      "http://flightapi.traversia.net/api/GenerateBarCode/GenerateBarCode";
+    // const generateBarcodeUrl =
+    //   "http://flightapi.traversia.net/api/GenerateBarCode/GenerateBarCode";
     const lastSectorIndex = item.Sectors.length - 1;
     const passengerPreference = await passengerPreferenceModel.findOne({
       bookingId: bookingId,
@@ -2316,39 +2328,30 @@ async function updateBarcode2DByBookingId(
 
     for (let passenger of passengerPreference.Passengers) {
       try {
-        let reqPassengerData = {
-          Company: item?.Provider,
-          TripType: "O",
-          PNR: pnr,
-          PaxId: bookingId,
-          PassangerFirstName: passenger?.FName,
-          PassangerLastName: passenger?.LName,
-          PassangetMidName: null,
-          isInfant: false,
-          MyAllData: [
-            {
-              DepartureStation: item?.Sectors[0]?.Departure?.Code,
-              ArrivalStation: item?.Sectors[lastSectorIndex]?.Arrival?.Code,
-              CarrierCode: item?.Sectors[0]?.AirlineCode,
-              FlightNumber: item?.Sectors[0]?.FltNum,
-              JulianDate: item?.Sectors[0]?.Departure?.Date,
-              SeatNo: "",
-              CheckInSeq: "N",
-            },
-          ],
-        };
+     
+       const png = await bwipjs.toBuffer({
+      bcid: 'pdf417',
+      text: `${passenger?.FName}|${passenger?.LName}|${pnr}`,
+      scale: 3,
+      height: 10,
+      includetext: false,
+    });
 
-        const response = await axios.post(
-          generateBarcodeUrl,
-          reqPassengerData,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+    
+      const base64BarCode = png.toString('base64');
 
-        const newToken = response.data;
+
+        // const response = await axios.post(
+        //   generateBarcodeUrl,
+        //   reqPassengerData,
+        //   {
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //   }
+        // );
+
+        // const newToken = response.data;
         if (!passenger.barCode2D) {
           passenger.barCode2D = [];
         }
@@ -2360,7 +2363,7 @@ async function updateBarcode2DByBookingId(
           FNo: item?.Sectors[0]?.FltNum,
           Src: item?.Sectors[0]?.Departure?.Code,
           Des: item?.Sectors[lastSectorIndex]?.Arrival?.Code,
-          Code: newToken,
+          Code: `data:image/png;base64,${base64BarCode}`,
         });
         //}
         //});
@@ -2386,6 +2389,5 @@ async function updateBarcode2DByBookingId(
 
 module.exports = {
   startBooking,
-  handleDateChangeBooking,
   updateBarcode2DByBookingId,
 };

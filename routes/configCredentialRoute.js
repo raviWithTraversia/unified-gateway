@@ -3,11 +3,12 @@ const configCredential_route = express();
 const bodyParser = require("body-parser");
 configCredential_route.use(bodyParser.json());
 configCredential_route.use(bodyParser.urlencoded({extended:true}));
+
 const auth = require("../middleware/auth");
 
 const configCredentialController = require('../controllers/configCredential.js/configCredential.controller');
-const configCredentialService = require('../controllers/configCredential.js/configCredential.services');
 
+const configCredentialService = require('../controllers/configCredential.js/configCredential.services');
 configCredential_route.post(
     '/configCred/addCredential',
     configCredentialController.addCredntials
@@ -29,7 +30,6 @@ configCredential_route.get(
     '/getIp',
     configCredentialService.getIP
 );
-
 configCredential_route.get('/test',auth, function(req, res){
     res.status(200).json({status:"success",msg:"this is test responce"});
 });

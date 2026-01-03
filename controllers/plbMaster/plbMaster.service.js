@@ -38,6 +38,7 @@ const addPLBMaster = async(req, res) => {
     companyId:companyId,
     documentId:result._id,
             description:"Add PLB Master",
+            ipAddress: req.user.userIp
           }
         EventLogs(LogsData)
         //  History log PLB Master
@@ -107,6 +108,7 @@ const OldPlbmaseterValue=await PLBMaster.findById(_id)
     oldValue:OldPlbmaseterValue,
     newValue:PLBMasterUpdate,
             description:"Edit PLB Master",
+            ipAddress: req.user.userIp
           }
         EventLogs(LogsData)
         // History update and create
@@ -145,6 +147,7 @@ const removePLBMaster = async(req , res) => {
         companyId:result.companyId,
         documentId:result._id,
                 description:"Delete PLB Master",
+                ipAddress: req.user.userIp
               }
             EventLogs(LogsData)
         return {
@@ -206,6 +209,7 @@ const CopyPLBMaster = async(req, res) => {
         companyId:result.companyId,
         documentId:result._id,
                 description:"Copy PLB Master",
+                ipAddress: req.user.userIp
               }
             EventLogs(LogsData)
 

@@ -9,6 +9,7 @@ const {
 } = require("../../commonFunctions/common.function");
 const axios = require("axios");
 const mongoose = require("mongoose");
+// const { response } = require("../../../routes/railRoute");
 const transaction = require("../../../models/transaction");
 const Deposite = require("../../../models/DepositRequest");
 const ledger = require("../../../models/Ledger");
@@ -134,6 +135,7 @@ const manualDebitCredit = async (req, res) => {
         companyId: findUser.company_ID,
         documentId: findUser._id,
         description: "Amount Credited",
+        ipAddress: req.user.userIp
       };
       EventLogs(LogsData);
       if (DIdata != null || DIdata != 0) {
@@ -184,6 +186,7 @@ const manualDebitCredit = async (req, res) => {
             companyId: findUser.company_ID,
             documentId: findUser._id,
             description: "Amount Debited",
+            ipAddress: req.user.userIp
           };
           EventLogs(LogsData);
         }
@@ -227,6 +230,7 @@ const manualDebitCredit = async (req, res) => {
         companyId: findUser.company_ID,
         documentId: findUser._id,
         description: "Amount Debited",
+        ipAddress: req.user.userIp
       };
 
       EventLogs(LogsData);

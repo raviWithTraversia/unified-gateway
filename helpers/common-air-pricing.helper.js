@@ -7,14 +7,11 @@ const {
 } = require("./common-search.helper");
 const { Config } = require("../configs/config");
 const { saveLogInFile } = require("../utils/save-log");
-const { getVendorList } = require("./credentials");
 
 function createAirPricingRequestBodyForCommonAPI(request) {
   try {
-    const reqItinerary =
-      request.Itinerary?.[0] || request.ItineraryPriceCheckResponses?.[0];
-    const reqSegment =
-      request.Segments?.[0] || request?.SearchRQ?.Segments?.[0];
+    const reqItinerary = request.Itinerary?.[0];
+    const reqSegment = request.Segments?.[0];
 
     if (!reqItinerary || !reqSegment)
       throw new Error(
@@ -22,23 +19,16 @@ function createAirPricingRequestBodyForCommonAPI(request) {
       );
 
     const requestBody = {
-      typeOfTrip: request?.TypeOfTrip || request?.SearchRQ?.TypeOfTrip,
-      credentialType:
-        request?.Authentication?.CredentialType ||
-        request?.SearchRQ?.Authentication?.CredentialType,
-      travelType: convertTravelTypeForCommonAPI(
-        request?.TravelType || request?.SearchRQ?.TravelType
-      ),
-      // systemEntity: "TCIL",
-      // systemName: "Astra2.0",
-      // corpCode: "000000",
-      // requestorCode: "000000",
-      // empCode: "000000",
-      // uniqueKey: reqItinerary.UniqueKey,
+      typeOfTrip: request.TypeOfTrip,
+      credentialType: request.Authentication.CredentialType,
+      travelType: convertTravelTypeForCommonAPI(request.TravelType),
+      systemEntity: "TCIL",
+      systemName: "Astra2.0",
+      corpCode: "000000",
+      requestorCode: "000000",
+      empCode: "000000",
+      uniqueKey: reqItinerary.UniqueKey,
       traceId: reqItinerary.TraceId,
-      companyId:
-        request?.Authentication?.CompanyId ||
-        request?.SearchRQ?.Authentication?.CompanyId,
       journey: [
         {
           journeyKey: reqItinerary.SearchID,
@@ -46,15 +36,10 @@ function createAirPricingRequestBodyForCommonAPI(request) {
           destination: reqSegment.Destination,
           itinerary: [
             {
-              // uid: reqItinerary.UID,
-              uId: reqItinerary.UID,
+              uid: reqItinerary.UID,
               indexNumber: reqItinerary.IndexNumber,
               provider: reqItinerary.Provider,
               promoCodeType: reqItinerary.PromoCodeType,
-              dealCode: reqItinerary.DealCode || "",
-              officeId: reqItinerary.OfficeId || "",
-              hostTokens: reqItinerary.HostTokens || [],
-              errors: reqItinerary.Errors || [],
               airSegments: reqItinerary.Sectors.map((sector) => ({
                 travelTime: convertDurationForCommonAPI(sector.TravelTime),
                 airlineCode: sector.AirlineCode,
@@ -66,14 +51,10 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                   ? { code: sector.OperatingCarrier }
                   : null,
                 fltNum: sector.FltNum,
-                flightNumber: sector.FltNum,
-                // equipType: sector.EquipType,
-                equipmentType: sector.EquipType,
-                group: (parseInt(sector.Group) + 1).toString(),
-                // baggageInfo: sector.BaggageInfo,
+                equipType: sector.EquipType,
+                group: sector.Group,
                 baggageInfo: sector.BaggageInfo,
                 handBaggage: sector.HandBaggage,
-                cabinBaggage: sector.HandBaggage,
                 offerDetails: sector?.HostTokenRef?.length
                   ? (() => {
                       try {
@@ -83,26 +64,14 @@ function createAirPricingRequestBodyForCommonAPI(request) {
                       }
                     })()
                   : "",
-                // classofService: sector.Class,
-                classOfService: sector.Class,
+                classofService: sector.Class,
                 cabinClass: getCommonCabinClass(sector.CabinClass),
                 productClass: sector.ProductClass,
                 noSeats: sector.NoSeats,
-                fareBasis: sector.FareBasisCode,
-                fareFamily: sector.FareFamily,
-                // fareBasisCode: sector.FareBasisCode,
                 fareBasisCode: sector.FareBasisCode,
-                fareType: sector.FareType,
-                rbds: sector.BookingCounts,
-                technicalStops: [],
-                // transitTime: sector.TransitTime,
-                brand: sector.Brand,
                 availabilitySource: sector.AvailabilitySource,
                 isConnect: sector.IsConnect,
                 key: sector.key,
-                segRef: sector.key,
-                status: sector.Status,
-                noOfSeats: sector.NoOfSeats,
               })),
               priceBreakup: convertPriceBreakupForCommonAPI(
                 reqItinerary.PriceBreakup
@@ -115,47 +84,34 @@ function createAirPricingRequestBodyForCommonAPI(request) {
               totalPrice: reqItinerary.TotalPrice,
               currency: reqItinerary.Currency ?? "INR",
               valCarrier: reqItinerary.ValCarrier,
-              refundable: reqItinerary.RefundableFare,
+              refundableFare: reqItinerary.RefundableFare,
               sessionKey: reqItinerary.SessionKey,
               fareType: reqItinerary.FareType,
-              // promotionalCode: reqItinerary.PromotionalCode,
-              dealCode: reqItinerary.PromotionalCode || "",
+              promotionalCode: reqItinerary.PromotionalCode,
               fareFamily: reqItinerary.FareFamily,
               key: reqItinerary.Key,
               inPolicy: reqItinerary.InPolicy,
               isRecommended: reqItinerary.IsRecommended,
-              lastTicketingDate: reqItinerary.LastTicketingDate,
             },
           ],
         },
       ],
-      vendorList: getVendorList(
-        request?.Authentication?.CredentialType ||
-          request?.SearchRQ?.Authentication?.CredentialType
-      ),
     };
     return { requestBody };
   } catch (error) {
-    saveLogInFile("dc-pricing-RQ-err.json", {
-      message: error.message,
-      stack: error.stack,
-    });
     return { error: error.message };
   }
 }
 
-async function convertAirPricingItineraryForCommonAPI({
+function convertAirPricingItineraryForCommonAPI({
   response,
   requestBody,
   originalRequest,
 }) {
-  const reqItinerary = requestBody?.journey?.[0]?.itinerary?.[0];
-  const journey = response?.journey?.[0];
-  const itinerary = journey?.itinerary?.[0] || journey?.itinerary;
-  if (!itinerary) {
-    throw new Error(response?.message || "Error Pricing Itinerary");
-  }
-  const convertedItinerary = await convertItineraryForKafila({
+  const reqItinerary = requestBody.journey[0].itinerary[0];
+  const journey = response.journey[0];
+  const itinerary = journey.itinerary[0];
+  const convertedItinerary = convertItineraryForKafila({
     itinerary,
     idx: 1,
     response,
@@ -264,42 +220,28 @@ async function convertSSRItineraryForCommonAPI({
   const reqItinerary = requestBody.journey[0].itinerary[0];
 
   const journey = responseMealOrBaggage.journey[0];
-  const itinerary = journey.itinerary[0] || journey.itinerary;
+  const itinerary = journey.itinerary[0];
 
   const isDOM_AI =
     (reqItinerary?.valCarrier === "AI" ||
       reqItinerary?.airSegments?.[0]?.airlineCode === "AI") &&
     requestBody.travelType === "DOM";
-
-  if (!itinerary.ssrInfo) {
-    itinerary.ssrInfo = {
-      baggage: [],
-      fastForward: [],
-      meal: [],
-    };
+  if (isDOM_AI) {
+    itinerary.ssrInfo.meal = itinerary.airSegments.flatMap((segment) =>
+      Config.AI_MEALS.map((meal) => {
+        meal.flightNumber = segment.fltNum;
+        meal.origin = segment.departure.code;
+        meal.destination = segment.arrival.code;
+        return meal;
+      })
+    );
   }
-
-  // if (isDOM_AI) {
-  //   itinerary.ssrInfo.meal = itinerary.airSegments.flatMap((segment) =>
-  //     Config.AI_MEALS.map((meal) => {
-  //       meal.flightNumber = segment.fltNum;
-  //       meal.origin = segment.departure.code;
-  //       meal.destination = segment.arrival.code;
-  //       return meal;
-  //     })
-  //   );
-  // }
 
   let allSegmentsOfSeatMap = [];
   let allSeatsList = [];
 
-  if (
-    responseSeat?.journey[0]?.itinerary?.length ||
-    responseSeat?.journey[0]?.itinerary?.airSegments
-  ) {
-    allSegmentsOfSeatMap =
-      responseSeat?.journey[0]?.itinerary[0]?.airSegments ||
-      responseSeat?.journey[0]?.itinerary?.airSegments;
+  if (responseSeat?.journey[0]?.itinerary?.length) {
+    allSegmentsOfSeatMap = responseSeat?.journey[0]?.itinerary[0]?.airSegments;
   }
   const convertedSSRResponse = {};
 
@@ -344,9 +286,7 @@ async function convertSSRItineraryForCommonAPI({
     Adt: paxDetails.adults,
     Chd: paxDetails.children,
     Inf: paxDetails.infants,
-    Sector: await Promise.all(
-      itinerary.airSegments.map(convertSegmentForKafila)
-    ),
+    Sector: itinerary.airSegments.map(convertSegmentForKafila),
     PF: "",
     PC: "",
     Routing: "ALL",
@@ -386,73 +326,55 @@ async function convertSSRItineraryForCommonAPI({
     allSegmentsOfSeatMap
   );
 
-  if (!itinerary.ssrInfo?.meal.length) {
-    itinerary.ssrInfo.meal =
-      itinerary.airSegments.flatMap(
-        (segment) => segment?.ssrInfo?.meal || []
-      ) || [];
-  }
-
-  itinerary.ssrInfo.baggage =
-    itinerary.ancillaries.flatMap((ancillary) => ancillary.baggage || []) || [];
-
-  itinerary.ssrInfo.fastForward =
-    itinerary.ancillaries.flatMap((ancillary) => ancillary.fastForward || []) ||
-    [];
-
   convertedSSRResponse.Ancl = {
-    Baggage:
-      itinerary?.ssrInfo?.baggage
-        ?.sort((a, b) => a.amount - b.amount)
-        ?.map((baggage) => ({
-          Complmnt: false,
-          Paid: baggage?.paid || false,
-          Currency: baggage?.currency || "INR",
-          FCode: baggage?.airlineCode || "",
-          FNo: baggage?.flightNumber || "",
-          OI: baggage?.code || "",
-          Price: baggage?.amount || 0,
-          SsrCode: baggage?.code || "",
-          SsrDesc: baggage?.name || "",
-          SsrFor: "Journey",
-          Trip: baggage?.wayType,
-          Src: baggage.origin,
-          Des: baggage.destination,
-        })) || [],
-    FastForward:
-      itinerary?.ssrInfo?.fastForward?.map((fastForward) => ({
-        Complmnt: false,
-        Paid: fastForward?.paid || false,
-        Currency: fastForward?.currency || "INR",
-        FCode: fastForward?.airlineCode,
-        FNo: fastForward?.flightNumber || "INR",
-        OI: fastForward?.code || "INR",
-        Price: fastForward?.amount || 0,
-        SsrCode: fastForward?.code || "",
-        SsrDesc: fastForward?.name || "",
-        SsrFor: "Journey",
-        Trip: fastForward?.wayType,
-        Src: fastForward.origin,
-        Des: fastForward.destination,
-      })) || [],
-    Meals:
-      itinerary?.ssrInfo.meal?.map((meal) => ({
-        Complmnt: false,
-        Paid: meal?.paid || false,
-        Currency: meal?.currency || "INR",
-        FCode: meal?.airlineCode,
-        FNo: meal?.flightNumber || "INR",
-        OI: meal?.code || "INR",
-        Price: meal?.amount || 0,
-        SsrCode: meal?.code || "",
-        SsrDesc: meal?.name || "",
-        SsrFor: "Journey",
-        Trip: meal?.wayType,
-        Src: meal.origin,
-        Des: meal.destination,
-      })) || [],
+    Baggage: itinerary?.ssrInfo?.baggage?.map((baggage) => ({
+      Complmnt: false,
+      Paid: baggage?.paid || false,
+      Currency: baggage?.currency || "INR",
+      FCode: baggage?.airlineCode,
+      FNo: baggage?.flightNumber || "INR",
+      OI: baggage?.code || "INR",
+      Price: baggage?.amount || 0,
+      SsrCode: baggage?.code || "",
+      SsrDesc: baggage?.name || "",
+      SsrFor: "Journey",
+      Trip: baggage?.wayType,
+      Src: baggage.origin,
+      Des: baggage.destination,
+    })),
+    // FastForward: [],
+    FastForward: itinerary?.ssrInfo?.fastForward?.map((fastForward) => ({
+      Complmnt: false,
+      Paid: fastForward?.paid || false,
+      Currency: fastForward?.currency || "INR",
+      FCode: fastForward?.airlineCode,
+      FNo: fastForward?.flightNumber || "INR",
+      OI: fastForward?.code || "INR",
+      Price: fastForward?.amount || 0,
+      SsrCode: fastForward?.code || "",
+      SsrDesc: fastForward?.name || "",
+      SsrFor: "Journey",
+      Trip: fastForward?.wayType,
+      Src: fastForward.origin,
+      Des: fastForward.destination,
+    })),
+    Meals: itinerary?.ssrInfo?.meal?.map((meal) => ({
+      Complmnt: false,
+      Paid: meal?.paid || false,
+      Currency: meal?.currency || "INR",
+      FCode: meal?.airlineCode,
+      FNo: meal?.flightNumber || "INR",
+      OI: meal?.code || "INR",
+      Price: meal?.amount || 0,
+      SsrCode: meal?.code || "",
+      SsrDesc: meal?.name || "",
+      SsrFor: "Journey",
+      Trip: meal?.wayType,
+      Src: meal.origin,
+      Des: meal.destination,
+    })),
     Seat: {
-      SeatRow: allSeatsList || [],
+      SeatRow: allSeatsList,
     },
     Specials: [],
   };
@@ -518,8 +440,7 @@ function convertPriceBreakupForCommonAPI(breakups) {
           taxType: tax.TaxType,
         })),
         airPenalty: breakup.AirPenalty,
-        // key: breakup?.key || "",
-        fareCalc: breakup.key,
+        key: breakup?.key || "",
       };
       return acc;
     },
@@ -541,7 +462,7 @@ function formatDateForCommonAPI(dateString) {
 }
 
 function airPricingBreakupForKafila(type, priceBreakup) {
-  const breakup = priceBreakup?.find(
+  const breakup = priceBreakup.find(
     (breakup) => breakup.passengerType === type
   );
   if (!breakup) return {};
@@ -567,10 +488,6 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
   let facilitiesArrayList = [];
   if (!allSegmentsList?.length) return;
   await allSegmentsList.forEach((segmentsList) => {
-    // ? strip starting 0, seat map matching in UI was getting failed because 0491 != 491
-    if (segmentsList?.flightNumber?.startsWith("0")) {
-      segmentsList.flightNumber = segmentsList.flightNumber.substring(1);
-    }
     segmentsList?.seatRows?.forEach?.((seatRows) => {
       facilitiesArrayList = [];
       seatRows?.facilities?.forEach?.((seatFacilities, seatIdx) => {
@@ -586,33 +503,20 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
           characteristics,
           paid,
         } = seatFacilities;
-        const characteristicStrings = characteristics.map(
-          (char) => char.description
-        );
         if (seatCode) {
-          let DDate = "";
-          let ssrProperty = [];
-          if (segmentsList?.departure?.date) {
-            DDate =
-              moment(
-                segmentsList.departure.date + "T" + segmentsList.departure.time,
-                "DD-MM-YYYYTHH:mm:ss"
-              ).format("YYYY-MM-DDTHH:mm") + ":00.000Z";
-            // DDate = DDate + "T00:00:00.000Z";
+          let DDate = "",
+            ssrProperty = [];
+          if (segmentsList?.origin?.date) {
+            DDate = moment(segmentsList?.origin?.date, "DD/MM/YYYY").format(
+              "YYYY-MM-DD"
+            );
+            DDate = DDate + "T00:00:00.000Z";
           }
-
-          let isBeforeAisle =
-            seatRows?.facilities?.[seatIdx - 1]?.type === "Aisle";
-          let isAfterAisle =
-            seatRows?.facilities?.[seatIdx + 1]?.type === "Aisle";
-
-          // let isAisleSeat =
-          //   characteristicStrings?.length &&
-          //   characteristicStrings.some((char) =>
-          //     char.toUpperCase().includes("AISLE")
-          //   );
-
-          if (isBeforeAisle || isAfterAisle) {
+          if (
+            seatRows?.facilities?.[seatIdx - 1]?.type === "Aisle" ||
+            seatRows?.facilities?.[seatIdx + 1]?.type === "Aisle" ||
+            (characteristics?.length && characteristics.includes("Aisle seat"))
+          ) {
             ssrProperty.push({
               SKey: "AISLE",
               SValue: "True",
@@ -627,25 +531,19 @@ async function prePareCommonSeatMapResponseForKafila(allSegmentsList) {
             Compartemnt: compartment,
             Type: type || "Seat",
             Seatcode: seatCode,
-            Availability: ["Open", "Available"].includes(availability)
-              ? true
-              : false,
+            Availability: availability == "Open" ? true : false,
             // Availability: availability == "Available" ? true : false,
             Paid: paid,
             Currency: currency,
-            Characteristics: characteristicStrings,
+            Characteristics: characteristics,
             TotalPrice: amount,
             Key: key,
             FCode: segmentsList?.airlineCode || "",
             FNo: segmentsList?.flightNumber || "",
             FType: "",
-            Src:
-              segmentsList?.origin?.code || segmentsList?.departure?.code || "",
-            Des:
-              segmentsList?.destination?.code ||
-              segmentsList?.arrival?.code ||
-              "",
-            Group: (parseInt(segmentsList.group) + 1).toString() || "",
+            Src: segmentsList?.origin?.code || "",
+            Des: segmentsList?.destination?.code || "",
+            Group: "",
             DDate: DDate,
             Deck: deck,
             SsrProperty: ssrProperty,
@@ -676,21 +574,29 @@ async function getPnrTicketCommonAPIBody(request) {
   for (var reqItinerary of request.Itinerary) {
     data.push({
       typeOfTrip: request.TypeOfTrip,
-      travelType: convertTravelTypeForCommonAPI(request.TravelType),
       credentialType: request.Authentication.CredentialType,
+      travelType: convertTravelTypeForCommonAPI(request.TravelType),
+      systemEntity: "TCIL",
+      systemName: "Astra2.0",
+      corpCode: "000000",
+      requestorCode: "000000",
+      empCode: "000000",
+      uniqueKey: reqItinerary.UniqueKey,
       traceId: reqItinerary.TraceId,
-      companyId: request.Authentication.CompanyId,
-      recLoc: {
-        type: "GDS",
-        pnr: reqItinerary.PNR,
-      },
-      travellerDetails: [],
-      cardDetails: {},
-      provider: reqItinerary.Provider,
-      gstDetails: {},
-      agencyInfo: {},
-      rmFields: [],
-      vendorList: getVendorList(request.Authentication.CredentialType),
+      journey: [
+        {
+          journeyKey: reqItinerary.SearchID,
+          origin: reqSegment.Origin,
+          destination: reqSegment.Destination,
+          provider: reqItinerary.Provider,
+          itinerary: [
+            {
+              recordLocator: reqItinerary.PNR,
+            },
+          ],
+        },
+      ],
+      version: "1",
     });
   }
 

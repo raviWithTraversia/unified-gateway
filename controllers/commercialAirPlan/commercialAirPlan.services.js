@@ -39,6 +39,7 @@ const LogsData={
  companyId:companyId,
  documentId:result._id,
              description:"Add CommercialAirPlan",
+             ipAddress: req.user.userIp
           }
          EventLogs(LogsData)
 
@@ -116,6 +117,7 @@ const commercialPlanUpdate = async(req , res) => {
  oldValue:checkCommercialAirPlan,
  newValue:result,
                     description:"Edit CommercialAirPlan",
+                    ipAddress: req.user.userIp
                   }
                  EventLogs(LogsData)
             return {

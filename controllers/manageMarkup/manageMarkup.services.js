@@ -61,7 +61,8 @@ console.log(markupChargeInsert)
         doerName:userData.fname,
         companyId:companyId,
         documentId:markupChargeInsert._id,
-          description:"Add Agent Markup"
+          description:"Add Agent Markup",
+          ipAddress: req.user.userIp
         }
        EventLogs(LogsData)
 
@@ -137,6 +138,7 @@ oldValue:oldDeatail,
 newValue:updateDetails,
   documentId:updateDetails._id,
         description:"Edit Agent Markup",
+        ipAddress: req.user.userIp
       }
      EventLogs(LogsData)
 
@@ -176,6 +178,7 @@ const deletedMarkup = async (req, res) => {
 companyId:deleteMarkupDetails.companyId,
 documentId:deleteMarkupDetails._id,
         description:"Delete Agent Markup",
+        ipAddress: req.user.userIp
       }
      EventLogs(LogsData)
 

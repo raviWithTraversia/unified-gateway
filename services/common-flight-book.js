@@ -9,7 +9,6 @@ const { saveLogInFile } = require("../utils/save-log");
 const Logs = require("../controllers/logs/PortalApiLogsCommon");
 const http = require("http");
 const https = require("https");
-const { authenticate } = require("../helpers/authentication.helper");
 
 module.exports.commonFlightBook = async function (
   request,
@@ -41,8 +40,6 @@ module.exports.commonFlightBook = async function (
         reqSegment,
         reqItinerary
       );
-    saveLogInFile("common-book-request.json", requestBody);
-
     logData.request = error || requestBody;
     const isINTRoundtrip =
       requestBody?.typeOfTrip === "ROUNDTRIP" &&
@@ -51,19 +48,12 @@ module.exports.commonFlightBook = async function (
     if (error) return { error };
     const url =
       Config[request?.SearchRequest?.Authentication?.CredentialType]
-        .additionalFlightsBaseURL +
-      "/book/v2/" +
-      (request.isHoldBooking ? "HoldPnr" : "CreatePnr");
-    // .additionalFlightsBaseURL + "/booking/airbooking";
+        .additionalFlightsBaseURL + "/booking/airbooking";
 
-    const token = await authenticate(
-      request?.SearchRequest?.Authentication.CredentialType
-    );
     const { data: response } = await axios.post(url, requestBody, {
       timeout: 120_000,
       httpAgent: new http.Agent({ keepAlive: true }),
       httpsAgent: new https.Agent({ keepAlive: true }),
-      headers: { Authorization: `Bearer ${token}` },
     });
     logData.responce = response;
 
@@ -90,7 +80,6 @@ module.exports.commonFlightBook = async function (
     saveLogInFile("common-flight-book-error.json", {
       stack: error.stack,
       error: error.message,
-      data: error?.response?.data,
     });
     throw new Error(error.message);
   } finally {

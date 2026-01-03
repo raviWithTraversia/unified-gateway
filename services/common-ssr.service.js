@@ -5,7 +5,6 @@ const {
 } = require("../helpers/common-air-pricing.helper");
 const { Config } = require("../configs/config");
 const { saveLogInFile } = require("../utils/save-log");
-const { authenticate } = require("../helpers/authentication.helper");
 
 module.exports.getCommonSSR = async (request) => {
   try {
@@ -14,35 +13,22 @@ module.exports.getCommonSSR = async (request) => {
       ...request,
       Itinerary,
     });
-    saveLogInFile("ssrRequestBody.json", requestBody);
     if (error) return { error };
     const ssrBaggageAndMealURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
-      "/prebook/v2/GetSSRs";
-
-    const token = await authenticate(request.Authentication.CredentialType);
+      "/ssr/getSSR";
     const { data: responseMealOrBaggage } = await axios.post(
       ssrBaggageAndMealURL,
-      requestBody,
-      { headers: { Authorization: `Bearer ${token}` } }
+      requestBody
     );
-
-    saveLogInFile("responseMealOrBaggage.json", responseMealOrBaggage);
 
     const ssrOnlySeatURL =
       Config[request.Authentication.CredentialType].additionalFlightsBaseURL +
-      "/prebook/v2/GetSeatMap";
+      "/seat/airSeatMap";
     const { data: responseSeat } = await axios.post(
       ssrOnlySeatURL,
-      requestBody,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      requestBody
     );
-    saveLogInFile("responseSeat.json", responseSeat);
-
     const convertedSSRItinerary = await convertSSRItineraryForCommonAPI({
       responseMealOrBaggage: responseMealOrBaggage.data,
       responseSeat: responseSeat.data,

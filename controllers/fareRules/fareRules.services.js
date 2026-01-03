@@ -60,6 +60,7 @@ const userData= await user.findById(req.user._id)
         companyId:companyId,
         documentId:addRules._id,
         description:"Add Fare Rules",
+        ipAddress: req.user.userIp
       }
      EventLogs(LogsData)
       return {
@@ -119,6 +120,7 @@ const userData= await user.findById(req.user._id)
   companyId:removeFareRule.companyId,
   documentId:removeFareRule._id,
         description:"Delete Fare Rules",
+        ipAddress: req.user.userIp
       }
      EventLogs(LogsData)
       return {
@@ -161,6 +163,7 @@ const userData= await user.findById(req.user._id)
  newValue:updateFareRuleData,
  documentId:updateFareRuleData._id,
         description:"Edit Fare Rules",
+        ipAddress: req.user.userIp
       }
      EventLogs(LogsData)
       return {

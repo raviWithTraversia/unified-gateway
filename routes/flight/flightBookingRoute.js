@@ -19,12 +19,12 @@ flight_booking_route.post('/flightbooking/getSalesReport', flight.getSalesReport
 flight_booking_route.post('/flightbooking/getBookingByPaxDetails', flight.getBookingByPaxDetails);
 flight_booking_route.get('/flightbooking/getBillingData', flight.getBillingData);
 flight_booking_route.post('/flightbooking/updateBillPost', flight.updateBillPost);
-flight_booking_route.post('/flightbooking/manuallyUpdateBookingStatus', flight.manuallyUpdateBookingStatus);
+flight_booking_route.post('/flightbooking/manuallyUpdateBookingStatus',auth, flight.manuallyUpdateBookingStatus);
 flight_booking_route.post('/flightbooking/manuallyUpdateMultipleBookingStatus', flight.manuallyUpdateMultipleBookingStatus);
 flight_booking_route.post('/sendCadDeailonMail',flight.SendCardOnMail)
 flight_booking_route.put('/updateAdvanceMarkup',flight.UpdateAdvanceMarkup)
 flight_booking_route.patch('/update/bookingStatus',auth,flight.updateBookingStatus);
-flight_booking_route.post('/flight/import-pnr-cart-save',flight.importPnrService);
+flight_booking_route.post('/flight/import-pnr-cart-save',auth,flight.importPnrService);
 flight_booking_route.post('/billing/updatePaxAccountPostUseProviderBookingId', flight.updatePaxAccountPostUseProviderBookingId);
 flight_booking_route.post('/flightbooking/getProvideStatusCount', flight.getAllStatusCount);
 flight_booking_route.post('/flightbooking/checkPassengerSameDay', flight.checkPassengerSameDay);

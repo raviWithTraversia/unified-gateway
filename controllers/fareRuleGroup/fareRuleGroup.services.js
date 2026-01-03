@@ -53,6 +53,7 @@ const userData= await user.findById(req.user._id)
         doerName:userData.fname,
 companyId:companyId,
         description:"Add FareRules For Group",
+        ipAddress: req.user.userIp
       }
      EventLogs(LogsData)
       return {
@@ -108,6 +109,7 @@ const userData= await user.findById(req.user._id)
 
         companyId:updateData.companyId,
         description:"Edit FareRules For Group",
+        ipAddress: req.user.userIp
       }
      EventLogs(LogsData)
       
@@ -511,6 +513,7 @@ const userData= await user.findById(req.user._id)
         doerName:userData.fname,
 companyId:deleteData.companyId,
         description:"Delete FareRules For Group",
+        ipAddress: req.user.userIp
       }
      EventLogs(LogsData)
       return {

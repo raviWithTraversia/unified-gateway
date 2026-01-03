@@ -155,7 +155,7 @@ const railSearchBtwnDate = async (req, res) => {
     console.log(error);
     apiErrorres(
       res,
-      errorResponse.SOMETHING_WRONG,
+      error.message||errorResponse.SOMETHING_WRONG,
       ServerStatusCode.SERVER_ERROR,
       true
     );
@@ -314,7 +314,9 @@ const railFareEnquiry = async (req, res) => {
       gstDetails,
       RailAgentId,
       amount,
-      traceId
+      traceId,
+      ssQuotaSplitCoach
+
     } = req.body;
     
     if ((!trainNo, !Authentication)) {
@@ -407,6 +409,7 @@ if (hasPassengerFoodChoice) {
       agentDeviceId: agentDeviceId,
       infantList: infantList,
       gstDetails: gstDetails,
+      ssQuotaSplitCoach: ssQuotaSplitCoach
     };
 
     console.log(url, "url")
@@ -416,6 +419,9 @@ if (hasPassengerFoodChoice) {
     )?.data;
     // console.log(response);
 
+      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "FareEnquiry", url, queryParams, response)
+
+
     if (!response) {
       return {
         response: "No Response from Irctc",
@@ -423,7 +429,6 @@ if (hasPassengerFoodChoice) {
     } else {
       response.traceId = traceId
       response.CommercialCharges = agentCharges
-      commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "FareEnquiry", url, queryParams, response)
 
       return {
         response: "Fetch Data Successfully",
@@ -431,6 +436,7 @@ if (hasPassengerFoodChoice) {
       };
     }
   } catch (error) {
+    commonFunctionsRailLogs(Authentication?.CompanyId, Authentication?.UserId, traceId, "FareEnquiry", "", {}, error)
     // apiErrorres(
     //   res,
     //   errorResponse.SOMETHING_WRONG,
@@ -917,6 +923,142 @@ const provideStationName=async(stationCode)=>{
 
   
 }
+
+const adharVerifySendTatkalOTPTicket = async (req, res, next) => {
+  try {
+    const { clientTransactionId, wsUserLogin, Authentication } = req.body;
+    const credentialType = Authentication?.CredentialType ?? "TEST";
+
+    const authHeader = credentialType === "LIVE"
+      ? Config.LIVE.IRCTC_AUTH
+      : Config.TEST.IRCTC_AUTH;
+
+    const baseUrl = Config[credentialType]?.IRCTC_BASE_URL;
+    if (!baseUrl) {
+      return res.status(500).json({
+        status: "error",
+        Message: "IRCTC base URL not configured"
+      });
+    }
+
+    const url = `${baseUrl}/authenticate/generateAuthentication`;
+
+    const response = await axios.post(
+      url,
+      {
+        clientTxnId:clientTransactionId,
+        wsUserLogin,
+        aadhaarConsent: true
+      },
+      {
+        headers: { Authorization: authHeader }
+      }
+    );
+
+    if (!response.data.status) {
+      return res.status(400).json({
+        IsSucess: false,
+        status: "error",
+        Message: response.data.error??"Invalid response from IRCTC"
+      });
+    }
+
+    return res.status(200).json({
+      IsSucess: true,
+      status: "success",
+      Message: response.data.status,
+      data: response.data
+    });
+  } catch (error) {
+    console.error("adharVerifyTatkalTicket error:", error);
+
+    // If error came from axios and has response, you can forward its status/message
+    if (error.response) {
+      return res.status(error.response.status).json({
+        IsSucess: false,
+        status: "error",
+        Message: error.response.data?.message || "External API error",
+      });
+    }
+
+    // Generic server error fallback
+    return res.status(500).json({
+      IsSucess: false,
+      status: "error",
+      Message: "Internal Server Error"
+    });
+  }
+};
+
+const adharVerifyTatkalOTPTicket = async (req, res, next) => {
+  try {
+    const { clientTransactionId, wsUserLogin, Authentication,otp } = req.body;
+    const credentialType = Authentication?.CredentialType ?? "TEST";
+
+    const authHeader = credentialType === "LIVE"
+      ? Config.LIVE.IRCTC_AUTH
+      : Config.TEST.IRCTC_AUTH;
+
+    const baseUrl = Config[credentialType]?.IRCTC_BASE_URL;
+    if (!baseUrl) {
+      return res.status(500).json({
+        IsSucess: false,
+        status: "error",
+        Message: "IRCTC base URL not configured"
+      });
+    }
+
+    const url = `${baseUrl}/authenticate/verifyAuthentication`;
+
+    const response = await axios.post(
+      url,
+      {
+       clientTxnId:clientTransactionId,
+        wsUserLogin,
+        aadhaarConsent: true,
+        captchaAns:otp
+      },
+      {
+        headers: { Authorization: authHeader }
+      }
+    );
+
+    if (!response.data.status) {
+      return res.status(400).json({
+        IsSucess: false,
+        status: "error",
+        Message:response.data.error?? "Invalid response from IRCTC"
+      });
+    }
+
+    return res.status(200).json({
+      IsSucess: true,
+      status: "success",
+      Message: response.data.status,
+      data: response.data
+    });
+  } catch (error) {
+    console.error("adharVerifyTatkalTicket error:", error);
+
+    // If error came from axios and has response, you can forward its status/message
+    if (error.response) {
+      
+      return res.status(error.response.status).json({
+        IsSucess: false,
+        status: "error",
+        Message: error.response.data?.message || "External API error",
+      });
+    }
+
+    // Generic server error fallback
+    return res.status(500).json({
+      IsSucess: false,
+      status: "error",
+      Message: "Internal Server Error"
+    });
+  }
+};
+
 module.exports = {
   getRailSearch,
   railSearchBtwnDate,
@@ -926,5 +1068,7 @@ module.exports = {
   railBoardingEnquiry,
   ChangeBoardingStation,
   PnrEnquirry,
-  updateBookingWithCartId
+  updateBookingWithCartId,
+  adharVerifySendTatkalOTPTicket,
+  adharVerifyTatkalOTPTicket
 };

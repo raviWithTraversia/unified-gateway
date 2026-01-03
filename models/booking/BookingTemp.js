@@ -1,42 +1,44 @@
 const mongoose = require('mongoose');
 
-const BookingTempSchema = new mongoose.Schema({    
+const BookingTempSchema = new mongoose.Schema({
     companyId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Company",
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-      },
-    source : {
-        type : String,
-        required : false,
-        default : null
     },
-   
-    BookingId : { // Flight , Hotel 
-        type : String,
-        required : false,
-        default : null
+    source: {
+        type: String,
+        default: null
     },
-    request : {
-        type : String,
-        required : false,
-        default : null
+    BookingId: {
+        type: String,
+        default: null
     },
-    responce : {
-        type : String,
-        required : false,
-        default : null 
-    } ,
-    count:{
-        type:Number,
-        default:0
+    request: {
+        type: String,
+        default: null
+    },
+    responce: {
+        type: String,
+        default: null
+    },
+    count: {
+        type: Number,
+        default: 0
+    }, 
+    cartId: {
+        type: String,
+        default: null
     }
 }, {
-    timestamps: true // Adds created_at and updated_at fields
-}
-);
+    timestamps: true
+});
 
-module.exports = mongoose.model('BookingTemp' , BookingTempSchema);
+/* 🔹 Indexes */
+BookingTempSchema.index({ BookingId: 1 });
+BookingTempSchema.index({ cartId: 1 });
+
+module.exports = mongoose.model('BookingTemp', BookingTempSchema);

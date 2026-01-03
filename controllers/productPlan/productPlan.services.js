@@ -59,7 +59,8 @@ const addProductPlan = async (req, res) => {
             doerName: loginUser.fname,
             companyId: companyId,
             documentId: result._id,
-            description: "ProductPlan add"
+            description: "ProductPlan add",
+            ipAddress: req.user.userIp
         };
         
         EventLogs(LogsData);
@@ -175,7 +176,8 @@ const productPlanUpdateById = async (req, res) => {
                 doerName: loginUser.fname,
                 companyId: companyId,
                 documentId: producPlanId,
-                description: "ProductPlan Edit"
+                description: "ProductPlan Edit",
+                ipAddress: req.user.userIp
             };
             
             EventLogs(LogsData);

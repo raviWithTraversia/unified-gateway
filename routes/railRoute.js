@@ -5,6 +5,7 @@ rail_route.use(bodyParser.json());
 rail_route.use(bodyParser.urlencoded({ extended: true }));
 const auth = require("../middleware/auth");
 const railController = require("./../controllers/rail/rail.controller");
+const {adharVerifySendTatkalOTPTicket,adharVerifyTatkalOTPTicket}=require("../controllers/rail/railSearch.services")
 const railBookingController = require("../controllers/rail/RailBooking.js/railbooking.controller");
 const balance = require("../controllers/rail/railBalance/manualDebitCreditRails.controller");
 rail_route.post("/rail/railSearch", auth, railController.railSearch);
@@ -37,7 +38,7 @@ rail_route.get(
   balance.agentPerformanceReport
 );
 rail_route.post(
-  "/rail/cancellation-charges",
+  "/rail/cancellation-charges",auth,
   railController.fetchCancellationCharges
 );
 rail_route.post("/rail/cancel-booking", railController.cancelBooking);
@@ -60,6 +61,9 @@ rail_route.post("/rail/txn-history", railController.handleFetchTxnHistory);
 rail_route.get("/rail/tdr-reasons", railController.handleFetchTDRReasons);
 rail_route.post("/rail/file-tdr", railController.handleTDRRequest);
 rail_route.post("/railbooking/getProvideStatusCount",railBookingController.getProvideStatusCount)
+rail_route.post("/rail/send-otp-adhar-for-tatkal",auth,adharVerifySendTatkalOTPTicket)
+rail_route.post("/rail/verify-otp-adhar-for-tatkal",auth,adharVerifyTatkalOTPTicket)
+
 
 // easeBuzz_route.post('/paymentGateway/easeBussResponce', auth, easeBuzzController.easeBuzzResponce);
 

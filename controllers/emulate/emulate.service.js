@@ -316,7 +316,7 @@ let matchObject = {
 };
 const authenticate = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId,IP } = req.body;
 
     // Check if the user exists for the given user ID and company ID
     const user = await UserModule.findOne({ _id: userId }).populate("roleId");
@@ -324,7 +324,7 @@ const authenticate = async (req, res) => {
     if (user) {
 
       // Create a token for the user
-      const token = await commonFunction.createToken(user._id);
+      const token = await commonFunction.createToken(user._id,IP);
 
       // Update user details such as IP address and last login date
       const updatedUser = {

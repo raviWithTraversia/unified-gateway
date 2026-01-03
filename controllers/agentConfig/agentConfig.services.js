@@ -123,6 +123,7 @@ const updateAgentConfiguration = async (req, res) => {
         newValue: updates,
         documentId: id,
         description: "Edit ConfigAgency",
+        ipAddress: req.user.userIp
       }
       EventLogs(LogsData)
 
@@ -179,6 +180,8 @@ const updateSmsBalance = async (req, res) => {
         newValue: updateData,
         documentId: id,
         description: `Updated smsBalance by ${smsBalanceChange > 0 ? 'adding' : 'subtracting'} ${Math.abs(smsBalanceChange)}`,
+        ipAddress: req.user.userIp
+
       };
 
       

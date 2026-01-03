@@ -14,7 +14,7 @@ const companySchema = new mongoose.Schema(
     type: {
       type: String,
       required: false,
-      enum: ['Host', 'Tmc', 'TMC', 'Agency', 'Distributer', 'Supplier'],
+      enum: ['Host', 'Tmc', 'TMC', 'Agency', 'Distributer', 'Supplier','ApiPartner'],
       default: null,
     },
     companyStatus: {
@@ -128,6 +128,11 @@ const companySchema = new mongoose.Schema(
     gstAddress_2: {
       type: String,
       default: null,
+    },
+    gstEmail:{
+      type:String,
+      default:null
+
     },
     isIATA: {
       type: Boolean,

@@ -1292,6 +1292,8 @@ const findRailAllBooking = async (req, res) => {
 
 // Helper functions
 async function updateBookingStatus(bookingId, Authentication) {
+    try{
+
     const bookingData = await railBookings.findOne({ cartId: bookingId });
     if (!bookingData) return;
     // let updateStatusAPI=null
@@ -1300,15 +1302,39 @@ async function updateBookingStatus(bookingId, Authentication) {
     }
 
     const latesPassengerData = await checkPnrStatus(Authentication, bookingData.pnrNumber);
-    // if (typeof latesPassengerData === "string") return;
-
-    // const updateData = {
-    //     "psgnDtlList.$[elem].currentStatus": latesPassengerData.map(p => p.currentStatus),
-    //     "psgnDtlList.$[elem].currentBerthNo": latesPassengerData.map(p => 
-    //         p.currentBerthNo === "0" ? p.bookingBerthNo : p.currentBerthNo
-    //     )
-    // };
-
+   if (typeof latesPassengerData !== "string") {
+        await railBookings.findByIdAndUpdate(bookingData._id,  [
+            {
+              $set: {
+                psgnDtlList: {
+                  $map: {
+                    input: { $range: [0, { $size: "$psgnDtlList" }] }, // Create a range of indices
+                    as: "index",
+                    in: {
+                      $mergeObjects: [
+                        { $arrayElemAt: ["$psgnDtlList", "$$index"] }, // Keep existing passenger data
+                        {
+                          currentStatus: {
+                            $arrayElemAt: [latesPassengerData.map(item => item.currentStatus), "$$index"]
+                          },
+                          currentCoachId: {
+                            $arrayElemAt: [latesPassengerData.map(item => item.bookingCoachId), "$$index"]
+                          },
+                          currentBerthCode: {
+                            $arrayElemAt: [latesPassengerData.map(item => item.bookingBerthCode), "$$index"]
+                          },
+                          currentBerthNo: {
+                            $arrayElemAt: [latesPassengerData.map(item => item.currentBerthNo=="0"?item.bookingBerthNo:item.currentBerthNo), "$$index"]
+                          }
+                        },
+                      ],
+                    },
+                  },
+                }
+              },
+            },
+          ],{new:true})
+        }
     // await railBookings.findByIdAndUpdate(
     //     bookingData._id,
     //     { $set: updateData },
@@ -1338,6 +1364,9 @@ async function updateBookingStatus(bookingId, Authentication) {
     if (cancelBookingData && cancelBookingData?.bookingStatus !== "CANCELLED") {
         return await gernateCancelCard(Authentication, cancelBookingData, cancelBookingData?.traceId);
     }
+}catch(error){
+    throw error
+}
 }
 
 async function getUserContext(userId) {

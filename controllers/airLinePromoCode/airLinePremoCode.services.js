@@ -41,6 +41,7 @@ const addAirlinePromoCode = async (req, res) => {
         companyId: insertAirlinePromoCode.companyId,
         documentId: insertAirlinePromoCode._id,
         description: "Add AirlinePromoCode",
+        ipAddress: req.user.userIp
       };
       EventLogs(LogsData);
       return {
@@ -85,6 +86,7 @@ const editAirlinePromoCode = async (req, res) => {
         companyId: updatedPromoCodeData.companyId,
         documentId: updatedPromoCodeData._id,
         description: "Edit AirlinePromoCode",
+        ipAddress: req.user.userIp
       };
       EventLogs(LogsData);
       return {
@@ -213,6 +215,7 @@ const deletePromoCode = async (req, res) => {
         companyId: deletedPromoCode.companyId,
         documentId: deletedPromoCode._id,
         description: "Delete AirlinePromoCode",
+        ipAddress: req.user.userIp
       };
       EventLogs(LogsData);
       return {

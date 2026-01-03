@@ -95,12 +95,12 @@ const getSearch = async (req, res) => {
       req.body.TypeOfTrip === "ROUNDTRIP";
 
     const flightRequests = [];
-    // if (
-    //   !isInternationalRoundTrip &&
-    //   isAirlineFilterEligible &&
-    //   isClassAvlInKafila
-    // )
-    //   flightRequests.push(flightSearch.getSearch(req, res));
+    if (
+      !isInternationalRoundTrip &&
+      isAirlineFilterEligible &&
+      isClassAvlInKafila
+    )
+      flightRequests.push(flightSearch.getSearch(req, res));
     if (isTestEnv) flightRequests.push(commonFlightSearch(req.body));
     const results = await Promise.allSettled(flightRequests);
     // console.log(results, "results");

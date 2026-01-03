@@ -367,10 +367,11 @@ async function convertFlightDetailsForKafila(flight) {
   return flightDetails;
 }
 
-async function convertSegmentForKafila(segment) {
+async function convertSegmentForKafila(segment, idx, airSegments) {
   let group = parseInt(segment.group);
   const sector = {
-    IsConnect: segment.isConnect ?? false,
+    IsConnect: airSegments.length - 1 === idx ? false : true,
+    // IsConnect: segment.isConnect ?? false,
     AirlineCode: segment.airlineCode ?? "",
     AirlineName: segment.airlineName ?? "",
     Class: segment.classOfService || segment.classofService || "",
@@ -422,6 +423,8 @@ async function convertSegmentForKafila(segment) {
 
   return sector;
 }
+
+function getTransitTime(segment) {}
 
 function passengerPriceBreakupForKafila(type, priceBreakup) {
   const breakup = priceBreakup.find(

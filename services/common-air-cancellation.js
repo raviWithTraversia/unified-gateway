@@ -10,8 +10,21 @@ const {
 const { saveLogInFile } = require("../utils/save-log");
 const { getVendorList } = require("../helpers/credentials");
 const { authenticate } = require("../helpers/authentication.helper");
+const storeLog = require("../controllers/logs/PortalApiLogsCommon");
 
 module.exports.commonAirBookingCancellation = async function (request) {
+  const logData = {
+    traceId: request?.Authentication?.TraceId ?? "blank",
+    companyId: request?.Authentication?.CompanyId ?? "blank",
+    userId: request?.Authentication?.UserId ?? "blank",
+    source: "APIGateway",
+    type: "Portal log",
+    BookingId: request?.BookingId ?? "blank",
+    product: "Flight",
+    logName: `${request.cancelType} Cancellation`,
+    request: {},
+    responce: {},
+  };
   try {
     let result = null;
     let token = null;
@@ -30,6 +43,7 @@ module.exports.commonAirBookingCancellation = async function (request) {
         vendorList: getVendorList(request.Authentication.CredentialType),
         vendorBookingId: request.providerBookingId || "",
       };
+      logData.request = { importRQ: importPNRRequest };
       saveLogInFile("import-pnr-request.json", importPNRRequest);
       const importPnrUrl =
         Config[request.Authentication.CredentialType ?? "TEST"]
@@ -39,6 +53,7 @@ module.exports.commonAirBookingCancellation = async function (request) {
       const pnrResponse = await axios.post(importPnrUrl, importPNRRequest, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      logData.responce = { importRS: pnrResponse.data };
       result = pnrResponse.data?.data?.journey?.[0];
     }
 
@@ -46,6 +61,7 @@ module.exports.commonAirBookingCancellation = async function (request) {
       request,
       result
     );
+    logData.request = { ...logData.request, cancelRQ: requestBody || error };
     if (error) return { error };
     saveLogInFile("cancellation-request.json", requestBody);
     const url =
@@ -58,6 +74,7 @@ module.exports.commonAirBookingCancellation = async function (request) {
         Authorization: `Bearer ${token}`,
       },
     });
+    logData.responce = { ...logData.responce, cancelRS: response };
     saveLogInFile("cancellation-response.json", response);
 
     if (response?.errors?.length) {
@@ -69,10 +86,18 @@ module.exports.commonAirBookingCancellation = async function (request) {
     }
     return { result: response?.data, requestBody };
   } catch (error) {
+    logData.responce = {
+      response: logData.responce,
+      message: error.message,
+      stack: error.stack,
+      errorResponse: error?.response?.data,
+    };
     saveLogInFile("cancellation-error.json", error?.response?.data);
     console.dir({ response: error?.response?.data }, { depth: null });
     return { error };
     // throw new Error(error.message);
+  } finally {
+    storeLog(logData);
   }
 };
 
@@ -80,30 +105,53 @@ module.exports.commonAirBookingCancellationCharge = async function (
   request,
   msg
 ) {
-  const requestBody = createAirCancellationChargeRequestBodyForCommonAPI(
-    request,
-    msg
-  );
-  // if (error) return { error };
-  saveLogInFile("cancellation-charge-request.json", requestBody);
-  const url =
-    Config[request?.Authentication?.CredentialType ?? "TEST"]
-      .additionalFlightsBaseURL + "/postbook/v2/AirPenalty";
-  // .additionalFlightsBaseURL + "/pnr/airPenalty";
+  const logData = {
+    traceId: request?.Authentication?.TraceId ?? "blank",
+    companyId: request?.Authentication?.CompanyId ?? "blank",
+    userId: request?.Authentication?.UserId ?? "blank",
+    source: "APIGateway",
+    type: "Portal log",
+    BookingId: request?.BookingId ?? "blank",
+    product: "Flight",
+    logName: "Cancellation Charges",
+    request: {},
+    responce: {},
+  };
+  try {
+    const requestBody = createAirCancellationChargeRequestBodyForCommonAPI(
+      request,
+      msg
+    );
+    logData.request = requestBody;
+    saveLogInFile("cancellation-charge-request.json", requestBody);
+    const url =
+      Config[request?.Authentication?.CredentialType ?? "TEST"]
+        .additionalFlightsBaseURL + "/postbook/v2/AirPenalty";
 
-  const token = await authenticate(request.Authentication.CredentialType);
-  const { data: response } = await axios.post(url, requestBody, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  saveLogInFile("cancellation-charge-response.json", response);
+    const token = await authenticate(request.Authentication.CredentialType);
+    const { data: response } = await axios.post(url, requestBody, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    logData.responce = response;
+    saveLogInFile("cancellation-charge-response.json", response);
 
-  if (response?.errors?.length) return { error: response.errors[0] };
-  // return { result: response?.data };
-  return convertResponseToAirCancellationCharge(
-    request,
-    response?.data?.journey,
-    msg
-  );
+    if (response?.errors?.length) return { error: response.errors[0] };
+    // return { result: response?.data };
+    return convertResponseToAirCancellationCharge(
+      request,
+      response?.data?.journey,
+      msg
+    );
+  } catch (error) {
+    logData.responce = {
+      response: logData.responce,
+      message: error.message,
+      stack: error.stack,
+      errorResponse: error?.response?.data,
+    };
+  } finally {
+    storeLog(logData);
+  }
 };
 
 // function convertResponseToAirCancellationCharge(response,request){

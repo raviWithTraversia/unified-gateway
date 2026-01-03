@@ -43,7 +43,8 @@ async function createAirBookingRequestBodyForCommonAPI(
 
     const pricingRQ = createAirPricingRequestBodyForCommonAPI({
       ...request.SearchRequest,
-      Itinerary: request.ItineraryPriceCheckResponses,
+      Itinerary: [reqItinerary],
+      // Itinerary: request.ItineraryPriceCheckResponses,
     });
 
     const requestBody = {
@@ -132,23 +133,7 @@ async function createAirBookingRequestBodyForCommonAPI(
           // ],
         },
       ],
-      // gstDetails: {
-      //   fullName: PassengerPreferences?.GstData?.gstName || null,
-      //   emailAddress: PassengerPreferences?.GstData?.gstEmail || null,
-      //   homePhone: PassengerPreferences?.GstData?.gstmobile || null,
-      //   workPhone: PassengerPreferences?.GstData?.gstmobile || null,
-      //   gstNumber: PassengerPreferences?.GstData?.gstNumber || null,
-      //   companyName: PassengerPreferences?.GstData?.gstName || null,
-      //   addressLine1: PassengerPreferences?.GstData?.gstAddress || null,
-      //   addressLine2: PassengerPreferences?.GstData?.gstAddressLine2 || null,
-      //   city:
-      //     PassengerPreferences?.GstData?.gstCity ||
-      //     PassengerPreferences?.GstData?.GSTState ||
-      //     null,
-      //   provinceState: PassengerPreferences?.GstData?.GSTState || null,
-      //   postalCode: PassengerPreferences?.GstData?.GSTPinCode || null,
-      //   countryCode: PassengerPreferences?.GstData?.gstCountryCode || null,
-      // },
+      // gstDetails: ,
       // agencyInfo: {
       //   companyName: "",
       //   addressLine1: "",
@@ -170,6 +155,25 @@ async function createAirBookingRequestBodyForCommonAPI(
       fareMasking: false,
       vendorList: getVendorList(SearchRequest?.Authentication?.CredentialType),
     };
+    if (PassengerPreferences?.GstData?.gstNumber) {
+      requestBody.gstDetails = {
+        fullName: PassengerPreferences?.GstData?.gstName || "",
+        emailAddress: PassengerPreferences?.GstData?.gstEmail || "",
+        homePhone: PassengerPreferences?.GstData?.gstmobile || "",
+        workPhone: PassengerPreferences?.GstData?.gstmobile || "",
+        gstNumber: PassengerPreferences?.GstData?.gstNumber || "",
+        companyName: PassengerPreferences?.GstData?.gstName || "",
+        addressLine1: PassengerPreferences?.GstData?.gstAddress || "",
+        addressLine2: PassengerPreferences?.GstData?.gstAddressLine2 || "",
+        city:
+          PassengerPreferences?.GstData?.gstCity ||
+          PassengerPreferences?.GstData?.GSTState ||
+          "",
+        provinceState: PassengerPreferences?.GstData?.GSTState || "",
+        postalCode: PassengerPreferences?.GstData?.GSTPinCode || "",
+        countryCode: PassengerPreferences?.GstData?.gstCountryCode || "",
+      };
+    }
     if (reqItinerary.ValCarrier === "AI") {
       const { cardDetails, error: cardDetailsError } = await getCardDetails({
         supplierCode: reqItinerary.Provider,
@@ -286,11 +290,15 @@ function convertTravelerDetailsForCommonAPI(
           expiryDate: moment(traveler?.Optional?.PassportExpiryDate).format(
             "YYYY-MM-DD"
           ),
+          issueDate: moment(traveler?.Optional?.PassportIssuedDate).format(
+            "YYYY-MM-DD"
+          ),
         }
       : {
           number: "",
           issuingCountry: "",
           expiryDate: "",
+          issueDate: "",
         },
     contactDetails:
       idx === 0

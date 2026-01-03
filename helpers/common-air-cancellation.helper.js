@@ -31,6 +31,7 @@ function createAirCancellationRequestBodyForCommonAPI(request, pnrResponse) {
       },
       cancelType: request.CancelType,
       cancelRemarks: request.Reason?.Reason,
+      autoBspRefund: true,
       travellerDetails: request?.passengarList
         ? travellerDetailsForCancellation(
             request.passengarList,

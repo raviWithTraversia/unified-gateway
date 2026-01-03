@@ -31,6 +31,7 @@ const SupplierCode = require("../../models/supplierCode");
 const { getSupplierCredentials } = require("../../utils/get-supplier-creds");
 const { commonFlightBook } = require("../../services/common-flight-book");
 const { saveLogInFile } = require("../../utils/save-log");
+const { commonBookingForReschedule } = require("./reschduleBooking.service.js")
 const {
   makeCommonDCBooking,
 } = require("../../services/common-date-change-booking");
@@ -169,8 +170,14 @@ const startBooking = async (req, res) => {
 
 const handleDateChangeBooking = async (req, res) => {
   try {
-    const result = await makeCommonDCBooking(req.body);
-    return { response: "Fetch Data Successfully", data: result };
+    let response = await commonBookingForReschedule(req.body);
+    if (response.IsSucess) {
+      const result = await makeCommonDCBooking(req.body);
+      return { response: "Fetch Data Successfully", data: result };
+
+    } else {
+      return { IsSucess: false, response: response.Message, data: null };
+    }
   } catch (error) {
     return { response: "Something went wrong" };
   }
@@ -1018,7 +1025,7 @@ const KafilaFun = async (
             travelType: TravelType,
             fareRules:
               itineraryItem?.fareRules !== undefined &&
-              itineraryItem?.fareRules !== null
+                itineraryItem?.fareRules !== null
                 ? itineraryItem?.fareRules
                 : null,
             bookingTotalAmount:
@@ -1270,9 +1277,9 @@ const KafilaFun = async (
                   (fSearchApiResponseStatus?.toLowerCase() == "failed" ||
                     fSearchApiResponse?.data?.IsError == true ||
                     fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ==
-                      "FAILED" ||
+                    "FAILED" ||
                     fSearchApiResponse?.data?.BookingInfo?.CurrentStatus?.toUpperCase() ==
-                      "HOLD")
+                    "HOLD")
                 ) {
                   await BookingDetails.updateOne(
                     {
@@ -1400,10 +1407,10 @@ const KafilaFun = async (
                         passenger?.Optional?.ticketDetails?.find?.(
                           (p) =>
                             p?.src ===
-                              fSearchApiResponse?.data?.Param?.Sector?.[0]
-                                ?.Src &&
+                            fSearchApiResponse?.data?.Param?.Sector?.[0]
+                              ?.Src &&
                             p?.des ===
-                              fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
+                            fSearchApiResponse?.data?.Param?.Sector?.[0]?.Des
                         );
                       if (ticketUpdate) {
                         ticketUpdate.status = fSearchApiResponse.data
@@ -1458,7 +1465,7 @@ const KafilaFun = async (
                           passenger.Optional.ticketDetails[segmentIdx].status =
                             fSearchApiResponse.data.BookingInfo.CurrentStatus
                               ? fSearchApiResponse.data.BookingInfo
-                                  .CurrentStatus
+                                .CurrentStatus
                               : "CONFIRMED";
                         } else {
                           passenger.Optional.ticketDetails.push(ticket);
@@ -1896,7 +1903,7 @@ const kafilaFunOnlinePayment = async (
         travelType: TravelType,
         fareRules:
           itineraryItem?.fareRules !== undefined &&
-          itineraryItem?.fareRules !== null
+            itineraryItem?.fareRules !== null
             ? itineraryItem?.fareRules
             : null,
         bookingTotalAmount:
